@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sf="http://com.stevenfrew/"
+    xmlns:customStyle="http://schemas.android.com/apk/res/com.stevenfrew.beatprompter">
+    <PreferenceScreen android:title="@string/cloud_sync">
+        <com.stevenfrew.beatprompter.ImageListPreference
+            android:key="@string/pref_cloudStorageSystem_key"
+            android:layout="@layout/cloud_pref_layout"
+            customStyle:entryPreferenceImages="@array/cloudStorageSystem_images"
+            android:title="@string/pref_cloudStorageSystem_title"
+            android:dialogTitle="@string/pref_cloudStorageSystem_dialogTitle"
+            android:summary="@string/pref_cloudStorageSystem_summary"
+            android:entries="@array/pref_cloudStorageSystem_entries"
+            android:entryValues="@array/pref_cloudStorageSystem_entryValues"
+            android:defaultValue="@string/pref_cloudStorageSystem_defaultValue" />
+        <com.stevenfrew.beatprompter.CloudPathPreference
+            android:layout="@layout/cloud_pref_layout"
+            android:key="@string/pref_cloudPath_key"
+            android:title="@string/pref_cloudPath_title"
+            android:summary="@string/pref_cloudPath_summary"
+            android:defaultValue="" />
+        <CheckBoxPreference
+            android:key="@string/pref_includeSubfolders_key"
+            android:title="@string/pref_includeSubfolders_title"
+            android:summary="@string/pref_includeSubfolders_summary"
+            android:defaultValue="false" />
+        <Preference
+            android:key="@string/pref_clearCache_key"
+            android:title="@string/pref_clearCache_title"
+            android:summary="@string/pref_clearCache_summary"/>
+        <Preference
+            android:key="@string/pref_powerwash_key"
+            android:title="@string/pref_powerwash_title"
+            android:summary="@string/pref_powerwash_summary"/>
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:title="@string/song_list_options">
+        <CheckBoxPreference
+            android:key="@string/pref_showBeatStyleIcons_key"
+            android:title="@string/pref_showBeatStyleIcons_title"
+            android:summary="@string/pref_showBeatStyleIcons_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_showMusicIcon_key"
+            android:title="@string/pref_showMusicIcon_title"
+            android:summary="@string/pref_showMusicIcon_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_showKeyInList_key"
+            android:title="@string/pref_showKeyInList_title"
+            android:summary="@string/pref_showKeyInList_summary"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="@string/pref_largePrintList_key"
+            android:title="@string/pref_largePrintList_title"
+            android:summary="@string/pref_largePrintList_summary"
+            android:defaultValue="false" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:title="@string/song_display_options">
+        <PreferenceScreen
+            android:title="@string/colours">
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_backgroundColor_key"
+                android:title="@string/pref_backgroundColor_title"
+                app:colorpicker_defaultColor="#ffffffff"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_pulseColor_key"
+                android:title="@string/pref_pulseColor_title"
+                android:summary="@string/pref_pulseColor_summary"
+                app:colorpicker_defaultColor="#ffdddddd"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_lyricColor_key"
+                android:title="@string/pref_lyricColor_title"
+                app:colorpicker_defaultColor="#ff000000"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_chordColor_key"
+                android:title="@string/pref_chordColor_title"
+                app:colorpicker_defaultColor="#ffff0000"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_annotationColor_key"
+                android:title="@string/pref_annotationColor_title"
+                android:summary="@string/pref_annotationColor_summary"
+                app:colorpicker_defaultColor="#ff00aa00"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_beatCounterColor_key"
+                android:title="@string/pref_beatCounterColor_title"
+                android:summary="@string/pref_beatCounterColor_summary"
+                app:colorpicker_defaultColor="#ff008800"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_scrollMarkerColor_key"
+                android:title="@string/pref_scrollMarkerColor_title"
+                android:summary="@string/pref_scrollMarkerColor_summary"
+                app:colorpicker_defaultColor="#ff000000"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_highlightColor_key"
+                android:title="@string/pref_highlightColor_title"
+                android:summary="@string/pref_highlightColor_summary"
+                app:colorpicker_defaultColor="#ff00ffff"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_currentLineHighlightColor_key"
+                android:title="@string/pref_currentLineHighlightColor_title"
+                android:summary="@string/pref_currentLineHighlightColor_summary"
+                app:colorpicker_defaultColor="#ffffaa00"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_commentTextColor_key"
+                android:title="@string/pref_commentTextColor_title"
+                app:colorpicker_defaultColor="#ffff00ff"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:title="@string/fontSizes">
+            <CheckBoxPreference
+                android:key="@string/pref_alwaysUseBeatFontPrefs_key"
+                android:title="@string/pref_alwaysUseBeatFontPrefs_title"
+                android:summary="@string/pref_alwaysUseBeatFontPrefs_summary"
+                android:defaultValue="false" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_minFontSize_key"
+                android:defaultValue="@string/pref_minFontSize_default"
+                android:summary="@string/pref_minFontSize_summary"
+                android:title="@string/pref_minFontSize_title" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_maxFontSize_key"
+                android:defaultValue="@string/pref_maxFontSize_default"
+                android:summary="@string/pref_maxFontSize_summary"
+                android:title="@string/pref_maxFontSize_title" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_minFontSizeSmooth_key"
+                android:defaultValue="@string/pref_minFontSizeSmooth_default"
+                android:summary="@string/pref_minFontSizeSmooth_summary"
+                android:title="@string/pref_minFontSizeSmooth_title" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_maxFontSizeSmooth_key"
+                android:defaultValue="@string/pref_maxFontSizeSmooth_default"
+                android:summary="@string/pref_maxFontSizeSmooth_summary"
+                android:title="@string/pref_maxFontSizeSmooth_title" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_minFontSizeManual_key"
+                android:defaultValue="@string/pref_minFontSizeManual_default"
+                android:summary="@string/pref_minFontSizeManual_summary"
+                android:title="@string/pref_minFontSizeManual_title" />
+            <com.stevenfrew.beatprompter.FontSizePreference
+                android:key="@string/pref_maxFontSizeManual_key"
+                android:defaultValue="@string/pref_maxFontSizeManual_default"
+                android:summary="@string/pref_maxFontSizeManual_summary"
+                android:title="@string/pref_maxFontSizeManual_title" />
+        </PreferenceScreen>
+        <CheckBoxPreference
+            android:key="@string/pref_pulse_key"
+            android:title="@string/pref_pulse_title"
+            android:summary="@string/pref_pulse_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_showScrollIndicator_key"
+            android:title="@string/pref_showScrollIndicator_title"
+            android:summary="@string/pref_showScrollIndicator_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_showSongTitle_key"
+            android:title="@string/pref_showSongTitle_title"
+            android:summary="@string/pref_showSongTitle_summary"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="@string/pref_showSongKey_key"
+            android:title="@string/pref_showSongKey_title"
+            android:summary="@string/pref_showSongKey_summary"
+            android:defaultValue="false" />
+        <ListPreference
+            android:key="@string/pref_showSongBPM_key"
+            android:title="@string/pref_showSongBPM_title"
+            android:dialogTitle="@string/pref_showSongBPM_dialogTitle"
+            android:summary="@string/pref_showSongBPM_summary"
+            android:entries="@array/pref_showSongBPM_entries"
+            android:entryValues="@array/pref_showSongBPM_entryValues"
+            android:defaultValue="@string/pref_showSongBPM_defaultValue" />
+<!--        <CheckBoxPreference
+            android:key="@string/pref_showFirstBeat_key"
+            android:title="@string/pref_showFirstBeat_title"
+            android:summary="@string/pref_showFirstBeat_summary"
+            android:defaultValue="false" />-->
+        <CheckBoxPreference
+            android:key="@string/pref_showChords_key"
+            android:title="@string/pref_showChords_title"
+            android:summary="@string/pref_showChords_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_highlightCurrentLine_key"
+            android:title="@string/pref_highlightCurrentLine_title"
+            android:summary="@string/pref_highlightCurrentLine_summary"
+            android:defaultValue="false" />
+        <com.stevenfrew.beatprompter.SeekBarPreference
+            android:key="@string/pref_countIn_key"
+            android:defaultValue="@string/pref_countIn_default"
+            android:dialogMessage="@string/pref_countIn_message"
+            android:max="@string/pref_countIn_max"
+            sf:offset="@string/pref_countIn_offset"
+            android:text="@string/pref_countIn_text"
+            android:title="@string/pref_countIn_title" />
+        <com.stevenfrew.beatprompter.SeekBarPreference
+            android:key="@string/pref_defaultTrackVolume_key"
+            android:defaultValue="@string/pref_defaultTrackVolume_default"
+            android:dialogMessage="@string/pref_defaultTrackVolume_message"
+            android:max="@string/pref_defaultTrackVolume_max"
+            sf:offset="@string/pref_defaultTrackVolume_offset"
+            android:text="@string/pref_defaultTrackVolume_text"
+            android:title="@string/pref_defaultTrackVolume_title" />
+        <com.stevenfrew.beatprompter.SeekBarPreference
+            android:key="@string/pref_commentDisplayTime_key"
+            android:defaultValue="@string/pref_commentDisplayTime_default"
+            android:dialogMessage="@string/pref_commentDisplayTime_message"
+            android:max="@string/pref_commentDisplayTime_max"
+            sf:offset="@string/pref_commentDisplayTime_offset"
+            android:text="@string/pref_commentDisplayTime_text"
+            android:title="@string/pref_commentDisplayTime_title" />
+        <ListPreference
+            android:key="@string/pref_metronome_key"
+            android:title="@string/pref_metronome_title"
+            android:dialogTitle="@string/pref_metronome_dialogTitle"
+            android:summary="@string/pref_metronome_summary"
+            android:entries="@array/pref_metronome_entries"
+            android:entryValues="@array/pref_metronome_entryValues"
+            android:defaultValue="@string/pref_metronome_defaultValue" />
+        <ListPreference
+            android:key="@string/pref_screenAction_key"
+            android:title="@string/pref_screenAction_title"
+            android:dialogTitle="@string/pref_screenAction_dialogTitle"
+            android:summary="@string/pref_screenAction_summary"
+            android:entries="@array/pref_screenAction_entries"
+            android:entryValues="@array/pref_screenAction_entryValues"
+            android:defaultValue="@string/pref_screenAction_defaultValue" />
+        <ListPreference
+            android:key="@string/pref_automaticallyPlayNextSong_key"
+            android:title="@string/pref_automaticallyPlayNextSong_title"
+            android:dialogTitle="@string/pref_automaticallyPlayNextSong_dialogTitle"
+            android:summary="@string/pref_automaticallyPlayNextSong_summary"
+            android:entries="@array/pref_playNextSong_entries"
+            android:entryValues="@array/pref_playNextSong_entryValues"
+            android:defaultValue="@string/pref_automaticallyPlayNextSong_defaultValue" />
+        <CheckBoxPreference
+            android:key="@string/pref_mimicBandLeaderDisplay_key"
+            android:title="@string/pref_mimicBandLeaderDisplay_title"
+            android:summary="@string/pref_mimicBandLeaderDisplay_summary"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="@string/pref_proximityScroll_key"
+            android:title="@string/pref_proximityScroll_title"
+            android:summary="@string/pref_proximityScroll_summary"
+            android:defaultValue="false" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:title="@string/midi">
+        <com.stevenfrew.beatprompter.MIDIChannelPreference
+            android:key="@string/pref_midiIncomingChannels_key"
+            android:defaultValue="@string/pref_midiIncomingChannels_default"
+            android:summary="@string/pref_midiIncomingChannels_summary"
+            sf:singleSelect="false"
+            android:title="@string/pref_midiIncomingChannels_title" />
+        <com.stevenfrew.beatprompter.MIDIChannelPreference
+            android:key="@string/pref_defaultMIDIOutputChannel_key"
+            android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
+            android:summary="@string/pref_defaultMIDIOutputChannel_summary"
+            sf:singleSelect="true"
+            android:title="@string/pref_defaultMIDIOutputChannel_title" />
+        <CheckBoxPreference
+            android:key="@string/pref_sendMidi_key"
+            android:title="@string/pref_sendMidi_title"
+            android:summary="@string/pref_sendMidi_summary"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="@string/pref_readMidi_key"
+            android:title="@string/pref_readMidi_title"
+            android:summary="@string/pref_readMidi_summary"
+            android:defaultValue="false" />
+        <ListPreference
+            android:key="@string/pref_sendMidiTriggerOnStart_key"
+            android:title="@string/pref_sendMidiTriggerOnStart_title"
+            android:dialogTitle="@string/pref_sendMidiTriggerOnStart_dialogTitle"
+            android:summary="@string/pref_sendMidiTriggerOnStart_summary"
+            android:entries="@array/pref_sendMidiTriggerOnStart_entries"
+            android:entryValues="@array/pref_sendMidiTriggerOnStart_entryValues"
+            android:defaultValue="@string/pref_sendMidiTriggerOnStart_defaultValue" />
+        <ListPreference
+            android:key="@string/pref_midiTriggerSafetyCatch_key"
+            android:title="@string/pref_midiTriggerSafetyCatch_title"
+            android:dialogTitle="@string/pref_midiTriggerSafetyCatch_dialogTitle"
+            android:summary="@string/pref_midiTriggerSafetyCatch_summary"
+            android:entries="@array/pref_midiTriggerSafetyCatch_entries"
+            android:entryValues="@array/pref_midiTriggerSafetyCatch_entryValues"
+            android:defaultValue="@string/pref_midiTriggerSafetyCatch_defaultValue" />
+    </PreferenceScreen>
+    <PreferenceScreen
+        android:title="@string/miscellaneous_options">
+    <CheckBoxPreference
+        android:key="@string/pref_useExternalStorage_key"
+        android:title="@string/pref_useExternalStorage_title"
+        android:summary="@string/pref_useExternalStorage_summary"
+        android:defaultValue="false" />
+<!--    <CheckBoxPreference
+        android:key="@string/pref_useCustomStorageLocation_key"
+        android:title="@string/pref_useCustomStorageLocation_title"
+        android:summary="@string/pref_useCustomStorageLocation_summary"
+        android:defaultValue="false" />
+    <Preference
+        android:key="@string/pref_storageLocation_key"
+        android:title="@string/pref_storageLocation_title"
+        android:summary="@string/pref_storageLocation_summary" />-->
+<!--    <com.stevenfrew.beatprompter.SeekBarPreference
+        android:key="@string/pref_minLines_key"
+        android:defaultValue="@string/pref_minLines_default"
+        android:dialogMessage="@string/pref_minLines_message"
+        android:max="@string/pref_minLines_max"
+        sf:offset="@string/pref_minLines_offset"
+        android:text="@string/pref_minLines_text"
+        android:title="@string/pref_minLines_title" /> -->
+
+<!--    <com.stevenfrew.beatprompter.SeekBarPreference
+        android:key="@string/pref_lyricsHeight_key"
+        android:defaultValue="@string/pref_lyricsHeight_default"
+        android:dialogMessage="@string/pref_lyricsHeight_message"
+        android:max="@string/pref_lyricsHeight_max"
+        sf:offset="@string/pref_lyricsHeight_offset"
+        android:text="@string/pref_lyricsHeight_text"
+        android:title="@string/pref_lyricsHeight_title" />-->
+<!--    <CheckBoxPreference
+        android:key="@string/pref_fixedLineHeight_key"
+        android:title="@string/pref_fixedLineHeight_title"
+        android:summary="@string/pref_fixedLineHeight_summary"
+        android:defaultValue="false" />-->
+<!--    <ListPreference
+        android:key="@string/pref_lineJustification_key"
+        android:title="@string/pref_lineJustification_title"
+        android:dialogTitle="@string/pref_lineJustification_dialogTitle"
+        android:entries="@array/pref_lineJustification_entries"
+        android:entryValues="@array/pref_lineJustification_entryValues"
+        android:defaultValue="@string/pref_lineJustification_defaultValue" />-->
+<!--    <CheckBoxPreference
+        android:key="@string/pref_wordWrap_key"
+        android:title="@string/pref_wordWrap_title"
+        android:summary="@string/pref_wordWrap_summary"
+        android:defaultValue="false" />-->
+<!--    <CheckBoxPreference
+        android:key="@string/pref_ignoreColorInfo_key"
+        android:title="@string/pref_ignoreColorInfo_title"
+        android:summary="@string/pref_ignoreColorInfo_summary"
+        android:defaultValue="false" />-->
+    <EditTextPreference
+        android:key="@string/pref_customComments_key"
+        android:title="@string/pref_customComments_title"
+        android:summary="@string/pref_customComments_summary"
+        android:defaultValue="" />
+<!--    <ListPreference
+        android:key="@string/pref_scrollingStyle_key"
+        android:title="@string/pref_scrollingStyle_title"
+        android:dialogTitle="@string/pref_scrollingStyle_dialogTitle"
+        android:entries="@array/pref_scrollingStyle_entries"
+        android:entryValues="@array/pref_scrollingStyle_entryValues"
+        android:defaultValue="@string/pref_scrollingStyle_defaultValue" />-->
+    <ListPreference
+        android:key="@string/pref_bluetoothMode_key"
+        android:title="@string/pref_bluetoothMode_title"
+        android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
+        android:summary="@string/pref_bluetoothMode_summary"
+        android:entries="@array/pref_bluetoothMode_entries"
+        android:entryValues="@array/pref_bluetoothMode_entryValues"
+        android:defaultValue="@string/pref_bluetoothMode_defaultValue" />
+        <CheckBoxPreference
+            android:key="@string/pref_manualMode_key"
+            android:title="@string/pref_manualMode_title"
+            android:summary="@string/pref_manualMode_summary"
+            android:defaultValue="false" />
+    </PreferenceScreen>
+</PreferenceScreen>

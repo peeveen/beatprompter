@@ -1,0 +1,27 @@
+{t:BeatPrompter Demo Song}
+{st:Demo Song}
+{audio:demo_song.mp3}
+{bpm:110}{bpb:4}{bpl:2}{count:0}
+
+[G]BeatPrompter is an app that displays
+lyrics and [Em]chords in time with a beat.
+[C]It never goes too fast or slow,
+[D]So it can display the text really big!
+[C]We're currently in [D]standard 4/4 time
+[G]with one line every two bars.
+,,,,[Em]But watch: this [C]line last for [D]four bars!
+[G]The bar along the top of the screen
+[Em]shows the beat progression.
+[C]The little marker [D]at the end
+[G]shows when the display will scroll.
+[Em]Sometimes a line scrolls a bit sooner
+[C]Like this [D]one!<<
+[G]And sometimes there's a pause in a song
+{pause:5}like [D]this one right here!
+{bpm:130}[G]And now the speed has changed.
+[G]But BeatPrompter can cope with that.
+[Em]It can play backing tracks too
+[C]and it also has MIDI functionality.
+[D]Check the documentation for full details.
+[G]www.beatprompter.co.uk
+[Em]I hope you like it!

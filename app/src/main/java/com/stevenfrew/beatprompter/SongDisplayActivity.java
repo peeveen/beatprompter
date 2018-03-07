@@ -1,0 +1,535 @@
+package com.stevenfrew.beatprompter;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
+
+public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
+{
+    private SongView mSongView=null;
+    private boolean mRegistered=false;
+    static boolean mSongDisplayActive=false;
+    static SongDisplayActivity mSongDisplayInstance;
+    private boolean mStartedByBandLeader=false;
+    int mPreferredOrientation;
+    int mOrientation;
+    private SensorManager mSensorManager;
+    private Sensor mProximitySensor;
+    private long mLastOtherPageDownEvent=0;
+    private boolean mAnyOtherKeyPageDown=false;
+    private boolean mScrollOnProximity;
+
+    public Handler mSongDisplayHandler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case BeatPrompterApplication.BLUETOOTH_MESSAGE_RECEIVED:
+                    processBluetoothMessage((BluetoothMessage)msg.obj);
+                    break;
+                case BeatPrompterApplication.MIDI_SET_SONG_POSITION:
+                    if(mSongView!=null)
+                        mSongView.setSongBeatPosition(msg.arg1,true);
+                    else
+                        Log.d(TAG,"MIDI song position pointer received by SongDisplay before view was created.");
+                    break;
+                case BeatPrompterApplication.MIDI_START_SONG:
+                    if(mSongView!=null)
+                        mSongView.startSong(true,true);
+                    else
+                        Log.d(TAG,"MIDI start signal received by SongDisplay before view was created.");
+                    break;
+                case BeatPrompterApplication.MIDI_CONTINUE_SONG:
+                    if(mSongView!=null)
+                        mSongView.startSong(true,false);
+                    else
+                        Log.d(TAG,"MIDI continue signal received by SongDisplay before view was created.");
+                    break;
+                case BeatPrompterApplication.MIDI_STOP_SONG:
+                    if(mSongView!=null)
+                        mSongView.stopSong(true);
+                    else
+                        Log.d(TAG,"MIDI stop signal received by SongDisplay before view was created.");
+                    break;
+                case BeatPrompterApplication.END_SONG:
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                    break;
+                case BeatPrompterApplication.MIDI_LSB_BANK_SELECT:
+                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
+                    break;
+                case BeatPrompterApplication.MIDI_MSB_BANK_SELECT:
+                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
+                    break;
+            }
+        }
+    };
+
+    MIDIClockOutTask mMidiClockOutTask=new MIDIClockOutTask();
+    MIDIStartStopInTask mMidiStartStopInTask=new MIDIStartStopInTask(mSongDisplayHandler);
+    Thread mMidiClockOutTaskThread=new Thread(mMidiClockOutTask);
+    Thread mMidiStartStopInTaskThread=new Thread(mMidiStartStopInTask);
+
+    private static final String TAG = "beatprompter";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ((BeatPrompterApplication)getApplicationContext()).setSongDisplayHandler(mSongDisplayHandler);
+
+        Intent i=getIntent();
+        mSongDisplayInstance=this;
+
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        // Instantiate the gesture detector with the
+        // application context and an implementation of
+        // GestureDetector.OnGestureListener
+        mRegistered=i.getBooleanExtra("registered",false);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false);
+        boolean readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false);
+        mScrollOnProximity=sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
+        // TODO!!!!
+        mAnyOtherKeyPageDown=false;//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
+
+        Song song=BeatPrompterApplication.getCurrentSong();
+        if(song!=null) {
+            mStartedByBandLeader=song.mStartedByBandLeader;
+            sendMidiClock |= song.mSendMidiClock;
+            int orientation = song.mOrientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+                mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+            else
+                mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+            setRequestedOrientation(mOrientation);
+
+            for(MIDIOutgoingMessage msg:song.mInitialMIDIMessages)
+                BeatPrompterApplication.mMIDIOutQueue.add(msg);
+        }
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        setContentView(R.layout.activity_song_display);
+
+        mSongView = (SongView)findViewById(R.id.song_view);
+        mSongView.init(this, mSongDisplayHandler, (BeatPrompterApplication) getApplicationContext());
+
+        if (sendMidiClock)
+            mMidiClockOutTaskThread.start();
+        if (readMidi)
+            mMidiStartStopInTaskThread.start();
+
+        try {
+            mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            if (mSensorManager != null) {
+                mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            }
+        }catch(Exception e)
+        {
+            // Nae sensors.
+        }
+
+        // Set up the user interaction to manually show or hide the system UI.
+        mSongView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+    }
+
+    boolean canYieldToMIDITrigger() {
+        return mSongView == null || mSongView.canYieldToMIDITrigger();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPause() {
+        mSongDisplayActive=false;
+        super.onPause();
+        Task.pauseTask(mMidiStartStopInTask,mMidiStartStopInTaskThread);
+        Task.pauseTask(mMidiClockOutTask,mMidiClockOutTaskThread);
+        if(mSongView!=null)
+            mSongView.stop(false);
+        if((mSensorManager!=null)&&(mProximitySensor!=null))
+            mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        setRequestedOrientation(mPreferredOrientation);
+        super.onDestroy();
+
+        Task.stopTask(mMidiClockOutTask,mMidiClockOutTaskThread);
+        Task.stopTask(mMidiStartStopInTask,mMidiStartStopInTaskThread);
+
+        if(mSongView!=null) {
+            mSongView.stop(true);
+            mSongView = null;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mSongView!=null)
+            mSongView.stop(false);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        mSongDisplayActive=true;
+        super.onResume();
+        setRequestedOrientation(mOrientation);
+        Task.resumeTask(mMidiStartStopInTask);
+        Task.resumeTask(mMidiClockOutTask);
+        setRequestedOrientation(mOrientation);
+        if((mSensorManager!=null)&&(mProximitySensor!=null))
+            mSensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    public void processBluetoothMessage(BluetoothMessage btm)
+    {
+        if(mStartedByBandLeader) {
+            if (btm instanceof ToggleStartStopMessage)
+            {
+                ToggleStartStopMessage tssm=(ToggleStartStopMessage)btm;
+                if(mSongView!=null) {
+                    if (tssm.mTime >= 0)
+                        mSongView.setSongTime(tssm.mTime, true,false,true);
+                    mSongView.startToggle(null, false, ((ToggleStartStopMessage) btm).mStartState);
+                }
+            }
+            else if (btm instanceof SetSongTimeMessage) {
+                if (mSongView != null)
+                    mSongView.setSongTime((SetSongTimeMessage) btm);
+            }
+            else if (btm instanceof PauseOnScrollStartMessage) {
+                if(mSongView!=null)
+                    mSongView.pauseOnScrollStart();
+            }
+            else if (btm instanceof QuitSongMessage)
+                finish();
+        }
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_PAGE_DOWN:
+                if(mSongView!=null)
+                    mSongView.onPageDownKeyPressed();
+                return true;
+            case KeyEvent.KEYCODE_B:
+            case KeyEvent.KEYCODE_PAGE_UP:
+                if(mSongView!=null)
+                    mSongView.onPageUpKeyPressed();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if(mSongView!=null)
+                    mSongView.onLineDownKeyPressed();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if(mSongView!=null)
+                    mSongView.onLineUpKeyPressed();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                if(mSongView!=null)
+                    mSongView.onLeftKeyPressed();
+                return true;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if(mSongView!=null)
+                    mSongView.onRightKeyPressed();
+                return true;
+            default:
+                if(mAnyOtherKeyPageDown) {
+                    activateOtherPageDown(System.nanoTime());
+                    return true;
+                }
+                else
+                    return super.onKeyUp(keyCode, event);
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if(mScrollOnProximity)
+        if (mSongView != null){
+            long eventTime = sensorEvent.timestamp;
+            activateOtherPageDown(eventTime);
+        }
+    }
+
+    void activateOtherPageDown(long eventTime)
+    {
+        // Don't allow two of these events to happen within the same second.
+        if (eventTime - mLastOtherPageDownEvent > 1000000000) {
+            mLastOtherPageDownEvent = eventTime;
+            mSongView.onOtherPageDownActivated();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        // Don't care.
+    }
+
+    class MIDIClockOutTask extends Task
+    {
+        private double mLastSignalTime=0.0;
+        private int mClockSignalsSent=0;
+        private double mNanoSecondsPerMidiSignal=0.0;
+        private double mNextNanoSecondsPerMidiSignal=0.0;
+        final Object nanoSecondsPerMidiSignalSync=new Object();
+        final Object nextNanoSecondsPerMidiSignalSync=new Object();
+        final Object lastSignalTimeSync=new Object();
+        final Object clockSignalsSentSync=new Object();
+
+        MIDIClockOutTask()
+        {
+            super(false);
+        }
+        double getNanoSecondsPerMidiSignal()
+        {
+            synchronized(nanoSecondsPerMidiSignalSync)
+            {
+                return mNanoSecondsPerMidiSignal;
+            }
+        }
+        void setNanoSecondsPerMidiSignal(double value)
+        {
+            synchronized(nanoSecondsPerMidiSignalSync)
+            {
+                mNanoSecondsPerMidiSignal=value;
+            }
+        }
+        double getNextNanoSecondsPerMidiSignal()
+        {
+            synchronized(nextNanoSecondsPerMidiSignalSync)
+            {
+                return mNextNanoSecondsPerMidiSignal;
+            }
+        }
+        void setNextNanoSecondsPerMidiSignal(double value)
+        {
+            synchronized(nextNanoSecondsPerMidiSignalSync)
+            {
+                mNextNanoSecondsPerMidiSignal=value;
+            }
+        }
+        double getLastSignalTime()
+        {
+            synchronized(lastSignalTimeSync)
+            {
+                return mLastSignalTime;
+            }
+        }
+        void setLastSignalTime(double value)
+        {
+            synchronized(lastSignalTimeSync)
+            {
+                mLastSignalTime=value;
+            }
+        }
+        int getClockSignalsSent()
+        {
+            synchronized(clockSignalsSentSync)
+            {
+                return mClockSignalsSent;
+            }
+        }
+        int incrementClockSignalsSent()
+        {
+            synchronized(clockSignalsSentSync)
+            {
+                return ++mClockSignalsSent;
+            }
+        }
+        void setClockSignalsSent(int value)
+        {
+            synchronized(clockSignalsSentSync)
+            {
+                mClockSignalsSent=value;
+            }
+        }
+        public void doWork()
+        {
+            double nanoSecondsPerMidiSignal=getNextNanoSecondsPerMidiSignal();
+
+            // No speed set yet? Just return.
+            if(nanoSecondsPerMidiSignal==0.0)
+                return;
+
+            // If we're on a 24-signal boundary, switch to the next speed.
+            if (getClockSignalsSent() == 0)
+                setNanoSecondsPerMidiSignal(nanoSecondsPerMidiSignal);
+            long nanoTime = System.nanoTime();
+            double nanoDiff = nanoTime - getLastSignalTime();
+            boolean signalSent = false;
+            while (nanoDiff >= getNanoSecondsPerMidiSignal()) {
+                try {
+                    signalSent = true;
+                    BeatPrompterApplication.mMIDIOutQueue.put(new MIDIClockMessage());
+                    // We've hit the 24-signal boundary. Switch to the next speed.
+                    if (incrementClockSignalsSent() == 24) {
+                        setClockSignalsSent(0);
+                        setNanoSecondsPerMidiSignal(getNextNanoSecondsPerMidiSignal());
+                    }
+                } catch (Exception e) {
+                    Log.d(SongList.TAG, "Failed to add MIDI timing clock signal to output queue.", e);
+                }
+                nanoDiff -= getNanoSecondsPerMidiSignal();
+            }
+            if (signalSent) {
+                double lastSignalTime = nanoTime - nanoDiff;
+                setLastSignalTime(lastSignalTime);
+                double nextSignalDue = lastSignalTime + getNanoSecondsPerMidiSignal();
+                long nextSignalDueNano = (long) nextSignalDue - nanoTime;
+                if(nextSignalDueNano>0) {
+                    long nextSignalDueMilli = Utils.nanoToMilli(nextSignalDueNano);
+                    long nextSignalDueNanoRoundedToMilli = Utils.milliToNano(nextSignalDueMilli);
+                    int nextSignalDueNanoRemainder = (int) (nextSignalDueNanoRoundedToMilli > 0 ? (nextSignalDueNano % nextSignalDueNanoRoundedToMilli) : nextSignalDueNano);
+                    try {
+                        Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder);
+                    } catch (Exception e) {
+                        Log.e(SongList.TAG, "Thread sleep was interrupted.", e);
+                    }
+                }
+            }
+        }
+        void setBPM(double bpm)
+        {
+            if(bpm==0.0)
+                return;
+            if(getShouldStop())
+                return;
+            double oldNanoSecondsPerMidiSignal=getNextNanoSecondsPerMidiSignal();
+            double newNanosecondsPerMidiSignal=Utils.bpmToMIDIClockNanoseconds(bpm+(mRegistered?0:(Math.random()*20)));
+            if(oldNanoSecondsPerMidiSignal==0.0)
+            {
+                // This is the first BPM value being set.
+                setClockSignalsSent(0);
+                setLastSignalTime(System.nanoTime());
+                try
+                {
+                    BeatPrompterApplication.mMIDIOutQueue.put(new MIDIStartMessage());
+                }
+                catch(Exception e)
+                {
+                    Log.d(SongList.TAG,"Failed to add MIDI start signal to output queue.",e);
+                }
+                setNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
+                setNextNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
+            }
+            else
+                setNextNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
+        }
+        void stop()
+        {
+            super.stop();
+            setLastSignalTime(0);
+            setClockSignalsSent(0);
+            try
+            {
+                BeatPrompterApplication.mMIDIOutQueue.put(new MIDIStopMessage());
+            }
+            catch(Exception e)
+            {
+                Log.d(SongList.TAG,"Failed to add MIDI stop signal to output queue.",e);
+            }
+        }
+    }
+
+    class MIDIStartStopInTask extends Task
+    {
+        private boolean mStop=false;
+        final Object stopSync=new Object();
+        Handler mHandler;
+
+        MIDIStartStopInTask(Handler handler)
+        {
+            super(false);
+            mHandler=handler;
+        }
+        boolean getShouldStop()
+        {
+            synchronized (stopSync)
+            {
+                return mStop;
+            }
+        }
+        void setShouldStop(boolean value)
+        {
+            synchronized (stopSync)
+            {
+                mStop=value;
+            }
+        }
+
+        public void initialise()
+        {
+            BeatPrompterApplication.mMIDISongDisplayInQueue.clear();
+        }
+
+        public void doWork()
+        {
+            MIDIIncomingMessage message;
+            try {
+                while (((message = BeatPrompterApplication.mMIDISongDisplayInQueue.take()) != null) && (!getShouldStop())) {
+                    if(message.isStart())
+                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_START_SONG).sendToTarget();
+                    else if(message.isContinue())
+                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_CONTINUE_SONG).sendToTarget();
+                    else if(message.isStop())
+                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_STOP_SONG).sendToTarget();
+                    else if(message.isSongPositionPointer())
+                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_SET_SONG_POSITION,((MIDIIncomingSongPositionPointerMessage)message).getMIDIBeat(),0).sendToTarget();
+                }
+            } catch (InterruptedException ie) {
+                Log.d(TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);
+            }
+        }
+
+        void stop()
+        {
+            setShouldStop(true);
+        }
+    }
+
+    public void onSongBeat(double bpm)
+    {
+        if(bpm!=0.0)
+            mMidiClockOutTask.setBPM(bpm);
+    }
+
+    public void onSongStop()
+    {
+        Task.stopTask(mMidiClockOutTask,mMidiClockOutTaskThread);
+    }
+}

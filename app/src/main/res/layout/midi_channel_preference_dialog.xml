@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_height="match_parent">
+
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:rowCount="4"
+    android:columnCount="4"
+    android:layout_centerInParent="true"
+    android:id="@+id/midiGrid"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ToggleButton
+        android:textOff="1"
+        android:textOn="1"
+        android:textSize="24dip"
+        android:layout_column="0"
+        android:background="@drawable/midi_button_selector"
+        android:id="@+id/midiChannel1Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="0"/>
+
+    <ToggleButton
+        android:textOff="2"
+        android:textOn="2"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="1"
+        android:id="@+id/midiChannel2Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="0" />
+
+    <ToggleButton
+        android:textOff="3"
+        android:textOn="3"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="2"
+        android:id="@+id/midiChannel3Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="0"/>
+
+    <ToggleButton
+        android:textOff="4"
+        android:textOn="4"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="3"
+        android:id="@+id/midiChannel4Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="0"/>
+
+    <ToggleButton
+        android:textOff="5"
+        android:textOn="5"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="0"
+        android:id="@+id/midiChannel5Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="1"/>
+
+    <ToggleButton
+        android:textOff="6"
+        android:textOn="6"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="1"
+        android:id="@+id/midiChannel6Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="1"/>
+
+    <ToggleButton
+        android:textOff="7"
+        android:textOn="7"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="2"
+        android:id="@+id/midiChannel7Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="1"/>
+
+    <ToggleButton
+        android:textOff="8"
+        android:textOn="8"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="3"
+        android:id="@+id/midiChannel8Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="1"/>
+
+    <ToggleButton
+        android:textOff="9"
+        android:textOn="9"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="0"
+        android:id="@+id/midiChannel9Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="2"/>
+
+    <ToggleButton
+        android:textOff="10"
+        android:textOn="10"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="1"
+        android:id="@+id/midiChannel10Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="2"/>
+
+    <ToggleButton
+        android:textOff="11"
+        android:textOn="11"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="2"
+        android:id="@+id/midiChannel11Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="2"/>
+
+    <ToggleButton
+        android:textOff="12"
+        android:textOn="12"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="3"
+        android:id="@+id/midiChannel12Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="2"/>
+
+    <ToggleButton
+        android:textOff="13"
+        android:textOn="13"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="0"
+        android:id="@+id/midiChannel13Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="3"/>
+
+    <ToggleButton
+        android:textOff="14"
+        android:textOn="14"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="1"
+        android:id="@+id/midiChannel14Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="3"/>
+
+    <ToggleButton
+        android:textOff="15"
+        android:textOn="15"
+        android:textSize="24dip"
+        android:background="@drawable/midi_button_selector"
+        android:layout_column="2"
+        android:id="@+id/midiChannel15Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="3"/>
+
+    <ToggleButton
+        android:textOff="16"
+        android:textOn="16"
+        android:background="@drawable/midi_button_selector"
+        android:textSize="24dip"
+        android:layout_column="3"
+        android:id="@+id/midiChannel16Button"
+        android:layout_margin="0px"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:layout_row="3"/>
+
+</GridLayout>
+</RelativeLayout>
