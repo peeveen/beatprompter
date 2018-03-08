@@ -11,7 +11,7 @@ android {
         minSdkVersion 15
         // Enabling multidex support.
         multiDexEnabled true
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 499
         versionName "1.27"
         resConfigs "en", "fr", "pt", "de", "es", "it"
@@ -84,8 +84,8 @@ dependencies {
     implementation ('com.google.code.gson:gson:2.3.1')
 
     // Include supported authentication methods for your application
-    implementation ('com.microsoft.services.msa:msa-auth:0.8.+')
-    implementation('com.microsoft.aad:adal:1.1.+')
+    implementation ('com.microsoft.services.msa:msa-auth:0.8+')
+    implementation('com.microsoft.aad:adal:1.1+')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //testImplementation 'junit:junit:4.12'
 }
