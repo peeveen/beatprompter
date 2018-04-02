@@ -4,7 +4,7 @@ apply plugin: 'project-report'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.0'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.stevenfrew.beatprompter"
@@ -57,7 +57,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation('com.google.api-client:google-api-client-android:1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
@@ -65,9 +65,9 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.google.android.gms:play-services-auth:11.8.0'
-    implementation 'com.google.android.gms:play-services-drive:11.8.0'
-    implementation 'com.google.android.gms:play-services-plus:11.8.0'
+    implementation 'com.google.android.gms:play-services-auth:12.0.1'
+    implementation 'com.google.android.gms:play-services-drive:12.0.1'
+    implementation 'com.google.android.gms:play-services-plus:12.0.1'
     implementation 'com.android.support:support-compat:27.1.0'
     implementation 'com.android.support:support-v4:27.1.0'
     implementation 'com.android.support:appcompat-v7:27.1.0'
@@ -86,7 +86,7 @@ dependencies {
     // Include supported authentication methods for your application
     implementation ('com.microsoft.services.msa:msa-auth:0.8+')
     implementation('com.microsoft.aad:adal:1.1+')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     //testImplementation 'junit:junit:4.12'
 }
 repositories {
