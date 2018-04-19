@@ -65,15 +65,15 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.google.android.gms:play-services-auth:12.0.1'
-    implementation 'com.google.android.gms:play-services-drive:12.0.1'
-    implementation 'com.google.android.gms:play-services-plus:12.0.1'
-    implementation 'com.android.support:support-compat:27.1.0'
-    implementation 'com.android.support:support-v4:27.1.0'
-    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.google.android.gms:play-services-auth:15.0.0'
+    implementation 'com.google.android.gms:play-services-drive:15.0.0'
+    implementation 'com.google.android.gms:play-services-plus:15.0.0'
+    implementation 'com.android.support:support-compat:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
     implementation 'com.rarepebble:colorpicker:1.6.0'
     implementation 'com.github.apl-devs:appintro:v4.2.2'
-    implementation 'com.android.support:design:27.1.0'
     implementation 'com.dropbox.core:dropbox-core-sdk:3.0.3'
     // Include the sdk as a dependency
     implementation ('com.onedrive.sdk:onedrive-sdk-android:1.3+') {
