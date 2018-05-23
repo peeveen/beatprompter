@@ -7,12 +7,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
 
 class SetListFile extends CachedFile
 {
@@ -78,7 +76,7 @@ class SetListFile extends CachedFile
             }
             catch(IOException ioe)
             {
-                Log.e(SongList.TAG,"Failed to close set list file",ioe);
+                Log.e(BeatPrompterApplication.TAG,"Failed to close set list file",ioe);
             }
         }
     }
@@ -97,4 +95,12 @@ class SetListFile extends CachedFile
         String setTitle=element.getAttribute(SET_TITLE_ATTRIBUTE_NAME);
         return new SetListFile(context,cf,setTitle);
     }
+
+
+    @Override
+    CachedFileType getFileType()
+    {
+        return CachedFileType.SetList;
+    }
+
 }

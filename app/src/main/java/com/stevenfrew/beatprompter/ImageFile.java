@@ -36,4 +36,11 @@ class ImageFile extends MediaFile
         String audioFileTitle=readMediaTitle(element);
         return new ImageFile(cf,audioFileTitle);
     }
+
+    @Override
+    CachedFileType getFileType()
+    {
+        return CachedFileType.Image;
+    }
+
 }

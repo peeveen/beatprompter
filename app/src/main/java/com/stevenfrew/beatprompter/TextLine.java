@@ -29,9 +29,9 @@ class TextLine extends Line
     private int mLineDescenderOffset;
     private int mChordDescenderOffset;
 
-    TextLine(String lineText, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ArrayList<FileParseError> parseErrors)
+    TextLine(String lineText, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
     {
-        super(context,lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,parseErrors);
+        super(context,lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,scrollingMode,parseErrors);
         mText=lineText;
         for(Tag tag:lineTags)
             if(tag.mChordTag)

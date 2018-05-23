@@ -58,6 +58,18 @@ class CachedFile {
         return values;
     }
 
+    static boolean containsToken(String line,int lineNumber,String tokenToFind)
+    {
+        ArrayList<Tag> tagsOut=new ArrayList<>();
+        if(!line.trim().startsWith("#")) {
+            Tag.extractTags(line, lineNumber, tagsOut);
+            for (Tag tag : tagsOut)
+                if (tag.mName.equals(tokenToFind))
+                    return true;
+        }
+        return false;
+    }
+
     void writeToXML(Element element)
     {
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME,mFile.getAbsolutePath());
@@ -77,5 +89,10 @@ class CachedFile {
         File file=new File(path);
         Date lastModified=new Date(Long.parseLong(lastModifiedString));
         return new CachedFile(file,storageName,lastModified,subfolder);
+    }
+
+    CachedFileType getFileType()
+    {
+        return CachedFileType.None;
     }
 }

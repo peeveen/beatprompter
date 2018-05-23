@@ -24,11 +24,13 @@ import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class BeatPrompterApplication extends Application {
-
-   private static String bluetoothPrefNone;
+    private static String bluetoothPrefNone;
     private static String bluetoothPrefServer;
     private static String bluetoothPrefClient;
 
+    public static final String TAG = "beatprompter";
+    public static final String MIDI_TAG = "midi";
+    public static final String AUTOLOAD_TAG = "autoload";
     private final static String BLUETOOTH_TAG="bpbt";
 
     public final static String APP_NAME="BeatPrompter";
@@ -63,6 +65,7 @@ public class BeatPrompterApplication extends Application {
     public static final int FOLDER_CONTENTS_FETCHED=HANDLER_MESSAGE_BASE_ID+22;
     public static final int CLIENT_DISCONNECTED=HANDLER_MESSAGE_BASE_ID+23;
     public static final int SERVER_DISCONNECTED=HANDLER_MESSAGE_BASE_ID+24;
+    public static final int CACHE_UPDATED=HANDLER_MESSAGE_BASE_ID+25;
 
     public static final int MIDI_QUEUE_SIZE=1024;
 

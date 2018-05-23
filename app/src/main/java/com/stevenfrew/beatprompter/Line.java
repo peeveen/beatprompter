@@ -18,15 +18,17 @@ abstract class Line {
     protected ArrayList<LineGraphic> mGraphics=new ArrayList<>(); // pointer to the allocated graphic, if one exists
     LineMeasurements mLineMeasurements;
     protected long mYStartScrollTime,mYStopScrollTime;
+    ScrollingMode mScrollingMode;
 
     int mBars=-1; // How many bars does this line last?
     int mScrollbeat=0;
     int mBPB=0;
     int mScrollbeatOffset=0;
 
-    Line(Context context,Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ArrayList<FileParseError> parseErrors)
+    Line(Context context,Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ScrollingMode scrollingMode,ArrayList<FileParseError> parseErrors)
     {
         mBPB=bpb;
+        mScrollingMode=scrollingMode;
         mScrollbeat=scrollbeat;
         mScrollbeatOffset=scrollbeatOffset;
         for(Tag tag:lineTags)

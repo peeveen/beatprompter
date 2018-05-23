@@ -53,7 +53,7 @@ class ToggleStartStopMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Couldn't read ToggleStartStopMessage data, assuming insuffient data.",e);
+            Log.e(BeatPrompterApplication.TAG,"Couldn't read ToggleStartStopMessage data, assuming insuffient data.",e);
             throw new NotEnoughBluetoothDataException();
         }
     }
@@ -79,7 +79,7 @@ class ToggleStartStopMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Couldn't write ToggleStartStopMessage data",e);
+            Log.e(BeatPrompterApplication.TAG,"Couldn't write ToggleStartStopMessage data",e);
         }
         return null;
     }

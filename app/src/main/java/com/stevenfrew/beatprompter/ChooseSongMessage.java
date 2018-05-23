@@ -68,7 +68,7 @@ class ChooseSongMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Couldn't read ChooseSongMessage data, assuming not enough data",e);
+            Log.e(BeatPrompterApplication.TAG,"Couldn't read ChooseSongMessage data, assuming not enough data",e);
             throw new NotEnoughBluetoothDataException();
         }
     }
@@ -100,7 +100,7 @@ class ChooseSongMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Couldn't write ChooseSongMessage data.",e);
+            Log.e(BeatPrompterApplication.TAG,"Couldn't write ChooseSongMessage data.",e);
         }
         return null;
     }

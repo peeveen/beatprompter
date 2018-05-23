@@ -54,4 +54,10 @@ class MIDIAliasCachedFile extends CachedFile
     {
         return mAliasFile.mAliasSetName;
     }
+
+    @Override
+    CachedFileType getFileType()
+    {
+        return CachedFileType.MIDIAliases;
+    }
 }

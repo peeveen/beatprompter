@@ -37,4 +37,10 @@ class AudioFile extends MediaFile
         String title=MediaFile.readMediaTitle(element);
         return new AudioFile(cf,title);
     }
+
+    @Override
+    CachedFileType getFileType()
+    {
+        return CachedFileType.Audio;
+    }
 }

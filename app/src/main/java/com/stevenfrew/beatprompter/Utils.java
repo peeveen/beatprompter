@@ -2,6 +2,9 @@ package com.stevenfrew.beatprompter;
 
 import android.graphics.Color;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -173,5 +176,13 @@ public class Utils
         if (text != null)
             text = text.trim();
         return !((text == null) || (text.length() == 0)) && pattern.matcher(text).matches();
+    }
+
+    static void streamToStream(InputStream is, OutputStream os) throws IOException
+    {
+        byte[] buffer = new byte[2048];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer, 0, buffer.length)) != -1)
+            os.write(buffer, 0, bytesRead);
     }
 }

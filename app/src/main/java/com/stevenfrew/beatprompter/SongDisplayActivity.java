@@ -402,7 +402,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                         setNanoSecondsPerMidiSignal(getNextNanoSecondsPerMidiSignal());
                     }
                 } catch (Exception e) {
-                    Log.d(SongList.TAG, "Failed to add MIDI timing clock signal to output queue.", e);
+                    Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI timing clock signal to output queue.", e);
                 }
                 nanoDiff -= getNanoSecondsPerMidiSignal();
             }
@@ -418,7 +418,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     try {
                         Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder);
                     } catch (Exception e) {
-                        Log.e(SongList.TAG, "Thread sleep was interrupted.", e);
+                        Log.e(BeatPrompterApplication.TAG, "Thread sleep was interrupted.", e);
                     }
                 }
             }
@@ -442,7 +442,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 }
                 catch(Exception e)
                 {
-                    Log.d(SongList.TAG,"Failed to add MIDI start signal to output queue.",e);
+                    Log.d(BeatPrompterApplication.TAG,"Failed to add MIDI start signal to output queue.",e);
                 }
                 setNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
                 setNextNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
@@ -461,7 +461,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
             }
             catch(Exception e)
             {
-                Log.d(SongList.TAG,"Failed to add MIDI stop signal to output queue.",e);
+                Log.d(BeatPrompterApplication.TAG,"Failed to add MIDI stop signal to output queue.",e);
             }
         }
     }

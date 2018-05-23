@@ -20,8 +20,8 @@ public class ImageLine extends Line
     Rect mSourceRect,mDestRect;
     Bitmap mBitmap;
 
-    ImageLine(ImageFile image, ImageScalingMode scalingMode, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ArrayList<FileParseError> parseErrors) {
-        super(context, lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, parseErrors);
+    ImageLine(ImageFile image, ImageScalingMode scalingMode, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors) {
+        super(context, lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors);
         mImageFile=image;
         mScalingMode=scalingMode;
     }

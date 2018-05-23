@@ -224,7 +224,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                         try {
                             fis.close();
                         } catch (Exception ee) {
-                            Log.e(SongList.TAG,"Failed to close audio file input stream.",ee);
+                            Log.e(BeatPrompterApplication.TAG,"Failed to close audio file input stream.",ee);
                         }
                     }
                 } else {
@@ -688,7 +688,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                     }
                     else
                     {
-                        Log.d(SongList.TAG, "Resuming, pause time=" + mPauseTime);
+                        Log.d(BeatPrompterApplication.TAG, "Resuming, pause time=" + mPauseTime);
                         setSongTime(time=mPauseTime, false, false,true);
                     }
                     mApp.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,time));
@@ -856,7 +856,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     {
         if(mTrackMediaPlayer!=null)
         {
-            Log.d(SongList.TAG, "Track event hit: starting MediaPlayer");
+            Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer");
             mTrackMediaPlayer.start();
             return true;
         }
@@ -907,7 +907,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     {
         if(mSong==null)
             return 0.0;
-        Log.d(SongList.TAG,"Setting time="+sstm.mTime);
+        Log.d(BeatPrompterApplication.TAG,"Setting time="+sstm.mTime);
         return setSongTime(sstm.mTime,true,false,true);
     }
 
@@ -955,13 +955,13 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                     if (trackEvent != null) {
                         int nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime);
                         seekTrack(nTime);
-//                    Log.d(SongList.TAG, "Seek to=" + nTime);
+//                    Log.d(BeatPrompterApplication.TAG, "Seek to=" + nTime);
                         if (mStartState == 2) {
-                            Log.d(SongList.TAG, "Starting MediaPlayer");
+                            Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer");
                             mTrackMediaPlayer.start();
                         }
                     } else {
-                        Log.d(SongList.TAG, "Seek to=0");
+                        Log.d(BeatPrompterApplication.TAG, "Seek to=0");
                         seekTrack(0);
                     }
                 }
@@ -1034,7 +1034,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         if (mTrackMediaPlayer != null)
             if (mTrackMediaPlayer.isPlaying())
             {
-                Log.d(SongList.TAG,"Pausing MediaPlayer");
+                Log.d(BeatPrompterApplication.TAG,"Pausing MediaPlayer");
                 mTrackMediaPlayer.pause();
             }
         if(mSongDisplayActivity!=null)
@@ -1272,7 +1272,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                     }
                     catch(InterruptedException ie)
                     {
-                        Log.d(SongList.TAG, "Interrupted while waiting ... assuming resync attempt.", ie);
+                        Log.d(BeatPrompterApplication.TAG, "Interrupted while waiting ... assuming resync attempt.", ie);
                         mNextClickTime=System.nanoTime();
                     }
                 }

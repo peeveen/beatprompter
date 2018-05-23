@@ -134,7 +134,7 @@ class MIDIAliasFile
             }
             catch(IOException ioe)
             {
-                Log.e(SongList.TAG,"Failed to close set list file",ioe);
+                Log.e(BeatPrompterApplication.TAG,"Failed to close set list file",ioe);
             }
         }
     }

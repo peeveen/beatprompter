@@ -49,7 +49,7 @@ class SetSongTimeMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Failed to read SetSongTimeMessage, assuming insufficient data.",e);
+            Log.e(BeatPrompterApplication.TAG,"Failed to read SetSongTimeMessage, assuming insufficient data.",e);
             throw new NotEnoughBluetoothDataException();
         }
     }
@@ -75,7 +75,7 @@ class SetSongTimeMessage extends BluetoothMessage
         }
         catch(Exception e)
         {
-            Log.e(SongList.TAG,"Failed to write SetSongTimeMessage.",e);
+            Log.e(BeatPrompterApplication.TAG,"Failed to write SetSongTimeMessage.",e);
         }
         return null;
     }

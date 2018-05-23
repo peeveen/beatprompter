@@ -44,6 +44,7 @@ public class SongFile extends CachedFile
     private final static String SONG_FILE_TITLE_ATTRIBUTE_NAME="title";
     private final static String SONG_FILE_ARTIST_ATTRIBUTE_NAME="artist";
     private final static String SONG_FILE_LINECOUNT_ATTRIBUTE_NAME="lines";
+    private final static String SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME="mixedMode";
     private final static String SONG_FILE_BPM_ATTRIBUTE_NAME="bpm";
     private final static String SONG_FILE_KEY_ATTRIBUTE_NAME="key";
     private final static String SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME="timePerLine";
@@ -60,6 +61,7 @@ public class SongFile extends CachedFile
     String mKey="";
     int mLines=0;
     String mTitle;
+    boolean mMixedMode=false;
     String mArtist;
     private Context mContext;
 
@@ -79,11 +81,12 @@ public class SongFile extends CachedFile
         parseSongFileInfo(context,tempAudioFileCollection,tempImageFileCollection);
     }
 
-    public SongFile(Context context,CachedFile cachedFile, String title, String artist, ArrayList<String> tags, ArrayList<String> audioTracks, ArrayList<String> imageFiles, double bpm, long timePerLine,long timePerBar,MIDISongTrigger programChangeTrigger,MIDISongTrigger songSelectTrigger, int lines, String key) throws IOException    {
+    public SongFile(Context context,CachedFile cachedFile, String title, String artist, ArrayList<String> tags, ArrayList<String> audioTracks, ArrayList<String> imageFiles, double bpm, long timePerLine,long timePerBar,MIDISongTrigger programChangeTrigger,MIDISongTrigger songSelectTrigger, boolean mixedMode,int lines, String key) throws IOException    {
         super(cachedFile);
         mContext=context;
         mTags.addAll(tags);
         mLines=lines;
+        mMixedMode=mixedMode;
         mAudioFiles=audioTracks;
         mImageFiles=imageFiles;
         mTitle=title;
@@ -154,7 +157,7 @@ public class SongFile extends CachedFile
             }
             catch(Exception e)
             {
-                Log.e(SongList.TAG,"Failed to parse MIDI song trigger from song file.",e);
+                Log.e(BeatPrompterApplication.TAG,"Failed to parse MIDI song trigger from song file.",e);
             }
         return null;
     }
@@ -228,9 +231,10 @@ public class SongFile extends CachedFile
                     }
                     catch(Exception e)
                     {
-                        Log.e(SongList.TAG,"Failed to parse BPM value from song file.",e);
+                        Log.e(BeatPrompterApplication.TAG,"Failed to parse BPM value from song file.",e);
                     }
                 }
+                mMixedMode|=containsToken(line,lineNumber,"beatstart");
                 ArrayList<String> tags=getTagsFromLine(line, lineNumber);
                 mTags.addAll(tags);
                 ArrayList<String> audio=getAudioFilesFromLine(line, lineNumber);
@@ -253,7 +257,7 @@ public class SongFile extends CachedFile
             }
             catch(IOException ioe)
             {
-                Log.e(SongList.TAG,"Failed to close song file.",ioe);
+                Log.e(BeatPrompterApplication.TAG,"Failed to close song file.",ioe);
             }
         }
     }
@@ -275,12 +279,16 @@ public class SongFile extends CachedFile
         String artist=element.getAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME);
         String bpmString=element.getAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME);
         String lineString=element.getAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME);
+        String mixedModeString=element.getAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME);
         String keyString=element.getAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME);
         if(keyString==null)
             keyString="";
+        if(mixedModeString==null)
+            mixedModeString="false";
         int lines=Integer.parseInt(lineString);
         double bpm=Double.parseDouble(bpmString);
         String timePerLineString=element.getAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME);
+        boolean mixedMode=Boolean.parseBoolean(mixedModeString);
         long timePerLine=Long.parseLong(timePerLineString);
         String timePerBarString=element.getAttribute(SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME);
         if((timePerBarString==null)||(timePerBarString.length()==0))
@@ -306,7 +314,7 @@ public class SongFile extends CachedFile
         MIDISongTrigger songSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
         for(int f=0;f<ssTriggerNodes.getLength();++f)
             songSelectTrigger=MIDISongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
-        return new SongFile(context,cf,title,artist,tags,audios,images,bpm,timePerLine,timePerBar,programChangeTrigger,songSelectTrigger,lines,keyString);
+        return new SongFile(context,cf,title,artist,tags,audios,images,bpm,timePerLine,timePerBar,programChangeTrigger,songSelectTrigger,mixedMode,lines,keyString);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -316,6 +324,7 @@ public class SongFile extends CachedFile
         songElement.setAttribute(SONG_FILE_TITLE_ATTRIBUTE_NAME, mTitle);
         songElement.setAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME, mArtist);
         songElement.setAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME, Integer.toString(mLines));
+        songElement.setAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME, Boolean.toString(mMixedMode));
         songElement.setAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME, Double.toString(mBPM));
         songElement.setAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME, mKey);
         songElement.setAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME, Long.toString(mTimePerLine));
@@ -343,8 +352,19 @@ public class SongFile extends CachedFile
         parent.appendChild(songElement);
     }
 
-    Song load(Context context, ScrollingMode scrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler,boolean startedByMidiTrigger,ArrayList<MIDIAlias> aliases,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings) throws IOException
+    Song load(Context context, ScrollingMode userChosenScrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler,boolean startedByMidiTrigger,ArrayList<MIDIAlias> aliases,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings) throws IOException
     {
+        // OK, the "scrollMode" param is passed in here.
+        // This might be what the user has explicitly chosen, i.e.
+        // smooth mode or manual mode, chosen via the long-press play dialog.
+        ScrollingMode currentScrollMode=userChosenScrollMode;
+        // BUT, if the mode that has come in is "beat mode", and this is a mixed mode
+        // song, we should be switching when we encounter beatstart/beatstop tags.
+        boolean allowModeSwitching=((mMixedMode)&&(userChosenScrollMode==ScrollingMode.Beat));
+        if(allowModeSwitching)
+            // And if we ARE in mixed mode with switching allowed, we start in manual.
+            currentScrollMode=ScrollingMode.Manual;
+
         int countInOffset=Integer.parseInt(context.getString(R.string.pref_countIn_offset));
         int countInMin=Integer.parseInt(context.getString(R.string.pref_countIn_min))+countInOffset;
         int countInMax=Integer.parseInt(context.getString(R.string.pref_countIn_max))+countInOffset;
@@ -746,6 +766,10 @@ public class SongFile extends CachedFile
                             case "tuning":
                                 // SongBook stuff we're not supporting.
                                 break;
+                            case"beatstart":
+                                break;
+                            case "beatstop":
+                                break;
                             default:
                                 try {
                                     if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
@@ -911,11 +935,11 @@ public class SongFile extends CachedFile
 
                             Line lineObj;
                             if(lineImage!=null) {
-                                lineObj = new ImageLine(lineImage, imageScalingMode, mContext, tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset, errors);
+                                lineObj = new ImageLine(lineImage, imageScalingMode, mContext, tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset,currentScrollMode, errors);
                                 lineImage=null;
                             }
                             else
-                                lineObj= new TextLine(strippedLine,mContext,tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset, errors);
+                                lineObj= new TextLine(strippedLine,mContext,tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset, currentScrollMode,errors);
 
                             bars=lineObj.mBars;
                             int beatsForThisLine=bpbThisLine*bars;
@@ -934,7 +958,7 @@ public class SongFile extends CachedFile
                                 totalLineTime=Utils.milliToNano(pauseTime);
                             else
                                 totalLineTime=beatsForThisLine * nanosecondsPerBeat;
-                            if((totalLineTime==0)||(scrollMode==ScrollingMode.Smooth))
+                            if((totalLineTime==0)||(currentScrollMode==ScrollingMode.Smooth))
                                 totalLineTime=timePerBar*bars;
 
                             LineEvent lineEvent = new LineEvent(currentTime, totalLineTime);
@@ -956,7 +980,7 @@ public class SongFile extends CachedFile
                                 lineEvent.mLine.mYStartScrollTime = currentTime-nanosecondsPerBeat;
                                 lineEvent.mLine.mYStopScrollTime = currentTime;
                             }
-                            else if((bpm>0)&&(scrollMode!=ScrollingMode.Smooth))
+                            else if((bpm>0)&&(currentScrollMode!=ScrollingMode.Smooth))
                             {
                                 boolean finished = false;
                                 int beatThatWeWillScrollOn=0;
@@ -1007,7 +1031,7 @@ public class SongFile extends CachedFile
                                     }
 
                                     if (currentBarBeat == beatsForThisLine - 1) {
-                                        lineEvent.mLine.mYStartScrollTime = scrollMode==ScrollingMode.Smooth?lineEvent.mEventTime:currentTime;
+                                        lineEvent.mLine.mYStartScrollTime = currentScrollMode==ScrollingMode.Smooth?lineEvent.mEventTime:currentTime;
                                         lineEvent.mLine.mYStopScrollTime = currentTime + nanosecondsPerBeat;
                                         finished = true;
                                     }
@@ -1057,7 +1081,7 @@ public class SongFile extends CachedFile
 
             long countTime = 0;
             // Create count events
-            if((bpm>0)&&(scrollMode!=ScrollingMode.Manual))
+            if((bpm>0)&&(currentScrollMode!=ScrollingMode.Manual))
             {
                 BeatEvent firstBeatEvent = firstEvent.getFirstBeatEvent();
                 double countbpm=firstBeatEvent==null?120.0:firstBeatEvent.mBPM;
@@ -1091,7 +1115,7 @@ public class SongFile extends CachedFile
                 if(trackOffset<0)
                     trackEvent.offsetLaterEvents(Math.abs(trackOffset));
             }
-            if((bpm>0)&&(scrollMode==ScrollingMode.Beat))
+            if((bpm>0)&&(currentScrollMode==ScrollingMode.Beat))
             {
                 // Last Y scroll should never happen. No point scrolling last line offscreen.
                 Line mLastLine = firstLine.getLastLine();
@@ -1105,7 +1129,7 @@ public class SongFile extends CachedFile
 
             BaseEvent reallyTheLastEvent=firstEvent.getLastEvent();
             // In beat mode, or in any other mode where we're using a backing track, let's have an end event.
-            if((trackEvent!=null)||(scrollMode!=ScrollingMode.Manual))
+            if((trackEvent!=null)||(currentScrollMode!=ScrollingMode.Manual))
             {
                 long trackEndTime=0;
                 if(trackEvent!=null)
@@ -1129,7 +1153,7 @@ public class SongFile extends CachedFile
             // Now process all MIDI events with offsets.
             offsetMIDIEvents(context,firstEvent,errors);
 
-            Song song=new Song(title,artist,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,scrollMode,sendMidiClock,startedByBandLeader,nextSong,sourceSettings.mOrientation,initialMIDIMessages,beatBlocks,mKey,mBPM,initialBPB,count);
+            Song song=new Song(title,artist,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,userChosenScrollMode,sendMidiClock,startedByBandLeader,nextSong,sourceSettings.mOrientation,initialMIDIMessages,beatBlocks,mKey,mBPM,initialBPB,count);
             song.doMeasurements(context,new Paint(),cancelEvent,handler,nativeSettings,sourceSettings);
             return song;
         }
@@ -1142,7 +1166,7 @@ public class SongFile extends CachedFile
                 }
                 catch(IOException ioe)
                 {
-                    Log.e(SongList.TAG,"Failed to close song file.",ioe);
+                    Log.e(BeatPrompterApplication.TAG,"Failed to close song file.",ioe);
                 }
         }
     }
@@ -1324,8 +1348,9 @@ public class SongFile extends CachedFile
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,tempAudioFileCollection);
-                                if(mappedTrack==null)
-                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile),track)));
+                                if(mappedTrack==null) {
+                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile), track)));
+                                }
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
@@ -1346,7 +1371,7 @@ public class SongFile extends CachedFile
                                     }
                                     catch(Exception e)
                                     {
-                                        Log.e(SongList.TAG,"Failed to extract duration metadata from media file.",e);
+                                        Log.e(BeatPrompterApplication.TAG,"Failed to extract duration metadata from media file.",e);
                                     }
                                 }
                                 break;
@@ -1410,7 +1435,7 @@ public class SongFile extends CachedFile
             }
             catch(IOException ioe)
             {
-                Log.e(SongList.TAG,"Failed to close song file.",ioe);
+                Log.e(BeatPrompterApplication.TAG,"Failed to close song file.",ioe);
             }
         }
     }
@@ -1420,4 +1445,11 @@ public class SongFile extends CachedFile
         return ((mSongSelectTrigger!=null && mSongSelectTrigger.equals(trigger))
             ||(mProgramChangeTrigger!=null && mProgramChangeTrigger.equals(trigger)));
     }
+
+    @Override
+    CachedFileType getFileType()
+    {
+        return CachedFileType.Song;
+    }
+
 }
