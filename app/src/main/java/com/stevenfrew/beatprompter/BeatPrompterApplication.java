@@ -169,7 +169,7 @@ public class BeatPrompterApplication extends Application {
                         break;
                     case BluetoothAdapter.STATE_ON:
                         BluetoothMode bluetoothMode=getBluetoothMode();
-                        if(bluetoothMode!=BluetoothMode.none)
+                        if(bluetoothMode!=BluetoothMode.None)
                             onStartBluetooth(bluetoothMode);
                         break;
                 }
@@ -297,14 +297,14 @@ public class BeatPrompterApplication extends Application {
             {
                 synchronized(mBluetoothThreadsLock)
                 {
-                    if (mode == BluetoothMode.server)
+                    if (mode == BluetoothMode.Server)
                     {
                         shutDownBluetoothClient();
                         if (mServerBluetoothThread == null) {
                             mServerBluetoothThread = new AcceptConnectionsFromClientsThread();
                             mServerBluetoothThread.start();
                         }
-                    } else if(mode==BluetoothMode.client)
+                    } else if(mode==BluetoothMode.Client)
                     {
                         shutDownBluetoothServer();
                         if (mConnectToServerThreads.size() == 0) {
@@ -430,13 +430,13 @@ public class BeatPrompterApplication extends Application {
     {
         String bluetoothPref=PreferenceManager.getDefaultSharedPreferences(this).
                 getString(getString(R.string.pref_bluetoothMode_key), bluetoothPrefNone);
-       return bluetoothPrefServer.equals(bluetoothPref)?BluetoothMode.server:
-               (bluetoothPrefClient.equals(bluetoothPref)?BluetoothMode.client:BluetoothMode.none);
+       return bluetoothPrefServer.equals(bluetoothPref)?BluetoothMode.Server:
+               (bluetoothPrefClient.equals(bluetoothPref)?BluetoothMode.Client:BluetoothMode.None);
     }
 
     public void broadcastMessageToClients(BluetoothMessage message)
     {
-        if(getBluetoothMode()==BluetoothMode.server)
+        if(getBluetoothMode()==BluetoothMode.Server)
         {
             byte[] bytes = message.getBytes();
             synchronized(mBluetoothSocketsLock) {
@@ -596,7 +596,7 @@ public class BeatPrompterApplication extends Application {
 
     public void handleConnectionFromClient(BluetoothSocket socket)
     {
-        if(getBluetoothMode()==BluetoothMode.server)
+        if(getBluetoothMode()==BluetoothMode.Server)
         {
             mSongListHandler.obtainMessage(CLIENT_CONNECTED, socket.getRemoteDevice().getName())
                     .sendToTarget();
@@ -614,7 +614,7 @@ public class BeatPrompterApplication extends Application {
                     if (key.equals(getString(R.string.pref_bluetoothMode_key)))
                     {
                         BluetoothMode mode=getBluetoothMode();
-                        if(mode==BluetoothMode.none)
+                        if(mode==BluetoothMode.None)
                             onStopBluetooth();
                         else
                             onStartBluetooth(mode);
@@ -643,7 +643,7 @@ public class BeatPrompterApplication extends Application {
     public void startBluetooth()
     {
         BluetoothMode bluetoothMode=getBluetoothMode();
-        if(getBluetoothMode()!=BluetoothMode.none)
+        if(getBluetoothMode()!=BluetoothMode.None)
             onStartBluetooth(bluetoothMode);
     }
 

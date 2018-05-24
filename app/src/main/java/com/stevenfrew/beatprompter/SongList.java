@@ -2022,9 +2022,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void updateBluetoothIcon()
     {
         BeatPrompterApplication app=((BeatPrompterApplication)SongList.this.getApplicationContext());
-        boolean slave=app.getBluetoothMode()==BluetoothMode.client;
+        boolean slave=app.getBluetoothMode()==BluetoothMode.Client;
         boolean connectedToServer=app.isConnectedToServer();
-        boolean master=app.getBluetoothMode()==BluetoothMode.server;
+        boolean master=app.getBluetoothMode()==BluetoothMode.Server;
         int connectedClients=app.getBluetoothClientCount();
         int resourceID=slave?(connectedToServer?R.drawable.duncecap:R.drawable.duncecap_outline):R.drawable.blank_icon;
         if(master)
