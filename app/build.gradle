@@ -12,8 +12,8 @@ android {
         // Enabling multidex support.fewfwef
         multiDexEnabled true
         targetSdkVersion 27
-        versionCode 499
-        versionName "1.27"
+        versionCode 500
+        versionName "1.30"
         resConfigs "en", "fr", "pt", "de", "es", "it"
     }
     signingConfigs {
