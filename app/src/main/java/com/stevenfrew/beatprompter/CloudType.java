@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter;
 
-enum Cloud
+enum CloudType
 {
     None, GoogleDrive, Dropbox, OneDrive
 }

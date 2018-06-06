@@ -11,6 +11,7 @@ class CachedFile {
     String mStorageName;
     String mSubfolder;
     Date mLastModified;
+    String mTitle;
 
     private final static String CACHED_FILE_PATH_ATTRIBUTE_NAME="path";
     private final static String CACHED_FILE_STORAGE_NAME_ATTRIBUTE_NAME="storageName";
@@ -20,6 +21,7 @@ class CachedFile {
     CachedFile(File file, String storageName, Date lastModified,String subfolder)
     {
         mFile=file;
+        mTitle=file.getName();
         mStorageName=storageName;
         mLastModified=lastModified;
         mSubfolder=subfolder;
@@ -27,7 +29,7 @@ class CachedFile {
 
     CachedFile(DownloadedFile downloadedFile)
     {
-        this(downloadedFile.mFile,downloadedFile.mID,downloadedFile.mLastModified,downloadedFile.mSubfolderName);
+        this(downloadedFile.mFile,downloadedFile.mCloudFileInfo.mStorageID,downloadedFile.mCloudFileInfo.mLastModified,downloadedFile.mCloudFileInfo.mSubfolder);
     }
 
     CachedFile(CachedFile cachedFile)

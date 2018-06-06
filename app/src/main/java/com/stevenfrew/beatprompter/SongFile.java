@@ -60,7 +60,6 @@ public class SongFile extends CachedFile
     private double mBPM=0;
     String mKey="";
     int mLines=0;
-    String mTitle;
     boolean mMixedMode=false;
     String mArtist;
     private Context mContext;

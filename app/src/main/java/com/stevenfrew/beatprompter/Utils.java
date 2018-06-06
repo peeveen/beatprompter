@@ -185,4 +185,16 @@ public class Utils
         while ((bytesRead = is.read(buffer, 0, buffer.length)) != -1)
             os.write(buffer, 0, bytesRead);
     }
+
+    private static final String ReservedChars = "|\\?*<\":>+[]/'";
+    static String makeSafeFilename(String str)
+    {
+        StringBuilder builder=new StringBuilder();
+        for(char c:str.toCharArray())
+            if(ReservedChars.contains(""+c))
+                builder.append("_");
+            else
+                builder.append(c);
+        return builder.toString();
+    }
 }

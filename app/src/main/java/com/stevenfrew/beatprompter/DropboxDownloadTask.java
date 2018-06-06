@@ -21,12 +21,9 @@ import java.util.Map;
 
 class DropboxDownloadTask extends CloudDownloadTask
 {
-    private DbxClientV2 mDropboxAPI;
-
-    DropboxDownloadTask(DbxClientV2 dropboxAPI,File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedFile> filesToUpdate)
+    DropboxDownloadTask(DropboxCloudStorage dropboxCloudStorage,File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedFile> filesToUpdate)
     {
-        super(targetFolder,handler,cloudPath,includeSubFolders,currentCache,defaultMIDIAliases,filesToUpdate);
-        mDropboxAPI=dropboxAPI;
+        super(dropboxCloudStorage, targetFolder,handler,cloudPath,includeSubFolders,currentCache,defaultMIDIAliases,filesToUpdate);
     }
     void downloadFiles(String folderID, boolean includeSubfolders, Map<String,File> existingCachedFiles, ArrayList<DownloadedFile> downloadedFiles) throws IOException
     {
@@ -162,29 +159,6 @@ class DropboxDownloadTask extends CloudDownloadTask
             throw new IOException(ee.getMessage(),ee);
         }
         return noLongerExists;
-    }
-
-    private File downloadDropboxFile(FileMetadata file, String filename) throws IOException, DbxException
-    {
-        File localfile = new File(mTargetFolder, filename);
-        FileOutputStream fos =null;
-        try {
-            fos = new FileOutputStream(localfile);
-            DbxDownloader<FileMetadata> downloader=mDropboxAPI.files().download(file.getId());
-            downloader.download(fos);
-        }
-        finally
-        {
-            if(fos!=null)
-                try {
-                    fos.close();
-                }
-                catch(Exception eee)
-                {
-                    Log.e(BeatPrompterApplication.TAG,"Failed to close file",eee);
-                }
-        }
-        return localfile;
     }
 
     String getCloudStorageName()

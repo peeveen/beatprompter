@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
 {
@@ -24,9 +26,9 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
     private ArrayList<CachedFile> mFilesToUpdate;
     File mTargetFolder;
     private ArrayList<MIDIAlias> mDefaultMIDIAliases;
-    private boolean mNoLongerExists=false;
     private CachedFile mUpdatedFile=null;
-    CachedFileType mUpdateType;
+    private CloudStorage mCloudStorage;
+    private Map<String,CloudDownloadResult> mDownloadResults;
 
     private ArrayList<SongFile> mDownloadedSongs=new ArrayList<>();
     private ArrayList<MIDIAliasCachedFile> mDownloadedMIDIAliasCachedFiles=new ArrayList<>();
@@ -34,34 +36,36 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
     ArrayList<AudioFile> mDownloadedAudioFiles=new ArrayList<>();
     ArrayList<ImageFile> mDownloadedImageFiles=new ArrayList<>();
 
-    final static String[] AUDIO_FILE_EXTENSIONS=new String[]{"mp3","wav","m4a","wma","ogg","aac"};
-    final static String[] IMAGE_FILE_EXTENSIONS=new String[]{"jpg","png","jpeg","bmp","tif","tiff"};
-
-    CloudDownloadTask(File targetFolder,Handler handler, String cloudPath, boolean includeSubFolders,CachedFileCollection currentCache,ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedFile> filesToUpdate)
+    CloudDownloadTask(CloudStorage cloudStorage,File targetFolder,Handler handler, String cloudPath, boolean includeSubFolders,CachedFileCollection currentCache,ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedFile> filesToUpdate)
     {
+        mCloudStorage=cloudStorage;
+        mCloudStorage.getProgressMessageSource().subscribe(this::publishProgress);
         mTargetFolder=targetFolder;
         mHandler=handler;
         mCloudPath=cloudPath;
         mDefaultMIDIAliases=defaultMIDIAliases;
         mFilesToUpdate=filesToUpdate;
-        mUpdateType = CachedFileType.None;
         mSubfolderOrigin=null;
         if((mFilesToUpdate!=null)&&(!mFilesToUpdate.isEmpty())) {
             CachedFile mainFile=mFilesToUpdate.get(0);
-            mUpdateType = mainFile.getFileType();
             mSubfolderOrigin=mainFile.mSubfolder;
         }
         mIncludeSubFolders=includeSubFolders;
         mCurrentCache=currentCache;
     }
 
+    boolean isRefreshingFiles()
+    {
+        return mFilesToUpdate!=null && !mFilesToUpdate.isEmpty();
+    }
+
     @Override
     protected Boolean doInBackground(String... paramParams) {
 
-        if(mUpdateType==CachedFileType.None)
-            updateEntireCache();
-        else
+        if(isRefreshingFiles())
             updateSelectedFiles();
+        else
+            updateEntireCache();
         return true;
     }
 
@@ -79,10 +83,10 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
             localCacheContentsByStorageID.put(cf.mStorageName, cf.mFile);
         }
 
-        ArrayList<DownloadedFile> downloadedFilesToParse=new ArrayList<>();
         try
         {
-            downloadFiles(mCloudPath,mIncludeSubFolders,localCacheContentsByStorageID,downloadedFilesToParse);
+            List<CloudDownloadResult> downloadResults=mCloudStorage.downloadFolderContents(mCloudPath,mIncludeSubFolders,localCacheContentsByStorageID);
+            mDownloadResults=downloadResults.stream().collect(Collectors.toMap(result->result.mStorageID,result->result));
         }
         catch(Exception e)
         {
@@ -91,27 +95,16 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
 
         // If we didn't manage to download ANYTHING, then DON'T blast everything away.
         // Also check for whether there was nothing new to download, but maybe some files were removed?
-        for (DownloadedFile downloadedFile : downloadedFilesToParse) {
-            try {
-                MIDIAliasCachedFile maf = new MIDIAliasCachedFile(SongList.getContext(), downloadedFile, mDefaultMIDIAliases);
-                mDownloadedMIDIAliasCachedFiles.add(maf);
-            } catch (InvalidBeatPrompterFileException ibpfe) {
-                // Not a MIDI alias file. Might be a song file?
-                try {
-                    SongFile song = new SongFile(SongList.getContext(), downloadedFile, mDownloadedAudioFiles, mDownloadedImageFiles);
-                    mDownloadedSongs.add(song);
-                } catch (InvalidBeatPrompterFileException ibpfe2) {
-                    // Not a song file ... might be a set file?
-                    try {
-                        SetListFile slf = new SetListFile(SongList.getContext(), downloadedFile);
-                        mDownloadedSets.add(slf);
-                    } catch (InvalidBeatPrompterFileException ibpfe3) {
-                        Log.e(BeatPrompterApplication.TAG, ibpfe2.getMessage());
-                    }
-                } catch (IOException ioe) {
-                    // Failed to read the file
-                    Log.e(BeatPrompterApplication.TAG, ioe.getMessage());
-                }
+        for (CloudDownloadResult result: mDownloadResults.values()) {
+            if (result.mResultType == CloudDownloadResultType.Succeeded) {
+                CachedFile cachedFile = parseDownloadedFile(new DownloadedFile(result));
+                if (cachedFile != null)
+                    mCurrentCache.add(cachedFile);
+            } else if (result.mResultType == CloudDownloadResultType.Failed) {
+//                mCurrentCache.remove(result.mStorageID);
+            } else if (result.mResultType == CloudDownloadResultType.NoLongerExists) {
+                this.publishProgress(String.format(SongList.getContext().getString(R.string.deleting), result.mCloudFileInfo.mTitle));
+                mCurrentCache.remove(result.mStorageID);
             }
         }
         // Don't clear out the "leftovers" if there was a sync error ... we simply might not have reached those files yet before
@@ -120,9 +113,6 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
             // Any entries left in the map did not exist on the Drive. So delete them
             for (File fileToDelete : localCacheContentsByStorageID.values()) {
                 Log.d(BeatPrompterApplication.TAG, "Deleting local file that doesn't match anything on cloud: " + fileToDelete.getAbsolutePath());
-                this.publishProgress(String.format(SongList.getContext().getString(R.string.deleting), fileToDelete.getName()));
-                if (!fileToDelete.delete())
-                    Log.e(BeatPrompterApplication.TAG, "Failed to delete file.");
             }
         }
         else {
@@ -189,22 +179,35 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         }
     }
 
-    private void updateSelectedFiles()
+    private CachedFile parseDownloadedFile(DownloadedFile downloadedFile)
     {
-        for(int f=0;(f<mFilesToUpdate.size()) && (!mNoLongerExists);++f) {
+        try {
+            MIDIAliasCachedFile maf = new MIDIAliasCachedFile(SongList.getContext(), downloadedFile, mDefaultMIDIAliases);
+            mDownloadedMIDIAliasCachedFiles.add(maf);
+        } catch (InvalidBeatPrompterFileException ibpfe) {
+            // Not a MIDI alias file. Might be a song file?
             try {
-                CachedFile fileToUpdate = mFilesToUpdate.get(f);
-                String fileID=fileToUpdate.mStorageName;
-                Log.d(BeatPrompterApplication.TAG, "File ID: " + fileID);
-                mNoLongerExists = downloadFile(fileID,f);
-            }
-            catch (Exception ee) {
-                Log.d(BeatPrompterApplication.TAG, "An error occurred: " + ee);
-                if(f==0)
-                    mNoLongerExists = true;
-                mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR,ee.getMessage()).sendToTarget();
+                SongFile song = new SongFile(SongList.getContext(), downloadedFile, mDownloadedAudioFiles, mDownloadedImageFiles);
+                mDownloadedSongs.add(song);
+            } catch (InvalidBeatPrompterFileException ibpfe2) {
+                // Not a song file ... might be a set file?
+                try {
+                    SetListFile slf = new SetListFile(SongList.getContext(), downloadedFile);
+                    mDownloadedSets.add(slf);
+                } catch (InvalidBeatPrompterFileException ibpfe3) {
+                    Log.e(BeatPrompterApplication.TAG, ibpfe2.getMessage());
+                }
+            } catch (IOException ioe) {
+                // Failed to read the file
+                Log.e(BeatPrompterApplication.TAG, ioe.getMessage());
             }
         }
+    }
+
+    private void updateSelectedFiles()
+    {
+        List<CloudDownloadResult> downloadResults=mCloudStorage.refreshFiles(mFilesToUpdate);
+        mDownloadResults=downloadResults.stream().collect(Collectors.toMap(result->result.mStorageID,result->result));
     }
 
     @Override
@@ -220,7 +223,7 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
             mProgressDialog.dismiss();
 
         CachedFileCollection returnCache;
-        if(mUpdateType==CachedFileType.None) {
+        if(!isRefreshingFiles()) {
             // TODO: Callback?
             returnCache = new CachedFileCollection(mDownloadedSongs, mDownloadedAudioFiles, mDownloadedSets, mDownloadedMIDIAliasCachedFiles, mDownloadedImageFiles);
         }
@@ -232,9 +235,8 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
                         mCurrentCache.mSongs.set(f, (SongFile)mUpdatedFile);
                         break;
                     }
-                    if ((mNoLongerExists) && (sf.mStorageName.equals(mFilesToUpdate.get(0).mStorageName))) {
+                    if (!fileWasDownloadedSuccessfully(sf.mStorageName))
                         mCurrentCache.mSongs.remove(f);
-                    }
                 }
             }
             else if(mUpdateType==CachedFileType.SetList)
@@ -245,9 +247,8 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
                         mCurrentCache.mSets.set(f, (SetListFile)mUpdatedFile);
                         break;
                     }
-                    if ((mNoLongerExists) && (sf.mStorageName.equals(mFilesToUpdate.get(0).mStorageName))) {
+                    if (!fileWasDownloadedSuccessfully(sf.mStorageName))
                         mCurrentCache.mSets.remove(f);
-                    }
                 }
             }
             else if(mUpdateType==CachedFileType.MIDIAliases)
@@ -258,9 +259,8 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
                         mCurrentCache.mMIDIAliasCachedFiles.set(f,(MIDIAliasCachedFile) mUpdatedFile);
                         break;
                     }
-                    if ((mNoLongerExists) && (maf.mStorageName.equals(mFilesToUpdate.get(0).mStorageName))) {
+                    if (!fileWasDownloadedSuccessfully(maf.mStorageName))
                         mCurrentCache.mMIDIAliasCachedFiles.remove(f);
-                    }
                 }
             }
             returnCache=mCurrentCache;
@@ -269,12 +269,18 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,returnCache).sendToTarget();
     }
 
+    boolean fileWasDownloadedSuccessfully(String storageID)
+    {
+        CloudDownloadResult result=mDownloadResults.get(storageID);
+        return result!=null && result.mResultType==CloudDownloadResultType.Succeeded;
+    }
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
         mProgressDialog = new ProgressDialog(SongList.getContext());
         mProgressDialog.setTitle(SongList.getContext().getString(R.string.downloadingFiles));
-        mProgressDialog.setMessage(String.format(SongList.getContext().getString(R.string.accessingCloudStorage),getCloudStorageName()));
+        mProgressDialog.setMessage(String.format(SongList.getContext().getString(R.string.accessingCloudStorage),mCloudStorage.getCloudStorageName()));
         mProgressDialog.setCancelable(false);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.show();
@@ -285,19 +291,7 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         publishProgress(String.format(SongList.getContext().getString(R.string.downloading),filename));
     }
 
-    private static final String ReservedChars = "|\\?*<\":>+[]/'";
-    String makeSafeFilename(String str)
-    {
-        StringBuilder builder=new StringBuilder();
-        for(char c:str.toCharArray())
-            if(ReservedChars.contains(""+c))
-                builder.append("_");
-            else
-                builder.append(c);
-        return builder.toString();
-    }
-
-    boolean onFileDownloaded(File file, String fileID, Date lastModified, boolean dependencyFile)
+    /*boolean onFileDownloaded(File file, String fileID, Date lastModified, boolean dependencyFile)
     {
         if(mUpdateType==CachedFileType.Song)
         {
@@ -328,12 +322,5 @@ abstract class CloudDownloadTask extends AsyncTask<String, String, Boolean>
             }
         }
         return false;
-    }
-
-    abstract boolean downloadFile(String fileID,int fileIndex) throws IOException;
-
-    abstract String getCloudStorageName();
-
-    abstract void downloadFiles(String folderID,boolean includeSubfolders,Map<String,File> existingCachedFiles,ArrayList<DownloadedFile> downloadedFiles) throws IOException;
+    }*/
 }
-

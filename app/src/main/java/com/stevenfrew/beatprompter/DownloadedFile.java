@@ -1,19 +1,15 @@
 package com.stevenfrew.beatprompter;
 
 import java.io.File;
-import java.util.Date;
 
 public class DownloadedFile
 {
+    CloudFileInfo mCloudFileInfo;
     File mFile;
-    String mID;
-    Date mLastModified;
-    String mSubfolderName;
-    DownloadedFile(File file,String id,Date lastModified,String subfolderName)
+
+    DownloadedFile(CloudDownloadResult result)
     {
-        mFile=file;
-        mID=id;
-        mLastModified=lastModified;
-        mSubfolderName=subfolderName;
+        mCloudFileInfo=result.mCloudFileInfo;
+        mFile=result.mDownloadedFile;
     }
 }

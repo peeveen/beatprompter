@@ -876,20 +876,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     }
 
-    void initializeDropboxAPI()
-    {
-        if(mDropboxAPI==null) {
-            SharedPreferences sharedPrefs = getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
-            String storedAccessToken = sharedPrefs.getString(getString(R.string.pref_dropboxAccessToken_key), null);
-            if (storedAccessToken != null) {
-                DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder(BeatPrompterApplication.APP_NAME)
-                        .build();
-                mDropboxAPI = new DbxClientV2(requestConfig, storedAccessToken);
-                performCloudSync();
-            }
-        }
-    }
-
     void initialiseList()
     {
         try {
