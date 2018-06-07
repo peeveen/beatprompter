@@ -49,8 +49,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
 import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
 import com.onedrive.sdk.core.ClientException;
@@ -118,7 +116,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     ArrayList<Filter> mFilters=new ArrayList<>();
     TemporarySetListFilter mTemporarySetListFilter=null;
     BaseAdapter mListAdapter=null;
-    private DbxClientV2 mDropboxAPI;
     IOneDriveClient mOneDriveClient;
 
     UsbManager mUsbManager;
@@ -1509,7 +1506,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         getMenuInflater().inflate(R.menu.songlistmenu, menu);
         Spinner spinner = (Spinner) menu.findItem(R.id.tagspinner).getActionView();
         spinner.setOnItemSelectedListener(this);
-        FilterListAdapter filterListAdapter = new FilterListAdapter(this, mFilters);
+        FilterListAdapter filterListAdapter = new FilterListAdapter( mFilters);
         spinner.setAdapter(filterListAdapter);
 
         updateBluetoothIcon();
@@ -1937,7 +1934,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void powerwash()
     {
         deleteAllFiles();
-        mDropboxAPI=null;
         logOutOfOneDrive();
         createDemoFile();
         initialiseList();

@@ -35,8 +35,7 @@ class DropboxCloudStorage implements CloudStorage {
     private final static String DROPBOX_APP_KEY = "hay1puzmg41f02r";
 
     private static final Set<String> EXTENSIONS_TO_DOWNLOAD = new HashSet<>(Arrays.asList(
-            new String[] {"txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"}
-    ));
+            "txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"));
 
     private List<CloudFileInfo> mFilesToDownload;
     private Activity mParentActivity;
@@ -194,7 +193,7 @@ class DropboxCloudStorage implements CloudStorage {
         mFolderSearchResultSource.onComplete();
     }
 
-    boolean isSuitableFileToDownload(String filename)
+    private boolean isSuitableFileToDownload(String filename)
     {
         return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
     }
@@ -229,7 +228,7 @@ class DropboxCloudStorage implements CloudStorage {
         return mFolderSelectionResultSource;
     }
 
-    void _selectFolder(DbxClientV2 client)
+    private void _selectFolder(DbxClientV2 client)
     {
         DropboxChooseFolderDialog dialog=new DropboxChooseFolderDialog(mParentActivity,client);
         dialog.getFolderSelectionSource().subscribe(this::onFolderSelected,this::onFolderSelectedError,this::onFolderSelectedComplete);

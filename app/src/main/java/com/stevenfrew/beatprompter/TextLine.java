@@ -494,9 +494,4 @@ class TextLine extends Line
         }
         return mGraphics;
     }
-
-    boolean hasOwnGraphics()
-    {
-        return false;
-    }
 }

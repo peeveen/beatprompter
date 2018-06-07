@@ -4,7 +4,7 @@ import android.util.Log;
 
 abstract class Task implements Runnable
 {
-    private boolean mRunning=false;
+    private boolean mRunning;
     private boolean mStop=false;
     private final Object runningSync=new Object();
     private final Object stopSync=new Object();

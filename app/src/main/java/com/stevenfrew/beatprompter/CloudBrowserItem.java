@@ -1,18 +1,18 @@
 package com.stevenfrew.beatprompter;
 
-class CloudItem {
+class CloudBrowserItem {
     String mDisplayName;
     String mInternalPath;
     boolean mIsFolder;
-    CloudItem mParentFolder;
-    CloudItem(String displayName,String internalPath,boolean isFolder)
+    CloudBrowserItem mParentFolder;
+    CloudBrowserItem(String displayName, String internalPath, boolean isFolder)
     {
         mParentFolder=null;
         mDisplayName=displayName;
         mInternalPath=internalPath;
         mIsFolder=isFolder;
     }
-    CloudItem(CloudItem parent,String displayName,String internalPath,boolean isFolder)
+    CloudBrowserItem(CloudBrowserItem parent, String displayName, String internalPath, boolean isFolder)
     {
         this(displayName,internalPath,isFolder);
         mParentFolder=parent;
@@ -21,7 +21,7 @@ class CloudItem {
     {
         return mDisplayName;
     }
-    int compareTo(CloudItem other)
+    int compareTo(CloudBrowserItem other)
     {
         if((mIsFolder)&&(!other.mIsFolder))
             return -1;

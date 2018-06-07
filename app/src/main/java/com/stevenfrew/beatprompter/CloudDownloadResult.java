@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter;
 
 import java.io.File;
-import java.util.Date;
 
 class CloudDownloadResult {
     File mDownloadedFile;

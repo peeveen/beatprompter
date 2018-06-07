@@ -12,19 +12,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 class FilterListAdapter extends ArrayAdapter<Filter> {
-    private final Context context;
     private final ArrayList<Filter> values;
 
-    FilterListAdapter(Context context, ArrayList<Filter> values) {
-        super(context, -1, values);
-        this.context = context;
+    FilterListAdapter(ArrayList<Filter> values) {
+        super(SongList.getContext(), -1, values);
         this.values = values;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
-        LayoutInflater inflater = (LayoutInflater) context
+        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.filter_item_selected, parent, false):convertView;
         TextView titleView = (TextView) rowView.findViewById(R.id.filtertitleselected);
@@ -36,7 +34,7 @@ class FilterListAdapter extends ArrayAdapter<Filter> {
     @Override
     public View getDropDownView(int position, View convertView,
                                 @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
+        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View dropDownView = convertView==null?inflater.inflate(R.layout.filter_list_item, parent, false):convertView;
         TextView titleView = (TextView) dropDownView.findViewById(R.id.filtertitle);

@@ -16,11 +16,11 @@ public class IntroActivity extends AppIntro {
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest.
         int backgroundColor=Color.parseColor("#CCCCCC");
-        addSlide(AppIntroFragment.newInstance(getString(R.string.welcome_to_beatprompter), getString(R.string.welcome_to_beatprompter_description), R.drawable.beatprompter_logo, backgroundColor));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.turn_turn_turn), getString(R.string.works_best_in_landscape), R.drawable.landscape_best, backgroundColor));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.cloud_sync_explanation_title), getString(R.string.cloud_sync_explanation), R.drawable.cloud_sync_diagram, backgroundColor));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.keep_the_beat_title), getString(R.string.keep_the_beat), R.drawable.keep_the_beat, backgroundColor));
-        addSlide(AppIntroFragment.newInstance(getString(R.string.not_just_text_title), getString(R.string.not_just_text), R.drawable.not_just_text, backgroundColor));
+        addSlide(AppIntroFragment.newInstance(SongList.getContext().getString(R.string.welcome_to_beatprompter), SongList.getContext().getString(R.string.welcome_to_beatprompter_description), R.drawable.beatprompter_logo, backgroundColor));
+        addSlide(AppIntroFragment.newInstance(SongList.getContext().getString(R.string.turn_turn_turn), SongList.getContext().getString(R.string.works_best_in_landscape), R.drawable.landscape_best, backgroundColor));
+        addSlide(AppIntroFragment.newInstance(SongList.getContext().getString(R.string.cloud_sync_explanation_title), SongList.getContext().getString(R.string.cloud_sync_explanation), R.drawable.cloud_sync_diagram, backgroundColor));
+        addSlide(AppIntroFragment.newInstance(SongList.getContext().getString(R.string.keep_the_beat_title), SongList.getContext().getString(R.string.keep_the_beat), R.drawable.keep_the_beat, backgroundColor));
+        addSlide(AppIntroFragment.newInstance(SongList.getContext().getString(R.string.not_just_text_title), SongList.getContext().getString(R.string.not_just_text), R.drawable.not_just_text, backgroundColor));
 
         // OPTIONAL METHODS
         // Override bar/separator color.

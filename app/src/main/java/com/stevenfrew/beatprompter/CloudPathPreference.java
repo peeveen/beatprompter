@@ -11,23 +11,20 @@ import android.widget.TextView;
 
 class CloudPathPreference extends Preference
 {
-    private Context mContext;
-
     public CloudPathPreference(Context context, AttributeSet attrs) {
         super(context,attrs);
-        mContext=context;
-    }
+     }
     @Override
     public void onBindView(View view) {
         super.onBindView(view);
-        ImageView imageView = (ImageView) view.findViewById(R.id.iconImageView);
+        ImageView imageView = view.findViewById(R.id.iconImageView);
         imageView.setImageResource(R.drawable.blank_icon);
-        TextView textView = (TextView) view.findViewById(android.R.id.summary);
-        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(mContext);
-        String path=prefs.getString(mContext.getString(R.string.pref_cloudPath_key),null);
-        String displayPath=prefs.getString(mContext.getString(R.string.pref_cloudDisplayPath_key),null);
+        TextView textView = view.findViewById(android.R.id.summary);
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
+        String path=prefs.getString(SongList.getContext().getString(R.string.pref_cloudPath_key),null);
+        String displayPath=prefs.getString(SongList.getContext().getString(R.string.pref_cloudDisplayPath_key),null);
         if(path==null)
-            displayPath=mContext.getString(R.string.no_cloud_folder_currently_set);
+            displayPath=SongList.getContext().getString(R.string.no_cloud_folder_currently_set);
         textView.setText(displayPath);
     }
 

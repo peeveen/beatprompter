@@ -16,10 +16,10 @@ abstract class Line {
     protected long mYStartScrollTime,mYStopScrollTime;
     ScrollingMode mScrollingMode;
 
-    int mBars=-1; // How many bars does this line last?
-    int mScrollbeat=0;
-    int mBPB=0;
-    int mScrollbeatOffset=0;
+    int mBars; // How many bars does this line last?
+    int mScrollbeat;
+    int mBPB;
+    int mScrollbeatOffset;
 
     Line(Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ScrollingMode scrollingMode,ArrayList<FileParseError> parseErrors)
     {
@@ -45,8 +45,6 @@ abstract class Line {
         }
         return 0;
     }
-
-    abstract boolean hasOwnGraphics();
 
     abstract LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode, CancelEvent cancelEvent);
 

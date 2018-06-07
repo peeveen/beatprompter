@@ -354,7 +354,7 @@ public class BeatPrompterApplication extends Application {
             // Cancel discovery because it will slow down the connection
             //            mBluetoothAdapter.cancelDiscovery();
             while (!mStop) {
-                boolean alreadyConnected = false;
+                boolean alreadyConnected;
                 synchronized (mBluetoothSocketsLock) {
                     alreadyConnected = mInputBluetoothSocket != null;
                 }
@@ -363,7 +363,7 @@ public class BeatPrompterApplication extends Application {
                         // Connect the device through the socket. This will block
                         // until it succeeds or throws an exception, which can happen
                         // if it doesn't find anything to connect to within about 4 seconds.
-                        BluetoothSocket socket = null;
+                        BluetoothSocket socket;
                         synchronized (mSocketNullLock) {
                             if (mmSocket == null) {
                                 try {
@@ -402,7 +402,7 @@ public class BeatPrompterApplication extends Application {
         }
 
         /** Will cancel an in-progress connection, and close the socket */
-        public void stopTrying()
+        void stopTrying()
         {
             mStop=true;
             closeSocket();
@@ -465,8 +465,8 @@ public class BeatPrompterApplication extends Application {
             while (!mStop)
             {
                 try {
-                    BluetoothServerSocket serverSocket=null;
-                    BluetoothSocket acceptedSocket=null;
+                    BluetoothServerSocket serverSocket;
+                    BluetoothSocket acceptedSocket;
                     synchronized(mSocketNullLock)
                     {
                         if(mmServerSocket==null)
@@ -607,18 +607,14 @@ public class BeatPrompterApplication extends Application {
     }
 
     SharedPreferences.OnSharedPreferenceChangeListener mPrefListener =
-            new SharedPreferences.OnSharedPreferenceChangeListener()
-            {
-                public void onSharedPreferenceChanged(SharedPreferences prefs,
-                                                      String key) {
-                    if (key.equals(getString(R.string.pref_bluetoothMode_key)))
-                    {
-                        BluetoothMode mode=getBluetoothMode();
-                        if(mode==BluetoothMode.None)
-                            onStopBluetooth();
-                        else
-                            onStartBluetooth(mode);
-                    }
+            (prefs, key) -> {
+                if (key.equals(getString(R.string.pref_bluetoothMode_key)))
+                {
+                    BluetoothMode mode=getBluetoothMode();
+                    if(mode==BluetoothMode.None)
+                        onStopBluetooth();
+                    else
+                        onStartBluetooth(mode);
                 }
             };
 

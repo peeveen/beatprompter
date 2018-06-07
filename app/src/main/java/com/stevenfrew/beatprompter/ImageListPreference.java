@@ -14,11 +14,9 @@ import android.widget.ListAdapter;
 
 public class ImageListPreference extends ListPreference {
     private int[] resourceIds = null;
-    private Context mContext;
 
     public ImageListPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext=context;
         TypedArray typedArray = context.obtainStyledAttributes(attrs,
                 R.styleable.ImageListPreference);
 
@@ -47,15 +45,15 @@ public class ImageListPreference extends ListPreference {
     @Override
     public void onBindView(View view) {
         super.onBindView(view);
-        ImageView imageView = (ImageView) view.findViewById(R.id.iconImageView);
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(mContext);
+        ImageView imageView = view.findViewById(R.id.iconImageView);
+        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
         String value=sharedPrefs.getString(getKey(),"");
 
-        if(value.equals(mContext.getString(R.string.googleDriveValue)))
+        if(value.equals(SongList.getContext().getString(R.string.googleDriveValue)))
             imageView.setImageResource(R.drawable.ic_google_drive);
-        else if(value.equals(mContext.getString(R.string.dropboxValue)))
+        else if(value.equals(SongList.getContext().getString(R.string.dropboxValue)))
             imageView.setImageResource(R.drawable.ic_dropbox);
-        else if(value.equals(mContext.getString(R.string.oneDriveValue)))
+        else if(value.equals(SongList.getContext().getString(R.string.oneDriveValue)))
             imageView.setImageResource(R.drawable.ic_onedrive);
         else
             imageView.setImageResource(R.drawable.blank_icon);

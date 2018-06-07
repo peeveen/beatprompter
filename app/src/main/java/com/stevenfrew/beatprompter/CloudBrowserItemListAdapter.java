@@ -11,9 +11,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-class CloudItemListAdapter extends ArrayAdapter<CloudItem> {
+class CloudBrowserItemListAdapter extends ArrayAdapter<CloudBrowserItem> {
 
-    CloudItemListAdapter(List<CloudItem> items) {
+    CloudBrowserItemListAdapter(List<CloudBrowserItem> items) {
         super(SongList.getContext(), -1, items);
     }
 
@@ -24,7 +24,7 @@ class CloudItemListAdapter extends ArrayAdapter<CloudItem> {
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
         TextView textView = (TextView) rowView.findViewById(R.id.file_or_folder_name);
         ImageView imageView=(ImageView) rowView.findViewById(R.id.file_or_folder_icon);
-        CloudItem folder=this.getItem(position);
+        CloudBrowserItem folder=this.getItem(position);
         textView.setText(folder.mDisplayName);
         boolean isFolder=folder.mIsFolder;
         textView.setEnabled(isFolder);

@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter;
 
 import android.app.Activity;
-import android.content.Context;
 
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -23,17 +22,17 @@ class DropboxChooseFolderDialog extends ChooseFolderDialog
         super(parentActivity,R.drawable.ic_dropbox);
         mDropboxClient=dropboxClient;
     }
-    CloudItem getRootPath()
+    CloudBrowserItem getRootPath()
     {
-        return new CloudItem(DROPBOX_ROOT_PATH,"",true);
+        return new CloudBrowserItem(DROPBOX_ROOT_PATH,"",true);
     }
 
     private class GetDropboxFoldersTask extends ChooseFolderDialog.FolderFetcherTask
     {
-        protected List<CloudItem> doInBackground(CloudItem ... args) {
-            List<CloudItem> items=new ArrayList<>();
+        protected List<CloudBrowserItem> doInBackground(CloudBrowserItem... args) {
+            List<CloudBrowserItem> items=new ArrayList<>();
             try {
-                CloudItem parentFolder =args[0];
+                CloudBrowserItem parentFolder =args[0];
                 if(isCancelled())
                     return null;
                 ListFolderResult listResult = mDropboxClient.files().listFolder(parentFolder.mInternalPath);
@@ -52,13 +51,13 @@ class DropboxChooseFolderDialog extends ChooseFolderDialog
                         if(entry instanceof FolderMetadata)
                         {
                             FolderMetadata folderEntry=(FolderMetadata)entry;
-                            CloudItem sf = new CloudItem(parentFolder,folderEntry.getName(), folderEntry.getPathLower(),true);
+                            CloudBrowserItem sf = new CloudBrowserItem(parentFolder,folderEntry.getName(), folderEntry.getPathLower(),true);
                             items.add(sf);
                         }
                         else if(entry instanceof FileMetadata)
                         {
                             FileMetadata fileEntry=(FileMetadata)entry;
-                            CloudItem sf = new CloudItem(parentFolder,fileEntry.getName(), fileEntry.getPathLower(),false);
+                            CloudBrowserItem sf = new CloudBrowserItem(parentFolder,fileEntry.getName(), fileEntry.getPathLower(),false);
                             items.add(sf);
                         }
                         mChooseFolderDialogHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHING,items.size(),0).sendToTarget();

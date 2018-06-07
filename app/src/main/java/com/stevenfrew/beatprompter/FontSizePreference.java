@@ -44,14 +44,14 @@ public class FontSizePreference extends DialogPreference implements SeekBar.OnSe
         mCurrentValue=getPersistedInt(FONT_SIZE_MIN);
         if(mCurrentValue<=0) {
             String prefKey = this.getKey();
-            if(prefKey.equals(getContext().getString(R.string.pref_maxFontSize_key)))
-                mCurrentValue=Integer.parseInt(getContext().getString(R.string.pref_maxFontSize_default));
-            else if(prefKey.equals(getContext().getString(R.string.pref_minFontSize_key)))
-                mCurrentValue=Integer.parseInt(getContext().getString(R.string.pref_minFontSize_default));
-            else if(prefKey.equals(getContext().getString(R.string.pref_maxFontSizeSmooth_key)))
-                mCurrentValue=Integer.parseInt(getContext().getString(R.string.pref_maxFontSizeSmooth_default));
+            if(prefKey.equals(SongList.getContext().getString(R.string.pref_maxFontSize_key)))
+                mCurrentValue=Integer.parseInt(SongList.getContext().getString(R.string.pref_maxFontSize_default));
+            else if(prefKey.equals(SongList.getContext().getString(R.string.pref_minFontSize_key)))
+                mCurrentValue=Integer.parseInt(SongList.getContext().getString(R.string.pref_minFontSize_default));
+            else if(prefKey.equals(SongList.getContext().getString(R.string.pref_maxFontSizeSmooth_key)))
+                mCurrentValue=Integer.parseInt(SongList.getContext().getString(R.string.pref_maxFontSizeSmooth_default));
             else
-                mCurrentValue=Integer.parseInt(getContext().getString(R.string.pref_minFontSizeSmooth_default));
+                mCurrentValue=Integer.parseInt(SongList.getContext().getString(R.string.pref_minFontSizeSmooth_default));
         }
         mSeekBar.setProgress(mCurrentValue);
         mTextView.setText(String.format(Locale.getDefault(),"%d",mCurrentValue));

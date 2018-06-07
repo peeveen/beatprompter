@@ -7,15 +7,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +25,7 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case BeatPrompterApplication.FOLDER_CONTENTS_FETCHED:
-                    populateBrowser((List<CloudItem>)msg.obj);
+                    populateBrowser((List<CloudBrowserItem>)msg.obj);
                     break;
                 case BeatPrompterApplication.FOLDER_CONTENTS_FETCHING:
                     updateProgress(msg.arg1,msg.arg2);
@@ -39,9 +35,9 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
     };
 
     private Dialog mDialog;
-    private CloudItem mCurrentFolder;
-    private CloudItem mParentFolder;
-    protected Activity mActivity;
+    private CloudBrowserItem mCurrentFolder;
+    private CloudBrowserItem mParentFolder;
+    private Activity mActivity;
     private FolderFetcherTask mFolderFetcher;
     private PublishSubject<CloudFolderInfo> mFolderSelectionSource=PublishSubject.create();
 
@@ -53,7 +49,7 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.setOnCancelListener(this);
         mDialog.setOnDismissListener(this);
-        TextView tv = (TextView) mDialog.findViewById(android.R.id.title);
+        TextView tv = mDialog.findViewById(android.R.id.title);
         tv.setEllipsize(TextUtils.TruncateAt.END);
         tv.setLines(1);
         tv.setHorizontallyScrolling(true);
@@ -70,13 +66,13 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         mDialog.show();
     }
 
-    private void setNewPath(final CloudItem newFolder) {
+    private void setNewPath(final CloudBrowserItem newFolder) {
         if(newFolder!=null)
             mFolderSelectionSource.onNext(new CloudFolderInfo(newFolder.mInternalPath, getDisplayPath(newFolder)));
         mDialog.dismiss();
     }
 
-    private void refresh(CloudItem folder)
+    private void refresh(CloudBrowserItem folder)
     {
         if(folder==null)
             return;
@@ -87,28 +83,28 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         mFolderFetcher.execute(mCurrentFolder);
     }
 
-    private void populateBrowser(List<CloudItem> dirs) {
+    private void populateBrowser(List<CloudBrowserItem> dirs) {
         if (dirs == null)
             mDialog.dismiss();
         else {
-            dirs.sort((folder1, folder2) -> folder1.compareTo(folder2));
+            dirs.sort(CloudBrowserItem::compareTo);
 
             if (mCurrentFolder.mParentFolder != null)
-                dirs.add(0, new CloudItem(mCurrentFolder.mParentFolder, PARENT_DIR, mCurrentFolder.mParentFolder.mInternalPath, true));
+                dirs.add(0, new CloudBrowserItem(mCurrentFolder.mParentFolder, PARENT_DIR, mCurrentFolder.mParentFolder.mInternalPath, true));
 
             // refresh the user interface
             mDialog.setContentView(R.layout.choose_folder_dialog);
-            final ListView list = (ListView) mDialog.findViewById(R.id.chooseFolderListView);
-            Button okButton = (Button) mDialog.findViewById(R.id.chooseFolderOkButton);
+            final ListView list = mDialog.findViewById(R.id.chooseFolderListView);
+            Button okButton = mDialog.findViewById(R.id.chooseFolderOkButton);
             mDialog.setTitle(getDisplayPath(mCurrentFolder));
-            list.setAdapter(new CloudItemListAdapter(dirs));
+            list.setAdapter(new CloudBrowserItemListAdapter(dirs));
 
             list.setOnItemClickListener((parent, view, which, id) -> {
-                CloudItem folderChosen;
+                CloudBrowserItem folderChosen;
                 if((which==0)&&(mParentFolder!=null))
                     folderChosen=mParentFolder;
                 else
-                    folderChosen = (CloudItem) list.getItemAtPosition(which);
+                    folderChosen = (CloudBrowserItem) list.getItemAtPosition(which);
 
                 mDialog.setContentView(R.layout.choose_folder_dialog_loading);
                 mDialog.setTitle(getDisplayPath(folderChosen));
@@ -118,11 +114,11 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         }
     }
 
-    abstract CloudItem getRootPath();
+    abstract CloudBrowserItem getRootPath();
     abstract String getDirectorySeparator();
     abstract ChooseFolderDialog.FolderFetcherTask getFolderFetcher();
 
-    private String getDisplayPath(CloudItem folder)
+    private String getDisplayPath(CloudBrowserItem folder)
     {
         if(folder.mParentFolder!=null) {
             String parentPath=getDisplayPath(folder.mParentFolder);
@@ -168,10 +164,10 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         }
     }
 
-    abstract class FolderFetcherTask extends AsyncTask<CloudItem, Void, List<CloudItem>>
+    abstract class FolderFetcherTask extends AsyncTask<CloudBrowserItem, Void, List<CloudBrowserItem>>
     {
-        protected abstract List<CloudItem> doInBackground(CloudItem ... args);
-        protected void onPostExecute(List<CloudItem> folders)
+        protected abstract List<CloudBrowserItem> doInBackground(CloudBrowserItem... args);
+        protected void onPostExecute(List<CloudBrowserItem> folders)
         {
             mChooseFolderDialogHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHED,folders).sendToTarget();
         }

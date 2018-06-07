@@ -1,24 +1,21 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ImageLine extends Line
+class ImageLine extends Line
 {
-    ImageFile mImageFile;
-    boolean mScaling=false;
-    ImageScalingMode mScalingMode;
-    Rect mSourceRect,mDestRect;
-    Bitmap mBitmap;
+    private ImageFile mImageFile;
+    private ImageScalingMode mScalingMode;
+    private Rect mSourceRect,mDestRect;
+    private Bitmap mBitmap;
 
     ImageLine(ImageFile image, ImageScalingMode scalingMode, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors) {
         super(lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors);
@@ -47,7 +44,6 @@ public class ImageLine extends Line
         {
             scaledImageHeight = (int) (imageHeight * ((double) screenWidth / (double) imageWidth));
             scaledImageWidth = screenWidth;
-            mScaling=true;
         }
 
         ArrayList<Integer> graphicHeights = new ArrayList<>();
@@ -71,11 +67,6 @@ public class ImageLine extends Line
             }
         }
         return mGraphics;
-    }
-
-    boolean hasOwnGraphics()
-    {
-        return true;
     }
 
     void recycleGraphics()
