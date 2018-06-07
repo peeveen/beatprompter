@@ -1,16 +1,17 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 
 class SetListFile extends CachedCloudFile
 {
@@ -20,16 +21,22 @@ class SetListFile extends CachedCloudFile
     ArrayList<String> mSongTitles=new ArrayList<>();
     String mSetTitle;
 
-    SetListFile(Context context, DownloadedFile downloadedFile) throws InvalidBeatPrompterFileException
+    public SetListFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
-        super(downloadedFile);
-        parseSetListFileInfo(context);
+        super(result.mDownloadedFile,result.mCloudFileInfo);
+        parseSetListFileInfo();
     }
 
-    private SetListFile(Context context, CachedCloudFile cachedFile, String title) throws IOException {
-        super(cachedFile);
-        mSetTitle=title;
-        parseSetListFileInfo(context);
+    SetListFile(File file, String storageID, String title, Date lastModified, String subfolder) throws InvalidBeatPrompterFileException
+    {
+        super(file,storageID,title,lastModified,subfolder);
+        parseSetListFileInfo();
+    }
+
+    SetListFile(Element element) throws InvalidBeatPrompterFileException
+    {
+        super(element);
+        parseSetListFileInfo();
     }
 
     private String getSetNameFromLine(String line, int lineNumber)
@@ -37,7 +44,7 @@ class SetListFile extends CachedCloudFile
         return getTokenValue(line, lineNumber, "set");
     }
 
-    private void parseSetListFileInfo(Context context) throws InvalidBeatPrompterFileException
+    private void parseSetListFileInfo() throws InvalidBeatPrompterFileException
     {
         BufferedReader br=null;
         try
@@ -59,13 +66,13 @@ class SetListFile extends CachedCloudFile
             }
 
             if((setTitle==null)||(setTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageID));
+                throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mStorageID));
             else
                 mSetTitle=setTitle;
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageID));
+            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mStorageID));
         }
         finally
         {
@@ -88,14 +95,6 @@ class SetListFile extends CachedCloudFile
         setListFileElement.setAttribute(SET_TITLE_ATTRIBUTE_NAME, mSetTitle);
         parent.appendChild(setListFileElement);
     }
-
-    static SetListFile readFromXMLElement(Context context,Element element) throws IOException
-    {
-        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
-        String setTitle=element.getAttribute(SET_TITLE_ATTRIBUTE_NAME);
-        return new SetListFile(context,cf,setTitle);
-    }
-
 
     @Override
     CloudFileType getFileType()

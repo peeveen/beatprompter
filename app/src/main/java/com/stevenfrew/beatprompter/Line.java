@@ -1,10 +1,6 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 
 import java.util.ArrayList;
@@ -25,7 +21,7 @@ abstract class Line {
     int mBPB=0;
     int mScrollbeatOffset=0;
 
-    Line(Context context,Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ScrollingMode scrollingMode,ArrayList<FileParseError> parseErrors)
+    Line(Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ScrollingMode scrollingMode,ArrayList<FileParseError> parseErrors)
     {
         mBPB=bpb;
         mScrollingMode=scrollingMode;
@@ -34,15 +30,15 @@ abstract class Line {
         for(Tag tag:lineTags)
             if(!tag.mChordTag)
                 if((tag.mName.equals("b"))||(tag.mName.equals("bars")))
-                    bars=Tag.getIntegerValueFromTag(context,tag,1,128,1,parseErrors);
+                    bars=Tag.getIntegerValueFromTag(tag,1,128,1,parseErrors);
         mBars=Math.max(1,bars);
         mColorEvent=lastColor;
     }
 
-    int measure(Context context,Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, int songPixelPosition, ScrollingMode scrollMode,CancelEvent cancelEvent)
+    int measure(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, int songPixelPosition, ScrollingMode scrollMode,CancelEvent cancelEvent)
     {
         mSongPixelPosition=songPixelPosition;
-        mLineMeasurements=doMeasurements(context,paint,minimumFontSize,maximumFontSize,screenWidth,screenHeight,font,highlightColour,defaultHighlightColour,errors,scrollMode,cancelEvent);
+        mLineMeasurements=doMeasurements(paint,minimumFontSize,maximumFontSize,screenWidth,screenHeight,font,highlightColour,defaultHighlightColour,errors,scrollMode,cancelEvent);
         if(mLineMeasurements!=null)
         {
             return mLineMeasurements.mHighlightColour;
@@ -52,7 +48,7 @@ abstract class Line {
 
     abstract boolean hasOwnGraphics();
 
-    abstract LineMeasurements doMeasurements(Context context,Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode, CancelEvent cancelEvent);
+    abstract LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode, CancelEvent cancelEvent);
 
     Line getLastLine()
     {

@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 
 class MIDIAliasMessage
@@ -22,12 +20,12 @@ class MIDIAliasMessage
         }
         return new MIDIOutgoingMessage(bytes);
     }
-    MIDIAliasMessage resolveMIDIAliasMessage(Context context,ArrayList<MIDIAliasParameter> parameters)
+    MIDIAliasMessage resolveMIDIAliasMessage(ArrayList<MIDIAliasParameter> parameters)
     {
         ArrayList<MIDIAliasParameter> newParams=new ArrayList<>();
         for(int f=0;f<mParameters.size();++f)
         {
-            MIDIAliasParameter newAliasParam=mParameters.get(f).substitute(context,parameters);
+            MIDIAliasParameter newAliasParam=mParameters.get(f).substitute(parameters);
             newParams.add(newAliasParam);
         }
         return new MIDIAliasMessage(newParams);

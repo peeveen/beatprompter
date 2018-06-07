@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 
 class MIDIAliasParameter
@@ -16,7 +14,7 @@ class MIDIAliasParameter
         mValue=new MIDIValue(value);
         mMergeWithChannel=mergeWithChannel;
     }
-    MIDIAliasParameter(Context context, String parameter)
+    MIDIAliasParameter(String parameter)
     {
         if(parameter.startsWith("?"))
         {
@@ -31,15 +29,15 @@ class MIDIAliasParameter
                 mMergeWithChannel=true;
             }
             if(parameter.contains("_"))
-                throw new IllegalArgumentException(context.getString(R.string.multiple_underscores_in_midi_value));
-            mValue=MIDIMessage.parseValue(context,parameter);
+                throw new IllegalArgumentException(SongList.getContext().getString(R.string.multiple_underscores_in_midi_value));
+            mValue=MIDIMessage.parseValue(parameter);
             if (mMergeWithChannel) {
                 if(mValue.mChannelSpecifier)
-                    throw new IllegalArgumentException(context.getString(R.string.channel_specifier_cannot_merge_with_channel_specifier));
+                    throw new IllegalArgumentException(SongList.getContext().getString(R.string.channel_specifier_cannot_merge_with_channel_specifier));
                 if (!MIDIMessage.looksLikeHex(parameter))
-                    throw new IllegalArgumentException(context.getString(R.string.underscore_in_decimal_value));
+                    throw new IllegalArgumentException(SongList.getContext().getString(R.string.underscore_in_decimal_value));
                 if((mValue.mValue&0x0F)!=0)
-                    throw new IllegalArgumentException(context.getString(R.string.merge_with_channel_non_zero_lower_nibble));
+                    throw new IllegalArgumentException(SongList.getContext().getString(R.string.merge_with_channel_non_zero_lower_nibble));
             }
         }
     }
@@ -54,13 +52,13 @@ class MIDIAliasParameter
             return mergeWithChannel(val,channel);
         return val;
     }
-    MIDIAliasParameter substitute(Context context,ArrayList<MIDIAliasParameter> values)
+    MIDIAliasParameter substitute(ArrayList<MIDIAliasParameter> values)
     {
         if(mIsParameterReference)
             if(values.size()>=mIndex)
                 return values.get(mIndex-1);
             else
-                throw new IllegalArgumentException(context.getString(R.string.not_enough_parameters_supplied));
+                throw new IllegalArgumentException(SongList.getContext().getString(R.string.not_enough_parameters_supplied));
         else if(mergesWithChannel()) {
             if (values.size() > 0)
                 if(values.get(values.size() - 1).mValue!=null)

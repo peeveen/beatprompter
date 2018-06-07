@@ -100,7 +100,7 @@ class Song
         }
     }
 
-    void doMeasurements(Context context, Paint paint,CancelEvent cancelEvent, Handler handler,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings)
+    void doMeasurements(Paint paint,CancelEvent cancelEvent, Handler handler,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings)
     {
         Typeface boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
         Typeface notBoldFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
@@ -129,16 +129,16 @@ class Song
         maximumFontSize*=ratioMultiplier;
 
         if (minimumFontSize > maximumFontSize) {
-            mParseErrors.add(new FileParseError(null,context.getString(R.string.fontSizesAllMessedUp)));
+            mParseErrors.add(new FileParseError(null,SongList.getContext().getString(R.string.fontSizesAllMessedUp)));
             maximumFontSize = minimumFontSize;
         }
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
 
-        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_highlightColor_key), Color.parseColor(context.getString(R.string.pref_highlightColor_default))));
-        boolean showKey = sharedPref.getBoolean(context.getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(context.getString(R.string.pref_showSongKey_defaultValue)));
+        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(SongList.getContext().getString(R.string.pref_highlightColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_highlightColor_default))));
+        boolean showKey = sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_showSongKey_defaultValue)));
         showKey&=((mKey!=null)&&(mKey.length()>0));
-        String showBPMString = sharedPref.getString(context.getString(R.string.pref_showSongBPM_key), context.getString(R.string.pref_showSongBPM_defaultValue));
+        String showBPMString = sharedPref.getString(SongList.getContext().getString(R.string.pref_showSongBPM_key), SongList.getContext().getString(R.string.pref_showSongBPM_defaultValue));
 
         mBeatCounterHeight=0;
         // Top 5% of screen is used for beat counter
@@ -169,7 +169,7 @@ class Song
         handler.obtainMessage(BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED,0,lineCount).sendToTarget();
         while((line!=null)&&(!cancelEvent.isCancelled()))
         {
-            highlightColour = line.measure(context, paint, minimumFontSize, maximumFontSize, nativeScreenWidth, nativeScreenHeight,notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight,mScrollingMode,cancelEvent);
+            highlightColour = line.measure(paint, minimumFontSize, maximumFontSize, nativeScreenWidth, nativeScreenHeight,notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight,mScrollingMode,cancelEvent);
             int thisLineHeight=0;
             if(line.mLineMeasurements!=null)
                 thisLineHeight=line.mLineMeasurements.mLineHeight;
@@ -232,7 +232,7 @@ class Song
                nonBlankCommentLines.add(commentLine.trim());
         int errors=mParseErrors.size();
         int messages=Math.min(errors,6)+nonBlankCommentLines.size();
-        boolean showBPM=(!context.getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mInitialBPM!=0.0);
+        boolean showBPM=(!SongList.getContext().getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mInitialBPM!=0.0);
         if(showBPM)
             ++messages;
         if(showKey)
@@ -249,7 +249,7 @@ class Song
                 ++errorCounter;
                 --errors;
                 if ((errorCounter == 5) && (errors > 0)) {
-                    mStartScreenStrings.add(ScreenString.create(String.format(context.getString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
+                    mStartScreenStrings.add(ScreenString.create(String.format(SongList.getContext().getString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
                     break;
                 }
             }
@@ -260,15 +260,15 @@ class Song
             }
             if(showKey)
             {
-                String keyString=context.getString(R.string.keyPrefix)+": "+mKey;
+                String keyString=SongList.getContext().getString(R.string.keyPrefix)+": "+mKey;
                 mStartScreenStrings.add(ScreenString.create(keyString,paint,nativeScreenWidth,spacePerMessageLine,Color.CYAN,notBoldFont,false));
             }
             if(showBPM)
             {
-                boolean rounded=context.getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
+                boolean rounded=SongList.getContext().getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
                 if(mInitialBPM==(int)mInitialBPM)
                     rounded=true;
-                String bpmString=context.getString(R.string.bpmPrefix)+": ";
+                String bpmString=SongList.getContext().getString(R.string.bpmPrefix)+": ";
                 if(rounded)
                     bpmString+=(int)Math.round(mInitialBPM);
                 else
@@ -279,7 +279,7 @@ class Song
         if(cancelEvent.isCancelled())
             return;
         if(mScrollingMode!=ScrollingMode.Manual)
-            mStartScreenStrings.add(ScreenString.create(context.getString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
+            mStartScreenStrings.add(ScreenString.create(SongList.getContext().getString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
         mTotalStartScreenTextHeight=0;
         for(ScreenString ss: mStartScreenStrings)
             mTotalStartScreenTextHeight+=ss.mHeight;

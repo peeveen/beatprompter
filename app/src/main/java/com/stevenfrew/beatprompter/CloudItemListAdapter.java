@@ -12,16 +12,14 @@ import android.widget.TextView;
 import java.util.List;
 
 class CloudItemListAdapter extends ArrayAdapter<CloudItem> {
-    private final Context mContext;
 
-    CloudItemListAdapter(Context context, List<CloudItem> items) {
-        super(context, -1, items);
-        this.mContext = context;
+    CloudItemListAdapter(List<CloudItem> items) {
+        super(SongList.getContext(), -1, items);
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) mContext
+        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
         TextView textView = (TextView) rowView.findViewById(R.id.file_or_folder_name);

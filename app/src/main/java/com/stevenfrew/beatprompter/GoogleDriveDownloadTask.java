@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter;
+/*package com.stevenfrew.beatprompter;
 
 import android.os.Handler;
 import android.util.Log;
@@ -57,14 +57,14 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                         String lowerCaseTitle = title.toLowerCase();
                         boolean audioFile = false;
                         boolean imageFile = false;
-                        for (String ext : AUDIO_FILE_EXTENSIONS)
+                        for (String ext : CloudStorage.AUDIO_FILE_EXTENSIONS)
                             if (lowerCaseTitle.endsWith(ext))
                                 audioFile = true;
-                        for (String ext : IMAGE_FILE_EXTENSIONS)
+                        for (String ext : CloudStorage.IMAGE_FILE_EXTENSIONS)
                             if (lowerCaseTitle.endsWith(ext))
                                 imageFile = true;
                         this.publishProgress(String.format(SongList.getContext().getString(R.string.checking), title));
-                        String safeFilename = makeSafeFilename(fileID);
+                        String safeFilename = Utils.makeSafeFilename(fileID);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
                         File existingLocalFile = existingCachedCloudFiles.get(fileID);
                         boolean downloadRequired = true;
@@ -159,15 +159,15 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                 String lowerCaseTitle = title.toLowerCase();
                 boolean dependencyFile = false;
                 if (mUpdateType == CloudFileType.Song) {
-                    for (String ext : AUDIO_FILE_EXTENSIONS)
+                    for (String ext : CloudStorage.AUDIO_FILE_EXTENSIONS)
                         if (lowerCaseTitle.endsWith(ext))
                             dependencyFile = true;
-                    for (String ext : IMAGE_FILE_EXTENSIONS)
+                    for (String ext : CloudStorage.IMAGE_FILE_EXTENSIONS)
                         if (lowerCaseTitle.endsWith(ext))
                             dependencyFile = true;
                 }
                 this.publishProgress(String.format(SongList.getContext().getString(R.string.checking), title));
-                String safeFilename = makeSafeFilename(fileID);
+                String safeFilename = Utils.makeSafeFilename(fileID);
                 Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                 Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
@@ -200,3 +200,4 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
     }
 }
 
+*/

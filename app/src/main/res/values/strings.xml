@@ -136,6 +136,7 @@
     <string name="otherErrorCount">... and %1$d other error(s).</string>
     <string name="fileNotFound">File "%1$s" not found!</string>
     <string name="noTitleFound">No {title} found in song file "%1$s"</string>
+    <string name="notAnAudioFile">"%1$s" is not a valid audio file.</string>
     <string name="checking">Checking %1$s</string>
     <string name="downloading">Downloading %1$s</string>
     <string name="deleting">Deleting %1$s</string>

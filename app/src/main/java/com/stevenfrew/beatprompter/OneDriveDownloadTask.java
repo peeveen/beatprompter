@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter;
+/*package com.stevenfrew.beatprompter;
 
 import android.os.Handler;
 import android.util.Log;
@@ -68,11 +68,11 @@ class OneDriveDownloadTask extends CloudDownloadTask
                     String title = item.name;
                     String lowerCaseTitle = title.toLowerCase();
                     boolean audioFile = false;
-                    for (String ext : AUDIO_FILE_EXTENSIONS)
+                    for (String ext : CloudStorage.AUDIO_FILE_EXTENSIONS)
                         if (lowerCaseTitle.endsWith(ext))
                             audioFile = true;
                     this.publishProgress(String.format(SongList.getContext().getString(R.string.checking), title));
-                    String safeFilename = makeSafeFilename(title);
+                    String safeFilename = Utils.makeSafeFilename(title);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
                     File existingLocalFile = existingCachedCloudFiles.get(fileID);
                     boolean downloadRequired = true;
@@ -117,12 +117,12 @@ class OneDriveDownloadTask extends CloudDownloadTask
             String lowerCaseTitle = title.toLowerCase();
             boolean audioFile = false;
             if(mUpdateType==CloudFileType.Song) {
-                for (String ext : AUDIO_FILE_EXTENSIONS)
+                for (String ext : CloudStorage.AUDIO_FILE_EXTENSIONS)
                     if (lowerCaseTitle.endsWith(ext))
                         audioFile = true;
             }
             this.publishProgress(String.format(SongList.getContext().getString(R.string.checking),title));
-            String safeFilename = makeSafeFilename(title);
+            String safeFilename = Utils.makeSafeFilename(title);
             Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
             Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
@@ -173,3 +173,4 @@ class OneDriveDownloadTask extends CloudDownloadTask
         return SongList.getContext().getString(R.string.onedrive_string);
     }
 }
+*/

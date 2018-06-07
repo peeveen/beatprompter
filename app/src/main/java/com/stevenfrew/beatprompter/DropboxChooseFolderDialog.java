@@ -18,9 +18,9 @@ class DropboxChooseFolderDialog extends ChooseFolderDialog
     private final static String DROPBOX_ROOT_PATH="/";
     private Exception mException;
 
-    DropboxChooseFolderDialog(Activity parentActivity, Context context, String preferenceName, String displayPreferenceName, DbxClientV2 dropboxClient)
+    DropboxChooseFolderDialog(Activity parentActivity, DbxClientV2 dropboxClient)
     {
-        super(parentActivity,context,preferenceName,displayPreferenceName,R.drawable.ic_dropbox);
+        super(parentActivity,R.drawable.ic_dropbox);
         mDropboxClient=dropboxClient;
     }
     CloudItem getRootPath()

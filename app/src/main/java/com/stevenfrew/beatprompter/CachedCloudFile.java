@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -21,6 +22,17 @@ abstract class CachedCloudFile extends CloudFileInfo{
     {
         super(storageID,name,lastModified,subfolder);
         mFile=file;
+    }
+
+    CachedCloudFile(File file, CloudFileInfo cloudFileInfo)
+    {
+        super(cloudFileInfo.mStorageID,cloudFileInfo.mName,cloudFileInfo.mLastModified,cloudFileInfo.mSubfolder);
+        mFile=file;
+    }
+
+    CachedCloudFile(CloudDownloadResult result)
+    {
+        this(result.mDownloadedFile,result.mCloudFileInfo);
     }
 
     CachedCloudFile(Element element)
@@ -70,7 +82,7 @@ abstract class CachedCloudFile extends CloudFileInfo{
 
     void writeToXML(Element element)
     {
-        element.setAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME,mTitle);
+        element.setAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME,mName);
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME,mFile.getAbsolutePath());
         element.setAttribute(CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME,mStorageID);
         element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME,""+mLastModified.getTime());
@@ -79,7 +91,47 @@ abstract class CachedCloudFile extends CloudFileInfo{
 
     static CachedCloudFile createCachedCloudFile(CloudDownloadResult result)
     {
-        // TODO: try parsing
+        try
+        {
+            return new SongFile(result);
+        }
+        catch(IOException ioe)
+        {
+            try {
+                // Not a song file. Might be a set file?
+                return new SetListFile(result);
+            }
+            catch(InvalidBeatPrompterFileException ibpfe1)
+            {
+                // Not a set list file. Might be a MIDI Alias file?
+                try {
+                    // Not a song file. Might be a set file?
+                    return new MIDIAliasCachedCloudFile(result,SongList.mDefaultAliases);
+                }
+                catch(InvalidBeatPrompterFileException ibpfe2)
+                {
+                    // Not a MIDI Alias file. Might be an audio file?
+                    // Not a set list file. Might be a MIDI Alias file?
+                    try {
+                        // Not a song file. Might be a set file?
+                        return new AudioFile(result);
+                    }
+                    catch(InvalidBeatPrompterFileException ibpfe3)
+                    {
+                        // Not an Audio file. Might be an image file?
+                        try {
+                            // Not a song file. Might be a set file?
+                            return new ImageFile(result);
+                        }
+                        catch(InvalidBeatPrompterFileException ibpfe4)
+                        {
+                            // Not an Image file.
+                            // We don't want this file.
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
 

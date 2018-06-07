@@ -15,21 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasCachedCloudFile> {
-    private final Context context;
     private final List<MIDIAliasCachedCloudFile> values;
     private boolean mLargePrint;
 
-    MIDIAliasListAdapter(Context context, List<MIDIAliasCachedCloudFile> fileList) {
-        super(context, -1, fileList);
-        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(context);
-        mLargePrint= sharedPref.getBoolean(context.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(context.getString(R.string.pref_largePrintList_defaultValue)));
-        this.context = context;
+    MIDIAliasListAdapter(List<MIDIAliasCachedCloudFile> fileList) {
+        super(SongList.getContext(),-1, fileList);
+        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
+        mLargePrint= sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_largePrintList_defaultValue)));
         this.values = fileList;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
+        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.midi_alias_list_item_large:R.layout.midi_alias_list_item, parent, false):convertView;
         TextView titleView = (TextView) rowView.findViewById(R.id.alias_file_name);

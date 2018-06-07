@@ -4,14 +4,14 @@ import java.util.Date;
 
 class CloudFileInfo {
     String mStorageID;
-    String mTitle;
+    String mName;
     Date mLastModified;
     String mSubfolder;
 
-    CloudFileInfo(String storageID,String title,Date lastModified,String subfolder)
+    CloudFileInfo(String storageID,String name,Date lastModified,String subfolder)
     {
         mStorageID=storageID;
-        mTitle=title;
+        mName=name;
         mLastModified=lastModified;
         mSubfolder=subfolder;
     }

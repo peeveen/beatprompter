@@ -2,14 +2,10 @@ package com.stevenfrew.beatprompter;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -23,7 +19,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import static android.app.DialogFragment.STYLE_NORMAL;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,DialogInterface.OnDismissListener {
     private static final String PARENT_DIR = "..";
@@ -44,17 +41,12 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
     private Dialog mDialog;
     private CloudItem mCurrentFolder;
     private CloudItem mParentFolder;
-    private String mPreferenceName;
-    private String mDisplayPreferenceName;
-    private Context mContext;
     protected Activity mActivity;
     private FolderFetcherTask mFolderFetcher;
+    private PublishSubject<CloudFolderInfo> mFolderSelectionSource=PublishSubject.create();
 
-    ChooseFolderDialog(final Activity activity,final Context context,String preferenceName,String displayPreferenceName, int iconResourceID) {
-        mContext=context;
+    ChooseFolderDialog(final Activity activity,int iconResourceID) {
         mActivity=activity;
-        mPreferenceName=preferenceName;
-        mDisplayPreferenceName=displayPreferenceName;
         mDialog = new Dialog(activity,R.style.CustomDialog);
         mDialog.requestWindowFeature(Window.FEATURE_LEFT_ICON);
         mDialog.setContentView(R.layout.choose_folder_dialog_loading);
@@ -78,13 +70,9 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         mDialog.show();
     }
 
-    private void setNewPath(final SharedPreferences settings, final CloudItem newFolder) {
-        if(newFolder!=null) {
-            SharedPreferences.Editor editor=settings.edit();
-            editor.putString(mDisplayPreferenceName, getDisplayPath(newFolder));
-            editor.putString(mPreferenceName, newFolder.mInternalPath);
-            editor.apply();
-        }
+    private void setNewPath(final CloudItem newFolder) {
+        if(newFolder!=null)
+            mFolderSelectionSource.onNext(new CloudFolderInfo(newFolder.mInternalPath, getDisplayPath(newFolder)));
         mDialog.dismiss();
     }
 
@@ -103,12 +91,7 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         if (dirs == null)
             mDialog.dismiss();
         else {
-            Collections.sort(dirs, new Comparator<CloudItem>() {
-                @Override
-                public int compare(CloudItem folder1, CloudItem folder2) {
-                    return folder1.compareTo(folder2);
-                }
-            });
+            dirs.sort((folder1, folder2) -> folder1.compareTo(folder2));
 
             if (mCurrentFolder.mParentFolder != null)
                 dirs.add(0, new CloudItem(mCurrentFolder.mParentFolder, PARENT_DIR, mCurrentFolder.mParentFolder.mInternalPath, true));
@@ -118,28 +101,20 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
             final ListView list = (ListView) mDialog.findViewById(R.id.chooseFolderListView);
             Button okButton = (Button) mDialog.findViewById(R.id.chooseFolderOkButton);
             mDialog.setTitle(getDisplayPath(mCurrentFolder));
-            list.setAdapter(new CloudItemListAdapter(mContext, dirs));
-            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
+            list.setAdapter(new CloudItemListAdapter(dirs));
 
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override public void onItemClick(AdapterView<?> parent, View view, int which, long id) {
-                    CloudItem folderChosen;
-                    if((which==0)&&(mParentFolder!=null))
-                        folderChosen=mParentFolder;
-                    else
-                        folderChosen = (CloudItem) list.getItemAtPosition(which);
+            list.setOnItemClickListener((parent, view, which, id) -> {
+                CloudItem folderChosen;
+                if((which==0)&&(mParentFolder!=null))
+                    folderChosen=mParentFolder;
+                else
+                    folderChosen = (CloudItem) list.getItemAtPosition(which);
 
-                    mDialog.setContentView(R.layout.choose_folder_dialog_loading);
-                    mDialog.setTitle(getDisplayPath(folderChosen));
-                    refresh(folderChosen);
-                }
+                mDialog.setContentView(R.layout.choose_folder_dialog_loading);
+                mDialog.setTitle(getDisplayPath(folderChosen));
+                refresh(folderChosen);
             });
-            okButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v)
-                {
-                    setNewPath(settings, mCurrentFolder);
-                }
-            });
+            okButton.setOnClickListener(v -> setNewPath(mCurrentFolder));
         }
     }
 
@@ -176,11 +151,13 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
     public void onDismiss(DialogInterface dialog)
     {
         cancelFolderFetcher();
+        mFolderSelectionSource.onComplete();
     }
 
     public void onCancel(DialogInterface dialog)
     {
         cancelFolderFetcher();
+        mFolderSelectionSource.onComplete();
     }
 
     private void cancelFolderFetcher()
@@ -198,5 +175,10 @@ abstract class ChooseFolderDialog implements DialogInterface.OnCancelListener,Di
         {
             mChooseFolderDialogHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHED,folders).sendToTarget();
         }
+    }
+
+    Observable<CloudFolderInfo> getFolderSelectionSource()
+    {
+        return mFolderSelectionSource;
     }
 }

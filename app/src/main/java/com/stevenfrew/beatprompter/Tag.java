@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.graphics.Color;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ class Tag
         mPosition=position;
     }
 
-    static MIDIEvent getMIDIEventFromTag(long time,Context context,Tag tag,ArrayList<MIDIAlias> aliases,byte defaultChannel,ArrayList<FileParseError> parseErrors) throws Exception
+    static MIDIEvent getMIDIEventFromTag(long time,Tag tag,ArrayList<MIDIAlias> aliases,byte defaultChannel,ArrayList<FileParseError> parseErrors) throws Exception
     {
         ArrayList<MIDIOutgoingMessage> outArray=null;
         String val=tag.mValue.trim();
@@ -65,9 +64,9 @@ class Tag
             {
                 String bits[]=tag.mName.split(";");
                 if(bits.length>2)
-                    parseErrors.add(new FileParseError(tag, context.getString(R.string.multiple_semi_colons_in_midi_tag)));
+                    parseErrors.add(new FileParseError(tag, SongList.getContext().getString(R.string.multiple_semi_colons_in_midi_tag)));
                 if(bits.length>1) {
-                    eventOffset=new MIDIEventOffset(context,bits[1].trim(),tag,parseErrors);
+                    eventOffset=new MIDIEventOffset(SongList.getContext(),bits[1].trim(),tag,parseErrors);
                     tag.mName=bits[0].trim();
                 }
             }
@@ -77,9 +76,9 @@ class Tag
             String firstSplitBits[] = (val.length() == 0 ? new String[0] : val.split(";"));
             if (firstSplitBits.length > 1) {
                 if (firstSplitBits.length > 2)
-                    parseErrors.add(new FileParseError(tag, context.getString(R.string.multiple_semi_colons_in_midi_tag)));
+                    parseErrors.add(new FileParseError(tag, SongList.getContext().getString(R.string.multiple_semi_colons_in_midi_tag)));
                 val = firstSplitBits[0].trim();
-                eventOffset = new MIDIEventOffset(context, firstSplitBits[1].trim(), tag, parseErrors);
+                eventOffset = new MIDIEventOffset(SongList.getContext(), firstSplitBits[1].trim(), tag, parseErrors);
             }
         }
         String[] bits=(val.length()==0?new String[0]:val.split(","));
@@ -87,7 +86,7 @@ class Tag
         Exception parseValueException=null;
         try {
             for (int f = 0; f < bits.length; ++f)
-                paramBytes[f] = MIDIMessage.parseValue(context, bits[f].trim());
+                paramBytes[f] = MIDIMessage.parseValue(bits[f].trim());
         }
         catch(Exception e)
         {
@@ -100,7 +99,7 @@ class Tag
                 if(f==paramBytes.length-1)
                     lastParamIsChannel=true;
                 else
-                    parseErrors.add(new FileParseError(tag,context.getString(R.string.channel_must_be_last_parameter)));
+                    parseErrors.add(new FileParseError(tag,SongList.getContext().getString(R.string.channel_must_be_last_parameter)));
         if(lastParamIsChannel) {
             MIDIValue lastParam= paramBytes[paramBytes.length - 1];
             channel = lastParam.mValue;
@@ -126,7 +125,7 @@ class Tag
             outArray.add(customMidiMessage);
         }
         if((outArray==null)||(outArray.isEmpty())) {
-            parseErrors.add(new FileParseError(tag, context.getString(R.string.unknown_midi_directive)));
+            parseErrors.add(new FileParseError(tag, SongList.getContext().getString(R.string.unknown_midi_directive)));
             return null;
         }
         if(parseValueException!=null) {
@@ -136,7 +135,7 @@ class Tag
         return new MIDIEvent(time,outArray,eventOffset);
     }
 
-    static int getIntegerValueFromTag(Context context,Tag tag,int min,int max,int defolt, ArrayList<FileParseError> parseErrors)
+    static int getIntegerValueFromTag(Tag tag,int min,int max,int defolt, ArrayList<FileParseError> parseErrors)
     {
         int val;
         try
@@ -144,24 +143,24 @@ class Tag
             val = Integer.parseInt(tag.mValue);
             if (val<min)
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.intValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.intValueTooLow),min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.intValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.intValueTooHigh),max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.intValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.intValueUnreadable),tag.mValue,defolt)));
             val=defolt;
         }
         return val;
     }
 
-    static int getDurationValueFromTag(Context context,Tag tag,int min,int max,int defolt,boolean trackLengthAllowed,ArrayList<FileParseError> parseErrors)
+    static int getDurationValueFromTag(Tag tag,int min,int max,int defolt,boolean trackLengthAllowed,ArrayList<FileParseError> parseErrors)
     {
         int val;
         try
@@ -169,24 +168,24 @@ class Tag
             val=Utils.parseDuration(tag.mValue,trackLengthAllowed);
             if ((val<min)&&(val!=Utils.TRACK_AUDIO_LENGTH_VALUE))
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.intValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.intValueTooLow),min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.intValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.intValueTooHigh),max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.durationValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.durationValueUnreadable),tag.mValue,defolt)));
             val=defolt;
         }
         return val;
     }
 
-    static double getDoubleValueFromTag(Context context,Tag tag,double min,double max,double defolt, ArrayList<FileParseError> parseErrors)
+    static double getDoubleValueFromTag(Tag tag,double min,double max,double defolt, ArrayList<FileParseError> parseErrors)
     {
         double val;
         try
@@ -194,24 +193,24 @@ class Tag
             val = Double.parseDouble(tag.mValue);
             if (val<min)
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.doubleValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.doubleValueTooLow),min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.doubleValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.doubleValueTooHigh),max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.doubleValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.doubleValueUnreadable),tag.mValue,defolt)));
             val=defolt;
         }
         return val;
     }
 
-    static int getColourValueFromTag(Context context,Tag tag,int defolt, ArrayList<FileParseError> parseErrors)
+    static int getColourValueFromTag(Tag tag,int defolt, ArrayList<FileParseError> parseErrors)
     {
         try
         {
@@ -227,17 +226,17 @@ class Tag
             {
                 String defaultString=("000000"+Integer.toHexString(defolt));
                 defaultString=defaultString.substring(defaultString.length()-6);
-                parseErrors.add(new FileParseError(tag,String.format(context.getString(R.string.colorValueUnreadable),tag.mValue,defaultString)));
+                parseErrors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.colorValueUnreadable),tag.mValue,defaultString)));
             }
         }
         return defolt;
     }
 
-    static MIDISongTrigger getSongTriggerFromTag(Context context,Tag tag,ArrayList<FileParseError> parseErrors)
+    static MIDISongTrigger getSongTriggerFromTag(Tag tag,ArrayList<FileParseError> parseErrors)
     {
         try
         {
-            return MIDISongTrigger.parse(context, tag.mValue, tag.mName.equals("midi_song_select_trigger"));
+            return MIDISongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"));
         }
         catch(Exception e)
         {

@@ -4,13 +4,14 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.*;
 
 class CachedCloudFileCollection
 {
-    private ArrayList<CachedCloudFile> mFiles=new ArrayList<>();
+    private List<CachedCloudFile> mFiles=new ArrayList<>();
 
     void writeToXML(Document d,Element root)
     {
@@ -31,26 +32,9 @@ class CachedCloudFileCollection
         mFiles.add(cachedFile);
     }
 
-    void remove(CachedCloudFile cachedFile)
-    {
-        for(int f=mFiles.size()-1;f>=0;--f)
-        {
-            CachedCloudFile existingFile=mFiles.get(f);
-            if(existingFile.mStorageID.equalsIgnoreCase(cachedFile.mStorageID))
-                mFiles.remove(f);
-        }
-        if(!cachedFile.mFile.delete())
-            Log.e(BeatPrompterApplication.TAG, "Failed to delete file.");
-    }
-
     boolean hasLatestVersionOf(CloudFileInfo cloudFile)
     {
-        for(int f=mFiles.size()-1;f>=0;--f) {
-            CachedCloudFile existingFile=mFiles.get(f);
-            if(existingFile.mStorageID.equalsIgnoreCase(cloudFile.mStorageID))
-                return existingFile.mLastModified==cloudFile.mLastModified;
-        }
-        return false;
+        return mFiles.stream().anyMatch(f->f.mStorageID.equalsIgnoreCase(cloudFile.mStorageID) && f.mLastModified.equals(cloudFile.mLastModified));
     }
 
     List<SongFile> getSongFiles()
@@ -76,5 +60,19 @@ class CachedCloudFileCollection
     List<ImageFile> getImageFiles()
     {
         return mFiles.stream().filter(f->f instanceof ImageFile).map(f->(ImageFile)f).collect(Collectors.toList());
+    }
+
+    void removeNonExistent(Set<String> storageIDs)
+    {
+        List<CachedCloudFile> remainingFiles=mFiles.stream().filter(f->storageIDs.contains(f.mStorageID)).collect(Collectors.toList());
+        List<CachedCloudFile> noLongerExistingFiles=mFiles.stream().filter(f->!storageIDs.contains(f.mStorageID)).collect(Collectors.toList());
+        noLongerExistingFiles.forEach(f->{if(!f.mFile.delete())
+            Log.e(BeatPrompterApplication.TAG, "Failed to delete file: "+f.mFile.getName());});
+        mFiles=remainingFiles;
+    }
+
+    void clear()
+    {
+        mFiles.clear();
     }
 }

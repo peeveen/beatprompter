@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -58,11 +57,11 @@ public class SongFile extends CachedCloudFile
     private long mTimePerLine=0;
     private long mTimePerBar=0;
     private double mBPM=0;
+    String mTitle=null;
     String mKey="";
     int mLines=0;
     boolean mMixedMode=false;
     String mArtist;
-    private Context mContext;
 
     private MIDISongTrigger mSongSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
     private MIDISongTrigger mProgramChangeTrigger=MIDISongTrigger.DEAD_TRIGGER;
@@ -73,11 +72,16 @@ public class SongFile extends CachedCloudFile
 
     private final static int MAX_LINE_LENGTH=256;
 
-    public SongFile(Context context,DownloadedFile downloadedFile, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    public SongFile(CloudDownloadResult result) throws IOException
     {
-        super(downloadedFile);
-        mContext=context;
-        parseSongFileInfo(context,tempAudioFileCollection,tempImageFileCollection);
+        super(result.mDownloadedFile,result.mCloudFileInfo);
+        parseSongFileInfo(new ArrayList<>(),new ArrayList<>());
+    }
+
+    public SongFile(File file,String storageID,String name, Date lastModified,String subfolder, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    {
+        super(file,storageID,name,lastModified,subfolder);
+        parseSongFileInfo(tempAudioFileCollection,tempImageFileCollection);
     }
 
     public SongFile(Element element)
@@ -162,23 +166,23 @@ public class SongFile extends CachedCloudFile
         return getTokenValues(line, lineNumber, "tag");
     }
 
-    private MIDISongTrigger getMIDISongSelectTriggerFromLine(Context context,String line, int lineNumber)
+    private MIDISongTrigger getMIDISongSelectTriggerFromLine(String line, int lineNumber)
     {
-        return getMIDITriggerFromLine(context,line,lineNumber,true);
+        return getMIDITriggerFromLine(line,lineNumber,true);
     }
 
-    private MIDISongTrigger getMIDIProgramChangeTriggerFromLine(Context context,String line, int lineNumber)
+    private MIDISongTrigger getMIDIProgramChangeTriggerFromLine(String line, int lineNumber)
     {
-        return getMIDITriggerFromLine(context,line,lineNumber,false);
+        return getMIDITriggerFromLine(line,lineNumber,false);
     }
 
-    private MIDISongTrigger getMIDITriggerFromLine(Context context,String line,int lineNumber,boolean songSelectTrigger)
+    private MIDISongTrigger getMIDITriggerFromLine(String line,int lineNumber,boolean songSelectTrigger)
     {
         String val = getTokenValue(line, lineNumber, songSelectTrigger?"midi_song_select_trigger":"midi_program_change_trigger");
         if(val!=null)
             try
             {
-                return MIDISongTrigger.parse(context,val,songSelectTrigger);
+                return MIDISongTrigger.parse(val,songSelectTrigger);
             }
             catch(Exception e)
             {
@@ -219,14 +223,14 @@ public class SongFile extends CachedCloudFile
         return realimage;
     }
 
-    private void parseSongFileInfo(Context context,ArrayList<AudioFile> tempAudioFileCollection,ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    private void parseSongFileInfo(ArrayList<AudioFile> tempAudioFileCollection,ArrayList<ImageFile> tempImageFileCollection) throws IOException
     {
         BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
         try
         {
             String line;
             int lineNumber=0;
-            SmoothScrollingTimes sst = getTimePerLineAndBar(context,null,tempAudioFileCollection,tempImageFileCollection);
+            SmoothScrollingTimes sst = getTimePerLineAndBar(null,tempAudioFileCollection,tempImageFileCollection);
             mTimePerLine=sst.mTimePerLine;
             mTimePerBar=sst.mTimePerBar;
             while((line=br.readLine())!=null)
@@ -237,8 +241,8 @@ public class SongFile extends CachedCloudFile
                 String firstChord=getFirstChordFromLine(line,lineNumber);
                 if(((mKey==null)||(mKey.length()==0))&&(firstChord!=null)&&(firstChord.length()>0))
                     mKey = firstChord;
-                MIDISongTrigger msst=getMIDISongSelectTriggerFromLine(context,line,lineNumber);
-                MIDISongTrigger mpct=getMIDIProgramChangeTriggerFromLine(context,line,lineNumber);
+                MIDISongTrigger msst=getMIDISongSelectTriggerFromLine(line,lineNumber);
+                MIDISongTrigger mpct=getMIDIProgramChangeTriggerFromLine(line,lineNumber);
                 if(msst!=null)
                     mSongSelectTrigger=msst;
                 if(mpct!=null)
@@ -270,7 +274,7 @@ public class SongFile extends CachedCloudFile
             }
             mLines=lineNumber;
             if((mTitle==null)||(mTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(mContext.getString(R.string.noTitleFound), mStorageID));
+                throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.noTitleFound), mName));
             if(mArtist==null)
                 mArtist="";
         }
@@ -332,7 +336,7 @@ public class SongFile extends CachedCloudFile
         parent.appendChild(songElement);
     }
 
-    Song load(Context context, ScrollingMode userChosenScrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler,boolean startedByMidiTrigger,ArrayList<MIDIAlias> aliases,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings) throws IOException
+    Song load(ScrollingMode userChosenScrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler,boolean startedByMidiTrigger,ArrayList<MIDIAlias> aliases,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings) throws IOException
     {
         // OK, the "scrollMode" param is passed in here.
         // This might be what the user has explicitly chosen, i.e.
@@ -345,25 +349,25 @@ public class SongFile extends CachedCloudFile
             // And if we ARE in mixed mode with switching allowed, we start in manual.
             currentScrollMode=ScrollingMode.Manual;
 
-        int countInOffset=Integer.parseInt(context.getString(R.string.pref_countIn_offset));
-        int countInMin=Integer.parseInt(context.getString(R.string.pref_countIn_min))+countInOffset;
-        int countInMax=Integer.parseInt(context.getString(R.string.pref_countIn_max))+countInOffset;
-        int countInDefault=Integer.parseInt(context.getString(R.string.pref_countIn_default))+countInOffset;
+        int countInOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_offset));
+        int countInMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_min))+countInOffset;
+        int countInMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_max))+countInOffset;
+        int countInDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_default))+countInOffset;
 
-        double bpmOffset=Integer.parseInt(context.getString(R.string.pref_bpm_offset));
-        double bpmMin=Integer.parseInt(context.getString(R.string.pref_bpm_min))+bpmOffset;
-        double bpmMax=Integer.parseInt(context.getString(R.string.pref_bpm_max))+bpmOffset;
-        double bpmDefault=Integer.parseInt(context.getString(R.string.pref_bpm_default))+bpmOffset;
+        double bpmOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_offset));
+        double bpmMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_min))+bpmOffset;
+        double bpmMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_max))+bpmOffset;
+        double bpmDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_default))+bpmOffset;
 
-        int bplOffset=Integer.parseInt(context.getString(R.string.pref_bpl_offset));
-        int bplMin=Integer.parseInt(context.getString(R.string.pref_bpl_min))+bplOffset;
-        int bplMax=Integer.parseInt(context.getString(R.string.pref_bpl_max))+bplOffset;
-        int bplDefault=Integer.parseInt(context.getString(R.string.pref_bpl_default))+bplOffset;
+        int bplOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_offset));
+        int bplMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_min))+bplOffset;
+        int bplMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_max))+bplOffset;
+        int bplDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_default))+bplOffset;
 
-        int bpbOffset=Integer.parseInt(context.getString(R.string.pref_bpb_offset));
-        int bpbMin=Integer.parseInt(context.getString(R.string.pref_bpb_min))+bpbOffset;
-        int bpbMax=Integer.parseInt(context.getString(R.string.pref_bpb_max))+bpbOffset;
-        int bpbDefault=Integer.parseInt(context.getString(R.string.pref_bpb_default))+bpbOffset;
+        int bpbOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_offset));
+        int bpbMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_min))+bpbOffset;
+        int bpbMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_max))+bpbOffset;
+        int bpbDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_default))+bpbOffset;
 
         int scrollBeatMin=1;
         int scrollBeatDefault=4;
@@ -372,12 +376,12 @@ public class SongFile extends CachedCloudFile
         ArrayList<FileParseError> errors=new ArrayList<>();
         boolean stopAddingStartupItems=false;
 
-        SmoothScrollingTimes sst=getTimePerLineAndBar(context,chosenTrack,null,null);
+        SmoothScrollingTimes sst=getTimePerLineAndBar(chosenTrack,null,null);
         long timePerLine=sst.mTimePerLine;
         long timePerBar=sst.mTimePerBar;
 
         if((timePerLine<0)||(timePerBar<0)) {
-            errors.add(new FileParseError(null, context.getString(R.string.pauseLongerThanSong)));
+            errors.add(new FileParseError(null, SongList.getContext().getString(R.string.pauseLongerThanSong)));
             sst.mTimePerLine=-timePerLine;
             sst.mTimePerBar=-timePerBar;
         }
@@ -390,34 +394,34 @@ public class SongFile extends CachedCloudFile
             ArrayList<Tag> tagsOut=new ArrayList<>();
             HashSet<String> tagsSet=new HashSet<>();
 
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-            MIDITriggerOutputContext triggerContext=MIDITriggerOutputContext.valueOf(sharedPref.getString(context.getString(R.string.pref_sendMidiTriggerOnStart_key),context.getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
-            int countInPref = sharedPref.getInt(context.getString(R.string.pref_countIn_key), Integer.parseInt(context.getString(R.string.pref_countIn_default)));
-            countInPref+=Integer.parseInt(context.getString(R.string.pref_countIn_offset));
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
+            MIDITriggerOutputContext triggerContext=MIDITriggerOutputContext.valueOf(sharedPref.getString(SongList.getContext().getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.getContext().getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
+            int countInPref = sharedPref.getInt(SongList.getContext().getString(R.string.pref_countIn_key), Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_default)));
+            countInPref+=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_offset));
 /*            int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
             defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
-            int defaultTrackVolume=sharedPref.getInt(context.getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(context.getString(R.string.pref_defaultTrackVolume_default)));
-            defaultTrackVolume+=Integer.parseInt(context.getString(R.string.pref_defaultTrackVolume_offset));
-            int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(context.getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(context.getString(R.string.pref_defaultMIDIOutputChannel_default)));
+            int defaultTrackVolume=sharedPref.getInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_default)));
+            defaultTrackVolume+=Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_offset));
+            int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(SongList.getContext().getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultMIDIOutputChannel_default)));
             byte defaultMIDIOutputChannel=MIDIMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
-            boolean showChords=sharedPref.getBoolean(context.getString(R.string.pref_showChords_key), Boolean.parseBoolean(context.getString(R.string.pref_showChords_defaultValue)));
-            boolean sendMidiClock = sharedPref.getBoolean(context.getString(R.string.pref_sendMidi_key), false);
-            int backgroundColour = sharedPref.getInt(context.getString(R.string.pref_backgroundColor_key), Color.parseColor(context.getString(R.string.pref_backgroundColor_default)));
-            int pulseColour = sharedPref.getInt(context.getString(R.string.pref_pulseColor_key), Color.parseColor(context.getString(R.string.pref_pulseColor_default)));
-            int beatCounterColour = sharedPref.getInt(context.getString(R.string.pref_beatCounterColor_key), Color.parseColor(context.getString(R.string.pref_beatCounterColor_default)));
-            int scrollMarkerColour = sharedPref.getInt(context.getString(R.string.pref_scrollMarkerColor_key), Color.parseColor(context.getString(R.string.pref_scrollMarkerColor_default)));
-            int lyricColour = sharedPref.getInt(context.getString(R.string.pref_lyricColor_key),Color.parseColor(context.getString(R.string.pref_lyricColor_default)));
-            int chordColour = sharedPref.getInt(context.getString(R.string.pref_chordColor_key), Color.parseColor(context.getString(R.string.pref_chordColor_default)));
-            int annotationColour = sharedPref.getInt(context.getString(R.string.pref_annotationColor_key), Color.parseColor(context.getString(R.string.pref_annotationColor_default)));
-            String customCommentsUser=sharedPref.getString(context.getString(R.string.pref_customComments_key), context.getString(R.string.pref_customComments_defaultValue));
+            boolean showChords=sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_showChords_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_showChords_defaultValue)));
+            boolean sendMidiClock = sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_sendMidi_key), false);
+            int backgroundColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_backgroundColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_backgroundColor_default)));
+            int pulseColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_pulseColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_pulseColor_default)));
+            int beatCounterColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_beatCounterColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_beatCounterColor_default)));
+            int scrollMarkerColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_scrollMarkerColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_scrollMarkerColor_default)));
+            int lyricColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_lyricColor_key),Color.parseColor(SongList.getContext().getString(R.string.pref_lyricColor_default)));
+            int chordColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_chordColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_chordColor_default)));
+            int annotationColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_annotationColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_annotationColor_default)));
+            String customCommentsUser=sharedPref.getString(SongList.getContext().getString(R.string.pref_customComments_key), SongList.getContext().getString(R.string.pref_customComments_defaultValue));
             backgroundColour|=0xff000000;
             annotationColour|=0xff000000;
             pulseColour|=0xff000000;
             beatCounterColour|=0xff000000;
             lyricColour|=0xff000000;
             chordColour|=0xff000000;
-            boolean ignoreColorInfo=sharedPref.getBoolean(context.getString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(context.getString(R.string.pref_ignoreColorInfo_defaultValue)));
-            String metronomePref=sharedPref.getString(context.getString(R.string.pref_metronome_key), context.getString(R.string.pref_metronome_defaultValue));
+            boolean ignoreColorInfo=sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_ignoreColorInfo_defaultValue)));
+            String metronomePref=sharedPref.getString(SongList.getContext().getString(R.string.pref_metronome_key), SongList.getContext().getString(R.string.pref_metronome_defaultValue));
 
             // ONE SHOT
             String title=mTitle,artist=mArtist;
@@ -443,9 +447,9 @@ public class SongFile extends CachedCloudFile
             String commentAudience;
             ImageFile lineImage=null;
 
-            boolean metronomeOn=metronomePref.equals(context.getString(R.string.metronomeOnValue));
-            boolean metronomeOnWhenNoBackingTrack=metronomePref.equals(context.getString(R.string.metronomeOnWhenNoBackingTrackValue));
-            boolean metronomeCount=metronomePref.equals(context.getString(R.string.metronomeDuringCountValue));
+            boolean metronomeOn=metronomePref.equals(SongList.getContext().getString(R.string.metronomeOnValue));
+            boolean metronomeOnWhenNoBackingTrack=metronomePref.equals(SongList.getContext().getString(R.string.metronomeOnWhenNoBackingTrackValue));
+            boolean metronomeCount=metronomePref.equals(SongList.getContext().getString(R.string.metronomeDuringCountValue));
 
             if(metronomeOnWhenNoBackingTrack && (chosenTrack==null || chosenTrack.length()==0))
                 metronomeOn=true;
@@ -477,7 +481,7 @@ public class SongFile extends CachedCloudFile
                     if(line.length()>MAX_LINE_LENGTH)
                     {
                         line=line.substring(0,MAX_LINE_LENGTH);
-                        errors.add(new FileParseError(null, String.format(context.getString(R.string.lineTooLong),lineCounter,MAX_LINE_LENGTH)));
+                        errors.add(new FileParseError(null, String.format(SongList.getContext().getString(R.string.lineTooLong),lineCounter,MAX_LINE_LENGTH)));
                     }
                     tagsOut.clear();
                     String strippedLine=Tag.extractTags(line, lineCounter, tagsOut);
@@ -496,7 +500,7 @@ public class SongFile extends CachedCloudFile
                         if((Tag.COLOR_TAGS.contains(tag.mName))&&(!ignoreColorInfo))
                             createColorEvent=true;
                         if((Tag.ONE_SHOT_TAGS.contains(tag.mName))&&(tagsSet.contains(tag.mName)))
-                            errors.add(new FileParseError(tag,String.format(context.getString(R.string.oneShotTagDefinedTwice),tag.mName)));
+                            errors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.oneShotTagDefinedTwice),tag.mName)));
                         commentAudience=null;
                         if(tag.mName.startsWith("c@"))
                         {
@@ -523,7 +527,7 @@ public class SongFile extends CachedCloudFile
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(lineCounter, context.getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(lineCounter, SongList.getContext().getString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -538,18 +542,18 @@ public class SongFile extends CachedCloudFile
                                     else if(strScalingMode.equalsIgnoreCase("original"))
                                         imageScalingMode=ImageScalingMode.Original;
                                     else
-                                        errors.add(new FileParseError(lineCounter,context.getString(R.string.unknown_image_scaling_mode)));
+                                        errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.unknown_image_scaling_mode)));
                                 }
                                 String image=new File(imageName).getName();
                                 File imageFile=null;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
                                         imageFile = null;
                                     }
                                 }
@@ -569,25 +573,25 @@ public class SongFile extends CachedCloudFile
                                     {
                                         int tryvolume = Integer.parseInt(strVolume);
                                         if((tryvolume<0)||(tryvolume>100))
-                                            errors.add(new FileParseError(lineCounter,context.getString(R.string.badAudioVolume)));
+                                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.badAudioVolume)));
                                         else
                                             volume=(int)((double)volume*((double)tryvolume/100.0));
                                     }
                                     catch(NumberFormatException nfe)
                                     {
-                                        errors.add(new FileParseError(lineCounter,context.getString(R.string.badAudioVolume)));
+                                        errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.badAudioVolume)));
                                     }
                                 }
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,null);
                                 if(mappedTrack==null)
-                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile),track)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
                                         trackFile = null;
                                     }
                                 }
@@ -602,7 +606,7 @@ public class SongFile extends CachedCloudFile
                                 break;
                             case "count":
                             case "countin":
-                                count=Tag.getIntegerValueFromTag(mContext,tag, countInMin, countInMax, countInDefault, errors);
+                                count=Tag.getIntegerValueFromTag(tag, countInMin, countInMax, countInDefault, errors);
                                 break;
 //                            case "trackoffset":
 //                                trackOffset=Tag.getLongValueFromTag(tag, trackOffsetMin, trackOffsetMax, trackOffsetDefault, errors);
@@ -611,37 +615,37 @@ public class SongFile extends CachedCloudFile
                             case "backgroundcolor":
                             case "bgcolour":
                             case "bgcolor":
-                                backgroundColour=Tag.getColourValueFromTag(mContext,tag, backgroundColour, errors);
+                                backgroundColour=Tag.getColourValueFromTag(tag, backgroundColour, errors);
                                 break;
                             case "pulsecolour":
                             case "pulsecolor":
                             case "beatcolour":
                             case "beatcolor":
-                                pulseColour=Tag.getColourValueFromTag(mContext,tag, pulseColour, errors);
+                                pulseColour=Tag.getColourValueFromTag(tag, pulseColour, errors);
                                 break;
                             case "lyriccolour":
                             case "lyriccolor":
                             case "lyricscolour":
                             case "lyricscolor":
-                                lyricColour=Tag.getColourValueFromTag(mContext,tag, lyricColour, errors);
+                                lyricColour=Tag.getColourValueFromTag(tag, lyricColour, errors);
                                 break;
                             case "chordcolour":
                             case "chordcolor":
-                                chordColour=Tag.getColourValueFromTag(mContext,tag, chordColour, errors);
+                                chordColour=Tag.getColourValueFromTag(tag, chordColour, errors);
                                 break;
                             case "beatcountercolour":
                             case "beatcountercolor":
-                                beatCounterColour=Tag.getColourValueFromTag(mContext,tag, beatCounterColour, errors);
+                                beatCounterColour=Tag.getColourValueFromTag(tag, beatCounterColour, errors);
                                 break;
                             case "bpm":
                             case "metronome":
                             case "beatsperminute":
-                                bpm=Tag.getDoubleValueFromTag(mContext,tag, bpmMin, bpmMax, bpmDefault, errors);
+                                bpm=Tag.getDoubleValueFromTag(tag, bpmMin, bpmMax, bpmDefault, errors);
                                 break;
                             case "bpb":
                             case "beatsperbar":
                                 int prevScrollBeatDiff=bpb-scrollBeat;
-                                bpb=Tag.getIntegerValueFromTag(mContext,tag, bpbMin, bpbMax, bpbDefault, errors);
+                                bpb=Tag.getIntegerValueFromTag(tag, bpbMin, bpbMax, bpbDefault, errors);
                                 if(!initialBPBSet) {
                                     initialBPB = bpb;
                                     initialBPBSet=true;
@@ -654,11 +658,11 @@ public class SongFile extends CachedCloudFile
                                 break;
                             case "bpl":
                             case "barsperline":
-                                bpl=Tag.getIntegerValueFromTag(mContext,tag, bplMin, bplMax, bplDefault, errors);
+                                bpl=Tag.getIntegerValueFromTag(tag, bplMin, bplMax, bplDefault, errors);
                                 break;
                             case "scrollbeat":
                             case "sb":
-                                scrollBeat=Tag.getIntegerValueFromTag(mContext,tag, scrollBeatMin, bpb, scrollBeatDefault, errors);
+                                scrollBeat=Tag.getIntegerValueFromTag(tag, scrollBeatMin, bpb, scrollBeatDefault, errors);
                                 if(scrollBeat>bpb)
                                     scrollBeat=bpb;
                                 break;
@@ -685,13 +689,13 @@ public class SongFile extends CachedCloudFile
                                 }
                                 break;
                             case "pause":
-                                pauseTime=Tag.getDurationValueFromTag(mContext,tag,1000,60*60*1000,0,false,errors);
+                                pauseTime=Tag.getDurationValueFromTag(tag,1000,60*60*1000,0,false,errors);
                                 break;
                             case "midi_song_select_trigger":
                             case "midi_program_change_trigger":
                                 // Don't need the value after the song is loaded, we're just showing informational
                                 // errors about bad formatting.
-                                Tag.getSongTriggerFromTag(mContext,tag,errors);
+                                Tag.getSongTriggerFromTag(tag,errors);
                                 break;
                             case "time":
                             case "tag":
@@ -755,7 +759,7 @@ public class SongFile extends CachedCloudFile
                                     if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
                                         // NO MIDI FOR YOU
                                         break;
-                                    MIDIEvent me = Tag.getMIDIEventFromTag(currentTime,mContext, tag, aliases, defaultMIDIOutputChannel, errors);
+                                    MIDIEvent me = Tag.getMIDIEventFromTag(currentTime,tag, aliases, defaultMIDIOutputChannel, errors);
                                     if (me!=null)
                                     {
                                         if(stopAddingStartupItems) {
@@ -769,7 +773,7 @@ public class SongFile extends CachedCloudFile
                                         {
                                             initialMIDIMessages.addAll(me.mMessages);
                                             if(me.mOffset!=null)
-                                                errors.add(new FileParseError(tag,context.getString(R.string.midi_offset_before_first_line)));
+                                                errors.add(new FileParseError(tag,SongList.getContext().getString(R.string.midi_offset_before_first_line)));
                                         }
                                     }
                                 }
@@ -876,14 +880,14 @@ public class SongFile extends CachedCloudFile
 
                         if((scrollbeatOffset<-bpbThisLine)||(scrollbeatOffset>=bpbThisLine))
                         {
-                            errors.add(new FileParseError(lineCounter,context.getString(R.string.scrollbeatOffTheMap)));
+                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.scrollbeatOffTheMap)));
                             scrollbeatOffset=0;
                         }
                         if(!commasFound)
                             bars=bpl;
 
                         if((lineImage!=null)&&((strippedLine.trim().length()>0)||(chordsFound)))
-                            errors.add(new FileParseError(lineCounter,context.getString(R.string.text_found_with_image)));
+                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.text_found_with_image)));
 
                         if((strippedLine.trim().length()==0)&&(!chordsFound))
                             strippedLine="▼";
@@ -897,7 +901,7 @@ public class SongFile extends CachedCloudFile
                             if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
                             {
                                 tagsOut=new ArrayList<>();
-                                strippedLine = context.getString(R.string.please_buy);
+                                strippedLine = SongList.getContext().getString(R.string.please_buy);
                                 lineImage=null;
                             }
                             Line lastLine = null;
@@ -915,11 +919,11 @@ public class SongFile extends CachedCloudFile
 
                             Line lineObj;
                             if(lineImage!=null) {
-                                lineObj = new ImageLine(lineImage, imageScalingMode, mContext, tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset,currentScrollMode, errors);
+                                lineObj = new ImageLine(lineImage, imageScalingMode, tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset,currentScrollMode, errors);
                                 lineImage=null;
                             }
                             else
-                                lineObj= new TextLine(strippedLine,mContext,tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset, currentScrollMode,errors);
+                                lineObj= new TextLine(strippedLine,tagsOut, bars, lastEvent.mPrevColorEvent, bpbThisLine, scrollBeat, scrollbeatOffset, currentScrollMode,errors);
 
                             bars=lineObj.mBars;
                             int beatsForThisLine=bpbThisLine*bars;
@@ -1131,10 +1135,10 @@ public class SongFile extends CachedCloudFile
             }
 
             // Now process all MIDI events with offsets.
-            offsetMIDIEvents(context,firstEvent,errors);
+            offsetMIDIEvents(firstEvent,errors);
 
             Song song=new Song(title,artist,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,userChosenScrollMode,sendMidiClock,startedByBandLeader,nextSong,sourceSettings.mOrientation,initialMIDIMessages,beatBlocks,mKey,mBPM,initialBPB,count);
-            song.doMeasurements(context,new Paint(),cancelEvent,handler,nativeSettings,sourceSettings);
+            song.doMeasurements(new Paint(),cancelEvent,handler,nativeSettings,sourceSettings);
             return song;
         }
         finally
@@ -1151,7 +1155,7 @@ public class SongFile extends CachedCloudFile
         }
     }
 
-    private void offsetMIDIEvents(Context context,BaseEvent firstEvent,ArrayList<FileParseError> errors)
+    private void offsetMIDIEvents(BaseEvent firstEvent,ArrayList<FileParseError> errors)
     {
         BaseEvent event=firstEvent;
         while(event!=null)
@@ -1192,7 +1196,7 @@ public class SongFile extends CachedCloudFile
                         }
                     }
                     if(newTime<0) {
-                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, context.getString(R.string.midi_offset_is_before_start_of_song)));
+                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, SongList.getContext().getString(R.string.midi_offset_is_before_start_of_song)));
                         newTime=0;
                     }
                     MIDIEvent newMIDIEvent=new MIDIEvent(newTime,midiEvent.mMessages);
@@ -1223,17 +1227,17 @@ public class SongFile extends CachedCloudFile
         return currentTime;
     }
 
-    private SmoothScrollingTimes getTimePerLineAndBar(Context context, String chosenTrack, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    private SmoothScrollingTimes getTimePerLineAndBar(String chosenTrack, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
     {
 //        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 /*        int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
         defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
         BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
 
-        int bplOffset=Integer.parseInt(context.getString(R.string.pref_bpl_offset));
-        int bplMin=Integer.parseInt(context.getString(R.string.pref_bpl_min))+bplOffset;
-        int bplMax=Integer.parseInt(context.getString(R.string.pref_bpl_max))+bplOffset;
-        int bplDefault=Integer.parseInt(context.getString(R.string.pref_bpl_default))+bplOffset;
+        int bplOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_offset));
+        int bplMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_min))+bplOffset;
+        int bplMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_max))+bplOffset;
+        int bplDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_default))+bplOffset;
 
         try
         {
@@ -1279,23 +1283,23 @@ public class SongFile extends CachedCloudFile
                                 sKey=tag.mValue.trim();
                                 break;
                             case "time":
-                                songTime = Tag.getDurationValueFromTag(mContext,tag, 1000, 60 * 60 * 1000, 0, true,errors);
+                                songTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, true,errors);
                                 break;
                             case "pause":
-                                pauseTime = Tag.getDurationValueFromTag(mContext, tag, 1000, 60 * 60 * 1000, 0, false,errors);
+                                pauseTime = Tag.getDurationValueFromTag( tag, 1000, 60 * 60 * 1000, 0, false,errors);
                                 break;
                             case "bars":
                             case "b":
-                                barsTag=Tag.getIntegerValueFromTag(context, tag, 1, 128, 1, errors);
+                                barsTag=Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors);
                                 break;
                             case "bpl":
                             case "barsperline":
-                                barsPerLine=Tag.getIntegerValueFromTag(mContext,tag, bplMin, bplMax, bplDefault, errors);
+                                barsPerLine=Tag.getIntegerValueFromTag(tag, bplMin, bplMax, bplDefault, errors);
                                 break;
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(tag, context.getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(tag, SongList.getContext().getString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -1306,12 +1310,12 @@ public class SongFile extends CachedCloudFile
                                 File imageFile=null;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
                                         mappedImage=null;
                                     }
                                 }
@@ -1329,13 +1333,13 @@ public class SongFile extends CachedCloudFile
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,tempAudioFileCollection);
                                 if(mappedTrack==null) {
-                                    errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile), track)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile), track)));
                                 }
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(context.getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
                                         trackFile = null;
                                     }
                                 }

@@ -191,44 +191,24 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
 
     void setCloudPath()
     {
-        Cloud cloud=SongList.mSongListInstance.getCloud();
-        if(cloud==Cloud.None)
+        CloudType cloud=SongList.mSongListInstance.getCloud();
+        if(cloud==CloudType.None)
             Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
-        else if(cloud==Cloud.GoogleDrive) {
+        else if(cloud==CloudType.GoogleDrive) {
             startGoogleDriveFolderBrowser();
         }
-        else if(cloud==Cloud.Dropbox)
+        else if(cloud==CloudType.Dropbox)
         {
-            if(mDropboxClient!=null)
-                editDropboxPath();
-            else
-                initializeDropboxClient();
+            CloudStorage cs=new DropboxCloudStorage(getActivity());
+            cs.getFolderSelectionSource().subscribe(this::onCloudFolderSelected);
+            cs.selectFolder();
         }
-        else if(cloud==Cloud.OneDrive)
+        else if(cloud==CloudType.OneDrive)
         {
             if (mOneDriveClient != null)
                 editOneDrivePath();
             else
                 initializeOneDriveClient();
-        }
-    }
-
-    void initializeDropboxClient()
-    {
-        if(mDropboxClient==null) {
-            SharedPreferences sharedPrefs = getActivity().getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
-            String storedAccessToken = sharedPrefs.getString(getString(R.string.pref_dropboxAccessToken_key), null);
-            if (storedAccessToken != null) {
-                DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder(BeatPrompterApplication.APP_NAME)
-                        .build();
-                mDropboxClient = new DbxClientV2(requestConfig, storedAccessToken);
-                editDropboxPath();
-            }
-            else
-            {
-                mAuthorizingDropbox=true;
-                Auth.startOAuth2Authentication(getActivity(), DROPBOX_APP_KEY);
-            }
         }
     }
 
@@ -261,7 +241,7 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             editOneDrivePath();
     }
 
-    @Override
+/*    @Override
     public void onResume()
     {
         super.onResume();
@@ -273,18 +253,14 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             {
                 SharedPreferences prefs = getActivity().getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
                 prefs.edit().putString(getString(R.string.pref_dropboxAccessToken_key), accessToken).apply();
-                initializeDropboxClient();
+                //initializeDropboxClient();
             }
         }
-    }
+    }*/
 
-    void editDropboxPath()
-    {
-        new DropboxChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), mDropboxClient).showDialog();
-    }
     void editOneDrivePath()
     {
-        new OneDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), mOneDriveClient).showDialog();
+        //new OneDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), mOneDriveClient).showDialog();
     }
 
     @Override
@@ -386,8 +362,8 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             mGoogleAPIClient.clearDefaultAccountAndReconnect();
             return;
         }
-        GoogleDriveChooseFolderDialog gdcfd=new GoogleDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), getGoogleDriveService());
-        gdcfd.showDialog();
+        //GoogleDriveChooseFolderDialog gdcfd=new GoogleDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), getGoogleDriveService());
+        //gdcfd.showDialog();
     }
 
     void onCompleteAuthorizationRequestCode()
@@ -421,5 +397,15 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
         }
         else
             initializeGoogleAPIClient();
+    }
+
+    void onCloudFolderSelected(CloudFolderInfo folderInfo)
+    {
+        getPreferenceManager()
+                .getSharedPreferences()
+                .edit()
+                .putString(getString(R.string.pref_cloudPath_key),folderInfo.mFolderID)
+                .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mFolderDisplayName)
+                .apply();
     }
 }

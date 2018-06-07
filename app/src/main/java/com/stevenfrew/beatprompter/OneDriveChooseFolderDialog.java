@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter;
+/*package com.stevenfrew.beatprompter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -103,3 +103,4 @@ class OneDriveChooseFolderDialog extends ChooseFolderDialog
         return new GetOneDriveFoldersTask();
     }
 }
+*/

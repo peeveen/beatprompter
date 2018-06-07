@@ -91,7 +91,7 @@ class MIDISongTrigger
         return null;
     }
 
-    static MIDISongTrigger parse(Context context, String descriptor, boolean songSelect)
+    static MIDISongTrigger parse(String descriptor, boolean songSelect)
     {
         if(descriptor==null)
             return null;
@@ -103,23 +103,23 @@ class MIDISongTrigger
         MIDIValue channel=new MIDIValue(WILDCARD_VALUE,true);
         if(bits.length>1)
             if(songSelect)
-                throw new IllegalArgumentException(context.getString(R.string.song_index_must_have_one_value));
+                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_value));
         if((bits.length>4)||(bits.length<1))
             if(songSelect)
-                throw new IllegalArgumentException(context.getString(R.string.song_index_must_have_one_value));
+                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_value));
             else
-                throw new IllegalArgumentException(context.getString(R.string.song_index_must_have_one_two_or_three_values));
+                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_two_or_three_values));
 
         if(bits.length>3)
-            channel=MIDIMessage.parseChannelValue(context,bits[3],true);
+            channel=MIDIMessage.parseChannelValue(bits[3],true);
 
         if(bits.length>2)
-            lsb=MIDIMessage.parseValue(context,bits[2],true);
+            lsb=MIDIMessage.parseValue(bits[2],true);
 
         if(bits.length>1)
-            msb=MIDIMessage.parseValue(context,bits[1],true);
+            msb=MIDIMessage.parseValue(bits[1],true);
 
-        MIDIValue index=MIDIMessage.parseValue(context,bits[0],true);
+        MIDIValue index=MIDIMessage.parseValue(bits[0],true);
 
         return new MIDISongTrigger(msb,lsb,index,songSelect,channel);
     }

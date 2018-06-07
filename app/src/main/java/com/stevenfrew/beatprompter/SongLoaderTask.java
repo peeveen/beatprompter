@@ -6,8 +6,6 @@ import android.os.Handler;
 import java.io.IOException;
 
 class SongLoaderTask extends Task {
-    Context mContext;
-
     CancelEvent mCancelEvent=null;
     LoadingSongFile mLoadingSongFile=null;
 
@@ -65,10 +63,9 @@ class SongLoaderTask extends Task {
         }
     }
 
-    SongLoaderTask(Context context)
+    SongLoaderTask()
     {
         super(true);
-        mContext=context;
     }
     void doWork()
     {
@@ -78,7 +75,7 @@ class SongLoaderTask extends Task {
             Handler songLoadHandler=getSongLoadHandler();
             CancelEvent cancelEvent = getCancelEvent();
             try {
-                Song loadingSong = lsf.load(mContext, SongList.isFullVersionUnlocked(), cancelEvent, songLoadHandler,SongList.getMIDIAliases());
+                Song loadingSong = lsf.load(SongList.isFullVersionUnlocked(), cancelEvent, songLoadHandler,SongList.getMIDIAliases());
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_CANCELLED).sendToTarget();
                 else {

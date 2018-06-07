@@ -29,13 +29,13 @@ class MIDIAliasFile
         mAliasSetName=maf.mAliasSetName;
     }
 
-    MIDIAliasFile(Context context,BufferedReader br,String aliasSetName) throws InvalidBeatPrompterFileException
+    MIDIAliasFile(BufferedReader br,String aliasSetName) throws InvalidBeatPrompterFileException
     {
-        this(readAliasFile(context,br,aliasSetName,new ArrayList<MIDIAlias>()));
+        this(readAliasFile(br,aliasSetName,new ArrayList<MIDIAlias>()));
     }
 
-    MIDIAliasFile(Context context,File file,String storageName,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException {
-        this(readAliasFile(context,file,storageName,defaultAliases));
+    MIDIAliasFile(File file,String storageName,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException {
+        this(readAliasFile(file,storageName,defaultAliases));
     }
 
     private static String getMidiAliasDefinitionFromLine(String line,int lineNumber)
@@ -43,17 +43,17 @@ class MIDIAliasFile
         return CachedCloudFile.getTokenValue(line, lineNumber, "midi_alias");
     }
 
-    private static MIDIAliasFile readAliasFile(Context context, File file, String storageName,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException {
+    private static MIDIAliasFile readAliasFile(File file, String storageName,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException {
         try {
-            return readAliasFile(context,new BufferedReader(new InputStreamReader(new FileInputStream(file))),storageName,defaultAliases);
+            return readAliasFile(new BufferedReader(new InputStreamReader(new FileInputStream(file))),storageName,defaultAliases);
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_midi_alias_file), storageName));
+            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_midi_alias_file), storageName));
         }
     }
 
-    private static MIDIAliasFile readAliasFile(Context context,BufferedReader br,String filename,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    private static MIDIAliasFile readAliasFile(BufferedReader br,String filename,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
     {
         try
         {
@@ -76,7 +76,7 @@ class MIDIAliasFile
                 if(!isMidiAliasFile) {
                     aliasFilename=CachedCloudFile.getTokenValue(line,lineNumber,"midi_aliases");
                     if((aliasFilename==null)||(aliasFilename.trim().length()==0)) {
-                        throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_midi_alias_file), aliasFilename));
+                        throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_midi_alias_file), aliasFilename));
                     }
                     isMidiAliasFile=true;
                 }
@@ -94,7 +94,7 @@ class MIDIAliasFile
                         String aliasName = getMidiAliasDefinitionFromLine(line, lineNumber);
                         if (aliasName != null) {
                             if(aliasName.contains(":"))
-                                errors.add(new FileParseError(lineNumber, context.getString(R.string.midi_alias_name_contains_more_than_two_parts)));
+                                errors.add(new FileParseError(lineNumber, SongList.getContext().getString(R.string.midi_alias_name_contains_more_than_two_parts)));
                             else {
                                 aliasName = aliasName.trim();
                                 if (currentAliasName != null) {
@@ -105,14 +105,14 @@ class MIDIAliasFile
                                 if (aliasName.length() > 0)
                                     currentAliasName = aliasName;
                                 else
-                                    errors.add(new FileParseError(lineNumber, context.getString(R.string.midi_alias_without_a_name)));
+                                    errors.add(new FileParseError(lineNumber, SongList.getContext().getString(R.string.midi_alias_without_a_name)));
                             }
                         } else {
-                            ArrayList<MIDIAliasMessage> aliasMessages = parseAliasMessage(context,line,lineNumber,aliases,errors,defaultAliases);
+                            ArrayList<MIDIAliasMessage> aliasMessages = parseAliasMessage(line,lineNumber,aliases,errors,defaultAliases);
                             if (aliasMessages != null)
                                 currentMessages.addAll(aliasMessages);
                             else
-                                errors.add(new FileParseError(lineNumber,context.getString(R.string.midi_message_not_understood)));
+                                errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.midi_message_not_understood)));
                         }
                     }
                 }
@@ -123,7 +123,7 @@ class MIDIAliasFile
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_midi_alias_file), filename));
+            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_midi_alias_file), filename));
         }
         finally
         {
@@ -139,7 +139,7 @@ class MIDIAliasFile
         }
     }
 
-    private static ArrayList<MIDIAliasMessage> parseAliasMessage(Context context,String line,int lineNumber,ArrayList<MIDIAlias> currentAliases,ArrayList<FileParseError> errors,ArrayList<MIDIAlias> defaultAliases)
+    private static ArrayList<MIDIAliasMessage> parseAliasMessage(String line,int lineNumber,ArrayList<MIDIAlias> currentAliases,ArrayList<FileParseError> errors,ArrayList<MIDIAlias> defaultAliases)
     {
         int bracketStart=line.indexOf("{");
         if(bracketStart!=-1)
@@ -158,7 +158,7 @@ class MIDIAliasFile
                         String[] paramBits=params.split(",");
                         try {
                             for(String paramBit:paramBits)
-                                maps.add(new MIDIAliasParameter(context, paramBit.trim()));
+                                maps.add(new MIDIAliasParameter(paramBit.trim()));
                         }
                         catch(Exception e)
                         {
@@ -173,7 +173,7 @@ class MIDIAliasFile
                             {
                                 if(maps.get(f).isChannelReference()) {
                                     if (f < maps.size() - 1)
-                                        errors.add(new FileParseError(lineNumber, context.getString(R.string.channel_must_be_last_parameter)));
+                                        errors.add(new FileParseError(lineNumber, SongList.getContext().getString(R.string.channel_must_be_last_parameter)));
                                     else
                                         --numberOfParametersSupplied;
                                 }
@@ -181,7 +181,7 @@ class MIDIAliasFile
                         }
                     }
                     if(bits.length>2)
-                        errors.add(new FileParseError(lineNumber,context.getString(R.string.midi_alias_message_contains_more_than_two_parts)));
+                        errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.midi_alias_message_contains_more_than_two_parts)));
                     else {
                         if (tagName.equalsIgnoreCase("midi_send"))
                         {
@@ -212,7 +212,7 @@ class MIDIAliasFile
                                 ArrayList<MIDIAliasMessage> fixedMessages=new ArrayList<>();
                                 try {
                                     for(MIDIAliasMessage message:messages)
-                                        fixedMessages.add(message.resolveMIDIAliasMessage(context,maps));
+                                        fixedMessages.add(message.resolveMIDIAliasMessage(maps));
                                     return fixedMessages;
                                 }
                                 catch(Exception e)
@@ -221,18 +221,18 @@ class MIDIAliasFile
                                 }
                             }
                             else
-                                errors.add(new FileParseError(lineNumber,context.getString(R.string.unknown_midi_directive)));
+                                errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.unknown_midi_directive)));
                         }
                     }
                 }
                 else
-                    errors.add(new FileParseError(lineNumber,context.getString(R.string.empty_tag)));
+                    errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.empty_tag)));
             }
             else
-                errors.add(new FileParseError(lineNumber,context.getString(R.string.badly_formed_tag)));
+                errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.badly_formed_tag)));
         }
         else
-            errors.add(new FileParseError(lineNumber,context.getString(R.string.badly_formed_tag)));
+            errors.add(new FileParseError(lineNumber,SongList.getContext().getString(R.string.badly_formed_tag)));
         return null;
     }
 

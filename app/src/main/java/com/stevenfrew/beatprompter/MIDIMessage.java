@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
-
 class MIDIMessage
 {
     final static byte MIDI_SYSEX_START_BYTE=(byte)0xf0;
@@ -60,19 +58,19 @@ class MIDIMessage
         while(counter<16);
         return 0;
     }
-    static MIDIValue parseValue(Context context,String str)
+    static MIDIValue parseValue(String str)
     {
-        return parseValue(context,str,false);
+        return parseValue(str,false);
     }
-    static MIDIValue parseChannelValue(Context context,String str,boolean fromTrigger)
+    static MIDIValue parseChannelValue(String str,boolean fromTrigger)
     {
-        return parseValue(context,str,fromTrigger,true);
+        return parseValue(str,fromTrigger,true);
     }
-    static MIDIValue parseValue(Context context, String str, boolean fromTrigger)
+    static MIDIValue parseValue(String str, boolean fromTrigger)
     {
-        return parseValue(context,str,fromTrigger,false);
+        return parseValue(str,fromTrigger,false);
     }
-    private static MIDIValue parseValue(Context context, String str, boolean fromTrigger,boolean asChannel)
+    private static MIDIValue parseValue(String str, boolean fromTrigger,boolean asChannel)
     {
         boolean isChannel=false;
         str=str.trim();
@@ -89,7 +87,7 @@ class MIDIMessage
         else
             returnVal=Integer.parseInt(str);
         if((isChannel)&&((returnVal < 1) || (returnVal > 16)))
-            throw new IllegalArgumentException(context.getString(R.string.invalid_channel_value));
+            throw new IllegalArgumentException(SongList.getContext().getString(R.string.invalid_channel_value));
 /*        else if(returnVal<0||returnVal>127)
             throw new IllegalArgumentException(context.getString(R.string.value_must_be_zero_to_onehundredtwentyseven));*/
         if(isChannel)

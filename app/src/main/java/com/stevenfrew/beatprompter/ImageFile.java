@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
+import android.graphics.BitmapFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -9,18 +9,25 @@ import java.io.File;
 
 import java.util.Date;
 
-class ImageFile extends MediaFile
+class ImageFile extends CachedCloudFile
 {
     final static String IMAGEFILE_ELEMENT_TAG_NAME="imagefile";
 
-    ImageFile(String title,File file,String storageName,Date lastModified)
+    ImageFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
-        super(title,file,storageName,lastModified);
+        super(result);
+        verifyImageFile();
     }
 
-    private ImageFile(CachedCloudFile cf, String title)
+    ImageFile(File file,String storageID,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
     {
-        super(cf,title);
+        super(file,storageID,name,lastModified,subfolder);
+        verifyImageFile();
+    }
+
+    ImageFile(Element element)
+    {
+        super(element);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -30,17 +37,21 @@ class ImageFile extends MediaFile
         parent.appendChild(imageFileElement);
     }
 
-    static ImageFile readFromXMLElement(Element element)
-    {
-        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
-        String audioFileTitle=readMediaTitle(element);
-        return new ImageFile(cf,audioFileTitle);
-    }
-
     @Override
     CloudFileType getFileType()
     {
         return CloudFileType.Image;
     }
 
+    private void verifyImageFile() throws InvalidBeatPrompterFileException
+    {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        try {
+            BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
+        }
+        catch(Exception e)
+        {
+            throw new InvalidBeatPrompterFileException(SongList.getContext().getString(R.string.could_not_read_image_file)+": "+mName);
+        }
+    }
 }

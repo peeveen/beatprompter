@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -29,9 +28,9 @@ class TextLine extends Line
     private int mLineDescenderOffset;
     private int mChordDescenderOffset;
 
-    TextLine(String lineText, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
+    TextLine(String lineText, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
     {
-        super(context,lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,scrollingMode,parseErrors);
+        super(lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,scrollingMode,parseErrors);
         mText=lineText;
         for(Tag tag:lineTags)
             if(tag.mChordTag)
@@ -40,7 +39,7 @@ class TextLine extends Line
                 mLineTags.add(tag);
     }
 
-    LineMeasurements doMeasurements(Context context,Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth,int screenHeight,  Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
+    LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth,int screenHeight,  Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
     {
         mFont=font;
         ArrayList<LineSection> sections = new ArrayList<>();

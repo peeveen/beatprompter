@@ -19,9 +19,13 @@ interface CloudStorage {
 
     void readFolderContents(String folderID, boolean includeSubfolders);
 
+    void selectFolder();
+
     Observable<String> getProgressMessageSource();
 
     Observable<CloudDownloadResult> getDownloadResultSource();
 
     Observable<CloudFileInfo> getFolderContentsSource();
+
+    Observable<CloudFolderInfo> getFolderSelectionSource();
 }

@@ -29,8 +29,8 @@ class LoadingSongFile {
         mNativeDisplaySettings=nativeSettings;
         mSourceDisplaySettings=sourceSettings;
     }
-    Song load(Context context, boolean fullVersionUnlocked, CancelEvent cancelEvent, Handler handler,ArrayList<MIDIAlias> midiAliases) throws IOException
+    Song load(boolean fullVersionUnlocked, CancelEvent cancelEvent, Handler handler,ArrayList<MIDIAlias> midiAliases) throws IOException
     {
-        return mSongFile.load(context, mScrollMode, mTrack,mIsDemoSong || fullVersionUnlocked,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
+        return mSongFile.load(mScrollMode, mTrack,mIsDemoSong || fullVersionUnlocked,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
     }
 }

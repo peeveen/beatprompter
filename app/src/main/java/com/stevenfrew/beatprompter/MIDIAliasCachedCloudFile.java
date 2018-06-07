@@ -16,15 +16,16 @@ class MIDIAliasCachedCloudFile extends CachedCloudFile
 
     private MIDIAliasFile mAliasFile;
 
-    MIDIAliasCachedCloudFile(Context context, DownloadedFile downloadedFile,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    public MIDIAliasCachedCloudFile(CloudDownloadResult result,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
     {
-        super(downloadedFile);
-        mAliasFile=new MIDIAliasFile(context,mFile,mStorageID,defaultAliases);
+        super(result.mDownloadedFile,result.mCloudFileInfo);
+        mAliasFile=new MIDIAliasFile(mFile,mStorageID,defaultAliases);
     }
 
-    private MIDIAliasCachedCloudFile(Context context, CachedCloudFile cachedFile,ArrayList<MIDIAlias> defaultAliases) throws IOException {
-        super(cachedFile);
-        mAliasFile=new MIDIAliasFile(context,mFile,mStorageID,defaultAliases);
+    MIDIAliasCachedCloudFile(File file,String storageID,String title,Date lastModified,String subfolder,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    {
+        super(file,storageID,title,lastModified,subfolder);
+        mAliasFile=new MIDIAliasFile(mFile,mStorageID,defaultAliases);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -34,10 +35,10 @@ class MIDIAliasCachedCloudFile extends CachedCloudFile
         parent.appendChild(aliasFileElement);
     }
 
-    static MIDIAliasCachedCloudFile readFromXMLElement(Context context,Element element,ArrayList<MIDIAlias> defaultAliases) throws IOException
+    MIDIAliasCachedCloudFile(Element element,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
     {
-        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
-        return new MIDIAliasCachedCloudFile(context,cf,defaultAliases);
+        super(element);
+        mAliasFile=new MIDIAliasFile(mFile,mStorageID,defaultAliases);
     }
 
     ArrayList<FileParseError> getErrors()

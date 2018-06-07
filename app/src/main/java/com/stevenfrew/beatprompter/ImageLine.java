@@ -20,13 +20,13 @@ public class ImageLine extends Line
     Rect mSourceRect,mDestRect;
     Bitmap mBitmap;
 
-    ImageLine(ImageFile image, ImageScalingMode scalingMode, Context context, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors) {
-        super(context, lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors);
+    ImageLine(ImageFile image, ImageScalingMode scalingMode, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors) {
+        super(lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors);
         mImageFile=image;
         mScalingMode=scalingMode;
     }
 
-    LineMeasurements doMeasurements(Context context, Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
+    LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
     {
         String path=mImageFile.mFile.getAbsolutePath();
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -34,7 +34,7 @@ public class ImageLine extends Line
             mBitmap=BitmapFactory.decodeFile(path, options);
         }
         catch(Exception e) {
-            errors.add(new FileParseError(null,context.getString(R.string.could_not_read_image_file)+": "+mImageFile.mTitle));
+            errors.add(new FileParseError(null,SongList.getContext().getString(R.string.could_not_read_image_file)+": "+mImageFile.mName));
             return null;
         }
 
