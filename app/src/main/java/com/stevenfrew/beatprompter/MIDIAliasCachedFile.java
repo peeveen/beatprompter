@@ -10,21 +10,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-class MIDIAliasCachedFile extends CachedFile
+class MIDIAliasCachedCloudFile extends CachedCloudFile
 {
     final static String MIDIALIASFILE_ELEMENT_TAG_NAME="midialiases";
 
     private MIDIAliasFile mAliasFile;
 
-    MIDIAliasCachedFile(Context context, DownloadedFile downloadedFile,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    MIDIAliasCachedCloudFile(Context context, DownloadedFile downloadedFile,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
     {
         super(downloadedFile);
-        mAliasFile=new MIDIAliasFile(context,mFile,mStorageName,defaultAliases);
+        mAliasFile=new MIDIAliasFile(context,mFile,mStorageID,defaultAliases);
     }
 
-    private MIDIAliasCachedFile(Context context, CachedFile cachedFile,ArrayList<MIDIAlias> defaultAliases) throws IOException {
+    private MIDIAliasCachedCloudFile(Context context, CachedCloudFile cachedFile,ArrayList<MIDIAlias> defaultAliases) throws IOException {
         super(cachedFile);
-        mAliasFile=new MIDIAliasFile(context,mFile,mStorageName,defaultAliases);
+        mAliasFile=new MIDIAliasFile(context,mFile,mStorageID,defaultAliases);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -34,10 +34,10 @@ class MIDIAliasCachedFile extends CachedFile
         parent.appendChild(aliasFileElement);
     }
 
-    static MIDIAliasCachedFile readFromXMLElement(Context context,Element element,ArrayList<MIDIAlias> defaultAliases) throws IOException
+    static MIDIAliasCachedCloudFile readFromXMLElement(Context context,Element element,ArrayList<MIDIAlias> defaultAliases) throws IOException
     {
-        CachedFile cf=CachedFile.readFromXMLElement(element);
-        return new MIDIAliasCachedFile(context,cf,defaultAliases);
+        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
+        return new MIDIAliasCachedCloudFile(context,cf,defaultAliases);
     }
 
     ArrayList<FileParseError> getErrors()
@@ -56,8 +56,8 @@ class MIDIAliasCachedFile extends CachedFile
     }
 
     @Override
-    CachedFileType getFileType()
+    CloudFileType getFileType()
     {
-        return CachedFileType.MIDIAliases;
+        return CloudFileType.MIDIAliases;
     }
 }

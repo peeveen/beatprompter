@@ -1,40 +1,36 @@
 package com.stevenfrew.beatprompter;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-class CachedFile {
+abstract class CachedCloudFile extends CloudFileInfo{
+
     File mFile;
-    String mStorageName;
-    String mSubfolder;
-    Date mLastModified;
-    String mTitle;
 
     private final static String CACHED_FILE_PATH_ATTRIBUTE_NAME="path";
-    private final static String CACHED_FILE_STORAGE_NAME_ATTRIBUTE_NAME="storageName";
+    private final static String CACHED_FILE_NAME_ATTRIBUTE_NAME="name";
+    private final static String CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME="storageID";
     private final static String CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME="lastModified";
     private final static String CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME="subfolder";
 
-    CachedFile(File file, String storageName, Date lastModified,String subfolder)
+    CachedCloudFile(File file, String storageID, String name, Date lastModified,String subfolder)
     {
+        super(storageID,name,lastModified,subfolder);
         mFile=file;
-        mTitle=file.getName();
-        mStorageName=storageName;
-        mLastModified=lastModified;
-        mSubfolder=subfolder;
     }
 
-    CachedFile(DownloadedFile downloadedFile)
+    CachedCloudFile(Element element)
     {
-        this(downloadedFile.mFile,downloadedFile.mCloudFileInfo.mStorageID,downloadedFile.mCloudFileInfo.mLastModified,downloadedFile.mCloudFileInfo.mSubfolder);
-    }
-
-    CachedFile(CachedFile cachedFile)
-    {
-        this(cachedFile.mFile,cachedFile.mStorageName,cachedFile.mLastModified,cachedFile.mSubfolder);
+        this(
+                new File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME)),
+                element.getAttribute(CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME),
+                element.getAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME),
+                new Date(Long.parseLong(element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME))),
+                element.getAttribute(CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME));
     }
 
     static String getTokenValue(String line,int lineNumber, String... tokens)
@@ -74,27 +70,20 @@ class CachedFile {
 
     void writeToXML(Element element)
     {
+        element.setAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME,mTitle);
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME,mFile.getAbsolutePath());
-        element.setAttribute(CACHED_FILE_STORAGE_NAME_ATTRIBUTE_NAME,mStorageName);
+        element.setAttribute(CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME,mStorageID);
         element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME,""+mLastModified.getTime());
         element.setAttribute(CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME,mSubfolder==null?"":mSubfolder);
     }
 
-    static CachedFile readFromXMLElement(Element element)
+    static CachedCloudFile createCachedCloudFile(CloudDownloadResult result)
     {
-        String path=element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME);
-        String storageName=element.getAttribute(CACHED_FILE_STORAGE_NAME_ATTRIBUTE_NAME);
-        String lastModifiedString=element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME);
-        String subfolder=element.getAttribute(CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME);
-        if(subfolder==null)
-            subfolder="";
-        File file=new File(path);
-        Date lastModified=new Date(Long.parseLong(lastModifiedString));
-        return new CachedFile(file,storageName,lastModified,subfolder);
+        // TODO: try parsing
+        return null;
     }
 
-    CachedFileType getFileType()
-    {
-        return CachedFileType.None;
-    }
+    abstract void writeToXML(Document doc, Element root);
+
+    abstract CloudFileType getFileType();
 }

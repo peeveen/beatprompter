@@ -1,28 +1,26 @@
 package com.stevenfrew.beatprompter;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
 
 import java.util.Date;
 
-abstract class MediaFile extends CachedFile
+abstract class MediaFile extends CachedCloudFile
 {
     private final static String MEDIAFILE_TITLE_ATTRIBUTE_NAME="title";
 
     String mTitle;
 
-    MediaFile(String title,File file,String storageName,Date lastModified)
+    MediaFile(File file,String storageID,String title,Date lastModified,String subfolder)
     {
-        super(file,storageName,lastModified,"");
+        super(file,storageID,title,lastModified,subfolder);
         mTitle=title;
     }
 
-    protected MediaFile(CachedFile cf, String title)
+    MediaFile(Element e)
     {
-        super(cf);
-        mTitle=title;
+        super(e);
     }
 
     void writeToXML(Element mediaFileElement)

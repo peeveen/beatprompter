@@ -40,7 +40,7 @@ class MIDIAliasFile
 
     private static String getMidiAliasDefinitionFromLine(String line,int lineNumber)
     {
-        return CachedFile.getTokenValue(line, lineNumber, "midi_alias");
+        return CachedCloudFile.getTokenValue(line, lineNumber, "midi_alias");
     }
 
     private static MIDIAliasFile readAliasFile(Context context, File file, String storageName,ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException {
@@ -74,7 +74,7 @@ class MIDIAliasFile
                 if(line.isEmpty())
                     continue;
                 if(!isMidiAliasFile) {
-                    aliasFilename=CachedFile.getTokenValue(line,lineNumber,"midi_aliases");
+                    aliasFilename=CachedCloudFile.getTokenValue(line,lineNumber,"midi_aliases");
                     if((aliasFilename==null)||(aliasFilename.trim().length()==0)) {
                         throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_midi_alias_file), aliasFilename));
                     }

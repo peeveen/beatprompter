@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,15 +11,15 @@ class AudioFile extends MediaFile
 {
     final static String AUDIOFILE_ELEMENT_TAG_NAME="audiofile";
 
-    AudioFile(String title,File file,String storageName,Date lastModified)
+    AudioFile(String title,File file,String storageID,Date lastModified,String subfolder)
     {
-        super(title,file,storageName,lastModified);
+        super(file,storageID,title,lastModified,subfolder);
         mTitle=title;
     }
 
-    private AudioFile(CachedFile cf, String title)
+    AudioFile(Element e)
     {
-        super(cf,title);
+        super(e);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -31,16 +29,9 @@ class AudioFile extends MediaFile
         parent.appendChild(audioFileElement);
     }
 
-    static AudioFile readFromXMLElement(Element element)
-    {
-        CachedFile cf=CachedFile.readFromXMLElement(element);
-        String title=MediaFile.readMediaTitle(element);
-        return new AudioFile(cf,title);
-    }
-
     @Override
-    CachedFileType getFileType()
+    CloudFileType getFileType()
     {
-        return CachedFileType.Audio;
+        return CloudFileType.Audio;
     }
 }

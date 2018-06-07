@@ -81,6 +81,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -99,7 +100,7 @@ import static android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK;
 public class SongList extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     static boolean mFullVersionUnlocked=true;
 
-    CachedFile mFileToUpdate=null;
+    CachedCloudFile mFileToUpdate=null;
     boolean mFetchDependenciesToo=false;
 
     private boolean mMidiUsbRegistered=false;
@@ -111,7 +112,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     Filter mSelectedFilter=null;
     SortingPreference mSortingPreference=SortingPreference.TITLE;
     static ArrayList<MIDIAlias> mDefaultAliases;
-    static CachedFileCollection mCachedFiles=new CachedFileCollection();
+    static CachedCloudFileCollection mCachedCloudFiles=new CachedCloudFileCollection();
     Playlist mPlaylist=new Playlist();
     PlaylistNode mNowPlayingNode=null;
     ArrayList<Filter> mFilters=new ArrayList<>();
@@ -204,7 +205,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     clearCache();
                     break;
                 case BeatPrompterApplication.CACHE_UPDATED:
-                    CachedFileCollection cache=(CachedFileCollection)msg.obj;
+                    CachedCloudFileCollection cache=(CachedCloudFileCollection)msg.obj;
                     onCacheUpdated(cache);
                     break;
             }
@@ -315,7 +316,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if((mSelectedFilter!=null)&&(mSelectedFilter instanceof MIDIAliasFilesFilter))
         {
-            final MIDIAliasCachedFile maf=mCachedFiles.mMIDIAliasCachedFiles.get(position);
+            final MIDIAliasCachedCloudFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
             if(maf.getErrors().size()>0)
                 showMIDIAliasErrors(maf.getErrors());
         }
@@ -363,7 +364,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             }
         // Otherwise, it might be a song that is not currently onscreen.
         // Still play it though!
-        for(SongFile sf:mCachedFiles.mSongs)
+        for(SongFile sf:mCachedCloudFiles.getSongFiles())
             if(sf.matchesTrigger(mst)) {
                 playSongFile(sf, null, true);
             }
@@ -407,7 +408,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     boolean isDemoSong(SongFile songFile)
     {
-        return (songFile!=null) && (mCachedFiles.mSongs.size()==1) &&
+        return (songFile!=null) && (mCachedCloudFiles.getSongFiles().size()==1) &&
                 (
                         songFile.mTitle.equalsIgnoreCase("BeatPrompter Demo Song") ||
                                 songFile.mTitle.equalsIgnoreCase("BeatPrompter Demo-Song") ||
@@ -683,7 +684,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void onMIDIAliasListLongClick(int position)
     {
-        final MIDIAliasCachedFile maf=mCachedFiles.mMIDIAliasCachedFiles.get(position);
+        final MIDIAliasCachedCloudFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
         final boolean showErrors=maf.getErrors().size()>0;
 
         int arrayID=R.array.midi_alias_options_array;
@@ -757,7 +758,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final String XML_DATABASE_FILE_NAME="bpdb.xml";
     private static final String XML_DATABASE_FILE_ROOT_ELEMENT_TAG="beatprompterDatabase";
 
-    private static final String DROPBOX_CACHE_FOLDER_NAME="dropbox";
     private static final String ONEDRIVE_CACHE_FOLDER_NAME="onedrive";
     private static final String GOOGLE_DRIVE_CACHE_FOLDER_NAME="google_drive";
     private static final String DEMO_CACHE_FOLDER_NAME="demo";
@@ -942,7 +942,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 deleteAllFiles();
 
         mGoogleDriveFolder=new File(mBeatPrompterSongFilesFolder,GOOGLE_DRIVE_CACHE_FOLDER_NAME);
-        mDropboxFolder=new File(mBeatPrompterSongFilesFolder,DROPBOX_CACHE_FOLDER_NAME);
         mOneDriveFolder=new File(mBeatPrompterSongFilesFolder,ONEDRIVE_CACHE_FOLDER_NAME);
         mDemoFolder=new File(mBeatPrompterSongFilesFolder,DEMO_CACHE_FOLDER_NAME);
         if(!mGoogleDriveFolder.exists())
@@ -951,9 +950,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if(!mOneDriveFolder.exists())
             if(!mOneDriveFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG,"Failed to create OneDrive sync folder.");
-        if(!mDropboxFolder.exists())
-            if(!mDropboxFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create Dropbox sync folder.");
         if(!mDemoFolder.exists())
             if(!mDemoFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG,"Failed to create Demo folder.");
@@ -997,7 +993,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static AudioFile getMappedAudioFilename(String in,ArrayList<AudioFile> tempAudioFileCollection)
     {
         if(in!=null) {
-            for (AudioFile afm : mCachedFiles.mAudioFiles) {
+            for (AudioFile afm : mCachedCloudFiles.getAudioFiles()) {
                 String secondChance = in.replace('’', '\'');
                 if ((afm.mTitle.equalsIgnoreCase(in)) || (afm.mTitle.equalsIgnoreCase(secondChance)))
                     return afm;
@@ -1015,7 +1011,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static ImageFile getMappedImageFilename(String in,ArrayList<ImageFile> tempImageFileCollection)
     {
         if(in!=null) {
-            for (ImageFile ifm : mCachedFiles.mImageFiles) {
+            for (ImageFile ifm : mCachedCloudFiles.getImageFiles()) {
                 String secondChance = in.replace('’', '\'');
                 if ((ifm.mTitle.equalsIgnoreCase(in)) || (ifm.mTitle.equalsIgnoreCase(secondChance)))
                     return ifm;
@@ -1130,9 +1126,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return false;
     }
 
-    private ArrayList<CachedFile> getFilesToRefresh()
+    private ArrayList<CachedCloudFile> getFilesToRefresh()
     {
-        ArrayList<CachedFile> filesToRefresh=new ArrayList<>();
+        ArrayList<CachedCloudFile> filesToRefresh=new ArrayList<>();
         if(mFileToUpdate!=null)
         {
             filesToRefresh.add(mFileToUpdate);
@@ -1162,7 +1158,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return filesToRefresh;
     }
 
-    void performCloudSync(CachedFile fileToUpdate,boolean dependenciesToo)
+    void performCloudSync(CachedCloudFile fileToUpdate,boolean dependenciesToo)
     {
         mFileToUpdate = fileToUpdate;
         mFetchDependenciesToo = dependenciesToo;
@@ -1171,10 +1167,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void performCloudSync()
     {
-        ArrayList<CachedFile> filesToRefresh=getFilesToRefresh();
+        ArrayList<CachedCloudFile> filesToRefresh=getFilesToRefresh();
 
-        Cloud cloud=getCloud();
-        if(cloud==Cloud.None)
+        CloudType cloud=getCloud();
+        if(cloud==CloudType.None)
             Toast.makeText(this,getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
         else {
             CloudDownloadTask cdt=null;
@@ -1183,21 +1179,21 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
             else {
                 boolean includeSubFolders = getIncludeSubfolders();
-                if (cloud == Cloud.Dropbox) {
+                if (cloud == CloudType.Dropbox) {
                     if(mDropboxAPI!=null)
-                        cdt = new DropboxDownloadTask(mDropboxAPI,mDropboxFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedFiles, mDefaultAliases,filesToRefresh);
+                        cdt = new DropboxDownloadTask(mDropboxAPI,mDropboxFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
                     else
                         initializeDropboxAPI();
                 }
-                else if (cloud == Cloud.GoogleDrive) {
+                else if (cloud == CloudType.GoogleDrive) {
                     if(GoogleDriveWrapper.isConnected())
-                        cdt=new GoogleDriveDownloadTask(mGoogleDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedFiles, mDefaultAliases,filesToRefresh);
+                        cdt=new GoogleDriveDownloadTask(mGoogleDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
                     else
                         GoogleDriveWrapper.connectClient();
                 }
-                else if (cloud == Cloud.OneDrive) {
+                else if (cloud == CloudType.OneDrive) {
                     if(mOneDriveClient!=null)
-                        cdt = new OneDriveDownloadTask(mOneDriveClient,mOneDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedFiles, mDefaultAliases,filesToRefresh);
+                        cdt = new OneDriveDownloadTask(mOneDriveClient,mOneDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
                     else
                         initializeOneDriveAPI();
                 }
@@ -1277,7 +1273,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private void buildList()
     {
         if((mSelectedFilter!=null)&&(mSelectedFilter instanceof MIDIAliasFilesFilter))
-            mListAdapter=new MIDIAliasListAdapter(this,mCachedFiles.mMIDIAliasCachedFiles);
+            mListAdapter=new MIDIAliasListAdapter(this,mCachedCloudFiles.getMIDIAliasFiles());
         else
             mListAdapter = new SongListAdapter(this, mPlaylist.getNodesAsArray());
 
@@ -1299,7 +1295,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         File bpdb=new File(mBeatPrompterDataFolder,XML_DATABASE_FILE_NAME);
         if(bpdb.exists())
         {
-            clearCachedFileArrays();
+            clearCachedCloudFileArrays();
 
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document xmlDoc = docBuilder.parse(bpdb);
@@ -1307,31 +1303,31 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             for (int f = 0; f < songFiles.getLength(); ++f) {
                 Node n = songFiles.item(f);
                 SongFile song = SongFile.readFromXMLElement(this, (Element)n);
-                mCachedFiles.mSongs.add(song);
+                mCachedCloudFiles.add(song);
             }
             NodeList setFiles = xmlDoc.getElementsByTagName(SetListFile.SETLISTFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < setFiles.getLength(); ++f) {
                 Node n = setFiles.item(f);
                 SetListFile set = SetListFile.readFromXMLElement(this, (Element)n);
-                mCachedFiles.mSets.add(set);
+                mCachedCloudFiles.add(set);
             }
             NodeList imageFiles = xmlDoc.getElementsByTagName(ImageFile.IMAGEFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < imageFiles.getLength(); ++f) {
                 Node n = imageFiles.item(f);
                 ImageFile imageFile = ImageFile.readFromXMLElement((Element)n);
-                mCachedFiles.mImageFiles.add(imageFile);
+                mCachedCloudFiles.add(imageFile);
             }
             NodeList audioFiles = xmlDoc.getElementsByTagName(AudioFile.AUDIOFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < audioFiles.getLength(); ++f) {
                 Node n = audioFiles.item(f);
-                AudioFile audioFile = AudioFile.readFromXMLElement((Element)n);
-                mCachedFiles.mAudioFiles.add(audioFile);
+                AudioFile audioFile = new AudioFile((Element)n);
+                mCachedCloudFiles.add(audioFile);
             }
-            NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasCachedFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
+            NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasCachedCloudFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < aliasFiles.getLength(); ++f) {
                 Node n = aliasFiles.item(f);
-                MIDIAliasCachedFile midiAliasCachedFile = MIDIAliasCachedFile.readFromXMLElement(this,(Element)n,mDefaultAliases);
-                mCachedFiles.mMIDIAliasCachedFiles.add(midiAliasCachedFile);
+                MIDIAliasCachedCloudFile midiAliasCachedCloudFile = MIDIAliasCachedCloudFile.readFromXMLElement(this,(Element)n,mDefaultAliases);
+                mCachedCloudFiles.add(midiAliasCachedCloudFile);
             }
             buildFilterList();
         }
@@ -1346,7 +1342,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         Document d=docBuilder.newDocument();
         Element root=d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG);
         d.appendChild(root);
-        mCachedFiles.writeToXML(d,root);
+        mCachedCloudFiles.writeToXML(d,root);
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         Result output = new StreamResult(bpdb);
         Source input = new DOMSource(d);
@@ -1368,7 +1364,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         mSelectedFilter=null;
         Map<String,ArrayList<SongFile>> tagDicts=new HashMap<>();
         Map<String,ArrayList<SongFile>> folderDicts=new HashMap<>();
-        for(SongFile song: mCachedFiles.mSongs)
+        for(SongFile song: mCachedCloudFiles.getSongFiles())
         {
             for(String tag: song.mTags)
             {
@@ -1410,9 +1406,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mFilters.add(ff);
         }
 
-        for(SetListFile slf:mCachedFiles.mSets)
+        for(SetListFile slf:mCachedCloudFiles.getSetListFiles())
         {
-            SetListFileFilter filter=new SetListFileFilter(slf,mCachedFiles.mSongs);
+            SetListFileFilter filter=new SetListFileFilter(slf,mCachedCloudFiles.getSongFiles());
             mFilters.add(filter);
         }
 
@@ -1428,10 +1424,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if(mTemporarySetListFilter!=null)
             mFilters.add(0, mTemporarySetListFilter);
 
-        Filter allSongsFilter=new AllSongsFilter(getString(R.string.no_tag_selected),mCachedFiles.mSongs);
+        Filter allSongsFilter=new AllSongsFilter(getString(R.string.no_tag_selected),mCachedCloudFiles.getSongFiles());
         mFilters.add(0, allSongsFilter);
 
-        if(!mCachedFiles.mMIDIAliasCachedFiles.isEmpty())
+        if(!mCachedCloudFiles.getMIDIAliasFiles().isEmpty())
         {
             MIDIAliasFilesFilter filter=new MIDIAliasFilesFilter(getString(R.string.midi_alias_files));
             mFilters.add(filter);
@@ -1620,7 +1616,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if(mSelectedFilter instanceof SetListFileFilter)
         {
             SetListFileFilter slf=(SetListFileFilter)mSelectedFilter;
-            ArrayList<String> missing=slf.mMissingSongs;
+            List<String> missing=slf.mMissingSongs;
             if((missing.size()>0)&&(!slf.mWarned))
             {
                 slf.mWarned=true;
@@ -1668,12 +1664,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         sharedPref.edit().putLong("pref_lastSyncDate",date.getTime()).apply();
     }
 
-    private void clearCachedFileArrays()
+    private void clearCachedCloudFileArrays()
     {
         mPlaylist=new Playlist();
-        mCachedFiles.mSongs=new ArrayList<>();
-        mCachedFiles.mSets=new ArrayList<>();
-        mCachedFiles.mMIDIAliasCachedFiles=new ArrayList<>();
+        mCachedCloudFiles.clear();
     }
 
     void deleteAllFiles()
@@ -1684,7 +1678,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         clearCacheFolder(mDropboxFolder);
         clearCacheFolder(mOneDriveFolder);
         clearCacheFolder(mGoogleDriveFolder);
-        clearCachedFileArrays();
+        clearCachedCloudFileArrays();
         buildFilterList();
         try {
             writeDatabase();
@@ -1723,7 +1717,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             SongDisplaySettings nativeSettings=getSongDisplaySettings(scrollingMode);
             SongDisplaySettings sourceSettings=mimicDisplay?new SongDisplaySettings(csm):nativeSettings;
 
-            for (SongFile sf : mCachedFiles.mSongs)
+            for (SongFile sf : mCachedCloudFiles.getSongFiles())
                 if (sf.mTitle.equals(title))
                 {
                     if(mSongListActive)
@@ -1745,7 +1739,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         ArrayList<MIDIAlias> aliases=new ArrayList<>(mDefaultAliases);
         aliases.addAll(mDefaultAliases);
-        for(MIDIAliasCachedFile maf:mCachedFiles.mMIDIAliasCachedFiles)
+        for(MIDIAliasCachedCloudFile maf:mCachedCloudFiles.getMIDIAliasFiles())
             aliases.addAll(maf.getAliases());
         return aliases;
     }
@@ -1881,8 +1875,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void createDemoFile()
     {
-        Cloud cloud=getCloud();
-        if(cloud==Cloud.None) {
+        CloudType cloud=getCloud();
+        if(cloud==CloudType.None) {
             deleteAllFiles();
             //File destinationSongFile = new File(mDemoFolder, DEMO_SONG_FILENAME);
             //copyAssetsFileToDemoFolder(DEMO_SONG_FILENAME, destinationSongFile);
@@ -1894,8 +1888,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 ArrayList<AudioFile> audioFiles = new ArrayList<>();
                 audioFiles.add(audioFile);
                 try {
-                    mCachedFiles.mSongs.add(new SongFile(this, new DownloadedFile(destinationSongFile, DEMO_SONG_FILENAME, new Date(),""), audioFiles,null));
-                    mCachedFiles.mAudioFiles.add(audioFile);
+                    mCachedCloudFiles.getSongFiles().add(new SongFile(this, new DownloadedFile(destinationSongFile, DEMO_SONG_FILENAME, new Date(),""), audioFiles,null));
+                    mCachedCloudFiles.getAudioFiles().add(audioFile);
                 } catch (IOException ioe) {
                     Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -1938,47 +1932,47 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         Toast.makeText(this, getString(R.string.powerwashed), Toast.LENGTH_LONG).show();
     }
 
-    static String getCloudAsString(Context context,Cloud cloud)
+    static String getCloudAsString(Context context,CloudType cloud)
     {
-        if(cloud==Cloud.Dropbox)
+        if(cloud==CloudType.Dropbox)
             return context.getString(R.string.dropboxValue);
-        else if(cloud==Cloud.GoogleDrive)
+        else if(cloud==CloudType.GoogleDrive)
             return context.getString(R.string.googleDriveValue);
-        else if(cloud==Cloud.OneDrive)
+        else if(cloud==CloudType.OneDrive)
             return context.getString(R.string.oneDriveValue);
         return "";
     }
 
-    Cloud getCloud()
+    CloudType getCloud()
     {
         return getCloud(this);
     }
 
-    static Cloud getCloud(Activity activity)
+    static CloudType getCloud(Activity activity)
     {
-        Cloud cloud=Cloud.None;
+        CloudType cloud=CloudType.None;
         SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(activity);
         String cloudPref=sharedPrefs.getString(activity.getString(R.string.pref_cloudStorageSystem_key),null);
         if(cloudPref!=null)
         {
             if(cloudPref.equals(activity.getString(R.string.googleDriveValue)))
-                cloud= Cloud.GoogleDrive;
+                cloud= CloudType.GoogleDrive;
             else if(cloudPref.equals(activity.getString(R.string.dropboxValue)))
-                cloud= Cloud.Dropbox;
+                cloud= CloudType.Dropbox;
             else if(cloudPref.equals(activity.getString(R.string.oneDriveValue)))
-                cloud= Cloud.OneDrive;
+                cloud= CloudType.OneDrive;
         }
         else
         {
             SharedPreferences privatePrefs = activity.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
             String privateCloudPref=privatePrefs.getString(activity.getString(R.string.pref_songSource_key),"");
             if(privateCloudPref.equals(activity.getString(R.string.googleDriveValue)))
-                cloud= Cloud.GoogleDrive;
+                cloud= CloudType.GoogleDrive;
             else if(privateCloudPref.equals(activity.getString(R.string.dropboxValue)))
-                cloud= Cloud.Dropbox;
+                cloud= CloudType.Dropbox;
             else if(privateCloudPref.equals(activity.getString(R.string.oneDriveValue)))
-                cloud= Cloud.OneDrive;
-            if(cloud!=Cloud.None)
+                cloud= CloudType.OneDrive;
+            if(cloud!=CloudType.None)
                 sharedPrefs.edit().putString(activity.getString(R.string.pref_cloudStorageSystem_key),getCloudAsString(activity,cloud)).apply();
         }
         return cloud;
@@ -2002,7 +1996,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     boolean canSynchronizeFiles()
     {
-        return getCloud()!=Cloud.None && getCloudPath()!=null;
+        return getCloud()!=CloudType.None && getCloudPath()!=null;
     }
 
     void updateBluetoothIcon()
@@ -2067,9 +2061,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mMidiUsbInTask.setIncomingChannels(getIncomingMIDIChannelsPref());
     }
 
-    void onCacheUpdated(CachedFileCollection cache)
+    void onCacheUpdated(CachedCloudFileCollection cache)
     {
-        mCachedFiles=cache;
+        mCachedCloudFiles=cache;
         try
         {
             writeDatabase();

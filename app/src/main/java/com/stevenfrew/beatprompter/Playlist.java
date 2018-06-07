@@ -3,17 +3,18 @@ package com.stevenfrew.beatprompter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 class Playlist
 {
-    private ArrayList<PlaylistNode> mItems=new ArrayList<>();
+    private List<PlaylistNode> mItems=new ArrayList<>();
 
     Playlist()
     {
-        buildSongList(new ArrayList<SongFile>());
+        buildSongList(new ArrayList<>());
     }
 
-    Playlist(ArrayList<SongFile> songs)
+    Playlist(List<SongFile> songs)
     {
         buildSongList(songs);
     }
@@ -92,12 +93,12 @@ class Playlist
         return songs;
     }
 
-    ArrayList<PlaylistNode> getNodesAsArray()
+    List<PlaylistNode> getNodesAsArray()
     {
         return mItems;
     }
 
-    private void buildSongList(ArrayList<SongFile> songs)
+    private void buildSongList(List<SongFile> songs)
     {
         mItems.clear();
         PlaylistNode lastNode=null;

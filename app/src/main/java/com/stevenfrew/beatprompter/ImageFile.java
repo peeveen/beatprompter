@@ -18,7 +18,7 @@ class ImageFile extends MediaFile
         super(title,file,storageName,lastModified);
     }
 
-    private ImageFile(CachedFile cf, String title)
+    private ImageFile(CachedCloudFile cf, String title)
     {
         super(cf,title);
     }
@@ -32,15 +32,15 @@ class ImageFile extends MediaFile
 
     static ImageFile readFromXMLElement(Element element)
     {
-        CachedFile cf=CachedFile.readFromXMLElement(element);
+        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
         String audioFileTitle=readMediaTitle(element);
         return new ImageFile(cf,audioFileTitle);
     }
 
     @Override
-    CachedFileType getFileType()
+    CloudFileType getFileType()
     {
-        return CachedFileType.Image;
+        return CloudFileType.Image;
     }
 
 }

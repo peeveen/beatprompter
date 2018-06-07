@@ -12,13 +12,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasCachedFile> {
+class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasCachedCloudFile> {
     private final Context context;
-    private final ArrayList<MIDIAliasCachedFile> values;
+    private final List<MIDIAliasCachedCloudFile> values;
     private boolean mLargePrint;
 
-    MIDIAliasListAdapter(Context context, ArrayList<MIDIAliasCachedFile> fileList) {
+    MIDIAliasListAdapter(Context context, List<MIDIAliasCachedCloudFile> fileList) {
         super(context, -1, fileList);
         SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(context);
         mLargePrint= sharedPref.getBoolean(context.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(context.getString(R.string.pref_largePrintList_defaultValue)));
@@ -33,7 +34,7 @@ class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasCachedFile> {
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.midi_alias_list_item_large:R.layout.midi_alias_list_item, parent, false):convertView;
         TextView titleView = (TextView) rowView.findViewById(R.id.alias_file_name);
         ImageView errorIcon=(ImageView) rowView.findViewById(R.id.erroricon);
-        MIDIAliasCachedFile maf=values.get(position);
+        MIDIAliasCachedCloudFile maf=values.get(position);
         if(maf.getErrors().size()==0)
             errorIcon.setVisibility(View.GONE);
         titleView.setText(maf.getAliasSetName());

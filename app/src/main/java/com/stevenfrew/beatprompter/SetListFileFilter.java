@@ -2,14 +2,15 @@ package com.stevenfrew.beatprompter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class SetListFileFilter extends SetListFilter {
-    ArrayList<String> mMissingSongs=new ArrayList<>();
+    List<String> mMissingSongs;
     SetListFile mSetListFile;
-    boolean mWarned=false;
+    boolean mWarned;
 
-    SetListFileFilter(SetListFile file,ArrayList<SongFile> songs)
+    SetListFileFilter(SetListFile file,List<SongFile> songs)
     {
         super(file.mSetTitle,getSongList(file.mSongTitles,songs));
         mMissingSongs=getMissingSongList(file.mSongTitles,songs);
@@ -17,7 +18,7 @@ class SetListFileFilter extends SetListFilter {
         mSetListFile=file;
     }
 
-    private static ArrayList<SongFile> getSongList(ArrayList<String> titles,ArrayList<SongFile> songFiles)
+    private static ArrayList<SongFile> getSongList(ArrayList<String> titles,List<SongFile> songFiles)
     {
         Map<String,SongFile> songsByTitle=new HashMap<>();
         for(SongFile sf:songFiles)
@@ -32,7 +33,7 @@ class SetListFileFilter extends SetListFilter {
         return foundSongs;
     }
 
-    private static ArrayList<String> getMissingSongList(ArrayList<String> titles,ArrayList<SongFile> songFiles)
+    private static ArrayList<String> getMissingSongList(ArrayList<String> titles,List<SongFile> songFiles)
     {
         Map<String,SongFile> songsByTitle=new HashMap<>();
         for(SongFile sf:songFiles)

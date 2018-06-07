@@ -1,5 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-enum CachedFileType {
+enum CloudFileType {
     None, Song, SetList, Audio, MIDIAliases, Image
 }

@@ -21,12 +21,12 @@ class OneDriveDownloadTask extends CloudDownloadTask
 {
     private IOneDriveClient mOneDriveClient;
 
-    OneDriveDownloadTask(IOneDriveClient oneDriveClient,File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedFile> filesToUpdate)
+    OneDriveDownloadTask(IOneDriveClient oneDriveClient,File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedCloudFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases,ArrayList<CachedCloudFile> filesToUpdate)
     {
         super(targetFolder,handler,cloudPath,includeSubFolders,currentCache,defaultMIDIAliases,filesToUpdate);
         mOneDriveClient=oneDriveClient;
     }
-    void downloadFiles(String folderID, boolean includeSubfolders, Map<String,File> existingCachedFiles, ArrayList<DownloadedFile> downloadedFiles) throws IOException
+    void downloadFiles(String folderID, boolean includeSubfolders, Map<String,File> existingCachedCloudFiles, ArrayList<DownloadedFile> downloadedFiles) throws IOException
     {
         List<String> folderIDs=new ArrayList<>();
         folderIDs.add(folderID);
@@ -74,7 +74,7 @@ class OneDriveDownloadTask extends CloudDownloadTask
                     this.publishProgress(String.format(SongList.getContext().getString(R.string.checking), title));
                     String safeFilename = makeSafeFilename(title);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
-                    File existingLocalFile = existingCachedFiles.get(fileID);
+                    File existingLocalFile = existingCachedCloudFiles.get(fileID);
                     boolean downloadRequired = true;
                     Date lastModified = item.lastModifiedDateTime.getTime();
                     if (existingLocalFile != null) {
@@ -84,7 +84,7 @@ class OneDriveDownloadTask extends CloudDownloadTask
                         if (localFileModified.after(lastModified)) {
                             Log.d(BeatPrompterApplication.TAG, "It hasn't changed since last download ... ignoring!");
                             downloadRequired = false;
-                            existingCachedFiles.remove(fileID);
+                            existingCachedCloudFiles.remove(fileID);
                         } else
                             Log.d(BeatPrompterApplication.TAG, "Looks like it has changed since last download ... re-downloading!");
                     } else
@@ -94,7 +94,7 @@ class OneDriveDownloadTask extends CloudDownloadTask
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
                         this.publishProgress(String.format(SongList.getContext().getString(R.string.downloading), title));
                         existingLocalFile = downloadOneDriveFile(item, safeFilename);
-                        existingCachedFiles.remove(fileID);
+                        existingCachedCloudFiles.remove(fileID);
                     }
 
                     if (!audioFile)
@@ -116,7 +116,7 @@ class OneDriveDownloadTask extends CloudDownloadTask
             Log.d(BeatPrompterApplication.TAG, "File title: " + title);
             String lowerCaseTitle = title.toLowerCase();
             boolean audioFile = false;
-            if(mUpdateType==CachedFileType.Song) {
+            if(mUpdateType==CloudFileType.Song) {
                 for (String ext : AUDIO_FILE_EXTENSIONS)
                     if (lowerCaseTitle.endsWith(ext))
                         audioFile = true;

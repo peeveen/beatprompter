@@ -1,10 +1,11 @@
 package com.stevenfrew.beatprompter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class AllSongsFilter extends SongFilter
 {
-    AllSongsFilter(String name,ArrayList<SongFile> songs)
+    AllSongsFilter(String name,List<SongFile> songs)
     {
         super(name,songs,true);
     }

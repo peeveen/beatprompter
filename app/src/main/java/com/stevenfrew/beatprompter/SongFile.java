@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
-public class SongFile extends CachedFile
+public class SongFile extends CachedCloudFile
 {
     private class SmoothScrollingTimes
     {
@@ -80,25 +80,51 @@ public class SongFile extends CachedFile
         parseSongFileInfo(context,tempAudioFileCollection,tempImageFileCollection);
     }
 
-    public SongFile(Context context,CachedFile cachedFile, String title, String artist, ArrayList<String> tags, ArrayList<String> audioTracks, ArrayList<String> imageFiles, double bpm, long timePerLine,long timePerBar,MIDISongTrigger programChangeTrigger,MIDISongTrigger songSelectTrigger, boolean mixedMode,int lines, String key) throws IOException    {
-        super(cachedFile);
-        mContext=context;
-        mTags.addAll(tags);
-        mLines=lines;
-        mMixedMode=mixedMode;
-        mAudioFiles=audioTracks;
-        mImageFiles=imageFiles;
-        mTitle=title;
-        mArtist=artist;
-        mKey=key;
-        mBPM=bpm;
-        mTimePerLine=timePerLine;
-        mTimePerBar=timePerBar;
-        mProgramChangeTrigger=programChangeTrigger;
-        mSongSelectTrigger=songSelectTrigger;
+    public SongFile(Element element)
+    {
+        super(element);
+        mTitle=element.getAttribute(SONG_FILE_TITLE_ATTRIBUTE_NAME);
+        mArtist=element.getAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME);
+        String bpmString=element.getAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME);
+        String lineString=element.getAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME);
+        String mixedModeString=element.getAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME);
+        String mKey=element.getAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME);
+        if(mKey==null)
+            mKey="";
+        if(mixedModeString==null)
+            mixedModeString="false";
+        mLines=Integer.parseInt(lineString);
+        mBPM=Double.parseDouble(bpmString);
+        String timePerLineString=element.getAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME);
+        mMixedMode=Boolean.parseBoolean(mixedModeString);
+        mTimePerLine=Long.parseLong(timePerLineString);
+        String timePerBarString=element.getAttribute(SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME);
+        if((timePerBarString==null)||(timePerBarString.length()==0))
+            timePerBarString="0";
+        mTimePerBar=Long.parseLong(timePerBarString);
+        NodeList tagNodes=element.getElementsByTagName(TAG_ELEMENT_TAG_NAME);
+        mTags=new HashSet<String>();
+        for(int f=0;f<tagNodes.getLength();++f)
+            mTags.add(tagNodes.item(f).getTextContent());
+        NodeList audioNodes=element.getElementsByTagName(AUDIO_FILE_ELEMENT_TAG_NAME);
+        mAudioFiles=new ArrayList<>();
+        for(int f=0;f<audioNodes.getLength();++f)
+            mAudioFiles.add(audioNodes.item(f).getTextContent());
+        NodeList imageNodes=element.getElementsByTagName(IMAGE_FILE_ELEMENT_TAG_NAME);
+        mImageFiles=new ArrayList<>();
+        for(int f=0;f<imageNodes.getLength();++f)
+            mImageFiles.add(imageNodes.item(f).getTextContent());
+        NodeList pcTriggerNodes=element.getElementsByTagName(PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME);
+        mProgramChangeTrigger=MIDISongTrigger.DEAD_TRIGGER;
+        for(int f=0;f<pcTriggerNodes.getLength();++f)
+            mProgramChangeTrigger=MIDISongTrigger.readFromXMLElement((Element)pcTriggerNodes.item(f));
+        NodeList ssTriggerNodes=element.getElementsByTagName(SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME);
+        mSongSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
+        for(int f=0;f<ssTriggerNodes.getLength();++f)
+            mSongSelectTrigger=MIDISongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
     }
 
-    private String getTitleFromLine(String line, int lineNumber)
+     private String getTitleFromLine(String line, int lineNumber)
     {
         return getTokenValue(line, lineNumber, "title", "t");
     }
@@ -244,7 +270,7 @@ public class SongFile extends CachedFile
             }
             mLines=lineNumber;
             if((mTitle==null)||(mTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(mContext.getString(R.string.noTitleFound), mStorageName));
+                throw new InvalidBeatPrompterFileException(String.format(mContext.getString(R.string.noTitleFound), mStorageID));
             if(mArtist==null)
                 mArtist="";
         }
@@ -269,51 +295,6 @@ public class SongFile extends CachedFile
     boolean isBeatScrollable()
     {
         return mBPM>0;
-    }
-
-    static SongFile readFromXMLElement(Context context,Element element) throws IOException
-    {
-        CachedFile cf=CachedFile.readFromXMLElement(element);
-        String title=element.getAttribute(SONG_FILE_TITLE_ATTRIBUTE_NAME);
-        String artist=element.getAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME);
-        String bpmString=element.getAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME);
-        String lineString=element.getAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME);
-        String mixedModeString=element.getAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME);
-        String keyString=element.getAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME);
-        if(keyString==null)
-            keyString="";
-        if(mixedModeString==null)
-            mixedModeString="false";
-        int lines=Integer.parseInt(lineString);
-        double bpm=Double.parseDouble(bpmString);
-        String timePerLineString=element.getAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME);
-        boolean mixedMode=Boolean.parseBoolean(mixedModeString);
-        long timePerLine=Long.parseLong(timePerLineString);
-        String timePerBarString=element.getAttribute(SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME);
-        if((timePerBarString==null)||(timePerBarString.length()==0))
-            timePerBarString="0";
-        long timePerBar=Long.parseLong(timePerBarString);
-        NodeList tagNodes=element.getElementsByTagName(TAG_ELEMENT_TAG_NAME);
-        ArrayList<String> tags=new ArrayList<>();
-        for(int f=0;f<tagNodes.getLength();++f)
-            tags.add(tagNodes.item(f).getTextContent());
-        NodeList audioNodes=element.getElementsByTagName(AUDIO_FILE_ELEMENT_TAG_NAME);
-        ArrayList<String> audios=new ArrayList<>();
-        for(int f=0;f<audioNodes.getLength();++f)
-            audios.add(audioNodes.item(f).getTextContent());
-        NodeList imageNodes=element.getElementsByTagName(IMAGE_FILE_ELEMENT_TAG_NAME);
-        ArrayList<String> images=new ArrayList<>();
-        for(int f=0;f<imageNodes.getLength();++f)
-            images.add(imageNodes.item(f).getTextContent());
-        NodeList pcTriggerNodes=element.getElementsByTagName(PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME);
-        MIDISongTrigger programChangeTrigger=MIDISongTrigger.DEAD_TRIGGER;
-        for(int f=0;f<pcTriggerNodes.getLength();++f)
-            programChangeTrigger=MIDISongTrigger.readFromXMLElement((Element)pcTriggerNodes.item(f));
-        NodeList ssTriggerNodes=element.getElementsByTagName(SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME);
-        MIDISongTrigger songSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
-        for(int f=0;f<ssTriggerNodes.getLength();++f)
-            songSelectTrigger=MIDISongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
-        return new SongFile(context,cf,title,artist,tags,audios,images,bpm,timePerLine,timePerBar,programChangeTrigger,songSelectTrigger,mixedMode,lines,keyString);
     }
 
     void writeToXML(Document doc, Element parent)
@@ -1446,9 +1427,9 @@ public class SongFile extends CachedFile
     }
 
     @Override
-    CachedFileType getFileType()
+    CloudFileType getFileType()
     {
-        return CachedFileType.Song;
+        return CloudFileType.Song;
     }
 
 }

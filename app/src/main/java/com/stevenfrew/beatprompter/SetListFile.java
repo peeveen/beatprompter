@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-class SetListFile extends CachedFile
+class SetListFile extends CachedCloudFile
 {
     final static String SETLISTFILE_ELEMENT_TAG_NAME="set";
     private final static String SET_TITLE_ATTRIBUTE_NAME="title";
@@ -26,7 +26,7 @@ class SetListFile extends CachedFile
         parseSetListFileInfo(context);
     }
 
-    private SetListFile(Context context, CachedFile cachedFile, String title) throws IOException {
+    private SetListFile(Context context, CachedCloudFile cachedFile, String title) throws IOException {
         super(cachedFile);
         mSetTitle=title;
         parseSetListFileInfo(context);
@@ -59,13 +59,13 @@ class SetListFile extends CachedFile
             }
 
             if((setTitle==null)||(setTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageName));
+                throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageID));
             else
                 mSetTitle=setTitle;
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageName));
+            throw new InvalidBeatPrompterFileException(String.format(context.getString(R.string.not_a_valid_set_list), mStorageID));
         }
         finally
         {
@@ -91,16 +91,16 @@ class SetListFile extends CachedFile
 
     static SetListFile readFromXMLElement(Context context,Element element) throws IOException
     {
-        CachedFile cf=CachedFile.readFromXMLElement(element);
+        CachedCloudFile cf=CachedCloudFile.readFromXMLElement(element);
         String setTitle=element.getAttribute(SET_TITLE_ATTRIBUTE_NAME);
         return new SetListFile(context,cf,setTitle);
     }
 
 
     @Override
-    CachedFileType getFileType()
+    CloudFileType getFileType()
     {
-        return CachedFileType.SetList;
+        return CloudFileType.SetList;
     }
 
 }

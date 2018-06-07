@@ -16,11 +16,11 @@ import java.util.Map;
 class GoogleDriveDownloadTask extends CloudDownloadTask {
     private final static String GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder";
 
-    GoogleDriveDownloadTask(File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases, ArrayList<CachedFile> filesToUpdate) {
+    GoogleDriveDownloadTask(File targetFolder, Handler handler, String cloudPath, boolean includeSubFolders, CachedCloudFileCollection currentCache, ArrayList<MIDIAlias> defaultMIDIAliases, ArrayList<CachedCloudFile> filesToUpdate) {
         super(targetFolder, handler, cloudPath, includeSubFolders, currentCache, defaultMIDIAliases, filesToUpdate);
     }
 
-    void downloadFiles(String folderID, boolean includeSubfolders, Map<String, File> existingCachedFiles, ArrayList<DownloadedFile> downloadedFiles) throws IOException {
+    void downloadFiles(String folderID, boolean includeSubfolders, Map<String, File> existingCachedCloudFiles, ArrayList<DownloadedFile> downloadedFiles) throws IOException {
         List<String> foldersToQuery = new ArrayList<>();
         foldersToQuery.add(folderID);
         List<String> folderNames = new ArrayList<>();
@@ -66,7 +66,7 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                         this.publishProgress(String.format(SongList.getContext().getString(R.string.checking), title));
                         String safeFilename = makeSafeFilename(fileID);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
-                        File existingLocalFile = existingCachedFiles.get(fileID);
+                        File existingLocalFile = existingCachedCloudFiles.get(fileID);
                         boolean downloadRequired = true;
                         Date lastModified = new Date(child.getModifiedTime().getValue());
                         if (existingLocalFile != null) {
@@ -76,7 +76,7 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                             if (localFileModified.after(lastModified)) {
                                 Log.d(BeatPrompterApplication.TAG, "It hasn't changed since last download ... ignoring!");
                                 downloadRequired = false;
-                                existingCachedFiles.remove(fileID);
+                                existingCachedCloudFiles.remove(fileID);
                             } else
                                 Log.d(BeatPrompterApplication.TAG, "Looks like it has changed since last download ... re-downloading!");
                         } else
@@ -86,7 +86,7 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                             Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
                             updateDownloadProgress(title);
                             existingLocalFile = downloadGoogleDriveFile(child, safeFilename);
-                            existingCachedFiles.remove(fileID);
+                            existingCachedCloudFiles.remove(fileID);
                         }
 
                         if (audioFile)
@@ -158,7 +158,7 @@ class GoogleDriveDownloadTask extends CloudDownloadTask {
                 Log.d(BeatPrompterApplication.TAG, "File title: " + title);
                 String lowerCaseTitle = title.toLowerCase();
                 boolean dependencyFile = false;
-                if (mUpdateType == CachedFileType.Song) {
+                if (mUpdateType == CloudFileType.Song) {
                     for (String ext : AUDIO_FILE_EXTENSIONS)
                         if (lowerCaseTitle.endsWith(ext))
                             dependencyFile = true;
