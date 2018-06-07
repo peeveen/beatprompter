@@ -3,23 +3,29 @@ package com.stevenfrew.beatprompter;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.Tag;
+import com.stevenfrew.beatprompter.event.CancelEvent;
+import com.stevenfrew.beatprompter.event.ColorEvent;
+import com.stevenfrew.beatprompter.event.LineEvent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
-abstract class Line {
+public abstract class Line {
     protected Line mPrevLine=null, mNextLine=null;
     int mSongPixelPosition;
     protected ColorEvent mColorEvent; // style event that occurred immediately before this line will be shown.
-    LineEvent mLineEvent; // the LineEvent that will display this line.
+    public LineEvent mLineEvent; // the LineEvent that will display this line.
     protected ArrayList<LineGraphic> mGraphics=new ArrayList<>(); // pointer to the allocated graphic, if one exists
     LineMeasurements mLineMeasurements;
-    protected long mYStartScrollTime,mYStopScrollTime;
+    public long mYStartScrollTime,mYStopScrollTime;
     ScrollingMode mScrollingMode;
 
-    int mBars; // How many bars does this line last?
-    int mScrollbeat;
-    int mBPB;
-    int mScrollbeatOffset;
+    public int mBars; // How many bars does this line last?
+    public int mScrollbeat;
+    public int mBPB;
+    public int mScrollbeatOffset;
 
     Line(Collection<Tag> lineTags, int bars, ColorEvent lastColor,int bpb, int scrollbeat,int scrollbeatOffset, ScrollingMode scrollingMode,ArrayList<FileParseError> parseErrors)
     {
@@ -30,7 +36,7 @@ abstract class Line {
         for(Tag tag:lineTags)
             if(!tag.mChordTag)
                 if((tag.mName.equals("b"))||(tag.mName.equals("bars")))
-                    bars=Tag.getIntegerValueFromTag(tag,1,128,1,parseErrors);
+                    bars= Tag.getIntegerValueFromTag(tag,1,128,1,parseErrors);
         mBars=Math.max(1,bars);
         mColorEvent=lastColor;
     }
@@ -46,9 +52,9 @@ abstract class Line {
         return 0;
     }
 
-    abstract LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode, CancelEvent cancelEvent);
+    public abstract LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode, CancelEvent cancelEvent);
 
-    Line getLastLine()
+    public Line getLastLine()
     {
         Line l=this;
         for(;;)
@@ -113,7 +119,7 @@ abstract class Line {
 
     abstract Collection<LineGraphic> getGraphics(boolean allocate);
 
-    void insertAfter(Line line)
+    public void insertAfter(Line line)
     {
         line.mNextLine=mNextLine;
         if(mNextLine!=null)

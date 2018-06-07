@@ -21,6 +21,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
+import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
+import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
+import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
+import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
+import com.stevenfrew.beatprompter.midi.MIDIClockMessage;
+import com.stevenfrew.beatprompter.midi.MIDIIncomingMessage;
+import com.stevenfrew.beatprompter.midi.MIDIIncomingSongPositionPointerMessage;
+import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
+import com.stevenfrew.beatprompter.midi.MIDIStartMessage;
+import com.stevenfrew.beatprompter.midi.MIDIStopMessage;
+
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
 {
     private SongView mSongView=null;
@@ -477,14 +489,14 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
             super(false);
             mHandler=handler;
         }
-        boolean getShouldStop()
+        public boolean getShouldStop()
         {
             synchronized (stopSync)
             {
                 return mStop;
             }
         }
-        void setShouldStop(boolean value)
+        public void setShouldStop(boolean value)
         {
             synchronized (stopSync)
             {

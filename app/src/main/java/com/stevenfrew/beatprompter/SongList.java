@@ -56,6 +56,41 @@ import com.onedrive.sdk.core.DefaultClientConfig;
 import com.onedrive.sdk.core.IClientConfig;
 import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.onedrive.sdk.extensions.OneDriveClient;
+import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
+import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
+import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
+import com.stevenfrew.beatprompter.cache.AudioFile;
+import com.stevenfrew.beatprompter.cache.CachedCloudFile;
+import com.stevenfrew.beatprompter.cache.CachedCloudFileCollection;
+import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.ImageFile;
+import com.stevenfrew.beatprompter.cache.InvalidBeatPrompterFileException;
+import com.stevenfrew.beatprompter.cache.SetListFile;
+import com.stevenfrew.beatprompter.cache.SongFile;
+import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
+import com.stevenfrew.beatprompter.cloud.CloudStorage;
+import com.stevenfrew.beatprompter.cloud.CloudType;
+import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.filter.AllSongsFilter;
+import com.stevenfrew.beatprompter.filter.Filter;
+import com.stevenfrew.beatprompter.filter.FolderFilter;
+import com.stevenfrew.beatprompter.filter.SetListFileFilter;
+import com.stevenfrew.beatprompter.filter.SetListFilter;
+import com.stevenfrew.beatprompter.filter.SongFilter;
+import com.stevenfrew.beatprompter.filter.TagFilter;
+import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
+import com.stevenfrew.beatprompter.midi.MIDIAlias;
+import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
+import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
+import com.stevenfrew.beatprompter.midi.MIDIAliasListAdapter;
+import com.stevenfrew.beatprompter.midi.MIDIInTask;
+import com.stevenfrew.beatprompter.midi.MIDISongDisplayInTask;
+import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
+import com.stevenfrew.beatprompter.midi.MIDIUSBInTask;
+import com.stevenfrew.beatprompter.midi.MIDIUSBOutTask;
+import com.stevenfrew.beatprompter.pref.FontSizePreference;
+import com.stevenfrew.beatprompter.ui.FilterListAdapter;
+import com.stevenfrew.beatprompter.ui.SongListAdapter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,6 +132,8 @@ import static android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK;
 
 public class SongList extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     static boolean mFullVersionUnlocked=true;
+    public static CachedCloudFileCollection mCachedCloudFiles=new CachedCloudFileCollection();
+    public static ArrayList<MIDIAlias> mDefaultAliases;
 
     CachedCloudFile mFileToUpdate=null;
     boolean mFetchDependenciesToo=false;
@@ -109,8 +146,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static SongList mSongListInstance=null;
     Filter mSelectedFilter=null;
     SortingPreference mSortingPreference=SortingPreference.TITLE;
-    static ArrayList<MIDIAlias> mDefaultAliases;
-    static CachedCloudFileCollection mCachedCloudFiles=new CachedCloudFileCollection();
     Playlist mPlaylist=new Playlist();
     PlaylistNode mNowPlayingNode=null;
     ArrayList<Filter> mFilters=new ArrayList<>();
@@ -313,7 +348,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if((mSelectedFilter!=null)&&(mSelectedFilter instanceof MIDIAliasFilesFilter))
         {
-            final MIDIAliasCachedCloudFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
+            final MIDIAliasFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
             if(maf.getErrors().size()>0)
                 showMIDIAliasErrors(maf.getErrors());
         }
@@ -681,7 +716,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void onMIDIAliasListLongClick(int position)
     {
-        final MIDIAliasCachedCloudFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
+        final MIDIAliasFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
         final boolean showErrors=maf.getErrors().size()>0;
 
         int arrayID=R.array.midi_alias_options_array;
@@ -777,7 +812,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 }
             };
 
-    static Context getContext()
+    public static Context getContext()
     {
         return mContext;
     }
@@ -1326,10 +1361,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 AudioFile audioFile = new AudioFile((Element)n);
                 mCachedCloudFiles.add(audioFile);
             }
-            NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasCachedCloudFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
+            NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < aliasFiles.getLength(); ++f) {
                 Node n = aliasFiles.item(f);
-                MIDIAliasCachedCloudFile midiAliasCachedCloudFile = new MIDIAliasCachedCloudFile((Element)n,mDefaultAliases);
+                MIDIAliasFile midiAliasCachedCloudFile = new MIDIAliasFile((Element)n,mDefaultAliases);
                 mCachedCloudFiles.add(midiAliasCachedCloudFile);
             }
             buildFilterList();
@@ -1742,7 +1777,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         ArrayList<MIDIAlias> aliases=new ArrayList<>(mDefaultAliases);
         aliases.addAll(mDefaultAliases);
-        for(MIDIAliasCachedCloudFile maf:mCachedCloudFiles.getMIDIAliasFiles())
+        for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())
             aliases.addAll(maf.getAliases());
         return aliases;
     }
@@ -1757,7 +1792,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             if(inputStream!=null)
                 try {
                     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                    MIDIAliasFile maf = new MIDIAliasFile(br,getString(R.string.default_alias_set_name));
+                    com.stevenfrew.beatprompter.midi.MIDIAliasFile maf = new com.stevenfrew.beatprompter.midi.MIDIAliasFile(br,getString(R.string.default_alias_set_name));
                     mDefaultAliases = maf.mAliases;
                 }
                 catch(Exception e)
@@ -1942,7 +1977,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     static String getCloudAsString(Context context,CloudType cloud)
     {
-        if(cloud==CloudType.Dropbox)
+        if(cloud== CloudType.Dropbox)
             return context.getString(R.string.dropboxValue);
         else if(cloud==CloudType.GoogleDrive)
             return context.getString(R.string.googleDriveValue);
@@ -2010,7 +2045,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void updateBluetoothIcon()
     {
         BeatPrompterApplication app=((BeatPrompterApplication)SongList.this.getApplicationContext());
-        boolean slave=app.getBluetoothMode()==BluetoothMode.Client;
+        boolean slave=app.getBluetoothMode()== BluetoothMode.Client;
         boolean connectedToServer=app.isConnectedToServer();
         boolean master=app.getBluetoothMode()==BluetoothMode.Server;
         int connectedClients=app.getBluetoothClientCount();

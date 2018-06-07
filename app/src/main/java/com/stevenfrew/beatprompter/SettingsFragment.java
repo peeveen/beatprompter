@@ -38,6 +38,12 @@ import com.onedrive.sdk.core.DefaultClientConfig;
 import com.onedrive.sdk.core.IClientConfig;
 import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.onedrive.sdk.extensions.OneDriveClient;
+import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
+import com.stevenfrew.beatprompter.cloud.CloudStorage;
+import com.stevenfrew.beatprompter.cloud.CloudType;
+import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.pref.CloudPathPreference;
+import com.stevenfrew.beatprompter.pref.ImageListPreference;
 
 import java.util.Arrays;
 

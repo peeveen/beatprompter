@@ -10,11 +10,20 @@ import android.graphics.Typeface;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
+import com.stevenfrew.beatprompter.cache.AudioFile;
+import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.event.BaseEvent;
+import com.stevenfrew.beatprompter.event.CancelEvent;
+import com.stevenfrew.beatprompter.event.CommentEvent;
+import com.stevenfrew.beatprompter.event.LineEvent;
+import com.stevenfrew.beatprompter.midi.MIDIBeatBlock;
+import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-class Song
+public class Song
 {
     ScrollingMode mScrollingMode;
     private Line mFirstLine; // First line to show.
@@ -53,7 +62,7 @@ class Song
     String mNextSong;
     int mOrientation;
 
-    Song(String title,String artist,AudioFile audioFile,int audioVolume,ArrayList<Comment> initialComments,BaseEvent firstEvent,Line firstLine,ArrayList<FileParseError> errors,ScrollingMode scrollingMode,boolean sendMidiClock,boolean startedByBandLeader,String nextSong,int orientation,ArrayList<MIDIOutgoingMessage> initialMIDIMessages, ArrayList<MIDIBeatBlock> beatBlocks, String key, double initialBPM,int initialBPB,int countIn)
+    public Song(String title,String artist,AudioFile audioFile,int audioVolume,ArrayList<Comment> initialComments,BaseEvent firstEvent,Line firstLine,ArrayList<FileParseError> errors,ScrollingMode scrollingMode,boolean sendMidiClock,boolean startedByBandLeader,String nextSong,int orientation,ArrayList<MIDIOutgoingMessage> initialMIDIMessages, ArrayList<MIDIBeatBlock> beatBlocks, String key, double initialBPM,int initialBPB,int countIn)
     {
         mTitle=title;
         mArtist=artist;
@@ -100,7 +109,7 @@ class Song
         }
     }
 
-    void doMeasurements(Paint paint,CancelEvent cancelEvent, Handler handler,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings)
+    public void doMeasurements(Paint paint, CancelEvent cancelEvent, Handler handler, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings)
     {
         Typeface boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
         Typeface notBoldFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);

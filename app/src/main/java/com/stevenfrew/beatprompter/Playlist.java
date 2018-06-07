@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter;
 
+import com.stevenfrew.beatprompter.cache.SongFile;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

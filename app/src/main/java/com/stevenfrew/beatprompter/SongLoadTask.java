@@ -8,6 +8,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
+import com.stevenfrew.beatprompter.event.CancelEvent;
+
 import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {

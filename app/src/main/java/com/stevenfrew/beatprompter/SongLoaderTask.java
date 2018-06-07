@@ -3,6 +3,8 @@ package com.stevenfrew.beatprompter;
 import android.content.Context;
 import android.os.Handler;
 
+import com.stevenfrew.beatprompter.event.CancelEvent;
+
 import java.io.IOException;
 
 class SongLoaderTask extends Task {
@@ -67,7 +69,7 @@ class SongLoaderTask extends Task {
     {
         super(true);
     }
-    void doWork()
+    public void doWork()
     {
         LoadingSongFile lsf=getLoadingSongFile();
         if(lsf!=null) {

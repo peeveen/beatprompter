@@ -4,6 +4,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.Tag;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;

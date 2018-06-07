@@ -3,12 +3,12 @@ package com.stevenfrew.beatprompter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-class Comment
+public class Comment
 {
-    String mText;
+    public String mText;
     private ArrayList<String> commentAudience=new ArrayList<>();
 
-    Comment(String text,String audience)
+    public Comment(String text,String audience)
     {
         mText=text;
         if(audience!=null)
@@ -18,7 +18,7 @@ class Comment
         }
     }
 
-    boolean isIntendedFor(String audience)
+    public boolean isIntendedFor(String audience)
     {
         if(commentAudience.isEmpty())
             return true;

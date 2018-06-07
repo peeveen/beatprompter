@@ -15,6 +15,14 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
+import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
+import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
+import com.stevenfrew.beatprompter.bluetooth.NotEnoughBluetoothDataException;
+import com.stevenfrew.beatprompter.cache.SongFile;
+import com.stevenfrew.beatprompter.midi.MIDIIncomingMessage;
+import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -69,9 +77,9 @@ public class BeatPrompterApplication extends Application {
 
     public static final int MIDI_QUEUE_SIZE=1024;
 
-    static ArrayBlockingQueue<MIDIOutgoingMessage> mMIDIOutQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
-    static ArrayBlockingQueue<MIDIIncomingMessage> mMIDISongDisplayInQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
-    static ArrayBlockingQueue<MIDIIncomingMessage> mMIDISongListInQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
+    public static ArrayBlockingQueue<MIDIOutgoingMessage> mMIDIOutQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
+    public static ArrayBlockingQueue<MIDIIncomingMessage> mMIDISongDisplayInQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
+    public static ArrayBlockingQueue<MIDIIncomingMessage> mMIDISongListInQueue=new ArrayBlockingQueue<>(MIDI_QUEUE_SIZE);
 
     private BluetoothAdapter mBluetoothAdapter;
 

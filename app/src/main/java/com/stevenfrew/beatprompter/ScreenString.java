@@ -4,7 +4,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 
-class ScreenString
+public class ScreenString
 {
     private final static int MARGIN_PIXELS=10;
     private final static boolean MASKING=true;
@@ -21,9 +21,9 @@ class ScreenString
     }
 
     float mFontSize;
-    int mWidth;
-    int mHeight;
-    int mDescenderOffset;
+    public int mWidth;
+    public int mHeight;
+    public int mDescenderOffset;
     int mColor;
     Typeface mFace;
     String mText;
@@ -87,7 +87,7 @@ class ScreenString
         return getBestFontSize(text,paint,minimumFontSize,maximumFontSize,maxWidth,maxHeight,face,bold,null);
     }
 
-    static ScreenString create(String text,Paint paint,int maxWidth,int maxHeight,int color,Typeface face,boolean bold)
+    public static ScreenString create(String text,Paint paint,int maxWidth,int maxHeight,int color,Typeface face,boolean bold)
     {
         Rect outRect=new Rect();
         int fontSize=getBestFontSize(text,paint,Utils.MINIMUM_FONT_SIZE,Utils.MAXIMUM_FONT_SIZE,maxWidth,maxHeight,face,bold,outRect);

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter;
 
-enum ImageScalingMode {
+public enum ImageScalingMode {
     Stretch,
     Original
 }

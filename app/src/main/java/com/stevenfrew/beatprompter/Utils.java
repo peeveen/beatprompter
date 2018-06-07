@@ -24,7 +24,7 @@ public class Utils
     // Set by onCreate() in SongList.java
     static int MAXIMUM_FONT_SIZE;
     static int MINIMUM_FONT_SIZE;
-    static float FONT_SCALING;
+    public static float FONT_SCALING;
 
     static
     {
@@ -43,29 +43,29 @@ public class Utils
     }
 
     // Special token.
-    static final int TRACK_AUDIO_LENGTH_VALUE=-93781472;
+    public static final int TRACK_AUDIO_LENGTH_VALUE=-93781472;
 
-    static long nanosecondsPerBeat(double bpm)
+    public static long nanosecondsPerBeat(double bpm)
     {
         return (long)(60000000000.0/bpm);
     }
-    static int nanoToMilli(long nano) { return (int)(nano/1000000);}
-    static long milliToNano(int milli) { return ((long)milli)*1000000;}
-    static long milliToNano(long milli) { return milli*1000000;}
-    static double bpmToMIDIClockNanoseconds(double bpm){return 60000000000.0/(bpm*24.0);}
-    static int makeHighlightColour(int colour)
+    public static int nanoToMilli(long nano) { return (int)(nano/1000000);}
+    public static long milliToNano(int milli) { return ((long)milli)*1000000;}
+    public static long milliToNano(long milli) { return milli*1000000;}
+    public static double bpmToMIDIClockNanoseconds(double bpm){return 60000000000.0/(bpm*24.0);}
+    public static int makeHighlightColour(int colour)
     {
         colour&=0x00ffffff;
         colour|=0x44000000;
         return colour;
     }
-    static int makeHighlightColour(int colour,byte opacity)
+    public static int makeHighlightColour(int colour,byte opacity)
     {
         colour&=0x00ffffff;
         colour|=opacity << 24;
         return colour;
     }
-    static int makeContrastingColour(int colour)
+    public static int makeContrastingColour(int colour)
     {
         int r=(colour>>16) &0x000000FF;
         int g=(colour>>8) &0x000000FF;
@@ -73,7 +73,7 @@ public class Utils
         return ((r * 0.299) + (g * 0.587) + (b * 0.114) > 186 ? Color.BLACK : Color.WHITE);
     }
     private static List<String> splitters=new ArrayList<>(Arrays.asList(" ", "-"));
-    static int countWords(String[] words)
+    public static int countWords(String[] words)
     {
         int wordCount=0;
         for(String w:words)
@@ -81,7 +81,7 @@ public class Utils
                 wordCount++;
         return wordCount;
     }
-    static String stitchBits(String[] bits,int nonWhitespaceBitsToJoin)
+    public static String stitchBits(String[] bits,int nonWhitespaceBitsToJoin)
     {
         String result="";
         int nonWhitespaceBitsJoined=0;
@@ -95,7 +95,7 @@ public class Utils
         }
         return result;
     }
-    static String[] splitText(String str)
+    public static String[] splitText(String str)
     {
         ArrayList<String> bits=new ArrayList<>();
         int bestSplitIndex;
@@ -122,7 +122,7 @@ public class Utils
         }
         return bits.toArray(new String[bits.size()]);
     }
-    static String[] splitIntoLetters(String str)
+    public static String[] splitIntoLetters(String str)
     {
         char[] chars=str.toCharArray();
         String[] charsAsStrings=new String[chars.length];
@@ -130,7 +130,7 @@ public class Utils
             charsAsStrings[f]=""+chars[f];
         return charsAsStrings;
     }
-    static int parseDuration(String str, boolean trackLengthAllowed)
+    public static int parseDuration(String str, boolean trackLengthAllowed)
     {
         if((str.equalsIgnoreCase("track")) && (trackLengthAllowed))
             return Utils.TRACK_AUDIO_LENGTH_VALUE;
@@ -172,13 +172,13 @@ public class Utils
 
     private static Pattern pattern = Pattern.compile(REGEXP);
 
-    static boolean isChord(String text) {
+    public static boolean isChord(String text) {
         if (text != null)
             text = text.trim();
         return !((text == null) || (text.length() == 0)) && pattern.matcher(text).matches();
     }
 
-    static void streamToStream(InputStream is, OutputStream os) throws IOException
+    public static void streamToStream(InputStream is, OutputStream os) throws IOException
     {
         byte[] buffer = new byte[2048];
         int bytesRead;
@@ -187,7 +187,7 @@ public class Utils
     }
 
     private static final String ReservedChars = "|\\?*<\":>+[]/'";
-    static String makeSafeFilename(String str)
+    public static String makeSafeFilename(String str)
     {
         StringBuilder builder=new StringBuilder();
         for(char c:str.toCharArray())

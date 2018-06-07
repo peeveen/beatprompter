@@ -6,10 +6,15 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 
+import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.Tag;
+import com.stevenfrew.beatprompter.event.CancelEvent;
+import com.stevenfrew.beatprompter.event.ColorEvent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
-class TextLine extends Line
+public class TextLine extends Line
 {
     private String mText;
     private int mLineTextSize; // font size to use, pre-measured.
@@ -28,7 +33,7 @@ class TextLine extends Line
     private int mLineDescenderOffset;
     private int mChordDescenderOffset;
 
-    TextLine(String lineText, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
+    public TextLine(String lineText, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
     {
         super(lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,scrollingMode,parseErrors);
         mText=lineText;
@@ -39,7 +44,7 @@ class TextLine extends Line
                 mLineTags.add(tag);
     }
 
-    LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth,int screenHeight,  Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
+    public LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth,int screenHeight,  Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
     {
         mFont=font;
         ArrayList<LineSection> sections = new ArrayList<>();

@@ -1,11 +1,13 @@
 package com.stevenfrew.beatprompter;
 
+import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
+
 public class SongDisplaySettings {
-    int mOrientation;
-    int mMinFontSize;
-    int mMaxFontSize;
-    int mScreenWidth;
-    int mScreenHeight;
+    public int mOrientation;
+    public int mMinFontSize;
+    public int mMaxFontSize;
+    public int mScreenWidth;
+    public int mScreenHeight;
 
     SongDisplaySettings(int orientation,int minFontSize,int maxFontSize,int screenWidth,int screenHeight)
     {

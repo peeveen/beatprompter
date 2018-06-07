@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter;
 
-enum ScrollingMode
+public enum ScrollingMode
 {
     Beat,Smooth,Manual
 }

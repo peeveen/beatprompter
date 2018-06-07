@@ -20,6 +20,22 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.OverScroller;
 import android.widget.Toast;
+
+import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
+import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
+import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
+import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
+import com.stevenfrew.beatprompter.event.BaseEvent;
+import com.stevenfrew.beatprompter.event.BeatEvent;
+import com.stevenfrew.beatprompter.event.ColorEvent;
+import com.stevenfrew.beatprompter.event.CommentEvent;
+import com.stevenfrew.beatprompter.event.EndEvent;
+import com.stevenfrew.beatprompter.event.LineEvent;
+import com.stevenfrew.beatprompter.event.MIDIEvent;
+import com.stevenfrew.beatprompter.event.PauseEvent;
+import com.stevenfrew.beatprompter.event.TrackEvent;
+import com.stevenfrew.beatprompter.midi.MIDITriggerSafetyCatch;
+
 import java.io.FileInputStream;
 import java.util.Collection;
 

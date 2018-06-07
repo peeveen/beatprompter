@@ -1,8 +1,10 @@
 package com.stevenfrew.beatprompter;
 
-class PlaylistNode
+import com.stevenfrew.beatprompter.cache.SongFile;
+
+public class PlaylistNode
 {
-    SongFile mSongFile;
+    public SongFile mSongFile;
     PlaylistNode mNextNode;
     PlaylistNode mPrevNode;
 

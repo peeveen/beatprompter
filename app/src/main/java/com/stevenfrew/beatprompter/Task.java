@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter;
 
 import android.util.Log;
 
-abstract class Task implements Runnable
+public abstract class Task implements Runnable
 {
     private boolean mRunning;
     private boolean mStop=false;
@@ -11,7 +11,7 @@ abstract class Task implements Runnable
 
     private final static String TASKTAG="task";
 
-    Task(boolean initialRunningState)
+    public Task(boolean initialRunningState)
     {
         mRunning=initialRunningState;
     }
@@ -29,14 +29,14 @@ abstract class Task implements Runnable
             mRunning=value;
         }
     }
-    boolean getShouldStop()
+    protected boolean getShouldStop()
     {
         synchronized (stopSync)
         {
             return mStop;
         }
     }
-    void setShouldStop(boolean value)
+    protected void setShouldStop(boolean value)
     {
         synchronized (stopSync)
         {
@@ -89,7 +89,7 @@ abstract class Task implements Runnable
     {
         setIsRunning(true);
     }
-    abstract void doWork();
+    public abstract void doWork();
 
     static void pauseTask(Task task,Thread thread) {
         if(task!=null) {

@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter;
 
+import com.stevenfrew.beatprompter.event.LineEvent;
+
 import java.util.ArrayList;
 
 public class LineMeasurements
@@ -12,7 +14,7 @@ public class LineMeasurements
     int mLines;
     int mHighlightColour;
 
-    LineMeasurements(int lines,int lineWidth,int lineHeight,ArrayList<Integer> graphicHeights,int highlightColour,LineEvent lineEvent,Line nextLine,long yStartScrollTime,ScrollingMode scrollMode)
+    LineMeasurements(int lines, int lineWidth, int lineHeight, ArrayList<Integer> graphicHeights, int highlightColour, LineEvent lineEvent, Line nextLine, long yStartScrollTime, ScrollingMode scrollMode)
     {
         mLines=lines;
         mLineHeight=lineHeight;
