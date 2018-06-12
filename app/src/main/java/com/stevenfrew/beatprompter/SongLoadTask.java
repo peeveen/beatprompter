@@ -15,7 +15,7 @@ import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     Semaphore mTaskEndSemaphore=new Semaphore(0);
-    static Object mSongLoadSyncObject=new Object();
+    static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
     static LoadingSongFile mSongToLoadOnResume=null;
 

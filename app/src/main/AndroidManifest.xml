@@ -51,7 +51,7 @@
             android:launchMode="singleTask"
             android:theme="@style/FullscreenTheme" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".pref.SettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_settings"
             android:launchMode="singleTask">

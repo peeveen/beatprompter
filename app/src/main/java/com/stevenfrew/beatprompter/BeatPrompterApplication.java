@@ -91,9 +91,9 @@ public class BeatPrompterApplication extends Application {
     AcceptConnectionsFromClientsThread mServerBluetoothThread=null;
     List<ConnectToServerThread> mConnectToServerThreads=new ArrayList<>();
 
-    static Handler mSongListHandler=null;
+    public static Handler mSongListHandler=null;
     static Handler mSongDisplayHandler=null;
-    static Handler mSettingsHandler=null;
+    public static Handler mSettingsHandler=null;
     static byte[] mMidiBankMSBs=new byte[16];
     static byte[] mMidiBankLSBs=new byte[16];
 

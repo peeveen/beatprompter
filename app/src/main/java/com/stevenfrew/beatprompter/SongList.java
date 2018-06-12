@@ -39,7 +39,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -89,6 +88,7 @@ import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
 import com.stevenfrew.beatprompter.midi.MIDIUSBInTask;
 import com.stevenfrew.beatprompter.midi.MIDIUSBOutTask;
 import com.stevenfrew.beatprompter.pref.FontSizePreference;
+import com.stevenfrew.beatprompter.pref.SettingsActivity;
 import com.stevenfrew.beatprompter.ui.FilterListAdapter;
 import com.stevenfrew.beatprompter.ui.SongListAdapter;
 
@@ -110,8 +110,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +157,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     PendingIntent mPermissionIntent;
 
     final static String ONEDRIVE_CLIENT_ID = "dc584873-700c-4377-98da-d088cca5c1f5"; //This is your client ID
-    final static MSAAuthenticator ONEDRIVE_MSA_AUTHENTICATOR = new MSAAuthenticator()
+    public final static MSAAuthenticator ONEDRIVE_MSA_AUTHENTICATOR = new MSAAuthenticator()
     {
         @Override
         public String getClientId() {
@@ -573,140 +571,124 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.song_options)
-                .setItems(arrayID, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 1)
-                            performCloudSync(selectedSong,false);
-                        else if (which == 2)
-                            performCloudSync(selectedSong,true);
-                        else if (which == 3)
-                        {
-                            if(includeRefreshSet) {
-                                performCloudSync(selectedSet,false);
-                            }
-                            else if(includeClearSet)
-                                clearTemporarySetList();
-                            else
-                                addToTemporarySet(selectedSong);
+                .setItems(arrayID, (dialog, which) -> {
+                    if (which == 1)
+                        performCloudSync(selectedSong,false);
+                    else if (which == 2)
+                        performCloudSync(selectedSong,true);
+                    else if (which == 3)
+                    {
+                        if(includeRefreshSet) {
+                            performCloudSync(selectedSet,false);
                         }
-                        else if(which==4)
+                        else if(includeClearSet)
+                            clearTemporarySetList();
+                        else
                             addToTemporarySet(selectedSong);
-                        else if (which == 0) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                            // Get the layout inflater
-                            LayoutInflater inflater = activity.getLayoutInflater();
+                    }
+                    else if(which==4)
+                        addToTemporarySet(selectedSong);
+                    else if (which == 0) {
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(activity);
+                        // Get the layout inflater
+                        LayoutInflater inflater = activity.getLayoutInflater();
 
-                            View view = inflater.inflate(R.layout.songlist_long_press_dialog, null);
+                        View view = inflater.inflate(R.layout.songlist_long_press_dialog, null);
 
-                            final Spinner audioSpinner = (Spinner) view
-                                    .findViewById(R.id.audioSpinner);
-                            ArrayAdapter<String> audioSpinnerAdapter = new ArrayAdapter<>(activity,
-                                    android.R.layout.simple_spinner_item, trackNames);
-                            audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                            audioSpinner.setAdapter(audioSpinnerAdapter);
-                            if (trackNames.size() > 1)
-                                audioSpinner.setSelection(1);
+                        final Spinner audioSpinner =  view
+                                .findViewById(R.id.audioSpinner);
+                        ArrayAdapter<String> audioSpinnerAdapter = new ArrayAdapter<>(activity,
+                                android.R.layout.simple_spinner_item, trackNames);
+                        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        audioSpinner.setAdapter(audioSpinnerAdapter);
+                        if (trackNames.size() > 1)
+                            audioSpinner.setSelection(1);
 
-                            boolean beatScrollable=selectedSong.isBeatScrollable();
-                            boolean smoothScrollable=selectedSong.isSmoothScrollable();
-                            final ToggleButton beatButton = (ToggleButton) view
-                                    .findViewById(R.id.toggleButton_beat);
-                            final ToggleButton smoothButton = (ToggleButton) view
-                                    .findViewById(R.id.toggleButton_smooth);
-                            final ToggleButton manualButton = (ToggleButton) view
-                                    .findViewById(R.id.toggleButton_manual);
-                            if(!smoothScrollable)
+                        boolean beatScrollable=selectedSong.isBeatScrollable();
+                        boolean smoothScrollable=selectedSong.isSmoothScrollable();
+                        final ToggleButton beatButton =  view
+                                .findViewById(R.id.toggleButton_beat);
+                        final ToggleButton smoothButton =  view
+                                .findViewById(R.id.toggleButton_smooth);
+                        final ToggleButton manualButton =  view
+                                .findViewById(R.id.toggleButton_manual);
+                        if(!smoothScrollable)
+                        {
+                            ViewGroup layout = (ViewGroup) smoothButton.getParent();
+                            if(null!=layout)
+                                layout.removeView(smoothButton);
+                        }
+                        if(!beatScrollable)
+                        {
+                            ViewGroup layout = (ViewGroup) beatButton.getParent();
+                            if(null!=layout)
+                                layout.removeView(beatButton);
+                        }
+                        if(beatScrollable) {
+                            beatButton.setChecked(true);
+                            beatButton.setEnabled(false);
+                        }
+                        else if(smoothScrollable) {
+                            smoothButton.setChecked(true);
+                            smoothButton.setEnabled(false);
+                        }
+                        else
+                        {
+                            manualButton.setChecked(true);
+                            manualButton.setEnabled(false);
+                        }
+
+                        beatButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                            if(isChecked)
                             {
-                                ViewGroup layout = (ViewGroup) smoothButton.getParent();
-                                if(null!=layout)
-                                    layout.removeView(smoothButton);
-                            }
-                            if(!beatScrollable)
-                            {
-                                ViewGroup layout = (ViewGroup) beatButton.getParent();
-                                if(null!=layout)
-                                    layout.removeView(beatButton);
-                            }
-                            if(beatScrollable) {
-                                beatButton.setChecked(true);
+                                smoothButton.setChecked(false);
+                                manualButton.setChecked(false);
+                                smoothButton.setEnabled(true);
+                                manualButton.setEnabled(true);
                                 beatButton.setEnabled(false);
                             }
-                            else if(smoothScrollable) {
-                                smoothButton.setChecked(true);
+                        });
+
+                        smoothButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                            if(isChecked)
+                            {
+                                beatButton.setChecked(false);
+                                manualButton.setChecked(false);
+                                beatButton.setEnabled(true);
+                                manualButton.setEnabled(true);
                                 smoothButton.setEnabled(false);
                             }
-                            else
+                        });
+
+                        manualButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                            if(isChecked)
                             {
-                                manualButton.setChecked(true);
+                                beatButton.setChecked(false);
+                                smoothButton.setChecked(false);
+                                smoothButton.setEnabled(true);
+                                beatButton.setEnabled(true);
                                 manualButton.setEnabled(false);
                             }
+                        });
 
-                            beatButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                @Override
-                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    if(isChecked)
-                                    {
-                                        smoothButton.setChecked(false);
-                                        manualButton.setChecked(false);
-                                        smoothButton.setEnabled(true);
-                                        manualButton.setEnabled(true);
-                                        beatButton.setEnabled(false);
-                                    }
-                                }
-                            });
-
-                            smoothButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                @Override
-                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    if(isChecked)
-                                    {
-                                        beatButton.setChecked(false);
-                                        manualButton.setChecked(false);
-                                        beatButton.setEnabled(true);
-                                        manualButton.setEnabled(true);
-                                        smoothButton.setEnabled(false);
-                                    }
-                                }
-                            });
-
-                            manualButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                @Override
-                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    if(isChecked)
-                                    {
-                                        beatButton.setChecked(false);
-                                        smoothButton.setChecked(false);
-                                        smoothButton.setEnabled(true);
-                                        beatButton.setEnabled(true);
-                                        manualButton.setEnabled(false);
-                                    }
-                                }
-                            });
-
-                            // Inflate and set the layout for the dialog
-                            // Pass null as the parent view because its going in the dialog layout
-                            builder.setView(view)
-                                    // Add action buttons
-                                    .setPositiveButton(R.string.play, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            // sign in the user ...
-                                            String selectedTrack = (String) (audioSpinner.getSelectedItem());
-                                            ScrollingMode mode=beatButton.isChecked()?ScrollingMode.Beat:(smoothButton.isChecked()?ScrollingMode.Smooth:ScrollingMode.Manual);
-                                            if (audioSpinner.getSelectedItemPosition() == 0)
-                                                selectedTrack = null;
-                                            SongDisplaySettings sds=getSongDisplaySettings(mode);
-                                            playSong(selectedNode, selectedSong, selectedTrack,mode,false,false,sds,sds);
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                        }
-                                    });
-                            AlertDialog customAD = builder.create();
-                            customAD.setCanceledOnTouchOutside(true);
-                            customAD.show();
-                        }
+                        // Inflate and set the layout for the dialog
+                        // Pass null as the parent view because its going in the dialog layout
+                        builder1.setView(view)
+                                // Add action buttons
+                                .setPositiveButton(R.string.play, (dialog1, id) -> {
+                                    // sign in the user ...
+                                    String selectedTrack = (String) (audioSpinner.getSelectedItem());
+                                    ScrollingMode mode=beatButton.isChecked()?ScrollingMode.Beat:(smoothButton.isChecked()?ScrollingMode.Smooth:ScrollingMode.Manual);
+                                    if (audioSpinner.getSelectedItemPosition() == 0)
+                                        selectedTrack = null;
+                                    SongDisplaySettings sds=getSongDisplaySettings(mode);
+                                    playSong(selectedNode, selectedSong, selectedTrack,mode,false,false,sds,sds);
+                                })
+                                .setNegativeButton(R.string.cancel, (dialog12, id) -> {
+                                });
+                        AlertDialog customAD = builder1.create();
+                        customAD.setCanceledOnTouchOutside(true);
+                        customAD.show();
                     }
                 });
         AlertDialog al = builder.create();
@@ -725,13 +707,11 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.midi_alias_list_options)
-                .setItems(arrayID, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 0)
-                            performCloudSync(maf,false);
-                        else if (which == 1)
-                            showMIDIAliasErrors(maf.getErrors());
-                    }
+                .setItems(arrayID, (dialog, which) -> {
+                    if (which == 0)
+                        performCloudSync(maf,false);
+                    else if (which == 1)
+                        showMIDIAliasErrors(maf.getErrors());
                 });
         AlertDialog al = builder.create();
         al.setCanceledOnTouchOutside(true);
@@ -783,7 +763,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static File mBeatPrompterSongFilesFolder;
 
     private static File mGoogleDriveFolder;
-    private static File mDropboxFolder;
     private static File mOneDriveFolder;
     private static File mDemoFolder;
 
@@ -798,19 +777,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
 //    private static final int REQUEST_CODE_GOOGLE_DRIVE_FILE_SELECTED = 2;
 
-    SharedPreferences.OnSharedPreferenceChangeListener mStorageLocationPrefListener = new
-            SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                                      String key) {
-                    if((key.equals(getString(R.string.pref_storageLocation_key)))||(key.equals(getString(R.string.pref_useExternalStorage_key))))
-                        setBeatPrompterFolder();
-                    else if(key.equals(getString(R.string.pref_largePrintList_key)))
-                        buildList();
-                    else if(key.equals(getString(R.string.pref_midiIncomingChannels_key)))
-                        setIncomingMIDIChannels();
-                }
-            };
+    SharedPreferences.OnSharedPreferenceChangeListener mStorageLocationPrefListener = (sharedPreferences, key) -> {
+        if((key.equals(getString(R.string.pref_storageLocation_key)))||(key.equals(getString(R.string.pref_useExternalStorage_key))))
+            setBeatPrompterFolder();
+        else if(key.equals(getString(R.string.pref_largePrintList_key)))
+            buildList();
+        else if(key.equals(getString(R.string.pref_midiIncomingChannels_key)))
+            setIncomingMIDIChannels();
+    };
 
     public static Context getContext()
     {
@@ -1241,7 +1215,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    boolean wasPowerwashed()
+    public boolean wasPowerwashed()
     {
         SharedPreferences sharedPrefs = getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
         boolean powerwashed = sharedPrefs.getBoolean(getString(R.string.pref_wasPowerwashed_key), false);
@@ -1315,7 +1289,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         else
             mListAdapter = new SongListAdapter(mPlaylist.getNodesAsArray());
 
-        ListView listView = (ListView) findViewById(R.id.listView);
+        ListView listView = findViewById(R.id.listView);
 
         int index = listView.getFirstVisiblePosition();
         View v = listView.getChildAt(0);
@@ -1406,22 +1380,12 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             for(String tag: song.mTags)
             {
-                ArrayList<SongFile> songs=tagDicts.get(tag);
-                if(songs==null)
-                {
-                    songs = new ArrayList<>();
-                    tagDicts.put(tag,songs);
-                }
+                ArrayList<SongFile> songs = tagDicts.computeIfAbsent(tag, k -> new ArrayList<>());
                 songs.add(song);
             }
             if(song.mSubfolder!=null && song.mSubfolder.length()>0)
             {
-                ArrayList<SongFile> songs=folderDicts.get(song.mSubfolder);
-                if(songs==null)
-                {
-                    songs = new ArrayList<>();
-                    folderDicts.put(song.mSubfolder,songs);
-                }
+                ArrayList<SongFile> songs = folderDicts.computeIfAbsent(song.mSubfolder, k -> new ArrayList<>());
                 songs.add(song);
             }
         }
@@ -1450,13 +1414,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mFilters.add(filter);
         }
 
-        Collections.sort(mFilters, new Comparator<Filter>() {
-            @Override
-            public int compare(Filter f1, Filter f2) {
-                String tag1 = f1.mName.toLowerCase();
-                String tag2 = f2.mName.toLowerCase();
-                return tag1.compareTo(tag2);
-            }
+        mFilters.sort((f1, f2) -> {
+            String tag1 = f1.mName.toLowerCase();
+            String tag2 = f2.mName.toLowerCase();
+            return tag1.compareTo(tag2);
         });
 
         if(mTemporarySetListFilter!=null)
@@ -1558,29 +1519,24 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 if(mSelectedFilter.mCanSort) {
                     AlertDialog.Builder adb = new AlertDialog.Builder(this);
                     CharSequence items[] = new CharSequence[]{getString(R.string.byTitle), getString(R.string.byArtist), getString(R.string.byDate),getString(R.string.byKey)};
-                    adb.setItems(items, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface d, int n) {
-                            if (n == 0) {
-                                d.dismiss();
-                                setSortingPreference(SortingPreference.TITLE);
-                                buildList();
-                            } else if (n == 1) {
-                                d.dismiss();
-                                setSortingPreference(SortingPreference.ARTIST);
-                                buildList();
-                            } else if (n == 2) {
-                                d.dismiss();
-                                setSortingPreference(SortingPreference.DATE);
-                                buildList();
-                            } else if (n == 3) {
-                                d.dismiss();
-                                setSortingPreference(SortingPreference.KEY);
-                                buildList();
-                            }
+                    adb.setItems(items, (d, n) -> {
+                        if (n == 0) {
+                            d.dismiss();
+                            setSortingPreference(SortingPreference.TITLE);
+                            buildList();
+                        } else if (n == 1) {
+                            d.dismiss();
+                            setSortingPreference(SortingPreference.ARTIST);
+                            buildList();
+                        } else if (n == 2) {
+                            d.dismiss();
+                            setSortingPreference(SortingPreference.DATE);
+                            buildList();
+                        } else if (n == 3) {
+                            d.dismiss();
+                            setSortingPreference(SortingPreference.KEY);
+                            buildList();
                         }
-
                     });
                     adb.setTitle(getString(R.string.sortSongs));
                     AlertDialog ad=adb.create();
@@ -1658,22 +1614,18 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             if((missing.size()>0)&&(!slf.mWarned))
             {
                 slf.mWarned=true;
-                String message=String.format(getString(R.string.missing_songs_message),missing.size());
-                message+="\n\n";
+                StringBuilder message=new StringBuilder(String.format(getString(R.string.missing_songs_message),missing.size()));
+                message.append("\n\n");
                 for(int f=0;f<Math.min(missing.size(),3);++f)
                 {
-                    message+=missing.get(f);
-                    message+="\n";
+                    message.append(missing.get(f));
+                    message.append("\n");
                 }
                 AlertDialog alertDialog = new AlertDialog.Builder(this).create();
                 alertDialog.setTitle(R.string.missing_songs_dialog_title);
-                alertDialog.setMessage(message);
+                alertDialog.setMessage(message.toString());
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
+                        (dialog, which) -> dialog.dismiss());
                 alertDialog.show();
             }
         }
@@ -1708,12 +1660,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         mCachedCloudFiles.clear();
     }
 
-    void deleteAllFiles()
+    public void deleteAllFiles()
     {
         // Clear both cache folders
         setLastSyncDate(new Date(0));
         clearCacheFolder(mDemoFolder);
-        clearCacheFolder(mDropboxFolder);
+        // TODO: use CloudStorage class
+//        clearCacheFolder(mDropboxFolder);
         clearCacheFolder(mOneDriveFolder);
         clearCacheFolder(mGoogleDriveFolder);
         clearCachedCloudFileArrays();
@@ -1829,12 +1782,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void showFirstRunMessages()
     {
         //  Declare a new thread to do a preference check
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Intent i = new Intent(getApplicationContext(), IntroActivity.class);
-                startActivity(i);
-            }
+        Thread t = new Thread(() -> {
+            Intent i = new Intent(getApplicationContext(), IntroActivity.class);
+            startActivity(i);
         });
 
         // Start the thread
@@ -1986,7 +1936,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return "";
     }
 
-    CloudType getCloud()
+    public CloudType getCloud()
     {
         return getCloud(this);
     }
@@ -2087,7 +2037,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if(mMenu!=null)
         {
             LinearLayout btlayout = (LinearLayout) mMenu.findItem(R.id.btconnectionstatuslayout).getActionView();
-            ImageView btIcon = (ImageView) btlayout.findViewById(R.id.btconnectionstatus);
+            ImageView btIcon = btlayout.findViewById(R.id.btconnectionstatus);
             if (btIcon != null)
                 btIcon.setImageResource(resourceID);
         }
