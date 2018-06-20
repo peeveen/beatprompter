@@ -18,6 +18,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
+import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
@@ -55,13 +56,18 @@ public class DropboxCloudStorage extends CloudStorage {
     private static final Set<String> EXTENSIONS_TO_DOWNLOAD = new HashSet<>(Arrays.asList(
             "txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"));
 
+    private boolean isSuitableFileToDownload(String filename)
+    {
+        return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
+    }
+
     private Activity mParentActivity;
-    private File mDropboxFolder;
+    private CloudCacheFolder mDropboxFolder;
 
     public DropboxCloudStorage(Activity parentActivity)
     {
         mParentActivity=parentActivity;
-        mDropboxFolder=new File(SongList.mBeatPrompterSongFilesFolder,DROPBOX_CACHE_FOLDER_NAME);
+        mDropboxFolder=new CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder,DROPBOX_CACHE_FOLDER_NAME);
         if(!mDropboxFolder.exists())
             if(!mDropboxFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG,"Failed to create Dropbox sync folder.");
@@ -77,7 +83,7 @@ public class DropboxCloudStorage extends CloudStorage {
                 Metadata mdata = client.files().getMetadata(file.mID);
                 if ((mdata != null) && (mdata instanceof FileMetadata)) {
                     FileMetadata fmdata = (FileMetadata) mdata;
-                    String title = fmdata.getName();
+                    String title = file.mName;
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
                     messageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
                     String safeFilename = Utils.makeSafeFilename(title);
@@ -125,21 +131,6 @@ public class DropboxCloudStorage extends CloudStorage {
         return localfile;
     }
 
-    @Override
-    public String getCloudStorageName() {
-        return SongList.mSongListInstance.getString(R.string.dropbox_string);
-    }
-
-    @Override
-    public CloudType getCloudStorageType() {
-        return CloudType.Dropbox;
-    }
-
-    private boolean isSuitableFileToDownload(String filename)
-    {
-        return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
-    }
-
     private void readFolderContents(DbxClientV2 client, CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders)
     {
         List<CloudFolderInfo> foldersToSearch=new ArrayList<>();
@@ -163,6 +154,8 @@ public class DropboxCloudStorage extends CloudStorage {
                     List<Metadata> entries=listResult.getEntries();
                     for(Metadata mdata:entries)
                     {
+                        if(listener.shouldCancel())
+                            break;
                         if(mdata instanceof FileMetadata)
                         {
                             FileMetadata fmdata=(FileMetadata)mdata;
@@ -247,18 +240,37 @@ public class DropboxCloudStorage extends CloudStorage {
         });
     }
 
-    public CloudFolderInfo getRootPath()
+    @Override
+    protected void getRootPath(CloudListener listener,PublishSubject<CloudFolderInfo> rootPathSource)
     {
-        return new CloudFolderInfo("",DROPBOX_ROOT_PATH,DROPBOX_ROOT_PATH);
+        rootPathSource.onNext(new CloudFolderInfo("",DROPBOX_ROOT_PATH,DROPBOX_ROOT_PATH));
     }
 
+    @Override
     public String getDirectorySeparator()
     {
         return "/";
     }
 
+    @Override
     public int getCloudIconResourceId()
     {
         return R.drawable.ic_dropbox;
+    }
+
+    @Override
+    public String getCloudStorageName() {
+        return SongList.mSongListInstance.getString(R.string.dropbox_string);
+    }
+
+    @Override
+    public CloudType getCloudStorageType() {
+        return CloudType.Dropbox;
+    }
+
+    @Override
+    public CloudCacheFolder getCacheFolder()
+    {
+        return mDropboxFolder;
     }
 }

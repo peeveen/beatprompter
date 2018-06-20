@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
+import com.stevenfrew.beatprompter.SongList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +57,10 @@ public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener
     private CloudStorage mCloudStorage;
     private List<CloudItemInfo> mDisplayItems=new ArrayList<>();
 
-    ChooseCloudFolderDialog(final Activity activity,CloudStorage cloudStorage,CloudFolderSelectionListener listener) {
+    ChooseCloudFolderDialog(final Activity activity,CloudStorage cloudStorage,CloudFolderSelectionListener listener,CloudFolderInfo rootPath) {
         mActivity=activity;
         mCloudStorage=cloudStorage;
+        mCurrentFolder=rootPath;
         mDialog = new Dialog(activity, R.style.CustomDialog);
         mDialog.requestWindowFeature(Window.FEATURE_LEFT_ICON);
         mDialog.setContentView(R.layout.choose_folder_dialog_loading);
@@ -77,9 +79,6 @@ public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener
 
     public void showDialog()
     {
-        mCurrentFolder=mCloudStorage.getRootPath();
-        if(mCurrentFolder==null)
-            return;
         refresh(mCurrentFolder);
         mDialog.setTitle(getDisplayPath(mCurrentFolder));
         mDialog.show();

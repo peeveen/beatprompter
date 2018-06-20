@@ -66,6 +66,7 @@ import com.stevenfrew.beatprompter.cache.ImageFile;
 import com.stevenfrew.beatprompter.cache.InvalidBeatPrompterFileException;
 import com.stevenfrew.beatprompter.cache.SetListFile;
 import com.stevenfrew.beatprompter.cache.SongFile;
+import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
@@ -155,20 +156,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final String ACTION_USB_PERMISSION =
             "com.android.example.USB_PERMISSION";
     PendingIntent mPermissionIntent;
-
-    final static String ONEDRIVE_CLIENT_ID = "dc584873-700c-4377-98da-d088cca5c1f5"; //This is your client ID
-    public final static MSAAuthenticator ONEDRIVE_MSA_AUTHENTICATOR = new MSAAuthenticator()
-    {
-        @Override
-        public String getClientId() {
-            return ONEDRIVE_CLIENT_ID;
-        }
-
-        @Override
-        public String[] getScopes() {
-            return new String[] { "onedrive.readonly","wl.offline_access" };
-        }
-    };
 
     /* Configurations */
 
@@ -762,15 +749,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static File mBeatPrompterDataFolder;
     public static File mBeatPrompterSongFilesFolder;
 
-    private static File mGoogleDriveFolder;
-    private static File mOneDriveFolder;
-    private static File mDemoFolder;
+    private static CloudCacheFolder mDemoFolder;
 
     private static final String XML_DATABASE_FILE_NAME="bpdb.xml";
     private static final String XML_DATABASE_FILE_ROOT_ELEMENT_TAG="beatprompterDatabase";
-
-    private static final String ONEDRIVE_CACHE_FOLDER_NAME="onedrive";
-    private static final String GOOGLE_DRIVE_CACHE_FOLDER_NAME="google_drive";
     private static final String DEMO_CACHE_FOLDER_NAME="demo";
 
     private static final int PLAY_SONG_REQUEST_CODE=3;
@@ -854,34 +836,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         ((BeatPrompterApplication)this.getApplicationContext()).startBluetooth();
     }
 
-    void initializeOneDriveAPI()
-    {
-        if(mOneDriveClient==null)
-        {
-            final ICallback<IOneDriveClient> callback = new ICallback<IOneDriveClient>() {
-                @Override
-                public void success(final IOneDriveClient result) {
-                    Log.v(BeatPrompterApplication.TAG, "Signed in to OneDrive");
-                    mOneDriveClient=result;
-                    performCloudSync();
-                }
-
-                @Override
-                public void failure(final ClientException error) {
-                    mOneDriveClient=null;
-                    Log.e(BeatPrompterApplication.TAG, "Nae luck signing in to OneDrive");
-                }
-            };
-
-            IClientConfig oneDriveConfig = DefaultClientConfig.
-                    createWithAuthenticator(ONEDRIVE_MSA_AUTHENTICATOR);
-            new OneDriveClient.Builder()
-                    .fromConfig(oneDriveConfig)
-                    .loginAndBuildClient(SongList.this,callback);
-        }
-
-    }
-
     void initialiseList()
     {
         try {
@@ -947,15 +901,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 // Song file storage folder has changed. We need to clear the cache.
                 deleteAllFiles();
 
-        mGoogleDriveFolder=new File(mBeatPrompterSongFilesFolder,GOOGLE_DRIVE_CACHE_FOLDER_NAME);
-        mOneDriveFolder=new File(mBeatPrompterSongFilesFolder,ONEDRIVE_CACHE_FOLDER_NAME);
-        mDemoFolder=new File(mBeatPrompterSongFilesFolder,DEMO_CACHE_FOLDER_NAME);
-        if(!mGoogleDriveFolder.exists())
-            if(!mGoogleDriveFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create Google Drive sync folder.");
-        if(!mOneDriveFolder.exists())
-            if(!mOneDriveFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create OneDrive sync folder.");
+        mDemoFolder=new CloudCacheFolder(mBeatPrompterSongFilesFolder,DEMO_CACHE_FOLDER_NAME);
         if(!mDemoFolder.exists())
             if(!mDemoFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG,"Failed to create Demo folder.");
@@ -1173,46 +1119,19 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void performCloudSync()
     {
-        ArrayList<CachedCloudFile> filesToRefresh=getFilesToRefresh();
-
-        CloudType cloud=getCloud();
-        if(cloud==CloudType.None)
-            Toast.makeText(this,getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
-        else {
+        CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
+        if(cs!=null)
+        {
             String cloudPath = getCloudPath();
             if ((cloudPath == null) || (cloudPath.length() == 0))
                 Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
             else {
-                boolean includeSubFolders = getIncludeSubfolders();
-                CloudStorage cs=null;
-                if (cloud == CloudType.Dropbox) {
-                    cs=new DropboxCloudStorage(this);
-//                    if(mDropboxAPI!=null)
-  //                      cdt = new DropboxDownloadTask(mDropboxAPI,mDropboxFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
-    //                else
-      //                  initializeDropboxAPI();
-                }
-                if(cs!=null)
-                {
-                    CloudDownloadTask cdt=new CloudDownloadTask(cs,mSongListHandler,cloudPath,includeSubFolders,null);
-                    cdt.execute();
-                }
-/*                else if (cloud == CloudType.GoogleDrive) {
-                    if(GoogleDriveWrapper.isConnected())
-                        cdt=new GoogleDriveDownloadTask(mGoogleDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
-                    else
-                        GoogleDriveWrapper.connectClient();
-                }
-                else if (cloud == CloudType.OneDrive) {
-                    if(mOneDriveClient!=null)
-                        cdt = new OneDriveDownloadTask(mOneDriveClient,mOneDriveFolder, mSongListHandler, cloudPath, includeSubFolders, mCachedCloudFiles, mDefaultAliases,filesToRefresh);
-                    else
-                        initializeOneDriveAPI();
-                }*/
-//                if(cdt!=null)
-  //                  cdt.execute();
+                CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
+                cdt.execute();
             }
         }
+        else
+            Toast.makeText(this,getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
     }
 
     public boolean wasPowerwashed()
@@ -1221,26 +1140,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         boolean powerwashed = sharedPrefs.getBoolean(getString(R.string.pref_wasPowerwashed_key), false);
         sharedPrefs.edit().putBoolean(getString(R.string.pref_wasPowerwashed_key), false).apply();
         return powerwashed;
-    }
-
-    private void clearCacheFolder(File folder)
-    {
-        try {
-            if (folder.exists()) {
-                File[] contents = folder.listFiles();
-                for (File f : contents) {
-                    if(!f.isDirectory()) {
-                        Log.d(BeatPrompterApplication.TAG, "Deleting " + f.getAbsolutePath());
-                        if (!f.delete())
-                            Log.e(BeatPrompterApplication.TAG, "Failed to delete " + f.getAbsolutePath());
-                    }
-                }
-            }
-        }
-        catch(Exception e)
-        {
-            Log.e(BeatPrompterApplication.TAG,"Failed to clear cache folder.",e);
-        }
     }
 
     private void sortSongList()
@@ -1664,11 +1563,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         // Clear both cache folders
         setLastSyncDate(new Date(0));
-        clearCacheFolder(mDemoFolder);
-        // TODO: use CloudStorage class
-//        clearCacheFolder(mDropboxFolder);
-        clearCacheFolder(mOneDriveFolder);
-        clearCacheFolder(mGoogleDriveFolder);
+        mDemoFolder.clear();
+        CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
+        if(cs!=null)
+            cs.getCacheFolder().clear();
         clearCachedCloudFileArrays();
         buildFilterList();
         try {

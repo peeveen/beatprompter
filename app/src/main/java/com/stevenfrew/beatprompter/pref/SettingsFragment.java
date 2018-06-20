@@ -44,6 +44,7 @@ import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
 
 import java.util.Arrays;
 
@@ -190,47 +191,11 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
         else if(cloud==CloudType.Dropbox)
             cs=new DropboxCloudStorage(getActivity());
         else if(cloud==CloudType.OneDrive)
-        {
-            if (mOneDriveClient != null)
-                editOneDrivePath();
-            else
-                initializeOneDriveClient();
-        }
+            cs=new OneDriveCloudStorage(getActivity());
         if(cs!=null)
-        {
             cs.selectFolder(getActivity(),this);
-        }
         else
             Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
-    }
-
-    void initializeOneDriveClient()
-    {
-        if(mOneDriveClient==null)
-        {
-            final ICallback<IOneDriveClient> callback = new ICallback<IOneDriveClient>() {
-                @Override
-                public void success(final IOneDriveClient result) {
-                    Log.v(TAG, "Signed in to OneDrive");
-                    mOneDriveClient = result;
-                    editOneDrivePath();
-                }
-
-                @Override
-                public void failure(final ClientException error) {
-                    mOneDriveClient = null;
-                    Log.e(TAG, "Nae luck signing in to OneDrive");
-                }
-            };
-
-            IClientConfig oneDriveConfig = DefaultClientConfig.
-                    createWithAuthenticator(SongList.ONEDRIVE_MSA_AUTHENTICATOR);
-            new OneDriveClient.Builder()
-                    .fromConfig(oneDriveConfig)
-                    .loginAndBuildClient(getActivity(), callback);
-        }
-        else
-            editOneDrivePath();
     }
 
 /*    @Override

@@ -1,7 +1,14 @@
 package com.stevenfrew.beatprompter.cloud;
 
 import android.app.Activity;
+import android.util.Log;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
+import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
+
+import java.io.File;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -10,6 +17,25 @@ import io.reactivex.subjects.PublishSubject;
 public abstract class CloudStorage {
     String[] AUDIO_FILE_EXTENSIONS=new String[]{"mp3","wav","m4a","wma","ogg","aac"};
     String[] IMAGE_FILE_EXTENSIONS=new String[]{"jpg","png","jpeg","bmp","tif","tiff"};
+
+    public String constructFullPath(String folderPath,String itemName)
+    {
+        String fullPath = folderPath;
+        if (!fullPath.endsWith(getDirectorySeparator()))
+            fullPath += getDirectorySeparator();
+        return fullPath +itemName;
+    }
+
+    public static CloudStorage getInstance(CloudType cloudType,Activity parentActivity)
+    {
+        if (cloudType == CloudType.Dropbox)
+            return new DropboxCloudStorage(parentActivity);
+        if (cloudType == CloudType.OneDrive)
+            return new OneDriveCloudStorage(parentActivity);
+        if (cloudType == CloudType.GoogleDrive)
+            return new GoogleDriveCloudStorage(parentActivity);
+        return null;
+    }
 
     public void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudItemDownloadListener listener)
     {
@@ -23,7 +49,7 @@ public abstract class CloudStorage {
         }
         finally
         {
-            disp.dispose();
+//            disp.dispose();
         }
     }
 
@@ -37,27 +63,70 @@ public abstract class CloudStorage {
         }
         finally
         {
-            disp.dispose();
+//            disp.dispose();
         }
     }
 
     public void selectFolder(Activity parentActivity,CloudFolderSelectionListener listener)
     {
-        ChooseCloudFolderDialog dialog=new ChooseCloudFolderDialog(parentActivity,this,listener);
-        dialog.showDialog();
+        try {
+            getRootPath(new CloudRootPathListener() {
+                @Override
+                public void onRootPathFound(CloudFolderInfo rootPath) {
+                    ChooseCloudFolderDialog dialog = new ChooseCloudFolderDialog(parentActivity, CloudStorage.this, listener, rootPath);
+                    dialog.showDialog();
+                }
+
+                @Override
+                public void onRootPathError(Throwable t) {
+                    listener.onFolderSelectedError(t);
+                }
+
+                @Override
+                public void onAuthenticationRequired() {
+                    listener.onAuthenticationRequired();
+                }
+
+                @Override
+                public boolean shouldCancel() {
+                    return listener.shouldCancel();
+                }
+            });
+        }
+        catch(Exception e)
+        {
+            listener.onFolderSelectedError(e);
+        }
+    }
+
+    public void getRootPath(CloudRootPathListener listener)
+    {
+        CompositeDisposable disp=new CompositeDisposable();
+        PublishSubject<CloudFolderInfo> rootPathSource=PublishSubject.create();
+        disp.add(rootPathSource.subscribe(listener::onRootPathFound,listener::onRootPathError));
+        try {
+            getRootPath(listener,rootPathSource);
+        }
+        finally
+        {
+//            disp.dispose();
+        }
     }
 
     public abstract String getCloudStorageName();
 
     public abstract CloudType getCloudStorageType();
 
-    public abstract CloudFolderInfo getRootPath();
-
     public abstract String getDirectorySeparator();
 
     public abstract int getCloudIconResourceId();
 
+    public abstract CloudCacheFolder getCacheFolder();
+
+    protected abstract void getRootPath(CloudListener listener,PublishSubject<CloudFolderInfo> rootPathSource);
+
     protected abstract void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudListener cloudListener, PublishSubject<CloudDownloadResult> itemSource,PublishSubject<String> messageSource);
 
     protected abstract void readFolderContents(CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource, boolean includeSubfolders,boolean returnFolders);
+
 }

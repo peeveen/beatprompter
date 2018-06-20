@@ -75,13 +75,6 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     }
 
     @Override
-    protected void onPostExecute(Boolean b) {
-        super.onPostExecute(b);
-        if (mProgressDialog!=null)
-            mProgressDialog.dismiss();
-    }
-
-    @Override
     protected void onPreExecute() {
         super.onPreExecute();
         mProgressDialog = new ProgressDialog(SongList.getContext());
@@ -132,10 +125,11 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onDownloadComplete() {
-        if(!isRefreshingFiles()) {
+        if(!isRefreshingFiles())
             SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mID).collect(Collectors.toSet()));
-        }
         mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
+        if (mProgressDialog!=null)
+            mProgressDialog.dismiss();
     }
 
     @Override
