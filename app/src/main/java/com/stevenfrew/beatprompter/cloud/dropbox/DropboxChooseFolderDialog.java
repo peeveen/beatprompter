@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.cloud.dropbox;
+/*package com.stevenfrew.beatprompter.cloud.dropbox;
 
 import android.app.Activity;
 
@@ -18,7 +18,6 @@ import java.util.List;
 class DropboxChooseFolderDialog extends ChooseCloudFolderDialog
 {
     private DbxClientV2 mDropboxClient;
-    private final static String DROPBOX_ROOT_PATH="/";
     private Exception mException;
 
     DropboxChooseFolderDialog(Activity parentActivity, DbxClientV2 dropboxClient)
@@ -26,11 +25,6 @@ class DropboxChooseFolderDialog extends ChooseCloudFolderDialog
         super(parentActivity, R.drawable.ic_dropbox);
         mDropboxClient=dropboxClient;
     }
-    public CloudBrowserItem getRootPath()
-    {
-        return new CloudBrowserItem(DROPBOX_ROOT_PATH,"",true);
-    }
-
     private class GetDropboxFoldersTask extends ChooseCloudFolderDialog.FolderFetcherTask
     {
         protected List<CloudBrowserItem> doInBackground(CloudBrowserItem... args) {
@@ -83,9 +77,5 @@ class DropboxChooseFolderDialog extends ChooseCloudFolderDialog
     {
         return new GetDropboxFoldersTask();
     }
-
-    public String getDirectorySeparator()
-    {
-        return "/";
-    }
 }
+*/

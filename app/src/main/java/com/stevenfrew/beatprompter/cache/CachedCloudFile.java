@@ -18,20 +18,16 @@ public abstract class CachedCloudFile extends CloudFileInfo {
     public File mFile;
 
     private final static String CACHED_FILE_PATH_ATTRIBUTE_NAME="path";
-    private final static String CACHED_FILE_NAME_ATTRIBUTE_NAME="name";
-    private final static String CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME="storageID";
-    private final static String CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME="lastModified";
-    private final static String CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME="subfolder";
 
-    public CachedCloudFile(File file, String storageID, String name, Date lastModified,String subfolder)
+    public CachedCloudFile(File file, String id, String name, Date lastModified,String subfolder)
     {
-        super(storageID,name,lastModified,subfolder);
+        super(id,name,lastModified,subfolder);
         mFile=file;
     }
 
     public CachedCloudFile(File file, CloudFileInfo cloudFileInfo)
     {
-        super(cloudFileInfo.mStorageID,cloudFileInfo.mName,cloudFileInfo.mLastModified,cloudFileInfo.mSubfolder);
+        super(cloudFileInfo.mID,cloudFileInfo.mName,cloudFileInfo.mLastModified,cloudFileInfo.mSubfolder);
         mFile=file;
     }
 
@@ -42,12 +38,8 @@ public abstract class CachedCloudFile extends CloudFileInfo {
 
     protected CachedCloudFile(Element element)
     {
-        this(
-                new File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME)),
-                element.getAttribute(CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME),
-                element.getAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME),
-                new Date(Long.parseLong(element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME))),
-                element.getAttribute(CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME));
+        super(element);
+        mFile=new File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME));
     }
 
     public static String getTokenValue(String line,int lineNumber, String... tokens)
@@ -89,11 +81,7 @@ public abstract class CachedCloudFile extends CloudFileInfo {
 
     public void writeToXML(Element element)
     {
-        element.setAttribute(CACHED_FILE_NAME_ATTRIBUTE_NAME,mName);
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME,mFile.getAbsolutePath());
-        element.setAttribute(CACHED_FILE_STORAGE_ID_ATTRIBUTE_NAME,mStorageID);
-        element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME,""+mLastModified.getTime());
-        element.setAttribute(CACHED_FILE_SUBFOLDER_ATTRIBUTE_NAME,mSubfolder==null?"":mSubfolder);
     }
 
     public static CachedCloudFile createCachedCloudFile(CloudDownloadResult result)

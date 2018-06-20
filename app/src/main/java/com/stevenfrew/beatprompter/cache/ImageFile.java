@@ -24,9 +24,9 @@ public class ImageFile extends CachedCloudFile
         verifyImageFile();
     }
 
-    ImageFile(File file,String storageID,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
+    ImageFile(File file,String id,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
     {
-        super(file,storageID,name,lastModified,subfolder);
+        super(file,id,name,lastModified,subfolder);
         verifyImageFile();
     }
 

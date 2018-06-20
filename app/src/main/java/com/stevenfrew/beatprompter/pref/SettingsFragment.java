@@ -182,18 +182,12 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
 
     void setCloudPath()
     {
+        CloudStorage cs=null;
         CloudType cloud=SongList.mSongListInstance.getCloud();
-        if(cloud==CloudType.None)
-            Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
-        else if(cloud==CloudType.GoogleDrive) {
+        if(cloud==CloudType.GoogleDrive)
             startGoogleDriveFolderBrowser();
-        }
         else if(cloud==CloudType.Dropbox)
-        {
-            CloudStorage cs=new DropboxCloudStorage(getActivity());
-            cs.getFolderSelectionSource().subscribe(this::onCloudFolderSelected);
-            cs.selectFolder();
-        }
+            cs=new DropboxCloudStorage(getActivity());
         else if(cloud==CloudType.OneDrive)
         {
             if (mOneDriveClient != null)
@@ -201,6 +195,13 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             else
                 initializeOneDriveClient();
         }
+        if(cs!=null)
+        {
+            cs.getFolderSelectionSource().subscribe(this::onCloudFolderSelected);
+            cs.selectFolder(getActivity());
+        }
+        else
+            Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
     }
 
     void initializeOneDriveClient()
@@ -395,8 +396,8 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
         getPreferenceManager()
                 .getSharedPreferences()
                 .edit()
-                .putString(getString(R.string.pref_cloudPath_key),folderInfo.mFolderID)
-                .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mFolderDisplayName)
+                .putString(getString(R.string.pref_cloudPath_key),folderInfo.mID)
+                .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mName)
                 .apply();
     }
 }

@@ -1877,7 +1877,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     ArrayList<AudioFile> audioFiles = new ArrayList<>();
                     audioFiles.add(audioFile);
                     try {
-                        mCachedCloudFiles.getSongFiles().add(new SongFile(destinationSongFile, DEMO_SONG_FILENAME, DEMO_SONG_FILENAME, new Date(), "", audioFiles, null));
+                        mCachedCloudFiles.getSongFiles().add(new SongFile(destinationSongFile, DEMO_SONG_FILENAME, DEMO_SONG_FILENAME,new Date(), "", audioFiles, null));
                         mCachedCloudFiles.getAudioFiles().add(audioFile);
                     } catch (IOException ioe) {
                         Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();

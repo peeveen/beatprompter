@@ -34,9 +34,9 @@ public class SetListFile extends CachedCloudFile
         parseSetListFileInfo();
     }
 
-    SetListFile(File file, String storageID, String title, Date lastModified, String subfolder) throws InvalidBeatPrompterFileException
+    SetListFile(File file, String id, String name, Date lastModified, String subfolder) throws InvalidBeatPrompterFileException
     {
-        super(file,storageID,title,lastModified,subfolder);
+        super(file,id,name,lastModified,subfolder);
         parseSetListFileInfo();
     }
 
@@ -73,13 +73,13 @@ public class SetListFile extends CachedCloudFile
             }
 
             if((setTitle==null)||(setTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mStorageID));
+                throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mID));
             else
                 mSetTitle=setTitle;
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mStorageID));
+            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.not_a_valid_set_list), mID));
         }
         finally
         {

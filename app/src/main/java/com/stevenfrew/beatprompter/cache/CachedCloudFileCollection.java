@@ -27,7 +27,7 @@ public class CachedCloudFileCollection
         for(int f=mFiles.size()-1;f>=0;--f)
         {
             CachedCloudFile existingFile=mFiles.get(f);
-            if(cachedFile.mStorageID.equalsIgnoreCase(existingFile.mStorageID)) {
+            if(cachedFile.mID.equalsIgnoreCase(existingFile.mID)) {
                 mFiles.set(f, cachedFile);
                 return;
             }
@@ -37,7 +37,7 @@ public class CachedCloudFileCollection
 
     public boolean hasLatestVersionOf(CloudFileInfo cloudFile)
     {
-        return mFiles.stream().anyMatch(f->f.mStorageID.equalsIgnoreCase(cloudFile.mStorageID) && f.mLastModified.equals(cloudFile.mLastModified));
+        return mFiles.stream().anyMatch(f->f.mID.equalsIgnoreCase(cloudFile.mID) && f.mLastModified.equals(cloudFile.mLastModified));
     }
 
     public List<SongFile> getSongFiles()
@@ -67,8 +67,8 @@ public class CachedCloudFileCollection
 
     public void removeNonExistent(Set<String> storageIDs)
     {
-        List<CachedCloudFile> remainingFiles=mFiles.stream().filter(f->storageIDs.contains(f.mStorageID)).collect(Collectors.toList());
-        List<CachedCloudFile> noLongerExistingFiles=mFiles.stream().filter(f->!storageIDs.contains(f.mStorageID)).collect(Collectors.toList());
+        List<CachedCloudFile> remainingFiles=mFiles.stream().filter(f->storageIDs.contains(f.mID)).collect(Collectors.toList());
+        List<CachedCloudFile> noLongerExistingFiles=mFiles.stream().filter(f->!storageIDs.contains(f.mID)).collect(Collectors.toList());
         noLongerExistingFiles.forEach(f->{if(!f.mFile.delete())
             Log.e(BeatPrompterApplication.TAG, "Failed to delete file: "+f.mFile.getName());});
         mFiles=remainingFiles;

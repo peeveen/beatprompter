@@ -115,9 +115,9 @@ public class SongFile extends CachedCloudFile
         parseSongFileInfo(new ArrayList<>(),new ArrayList<>());
     }
 
-    public SongFile(File file,String storageID,String name, Date lastModified,String subfolder, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    public SongFile(File file,String id,String name,Date lastModified,String subfolder, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
     {
-        super(file,storageID,name,lastModified,subfolder);
+        super(file,id,name,lastModified,subfolder);
         parseSongFileInfo(tempAudioFileCollection,tempImageFileCollection);
     }
 

@@ -14,9 +14,9 @@ import com.stevenfrew.beatprompter.SongList;
 
 import java.util.List;
 
-class CloudBrowserItemListAdapter extends ArrayAdapter<CloudBrowserItem> {
+class CloudBrowserItemListAdapter extends ArrayAdapter<CloudItemInfo> {
 
-    CloudBrowserItemListAdapter(List<CloudBrowserItem> items) {
+    CloudBrowserItemListAdapter(List<CloudItemInfo> items) {
         super(SongList.getContext(), -1, items);
     }
 
@@ -25,11 +25,11 @@ class CloudBrowserItemListAdapter extends ArrayAdapter<CloudBrowserItem> {
         LayoutInflater inflater = (LayoutInflater) SongList.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
-        TextView textView = (TextView) rowView.findViewById(R.id.file_or_folder_name);
-        ImageView imageView=(ImageView) rowView.findViewById(R.id.file_or_folder_icon);
-        CloudBrowserItem folder=this.getItem(position);
-        textView.setText(folder.mDisplayName);
-        boolean isFolder=folder.mIsFolder;
+        TextView textView =  rowView.findViewById(R.id.file_or_folder_name);
+        ImageView imageView=rowView.findViewById(R.id.file_or_folder_icon);
+        CloudItemInfo folder=this.getItem(position);
+        textView.setText(folder.mName);
+        boolean isFolder=folder instanceof CloudFolderInfo;
         textView.setEnabled(isFolder);
         imageView.setEnabled(isFolder);
         //rowView.setEnabled(isFolder);
@@ -43,7 +43,7 @@ class CloudBrowserItemListAdapter extends ArrayAdapter<CloudBrowserItem> {
     @Override
     public boolean isEnabled(int position)
     {
-        return getItem(position).mIsFolder;
+        return getItem(position) instanceof CloudFolderInfo;
     }
 }
 

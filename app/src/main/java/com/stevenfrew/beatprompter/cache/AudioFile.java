@@ -24,9 +24,9 @@ public class AudioFile extends CachedCloudFile
         verifyAudioFile();
     }
 
-    public AudioFile(File file,String storageID,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
+    public AudioFile(File file,String id,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
     {
-        super(file,storageID,name,lastModified,subfolder);
+        super(file,id,name,lastModified,subfolder);
         verifyAudioFile();
     }
 

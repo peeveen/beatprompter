@@ -40,7 +40,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         if(filesToUpdate==null)
             mFilesToUpdate=null;
         else {
-            mFilesToUpdate = filesToUpdate.stream().map(ftu -> new CloudFileInfo(ftu.mStorageID, ftu.mName, ftu.mLastModified, ftu.mSubfolder)).collect(Collectors.toList());
+            mFilesToUpdate = filesToUpdate.stream().map(ftu -> new CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder)).collect(Collectors.toList());
             if(!mFilesToUpdate.isEmpty())
                 mSubfolderOrigin=mFilesToUpdate.get(0).mSubfolder;
         }
@@ -63,7 +63,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
 
     private void updateEntireCache()
     {
-        mCloudStorage.readFolderContents(mCloudPath,mIncludeSubFolders);
+        mCloudStorage.readFolderContents(new CloudFolderInfo(mCloudPath),mIncludeSubFolders,false);
     }
 
     private void updateSelectedFiles()
@@ -95,11 +95,15 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         mProgressDialog.show();
     }
 
-    private void onCloudFileFound(CloudFileInfo cloudFileInfo)
+    private void onCloudFileFound(CloudItemInfo cloudItemInfo)
     {
-        mCloudFilesFound.add(cloudFileInfo);
-        if(!SongList.mCachedCloudFiles.hasLatestVersionOf(cloudFileInfo))
-            mCloudFilesToDownload.add(cloudFileInfo);
+        // We're only interested in downloading files.
+        if(cloudItemInfo instanceof CloudFileInfo) {
+            CloudFileInfo cloudFileInfo=(CloudFileInfo)cloudItemInfo;
+            mCloudFilesFound.add(cloudFileInfo);
+            if (!SongList.mCachedCloudFiles.hasLatestVersionOf(cloudFileInfo))
+                mCloudFilesToDownload.add(cloudFileInfo);
+        }
     }
 
     private void onErrorSearchingFolder(Throwable e)
@@ -127,7 +131,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
     private void onAllDownloadsComplete()
     {
         if(!isRefreshingFiles()) {
-            SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mStorageID).collect(Collectors.toSet()));
+            SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mID).collect(Collectors.toSet()));
         }
         mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
     }

@@ -11,24 +11,26 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
-abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,DialogInterface.OnDismissListener {
+public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,DialogInterface.OnDismissListener {
     private static final String PARENT_DIR = "..";
 
     protected Handler mChooseFolderDialogHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case BeatPrompterApplication.FOLDER_CONTENTS_FETCHED:
-                    populateBrowser((List<CloudBrowserItem>)msg.obj);
+                    populateBrowser((List<CloudItemInfo>)msg.obj);
                     break;
                 case BeatPrompterApplication.FOLDER_CONTENTS_FETCHING:
                     updateProgress(msg.arg1,msg.arg2);
@@ -38,14 +40,17 @@ abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCance
     };
 
     private Dialog mDialog;
-    private CloudBrowserItem mCurrentFolder;
-    private CloudBrowserItem mParentFolder;
+    private CloudFolderInfo mCurrentFolder;
+    private CloudFolderInfo mParentFolder;
     private Activity mActivity;
     private FolderFetcherTask mFolderFetcher;
     private PublishSubject<CloudFolderInfo> mFolderSelectionSource=PublishSubject.create();
+    private CloudStorage mCloudStorage;
+    private List<CloudItemInfo> mDisplayItems=new ArrayList<>();
 
-    public ChooseCloudFolderDialog(final Activity activity,int iconResourceID) {
+    ChooseCloudFolderDialog(final Activity activity,CloudStorage cloudStorage) {
         mActivity=activity;
+        mCloudStorage=cloudStorage;
         mDialog = new Dialog(activity, R.style.CustomDialog);
         mDialog.requestWindowFeature(Window.FEATURE_LEFT_ICON);
         mDialog.setContentView(R.layout.choose_folder_dialog_loading);
@@ -56,12 +61,12 @@ abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCance
         tv.setEllipsize(TextUtils.TruncateAt.END);
         tv.setLines(1);
         tv.setHorizontallyScrolling(true);
-        mDialog.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, iconResourceID);
+        mDialog.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, cloudStorage.getCloudIconResourceId());
     }
 
     public void showDialog()
     {
-        mCurrentFolder=getRootPath();
+        mCurrentFolder=mCloudStorage.getRootPath();
         if(mCurrentFolder==null)
             return;
         refresh(mCurrentFolder);
@@ -69,45 +74,45 @@ abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCance
         mDialog.show();
     }
 
-    private void setNewPath(final CloudBrowserItem newFolder) {
+    private void setNewPath(final CloudFolderInfo newFolder) {
         if(newFolder!=null)
-            mFolderSelectionSource.onNext(new CloudFolderInfo(newFolder.mInternalPath, getDisplayPath(newFolder)));
+            mFolderSelectionSource.onNext(newFolder);
         mDialog.dismiss();
     }
 
-    private void refresh(CloudBrowserItem folder)
+    private void refresh(CloudFolderInfo folder)
     {
         if(folder==null)
             return;
         this.mCurrentFolder = folder;
         this.mParentFolder=folder.mParentFolder;
         cancelFolderFetcher();
-        mFolderFetcher=getFolderFetcher();
+        mFolderFetcher=new FolderFetcherTask();
         mFolderFetcher.execute(mCurrentFolder);
     }
 
-    private void populateBrowser(List<CloudBrowserItem> dirs) {
-        if (dirs == null)
+    private void populateBrowser(List<CloudItemInfo> contents) {
+        if (contents == null)
             mDialog.dismiss();
         else {
-            dirs.sort(CloudBrowserItem::compareTo);
+            contents.sort(CloudItemInfo::compareTo);
 
             if (mCurrentFolder.mParentFolder != null)
-                dirs.add(0, new CloudBrowserItem(mCurrentFolder.mParentFolder, PARENT_DIR, mCurrentFolder.mParentFolder.mInternalPath, true));
+                contents.add(0, new CloudFolderInfo(mCurrentFolder.mParentFolder.mParentFolder,mCurrentFolder.mParentFolder.mID, PARENT_DIR, mCurrentFolder.mParentFolder.mInternalPath));
 
             // refresh the user interface
             mDialog.setContentView(R.layout.choose_folder_dialog);
             final ListView list = mDialog.findViewById(R.id.chooseFolderListView);
             Button okButton = mDialog.findViewById(R.id.chooseFolderOkButton);
             mDialog.setTitle(getDisplayPath(mCurrentFolder));
-            list.setAdapter(new CloudBrowserItemListAdapter(dirs));
+            list.setAdapter(new CloudBrowserItemListAdapter(contents));
 
             list.setOnItemClickListener((parent, view, which, id) -> {
-                CloudBrowserItem folderChosen;
+                CloudFolderInfo folderChosen;
                 if((which==0)&&(mParentFolder!=null))
                     folderChosen=mParentFolder;
                 else
-                    folderChosen = (CloudBrowserItem) list.getItemAtPosition(which);
+                    folderChosen = (CloudFolderInfo) list.getItemAtPosition(which);
 
                 mDialog.setContentView(R.layout.choose_folder_dialog_loading);
                 mDialog.setTitle(getDisplayPath(folderChosen));
@@ -117,24 +122,20 @@ abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCance
         }
     }
 
-    public abstract CloudBrowserItem getRootPath();
-    public abstract String getDirectorySeparator();
-    public abstract ChooseCloudFolderDialog.FolderFetcherTask getFolderFetcher();
-
-    private String getDisplayPath(CloudBrowserItem folder)
+    private String getDisplayPath(CloudFolderInfo folder)
     {
         if(folder.mParentFolder!=null) {
             String parentPath=getDisplayPath(folder.mParentFolder);
-            if(!parentPath.endsWith(getDirectorySeparator()))
-                parentPath+=getDirectorySeparator();
-            return parentPath + folder.mDisplayName;
+            if(!parentPath.endsWith(mCloudStorage.getDirectorySeparator()))
+                parentPath+=mCloudStorage.getDirectorySeparator();
+            return parentPath + folder.mName;
         }
-        return folder.mDisplayName;
+        return folder.mName;
     }
 
     private void updateProgress(int found,int max)
     {
-        TextView progressText = (TextView) mDialog.findViewById(R.id.loading_count);
+        TextView progressText = mDialog.findViewById(R.id.loading_count);
         if(progressText!=null)
             if(max==0) {
                 String itemsFound = mActivity.getString(R.string.itemsFound);
@@ -167,17 +168,36 @@ abstract public class ChooseCloudFolderDialog implements DialogInterface.OnCance
         }
     }
 
-    abstract public class FolderFetcherTask extends AsyncTask<CloudBrowserItem, Void, List<CloudBrowserItem>>
+    public class FolderFetcherTask extends AsyncTask<CloudFolderInfo, Void, Void>
     {
-        protected abstract List<CloudBrowserItem> doInBackground(CloudBrowserItem... args);
-        protected void onPostExecute(List<CloudBrowserItem> folders)
+        protected Void doInBackground(CloudFolderInfo... args)
         {
-            mChooseFolderDialogHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHED,folders).sendToTarget();
+            mDisplayItems.clear();
+            CloudFolderInfo folderToSearch=args[0];
+            mCloudStorage.getFolderContentsSource().subscribe(ChooseCloudFolderDialog.this::onCloudItemFound,ChooseCloudFolderDialog.this::onFolderSearchError,ChooseCloudFolderDialog.this::onFolderSearchComplete);
+            mCloudStorage.readFolderContents(folderToSearch,false,true);
+            return null;
         }
     }
 
     public Observable<CloudFolderInfo> getFolderSelectionSource()
     {
         return mFolderSelectionSource;
+    }
+
+    private void onCloudItemFound(CloudItemInfo cloudItem)
+    {
+        mDisplayItems.add(cloudItem);
+    }
+
+    private void onFolderSearchError(Throwable t)
+    {
+        Toast.makeText(mActivity,t.getMessage(),Toast.LENGTH_LONG).show();
+    }
+
+    private void onFolderSearchComplete()
+    {
+        mDisplayItems.sort(CloudItemInfo::compareTo);
+        mChooseFolderDialogHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHED,mDisplayItems).sendToTarget();
     }
 }

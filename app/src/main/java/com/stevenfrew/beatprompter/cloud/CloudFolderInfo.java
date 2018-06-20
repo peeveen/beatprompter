@@ -1,12 +1,25 @@
 package com.stevenfrew.beatprompter.cloud;
 
-public class CloudFolderInfo {
-    public String mFolderID;
-    public String mFolderDisplayName;
+public class CloudFolderInfo extends CloudItemInfo {
+    // Path to this item for storing in the preferences.
+    public String mInternalPath;
+    // The parent item, used for navigating upwards in the folder browser.
+    public CloudFolderInfo mParentFolder;
 
-    CloudFolderInfo(String folderID,String folderDisplayName)
+    public CloudFolderInfo(CloudFolderInfo parentFolder,String id,String folderDisplayName,String internalPath)
     {
-        mFolderID=folderID;
-        mFolderDisplayName=folderDisplayName;
+        super(id,folderDisplayName);
+        mParentFolder=parentFolder;
+        mInternalPath=internalPath;
+    }
+
+    public CloudFolderInfo(String id,String folderDisplayName,String internalPath)
+    {
+        this(null,id,folderDisplayName,internalPath);
+    }
+
+    public CloudFolderInfo(String rootFolderIdentifier)
+    {
+        this(null,rootFolderIdentifier,rootFolderIdentifier,rootFolderIdentifier);
     }
 }
