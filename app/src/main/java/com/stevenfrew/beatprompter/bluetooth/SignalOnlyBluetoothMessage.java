@@ -17,8 +17,6 @@ abstract class SignalOnlyBluetoothMessage extends BluetoothMessage
 
     public byte[] getBytes()
     {
-        byte[] bytes=new byte[1];
-        bytes[0]=mMessageID;
-        return bytes;
+        return new byte[]{mMessageID};
     }
 }
