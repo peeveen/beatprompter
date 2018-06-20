@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
+public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implements CloudFolderSearchListener,CloudItemDownloadListener
 {
     private Handler mHandler;
     private ProgressDialog mProgressDialog;
@@ -28,9 +28,6 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
     public CloudDownloadTask(CloudStorage cloudStorage,Handler handler, String cloudPath, boolean includeSubFolders,ArrayList<CachedCloudFile> filesToUpdate)
     {
         mCloudStorage=cloudStorage;
-        mCloudStorage.getProgressMessageSource().subscribe(this::publishProgress);
-        mCloudStorage.getFolderContentsSource().subscribe(this::onCloudFileFound,this::onErrorSearchingFolder,this::onFolderSearchComplete);
-        mCloudStorage.getDownloadResultSource().subscribe(this::onCloudFileDownloadComplete,this::onErrorDownloadingCloudFile,this::onAllDownloadsComplete);
 
         mIncludeSubFolders=includeSubFolders;
         mHandler=handler;
@@ -63,12 +60,12 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
 
     private void updateEntireCache()
     {
-        mCloudStorage.readFolderContents(new CloudFolderInfo(mCloudPath),mIncludeSubFolders,false);
+        mCloudStorage.readFolderContents(new CloudFolderInfo(mCloudPath),this,mIncludeSubFolders,false);
     }
 
     private void updateSelectedFiles()
     {
-        mCloudStorage.downloadFiles(mFilesToUpdate);
+        mCloudStorage.downloadFiles(mFilesToUpdate,this);
     }
 
     @Override
@@ -95,44 +92,59 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean>
         mProgressDialog.show();
     }
 
-    private void onCloudFileFound(CloudItemInfo cloudItemInfo)
-    {
+    @Override
+    public void onCloudItemFound(CloudItemInfo cloudItem) {
         // We're only interested in downloading files.
-        if(cloudItemInfo instanceof CloudFileInfo) {
-            CloudFileInfo cloudFileInfo=(CloudFileInfo)cloudItemInfo;
+        if(cloudItem instanceof CloudFileInfo) {
+            CloudFileInfo cloudFileInfo=(CloudFileInfo)cloudItem;
             mCloudFilesFound.add(cloudFileInfo);
             if (!SongList.mCachedCloudFiles.hasLatestVersionOf(cloudFileInfo))
                 mCloudFilesToDownload.add(cloudFileInfo);
         }
     }
 
-    private void onErrorSearchingFolder(Throwable e)
-    {
-        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, e.getMessage()).sendToTarget();
+    @Override
+    public void onFolderSearchError(Throwable t) {
+        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
     }
 
-    private void onFolderSearchComplete()
+    public void onFolderSearchComplete()
     {
-        mCloudStorage.downloadFiles(mCloudFilesToDownload);
+        mCloudStorage.downloadFiles(mCloudFilesToDownload,this);
     }
 
-    private void onCloudFileDownloadComplete(CloudDownloadResult downloadResult)
-    {
+    @Override
+    public void onItemDownloaded(CloudDownloadResult downloadResult) {
         // TODO: deal with "not found", or "error".
         if(downloadResult.mResultType==CloudDownloadResultType.Succeeded)
             SongList.mCachedCloudFiles.add(CachedCloudFile.createCachedCloudFile(downloadResult));
     }
 
-    private void onErrorDownloadingCloudFile(Throwable e)
-    {
-        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, e.getMessage()).sendToTarget();
+    @Override
+    public void onProgressMessageReceived(String message) {
+        publishProgress(message);
     }
 
-    private void onAllDownloadsComplete()
-    {
+    @Override
+    public void onDownloadError(Throwable t) {
+        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
+    }
+
+    @Override
+    public void onDownloadComplete() {
         if(!isRefreshingFiles()) {
             SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mID).collect(Collectors.toSet()));
         }
         mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
+    }
+
+    @Override
+    public void onAuthenticationRequired() {
+        this.cancel(true);
+    }
+
+    @Override
+    public boolean shouldCancel() {
+        return isCancelled();
     }
 }

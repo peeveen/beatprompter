@@ -23,6 +23,7 @@ import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudItemInfo;
+import com.stevenfrew.beatprompter.cloud.CloudListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
 
@@ -36,12 +37,17 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.*;
 
-import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 
 public class DropboxCloudStorage extends CloudStorage {
+
+    public interface DropboxAction
+    {
+        void onConnected(DbxClientV2 client);
+        void onAuthenticationRequired();
+    }
+
     private final static String DROPBOX_CACHE_FOLDER_NAME="dropbox";
     private final static String DROPBOX_APP_KEY = "hay1puzmg41f02r";
     private final static String DROPBOX_ROOT_PATH="/";
@@ -49,16 +55,8 @@ public class DropboxCloudStorage extends CloudStorage {
     private static final Set<String> EXTENSIONS_TO_DOWNLOAD = new HashSet<>(Arrays.asList(
             "txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"));
 
-    private List<CloudFileInfo> mFilesToDownload;
     private Activity mParentActivity;
     private File mDropboxFolder;
-    private CloudFolderInfo mFolderToSearch;
-    private boolean mIncludeSubfolders;
-    private boolean mReturnFolders;
-
-    private PublishSubject<String> mProgressMessageSource=PublishSubject.create();
-    private PublishSubject<CloudDownloadResult> mDownloadResultsSource=PublishSubject.create();
-    private PublishSubject<CloudItemInfo> mFolderSearchResultSource=PublishSubject.create();
 
     public DropboxCloudStorage(Activity parentActivity)
     {
@@ -69,29 +67,11 @@ public class DropboxCloudStorage extends CloudStorage {
                 Log.e(BeatPrompterApplication.TAG,"Failed to create Dropbox sync folder.");
     }
 
-    private void dropboxDo(Consumer<DbxClientV2> function)
+    private void downloadFiles(DbxClientV2 client, CloudListener listener,PublishSubject<CloudDownloadResult> itemSource, PublishSubject<String> messageSource, List<CloudFileInfo> filesToDownload)
     {
-        SharedPreferences sharedPrefs = SongList.mSongListInstance.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
-        String storedAccessToken = sharedPrefs.getString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null);
-        if (storedAccessToken == null) {
-            // Did we authenticate last time it failed?
-            storedAccessToken = Auth.getOAuth2Token();
-            if (storedAccessToken != null)
-                sharedPrefs.edit().putString(SongList.getContext().getString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
-        }
-        if (storedAccessToken == null) {
-            Auth.startOAuth2Authentication(mParentActivity, DROPBOX_APP_KEY);
-        }
-        else {
-            DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder(BeatPrompterApplication.APP_NAME)
-                    .build();
-            function.accept(new DbxClientV2(requestConfig, storedAccessToken));
-        }
-    }
-
-    private void _downloadFiles(DbxClientV2 client)
-    {
-        for(CloudFileInfo file:mFilesToDownload) {
+        for(CloudFileInfo file:filesToDownload) {
+            if(listener.shouldCancel())
+                break;
             CloudDownloadResult result;
             try {
                 Metadata mdata = client.files().getMetadata(file.mID);
@@ -99,24 +79,28 @@ public class DropboxCloudStorage extends CloudStorage {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = fmdata.getName();
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                    mProgressMessageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
+                    messageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
                     String safeFilename = Utils.makeSafeFilename(title);
                     File targetFile = new File(mDropboxFolder, safeFilename);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                    mProgressMessageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
+                    messageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
                     // Don't check lastModified ... ALWAYS download.
+                    if(listener.shouldCancel())
+                        break;
                     File localFile = downloadDropboxFile(client, fmdata, targetFile);
                     result=new CloudDownloadResult(file, localFile);
                 } else
                     result=new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
-                mDownloadResultsSource.onNext(result);
+                itemSource.onNext(result);
+                if(listener.shouldCancel())
+                    break;
             } catch (Exception e) {
-                mDownloadResultsSource.onError(e);
+                itemSource.onError(e);
             }
         }
-        mDownloadResultsSource.onComplete();
+        itemSource.onComplete();
     }
 
     private File downloadDropboxFile(DbxClientV2 client,FileMetadata file, File localfile) throws IOException, DbxException
@@ -142,12 +126,6 @@ public class DropboxCloudStorage extends CloudStorage {
     }
 
     @Override
-    public void downloadFiles(List<CloudFileInfo> filesToDownload) {
-        mFilesToDownload=filesToDownload;
-        dropboxDo(this::_downloadFiles);
-    }
-
-    @Override
     public String getCloudStorageName() {
         return SongList.mSongListInstance.getString(R.string.dropbox_string);
     }
@@ -157,22 +135,31 @@ public class DropboxCloudStorage extends CloudStorage {
         return CloudType.Dropbox;
     }
 
-    private void _getFolderContents(DbxClientV2 client)
+    private boolean isSuitableFileToDownload(String filename)
+    {
+        return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
+    }
+
+    private void readFolderContents(DbxClientV2 client, CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders)
     {
         List<CloudFolderInfo> foldersToSearch=new ArrayList<>();
-        foldersToSearch.add(mFolderToSearch);
+        foldersToSearch.add(folder);
 
         while(!foldersToSearch.isEmpty())
         {
+            if(listener.shouldCancel())
+                break;
             CloudFolderInfo folderToSearch=foldersToSearch.remove(0);
-            String currentFolderInternalPath=folderToSearch.mInternalPath;
+            String currentFolderID=folderToSearch.mID;
             String currentFolderName=folderToSearch.mName;
             try
             {
                 Log.d(BeatPrompterApplication.TAG, "Getting list of everything in Dropbox folder.");
-                ListFolderResult listResult = client.files().listFolder(currentFolderInternalPath);
+                ListFolderResult listResult = client.files().listFolder(currentFolderID);
                 while(listResult!=null)
                 {
+                    if(listener.shouldCancel())
+                        break;
                     List<Metadata> entries=listResult.getEntries();
                     for(Metadata mdata:entries)
                     {
@@ -181,18 +168,20 @@ public class DropboxCloudStorage extends CloudStorage {
                             FileMetadata fmdata=(FileMetadata)mdata;
                             String filename=fmdata.getName().toLowerCase();
                             if(isSuitableFileToDownload(filename))
-                                mFolderSearchResultSource.onNext(new CloudFileInfo(fmdata.getId(), fmdata.getName(),fmdata.getServerModified(),currentFolderName));
+                                itemSource.onNext(new CloudFileInfo(fmdata.getId(), fmdata.getName(),fmdata.getServerModified(),currentFolderName));
                         }
                         else if(mdata instanceof FolderMetadata)
                         {
                             Log.d(BeatPrompterApplication.TAG, "Adding folder to list of folders to query ...");
-                            CloudFolderInfo newFolder=new CloudFolderInfo(folderToSearch,((FolderMetadata) mdata).getId(),mdata.getName(),mdata.getPathLower());
-                            if(mIncludeSubfolders)
+                            CloudFolderInfo newFolder=new CloudFolderInfo(folderToSearch,mdata.getPathLower(),mdata.getName(),mdata.getPathDisplay());
+                            if(includeSubfolders)
                                 foldersToSearch.add(newFolder);
-                            if(mReturnFolders)
-                                mFolderSearchResultSource.onNext(newFolder);
+                            if(returnFolders)
+                                itemSource.onNext(newFolder);
                         }
                     }
+                    if(listener.shouldCancel())
+                        break;
                     if(listResult.getHasMore())
                         listResult=client.files().listFolderContinue(listResult.getCursor());
                     else
@@ -201,46 +190,66 @@ public class DropboxCloudStorage extends CloudStorage {
             }
             catch(DbxException de)
             {
-                mFolderSearchResultSource.onError(de);
+                itemSource.onError(de);
             }
         }
-        mFolderSearchResultSource.onComplete();
-        mFolderSearchResultSource=PublishSubject.create();
+        itemSource.onComplete();
     }
 
-    private boolean isSuitableFileToDownload(String filename)
+    private void doDropboxAction(DropboxAction action)
     {
-        return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
+        SharedPreferences sharedPrefs = SongList.mSongListInstance.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
+        String storedAccessToken = sharedPrefs.getString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null);
+        if (storedAccessToken == null) {
+            // Did we authenticate last time it failed?
+            storedAccessToken = Auth.getOAuth2Token();
+            if (storedAccessToken != null)
+                sharedPrefs.edit().putString(SongList.getContext().getString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
+        }
+        if (storedAccessToken == null) {
+            action.onAuthenticationRequired();
+            Auth.startOAuth2Authentication(mParentActivity, DROPBOX_APP_KEY);
+        }
+        else {
+            DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder(BeatPrompterApplication.APP_NAME)
+                    .build();
+            action.onConnected(new DbxClientV2(requestConfig, storedAccessToken));
+        }
     }
 
     @Override
-    public void readFolderContents(CloudFolderInfo folder, boolean includeSubfolders, boolean returnFolders) {
-        mFolderToSearch=folder;
-        mIncludeSubfolders=includeSubfolders;
-        mReturnFolders=returnFolders;
-        dropboxDo(this::_getFolderContents);
+    public void downloadFiles(List<CloudFileInfo> filesToDownload,CloudListener cloudListener,PublishSubject<CloudDownloadResult> itemSource,PublishSubject<String> messageSource) {
+        doDropboxAction(new DropboxAction() {
+            @Override
+            public void onConnected(DbxClientV2 client) {
+                downloadFiles(client,cloudListener,itemSource,messageSource,filesToDownload);
+            }
+
+            @Override
+            public void onAuthenticationRequired() {
+                cloudListener.onAuthenticationRequired();
+            }
+        });
     }
 
     @Override
-    public Observable<String> getProgressMessageSource() {
-        return mProgressMessageSource;
-    }
+    public void readFolderContents(CloudFolderInfo folder, CloudListener cloudListener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders) {
+        doDropboxAction(new DropboxAction() {
+            @Override
+            public void onConnected(DbxClientV2 client) {
+                readFolderContents(client,folder,cloudListener,itemSource,includeSubfolders,returnFolders);
+            }
 
-    @Override
-    public Observable<CloudDownloadResult> getDownloadResultSource()
-    {
-        return mDownloadResultsSource;
-    }
-
-    @Override
-    public Observable<CloudItemInfo> getFolderContentsSource()
-    {
-        return mFolderSearchResultSource;
+            @Override
+            public void onAuthenticationRequired() {
+                cloudListener.onAuthenticationRequired();
+            }
+        });
     }
 
     public CloudFolderInfo getRootPath()
     {
-        return new CloudFolderInfo("",DROPBOX_ROOT_PATH,"");
+        return new CloudFolderInfo("",DROPBOX_ROOT_PATH,DROPBOX_ROOT_PATH);
     }
 
     public String getDirectorySeparator()

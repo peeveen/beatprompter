@@ -27,16 +27,18 @@ class CloudBrowserItemListAdapter extends ArrayAdapter<CloudItemInfo> {
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
         TextView textView =  rowView.findViewById(R.id.file_or_folder_name);
         ImageView imageView=rowView.findViewById(R.id.file_or_folder_icon);
-        CloudItemInfo folder=this.getItem(position);
-        textView.setText(folder.mName);
-        boolean isFolder=folder instanceof CloudFolderInfo;
-        textView.setEnabled(isFolder);
-        imageView.setEnabled(isFolder);
-        //rowView.setEnabled(isFolder);
-        if(isFolder)
-            imageView.setImageResource(R.drawable.ic_folder);
-        else
-            imageView.setImageResource(R.drawable.ic_document);
+        CloudItemInfo cloudItem=this.getItem(position);
+        if(cloudItem!=null) {
+            textView.setText(cloudItem.mName);
+            boolean isFolder = cloudItem instanceof CloudFolderInfo;
+            textView.setEnabled(isFolder);
+            imageView.setEnabled(isFolder);
+            //rowView.setEnabled(isFolder);
+            if (isFolder)
+                imageView.setImageResource(R.drawable.ic_folder);
+            else
+                imageView.setImageResource(R.drawable.ic_document);
+        }
         return rowView;
     }
 

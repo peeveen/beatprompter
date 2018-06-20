@@ -40,13 +40,14 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
+import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
 
 import java.util.Arrays;
 
-public class SettingsFragment extends PreferenceFragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener
+public class SettingsFragment extends PreferenceFragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,CloudFolderSelectionListener
 {
     private static final String TAG="beatprompter";
 
@@ -197,8 +198,7 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
         }
         if(cs!=null)
         {
-            cs.getFolderSelectionSource().subscribe(this::onCloudFolderSelected);
-            cs.selectFolder(getActivity());
+            cs.selectFolder(getActivity(),this);
         }
         else
             Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
@@ -391,13 +391,28 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             initializeGoogleAPIClient();
     }
 
-    void onCloudFolderSelected(CloudFolderInfo folderInfo)
-    {
+    @Override
+    public void onFolderSelected(CloudFolderInfo folderInfo) {
         getPreferenceManager()
                 .getSharedPreferences()
                 .edit()
                 .putString(getString(R.string.pref_cloudPath_key),folderInfo.mID)
-                .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mName)
+                .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mDisplayPath)
                 .apply();
+    }
+
+    @Override
+    public void onFolderSelectedError(Throwable t) {
+        Toast.makeText(getActivity(),t.getMessage(),Toast.LENGTH_LONG).show();
+   }
+
+    @Override
+    public void onAuthenticationRequired() {
+        // Don't need to do anything.
+    }
+
+    @Override
+    public boolean shouldCancel() {
+        return false;
     }
 }
