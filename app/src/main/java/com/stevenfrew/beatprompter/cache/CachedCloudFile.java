@@ -81,6 +81,7 @@ public abstract class CachedCloudFile extends CloudFileInfo {
 
     public void writeToXML(Element element)
     {
+        super.writeToXML(element);
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME,mFile.getAbsolutePath());
     }
 

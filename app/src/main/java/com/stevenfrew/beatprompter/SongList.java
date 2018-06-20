@@ -48,13 +48,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
 import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
 import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.OneDriveClient;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
@@ -71,6 +67,7 @@ import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
 import com.stevenfrew.beatprompter.filter.AllSongsFilter;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
@@ -795,9 +792,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
         //SharedPreferences sharedPrefs =getPreferences(Context.MODE_PRIVATE);
 
-        // Initialize Google Drive Wrapper
-        GoogleDriveWrapper.initialize(getApplicationContext());
-
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
@@ -1025,7 +1019,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-            case GoogleDriveWrapper.COMPLETE_AUTHORIZATION_REQUEST_CODE:
+/*            case GoogleDriveCloudStorage.COMPLETE_AUTHORIZATION_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     performCloudSync();
                 } else {
@@ -1033,13 +1027,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     Log.d(BeatPrompterApplication.TAG,"User was denied access.");
                 }
                 break;
-            case GoogleDriveWrapper.REQUEST_CODE_RESOLUTION:
+            case GoogleDriveCloudStorage.REQUEST_CODE_RESOLUTION:
                 if (resultCode == RESULT_OK) {
                     Log.i(BeatPrompterApplication.TAG, "Resolved! Attempting connection again ...");
                     performCloudSync();
                 } else
                     Log.d(BeatPrompterApplication.TAG, "Resolution failed: result code = " + resultCode);
-                break;
+                break;*/
             case GOOGLE_PLAY_TRANSACTION_FINISHED:
                 //int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
                 String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
@@ -1797,27 +1791,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    void logOutOfOneDrive()
-    {
-        if(mOneDriveClient!=null) {
-            mOneDriveClient.getAuthenticator().logout(new ICallback<Void>() {
-                @Override
-                public void success(final Void result) {
-                    mOneDriveClient=null;
-                }
-
-                @Override
-                public void failure(final ClientException ex) {
-                    Toast.makeText(getBaseContext(), "Logout error: " + ex, Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-    }
-
     void powerwash()
     {
         deleteAllFiles();
-        logOutOfOneDrive();
+        CloudStorage.logoutAll(this);
         createDemoFile();
         initialiseList();
         Toast.makeText(this, getString(R.string.powerwashed), Toast.LENGTH_LONG).show();

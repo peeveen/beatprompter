@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cloud.onedrive;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
@@ -359,6 +360,28 @@ public class OneDriveCloudStorage extends CloudStorage {
             @Override
             public void onAuthenticationRequired() {
                 cloudListener.onAuthenticationRequired();
+            }
+        });
+    }
+
+    @Override
+    public void logout()
+    {
+        doOneDriveAction(new OneDriveAction() {
+            @Override
+            public void onConnected(IOneDriveClient client) {
+                client.getAuthenticator().logout(new ICallback<Void>() {
+                    @Override
+                    public void success(final Void result) {
+                    }
+                    @Override
+                    public void failure(final ClientException ex) {
+                    }
+                });
+            }
+
+            @Override
+            public void onAuthenticationRequired() {
             }
         });
     }

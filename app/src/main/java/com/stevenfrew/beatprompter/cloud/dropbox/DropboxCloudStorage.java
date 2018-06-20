@@ -273,4 +273,11 @@ public class DropboxCloudStorage extends CloudStorage {
     {
         return mDropboxFolder;
     }
+
+    @Override
+    public void logout()
+    {
+        SharedPreferences privatePrefs = SongList.mSongListInstance.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
+        privatePrefs.edit().putString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null).apply();
+    }
 }

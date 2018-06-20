@@ -44,6 +44,7 @@ import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
+import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
 import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
 
 import java.util.Arrays;
@@ -184,14 +185,7 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
 
     void setCloudPath()
     {
-        CloudStorage cs=null;
-        CloudType cloud=SongList.mSongListInstance.getCloud();
-        if(cloud==CloudType.GoogleDrive)
-            startGoogleDriveFolderBrowser();
-        else if(cloud==CloudType.Dropbox)
-            cs=new DropboxCloudStorage(getActivity());
-        else if(cloud==CloudType.OneDrive)
-            cs=new OneDriveCloudStorage(getActivity());
+        CloudStorage cs=CloudStorage.getInstance(SongList.mSongListInstance.getCloud(),getActivity());
         if(cs!=null)
             cs.selectFolder(getActivity(),this);
         else

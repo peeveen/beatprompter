@@ -99,6 +99,19 @@ public abstract class CloudStorage {
         }
     }
 
+    public static void logoutAll(Activity parentActivity)
+    {
+        logout(CloudType.Dropbox,parentActivity);
+        logout(CloudType.GoogleDrive,parentActivity);
+        logout(CloudType.OneDrive,parentActivity);
+    }
+
+    private static void logout(CloudType cloudType,Activity parentActivity)
+    {
+        CloudStorage cs = getInstance(cloudType, parentActivity);
+        cs.logout();
+    }
+
     public void getRootPath(CloudRootPathListener listener)
     {
         CompositeDisposable disp=new CompositeDisposable();
@@ -122,6 +135,8 @@ public abstract class CloudStorage {
     public abstract int getCloudIconResourceId();
 
     public abstract CloudCacheFolder getCacheFolder();
+
+    public abstract void logout();
 
     protected abstract void getRootPath(CloudListener listener,PublishSubject<CloudFolderInfo> rootPathSource);
 
