@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -24,6 +25,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -48,9 +51,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
@@ -66,8 +66,6 @@ import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
-import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
-import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
 import com.stevenfrew.beatprompter.filter.AllSongsFilter;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
@@ -79,7 +77,7 @@ import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
 import com.stevenfrew.beatprompter.midi.MIDIAlias;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
-import com.stevenfrew.beatprompter.midi.MIDIAliasListAdapter;
+import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
 import com.stevenfrew.beatprompter.midi.MIDIInTask;
 import com.stevenfrew.beatprompter.midi.MIDISongDisplayInTask;
 import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
@@ -147,11 +145,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     ArrayList<Filter> mFilters=new ArrayList<>();
     TemporarySetListFilter mTemporarySetListFilter=null;
     BaseAdapter mListAdapter=null;
-    IOneDriveClient mOneDriveClient;
 
     UsbManager mUsbManager;
-    private static final String ACTION_USB_PERMISSION =
-            "com.android.example.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     PendingIntent mPermissionIntent;
 
     /* Configurations */
@@ -773,8 +769,19 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mContext=this;
         mSongListInstance=this;
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.GET_ACCOUNTS)
+                != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.GET_ACCOUNTS},
+                    SettingsActivity.MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
+        }
+
         parseDefaultAliasFile();
 
         ((BeatPrompterApplication)this.getApplicationContext()).setSongListHandler(mSongListHandler);
@@ -1019,21 +1026,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-/*            case GoogleDriveCloudStorage.COMPLETE_AUTHORIZATION_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    performCloudSync();
-                } else {
-                    // User denied access, show him the account chooser again
-                    Log.d(BeatPrompterApplication.TAG,"User was denied access.");
-                }
-                break;
-            case GoogleDriveCloudStorage.REQUEST_CODE_RESOLUTION:
-                if (resultCode == RESULT_OK) {
-                    Log.i(BeatPrompterApplication.TAG, "Resolved! Attempting connection again ...");
-                    performCloudSync();
-                } else
-                    Log.d(BeatPrompterApplication.TAG, "Resolution failed: result code = " + resultCode);
-                break;*/
             case GOOGLE_PLAY_TRANSACTION_FINISHED:
                 //int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
                 String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");

@@ -17,51 +17,17 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.dropbox.core.v2.DbxClientV2;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.plus.Plus;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.drive.DriveScopes;
-import com.onedrive.sdk.concurrency.ICallback;
-import com.onedrive.sdk.core.ClientException;
-import com.onedrive.sdk.core.DefaultClientConfig;
-import com.onedrive.sdk.core.IClientConfig;
-import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.OneDriveClient;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
-import com.stevenfrew.beatprompter.cloud.CloudType;
-import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
-import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
-import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
 
 import java.util.Arrays;
 
-public class SettingsFragment extends PreferenceFragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,CloudFolderSelectionListener
+public class SettingsFragment extends PreferenceFragment implements CloudFolderSelectionListener
 {
-    private static final String TAG="beatprompter";
-
-    IOneDriveClient mOneDriveClient;
-    DbxClientV2 mDropboxClient=null;
-
-    GoogleApiClient mGoogleAPIClient = null;
-    private com.google.api.services.drive.Drive mGoogleDriveClient=null;
-    String mDriveAccountName=null;
-
-    private static final String[] SCOPES = { DriveScopes.DRIVE_READONLY, DriveScopes.DRIVE_METADATA };
-
     public Handler mSettingsHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -154,10 +120,6 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
                     if(cloudPref!=null)
                         ((ImageListPreference)cloudPref).forceUpdate();
 
-                    mDropboxClient=null;
-                    mGoogleAPIClient=null;
-                    mGoogleDriveClient=null;
-                    mOneDriveClient=null;
                     return true;
                 }
             });
@@ -190,164 +152,6 @@ public class SettingsFragment extends PreferenceFragment implements GoogleApiCli
             cs.selectFolder(getActivity(),this);
         else
             Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
-    }
-
-/*    @Override
-    public void onResume()
-    {
-        super.onResume();
-        if(mAuthorizingDropbox)
-        {
-            mAuthorizingDropbox=false;
-            String accessToken= Auth.getOAuth2Token();
-            if (accessToken != null)
-            {
-                SharedPreferences prefs = getActivity().getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
-                prefs.edit().putString(getString(R.string.pref_dropboxAccessToken_key), accessToken).apply();
-                //initializeDropboxClient();
-            }
-        }
-    }*/
-
-    void editOneDrivePath()
-    {
-        //new OneDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), mOneDriveClient).showDialog();
-    }
-
-    @Override
-    public void onStop() {
-        if(mGoogleAPIClient!=null)
-            mGoogleAPIClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.GET_ACCOUNTS)
-                != PackageManager.PERMISSION_GRANTED)
-        {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.GET_ACCOUNTS},
-                    SettingsActivity.MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
-        }
-        else
-        {
-            if (SongList.mSongListInstance.wasPowerwashed()) {
-                mGoogleAPIClient.clearDefaultAccountAndReconnect();
-                return;
-            }
-
-            mDriveAccountName = Plus.AccountApi.getAccountName(mGoogleAPIClient);
-
-            if(getGoogleDriveService()!=null) {
-                editGoogleDrivePath();
-            }
-        }
-    }
-
-    private com.google.api.services.drive.Drive getGoogleDriveService()
-    {
-        if((mGoogleDriveClient==null)&&(mDriveAccountName!=null)) {
-            GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                    getActivity().getApplicationContext(), Arrays.asList(SCOPES))
-                    .setSelectedAccountName(mDriveAccountName)
-                    .setBackOff(new ExponentialBackOff());
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mGoogleDriveClient = new com.google.api.services.drive.Drive.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName(BeatPrompterApplication.APP_NAME)
-                    .build();
-        }
-        return mGoogleDriveClient;
-    }
-
-    void initializeGoogleAPIClient()
-    {
-        if(mGoogleAPIClient==null)
-            mGoogleAPIClient = new GoogleApiClient.Builder(SongList.mSongListInstance)
-                    .addApi(Drive.API)
-                    .addApi(Plus.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
-        if(!mGoogleAPIClient.isConnected())
-            mGoogleAPIClient.connect();
-        else
-        {
-            if(getGoogleDriveService()!=null) {
-                editGoogleDrivePath();
-            }
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult result) {
-        // Called whenever the API client fails to connect.
-        if (!result.hasResolution()) {
-            // show the localized error dialog.
-            GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), result.getErrorCode(), 0).show();
-            return;
-        }
-        // The failure has a resolution. Resolve it.
-        // Called typically when the app is not yet authorized, and an
-        // authorization
-        // dialog is displayed to the user.
-        try {
-            result.startResolutionForResult(getActivity(), SettingsActivity.REQUEST_CODE_RESOLUTION);
-        } catch (IntentSender.SendIntentException e) {
-        }
-    }
-
-    void editGoogleDrivePath()
-    {
-        if (SongList.mSongListInstance.wasPowerwashed()) {
-            mGoogleAPIClient.clearDefaultAccountAndReconnect();
-            return;
-        }
-        //GoogleDriveChooseFolderDialog gdcfd=new GoogleDriveChooseFolderDialog(getActivity(),getActivity(), getString(R.string.pref_cloudPath_key), getString(R.string.pref_cloudDisplayPath_key), getGoogleDriveService());
-        //gdcfd.showDialog();
-    }
-
-    void onCompleteAuthorizationRequestCode()
-    {
-        if((mGoogleAPIClient!=null)&&(!mGoogleAPIClient.isConnected()))
-            mGoogleAPIClient.connect();
-        else
-            editGoogleDrivePath();
-    }
-
-    void onRequestCodeResolution()
-    {
-        mGoogleAPIClient.connect();
-    }
-
-    void onGoogleDrivePermissionGranted()
-    {
-        startGoogleDriveFolderBrowser();
-    }
-
-    void startGoogleDriveFolderBrowser()
-    {
-        // For some reason, requesting permissions disconnects google drive. Nice!
-        if ((mGoogleAPIClient != null) && (mGoogleAPIClient.isConnected())) {
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.GET_ACCOUNTS)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mDriveAccountName = Plus.AccountApi.getAccountName(mGoogleAPIClient);
-                editGoogleDrivePath();
-            }
-        }
-        else
-            initializeGoogleAPIClient();
     }
 
     @Override
