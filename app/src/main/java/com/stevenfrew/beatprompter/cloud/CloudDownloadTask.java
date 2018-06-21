@@ -19,7 +19,6 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     private ProgressDialog mProgressDialog;
     private String mCloudPath;
     private boolean mIncludeSubFolders;
-    private String mSubfolderOrigin;
     private List<CloudFileInfo> mFilesToUpdate;
     private CloudStorage mCloudStorage;
     private List<CloudFileInfo> mCloudFilesFound=new ArrayList<>();
@@ -32,15 +31,11 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
         mIncludeSubFolders=includeSubFolders;
         mHandler=handler;
         mCloudPath=cloudPath;
-        mSubfolderOrigin=null;
 
         if(filesToUpdate==null)
             mFilesToUpdate=null;
-        else {
+        else
             mFilesToUpdate = filesToUpdate.stream().map(ftu -> new CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder)).collect(Collectors.toList());
-            if(!mFilesToUpdate.isEmpty())
-                mSubfolderOrigin=mFilesToUpdate.get(0).mSubfolder;
-        }
     }
 
     private boolean isRefreshingSelectedFiles()
