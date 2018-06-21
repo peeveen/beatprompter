@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.cloud.onedrive;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.onedrive.sdk.authentication.MSAAuthenticator;
 import com.onedrive.sdk.concurrency.ICallback;
@@ -121,7 +120,8 @@ public class OneDriveCloudStorage extends CloudStorage {
                                 break;
                             if (child.file != null) {
                                 if (isSuitableFileToDownload(child))
-                                    mItemSource.onNext(new CloudFileInfo(child.id, child.name, child.lastModifiedDateTime.getTime(), nextFolder.mName));
+                                    mItemSource.onNext(new CloudFileInfo(child.id, child.name, child.lastModifiedDateTime.getTime(),
+                                            nextFolder.mParentFolder==null?null:nextFolder.mName));
                             } else if (child.folder != null) {
                                 String fullPath=mCloudStorage.constructFullPath(nextFolder.mDisplayPath,child.name);
                                 CloudFolderInfo newFolder = new CloudFolderInfo(nextFolder, child.id, child.name, fullPath);

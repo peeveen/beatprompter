@@ -1,13 +1,11 @@
 package com.stevenfrew.beatprompter.cloud.googledrive;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -23,25 +21,19 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
-import com.onedrive.sdk.extensions.IOneDriveClient;
-import com.onedrive.sdk.extensions.Item;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
-import com.stevenfrew.beatprompter.cache.AudioFile;
-import com.stevenfrew.beatprompter.cache.ImageFile;
 import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudItemInfo;
 import com.stevenfrew.beatprompter.cloud.CloudListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
-import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,8 +52,8 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     private final static String GOOGLE_DRIVE_CACHE_FOLDER_NAME="google_drive";
     private final static String GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder";
     private final static String[] SCOPES = { DriveScopes.DRIVE_READONLY, DriveScopes.DRIVE_METADATA };
-    public final static int REQUEST_CODE_RESOLUTION = 1;
-    public final static int COMPLETE_AUTHORIZATION_REQUEST_CODE=2;
+    private final static int REQUEST_CODE_RESOLUTION = 1;
+    private final static int COMPLETE_AUTHORIZATION_REQUEST_CODE=2;
 
     private Activity mParentActivity;
     private CloudCacheFolder mGoogleDriveFolder;
@@ -145,25 +137,18 @@ public class GoogleDriveCloudStorage extends CloudStorage {
         }
     }
 
-    void doGoogleDriveAction(GoogleDriveAction action)
+    private void doGoogleDriveAction(GoogleDriveAction action)
     {
-        try {
-            GoogleDriveConnectionListener listener=new GoogleDriveConnectionListener(action);
-            GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mParentActivity)
-                    .addApi(Drive.API)
-                    .addApi(Plus.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(listener)
-                    .addOnConnectionFailedListener(listener)
-                    .build();
-            listener.setClient(googleApiClient);
-            googleApiClient.connect();
-        }
-        catch(Exception e)
-        {
-            int ffff;
-            ffff=3;
-        }
+        GoogleDriveConnectionListener listener=new GoogleDriveConnectionListener(action);
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mParentActivity)
+                .addApi(Drive.API)
+                .addApi(Plus.API)
+                .addScope(Drive.SCOPE_FILE)
+                .addConnectionCallbacks(listener)
+                .addOnConnectionFailedListener(listener)
+                .build();
+        listener.setClient(googleApiClient);
+        googleApiClient.connect();
     }
 
     static void recoverAuthorization(UserRecoverableAuthIOException uraioe)
@@ -231,7 +216,8 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                                     mItemSource.onNext(newFolder);
                             } else {
                                 Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                                CloudFileInfo newFile = new CloudFileInfo(fileID, title, new Date(child.getModifiedTime().getValue()), currentFolderName);
+                                CloudFileInfo newFile = new CloudFileInfo(fileID, title, new Date(child.getModifiedTime().getValue()),
+                                        currentFolder.mParentFolder==null?null:currentFolderName);
                                 mItemSource.onNext(newFile);
                             }
                         }
@@ -281,7 +267,6 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                     if (!file.getTrashed()) {
                         String title = file.getName();
                         Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                        String lowerCaseTitle = title.toLowerCase();
                         String safeFilename = Utils.makeSafeFilename(cloudFile.mID);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");

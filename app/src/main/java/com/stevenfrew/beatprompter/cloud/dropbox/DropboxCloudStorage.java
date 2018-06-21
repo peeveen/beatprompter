@@ -161,7 +161,8 @@ public class DropboxCloudStorage extends CloudStorage {
                             FileMetadata fmdata=(FileMetadata)mdata;
                             String filename=fmdata.getName().toLowerCase();
                             if(isSuitableFileToDownload(filename))
-                                itemSource.onNext(new CloudFileInfo(fmdata.getId(), fmdata.getName(),fmdata.getServerModified(),currentFolderName));
+                                itemSource.onNext(new CloudFileInfo(fmdata.getId(), fmdata.getName(),fmdata.getServerModified(),
+                                        folderToSearch.mParentFolder==null?null:currentFolderName));
                         }
                         else if(mdata instanceof FolderMetadata)
                         {
