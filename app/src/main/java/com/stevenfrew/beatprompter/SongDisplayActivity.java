@@ -121,7 +121,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         boolean sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false);
         boolean readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false);
         mScrollOnProximity=sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
-        // TODO!!!!
+        // TODO: some sort of normal keyboard support.
         mAnyOtherKeyPageDown=false;//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
         Song song=BeatPrompterApplication.getCurrentSong();

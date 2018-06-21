@@ -176,6 +176,7 @@ public class OneDriveCloudStorage extends CloudStorage {
                     break;
                 CloudDownloadResult result;
                 try {
+                    // TODO: handle missing file.
                     Item driveFile = mClient.getDrive().getItems(file.mID).buildRequest().get();
                     if (driveFile != null) {
                         String title = file.mName;

@@ -43,7 +43,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
         }
     }
 
-    private boolean isRefreshingFiles()
+    private boolean isRefreshingSelectedFiles()
     {
         return mFilesToUpdate!=null && !mFilesToUpdate.isEmpty();
     }
@@ -51,7 +51,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     @Override
     protected Boolean doInBackground(String... paramParams) {
 
-        if(isRefreshingFiles())
+        if(isRefreshingSelectedFiles())
             updateSelectedFiles();
         else
             updateEntireCache();
@@ -111,6 +111,8 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
         // TODO: deal with "not found", or "error".
         if(downloadResult.mResultType==CloudDownloadResultType.Succeeded)
             SongList.mCachedCloudFiles.add(CachedCloudFile.createCachedCloudFile(downloadResult));
+        else if(downloadResult.mResultType==CloudDownloadResultType.NoLongerExists)
+            SongList.mCachedCloudFiles.remove(downloadResult.mCloudFileInfo);
     }
 
     @Override
@@ -120,12 +122,13 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onDownloadError(Throwable t) {
+        // TODO: dialog seems to hang around after this.
         mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
     }
 
     @Override
     public void onDownloadComplete() {
-        if(!isRefreshingFiles())
+        if(!isRefreshingSelectedFiles())
             SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mID).collect(Collectors.toSet()));
         mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
         if (mProgressDialog!=null)

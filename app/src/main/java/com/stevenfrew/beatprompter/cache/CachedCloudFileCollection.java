@@ -35,6 +35,16 @@ public class CachedCloudFileCollection
         mFiles.add(cachedFile);
     }
 
+    public void remove(CloudFileInfo cloudFile)
+    {
+        for(int f=mFiles.size()-1;f>=0;--f)
+        {
+            CachedCloudFile existingFile=mFiles.get(f);
+            if(cloudFile.mID.equalsIgnoreCase(existingFile.mID))
+                mFiles.remove(f);
+        }
+    }
+
     public boolean hasLatestVersionOf(CloudFileInfo cloudFile)
     {
         return mFiles.stream().anyMatch(f->f.mID.equalsIgnoreCase(cloudFile.mID) && f.mLastModified.equals(cloudFile.mLastModified));

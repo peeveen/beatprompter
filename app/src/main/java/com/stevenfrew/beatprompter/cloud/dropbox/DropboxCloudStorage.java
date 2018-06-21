@@ -81,6 +81,7 @@ public class DropboxCloudStorage extends CloudStorage {
             CloudDownloadResult result;
             try {
                 Metadata mdata = client.files().getMetadata(file.mID);
+                // TODO: handle missing file.
                 if ((mdata != null) && (mdata instanceof FileMetadata)) {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = file.mName;

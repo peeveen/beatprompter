@@ -15,6 +15,7 @@ import com.google.android.gms.plus.Plus;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -280,7 +281,18 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                     mItemSource.onNext(result);
                     if (mListener.shouldCancel())
                         break;
-                } catch (Exception e) {
+                }
+                catch(GoogleJsonResponseException gjre)
+                {
+                    // You get a 404 if the document has been 100% deleted.
+                    if(gjre.getStatusCode()==404) {
+                        result = new CloudDownloadResult(cloudFile, CloudDownloadResultType.NoLongerExists);
+                        mItemSource.onNext(result);
+                    }
+                    else
+                        mItemSource.onError(gjre);
+                }
+                catch(Exception e) {
                     mItemSource.onError(e);
                 }
             }
