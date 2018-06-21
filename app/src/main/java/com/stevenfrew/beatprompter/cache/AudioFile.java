@@ -5,7 +5,6 @@ import android.media.MediaMetadataRetriever;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,12 +39,6 @@ public class AudioFile extends CachedCloudFile
         Element audioFileElement = doc.createElement(AUDIOFILE_ELEMENT_TAG_NAME);
         super.writeToXML(audioFileElement);
         parent.appendChild(audioFileElement);
-    }
-
-    @Override
-    public CloudFileType getFileType()
-    {
-        return CloudFileType.Audio;
     }
 
     private void verifyAudioFile() throws InvalidBeatPrompterFileException

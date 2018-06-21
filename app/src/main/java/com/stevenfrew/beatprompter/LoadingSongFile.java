@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.os.Handler;
 
 import com.stevenfrew.beatprompter.cache.SongFile;
@@ -14,12 +13,12 @@ public class LoadingSongFile {
     public SongFile mSongFile;
     public String mTrack;
     public ScrollingMode mScrollMode;
-    private boolean mStartedByBandLeader=false;
-    private boolean mStartedByMIDITrigger=false;
+    private boolean mStartedByBandLeader;
+    private boolean mStartedByMIDITrigger;
     private String mNextSong;
     public SongDisplaySettings mNativeDisplaySettings;
-    SongDisplaySettings mSourceDisplaySettings;
-    boolean mIsDemoSong;
+    private SongDisplaySettings mSourceDisplaySettings;
+    private boolean mIsDemoSong;
 
     LoadingSongFile(SongFile songFile, String track, ScrollingMode mode,String nextSong,boolean startedByBandLeader,boolean startedByMidiTrigger,boolean isDemoSong,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings)
     {

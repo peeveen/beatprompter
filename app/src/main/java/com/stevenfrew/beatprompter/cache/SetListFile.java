@@ -6,18 +6,15 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class SetListFile extends CachedCloudFile
@@ -28,15 +25,9 @@ public class SetListFile extends CachedCloudFile
     public List<String> mSongTitles=new ArrayList<>();
     public String mSetTitle;
 
-    public SetListFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
+    SetListFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
         super(result.mDownloadedFile,result.mCloudFileInfo);
-        parseSetListFileInfo();
-    }
-
-    SetListFile(File file, String id, String name, Date lastModified, String subfolder) throws InvalidBeatPrompterFileException
-    {
-        super(file,id,name,lastModified,subfolder);
         parseSetListFileInfo();
     }
 
@@ -102,11 +93,4 @@ public class SetListFile extends CachedCloudFile
         setListFileElement.setAttribute(SET_TITLE_ATTRIBUTE_NAME, mSetTitle);
         parent.appendChild(setListFileElement);
     }
-
-    @Override
-    public CloudFileType getFileType()
-    {
-        return CloudFileType.SetList;
-    }
-
 }

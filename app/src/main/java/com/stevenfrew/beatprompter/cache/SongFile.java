@@ -15,17 +15,13 @@ import com.stevenfrew.beatprompter.TextLine;
 import com.stevenfrew.beatprompter.event.BaseEvent;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.Comment;
-import com.stevenfrew.beatprompter.cache.FileParseError;
-import com.stevenfrew.beatprompter.cache.InvalidBeatPrompterFileException;
 import com.stevenfrew.beatprompter.Line;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.ScrollingMode;
 import com.stevenfrew.beatprompter.SongDisplaySettings;
 import com.stevenfrew.beatprompter.SongList;
-import com.stevenfrew.beatprompter.cache.Tag;
 import com.stevenfrew.beatprompter.Utils;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 import com.stevenfrew.beatprompter.event.BeatEvent;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 import com.stevenfrew.beatprompter.event.ColorEvent;
@@ -66,9 +62,9 @@ public class SongFile extends CachedCloudFile
             mTimePerBar=bar;
             mTrackLength=track;
         }
-        long mTimePerLine=0;
-        long mTimePerBar=0;
-        long mTrackLength=0;
+        long mTimePerLine;
+        long mTimePerBar;
+        long mTrackLength;
     }
 
 
@@ -85,8 +81,8 @@ public class SongFile extends CachedCloudFile
     private final static String TAG_ELEMENT_TAG_NAME="tag";
 
     public final static String SONGFILE_ELEMENT_TAG_NAME="song";
-    public final static String AUDIO_FILE_ELEMENT_TAG_NAME="audio";
-    public final static String IMAGE_FILE_ELEMENT_TAG_NAME="image";
+    private final static String AUDIO_FILE_ELEMENT_TAG_NAME="audio";
+    private final static String IMAGE_FILE_ELEMENT_TAG_NAME="image";
 
     private final static String PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME="programChangeTrigger";
     private final static String SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME="songSelectTrigger";
@@ -97,7 +93,7 @@ public class SongFile extends CachedCloudFile
     public String mTitle=null;
     public String mKey="";
     public int mLines=0;
-    boolean mMixedMode=false;
+    private boolean mMixedMode=false;
     public String mArtist;
 
     private MIDISongTrigger mSongSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
@@ -144,7 +140,7 @@ public class SongFile extends CachedCloudFile
             timePerBarString="0";
         mTimePerBar=Long.parseLong(timePerBarString);
         NodeList tagNodes=element.getElementsByTagName(TAG_ELEMENT_TAG_NAME);
-        mTags=new HashSet<String>();
+        mTags=new HashSet<>();
         for(int f=0;f<tagNodes.getLength();++f)
             mTags.add(tagNodes.item(f).getTextContent());
         NodeList audioNodes=element.getElementsByTagName(AUDIO_FILE_ELEMENT_TAG_NAME);
@@ -247,8 +243,7 @@ public class SongFile extends CachedCloudFile
 
     private ArrayList<String> getImageFilesFromLine(String line, int lineNumber)
     {
-        ArrayList<String> image=new ArrayList<>();
-        image.addAll(getTokenValues(line, lineNumber, "image"));
+        ArrayList<String> image = new ArrayList<>(getTokenValues(line, lineNumber, "image"));
         ArrayList<String> realimage=new ArrayList<>();
         for(String str:image)
         {
@@ -589,10 +584,8 @@ public class SongFile extends CachedCloudFile
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
-                                    if (!imageFile.exists()) {
+                                    if (!imageFile.exists())
                                         errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
-                                        imageFile = null;
-                                    }
                                 }
                                 lineImage=mappedImage;
                                 break;
@@ -732,7 +725,7 @@ public class SongFile extends CachedCloudFile
                             case "midi_program_change_trigger":
                                 // Don't need the value after the song is loaded, we're just showing informational
                                 // errors about bad formatting.
-                                Tag.getSongTriggerFromTag(tag,errors);
+                                Tag.verifySongTriggerFromTag(tag,errors);
                                 break;
                             case "time":
                             case "tag":
@@ -1344,7 +1337,7 @@ public class SongFile extends CachedCloudFile
                                 if((colonindex!=-1)&&(colonindex<imageName.length()-1))
                                     imageName=imageName.substring(0,colonindex);
                                 String image=new File(imageName).getName();
-                                File imageFile=null;
+                                File imageFile;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
                                     errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
@@ -1466,11 +1459,4 @@ public class SongFile extends CachedCloudFile
         return ((mSongSelectTrigger!=null && mSongSelectTrigger.equals(trigger))
             ||(mProgramChangeTrigger!=null && mProgramChangeTrigger.equals(trigger)));
     }
-
-    @Override
-    public CloudFileType getFileType()
-    {
-        return CloudFileType.Song;
-    }
-
 }

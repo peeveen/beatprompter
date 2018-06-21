@@ -27,10 +27,6 @@ public class MIDIUSBOutTask extends MIDIUSBTask
             Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to retrieve MIDI out message.", ie);
         }
     }
-    void cleanup()
-    {
-        BeatPrompterApplication.mMIDIOutQueue.clear();
-    }
 }
 
 

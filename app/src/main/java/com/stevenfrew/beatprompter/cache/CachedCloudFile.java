@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.cache;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,7 +49,7 @@ public abstract class CachedCloudFile extends CloudFileInfo {
         return values.get(values.size() - 1);
     }
 
-    public static ArrayList<String> getTokenValues(String line,int lineNumber, String... tokens)
+    static ArrayList<String> getTokenValues(String line,int lineNumber, String... tokens)
     {
         ArrayList<Tag> tagsOut=new ArrayList<>();
         ArrayList<String> values=new ArrayList<>();
@@ -65,7 +64,7 @@ public abstract class CachedCloudFile extends CloudFileInfo {
         return values;
     }
 
-    public static boolean containsToken(String line,int lineNumber,String tokenToFind)
+    static boolean containsToken(String line,int lineNumber,String tokenToFind)
     {
         ArrayList<Tag> tagsOut=new ArrayList<>();
         if(!line.trim().startsWith("#")) {
@@ -130,6 +129,4 @@ public abstract class CachedCloudFile extends CloudFileInfo {
         }
         return null;
     }
-
-    public abstract CloudFileType getFileType();
 }

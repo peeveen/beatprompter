@@ -167,21 +167,22 @@ public class BeatPrompterApplication extends Application {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        BluetoothAdapter.ERROR);
-                switch (state) {
-                    case BluetoothAdapter.STATE_OFF:
-                    case BluetoothAdapter.STATE_TURNING_OFF:
-                        onStopBluetooth();
-                        break;
-                    case BluetoothAdapter.STATE_ON:
-                        BluetoothMode bluetoothMode=getBluetoothMode();
-                        if(bluetoothMode!=BluetoothMode.None)
-                            onStartBluetooth(bluetoothMode);
-                        break;
+            if(action!=null)
+                if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                    final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                            BluetoothAdapter.ERROR);
+                    switch (state) {
+                        case BluetoothAdapter.STATE_OFF:
+                        case BluetoothAdapter.STATE_TURNING_OFF:
+                            onStopBluetooth();
+                            break;
+                        case BluetoothAdapter.STATE_ON:
+                            BluetoothMode bluetoothMode=getBluetoothMode();
+                            if(bluetoothMode!=BluetoothMode.None)
+                                onStartBluetooth(bluetoothMode);
+                            break;
+                    }
                 }
-            }
         }
     };
 
@@ -190,43 +191,43 @@ public class BeatPrompterApplication extends Application {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
-            {
-                // Something has disconnected.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                synchronized(mBluetoothSocketsLock) {
-                    for (int f = mOutputBluetoothSockets.size() - 1; f >= 0; --f) {
-                        BluetoothSocket socket = mOutputBluetoothSockets.get(f);
-                        if (socket.getRemoteDevice().getAddress().equals(device.getAddress())) {
-                            mOutputBluetoothSockets.remove(f);
-                            try {
-                                socket.close();
-                            } catch (IOException e) {
-                                Log.e(BLUETOOTH_TAG, "Error closing socket after client disconnection notification.", e);
+            if(action!=null)
+                if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+                {
+                    // Something has disconnected.
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    synchronized(mBluetoothSocketsLock) {
+                        for (int f = mOutputBluetoothSockets.size() - 1; f >= 0; --f) {
+                            BluetoothSocket socket = mOutputBluetoothSockets.get(f);
+                            if (socket.getRemoteDevice().getAddress().equals(device.getAddress())) {
+                                mOutputBluetoothSockets.remove(f);
+                                try {
+                                    socket.close();
+                                } catch (IOException e) {
+                                    Log.e(BLUETOOTH_TAG, "Error closing socket after client disconnection notification.", e);
+                                }
+                                mSongListHandler.obtainMessage(CLIENT_DISCONNECTED, device.getName()).sendToTarget();
                             }
-                            mSongListHandler.obtainMessage(CLIENT_DISCONNECTED, device.getName()).sendToTarget();
                         }
-                    }
-                    if (mInputBluetoothSocket != null) {
-                        if (mInputBluetoothSocket.getRemoteDevice().getAddress().equals(device.getAddress())) {
-                            try {
-                                mInputBluetoothSocket.close();
-                            } catch (IOException e) {
-                                Log.e(BLUETOOTH_TAG, "Error closing socket after server disconnection notification.", e);
-                            } finally {
-                                mInputBluetoothSocket = null;
+                        if (mInputBluetoothSocket != null) {
+                            if (mInputBluetoothSocket.getRemoteDevice().getAddress().equals(device.getAddress())) {
+                                try {
+                                    mInputBluetoothSocket.close();
+                                } catch (IOException e) {
+                                    Log.e(BLUETOOTH_TAG, "Error closing socket after server disconnection notification.", e);
+                                } finally {
+                                    mInputBluetoothSocket = null;
+                                }
+                                synchronized(mBluetoothThreadsLock) {
+                                    for (ConnectToServerThread thread : mConnectToServerThreads)
+                                        if (thread.isForDevice(device))
+                                            thread.closeSocket();
+                                }
+                                mSongListHandler.obtainMessage(SERVER_DISCONNECTED, device.getName()).sendToTarget();
                             }
-                            synchronized(mBluetoothThreadsLock) {
-                                for (ConnectToServerThread thread : mConnectToServerThreads)
-                                    if (thread.isForDevice(device))
-                                        thread.closeSocket();
-                            }
-                            mSongListHandler.obtainMessage(SERVER_DISCONNECTED, device.getName()).sendToTarget();
                         }
                     }
                 }
-            }
-
         }
     };
 

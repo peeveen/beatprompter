@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -20,8 +19,6 @@ import com.stevenfrew.beatprompter.midi.MIDIBeatBlock;
 import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Song
 {
@@ -35,13 +32,13 @@ public class Song
     BaseEvent mCurrentEvent; // Last event that executed.
     private BaseEvent mNextEvent; // Upcoming event.
     boolean mCancelled=false;
-    ArrayList<MIDIBeatBlock> mBeatBlocks;
-    int mNumberOfMIDIBeatBlocks=0;
+    private ArrayList<MIDIBeatBlock> mBeatBlocks;
+    private int mNumberOfMIDIBeatBlocks;
 
     String mTitle; // Name of song
     double mInitialBPM;
     int mInitialBPB;
-    String mKey;
+    private String mKey;
     private String mArtist; // Artist
     Rect mBeatCounterRect;
     public int mCountIn;
@@ -49,11 +46,11 @@ public class Song
     int mSmoothScrollOffset;
     int mSongHeight=0;
     private int mMaxLineHeight=0;
-    boolean mStartedByBandLeader=false;
-    ArrayList<MIDIOutgoingMessage> mInitialMIDIMessages=new ArrayList<>();
+    boolean mStartedByBandLeader;
+    ArrayList<MIDIOutgoingMessage> mInitialMIDIMessages;
     private ArrayList<Comment> mInitialComments; // Comments to show on startup screen.
-    AudioFile mChosenBackingTrack=null;
-    int mChosenBackingTrackVolume=100;
+    AudioFile mChosenBackingTrack;
+    int mChosenBackingTrackVolume;
     private ArrayList<FileParseError> mParseErrors;
     ArrayList<ScreenString> mStartScreenStrings=new ArrayList<>();
     ScreenString mNextSongString=null;

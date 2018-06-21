@@ -28,7 +28,7 @@ public class MIDIAliasFile
         mErrors=errors;
     }
 
-    private MIDIAliasFile(MIDIAliasFile maf) throws InvalidBeatPrompterFileException
+    private MIDIAliasFile(MIDIAliasFile maf)
     {
         mAliases=maf.mAliases;
         mErrors=maf.mErrors;

@@ -27,7 +27,6 @@ import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudItemInfo;
 import com.stevenfrew.beatprompter.cloud.CloudListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
-import com.stevenfrew.beatprompter.cloud.CloudType;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -272,11 +271,6 @@ public class DropboxCloudStorage extends CloudStorage {
     @Override
     public String getCloudStorageName() {
         return SongList.mSongListInstance.getString(R.string.dropbox_string);
-    }
-
-    @Override
-    public CloudType getCloudStorageType() {
-        return CloudType.Dropbox;
     }
 
     @Override

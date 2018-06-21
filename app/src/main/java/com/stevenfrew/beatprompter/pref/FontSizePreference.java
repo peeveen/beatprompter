@@ -42,8 +42,8 @@ public class FontSizePreference extends DialogPreference implements SeekBar.OnSe
     @Override
     protected void onBindDialogView(View view)
     {
-        mSeekBar = (SeekBar) view.findViewById(R.id.fontSizeSeekBar);
-        mTextView = (TextView) view.findViewById(R.id.fontSizeTextView);
+        mSeekBar = view.findViewById(R.id.fontSizeSeekBar);
+        mTextView = view.findViewById(R.id.fontSizeTextView);
         mSeekBar.setOnSeekBarChangeListener(this);
         mCurrentValue=getPersistedInt(FONT_SIZE_MIN);
         if(mCurrentValue<=0) {

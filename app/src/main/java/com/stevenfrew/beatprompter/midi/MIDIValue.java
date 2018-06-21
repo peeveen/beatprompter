@@ -38,6 +38,6 @@ public class MIDIValue {
     public boolean isChannelledMessage()
     {
         byte test=(byte)(mValue&0xF0);
-        return (test!=0xF0)&&((test&0x80)!=0);
+        return (test!=(byte)0xF0)&&((test&0x80)!=0);
     }
 }

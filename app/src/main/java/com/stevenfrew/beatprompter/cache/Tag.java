@@ -63,7 +63,7 @@ public class Tag
         mPosition=position;
     }
 
-    public static MIDIEvent getMIDIEventFromTag(long time, Tag tag, ArrayList<MIDIAlias> aliases, byte defaultChannel, ArrayList<FileParseError> parseErrors) throws Exception
+    public static MIDIEvent getMIDIEventFromTag(long time, Tag tag, ArrayList<MIDIAlias> aliases, byte defaultChannel, ArrayList<FileParseError> parseErrors)
     {
         ArrayList<MIDIOutgoingMessage> outArray=null;
         String val=tag.mValue.trim();
@@ -84,7 +84,7 @@ public class Tag
         }
         else
         {
-            String firstSplitBits[] = (val.length() == 0 ? new String[0] : val.split(";"));
+            String firstSplitBits[] = val.split(";");
             if (firstSplitBits.length > 1) {
                 if (firstSplitBits.length > 2)
                     parseErrors.add(new FileParseError(tag, SongList.getContext().getString(R.string.multiple_semi_colons_in_midi_tag)));
@@ -243,23 +243,22 @@ public class Tag
         return defolt;
     }
 
-    public static MIDISongTrigger getSongTriggerFromTag(Tag tag,ArrayList<FileParseError> parseErrors)
+    public static void verifySongTriggerFromTag(Tag tag,ArrayList<FileParseError> parseErrors)
     {
         try
         {
-            return MIDISongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"));
+            MIDISongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"));
         }
         catch(Exception e)
         {
             parseErrors.add(new FileParseError(tag,e.getMessage()));
         }
-        return null;
     }
 
     public static String extractTags(String line, int lineNumber, ArrayList<Tag> tagsOut)
     {
         tagsOut.clear();
-        String lineOut="";
+        StringBuilder lineOut= new StringBuilder();
         int directiveStart=line.indexOf("{");
         int chordStart=line.indexOf("[");
         while((directiveStart!=-1)||(chordStart!=-1))
@@ -277,7 +276,7 @@ public class Tag
             if(end!=-1)
             {
                 String contents=line.substring(start+1,end).trim();
-                lineOut+=line.substring(0,start);
+                lineOut.append(line.substring(0, start));
                 line=line.substring(end+tagCloser.length());
                 end=0;
                 if(contents.trim().length()>0)
@@ -288,7 +287,7 @@ public class Tag
             directiveStart=line.indexOf("{",end);
             chordStart=line.indexOf("[",end);
         }
-        lineOut+=line;
-        return lineOut;
+        lineOut.append(line);
+        return lineOut.toString();
     }
 }

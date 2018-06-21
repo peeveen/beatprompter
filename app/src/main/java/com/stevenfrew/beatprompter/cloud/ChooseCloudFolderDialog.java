@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 
 import java.util.ArrayList;
 import java.util.List;

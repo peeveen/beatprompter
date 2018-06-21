@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 class MIDIAliasMessage
 {
-    ArrayList<MIDIAliasParameter> mParameters=new ArrayList<>();
+    ArrayList<MIDIAliasParameter> mParameters;
     MIDIAliasMessage(ArrayList<MIDIAliasParameter> parameters)
     {
         mParameters=parameters;

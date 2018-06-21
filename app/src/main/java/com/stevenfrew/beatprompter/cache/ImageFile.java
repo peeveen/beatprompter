@@ -5,14 +5,9 @@ import android.graphics.BitmapFactory;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import java.io.File;
-
-import java.util.Date;
 
 public class ImageFile extends CachedCloudFile
 {
@@ -21,12 +16,6 @@ public class ImageFile extends CachedCloudFile
     ImageFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
         super(result);
-        verifyImageFile();
-    }
-
-    ImageFile(File file,String id,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
-    {
-        super(file,id,name,lastModified,subfolder);
         verifyImageFile();
     }
 
@@ -40,12 +29,6 @@ public class ImageFile extends CachedCloudFile
         Element imageFileElement = doc.createElement(IMAGEFILE_ELEMENT_TAG_NAME);
         super.writeToXML(imageFileElement);
         parent.appendChild(imageFileElement);
-    }
-
-    @Override
-    public CloudFileType getFileType()
-    {
-        return CloudFileType.Image;
     }
 
     private void verifyImageFile() throws InvalidBeatPrompterFileException

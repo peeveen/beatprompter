@@ -14,24 +14,26 @@ import com.stevenfrew.beatprompter.event.CancelEvent;
 import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
-    Semaphore mTaskEndSemaphore=new Semaphore(0);
+    private Semaphore mTaskEndSemaphore=new Semaphore(0);
     static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
     static LoadingSongFile mSongToLoadOnResume=null;
 
-    CancelEvent mCancelEvent=new CancelEvent();
-    boolean mCancelled=false;
-    String mProgressTitle="";
+    private CancelEvent mCancelEvent=new CancelEvent();
+    private boolean mCancelled=false;
+    private String mProgressTitle="";
+
+    private LoadingSongFile mLoadingSongFile;
+    private ProgressDialog mProgressDialog;
+    private Handler mSongListHandler;
 
     SongLoadTask(LoadingSongFile lsf,Handler handler)
     {
         mLoadingSongFile=lsf;
         this.mSongListHandler=handler;
     }
-    LoadingSongFile mLoadingSongFile=null;
-    ProgressDialog mProgressDialog;
-    Handler mSongListHandler=null;
 
+    // TODO: replace with class
     Handler mSongLoadHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -109,13 +111,10 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         mProgressDialog.setMax(mLoadingSongFile.mSongFile.mLines);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setCancelable(false);
-        mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                mCancelled=true;
-                mCancelEvent.set();
-            }
+        mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel), (dialog, which) -> {
+            dialog.dismiss();
+            mCancelled=true;
+            mCancelEvent.set();
         });
         mProgressDialog.show();
     }

@@ -66,8 +66,6 @@ public abstract class Task implements Runnable
                 }
             }
         }
-        Log.d(TASKTAG,"Task ending ... cleaning up.");
-        cleanup();
         Log.d(TASKTAG,"Task ended.");
     }
     void stop()
@@ -76,9 +74,6 @@ public abstract class Task implements Runnable
         setShouldStop(true);
     }
     void initialise()
-    {
-    }
-    void cleanup()
     {
     }
     private void pause()

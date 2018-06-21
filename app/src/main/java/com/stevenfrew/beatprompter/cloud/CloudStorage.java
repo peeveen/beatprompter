@@ -1,23 +1,17 @@
 package com.stevenfrew.beatprompter.cloud;
 
 import android.app.Activity;
-import android.util.Log;
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
 import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
 import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
 
-import java.io.File;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 
 public abstract class CloudStorage {
-    String[] AUDIO_FILE_EXTENSIONS=new String[]{"mp3","wav","m4a","wma","ogg","aac"};
-    String[] IMAGE_FILE_EXTENSIONS=new String[]{"jpg","png","jpeg","bmp","tif","tiff"};
-
     public String constructFullPath(String folderPath,String itemName)
     {
         String fullPath = folderPath;
@@ -49,6 +43,7 @@ public abstract class CloudStorage {
         }
         finally
         {
+            // TODO: figure out how/when to dispose of this
 //            disp.dispose();
         }
     }
@@ -63,6 +58,7 @@ public abstract class CloudStorage {
         }
         finally
         {
+            // TODO: figure out how/when to dispose of this
 //            disp.dispose();
         }
     }
@@ -109,10 +105,11 @@ public abstract class CloudStorage {
     private static void logout(CloudType cloudType,Activity parentActivity)
     {
         CloudStorage cs = getInstance(cloudType, parentActivity);
-        cs.logout();
+        if(cs!=null)
+            cs.logout();
     }
 
-    public void getRootPath(CloudRootPathListener listener)
+    private void getRootPath(CloudRootPathListener listener)
     {
         CompositeDisposable disp=new CompositeDisposable();
         PublishSubject<CloudFolderInfo> rootPathSource=PublishSubject.create();
@@ -122,13 +119,12 @@ public abstract class CloudStorage {
         }
         finally
         {
+            // TODO: figure out how/when to dispose of this
 //            disp.dispose();
         }
     }
 
     public abstract String getCloudStorageName();
-
-    public abstract CloudType getCloudStorageType();
 
     public abstract String getDirectorySeparator();
 

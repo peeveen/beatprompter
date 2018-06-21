@@ -34,7 +34,6 @@ import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudItemInfo;
 import com.stevenfrew.beatprompter.cloud.CloudListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
-import com.stevenfrew.beatprompter.cloud.CloudType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -343,11 +342,6 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     @Override
     public String getCloudStorageName() {
         return SongList.mSongListInstance.getString(R.string.google_drive_string);
-    }
-
-    @Override
-    public CloudType getCloudStorageType() {
-        return CloudType.GoogleDrive;
     }
 
     @Override

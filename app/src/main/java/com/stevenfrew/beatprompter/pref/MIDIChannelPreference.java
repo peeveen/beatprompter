@@ -70,13 +70,13 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
         mView=view;
-        GridLayout gridLayout = (GridLayout) view.findViewById(R.id.midiGrid);
+        GridLayout gridLayout = view.findViewById(R.id.midiGrid);
         gridLayout.setUseDefaultMargins(false);
         gridLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
         gridLayout.setRowOrderPreserved(false);
         mCurrentValue=this.getPersistedInt(mSingleSelect?1:65535);
         for(int f=0;f<16;++f) {
-            ToggleButton tb=(ToggleButton)view.findViewById(toggleIDs[f]);
+            ToggleButton tb=view.findViewById(toggleIDs[f]);
             boolean set=(mCurrentValue & (1 << f)) != 0;
             tb.setChecked(set);
             if((mSingleSelect)&&(set))
@@ -110,7 +110,7 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
         if((mSingleSelect)&&(isChecked))
         {
             for(int f=0;f<16;++f) {
-                ToggleButton tb=(ToggleButton)mView.findViewById(toggleIDs[f]);
+                ToggleButton tb=mView.findViewById(toggleIDs[f]);
                 if(tb!=buttonView)
                 {
                     if ((tb.isChecked())&&(!tb.isEnabled()))

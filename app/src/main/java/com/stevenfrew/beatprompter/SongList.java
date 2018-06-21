@@ -150,8 +150,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     PendingIntent mPermissionIntent;
 
-    /* Configurations */
-
+    // TODO: replace with class
     public Handler mSongListHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -750,7 +749,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private static final int PLAY_SONG_REQUEST_CODE=3;
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
-//    private static final int REQUEST_CODE_GOOGLE_DRIVE_FILE_SELECTED = 2;
+    private static final int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS=4;
 
     SharedPreferences.OnSharedPreferenceChangeListener mStorageLocationPrefListener = (sharedPreferences, key) -> {
         if((key.equals(getString(R.string.pref_storageLocation_key)))||(key.equals(getString(R.string.pref_useExternalStorage_key))))
@@ -779,7 +778,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.GET_ACCOUNTS},
-                    SettingsActivity.MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
+                    MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
         }
 
         parseDefaultAliasFile();

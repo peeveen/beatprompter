@@ -15,12 +15,12 @@ import java.util.Collection;
 public abstract class Line {
     protected Line mPrevLine=null, mNextLine=null;
     int mSongPixelPosition;
-    protected ColorEvent mColorEvent; // style event that occurred immediately before this line will be shown.
+    ColorEvent mColorEvent; // style event that occurred immediately before this line will be shown.
     public LineEvent mLineEvent; // the LineEvent that will display this line.
-    protected ArrayList<LineGraphic> mGraphics=new ArrayList<>(); // pointer to the allocated graphic, if one exists
+    ArrayList<LineGraphic> mGraphics=new ArrayList<>(); // pointer to the allocated graphic, if one exists
     LineMeasurements mLineMeasurements;
     public long mYStartScrollTime,mYStopScrollTime;
-    ScrollingMode mScrollingMode;
+    private ScrollingMode mScrollingMode;
 
     public int mBars; // How many bars does this line last?
     public int mScrollbeat;

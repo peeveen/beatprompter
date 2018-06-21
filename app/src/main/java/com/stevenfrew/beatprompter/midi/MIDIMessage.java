@@ -32,17 +32,9 @@ public class MIDIMessage
     }
     public String toString()
     {
-        String strFormat="";
-        for(int f=0;f<mMessageBytes.length;++f)
-            strFormat+="%02X ";
-        return String.format(strFormat.trim(),getMessageBytesAsObjectArray());
-    }
-    private Object[] getMessageBytesAsObjectArray()
-    {
-        Object[] byteObjects=new Object[mMessageBytes.length];
-        for(int f=0;f<byteObjects.length;++f)
-            byteObjects[f]=mMessageBytes[f];
-        return byteObjects;
+        StringBuilder strFormat= new StringBuilder();
+        for (byte mMessageByte : mMessageBytes) strFormat.append(String.format("%02X ",mMessageByte));
+        return strFormat.toString();
     }
     static byte mergeMessageByteWithChannel(byte message,byte channel)
     {

@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.Task;
 
 public class MIDIInTask extends Task
 {
-    Handler mHandler;
+    private Handler mHandler;
     public MIDIInTask(Handler handler)
     {
         super(false);

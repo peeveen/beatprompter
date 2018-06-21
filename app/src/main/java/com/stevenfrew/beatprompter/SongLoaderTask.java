@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.content.Context;
 import android.os.Handler;
 
 import com.stevenfrew.beatprompter.event.CancelEvent;
@@ -8,13 +7,13 @@ import com.stevenfrew.beatprompter.event.CancelEvent;
 import java.io.IOException;
 
 class SongLoaderTask extends Task {
-    CancelEvent mCancelEvent=null;
-    LoadingSongFile mLoadingSongFile=null;
+    private CancelEvent mCancelEvent=null;
+    private LoadingSongFile mLoadingSongFile=null;
 
-    Handler mSongLoadHandler=null;
-    final Object mSongLoadHandlerSync = new Object();
-    final Object mLoadingSongFileSync = new Object();
-    final Object mCancelEventSync = new Object();
+    private Handler mSongLoadHandler=null;
+    private final Object mSongLoadHandlerSync = new Object();
+    private final Object mLoadingSongFileSync = new Object();
+    private final Object mCancelEventSync = new Object();
 
     private Handler getSongLoadHandler()
     {

@@ -543,7 +543,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         else
         {
             // Is the end of the first line drawn onscreen?
-            if((currentLine!=null)&&(currentLine.mPrevLine!=null)&&(endOnscreen))
+            if((currentLine.mPrevLine!=null)&&(endOnscreen))
                 // Yes? Then scroll to the last line drawn.
                 mPageDownPixel=currentLine.mPrevLine.mSongPixelPosition;
             else

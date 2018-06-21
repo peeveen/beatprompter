@@ -1,15 +1,12 @@
 package com.stevenfrew.beatprompter.cache;
 
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
-import com.stevenfrew.beatprompter.cloud.CloudFileType;
 import com.stevenfrew.beatprompter.midi.MIDIAlias;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MIDIAliasFile extends CachedCloudFile
 {
@@ -17,15 +14,9 @@ public class MIDIAliasFile extends CachedCloudFile
 
     private com.stevenfrew.beatprompter.midi.MIDIAliasFile mAliasFile;
 
-    public MIDIAliasFile(CloudDownloadResult result, ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    MIDIAliasFile(CloudDownloadResult result, ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
     {
         super(result.mDownloadedFile,result.mCloudFileInfo);
-        mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID,defaultAliases);
-    }
-
-    MIDIAliasFile(File file, String id, String name, Date lastModified, String subfolder, ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
-    {
-        super(file,id,name,lastModified,subfolder);
         mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID,defaultAliases);
     }
 
@@ -56,11 +47,5 @@ public class MIDIAliasFile extends CachedCloudFile
     public String getAliasSetName()
     {
         return mAliasFile.mAliasSetName;
-    }
-
-    @Override
-    public CloudFileType getFileType()
-    {
-        return CloudFileType.MIDIAliases;
     }
 }

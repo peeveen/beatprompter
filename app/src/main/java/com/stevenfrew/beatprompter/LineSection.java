@@ -9,7 +9,6 @@ import com.stevenfrew.beatprompter.cache.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 class LineSection
 {
@@ -27,7 +26,7 @@ class LineSection
     int mChordDrawLine=-1;
     ScreenString mLineSS;
     ScreenString mChordSS;
-    private int mSectionPosition=0;
+    private int mSectionPosition;
     ArrayList<ColorRect> mHighlightingRectangles=new ArrayList<>(); // Start/stop/start/stop x-coordinates of highlighted sections.
 
     LineSection(String lineText,String chordText,int sectionPosition,Collection<Tag> tags)

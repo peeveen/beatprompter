@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter.midi;
 
-import android.content.Context;
-
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 
@@ -52,8 +50,7 @@ public class MIDISongTrigger
                 if((mst.mBankSelectLSB.mValue==mBankSelectLSB.mValue)||(mBankSelectLSB.mValue==WILDCARD_VALUE))
                     if(mst.mSongSelect==mSongSelect)
                         if((mst.mTriggerIndex.mValue==mTriggerIndex.mValue)||(mTriggerIndex.mValue==WILDCARD_VALUE))
-                            if((mst.mChannel.mValue==mChannel.mValue)||(mChannel.mValue==WILDCARD_VALUE))
-                                return true;
+                            return (mst.mChannel.mValue == mChannel.mValue) || (mChannel.mValue == WILDCARD_VALUE);
         }
         return false;
     }

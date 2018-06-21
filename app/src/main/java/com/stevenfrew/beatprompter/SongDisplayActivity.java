@@ -17,9 +17,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
 import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
@@ -29,7 +27,6 @@ import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
 import com.stevenfrew.beatprompter.midi.MIDIClockMessage;
 import com.stevenfrew.beatprompter.midi.MIDIIncomingMessage;
 import com.stevenfrew.beatprompter.midi.MIDIIncomingSongPositionPointerMessage;
-import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
 import com.stevenfrew.beatprompter.midi.MIDIStartMessage;
 import com.stevenfrew.beatprompter.midi.MIDIStopMessage;
 
@@ -48,6 +45,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
     private boolean mAnyOtherKeyPageDown=false;
     private boolean mScrollOnProximity;
 
+    // TODO: replace with class
     public Handler mSongDisplayHandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -135,8 +133,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
             setRequestedOrientation(mOrientation);
 
-            for(MIDIOutgoingMessage msg:song.mInitialMIDIMessages)
-                BeatPrompterApplication.mMIDIOutQueue.add(msg);
+            BeatPrompterApplication.mMIDIOutQueue.addAll(song.mInitialMIDIMessages);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -144,7 +141,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
 
         setContentView(R.layout.activity_song_display);
 
-        mSongView = (SongView)findViewById(R.id.song_view);
+        mSongView = findViewById(R.id.song_view);
         mSongView.init(this, mSongDisplayHandler, (BeatPrompterApplication) getApplicationContext());
 
         if (sendMidiClock)
@@ -163,10 +160,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         }
 
         // Set up the user interaction to manually show or hide the system UI.
-        mSongView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
+        mSongView.setOnClickListener(view -> {
         });
     }
 
