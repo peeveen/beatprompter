@@ -9,12 +9,14 @@ import com.onedrive.sdk.concurrency.ICallback;
 import com.onedrive.sdk.core.ClientException;
 import com.onedrive.sdk.core.DefaultClientConfig;
 import com.onedrive.sdk.core.IClientConfig;
+import com.onedrive.sdk.core.OneDriveErrorCodes;
 import com.onedrive.sdk.extensions.IItemCollectionPage;
 import com.onedrive.sdk.extensions.IItemCollectionRequestBuilder;
 import com.onedrive.sdk.extensions.IOneDriveClient;
 import com.onedrive.sdk.extensions.Item;
 
 import com.onedrive.sdk.extensions.OneDriveClient;
+import com.onedrive.sdk.http.OneDriveServiceException;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
@@ -176,7 +178,6 @@ public class OneDriveCloudStorage extends CloudStorage {
                     break;
                 CloudDownloadResult result;
                 try {
-                    // TODO: handle missing file.
                     Item driveFile = mClient.getDrive().getItems(file.mID).buildRequest().get();
                     if (driveFile != null) {
                         String title = file.mName;
@@ -198,7 +199,17 @@ public class OneDriveCloudStorage extends CloudStorage {
                     mItemSource.onNext(result);
                     if (mListener.shouldCancel())
                         break;
-                } catch (Exception e) {
+                }
+                catch(OneDriveServiceException odse)
+                {
+                    if(odse.isError(OneDriveErrorCodes.ItemNotFound)) {
+                        result = new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
+                        mItemSource.onNext(result);
+                    }
+                    else
+                        mItemSource.onError(odse);
+                }
+                catch (Exception e) {
                     mItemSource.onError(e);
                 }
             }

@@ -108,10 +108,9 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onItemDownloaded(CloudDownloadResult downloadResult) {
-        // TODO: deal with "not found", or "error".
         if(downloadResult.mResultType==CloudDownloadResultType.Succeeded)
             SongList.mCachedCloudFiles.add(CachedCloudFile.createCachedCloudFile(downloadResult));
-        else if(downloadResult.mResultType==CloudDownloadResultType.NoLongerExists)
+        else// IMPLICIT if(downloadResult.mResultType==CloudDownloadResultType.NoLongerExists)
             SongList.mCachedCloudFiles.remove(downloadResult.mCloudFileInfo);
     }
 
@@ -122,8 +121,8 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onDownloadError(Throwable t) {
-        // TODO: dialog seems to hang around after this.
         mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
+        onDownloadComplete();
     }
 
     @Override

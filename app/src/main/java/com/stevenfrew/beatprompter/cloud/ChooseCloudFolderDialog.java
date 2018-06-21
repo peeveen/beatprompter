@@ -206,6 +206,7 @@ public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener
     public void onFolderSearchError(Throwable t)
     {
         Toast.makeText(mActivity,t.getMessage(),Toast.LENGTH_LONG).show();
+        onFolderSearchComplete();
     }
 
     public void onFolderSearchComplete()

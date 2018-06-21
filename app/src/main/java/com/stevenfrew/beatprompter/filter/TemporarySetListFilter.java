@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class TemporarySetListFilter extends SetListFilter
 {
+    // TODO: make this semi-permanent
     public TemporarySetListFilter(String name,ArrayList<SongFile> songs)
     {
         super(name,songs);

@@ -12,6 +12,7 @@ import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.GetMetadataErrorException;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
@@ -81,7 +82,6 @@ public class DropboxCloudStorage extends CloudStorage {
             CloudDownloadResult result;
             try {
                 Metadata mdata = client.files().getMetadata(file.mID);
-                // TODO: handle missing file.
                 if ((mdata != null) && (mdata instanceof FileMetadata)) {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = file.mName;
@@ -94,15 +94,24 @@ public class DropboxCloudStorage extends CloudStorage {
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
                     messageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
                     // Don't check lastModified ... ALWAYS download.
-                    if(listener.shouldCancel())
+                    if (listener.shouldCancel())
                         break;
                     File localFile = downloadDropboxFile(client, fmdata, targetFile);
-                    result=new CloudDownloadResult(file, localFile);
+                    result = new CloudDownloadResult(file, localFile);
                 } else
-                    result=new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
+                    result = new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
                 itemSource.onNext(result);
-                if(listener.shouldCancel())
+                if (listener.shouldCancel())
                     break;
+            }
+            catch(GetMetadataErrorException gmee)
+            {
+                if(gmee.errorValue.getPathValue().isNotFound()) {
+                    result = new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
+                    itemSource.onNext(result);
+                }
+                else
+                    itemSource.onError(gmee);
             } catch (Exception e) {
                 itemSource.onError(e);
             }
