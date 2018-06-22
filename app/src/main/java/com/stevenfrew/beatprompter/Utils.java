@@ -83,17 +83,17 @@ public class Utils
     }
     public static String stitchBits(String[] bits,int nonWhitespaceBitsToJoin)
     {
-        String result="";
+        StringBuilder result= new StringBuilder();
         int nonWhitespaceBitsJoined=0;
         for (String bit : bits) {
             boolean whitespace = (bit.trim().length() == 0);
             if ((!whitespace) && (nonWhitespaceBitsJoined == nonWhitespaceBitsToJoin))
                 break;
-            result += bit;
+            result.append(bit);
             if (!whitespace)
                 ++nonWhitespaceBitsJoined;
         }
-        return result;
+        return result.toString();
     }
     public static String[] splitText(String str)
     {

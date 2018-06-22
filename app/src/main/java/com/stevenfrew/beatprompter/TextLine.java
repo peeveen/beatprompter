@@ -94,21 +94,21 @@ public class TextLine extends Line
 
         // we have the sections, now fit 'em
         // Start with an arbitrary size
-        String longestBits = "";
+        StringBuilder longestBits = new StringBuilder();
         for (LineSection section : sections) {
             if(!cancelEvent.isCancelled())
                 break;
             section.setTextFontSizeAndMeasure(paint, 100, font, false, mColorEvent.mLyricColor);
             section.setChordFontSizeAndMeasure(paint, 100, font, false, mColorEvent.mLyricColor);
             if (section.mChordWidth > section.mTextWidth)
-                longestBits += section.mChordText;
+                longestBits.append(section.mChordText);
             else
-                longestBits += section.mLineText;
+                longestBits.append(section.mLineText);
         }
         if(cancelEvent.isCancelled())
             return null;
 
-        double maxLongestFontSize = ScreenString.getBestFontSize(longestBits, paint, minimumFontSize,maximumFontSize, screenWidth, -1, font, false);
+        double maxLongestFontSize = ScreenString.getBestFontSize(longestBits.toString(), paint, minimumFontSize,maximumFontSize, screenWidth, -1, font, false);
         double textFontSize = maxLongestFontSize;
         double chordFontSize = maxLongestFontSize;
         boolean allTextSmallerThanChords, allChordsSmallerThanText;
