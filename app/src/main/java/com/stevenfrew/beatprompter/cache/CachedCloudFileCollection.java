@@ -88,4 +88,9 @@ public class CachedCloudFileCollection
     {
         mFiles.clear();
     }
+
+    public boolean isEmpty()
+    {
+        return mFiles.isEmpty();
+    }
 }

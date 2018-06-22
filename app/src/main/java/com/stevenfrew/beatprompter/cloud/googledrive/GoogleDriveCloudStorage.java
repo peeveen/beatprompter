@@ -55,16 +55,9 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     private final static int REQUEST_CODE_RESOLUTION = 1;
     private final static int COMPLETE_AUTHORIZATION_REQUEST_CODE=2;
 
-    private Activity mParentActivity;
-    private CloudCacheFolder mGoogleDriveFolder;
-
     public GoogleDriveCloudStorage(Activity parentActivity)
     {
-        mParentActivity=parentActivity;
-        mGoogleDriveFolder=new CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder,GOOGLE_DRIVE_CACHE_FOLDER_NAME);
-        if(!mGoogleDriveFolder.exists())
-            if(!mGoogleDriveFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create Google Drive sync folder.");
+        super(parentActivity,GOOGLE_DRIVE_CACHE_FOLDER_NAME);
     }
 
     interface GoogleDriveAction
@@ -361,17 +354,11 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     }
 
     @Override
-    public CloudCacheFolder getCacheFolder()
-    {
-        return mGoogleDriveFolder;
-    }
-
-    @Override
     protected void downloadFiles(List<CloudFileInfo> filesToRefresh, CloudListener cloudListener, PublishSubject<CloudDownloadResult> itemSource, PublishSubject<String> messageSource) {
         doGoogleDriveAction(new GoogleDriveAction() {
             @Override
             public void onConnected(com.google.api.services.drive.Drive client) {
-                new DownloadGoogleDriveFilesTask(client,cloudListener,itemSource,messageSource,filesToRefresh,mGoogleDriveFolder).execute();
+                new DownloadGoogleDriveFilesTask(client,cloudListener,itemSource,messageSource,filesToRefresh,mCloudCacheFolder).execute();
             }
 
             @Override
@@ -394,10 +381,5 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                 listener.onAuthenticationRequired();
             }
         });
-    }
-
-    @Override
-    public void logout()
-    {
     }
 }

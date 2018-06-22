@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.pref;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +15,7 @@ import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
 import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
+import com.stevenfrew.beatprompter.cloud.CloudType;
 
 public class SettingsFragment extends PreferenceFragment implements CloudFolderSelectionListener
 {
@@ -47,7 +47,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(mCloudPathPrefListener);
+        PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance).registerOnSharedPreferenceChangeListener(mCloudPathPrefListener);
 
         String clearCachePrefName=getString(R.string.pref_clearCache_key);
         Preference clearCachePref = findPreference(clearCachePrefName);
@@ -72,41 +72,13 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
         if(cloudPref!=null) {
             cloudPref.setOnPreferenceChangeListener((preference, value) -> {
                 SongList.mSongListInstance.deleteAllFiles();
-                SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(getActivity());
-                sharedPref.edit().putString(getString(R.string.pref_cloudStorageSystem_key),value.toString()).apply();
-                getPreferenceManager().getSharedPreferences().edit().putString(getString(R.string.pref_cloudPath_key),null).apply();
-                getPreferenceManager().getSharedPreferences().edit().putString(getString(R.string.pref_cloudDisplayPath_key),null).apply();
+                SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+                SharedPreferences.Editor editor=sharedPref.edit();
+                editor.putString(getString(R.string.pref_cloudStorageSystem_key),value.toString());
+                editor.putString(getString(R.string.pref_cloudPath_key),null);
+                editor.putString(getString(R.string.pref_cloudDisplayPath_key),null);
+                editor.apply();
                 ((ImageListPreference)cloudPref).forceUpdate();
-                return true;
-            });
-        }
-
-        String powerwashPrefName=getString(R.string.pref_powerwash_key);
-        Preference powerwashPref = findPreference(powerwashPrefName);
-        if(powerwashPref!=null) {
-            powerwashPref.setOnPreferenceClickListener(preference -> {
-                SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = sharedPrefs.edit();
-                editor.putString(getString(R.string.pref_cloudStorageSystem_key),"demo");
-                editor.putString(getString(R.string.pref_cloudPath_key), null);
-                editor.putString(getString(R.string.pref_cloudDisplayPath_key), null);
-                editor.apply();
-
-                SharedPreferences privatePrefs = getActivity().getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
-                editor = privatePrefs.edit();
-                editor.putString(getString(R.string.pref_songSource_key), "");
-                editor.putBoolean(getString(R.string.pref_firstRun_key), true);
-                editor.putString(getString(R.string.pref_dropboxAccessToken_key), null);
-                editor.putBoolean(getString(R.string.pref_wasPowerwashed_key), true);
-                editor.apply();
-
-                BeatPrompterApplication.mSongListHandler.obtainMessage(BeatPrompterApplication.POWERWASH).sendToTarget();
-                onCloudPathChanged(null);
-                if(cloudPathPref!=null)
-                    ((CloudPathPreference)cloudPathPref).forceUpdate();
-                if(cloudPref!=null)
-                    ((ImageListPreference)cloudPref).forceUpdate();
-
                 return true;
             });
         }
@@ -115,7 +87,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     @Override
     public void onDestroy()
     {
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(mCloudPathPrefListener);
+        PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance).unregisterOnSharedPreferenceChangeListener(mCloudPathPrefListener);
         super.onDestroy();
     }
 
@@ -123,7 +95,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     {
         String cloudPathPrefName=getString(R.string.pref_cloudPath_key);
         String cloudDisplayPathPrefName=getString(R.string.pref_cloudDisplayPath_key);
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
         String displayPath=sharedPrefs.getString(cloudDisplayPathPrefName,null);
 
         Preference cloudPathPref = findPreference(cloudPathPrefName);
@@ -133,17 +105,19 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
 
     void setCloudPath()
     {
-        CloudStorage cs=CloudStorage.getInstance(SongList.mSongListInstance.getCloud(),getActivity());
-        if(cs!=null)
-            cs.selectFolder(getActivity(),this);
+        CloudType cloudType=SongList.getCloud();
+        if(cloudType!=CloudType.Demo) {
+            CloudStorage cs = CloudStorage.getInstance(cloudType, getActivity());
+            cs.selectFolder(getActivity(), this);
+        }
         else
             Toast.makeText(getActivity(),getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onFolderSelected(CloudFolderInfo folderInfo) {
-        getPreferenceManager()
-                .getSharedPreferences()
+        PreferenceManager
+                .getDefaultSharedPreferences(SongList.mSongListInstance)
                 .edit()
                 .putString(getString(R.string.pref_cloudPath_key),folderInfo.mID)
                 .putString(getString(R.string.pref_cloudDisplayPath_key),folderInfo.mDisplayPath)

@@ -21,7 +21,6 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
-import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudException;
@@ -64,16 +63,9 @@ public class OneDriveCloudStorage extends CloudStorage {
         }
     };
 
-    private Activity mParentActivity;
-    private CloudCacheFolder mOneDriveFolder;
-
     public OneDriveCloudStorage(Activity parentActivity)
     {
-        mParentActivity=parentActivity;
-        mOneDriveFolder=new CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder,ONEDRIVE_CACHE_FOLDER_NAME);
-        if(!mOneDriveFolder.exists())
-            if(!mOneDriveFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create OneDrive sync folder.");
+        super(parentActivity,ONEDRIVE_CACHE_FOLDER_NAME);
     }
 
     private static class GetOneDriveFolderContentsTask extends AsyncTask<Void, Void, Void>
@@ -268,7 +260,6 @@ public class OneDriveCloudStorage extends CloudStorage {
         new OneDriveClient.Builder()
                 .fromConfig(oneDriveConfig)
                 .loginAndBuildClient(mParentActivity, callback);
-
     }
 
     private static class GetOneDriveRootFolderTask extends AsyncTask<Void, Void, CloudFolderInfo>
@@ -323,18 +314,12 @@ public class OneDriveCloudStorage extends CloudStorage {
     }
 
     @Override
-    public CloudCacheFolder getCacheFolder()
-    {
-        return mOneDriveFolder;
-    }
-
-    @Override
     public void downloadFiles(List<CloudFileInfo> filesToDownload,CloudListener cloudListener,PublishSubject<CloudDownloadResult> itemSource,PublishSubject<String> messageSource) {
         doOneDriveAction(new OneDriveAction() {
             @Override
             public void onConnected(IOneDriveClient client) {
                 try {
-                    new DownloadOneDriveFilesTask(client, cloudListener, itemSource, messageSource, filesToDownload, mOneDriveFolder).execute();
+                    new DownloadOneDriveFilesTask(client, cloudListener, itemSource, messageSource, filesToDownload, mCloudCacheFolder).execute();
                 }
                 catch(Exception e)
                 {
@@ -366,28 +351,6 @@ public class OneDriveCloudStorage extends CloudStorage {
             @Override
             public void onAuthenticationRequired() {
                 cloudListener.onAuthenticationRequired();
-            }
-        });
-    }
-
-    @Override
-    public void logout()
-    {
-        doOneDriveAction(new OneDriveAction() {
-            @Override
-            public void onConnected(IOneDriveClient client) {
-                client.getAuthenticator().logout(new ICallback<Void>() {
-                    @Override
-                    public void success(final Void result) {
-                    }
-                    @Override
-                    public void failure(final ClientException ex) {
-                    }
-                });
-            }
-
-            @Override
-            public void onAuthenticationRequired() {
             }
         });
     }

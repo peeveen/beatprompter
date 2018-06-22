@@ -1,7 +1,11 @@
 package com.stevenfrew.beatprompter.cloud;
 
 import android.app.Activity;
+import android.util.Log;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.SongList;
+import com.stevenfrew.beatprompter.cloud.demo.DemoCloudStorage;
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage;
 import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage;
 import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage;
@@ -12,6 +16,17 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 
 public abstract class CloudStorage {
+    protected Activity mParentActivity;
+    protected CloudCacheFolder mCloudCacheFolder;
+
+    protected CloudStorage(Activity parentActivity,String cloudCacheFolderName)
+    {
+        mParentActivity=parentActivity;
+        mCloudCacheFolder=new CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder,cloudCacheFolderName);
+        if(!mCloudCacheFolder.exists())
+            if(!mCloudCacheFolder.mkdir())
+                Log.e(BeatPrompterApplication.TAG,"Failed to create cloud cache folder.");
+    }
     public String constructFullPath(String folderPath,String itemName)
     {
         String fullPath = folderPath;
@@ -28,7 +43,7 @@ public abstract class CloudStorage {
             return new OneDriveCloudStorage(parentActivity);
         if (cloudType == CloudType.GoogleDrive)
             return new GoogleDriveCloudStorage(parentActivity);
-        return null;
+        return new DemoCloudStorage(parentActivity);
     }
 
     public void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudItemDownloadListener listener)
@@ -95,20 +110,6 @@ public abstract class CloudStorage {
         }
     }
 
-    public static void logoutAll(Activity parentActivity)
-    {
-        logout(CloudType.Dropbox,parentActivity);
-        logout(CloudType.GoogleDrive,parentActivity);
-        logout(CloudType.OneDrive,parentActivity);
-    }
-
-    private static void logout(CloudType cloudType,Activity parentActivity)
-    {
-        CloudStorage cs = getInstance(cloudType, parentActivity);
-        if(cs!=null)
-            cs.logout();
-    }
-
     private void getRootPath(CloudRootPathListener listener)
     {
         CompositeDisposable disp=new CompositeDisposable();
@@ -124,15 +125,16 @@ public abstract class CloudStorage {
         }
     }
 
+    public CloudCacheFolder getCacheFolder()
+    {
+        return mCloudCacheFolder;
+    }
+
     public abstract String getCloudStorageName();
 
     public abstract String getDirectorySeparator();
 
     public abstract int getCloudIconResourceId();
-
-    public abstract CloudCacheFolder getCacheFolder();
-
-    public abstract void logout();
 
     protected abstract void getRootPath(CloudListener listener,PublishSubject<CloudFolderInfo> rootPathSource);
 

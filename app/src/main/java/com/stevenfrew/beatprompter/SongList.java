@@ -20,7 +20,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -59,7 +58,6 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.cache.CachedCloudFileCollection;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.cache.ImageFile;
-import com.stevenfrew.beatprompter.cache.InvalidBeatPrompterFileException;
 import com.stevenfrew.beatprompter.cache.SetListFile;
 import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
@@ -97,14 +95,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -207,9 +201,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 case BeatPrompterApplication.SONG_LOAD_COMPLETED:
                     startSongActivity();
                     break;
-                case BeatPrompterApplication.POWERWASH:
-                    powerwash();
-                    break;
                 case BeatPrompterApplication.CLEAR_CACHE:
                     clearCache();
                     break;
@@ -234,9 +225,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     Thread mSongLoaderTaskThread=null;
 
     final static private String FULL_VERSION_SKU_NAME="full_version";
-
-    private final static String DEMO_SONG_FILENAME="demo_song.txt";
-    private final static String DEMO_SONG_AUDIO_FILENAME="demo_song.mp3";
 
     private final static String DEFAULT_MIDI_ALIASES_FILENAME="default_midi_aliases.txt";
 
@@ -415,18 +403,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return playNextSong;
     }
 
-    boolean isDemoSong(SongFile songFile)
-    {
-        return (songFile!=null) && (mCachedCloudFiles.getSongFiles().size()==1) &&
-                (
-                        songFile.mTitle.equalsIgnoreCase("BeatPrompter Demo Song") ||
-                                songFile.mTitle.equalsIgnoreCase("BeatPrompter Demo-Song") ||
-                                songFile.mTitle.equalsIgnoreCase("BeatPrompter Canción De Demo") ||
-                                songFile.mTitle.equalsIgnoreCase("BeatPrompter Morceau De Démo") ||
-                                songFile.mTitle.equalsIgnoreCase("BeatPrompter Demo Song") ||
-                                songFile.mTitle.equalsIgnoreCase("BeatPrompter Música De Demo"));
-    }
-
     SongDisplaySettings getSongDisplaySettings(ScrollingMode scrollMode)
     {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -480,7 +456,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if((selectedNode!=null)&&(selectedNode.mNextNode!=null)&&(shouldPlayNextSong()))
             nextSong=selectedNode.mNextNode.mSongFile.mTitle;
 
-        LoadingSongFile lsf=new LoadingSongFile(selectedSong,trackName,scrollMode,nextSong,startedByBandLeader,startedByMidiTrigger,isDemoSong(selectedSong),nativeSettings,sourceSettings);
+        LoadingSongFile lsf=new LoadingSongFile(selectedSong,trackName,scrollMode,nextSong,startedByBandLeader,startedByMidiTrigger,getCloud()==CloudType.Demo,nativeSettings,sourceSettings);
         startSong(lsf);
     }
 
@@ -703,18 +679,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.parse_errors_dialog, null);
         builder.setView(view);
-        TextView tv=(TextView)view.findViewById(R.id.errors);
-        String str="";
+        TextView tv=view.findViewById(R.id.errors);
+        StringBuilder str= new StringBuilder();
         for(FileParseError fpe:errors)
-            str+=fpe.getErrorMessage()+"\n";
-        tv.setText(str.trim());
+            str.append(fpe.getErrorMessage()).append("\n");
+        tv.setText(str.toString().trim());
         AlertDialog customAD = builder.create();
         customAD.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                (dialog, which) -> dialog.dismiss());
         customAD.setTitle(getString(R.string.midi_alias_file_errors));
         customAD.setCanceledOnTouchOutside(true);
         customAD.show();
@@ -826,10 +798,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         setContentView(R.layout.activity_song_list);
 
-        if(isFirstRun()) {
+        if(isFirstRun())
             showFirstRunMessages();
-            createDemoFile();
-        }
 
         initialiseList();
 
@@ -994,15 +964,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         updateBluetoothIcon();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            if(mSongEndedNaturally)
-                if (startNextSong())
-                    return;
-
         if(mListAdapter!=null)
             mListAdapter.notifyDataSetChanged();
 
-        if(SongLoadTask.mSongToLoadOnResume!=null)
+        // First run? Install demo files.
+        if(isFirstRun())
+            firstRunSetup();
+        else if(SongLoadTask.mSongToLoadOnResume!=null)
         {
             try
             {
@@ -1013,6 +981,17 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 SongLoadTask.mSongToLoadOnResume=null;
             }
         }
+    }
+
+    private void firstRunSetup()
+    {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor=sharedPrefs.edit();
+        editor.putBoolean(getString(R.string.pref_firstRun_key), false);
+        editor.putString(getString(R.string.pref_cloudStorageSystem_key), "demo");
+        editor.putString(getString(R.string.pref_cloudPath_key), "/");
+        editor.apply();
+        performFullCloudSync();
     }
 
     @Override
@@ -1046,21 +1025,18 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 break;
             case PLAY_SONG_REQUEST_CODE:
                 if(resultCode==RESULT_OK)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                       startNextSong();
+                    startNextSong();
                 break;
         }
     }
 
-    private boolean startNextSong()
+    private void startNextSong()
     {
         mSongEndedNaturally=false;
-        if((mNowPlayingNode!=null)&&(mNowPlayingNode.mNextNode!=null)&&(shouldPlayNextSong())) {
+        if((mNowPlayingNode!=null)&&(mNowPlayingNode.mNextNode!=null)&&(shouldPlayNextSong()))
             playPlaylistNode(mNowPlayingNode.mNextNode,false);
-            return true;
-        }
-        mNowPlayingNode=null;
-        return false;
+        else
+            mNowPlayingNode=null;
     }
 
     private ArrayList<CachedCloudFile> getFilesToRefresh()
@@ -1105,23 +1081,18 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void performCloudSync()
     {
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
-        if(cs!=null)
-        {
-            String cloudPath = getCloudPath();
-            if ((cloudPath == null) || (cloudPath.length() == 0))
-                Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
-            else {
-                CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
-                cdt.execute();
-            }
+        String cloudPath = getCloudPath();
+        if ((cloudPath == null) || (cloudPath.length() == 0))
+            Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
+        else {
+            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
+            cdt.execute();
         }
-        else
-            Toast.makeText(this,getString(R.string.no_cloud_storage_system_set),Toast.LENGTH_LONG).show();
     }
 
     public boolean wasPowerwashed()
     {
-        SharedPreferences sharedPrefs = getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
         boolean powerwashed = sharedPrefs.getBoolean(getString(R.string.pref_wasPowerwashed_key), false);
         sharedPrefs.edit().putBoolean(getString(R.string.pref_wasPowerwashed_key), false).apply();
         return powerwashed;
@@ -1372,7 +1343,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             }
         }
         item = menu.findItem(R.id.synchronize);
-        item.setEnabled(canSynchronizeFiles());
+        item.setEnabled(canPerformCloudSync());
 //        item = menu.findItem(R.id.connect_to_leader);
 //        item.setEnabled(((BeatPrompterApplication)SongList.this.getApplicationContext()).getBluetoothMode()==BluetoothMode.client);
         return true;
@@ -1397,7 +1368,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.synchronize:
-                synchronizeFiles();
+                performFullCloudSync();
                 return true;
             case R.id.sort_songs:
                 if(mSelectedFilter.mCanSort) {
@@ -1550,8 +1521,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         setLastSyncDate(new Date(0));
         mDemoFolder.clear();
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
-        if(cs!=null)
-            cs.getCacheFolder().clear();
+        cs.getCacheFolder().clear();
         clearCachedCloudFileArrays();
         buildFilterList();
         try {
@@ -1598,7 +1568,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                         playSong(null, sf, track, scrollingMode,true,false,nativeSettings,sourceSettings);
                     else
                         SongLoadTask.mSongToLoadOnResume=new LoadingSongFile(sf,track,scrollingMode,null,true,
-                                false,isDemoSong(sf),nativeSettings,sourceSettings);
+                                false,getCloud()==CloudType.Demo,nativeSettings,sourceSettings);
                     break;
                 }
         }
@@ -1655,11 +1625,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     boolean isFirstRun()
     {
-        SharedPreferences sharedPrefs = getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
-        String prefName=getString(R.string.pref_firstRun_key);
-        boolean firstRun=sharedPrefs.getBoolean(prefName, true);
-        sharedPrefs.edit().putBoolean(prefName,false).apply();
-        return firstRun;
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mSongListInstance);
+        return sharedPrefs.getBoolean(getString(R.string.pref_firstRun_key), true);
     }
 
     void showFirstRunMessages()
@@ -1674,165 +1641,19 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         t.start();
     }
 
-    File createDemoSongFile()
+    public static CloudType getCloud()
     {
-        String demoFileText=getString(R.string.demo_song);
-        File destinationSongFile = new File(mDemoFolder, DEMO_SONG_FILENAME);
-        BufferedWriter bw=null;
-        try
-        {
-            bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destinationSongFile)));
-            bw.write(demoFileText);
-        }
-        catch(Exception e)
-        {
-            Log.d(BeatPrompterApplication.TAG,"Failed to create demo file",e);
-            destinationSongFile=null;
-        }
-        finally
-        {
-            if(bw!=null)
-                try
-                {
-                    bw.close();
-                }
-                catch(Exception e)
-                {
-                    Log.d(BeatPrompterApplication.TAG,"Failed to close demo file",e);
-                }
-        }
-        return destinationSongFile;
-    }
-
-    void copyAssetsFileToDemoFolder(String filename,File destination)
-    {
-        InputStream inputStream=null;
-        OutputStream outputStream=null;
-        try {
-            inputStream = getAssets().open(filename);
-            if (inputStream != null) {
-                outputStream = new FileOutputStream(destination);
-                int n;
-                byte[] buffer = new byte[1024];
-                while((n = inputStream.read(buffer)) > -1) {
-                    outputStream.write(buffer, 0, n);
-                }
-                outputStream.close();
-                inputStream.close();
-            }
-        } catch (IOException ioe) {
-            Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        finally
-        {
-            try {
-                if(inputStream!=null)
-                    inputStream.close();
-            }
-            catch(IOException e)
-            {
-                Log.d(BeatPrompterApplication.TAG,"Error closing input stream",e);
-            }
-            try {
-                if(outputStream!=null)
-                    outputStream.close();
-            }
-            catch(IOException e)
-            {
-                Log.d(BeatPrompterApplication.TAG,"Error closing output stream",e);
-            }
-        }
-    }
-
-    void createDemoFile()
-    {
-        CloudType cloud=getCloud();
-        if(cloud==CloudType.None) {
-            deleteAllFiles();
-            //File destinationSongFile = new File(mDemoFolder, DEMO_SONG_FILENAME);
-            //copyAssetsFileToDemoFolder(DEMO_SONG_FILENAME, destinationSongFile);
-            File destinationSongFile=createDemoSongFile();
-            if(destinationSongFile!=null) {
-                File destinationAudioFile = new File(mDemoFolder, DEMO_SONG_AUDIO_FILENAME);
-                copyAssetsFileToDemoFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile);
-                try {
-                    AudioFile audioFile = new AudioFile(destinationAudioFile, DEMO_SONG_AUDIO_FILENAME, DEMO_SONG_AUDIO_FILENAME, new Date(), "");
-                    ArrayList<AudioFile> audioFiles = new ArrayList<>();
-                    audioFiles.add(audioFile);
-                    try {
-                        mCachedCloudFiles.getSongFiles().add(new SongFile(destinationSongFile, DEMO_SONG_FILENAME, DEMO_SONG_FILENAME,new Date(), "", audioFiles, null));
-                        mCachedCloudFiles.getAudioFiles().add(audioFile);
-                    } catch (IOException ioe) {
-                        Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-                catch(InvalidBeatPrompterFileException ibpfe)
-                {
-                    Toast.makeText(this, ibpfe.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-        try
-        {
-            writeDatabase();
-        }
-        catch(Exception e)
-        {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    void powerwash()
-    {
-        deleteAllFiles();
-        CloudStorage.logoutAll(this);
-        createDemoFile();
-        initialiseList();
-        Toast.makeText(this, getString(R.string.powerwashed), Toast.LENGTH_LONG).show();
-    }
-
-    static String getCloudAsString(Context context,CloudType cloud)
-    {
-        if(cloud== CloudType.Dropbox)
-            return context.getString(R.string.dropboxValue);
-        else if(cloud==CloudType.GoogleDrive)
-            return context.getString(R.string.googleDriveValue);
-        else if(cloud==CloudType.OneDrive)
-            return context.getString(R.string.oneDriveValue);
-        return "";
-    }
-
-    public CloudType getCloud()
-    {
-        return getCloud(this);
-    }
-
-    static CloudType getCloud(Activity activity)
-    {
-        CloudType cloud=CloudType.None;
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(activity);
-        String cloudPref=sharedPrefs.getString(activity.getString(R.string.pref_cloudStorageSystem_key),null);
+        CloudType cloud=CloudType.Demo;
+        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+        String cloudPref=sharedPrefs.getString(mSongListInstance.getString(R.string.pref_cloudStorageSystem_key),null);
         if(cloudPref!=null)
         {
-            if(cloudPref.equals(activity.getString(R.string.googleDriveValue)))
+            if(cloudPref.equals(mSongListInstance.getString(R.string.googleDriveValue)))
                 cloud= CloudType.GoogleDrive;
-            else if(cloudPref.equals(activity.getString(R.string.dropboxValue)))
+            else if(cloudPref.equals(mSongListInstance.getString(R.string.dropboxValue)))
                 cloud= CloudType.Dropbox;
-            else if(cloudPref.equals(activity.getString(R.string.oneDriveValue)))
+            else if(cloudPref.equals(mSongListInstance.getString(R.string.oneDriveValue)))
                 cloud= CloudType.OneDrive;
-        }
-        else
-        {
-            SharedPreferences privatePrefs = activity.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID,Context.MODE_PRIVATE);
-            String privateCloudPref=privatePrefs.getString(activity.getString(R.string.pref_songSource_key),"");
-            if(privateCloudPref.equals(activity.getString(R.string.googleDriveValue)))
-                cloud= CloudType.GoogleDrive;
-            else if(privateCloudPref.equals(activity.getString(R.string.dropboxValue)))
-                cloud= CloudType.Dropbox;
-            else if(privateCloudPref.equals(activity.getString(R.string.oneDriveValue)))
-                cloud= CloudType.OneDrive;
-            if(cloud!=CloudType.None)
-                sharedPrefs.edit().putString(activity.getString(R.string.pref_cloudStorageSystem_key),getCloudAsString(activity,cloud)).apply();
         }
         return cloud;
     }
@@ -1849,13 +1670,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return sharedPrefs.getBoolean(getString(R.string.pref_includeSubfolders_key),false);
     }
 
-    void synchronizeFiles() {
+    void performFullCloudSync() {
         performCloudSync(null,false);
     }
 
-    boolean canSynchronizeFiles()
+    boolean canPerformCloudSync()
     {
-        return getCloud()!=CloudType.None && getCloudPath()!=null;
+        return getCloud()!=CloudType.Demo && getCloudPath()!=null;
     }
 
     void updateBluetoothIcon()

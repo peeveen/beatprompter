@@ -30,10 +30,6 @@
             android:key="@string/pref_clearCache_key"
             android:title="@string/pref_clearCache_title"
             android:summary="@string/pref_clearCache_summary"/>
-        <Preference
-            android:key="@string/pref_powerwash_key"
-            android:title="@string/pref_powerwash_title"
-            android:summary="@string/pref_powerwash_summary"/>
     </PreferenceScreen>
     <PreferenceScreen
         android:title="@string/song_list_options">

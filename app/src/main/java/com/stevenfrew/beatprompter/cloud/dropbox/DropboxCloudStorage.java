@@ -19,7 +19,6 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
-import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
@@ -61,16 +60,9 @@ public class DropboxCloudStorage extends CloudStorage {
         return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename));
     }
 
-    private Activity mParentActivity;
-    private CloudCacheFolder mDropboxFolder;
-
     public DropboxCloudStorage(Activity parentActivity)
     {
-        mParentActivity=parentActivity;
-        mDropboxFolder=new CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder,DROPBOX_CACHE_FOLDER_NAME);
-        if(!mDropboxFolder.exists())
-            if(!mDropboxFolder.mkdir())
-                Log.e(BeatPrompterApplication.TAG,"Failed to create Dropbox sync folder.");
+        super(parentActivity,DROPBOX_CACHE_FOLDER_NAME);
     }
 
     private void downloadFiles(DbxClientV2 client, CloudListener listener,PublishSubject<CloudDownloadResult> itemSource, PublishSubject<String> messageSource, List<CloudFileInfo> filesToDownload)
@@ -87,7 +79,7 @@ public class DropboxCloudStorage extends CloudStorage {
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
                     messageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
                     String safeFilename = Utils.makeSafeFilename(title);
-                    File targetFile = new File(mDropboxFolder, safeFilename);
+                    File targetFile = new File(mCloudCacheFolder, safeFilename);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
@@ -271,18 +263,5 @@ public class DropboxCloudStorage extends CloudStorage {
     @Override
     public String getCloudStorageName() {
         return SongList.mSongListInstance.getString(R.string.dropbox_string);
-    }
-
-    @Override
-    public CloudCacheFolder getCacheFolder()
-    {
-        return mDropboxFolder;
-    }
-
-    @Override
-    public void logout()
-    {
-        SharedPreferences privatePrefs = SongList.mSongListInstance.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
-        privatePrefs.edit().putString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null).apply();
     }
 }
