@@ -48,12 +48,17 @@ public abstract class CloudStorage {
 
     public void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudItemDownloadListener listener)
     {
+        if(filesToRefresh.contains(SongList.mTemporarySetListCloudFileInfo))
+            filesToRefresh.remove(SongList.mTemporarySetListCloudFileInfo);
+
         CompositeDisposable disp=new CompositeDisposable();
         PublishSubject<CloudDownloadResult> downloadSource=PublishSubject.create();
         disp.add(downloadSource.subscribe(listener::onItemDownloaded,listener::onDownloadError,listener::onDownloadComplete));
         PublishSubject<String> messageSource=PublishSubject.create();
         disp.add(messageSource.subscribe(listener::onProgressMessageReceived));
         try {
+            // Always include the temporary set list.
+            downloadSource.onNext(new CloudDownloadResult(SongList.mTemporarySetListCloudFileInfo,SongList.mTemporarySetListFile));
             downloadFiles(filesToRefresh, listener,downloadSource, messageSource);
         }
         finally
@@ -69,6 +74,7 @@ public abstract class CloudStorage {
         PublishSubject<CloudItemInfo> folderContentsSource=PublishSubject.create();
         disp.add(folderContentsSource.subscribe(listener::onCloudItemFound,listener::onFolderSearchError,listener::onFolderSearchComplete));
         try {
+            folderContentsSource.onNext(SongList.mTemporarySetListCloudFileInfo);
             readFolderContents(folder, listener,folderContentsSource, includeSubfolders, returnFolders);
         }
         finally

@@ -1,10 +1,15 @@
 package com.stevenfrew.beatprompter;
 
 import android.graphics.Color;
+import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -196,5 +201,15 @@ public class Utils
             else
                 builder.append(c);
         return builder.toString();
+    }
+
+    public static void appendToTextFile(File file,String str) throws IOException
+    {
+        try(FileWriter fw = new FileWriter(file.getAbsolutePath(), true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw))
+        {
+            out.println(str);
+        }
     }
 }
