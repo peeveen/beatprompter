@@ -118,6 +118,7 @@ public class Tag
             System.arraycopy(paramBytes,0,paramBytesWithoutChannel,0,paramBytesWithoutChannel.length);
             paramBytes=paramBytesWithoutChannel;
         }
+        // TODO: MIDI items should now be stored in memory with references to other aliases. Missing aliases will be noticed here.
         for(MIDIAlias alias:aliases)
             if(alias.mName.equalsIgnoreCase(tag.mName))
                 if(alias.mParamCount==paramBytes.length)
