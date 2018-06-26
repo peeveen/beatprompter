@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache;
 
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
 
@@ -101,7 +100,7 @@ public abstract class CachedCloudFile extends CloudFileInfo {
                 // Not a set list file. Might be a MIDI Alias file?
                 try {
                     // Not a song file. Might be a set file?
-                    return new MIDIAliasFile(result, SongList.mDefaultAliases);
+                    return new MIDIAliasFile(result);
                 }
                 catch(InvalidBeatPrompterFileException ibpfe2)
                 {

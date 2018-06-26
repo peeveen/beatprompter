@@ -78,8 +78,7 @@ public class ScreenString
         if(MASKING)
             str=MASKING_STRING+str+MASKING_STRING;
         getTextRect(str,paint,stringWidthRect);
-        int width= stringWidthRect.width() - (MASKING?getDoubleXStringLength(paint,fontSize,bold):0);
-        return width;
+        return stringWidthRect.width() - (MASKING?getDoubleXStringLength(paint,fontSize,bold):0);
     }
 
     static int getBestFontSize(String text,Paint paint,float minimumFontSize, float maximumFontSize, int maxWidth,int maxHeight,Typeface face,boolean bold)

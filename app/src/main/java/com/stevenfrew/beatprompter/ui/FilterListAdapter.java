@@ -24,17 +24,17 @@ public class FilterListAdapter extends ArrayAdapter<Filter> {
     private final ArrayList<Filter> values;
 
     public FilterListAdapter(ArrayList<Filter> values) {
-        super(SongList.getContext(), -1, values);
+        super(SongList.mSongListInstance, -1, values);
         this.values = values;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
-        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
+        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.filter_item_selected, parent, false):convertView;
-        TextView titleView = (TextView) rowView.findViewById(R.id.filtertitleselected);
+        TextView titleView = rowView.findViewById(R.id.filtertitleselected);
         Filter filter=values.get(position);
         titleView.setText(filter.mName);
         return rowView;
@@ -43,11 +43,11 @@ public class FilterListAdapter extends ArrayAdapter<Filter> {
     @Override
     public View getDropDownView(int position, View convertView,
                                 @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
+        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View dropDownView = convertView==null?inflater.inflate(R.layout.filter_list_item, parent, false):convertView;
-        TextView titleView = (TextView) dropDownView.findViewById(R.id.filtertitle);
-        ImageView filterIcon=(ImageView) dropDownView.findViewById(R.id.filterIcon);
+        TextView titleView = dropDownView.findViewById(R.id.filtertitle);
+        ImageView filterIcon= dropDownView.findViewById(R.id.filterIcon);
         Filter filter=values.get(position);
         if(filter instanceof TagFilter)
             filterIcon.setImageResource(R.drawable.tag);

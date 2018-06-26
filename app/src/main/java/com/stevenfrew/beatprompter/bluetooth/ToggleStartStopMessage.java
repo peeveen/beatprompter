@@ -30,6 +30,7 @@ public class ToggleStartStopMessage extends BluetoothMessage
             int bytesRead=byteArrayInputStream.read(new byte[1]);
             if(bytesRead==1) {
                 byte[] startStateBytes=new byte[1];
+                //noinspection ResultOfMethodCallIgnored
                 byteArrayInputStream.read(startStateBytes);
                 mStartState=startStateBytes[0];
                 mTime = 0;

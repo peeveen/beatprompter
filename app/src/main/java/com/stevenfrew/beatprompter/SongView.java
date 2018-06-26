@@ -7,7 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.media.AudioManager;
+import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Handler;
@@ -176,7 +176,10 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     }
 
     private void initView() {
-        mClickSoundPool = new SoundPool(16, AudioManager.STREAM_MUSIC, 0);
+        AudioAttributes.Builder audioAttributesBuilder=new AudioAttributes.Builder();
+        AudioAttributes audioAttributes=audioAttributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+        SoundPool.Builder soundPoolBuilder=new SoundPool.Builder();
+        mClickSoundPool=soundPoolBuilder.setMaxStreams(16).setAudioAttributes(audioAttributes).build();
         mClickAudioID = mClickSoundPool.load(this.getContext(), R.raw.click, 0);
         mPaint = new Paint();
         mSongPixelPosition = 0;

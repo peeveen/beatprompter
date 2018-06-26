@@ -39,7 +39,7 @@ public class ImageFile extends CachedCloudFile
         }
         catch(Exception e)
         {
-            throw new InvalidBeatPrompterFileException(SongList.getContext().getString(R.string.could_not_read_image_file)+": "+mName);
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.could_not_read_image_file)+": "+mName);
         }
     }
 }

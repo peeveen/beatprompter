@@ -72,9 +72,9 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        mProgressDialog = new ProgressDialog(SongList.getContext());
-        mProgressDialog.setTitle(SongList.getContext().getString(R.string.downloadingFiles));
-        mProgressDialog.setMessage(String.format(SongList.getContext().getString(R.string.accessingCloudStorage),mCloudStorage.getCloudStorageName()));
+        mProgressDialog = new ProgressDialog(SongList.mSongListInstance);
+        mProgressDialog.setTitle(SongList.mSongListInstance.getString(R.string.downloadingFiles));
+        mProgressDialog.setMessage(String.format(SongList.mSongListInstance.getString(R.string.accessingCloudStorage),mCloudStorage.getCloudStorageName()));
         mProgressDialog.setCancelable(false);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.show();

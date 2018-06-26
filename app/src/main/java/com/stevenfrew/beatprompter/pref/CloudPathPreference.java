@@ -23,11 +23,11 @@ public class CloudPathPreference extends Preference
         ImageView imageView = view.findViewById(R.id.iconImageView);
         imageView.setImageResource(R.drawable.blank_icon);
         TextView textView = view.findViewById(android.R.id.summary);
-        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
-        String path=prefs.getString(SongList.getContext().getString(R.string.pref_cloudPath_key),null);
-        String displayPath=prefs.getString(SongList.getContext().getString(R.string.pref_cloudDisplayPath_key),null);
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+        String path=prefs.getString(SongList.mSongListInstance.getString(R.string.pref_cloudPath_key),null);
+        String displayPath=prefs.getString(SongList.mSongListInstance.getString(R.string.pref_cloudDisplayPath_key),null);
         if(path==null)
-            displayPath=SongList.getContext().getString(R.string.no_cloud_folder_currently_set);
+            displayPath=SongList.mSongListInstance.getString(R.string.no_cloud_folder_currently_set);
         textView.setText(displayPath);
     }
 

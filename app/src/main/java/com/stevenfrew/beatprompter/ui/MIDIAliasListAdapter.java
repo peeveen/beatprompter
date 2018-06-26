@@ -21,15 +21,15 @@ public class MIDIAliasListAdapter extends ArrayAdapter<com.stevenfrew.beatprompt
     private boolean mLargePrint;
 
     public MIDIAliasListAdapter(List<com.stevenfrew.beatprompter.cache.MIDIAliasFile> fileList) {
-        super(SongList.getContext(),-1, fileList);
-        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
-        mLargePrint= sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_largePrintList_defaultValue)));
+        super(SongList.mSongListInstance,-1, fileList);
+        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+        mLargePrint= sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_defaultValue)));
         this.values = fileList;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
+        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.midi_alias_list_item_large:R.layout.midi_alias_list_item, parent, false):convertView;
         TextView titleView = rowView.findViewById(R.id.alias_file_name);

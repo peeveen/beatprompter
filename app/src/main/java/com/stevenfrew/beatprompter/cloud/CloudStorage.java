@@ -48,8 +48,9 @@ public abstract class CloudStorage {
 
     public void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudItemDownloadListener listener)
     {
-        if(filesToRefresh.contains(SongList.mTemporarySetListCloudFileInfo))
-            filesToRefresh.remove(SongList.mTemporarySetListCloudFileInfo);
+        for(CloudDownloadResult defaultCloudDownload:SongList.mDefaultCloudDownloads)
+            if(filesToRefresh.contains(defaultCloudDownload.mCloudFileInfo))
+                filesToRefresh.remove(defaultCloudDownload.mCloudFileInfo);
 
         CompositeDisposable disp=new CompositeDisposable();
         PublishSubject<CloudDownloadResult> downloadSource=PublishSubject.create();
@@ -57,8 +58,9 @@ public abstract class CloudStorage {
         PublishSubject<String> messageSource=PublishSubject.create();
         disp.add(messageSource.subscribe(listener::onProgressMessageReceived));
         try {
-            // Always include the temporary set list.
-            downloadSource.onNext(new CloudDownloadResult(SongList.mTemporarySetListCloudFileInfo,SongList.mTemporarySetListFile));
+            // Always include the temporary set list and default midi alias files.
+            for(CloudDownloadResult defaultCloudDownload:SongList.mDefaultCloudDownloads)
+                downloadSource.onNext(defaultCloudDownload);
             downloadFiles(filesToRefresh, listener,downloadSource, messageSource);
         }
         finally
@@ -74,7 +76,8 @@ public abstract class CloudStorage {
         PublishSubject<CloudItemInfo> folderContentsSource=PublishSubject.create();
         disp.add(folderContentsSource.subscribe(listener::onCloudItemFound,listener::onFolderSearchError,listener::onFolderSearchComplete));
         try {
-            folderContentsSource.onNext(SongList.mTemporarySetListCloudFileInfo);
+            for(CloudDownloadResult defaultCloudDownload:SongList.mDefaultCloudDownloads)
+                folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo);
             readFolderContents(folder, listener,folderContentsSource, includeSubfolders, returnFolders);
         }
         finally

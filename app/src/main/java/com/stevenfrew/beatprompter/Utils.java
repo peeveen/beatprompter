@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter;
 
 import android.graphics.Color;
-import android.widget.Toast;
 
 import java.io.BufferedWriter;
 import java.io.File;

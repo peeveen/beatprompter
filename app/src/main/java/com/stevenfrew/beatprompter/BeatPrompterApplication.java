@@ -67,13 +67,12 @@ public class BeatPrompterApplication extends Application {
     public static final int SONG_LOAD_LINE_PROCESSED=HANDLER_MESSAGE_BASE_ID+16;
     public static final int SONG_LOAD_COMPLETED=HANDLER_MESSAGE_BASE_ID+17;
     public static final int MIDI_SET_SONG_POSITION=HANDLER_MESSAGE_BASE_ID+18;
-    public static final int POWERWASH=HANDLER_MESSAGE_BASE_ID+19;
+    public static final int CACHE_UPDATED=HANDLER_MESSAGE_BASE_ID+19;
     public static final int SET_CLOUD_PATH=HANDLER_MESSAGE_BASE_ID+20;
     public static final int CLEAR_CACHE=HANDLER_MESSAGE_BASE_ID+21;
     public static final int FOLDER_CONTENTS_FETCHED=HANDLER_MESSAGE_BASE_ID+22;
     public static final int CLIENT_DISCONNECTED=HANDLER_MESSAGE_BASE_ID+23;
     public static final int SERVER_DISCONNECTED=HANDLER_MESSAGE_BASE_ID+24;
-    public static final int CACHE_UPDATED=HANDLER_MESSAGE_BASE_ID+25;
 
     public static final int MIDI_QUEUE_SIZE=1024;
 

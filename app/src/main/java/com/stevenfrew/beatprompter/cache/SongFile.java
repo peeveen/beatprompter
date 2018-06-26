@@ -306,7 +306,7 @@ public class SongFile extends CachedCloudFile
             }
             mLines=lineNumber;
             if((mTitle==null)||(mTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.noTitleFound), mName));
+                throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.noTitleFound), mName));
             if(mArtist==null)
                 mArtist="";
         }
@@ -381,25 +381,25 @@ public class SongFile extends CachedCloudFile
             // And if we ARE in mixed mode with switching allowed, we start in manual.
             currentScrollMode= ScrollingMode.Manual;
 
-        int countInOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_offset));
-        int countInMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_min))+countInOffset;
-        int countInMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_max))+countInOffset;
-        int countInDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_default))+countInOffset;
+        int countInOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_offset));
+        int countInMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_min))+countInOffset;
+        int countInMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_max))+countInOffset;
+        int countInDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_default))+countInOffset;
 
-        double bpmOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_offset));
-        double bpmMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_min))+bpmOffset;
-        double bpmMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_max))+bpmOffset;
-        double bpmDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpm_default))+bpmOffset;
+        double bpmOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_offset));
+        double bpmMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_min))+bpmOffset;
+        double bpmMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_max))+bpmOffset;
+        double bpmDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_default))+bpmOffset;
 
-        int bplOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_offset));
-        int bplMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_min))+bplOffset;
-        int bplMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_max))+bplOffset;
-        int bplDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_default))+bplOffset;
+        int bplOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_offset));
+        int bplMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_min))+bplOffset;
+        int bplMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_max))+bplOffset;
+        int bplDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_default))+bplOffset;
 
-        int bpbOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_offset));
-        int bpbMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_min))+bpbOffset;
-        int bpbMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_max))+bpbOffset;
-        int bpbDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpb_default))+bpbOffset;
+        int bpbOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_offset));
+        int bpbMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_min))+bpbOffset;
+        int bpbMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_max))+bpbOffset;
+        int bpbDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_default))+bpbOffset;
 
         int scrollBeatMin=1;
         int scrollBeatDefault=4;
@@ -413,7 +413,7 @@ public class SongFile extends CachedCloudFile
         long timePerBar=sst.mTimePerBar;
 
         if((timePerLine<0)||(timePerBar<0)) {
-            errors.add(new FileParseError(null, SongList.getContext().getString(R.string.pauseLongerThanSong)));
+            errors.add(new FileParseError(null, SongList.mSongListInstance.getString(R.string.pauseLongerThanSong)));
             sst.mTimePerLine=-timePerLine;
             sst.mTimePerBar=-timePerBar;
         }
@@ -426,34 +426,34 @@ public class SongFile extends CachedCloudFile
             ArrayList<Tag> tagsOut=new ArrayList<>();
             HashSet<String> tagsSet=new HashSet<>();
 
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
-            MIDITriggerOutputContext triggerContext= MIDITriggerOutputContext.valueOf(sharedPref.getString(SongList.getContext().getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.getContext().getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
-            int countInPref = sharedPref.getInt(SongList.getContext().getString(R.string.pref_countIn_key), Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_default)));
-            countInPref+=Integer.parseInt(SongList.getContext().getString(R.string.pref_countIn_offset));
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+            MIDITriggerOutputContext triggerContext= MIDITriggerOutputContext.valueOf(sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
+            int countInPref = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_countIn_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_default)));
+            countInPref+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_offset));
 /*            int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
             defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
-            int defaultTrackVolume=sharedPref.getInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_default)));
-            defaultTrackVolume+=Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultTrackVolume_offset));
-            int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(SongList.getContext().getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(SongList.getContext().getString(R.string.pref_defaultMIDIOutputChannel_default)));
+            int defaultTrackVolume=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_default)));
+            defaultTrackVolume+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_offset));
+            int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_default)));
             byte defaultMIDIOutputChannel= MIDIMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
-            boolean showChords=sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_showChords_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_showChords_defaultValue)));
-            boolean sendMidiClock = sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_sendMidi_key), false);
-            int backgroundColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_backgroundColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_backgroundColor_default)));
-            int pulseColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_pulseColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_pulseColor_default)));
-            int beatCounterColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_beatCounterColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_beatCounterColor_default)));
-            int scrollMarkerColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_scrollMarkerColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_scrollMarkerColor_default)));
-            int lyricColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_lyricColor_key),Color.parseColor(SongList.getContext().getString(R.string.pref_lyricColor_default)));
-            int chordColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_chordColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_chordColor_default)));
-            int annotationColour = sharedPref.getInt(SongList.getContext().getString(R.string.pref_annotationColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_annotationColor_default)));
-            String customCommentsUser=sharedPref.getString(SongList.getContext().getString(R.string.pref_customComments_key), SongList.getContext().getString(R.string.pref_customComments_defaultValue));
+            boolean showChords=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_defaultValue)));
+            boolean sendMidiClock = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_sendMidi_key), false);
+            int backgroundColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_default)));
+            int pulseColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_pulseColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_pulseColor_default)));
+            int beatCounterColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_beatCounterColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_beatCounterColor_default)));
+            int scrollMarkerColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_scrollMarkerColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_scrollMarkerColor_default)));
+            int lyricColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_lyricColor_key),Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_lyricColor_default)));
+            int chordColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_chordColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_chordColor_default)));
+            int annotationColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_annotationColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_annotationColor_default)));
+            String customCommentsUser=sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_customComments_key), SongList.mSongListInstance.getString(R.string.pref_customComments_defaultValue));
             backgroundColour|=0xff000000;
             annotationColour|=0xff000000;
             pulseColour|=0xff000000;
             beatCounterColour|=0xff000000;
             lyricColour|=0xff000000;
             chordColour|=0xff000000;
-            boolean ignoreColorInfo=sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_ignoreColorInfo_defaultValue)));
-            String metronomePref=sharedPref.getString(SongList.getContext().getString(R.string.pref_metronome_key), SongList.getContext().getString(R.string.pref_metronome_defaultValue));
+            boolean ignoreColorInfo=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_ignoreColorInfo_defaultValue)));
+            String metronomePref=sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_metronome_key), SongList.mSongListInstance.getString(R.string.pref_metronome_defaultValue));
 
             // ONE SHOT
             String title=mTitle,artist=mArtist;
@@ -479,9 +479,9 @@ public class SongFile extends CachedCloudFile
             String commentAudience;
             ImageFile lineImage=null;
 
-            boolean metronomeOn=metronomePref.equals(SongList.getContext().getString(R.string.metronomeOnValue));
-            boolean metronomeOnWhenNoBackingTrack=metronomePref.equals(SongList.getContext().getString(R.string.metronomeOnWhenNoBackingTrackValue));
-            boolean metronomeCount=metronomePref.equals(SongList.getContext().getString(R.string.metronomeDuringCountValue));
+            boolean metronomeOn=metronomePref.equals(SongList.mSongListInstance.getString(R.string.metronomeOnValue));
+            boolean metronomeOnWhenNoBackingTrack=metronomePref.equals(SongList.mSongListInstance.getString(R.string.metronomeOnWhenNoBackingTrackValue));
+            boolean metronomeCount=metronomePref.equals(SongList.mSongListInstance.getString(R.string.metronomeDuringCountValue));
 
             if(metronomeOnWhenNoBackingTrack && (chosenTrack==null || chosenTrack.length()==0))
                 metronomeOn=true;
@@ -513,7 +513,7 @@ public class SongFile extends CachedCloudFile
                     if(line.length()>MAX_LINE_LENGTH)
                     {
                         line=line.substring(0,MAX_LINE_LENGTH);
-                        errors.add(new FileParseError(null, String.format(SongList.getContext().getString(R.string.lineTooLong),lineCounter,MAX_LINE_LENGTH)));
+                        errors.add(new FileParseError(null, String.format(SongList.mSongListInstance.getString(R.string.lineTooLong),lineCounter,MAX_LINE_LENGTH)));
                     }
                     tagsOut.clear();
                     String strippedLine=Tag.extractTags(line, lineCounter, tagsOut);
@@ -532,7 +532,7 @@ public class SongFile extends CachedCloudFile
                         if((Tag.COLOR_TAGS.contains(tag.mName))&&(!ignoreColorInfo))
                             createColorEvent=true;
                         if((Tag.ONE_SHOT_TAGS.contains(tag.mName))&&(tagsSet.contains(tag.mName)))
-                            errors.add(new FileParseError(tag,String.format(SongList.getContext().getString(R.string.oneShotTagDefinedTwice),tag.mName)));
+                            errors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.oneShotTagDefinedTwice),tag.mName)));
                         commentAudience=null;
                         if(tag.mName.startsWith("c@"))
                         {
@@ -559,7 +559,7 @@ public class SongFile extends CachedCloudFile
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(lineCounter, SongList.getContext().getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(lineCounter, SongList.mSongListInstance.getString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -574,18 +574,18 @@ public class SongFile extends CachedCloudFile
                                     else if(strScalingMode.equalsIgnoreCase("original"))
                                         imageScalingMode=ImageScalingMode.Original;
                                     else
-                                        errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.unknown_image_scaling_mode)));
+                                        errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.unknown_image_scaling_mode)));
                                 }
                                 String image=new File(imageName).getName();
                                 File imageFile;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists())
-                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
                                 }
                                 lineImage=mappedImage;
                                 break;
@@ -603,25 +603,25 @@ public class SongFile extends CachedCloudFile
                                     {
                                         int tryvolume = Integer.parseInt(strVolume);
                                         if((tryvolume<0)||(tryvolume>100))
-                                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.badAudioVolume)));
+                                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.badAudioVolume)));
                                         else
                                             volume=(int)((double)volume*((double)tryvolume/100.0));
                                     }
                                     catch(NumberFormatException nfe)
                                     {
-                                        errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.badAudioVolume)));
+                                        errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.badAudioVolume)));
                                     }
                                 }
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,null);
                                 if(mappedTrack==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
                                         trackFile = null;
                                     }
                                 }
@@ -803,7 +803,7 @@ public class SongFile extends CachedCloudFile
                                         {
                                             initialMIDIMessages.addAll(me.mMessages);
                                             if(me.mOffset!=null)
-                                                errors.add(new FileParseError(tag,SongList.getContext().getString(R.string.midi_offset_before_first_line)));
+                                                errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.midi_offset_before_first_line)));
                                         }
                                     }
                                 }
@@ -910,14 +910,14 @@ public class SongFile extends CachedCloudFile
 
                         if((scrollbeatOffset<-bpbThisLine)||(scrollbeatOffset>=bpbThisLine))
                         {
-                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.scrollbeatOffTheMap)));
+                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.scrollbeatOffTheMap)));
                             scrollbeatOffset=0;
                         }
                         if(!commasFound)
                             bars=bpl;
 
                         if((lineImage!=null)&&((strippedLine.trim().length()>0)||(chordsFound)))
-                            errors.add(new FileParseError(lineCounter,SongList.getContext().getString(R.string.text_found_with_image)));
+                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.text_found_with_image)));
 
                         if((strippedLine.trim().length()==0)&&(!chordsFound))
                             strippedLine="▼";
@@ -931,7 +931,7 @@ public class SongFile extends CachedCloudFile
                             if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
                             {
                                 tagsOut=new ArrayList<>();
-                                strippedLine = SongList.getContext().getString(R.string.please_buy);
+                                strippedLine = SongList.mSongListInstance.getString(R.string.please_buy);
                                 lineImage=null;
                             }
                             Line lastLine = null;
@@ -1226,7 +1226,7 @@ public class SongFile extends CachedCloudFile
                         }
                     }
                     if(newTime<0) {
-                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, SongList.getContext().getString(R.string.midi_offset_is_before_start_of_song)));
+                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, SongList.mSongListInstance.getString(R.string.midi_offset_is_before_start_of_song)));
                         newTime=0;
                     }
                     MIDIEvent newMIDIEvent=new MIDIEvent(newTime,midiEvent.mMessages);
@@ -1264,10 +1264,10 @@ public class SongFile extends CachedCloudFile
         defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
         BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
 
-        int bplOffset=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_offset));
-        int bplMin=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_min))+bplOffset;
-        int bplMax=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_max))+bplOffset;
-        int bplDefault=Integer.parseInt(SongList.getContext().getString(R.string.pref_bpl_default))+bplOffset;
+        int bplOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_offset));
+        int bplMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_min))+bplOffset;
+        int bplMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_max))+bplOffset;
+        int bplDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_default))+bplOffset;
 
         try
         {
@@ -1329,7 +1329,7 @@ public class SongFile extends CachedCloudFile
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(tag, SongList.getContext().getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -1340,12 +1340,12 @@ public class SongFile extends CachedCloudFile
                                 File imageFile;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
                                         mappedImage=null;
                                     }
                                 }
@@ -1363,13 +1363,13 @@ public class SongFile extends CachedCloudFile
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,tempAudioFileCollection);
                                 if(mappedTrack==null) {
-                                    errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile), track)));
+                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile), track)));
                                 }
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.getContext().getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
                                         trackFile = null;
                                     }
                                 }

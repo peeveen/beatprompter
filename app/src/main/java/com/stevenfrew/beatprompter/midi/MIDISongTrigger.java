@@ -103,12 +103,12 @@ public class MIDISongTrigger
         MIDIValue channel=new MIDIValue(WILDCARD_VALUE,true);
         if(bits.length>1)
             if(songSelect)
-                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_value));
+                throw new IllegalArgumentException(SongList.mSongListInstance.getString(R.string.song_index_must_have_one_value));
         if((bits.length>4)||(bits.length<1))
             if(songSelect)
-                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_value));
+                throw new IllegalArgumentException(SongList.mSongListInstance.getString(R.string.song_index_must_have_one_value));
             else
-                throw new IllegalArgumentException(SongList.getContext().getString(R.string.song_index_must_have_one_two_or_three_values));
+                throw new IllegalArgumentException(SongList.mSongListInstance.getString(R.string.song_index_must_have_one_two_or_three_values));
 
         if(bits.length>3)
             channel=MIDIMessage.parseChannelValue(bits[3],true);

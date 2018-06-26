@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import java.io.File;
 
 public class CloudCacheFolder extends File {
-    public CloudCacheFolder(File parentFolder,String name)
+    CloudCacheFolder(File parentFolder,String name)
     {
         super(parentFolder,name);
     }

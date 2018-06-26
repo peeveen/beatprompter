@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.midi;
 
-import android.content.Context;
-
+import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.cache.Tag;
@@ -14,7 +13,7 @@ public class MIDIEventOffset {
     public int mAmount;
     public OffsetType mOffsetType;
 
-    public MIDIEventOffset(Context context, String str, Tag tag, ArrayList<FileParseError> errors)
+    public MIDIEventOffset(String str, Tag tag, ArrayList<FileParseError> errors)
     {
         mSourceTag=tag;
         if(str==null)
@@ -40,7 +39,7 @@ public class MIDIEventOffset {
                     ++diff;
                 else if(!bErrorAdded){
                     bErrorAdded=true;
-                    errors.add(new FileParseError(tag, context.getString(R.string.non_beat_characters_in_midi_offset)));
+                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.non_beat_characters_in_midi_offset)));
                 }
             }
             mAmount=diff;
@@ -49,12 +48,12 @@ public class MIDIEventOffset {
         if(Math.abs(mAmount)>16 && mOffsetType==OffsetType.Beats)
         {
             mAmount=(Math.abs(mAmount)/mAmount)*16;
-            errors.add(new FileParseError(tag,context.getString(R.string.max_midi_offset_exceeded)));
+            errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.max_midi_offset_exceeded)));
         }
         else if(Math.abs(mAmount)>10000 && mOffsetType==OffsetType.Milliseconds)
         {
             mAmount=(Math.abs(mAmount)/mAmount)*10000;
-            errors.add(new FileParseError(tag,context.getString(R.string.max_midi_offset_exceeded)));
+            errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.max_midi_offset_exceeded)));
         }
     }
 }

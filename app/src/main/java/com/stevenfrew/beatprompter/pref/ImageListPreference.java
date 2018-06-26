@@ -50,14 +50,14 @@ public class ImageListPreference extends ListPreference {
     public void onBindView(View view) {
         super.onBindView(view);
         ImageView imageView = view.findViewById(R.id.iconImageView);
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
+        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
         String value=sharedPrefs.getString(getKey(),"");
 
-        if(value.equals(SongList.getContext().getString(R.string.googleDriveValue)))
+        if(value.equals(SongList.mSongListInstance.getString(R.string.googleDriveValue)))
             imageView.setImageResource(R.drawable.ic_google_drive);
-        else if(value.equals(SongList.getContext().getString(R.string.dropboxValue)))
+        else if(value.equals(SongList.mSongListInstance.getString(R.string.dropboxValue)))
             imageView.setImageResource(R.drawable.ic_dropbox);
-        else if(value.equals(SongList.getContext().getString(R.string.oneDriveValue)))
+        else if(value.equals(SongList.mSongListInstance.getString(R.string.oneDriveValue)))
             imageView.setImageResource(R.drawable.ic_onedrive);
         else
             imageView.setImageResource(R.drawable.blank_icon);

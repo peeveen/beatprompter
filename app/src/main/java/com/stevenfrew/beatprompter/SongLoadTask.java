@@ -49,11 +49,11 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
                     mTaskEndSemaphore.release();
                     break;
                 case BeatPrompterApplication.SONG_LOAD_LINE_READ:
-                    mProgressTitle=SongList.getContext().getString(R.string.loadingSong);
+                    mProgressTitle=SongList.mSongListInstance.getString(R.string.loadingSong);
                     publishProgress(msg.arg1,msg.arg2);
                     break;
                 case BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED:
-                    mProgressTitle=SongList.getContext().getString(R.string.processingSong);
+                    mProgressTitle=SongList.mSongListInstance.getString(R.string.processingSong);
                     publishProgress(msg.arg1,msg.arg2);
                     break;
                 case BeatPrompterApplication.SONG_LOAD_FAILED:
@@ -105,7 +105,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        mProgressDialog = new ProgressDialog(SongList.getContext());
+        mProgressDialog = new ProgressDialog(SongList.mSongListInstance);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setMessage(mLoadingSongFile.mSongFile.mTitle);
         mProgressDialog.setMax(mLoadingSongFile.mSongFile.mLines);

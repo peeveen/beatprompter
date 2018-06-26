@@ -173,13 +173,13 @@ public class OneDriveCloudStorage extends CloudStorage {
                     if (driveFile != null) {
                         String title = file.mName;
                         Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                        mMessageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
+                        mMessageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.checking), title));
                         String safeFilename = Utils.makeSafeFilename(title);
                         File targetFile = new File(mDownloadFolder, safeFilename);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                        mMessageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
+                        mMessageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), title));
                         // Don't check lastModified ... ALWAYS download.
                         if (mListener.shouldCancel())
                             break;

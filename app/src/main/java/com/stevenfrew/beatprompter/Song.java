@@ -135,16 +135,16 @@ public class Song
         maximumFontSize*=ratioMultiplier;
 
         if (minimumFontSize > maximumFontSize) {
-            mParseErrors.add(new FileParseError(null,SongList.getContext().getString(R.string.fontSizesAllMessedUp)));
+            mParseErrors.add(new FileParseError(null,SongList.mSongListInstance.getString(R.string.fontSizesAllMessedUp)));
             maximumFontSize = minimumFontSize;
         }
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.getContext());
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
 
-        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(SongList.getContext().getString(R.string.pref_highlightColor_key), Color.parseColor(SongList.getContext().getString(R.string.pref_highlightColor_default))));
-        boolean showKey = sharedPref.getBoolean(SongList.getContext().getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(SongList.getContext().getString(R.string.pref_showSongKey_defaultValue)));
+        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_highlightColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_highlightColor_default))));
+        boolean showKey = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_defaultValue)));
         showKey&=((mKey!=null)&&(mKey.length()>0));
-        String showBPMString = sharedPref.getString(SongList.getContext().getString(R.string.pref_showSongBPM_key), SongList.getContext().getString(R.string.pref_showSongBPM_defaultValue));
+        String showBPMString = sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_showSongBPM_key), SongList.mSongListInstance.getString(R.string.pref_showSongBPM_defaultValue));
 
         mBeatCounterHeight=0;
         // Top 5% of screen is used for beat counter
@@ -238,7 +238,7 @@ public class Song
                nonBlankCommentLines.add(commentLine.trim());
         int errors=mParseErrors.size();
         int messages=Math.min(errors,6)+nonBlankCommentLines.size();
-        boolean showBPM=(!SongList.getContext().getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mInitialBPM!=0.0);
+        boolean showBPM=(!SongList.mSongListInstance.getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mInitialBPM!=0.0);
         if(showBPM)
             ++messages;
         if(showKey)
@@ -255,7 +255,7 @@ public class Song
                 ++errorCounter;
                 --errors;
                 if ((errorCounter == 5) && (errors > 0)) {
-                    mStartScreenStrings.add(ScreenString.create(String.format(SongList.getContext().getString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
+                    mStartScreenStrings.add(ScreenString.create(String.format(SongList.mSongListInstance.getString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
                     break;
                 }
             }
@@ -266,15 +266,15 @@ public class Song
             }
             if(showKey)
             {
-                String keyString=SongList.getContext().getString(R.string.keyPrefix)+": "+mKey;
+                String keyString=SongList.mSongListInstance.getString(R.string.keyPrefix)+": "+mKey;
                 mStartScreenStrings.add(ScreenString.create(keyString,paint,nativeScreenWidth,spacePerMessageLine,Color.CYAN,notBoldFont,false));
             }
             if(showBPM)
             {
-                boolean rounded=SongList.getContext().getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
+                boolean rounded=SongList.mSongListInstance.getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
                 if(mInitialBPM==(int)mInitialBPM)
                     rounded=true;
-                String bpmString=SongList.getContext().getString(R.string.bpmPrefix)+": ";
+                String bpmString=SongList.mSongListInstance.getString(R.string.bpmPrefix)+": ";
                 if(rounded)
                     bpmString+=(int)Math.round(mInitialBPM);
                 else
@@ -285,7 +285,7 @@ public class Song
         if(cancelEvent.isCancelled())
             return;
         if(mScrollingMode!=ScrollingMode.Manual)
-            mStartScreenStrings.add(ScreenString.create(SongList.getContext().getString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
+            mStartScreenStrings.add(ScreenString.create(SongList.mSongListInstance.getString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
         mTotalStartScreenTextHeight=0;
         for(ScreenString ss: mStartScreenStrings)
             mTotalStartScreenTextHeight+=ss.mHeight;

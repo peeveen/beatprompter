@@ -9,10 +9,6 @@ import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.File;
-
-import java.util.Date;
-
 public class AudioFile extends CachedCloudFile
 {
     public final static String AUDIOFILE_ELEMENT_TAG_NAME="audiofile";
@@ -20,12 +16,6 @@ public class AudioFile extends CachedCloudFile
     AudioFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
         super(result);
-        verifyAudioFile();
-    }
-
-    public AudioFile(File file,String id,String name,Date lastModified,String subfolder) throws InvalidBeatPrompterFileException
-    {
-        super(file,id,name,lastModified,subfolder);
         verifyAudioFile();
     }
 
@@ -52,7 +42,7 @@ public class AudioFile extends CachedCloudFile
         }
         catch(Exception e)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.getContext().getString(R.string.notAnAudioFile), mName));
+            throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.notAnAudioFile), mName));
         }
     }
 }

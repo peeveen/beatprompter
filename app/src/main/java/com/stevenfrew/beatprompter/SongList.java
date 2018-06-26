@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -22,7 +22,6 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -60,6 +59,7 @@ import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.cache.ImageFile;
 import com.stevenfrew.beatprompter.cache.SetListFile;
 import com.stevenfrew.beatprompter.cache.SongFile;
+import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
@@ -94,11 +94,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -119,16 +119,17 @@ import javax.xml.transform.stream.StreamResult;
 import static android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK;
 
 public class SongList extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+    public static List<CloudDownloadResult> mDefaultCloudDownloads=new ArrayList<>();
     static boolean mFullVersionUnlocked = true;
     public static CachedCloudFileCollection mCachedCloudFiles = new CachedCloudFileCollection();
-    public static ArrayList<MIDIAlias> mDefaultAliases;
 
     CachedCloudFile mFileToUpdate = null;
     boolean mFetchDependenciesToo = false;
 
     private static final String TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt";
+    private static final String DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt";
+
     private boolean mMidiUsbRegistered = false;
-    static Context mContext;
     boolean mSongListActive = false;
     public static boolean mSongEndedNaturally = false;
     Menu mMenu = null;
@@ -153,92 +154,29 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     SharedPreferences.OnSharedPreferenceChangeListener mStorageLocationPrefListener = (sharedPreferences, key) -> {
         if((key.equals(getString(R.string.pref_storageLocation_key)))||(key.equals(getString(R.string.pref_useExternalStorage_key))))
-            setBeatPrompterFolder();
+            initialiseLocalStorage();
         else if(key.equals(getString(R.string.pref_largePrintList_key)))
             buildList();
         else if(key.equals(getString(R.string.pref_midiIncomingChannels_key)))
             setIncomingMIDIChannels();
     };
 
-    // Fake cloud item for temporary set list.
+    // Fake cloud items for temporary set list and default midi aliases
     public static File mTemporarySetListFile;
-    public static CloudFileInfo mTemporarySetListCloudFileInfo=new CloudFileInfo("idBeatPrompterTemporarySetList","BeatPrompterTemporarySetList",new Date(),"");
+    public static File mDefaultMidiAliasesFile;
 
     UsbManager mUsbManager;
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     PendingIntent mPermissionIntent;
 
     // TODO: replace with class
-    public Handler mSongListHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case BeatPrompterApplication.BLUETOOTH_MESSAGE_RECEIVED:
-                    processBluetoothMessage((BluetoothMessage) msg.obj);
-                    break;
-                case BeatPrompterApplication.CLIENT_CONNECTED:
-                    Toast.makeText(SongList.this, msg.obj + " " + getString(R.string.hasConnected), Toast.LENGTH_LONG).show();
-                    updateBluetoothIcon();
-                    break;
-                case BeatPrompterApplication.CLIENT_DISCONNECTED:
-                    Toast.makeText(SongList.this, msg.obj + " " + getString(R.string.hasDisconnected), Toast.LENGTH_LONG).show();
-                    updateBluetoothIcon();
-                    break;
-                case BeatPrompterApplication.SERVER_DISCONNECTED:
-                    Toast.makeText(SongList.this, getString(R.string.disconnectedFromBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
-                    updateBluetoothIcon();
-                    break;
-                case BeatPrompterApplication.SERVER_CONNECTED:
-                    Toast.makeText(SongList.this, getString(R.string.connectedToBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
-                    updateBluetoothIcon();
-                    break;
-                case BeatPrompterApplication.CLOUD_SYNC_ERROR:
-                    AlertDialog.Builder adb = new AlertDialog.Builder(SongList.this);
-                    adb.setMessage(String.format(getString(R.string.cloudSyncErrorMessage), (String) msg.obj));
-                    adb.setTitle(getString(R.string.cloudSyncErrorTitle));
-                    adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-                    AlertDialog ad = adb.create();
-                    ad.setCanceledOnTouchOutside(true);
-                    ad.show();
-//                    Toast.makeText(SongList.this,msg.obj.toString(),Toast.LENGTH_LONG).show();
-                    break;
-                case BeatPrompterApplication.SONG_LOAD_FAILED:
-                    Toast.makeText(SongList.this, msg.obj.toString(), Toast.LENGTH_LONG).show();
-                    break;
-                case BeatPrompterApplication.MIDI_LSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
-                    break;
-                case BeatPrompterApplication.MIDI_MSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
-                    break;
-                case BeatPrompterApplication.MIDI_PROGRAM_CHANGE:
-                    startSongViaMidiProgramChange(BeatPrompterApplication.mMidiBankMSBs[msg.arg1], BeatPrompterApplication.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
-                    break;
-                case BeatPrompterApplication.MIDI_SONG_SELECT:
-                    startSongViaMidiSongSelect((byte) msg.arg1);
-                    break;
-                case BeatPrompterApplication.SONG_LOAD_COMPLETED:
-                    startSongActivity();
-                    break;
-                case BeatPrompterApplication.CLEAR_CACHE:
-                    clearCache();
-                    break;
-                case BeatPrompterApplication.CACHE_UPDATED:
-                    CachedCloudFileCollection cache = (CachedCloudFileCollection) msg.obj;
-                    onCacheUpdated(cache);
-                    break;
-            }
-        }
-    };
+    public Handler mSongListMessageHandler;
 
     static SongLoaderTask mSongLoaderTask = null;
 
     MIDIUSBInTask mMidiUsbInTask = null;
     MIDIUSBOutTask mMidiUsbOutTask = new MIDIUSBOutTask();
-    MIDIInTask mMidiInTask = new MIDIInTask(mSongListHandler);
+    MIDIInTask mMidiInTask = new MIDIInTask(mSongListMessageHandler);
     MIDISongDisplayInTask mMidiSongDisplayInTask = new MIDISongDisplayInTask();
     Thread mMidiUsbInTaskThread = null;
     Thread mMidiUsbOutTaskThread = new Thread(mMidiUsbOutTask);
@@ -247,8 +185,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     Thread mSongLoaderTaskThread = null;
 
     final static private String FULL_VERSION_SKU_NAME = "full_version";
-
-    private final static String DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt";
 
     private static UsbInterface getDeviceMidiInterface(UsbDevice device) {
         int interfacecount = device.getInterfaceCount();
@@ -463,33 +399,34 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void startSong(LoadingSongFile lsf) {
         synchronized (SongLoadTask.mSongLoadSyncObject) {
-            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf, mSongListHandler);
+            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf, mSongListMessageHandler);
         }
         SongLoadTask.mSongLoadTask.loadSong((BeatPrompterApplication) getApplicationContext());
     }
 
     void clearTemporarySetList() {
-        if (mTemporarySetListFile.exists())
-            mTemporarySetListFile.delete();
         if(mTemporarySetListFilter!=null)
             mTemporarySetListFilter.clear();
-        createTemporarySetListFile();
+        initialiseTemporarySetListFile(true);
         buildFilterList();
     }
 
     void addToTemporarySet(SongFile song) {
         mTemporarySetListFilter.addSong(song);
         try {
-            createTemporarySetListFile();
+            initialiseTemporarySetListFile(false);
             Utils.appendToTextFile(mTemporarySetListFile, song.mTitle);
         } catch (IOException ioe) {
             Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    private void createTemporarySetListFile() {
+    private void initialiseTemporarySetListFile(boolean deleteExisting) {
         try {
-            if (!mTemporarySetListFile.exists())
+            if (deleteExisting)
+                if(!mTemporarySetListFile.delete())
+                    Log.d(BeatPrompterApplication.TAG,"Could not delete temporary set list file.");
+            if(!mTemporarySetListFile.exists())
                 Utils.appendToTextFile(mTemporarySetListFile, String.format("{set:%1$s}", getString(R.string.temporary)));
         } catch (IOException ioe) {
             Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
@@ -557,6 +494,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                         // Get the layout inflater
                         LayoutInflater inflater = activity.getLayoutInflater();
 
+                        @SuppressLint("InflateParams")
                         View view = inflater.inflate(R.layout.songlist_long_press_dialog, null);
 
                         final Spinner audioSpinner =  view
@@ -686,6 +624,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
+        @SuppressLint("InflateParams")
         View view = inflater.inflate(R.layout.parse_errors_dialog, null);
         builder.setView(view);
         TextView tv=view.findViewById(R.id.errors);
@@ -711,17 +650,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return true;
     }
 
-    public static Context getContext()
-    {
-        return mContext;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mContext=this;
+        mSongListMessageHandler=new SongListMessageHandler(this);
         mSongListInstance=this;
+        initialiseLocalStorage();
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.GET_ACCOUNTS)
@@ -732,9 +667,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
         }
 
-        parseDefaultAliasFile();
-
-        ((BeatPrompterApplication)this.getApplicationContext()).setSongListHandler(mSongListHandler);
+        ((BeatPrompterApplication)this.getApplicationContext()).setSongListHandler(mSongListMessageHandler);
 
         mMidiInTaskThread.start();
         Task.resumeTask(mMidiInTask);
@@ -772,8 +705,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         FontSizePreference.FONT_SIZE_MAX=Utils.MAXIMUM_FONT_SIZE-Utils.MINIMUM_FONT_SIZE;
         FontSizePreference.FONT_SIZE_MIN=0;
         FontSizePreference.FONT_SIZE_OFFSET=Utils.MINIMUM_FONT_SIZE;
-
-        setBeatPrompterFolder();
 
         setContentView(R.layout.activity_song_list);
 
@@ -815,7 +746,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    void setBeatPrompterFolder()
+    void initialiseLocalStorage()
     {
         File previousSongFilesFolder=mBeatPrompterSongFilesFolder;
 
@@ -846,7 +777,16 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mBeatPrompterSongFilesFolder=mBeatPrompterDataFolder;
 
         mTemporarySetListFile=new File(mBeatPrompterDataFolder,TEMPORARY_SETLIST_FILENAME);
-        createTemporarySetListFile();
+        mDefaultMidiAliasesFile=new File(mBeatPrompterDataFolder,DEFAULT_MIDI_ALIASES_FILENAME);
+        initialiseTemporarySetListFile(false);
+        try {
+            copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, mDefaultMidiAliasesFile);
+        } catch (IOException ioe) {
+            Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        mDefaultCloudDownloads.clear();
+        mDefaultCloudDownloads.add(new CloudDownloadResult(new CloudFileInfo("idBeatPrompterTemporarySetList","BeatPrompterTemporarySetList",new Date(),""),mTemporarySetListFile));
+        mDefaultCloudDownloads.add(new CloudDownloadResult(new CloudFileInfo("idBeatPrompterDefaultMidiAliases",getString(R.string.default_alias_set_name),new Date(),""),mDefaultMidiAliasesFile));
 
         if(previousSongFilesFolder!=null)
             if(!previousSongFilesFolder.equals(mBeatPrompterSongFilesFolder))
@@ -1062,7 +1002,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if ((cloudPath == null) || (cloudPath.length() == 0))
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
         else {
-            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
+            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListMessageHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
             cdt.execute();
         }
     }
@@ -1170,7 +1110,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
             for (int f = 0; f < aliasFiles.getLength(); ++f) {
                 Node n = aliasFiles.item(f);
-                MIDIAliasFile midiAliasCachedCloudFile = new MIDIAliasFile((Element)n,mDefaultAliases);
+                MIDIAliasFile midiAliasCachedCloudFile = new MIDIAliasFile((Element)n);
                 mCachedCloudFiles.add(midiAliasCachedCloudFile);
             }
             buildFilterList();
@@ -1415,8 +1355,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
                 if(pendingIntent!=null)
                     startIntentSenderForResult(pendingIntent.getIntentSender(),
-                            GOOGLE_PLAY_TRANSACTION_FINISHED, new Intent(), Integer.valueOf(0), Integer.valueOf(0),
-                            Integer.valueOf(0));
+                            GOOGLE_PLAY_TRANSACTION_FINISHED, new Intent(), 0,0,0);
             }
         }
         catch(Exception e)
@@ -1471,6 +1410,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
+        @SuppressLint("InflateParams")
         View view = inflater.inflate(R.layout.about_dialog, null);
         builder.setView(view);
         AlertDialog customAD = builder.create();
@@ -1561,46 +1501,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     static ArrayList<MIDIAlias> getMIDIAliases()
     {
-        ArrayList<MIDIAlias> aliases=new ArrayList<>(mDefaultAliases);
-        aliases.addAll(mDefaultAliases);
+        ArrayList<MIDIAlias> aliases=new ArrayList<>();
         for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())
             aliases.addAll(maf.getAliases());
         return aliases;
-    }
-
-    void parseDefaultAliasFile()
-    {
-        mDefaultAliases=new ArrayList<>();
-        InputStream inputStream =null;
-        try
-        {
-            inputStream = getAssets().open(DEFAULT_MIDI_ALIASES_FILENAME);
-            if(inputStream!=null)
-                try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                    com.stevenfrew.beatprompter.midi.MIDIAliasFile maf = new com.stevenfrew.beatprompter.midi.MIDIAliasFile(br,getString(R.string.default_alias_set_name));
-                    mDefaultAliases = maf.mAliases;
-                }
-                catch(Exception e)
-                {
-                    Log.d(BeatPrompterApplication.TAG, "Error reading default MIDI aliases",e);
-                }
-        }
-        catch(IOException ioe)
-        {
-            Toast.makeText(this,ioe.getMessage(),Toast.LENGTH_LONG).show();
-        }
-        finally
-        {
-            try {
-                if(inputStream!=null)
-                    inputStream.close();
-            }
-            catch(IOException e)
-            {
-                Log.d(BeatPrompterApplication.TAG, "Error closing input stream",e);
-            }
-        }
     }
 
     boolean isFirstRun()
@@ -1733,6 +1637,32 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             Log.e(BeatPrompterApplication.TAG,ioe.getMessage());
         }
-
     }
+
+    public static void copyAssetsFileToLocalFolder(String filename,File destination) throws IOException
+    {
+        InputStream inputStream=null;
+        OutputStream outputStream=null;
+        try {
+            inputStream = SongList.mSongListInstance.getAssets().open(filename);
+            if (inputStream != null) {
+                outputStream = new FileOutputStream(destination);
+                Utils.streamToStream(inputStream,outputStream);
+            }
+        }
+        finally
+        {
+            try {
+                if(inputStream!=null)
+                    inputStream.close();
+            }
+            finally
+            {
+                if(outputStream!=null)
+                    outputStream.close();
+            }
+        }
+    }
+
+
 }

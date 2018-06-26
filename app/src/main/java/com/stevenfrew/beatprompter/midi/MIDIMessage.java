@@ -82,7 +82,7 @@ public class MIDIMessage
         else
             returnVal=Integer.parseInt(str);
         if((isChannel)&&((returnVal < 1) || (returnVal > 16)))
-            throw new IllegalArgumentException(SongList.getContext().getString(R.string.invalid_channel_value));
+            throw new IllegalArgumentException(SongList.mSongListInstance.getString(R.string.invalid_channel_value));
 /*        else if(returnVal<0||returnVal>127)
             throw new IllegalArgumentException(context.getString(R.string.value_must_be_zero_to_onehundredtwentyseven));*/
         if(isChannel)

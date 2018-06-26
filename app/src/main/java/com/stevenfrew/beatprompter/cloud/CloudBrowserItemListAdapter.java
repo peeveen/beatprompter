@@ -17,12 +17,12 @@ import java.util.List;
 class CloudBrowserItemListAdapter extends ArrayAdapter<CloudItemInfo> {
 
     CloudBrowserItemListAdapter(List<CloudItemInfo> items) {
-        super(SongList.getContext(), -1, items);
+        super(SongList.mSongListInstance, -1, items);
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.getContext()
+        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
         TextView textView =  rowView.findViewById(R.id.file_or_folder_name);

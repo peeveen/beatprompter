@@ -26,7 +26,6 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
-import com.stevenfrew.beatprompter.cloud.CloudCacheFolder;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
@@ -263,7 +262,7 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                         String safeFilename = Utils.makeSafeFilename(cloudFile.mID);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                        mMessageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
+                        mMessageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), title));
                         if (mListener.shouldCancel())
                             break;
                         File localFile = downloadGoogleDriveFile(file, safeFilename);

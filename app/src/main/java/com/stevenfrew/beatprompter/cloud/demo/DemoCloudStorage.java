@@ -17,8 +17,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.List;
@@ -64,12 +62,12 @@ public class DemoCloudStorage extends CloudStorage {
         for(CloudFileInfo cloudFile:filesToRefresh)
         {
             if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_TEXT_ID)) {
-                messageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), DEMO_SONG_FILENAME));
+                messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), DEMO_SONG_FILENAME));
                 itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongTextFile()));
             }
             else if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_AUDIO_ID))
                 try {
-                    messageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), DEMO_SONG_AUDIO_FILENAME));
+                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), DEMO_SONG_AUDIO_FILENAME));
                     itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongAudioFile()));
                 }
                 catch(IOException ioe)
@@ -117,41 +115,10 @@ public class DemoCloudStorage extends CloudStorage {
         return destinationSongFile;
     }
 
-    private void copyAssetsFileToDemoFolder(String filename,File destination) throws IOException
-    {
-        InputStream inputStream=null;
-        OutputStream outputStream=null;
-        try {
-            inputStream = SongList.mSongListInstance.getAssets().open(filename);
-            if (inputStream != null) {
-                outputStream = new FileOutputStream(destination);
-                int n;
-                byte[] buffer = new byte[1024];
-                while((n = inputStream.read(buffer)) > -1) {
-                    outputStream.write(buffer, 0, n);
-                }
-                outputStream.close();
-                inputStream.close();
-            }
-        }
-        finally
-        {
-            try {
-                if(inputStream!=null)
-                    inputStream.close();
-            }
-            finally
-            {
-                if(outputStream!=null)
-                    outputStream.close();
-            }
-        }
-    }
-
     private File createDemoSongAudioFile() throws IOException
     {
         File destinationAudioFile = new File(mCloudCacheFolder, DEMO_SONG_AUDIO_FILENAME);
-        copyAssetsFileToDemoFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile);
+        SongList.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile);
         return destinationAudioFile;
     }
 }

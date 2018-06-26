@@ -77,13 +77,13 @@ public class DropboxCloudStorage extends CloudStorage {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = file.mName;
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                    messageSource.onNext(String.format(SongList.getContext().getString(R.string.checking), title));
+                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.checking), title));
                     String safeFilename = Utils.makeSafeFilename(title);
                     File targetFile = new File(mCloudCacheFolder, safeFilename);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                    messageSource.onNext(String.format(SongList.getContext().getString(R.string.downloading), title));
+                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), title));
                     // Don't check lastModified ... ALWAYS download.
                     if (listener.shouldCancel())
                         break;
@@ -199,7 +199,7 @@ public class DropboxCloudStorage extends CloudStorage {
             // Did we authenticate last time it failed?
             storedAccessToken = Auth.getOAuth2Token();
             if (storedAccessToken != null)
-                sharedPrefs.edit().putString(SongList.getContext().getString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
+                sharedPrefs.edit().putString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
         }
         if (storedAccessToken == null) {
             action.onAuthenticationRequired();

@@ -14,10 +14,10 @@ public class MIDIAliasFile extends CachedCloudFile
 
     private com.stevenfrew.beatprompter.midi.MIDIAliasFile mAliasFile;
 
-    MIDIAliasFile(CloudDownloadResult result, ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    MIDIAliasFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
         super(result.mDownloadedFile,result.mCloudFileInfo);
-        mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID,defaultAliases);
+        mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID);
     }
 
     @Override
@@ -28,10 +28,10 @@ public class MIDIAliasFile extends CachedCloudFile
         parent.appendChild(aliasFileElement);
     }
 
-    public MIDIAliasFile(Element element, ArrayList<MIDIAlias> defaultAliases) throws InvalidBeatPrompterFileException
+    public MIDIAliasFile(Element element) throws InvalidBeatPrompterFileException
     {
         super(element);
-        mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID,defaultAliases);
+        mAliasFile=new com.stevenfrew.beatprompter.midi.MIDIAliasFile(mFile,mID);
     }
 
     public ArrayList<FileParseError> getErrors()
