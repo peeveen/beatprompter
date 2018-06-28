@@ -600,7 +600,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void onMIDIAliasListLongClick(int position)
     {
-        final MIDIAliasFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
+        final MIDIAliasFile maf=removeDefaultAliasFile(mCachedCloudFiles.getMIDIAliasFiles()).get(position);
         final boolean showErrors=maf.mErrors.size()>0;
 
         int arrayID=R.array.midi_alias_options_array;
@@ -1054,10 +1054,19 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         mPlaylist.sortByKey();
     }
 
+    private static List<MIDIAliasFile> removeDefaultAliasFile(List<MIDIAliasFile> fileList)
+    {
+        List<MIDIAliasFile> nonDefaults=new ArrayList<>();
+        for(MIDIAliasFile file:fileList)
+            if(!file.mFile.equals(SongList.mDefaultMidiAliasesFile))
+                nonDefaults.add(file);
+        return nonDefaults;
+    }
+
     private void buildList()
     {
         if((mSelectedFilter!=null)&&(mSelectedFilter instanceof MIDIAliasFilesFilter))
-            mListAdapter=new MIDIAliasListAdapter(mCachedCloudFiles.getMIDIAliasFiles());
+            mListAdapter=new MIDIAliasListAdapter(removeDefaultAliasFile(mCachedCloudFiles.getMIDIAliasFiles()));
         else
             mListAdapter = new SongListAdapter(mPlaylist.getNodesAsArray());
 

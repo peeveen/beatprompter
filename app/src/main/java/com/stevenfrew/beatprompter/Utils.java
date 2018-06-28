@@ -222,7 +222,16 @@ public class Utils
     }
     public static byte parseHexByte(String str)
     {
-        return Byte.parseByte(stripHexSignifiers(str),16);
+        return parseByte(stripHexSignifiers(str),16);
+    }
+    public static byte parseByte(String str)
+    {
+        return parseByte(str,10);
+    }
+    private static byte parseByte(String str,int radix)
+    {
+        int val=Integer.parseInt(str,radix);
+        return (byte)(val&0x000000FF);
     }
     public static boolean looksLikeHex(String str) {
         if (str == null)

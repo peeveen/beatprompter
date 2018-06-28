@@ -52,15 +52,11 @@ public abstract class Value {
                 } catch (NumberFormatException nfe) {
                     errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_argument_index)));
                 }
-            } else if (Utils.looksLikeHex(strVal)) {
-                try {
-                    return new CommandValue(Utils.parseHexByte(strVal));
-                } catch (NumberFormatException nfe) {
-                    errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_byte_value)));
-                }
             } else if (strVal.startsWith("#")) {
+                if (argIndex < argCount - 1)
+                    errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.channel_must_be_last_parameter)));
                 try {
-                    byte channel=Byte.parseByte(strVal.substring(1));
+                    byte channel=Utils.parseByte(strVal.substring(1));
                     if((channel<1)||(channel>16))
                         errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.invalid_channel_value)));
                     return new ChannelValue(channel);
@@ -68,15 +64,13 @@ public abstract class Value {
                     errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_byte_value)));
                 }
             } else if (strVal.contains("_")) {
-                if (argIndex < argCount - 1)
-                    errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.channel_must_be_last_parameter)));
                 if(strVal.indexOf("_")!=strVal.lastIndexOf("_"))
                     errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.multiple_underscores_in_midi_value)));
                 strVal = strVal.replace('_', '0');
                 try
                 {
                     if(Utils.looksLikeHex(strVal)) {
-                        byte channelValue = Byte.parseByte(Utils.stripHexSignifiers(strVal), 16);
+                        byte channelValue = Utils.parseHexByte(strVal);
                         if((channelValue&0x0F)!=0)
                             errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.merge_with_channel_non_zero_lower_nibble)));
                         else
@@ -87,6 +81,18 @@ public abstract class Value {
                 }
                 catch(NumberFormatException nfe)
                 {
+                    errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_byte_value)));
+                }
+            } else if (Utils.looksLikeHex(strVal)) {
+                try {
+                    return new CommandValue(Utils.parseHexByte(strVal));
+                } catch (NumberFormatException nfe) {
+                    errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_byte_value)));
+                }
+            } else {
+                try {
+                    return new CommandValue(Utils.parseByte(strVal));
+                } catch (NumberFormatException nfe) {
                     errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_byte_value)));
                 }
             }

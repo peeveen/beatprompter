@@ -13,18 +13,20 @@ import android.widget.TextView;
 
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
+import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class MIDIAliasListAdapter extends ArrayAdapter<com.stevenfrew.beatprompter.cache.MIDIAliasFile> {
-    private final List<com.stevenfrew.beatprompter.cache.MIDIAliasFile> values;
+public class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasFile> {
+    private final List<MIDIAliasFile> values;
     private boolean mLargePrint;
 
-    public MIDIAliasListAdapter(List<com.stevenfrew.beatprompter.cache.MIDIAliasFile> fileList) {
+    public MIDIAliasListAdapter(List<MIDIAliasFile> fileList) {
         super(SongList.mSongListInstance,-1, fileList);
         SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
         mLargePrint= sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_defaultValue)));
-        this.values = fileList;
+        values = fileList;
     }
 
     @Override @NonNull
