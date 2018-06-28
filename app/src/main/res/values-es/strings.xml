@@ -241,7 +241,7 @@
     <string name="song_index_must_have_one_value">Las etiquetas de disparo de selección de canción deben contener sólo un valor.</string>
     <string name="temporary">Temporal</string>
     <string name="underscore_in_decimal_value">Los valores que contienen subrayados deben estar en hexadecimal.</string>
-    <string name="unknown_midi_directive">La etiqueta no coincide con ningún comando MIDI y alias conocidos.</string>
+    <string name="unknown_midi_directive">La etiqueta "%1$s" no coincide con ningún comando MIDI y alias conocidos.</string>
     <string name="value_must_be_zero_to_onehundredtwentyseven">Los parámetros MIDI deben ser un valor entre 0 y 127.</string>
     <string name="welcome_to_beatprompter">Bienvenido a BeatPrompter</string>
     <string name="welcome_to_beatprompter_description">BeatPrompter es una aplicación de prontuario de letras y acordes que pone el énfasis en el tiempo y la legibilidad.</string>

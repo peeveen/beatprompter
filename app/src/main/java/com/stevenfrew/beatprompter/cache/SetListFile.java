@@ -64,13 +64,13 @@ public class SetListFile extends CachedCloudFile
             }
 
             if((setTitle==null)||(setTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list), mID));
+                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list, mID));
             else
                 mSetTitle=setTitle;
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list), mID));
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list, mID));
         }
         finally
         {

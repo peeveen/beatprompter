@@ -241,7 +241,7 @@
     <string name="song_index_must_have_one_value">Les variables de déclenchement de sélection de morceau ne doivent contenir qu\'une seule valeur.</string>
     <string name="temporary">Temporaire</string>
     <string name="underscore_in_decimal_value">Les valeurs qui contiennent des caractères de soulignement doivent être en hexadécimal.</string>
-    <string name="unknown_midi_directive">Tag ne correspond à aucune commande MIDI et alias connus.</string>
+    <string name="unknown_midi_directive">Tag "%1$s" ne correspond à aucune commande MIDI et alias connus.</string>
     <string name="value_must_be_zero_to_onehundredtwentyseven">Les paramètres MIDI doivent être compris entre 0 et 127.</string>
     <string name="welcome_to_beatprompter">Bienvenue sur BeatPrompter</string>
     <string name="welcome_to_beatprompter_description">BeatPrompter est un paroles et des accords application prompter qui met l\'accent sur le calendrier et la lisibilité.</string>

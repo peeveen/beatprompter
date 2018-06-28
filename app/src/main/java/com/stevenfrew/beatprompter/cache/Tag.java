@@ -96,14 +96,10 @@ public class Tag
         }
         String[] bits=(val.length()==0?new String[0]:val.split(","));
         Value[] paramBytes=new Value[bits.length];
-        Exception parseValueException=null;
-        try {
-            for (int f = 0; f < bits.length; ++f)
-                paramBytes[f] = Value.parseValue(bits[f].trim());
-        }
-        catch(Exception e)
-        {
-            parseValueException=e;
+        for (int f = 0; f < bits.length; ++f) {
+            Value v = Value.parseValue(bits[f].trim());
+            if(v!=null)
+                paramBytes[f]=v;
         }
         boolean lastParamIsChannel=false;
         byte channel=defaultChannel;
@@ -124,31 +120,20 @@ public class Tag
             byte[] resolvedBytes = new byte[paramBytes.length];
             for (int f = 0; f < paramBytes.length; ++f)
                 resolvedBytes[f] = paramBytes[f].resolve();
-            // TODO: MIDI items should now be stored in memory with references to other aliases. Missing aliases will be noticed here.
             for (Alias alias : aliases)
                 if (alias.mName.equalsIgnoreCase(tag.mName)) {
-                    outArray = alias.resolve(aliases, resolvedBytes, channel);
-                    break;
+                    return new MIDIEvent(time,alias.resolve(aliases, resolvedBytes, channel),eventOffset);
                 }
-            if (tag.mName.equals("midi_send")) {
-                OutgoingMessage customMidiMessage = new OutgoingMessage(resolvedBytes);
-                outArray = new ArrayList<>();
-                outArray.add(customMidiMessage);
-            }
+            if (tag.mName.equals("midi_send"))
+                return new MIDIEvent(time,new OutgoingMessage(resolvedBytes),eventOffset);
+            parseErrors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.unknown_midi_directive, tag.mName)));
         }
         catch(ResolutionException re)
         {
             parseErrors.add(new FileParseError(tag.mLineNumber,re.getMessage()));
         }
-        if((outArray==null)||(outArray.isEmpty())) {
-            parseErrors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.unknown_midi_directive)));
-            return null;
-        }
-        if(parseValueException!=null) {
-            parseErrors.add(new FileParseError(tag, parseValueException.getMessage()));
-            return null;
-        }
-        return new MIDIEvent(time,outArray,eventOffset);
+        return null;
+
     }
 
     public static int getIntegerValueFromTag(Tag tag,int min,int max,int defolt, ArrayList<FileParseError> parseErrors)
@@ -159,18 +144,18 @@ public class Tag
             val = Integer.parseInt(tag.mValue);
             if (val<min)
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.intValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.intValueTooLow,min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.intValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.intValueTooHigh,max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.intValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.intValueUnreadable,tag.mValue,defolt)));
             val=defolt;
         }
         return val;
@@ -184,18 +169,18 @@ public class Tag
             val= Utils.parseDuration(tag.mValue,trackLengthAllowed);
             if ((val<min)&&(val!=Utils.TRACK_AUDIO_LENGTH_VALUE))
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.intValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.intValueTooLow,min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.intValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.intValueTooHigh,max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.durationValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.durationValueUnreadable,tag.mValue,defolt)));
             val=defolt;
         }
         return val;
@@ -209,18 +194,18 @@ public class Tag
             val = Double.parseDouble(tag.mValue);
             if (val<min)
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.doubleValueTooLow),min,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.doubleValueTooLow,min,val)));
                 val = min;
             }
             else if(val>max)
             {
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.doubleValueTooHigh),max,val)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.doubleValueTooHigh,max,val)));
                 val = max;
             }
         }
         catch(NumberFormatException nfe)
         {
-            parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.doubleValueUnreadable),tag.mValue,defolt)));
+            parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.doubleValueUnreadable,tag.mValue,defolt)));
             val=defolt;
         }
         return val;
@@ -242,7 +227,7 @@ public class Tag
             {
                 String defaultString=("000000"+Integer.toHexString(defolt));
                 defaultString=defaultString.substring(defaultString.length()-6);
-                parseErrors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.colorValueUnreadable),tag.mValue,defaultString)));
+                parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.colorValueUnreadable,tag.mValue,defaultString)));
             }
         }
         return defolt;

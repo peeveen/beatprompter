@@ -241,7 +241,7 @@
     <string name="song_index_must_have_one_value">As tags de trigger de seleção de música devem conter apenas um valor.</string>
     <string name="temporary">Temporário</string>
     <string name="underscore_in_decimal_value">Os valores que contêm sublinhados devem estar em hexadecimal.</string>
-    <string name="unknown_midi_directive">A tag não corresponde a quaisquer comandos e aliases MIDI conhecidos.</string>
+    <string name="unknown_midi_directive">A tag "%1$s" não corresponde a quaisquer comandos e aliases MIDI conhecidos.</string>
     <string name="value_must_be_zero_to_onehundredtwentyseven">Os parâmetros MIDI devem ser um valor entre 0 e 127.</string>
     <string name="welcome_to_beatprompter">Bem-vindo ao BeatPrompter</string>
     <string name="welcome_to_beatprompter_description">BeatPrompter é um aplicativo prompter letras e acordes que coloca a ênfase no timing e legibilidade.</string>

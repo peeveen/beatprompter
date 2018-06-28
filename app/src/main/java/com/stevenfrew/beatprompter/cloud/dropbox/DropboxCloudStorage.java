@@ -77,13 +77,13 @@ public class DropboxCloudStorage extends CloudStorage {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = file.mName;
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.checking), title));
+                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.checking, title));
                     String safeFilename = Utils.makeSafeFilename(title);
                     File targetFile = new File(mCloudCacheFolder, safeFilename);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), title));
+                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, title));
                     // Don't check lastModified ... ALWAYS download.
                     if (listener.shouldCancel())
                         break;

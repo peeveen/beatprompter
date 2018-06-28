@@ -240,7 +240,7 @@
     <string name="song_index_must_have_one_value">Songauswahl-Trigger-Tags müssen nur einen Wert enthalten.</string>
     <string name="temporary">Vorübergehend</string>
     <string name="underscore_in_decimal_value">Werte, die Unterstriche enthalten, müssen hexadezimal sein.</string>
-    <string name="unknown_midi_directive">Tag stimmt nicht mit bekannten MIDI-Befehlen und Aliasen überein.</string>
+    <string name="unknown_midi_directive">Tag "%1$s" stimmt nicht mit bekannten MIDI-Befehlen und Aliasen überein.</string>
     <string name="value_must_be_zero_to_onehundredtwentyseven">MIDI-Parameter müssen zwischen 0 und 127 liegen.</string>
     <string name="welcome_to_beatprompter">Willkommen bei BeatPrompter</string>
     <string name="welcome_to_beatprompter_description">BeatPrompter ist eine Lyrics und Akkorde prompter App, die den Schwerpunkt auf Timing und Lesbarkeit setzt.</string>

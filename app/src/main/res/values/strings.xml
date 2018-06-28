@@ -36,7 +36,7 @@
     <string name="midi_alias_message_contains_more_than_two_parts">MIDI alias message found with more than two parts.</string>
     <string name="midi_alias_name_contains_more_than_two_parts">A "midi_alias" tag contains more than two parts.</string>
     <string name="midi_message_not_understood">Can\'t parse this MIDI message.</string>
-    <string name="unknown_midi_directive">Tag does not match any known MIDI commands or aliases.</string>
+    <string name="unknown_midi_directive">Tag "%1$s" does not match any known MIDI commands or aliases.</string>
     <string name="unknown_image_scaling_mode">Unknown image scaling mode, defaulting to stretch mode.</string>
     <string name="multiple_images_in_one_line">Multiple images found in one line. Only using the first one.</string>
     <string name="text_found_with_image">Text was found on a line where an image was specified. Ignoring text.</string>

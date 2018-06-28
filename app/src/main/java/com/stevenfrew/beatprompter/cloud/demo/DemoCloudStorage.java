@@ -62,12 +62,12 @@ public class DemoCloudStorage extends CloudStorage {
         for(CloudFileInfo cloudFile:filesToRefresh)
         {
             if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_TEXT_ID)) {
-                messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), DEMO_SONG_FILENAME));
+                messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, DEMO_SONG_FILENAME));
                 itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongTextFile()));
             }
             else if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_AUDIO_ID))
                 try {
-                    messageSource.onNext(String.format(SongList.mSongListInstance.getString(R.string.downloading), DEMO_SONG_AUDIO_FILENAME));
+                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME));
                     itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongAudioFile()));
                 }
                 catch(IOException ioe)

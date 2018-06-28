@@ -48,7 +48,10 @@ public abstract class Value {
                 strVal = strVal.substring(1);
                 try {
                     int referencedArgIndex = Integer.parseInt(strVal);
-                    return new ArgumentValue(referencedArgIndex);
+                    if(referencedArgIndex<0)
+                        errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_argument_index)));
+                    else
+                        return new ArgumentValue(referencedArgIndex);
                 } catch (NumberFormatException nfe) {
                     errors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.not_a_valid_argument_index)));
                 }

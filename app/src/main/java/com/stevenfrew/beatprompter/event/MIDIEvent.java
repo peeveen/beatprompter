@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.event;
 import com.stevenfrew.beatprompter.midi.EventOffset;
 import com.stevenfrew.beatprompter.midi.OutgoingMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MIDIEvent extends BaseEvent {
@@ -15,9 +16,22 @@ public class MIDIEvent extends BaseEvent {
         mMessages=messages;
     }
 
+    public MIDIEvent(long time,OutgoingMessage message)
+    {
+        super(time);
+        mMessages=new ArrayList<>();
+        mMessages.add(message);
+    }
+
     public MIDIEvent(long time, List<OutgoingMessage> messages, EventOffset offset)
     {
         this(time,messages);
+        mOffset=offset;
+    }
+
+    public MIDIEvent(long time, OutgoingMessage message, EventOffset offset)
+    {
+        this(time,message);
         mOffset=offset;
     }
 }

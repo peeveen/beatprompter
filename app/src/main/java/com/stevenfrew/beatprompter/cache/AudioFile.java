@@ -42,7 +42,7 @@ public class AudioFile extends CachedCloudFile
         }
         catch(Exception e)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.notAnAudioFile), mName));
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.notAnAudioFile, mName));
         }
     }
 }

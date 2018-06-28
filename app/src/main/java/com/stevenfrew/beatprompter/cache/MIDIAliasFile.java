@@ -58,7 +58,7 @@ public class MIDIAliasFile extends CachedCloudFile
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file), storageName));
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, storageName));
         }
     }
 
@@ -90,7 +90,7 @@ public class MIDIAliasFile extends CachedCloudFile
                 if(!isMidiAliasFile) {
                     aliasFilename=CachedCloudFile.getTokenValue(line,lineNumber,"midi_aliases");
                     if((aliasFilename==null)||(aliasFilename.trim().length()==0)) {
-                        throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file), aliasFilename));
+                        throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, aliasFilename));
                     }
                     isMidiAliasFile=true;
                 }
@@ -121,7 +121,7 @@ public class MIDIAliasFile extends CachedCloudFile
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file), filename));
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, filename));
         }
         finally
         {

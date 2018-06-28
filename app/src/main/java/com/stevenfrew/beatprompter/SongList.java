@@ -1398,7 +1398,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             if((missing.size()>0)&&(!slf.mWarned))
             {
                 slf.mWarned=true;
-                StringBuilder message=new StringBuilder(String.format(getString(R.string.missing_songs_message),missing.size()));
+                StringBuilder message=new StringBuilder(getString(R.string.missing_songs_message,missing.size()));
                 message.append("\n\n");
                 for(int f=0;f<Math.min(missing.size(),3);++f)
                 {

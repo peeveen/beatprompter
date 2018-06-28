@@ -37,7 +37,7 @@ class SongListMessageHandler extends Handler {
                 break;
             case BeatPrompterApplication.CLOUD_SYNC_ERROR:
                 AlertDialog.Builder adb = new AlertDialog.Builder(mSongList);
-                adb.setMessage(String.format(SongList.mSongListInstance.getString(R.string.cloudSyncErrorMessage), (String) msg.obj));
+                adb.setMessage(SongList.mSongListInstance.getString(R.string.cloudSyncErrorMessage, (String) msg.obj));
                 adb.setTitle(SongList.mSongListInstance.getString(R.string.cloudSyncErrorTitle));
                 adb.setPositiveButton("OK", (dialog, id) -> dialog.cancel());
                 AlertDialog ad = adb.create();

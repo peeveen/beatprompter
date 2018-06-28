@@ -307,7 +307,7 @@ public class SongFile extends CachedCloudFile
             }
             mLines=lineNumber;
             if((mTitle==null)||(mTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(String.format(SongList.mSongListInstance.getString(R.string.noTitleFound), mName));
+                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.noTitleFound, mName));
             if(mArtist==null)
                 mArtist="";
         }
@@ -514,7 +514,7 @@ public class SongFile extends CachedCloudFile
                     if(line.length()>MAX_LINE_LENGTH)
                     {
                         line=line.substring(0,MAX_LINE_LENGTH);
-                        errors.add(new FileParseError(null, String.format(SongList.mSongListInstance.getString(R.string.lineTooLong),lineCounter,MAX_LINE_LENGTH)));
+                        errors.add(new FileParseError(null, SongList.mSongListInstance.getString(R.string.lineTooLong,lineCounter,MAX_LINE_LENGTH)));
                     }
                     tagsOut.clear();
                     String strippedLine=Tag.extractTags(line, lineCounter, tagsOut);
@@ -533,7 +533,7 @@ public class SongFile extends CachedCloudFile
                         if((Tag.COLOR_TAGS.contains(tag.mName))&&(!ignoreColorInfo))
                             createColorEvent=true;
                         if((Tag.ONE_SHOT_TAGS.contains(tag.mName))&&(tagsSet.contains(tag.mName)))
-                            errors.add(new FileParseError(tag,String.format(SongList.mSongListInstance.getString(R.string.oneShotTagDefinedTwice),tag.mName)));
+                            errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.oneShotTagDefinedTwice,tag.mName)));
                         commentAudience=null;
                         if(tag.mName.startsWith("c@"))
                         {
@@ -581,12 +581,12 @@ public class SongFile extends CachedCloudFile
                                 File imageFile;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists())
-                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                 }
                                 lineImage=mappedImage;
                                 break;
@@ -617,12 +617,12 @@ public class SongFile extends CachedCloudFile
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,null);
                                 if(mappedTrack==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
+                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
                                         trackFile = null;
                                     }
                                 }
@@ -1353,12 +1353,12 @@ public class SongFile extends CachedCloudFile
                                 File imageFile;
                                 ImageFile mappedImage=SongList.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
+                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                 else
                                 {
                                     imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindImageFile),image)));
+                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                         mappedImage=null;
                                     }
                                 }
@@ -1376,13 +1376,13 @@ public class SongFile extends CachedCloudFile
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.getMappedAudioFilename(track,tempAudioFileCollection);
                                 if(mappedTrack==null) {
-                                    errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile), track)));
+                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile, track)));
                                 }
                                 else
                                 {
                                     trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, String.format(SongList.mSongListInstance.getString(R.string.cannotFindAudioFile),track)));
+                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
                                         trackFile = null;
                                     }
                                 }

@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.midi;
 
+import com.stevenfrew.beatprompter.R;
+import com.stevenfrew.beatprompter.SongList;
+
 public class ArgumentValue extends Value {
     int mArgumentIndex;
     ArgumentValue(int index)
@@ -9,8 +12,8 @@ public class ArgumentValue extends Value {
 
     @Override
     byte resolve(byte[] arguments, byte channel) throws ResolutionException {
-        if((mArgumentIndex<0)||(mArgumentIndex>=arguments.length))
-            throw new ResolutionException();
+        if(mArgumentIndex>=arguments.length)
+            throw new ResolutionException(SongList.mSongListInstance.getString(R.string.not_enough_parameters_supplied));
         return arguments[mArgumentIndex];
     }
 

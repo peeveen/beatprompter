@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.midi;
 
-public class ChanneledCommandValue extends CommandValue {
+public class ChanneledCommandValue extends ByteValue {
     ChanneledCommandValue(byte value)
     {
         super(value);
