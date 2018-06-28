@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -653,10 +654,10 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         }
     }
 
-    public boolean startToggle(MotionEvent e, boolean midiInitiated,int startState)
+    public void startToggle(MotionEvent e, boolean midiInitiated,int startState)
     {
         mStartState=startState;
-        return startToggle(e,midiInitiated);
+        startToggle(e,midiInitiated);
     }
 
     public boolean startToggle(MotionEvent e, boolean midiInitiated)
@@ -892,15 +893,11 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     }
 
     private void endSong(boolean skipped)
-    {
-        endSong(skipped,true);
-    }
-    private void endSong(boolean skipped,boolean naturalEnd)
      {
         if(mSongDisplayActivity!=null)
         {
             mSkipping=skipped;
-            SongList.mSongEndedNaturally = naturalEnd;
+            SongList.mSongEndedNaturally = true;
             mStartState=0;
             mSongDisplayActivity = null;
             if(mSong!=null)
@@ -915,6 +912,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
@@ -922,12 +920,12 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         return super.onTouchEvent(event);
     }
 
-    public double setSongTime(SetSongTimeMessage sstm)
+    public void setSongTime(SetSongTimeMessage sstm)
     {
-        if(mSong==null)
-            return 0.0;
-        Log.d(BeatPrompterApplication.TAG,"Setting time="+sstm.mTime);
-        return setSongTime(sstm.mTime,true,false,true);
+        if(mSong!=null) {
+            Log.d(BeatPrompterApplication.TAG, "Setting time=" + sstm.mTime);
+            setSongTime(sstm.mTime, true, false, true);
+        }
     }
 
     private void seekTrack(int time)
@@ -943,11 +941,10 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             }*/
     }
 
-    public double setSongTime(long nano, boolean redraw, boolean broadcast, boolean setPixelPosition)
+    public void setSongTime(long nano, boolean redraw, boolean broadcast, boolean setPixelPosition)
     {
         if(mSong==null)
-            return 0.0;
-        double bpm=0.0;
+            return;
         // No time context in Manual mode.
         if(setPixelPosition)
             mSongPixelPosition=mSong.getPixelFromTime(nano);
@@ -962,10 +959,8 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             if(mSong.mScrollingMode!=ScrollingMode.Manual) {
                 BeatEvent prevBeatEvent = mSong.mCurrentEvent.mPrevBeatEvent;
                 BeatEvent nextBeatEvent = mSong.mCurrentEvent.getNextBeatEvent();
-                if (prevBeatEvent != null) {
-                    bpm = prevBeatEvent.mBPM;
+                if (prevBeatEvent != null)
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null);
-                }
             }
             mSongStartTime = System.nanoTime() - nano;
             if(mSong.mScrollingMode!=ScrollingMode.Manual) {
@@ -988,7 +983,6 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             if (redraw)
                 invalidate();
         }
-        return bpm;
     }
 
     @Override
@@ -1096,7 +1090,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         return true;
     }
 
-    private void changeThePage(boolean down)
+    private void changeThePageDown()
     {
         if(mSongPixelPosition == mSongScrollEndPixel)
         {
@@ -1105,7 +1099,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             else
                 mLastTempMessageTime=System.nanoTime();
         } else
-            changePage(down);
+            changePage(true);
     }
 
     public void onOtherPageDownActivated() {
@@ -1116,12 +1110,12 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     public void onPageDownKeyPressed() {
         if (mStartState < 2) {
             if (!startToggle(null, false) && (mSong.mScrollingMode == ScrollingMode.Manual))
-                changeThePage(true);
+                changeThePageDown();
         }
         else if (mSong.mScrollingMode == ScrollingMode.Manual)
         {
             if (mStartState == 2)
-                changeThePage(true);
+                changeThePageDown();
         }
         else
             changeVolume(+5);
@@ -1140,14 +1134,14 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             changeVolume(-5);
     }
 
-    private void changeTheLine(boolean down) {
+    private void changeTheLineDown() {
         if (mSongPixelPosition == mSongScrollEndPixel) {
             if ((++mEndSongByPedalCounter) == SONG_END_PEDAL_PRESSES)
                 endSong(false);
             else
                 mLastTempMessageTime = System.nanoTime();
         } else
-            changeLine(down);
+            changeLine(true);
     }
 
     public void onLineDownKeyPressed()
@@ -1155,11 +1149,11 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         if(mStartState<2)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
-                changeTheLine(true);
+                changeTheLineDown();
         }
         else if(mSong.mScrollingMode==ScrollingMode.Manual) {
             if (mStartState == 2)
-                changeTheLine(true);
+                changeTheLineDown();
         }
         else
             changeVolume(+5);

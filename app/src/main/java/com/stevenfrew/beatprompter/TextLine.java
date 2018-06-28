@@ -44,6 +44,7 @@ public class TextLine extends Line
                 mLineTags.add(tag);
     }
 
+    // TODO: Fix this, for god's sake!
     public LineMeasurements doMeasurements(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth,int screenHeight,  Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, ScrollingMode scrollMode,CancelEvent cancelEvent)
     {
         mFont=font;

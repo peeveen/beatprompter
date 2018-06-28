@@ -246,13 +246,17 @@ public class Utils
             signifierFound = true;
             str = str.substring(0, str.length() - 1);
         }
+        // Hex values for this app are two-chars long, max.
+        if(str.length()>2)
+            return false;
         try
         {
+            //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(str);
             // non-hex integer
             return signifierFound;
         }
-        catch(Exception e)
+        catch(Exception ignored)
         {
         }
         for(int f=0;f<str.length();++f) {

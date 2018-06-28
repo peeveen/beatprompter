@@ -95,7 +95,7 @@ class SongLoaderTask extends Task {
                 // Nothing to do, wait a bit
                 Thread.sleep(250);
             }
-            catch(InterruptedException ie)
+            catch(InterruptedException ignored)
             {
             }
     }

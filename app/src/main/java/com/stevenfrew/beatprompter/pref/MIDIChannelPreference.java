@@ -23,7 +23,7 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
         setDialogLayoutResource(R.layout.midi_channel_preference_dialog);
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
-        mSingleSelect = getAttributeBooleanValue(attrs, sfns, "singleSelect",false);
+        mSingleSelect = getSingleSelectSetting(attrs);
         mCurrentValue=mSingleSelect?1:65535;
     }
 
@@ -32,16 +32,16 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
         setDialogLayoutResource(R.layout.midi_channel_preference_dialog);
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
-        mSingleSelect = getAttributeBooleanValue(attrs, sfns, "singleSelect",false);
+        mSingleSelect = getSingleSelectSetting(attrs);
         mCurrentValue=mSingleSelect?1:65535;
     }
 
 
-    private boolean getAttributeBooleanValue(AttributeSet attrs,String namespace,String name,boolean lastResortDefault)
+    private boolean getSingleSelectSetting(AttributeSet attrs)
     {
-        int resourceID=attrs.getAttributeResourceValue(namespace,name,0);
+        int resourceID=attrs.getAttributeResourceValue(sfns, "singleSelect",0);
         if(resourceID==0)
-            return attrs.getAttributeBooleanValue(namespace, name, lastResortDefault);
+            return attrs.getAttributeBooleanValue(sfns, "singleSelect", false);
         return Boolean.parseBoolean(getContext().getString(resourceID));
 
     }

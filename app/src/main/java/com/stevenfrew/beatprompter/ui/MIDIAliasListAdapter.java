@@ -15,7 +15,6 @@ import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasFile> {

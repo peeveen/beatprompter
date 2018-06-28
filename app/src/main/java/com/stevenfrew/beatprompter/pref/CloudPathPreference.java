@@ -30,20 +30,4 @@ public class CloudPathPreference extends Preference
             displayPath=SongList.mSongListInstance.getString(R.string.no_cloud_folder_currently_set);
         textView.setText(displayPath);
     }
-
-    private boolean inForceUpdate=false;
-    public void forceUpdate()
-    {
-        if(!inForceUpdate) {
-            try {
-
-                inForceUpdate = true;
-                notifyChanged();
-            }
-            finally
-            {
-                inForceUpdate=false;
-            }
-        }
-    }
 }

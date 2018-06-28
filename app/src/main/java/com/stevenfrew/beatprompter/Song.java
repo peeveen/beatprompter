@@ -121,6 +121,7 @@ public class Song
         if(screenWillRotate)
         {
             int temp=nativeScreenHeight;
+            //noinspection SuspiciousNameCombination
             nativeScreenHeight=nativeScreenWidth;
             nativeScreenWidth=temp;
         }

@@ -16,7 +16,7 @@ public class MIDIEvent extends BaseEvent {
         mMessages=messages;
     }
 
-    public MIDIEvent(long time,OutgoingMessage message)
+    private MIDIEvent(long time,OutgoingMessage message)
     {
         super(time);
         mMessages=new ArrayList<>();

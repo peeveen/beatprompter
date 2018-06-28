@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.cache;
 
 import java.io.IOException;
 
-public class InvalidBeatPrompterFileException extends IOException {
-    public InvalidBeatPrompterFileException(String message)
+class InvalidBeatPrompterFileException extends IOException {
+    InvalidBeatPrompterFileException(String message)
     {
         super(message);
     }

@@ -16,7 +16,6 @@ import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.SongFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SongListAdapter extends ArrayAdapter<PlaylistNode> {
@@ -36,11 +35,11 @@ public class SongListAdapter extends ArrayAdapter<PlaylistNode> {
         LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.song_list_item_large:R.layout.song_list_item, parent, false):convertView;
-        TextView artistView = (TextView) rowView.findViewById(R.id.songartist);
-        TextView titleView = (TextView) rowView.findViewById(R.id.songtitle);
-        ImageView beatIcon=(ImageView) rowView.findViewById(R.id.beaticon);
-        ImageView docIcon=(ImageView) rowView.findViewById(R.id.smoothicon);
-        ImageView notesIcon=(ImageView) rowView.findViewById(R.id.musicicon);
+        TextView artistView = rowView.findViewById(R.id.songartist);
+        TextView titleView = rowView.findViewById(R.id.songtitle);
+        ImageView beatIcon= rowView.findViewById(R.id.beaticon);
+        ImageView docIcon= rowView.findViewById(R.id.smoothicon);
+        ImageView notesIcon= rowView.findViewById(R.id.musicicon);
         SongFile song=values.get(position).mSongFile;
         boolean showBeatIcons=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showBeatStyleIcons_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showBeatStyleIcons_defaultValue)));
         boolean showKey=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showKeyInList_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showKeyInList_defaultValue)));

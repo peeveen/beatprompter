@@ -69,7 +69,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         {
             mTaskEndSemaphore.acquire();
         }
-        catch(InterruptedException ie)
+        catch(InterruptedException ignored)
         {
         }
         return true;

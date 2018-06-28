@@ -17,7 +17,6 @@ import com.stevenfrew.beatprompter.midi.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class Tag
 {
@@ -67,7 +66,6 @@ public class Tag
 
     public static MIDIEvent getMIDIEventFromTag(long time, Tag tag, ArrayList<Alias> aliases, byte defaultChannel, ArrayList<FileParseError> parseErrors)
     {
-        List<OutgoingMessage> outArray=null;
         String val=tag.mValue.trim();
         EventOffset eventOffset=null;
         if(val.isEmpty())
