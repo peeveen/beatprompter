@@ -6,14 +6,14 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 
-public class MIDIUSBInTask extends MIDIUSBTask
+public class USBInTask extends USBTask
 {
     private byte[] mBuffer;
     private int mBufferSize;
     private int mIncomingChannels;
     private final Object mIncomingChannelsLock=new Object();
 
-    public MIDIUSBInTask(UsbDeviceConnection connection, UsbEndpoint endpoint, int incomingChannels)
+    public USBInTask(UsbDeviceConnection connection, UsbEndpoint endpoint, int incomingChannels)
     {
         super(connection,endpoint,true);
         mIncomingChannels=incomingChannels;
@@ -60,25 +60,25 @@ public class MIDIUSBInTask extends MIDIUSBTask
                 // All interesting MIDI signals have the top bit set.
                 if((messageByte&0x80)!=0) {
                     if (!inSysEx) {
-                        if ((messageByte == MIDIMessage.MIDI_START_BYTE) || (messageByte == MIDIMessage.MIDI_CONTINUE_BYTE) || (messageByte == MIDIMessage.MIDI_STOP_BYTE)) {
+                        if ((messageByte == Message.MIDI_START_BYTE) || (messageByte == Message.MIDI_CONTINUE_BYTE) || (messageByte == Message.MIDI_STOP_BYTE)) {
                             // These are single byte messages.
                             try {
-                                BeatPrompterApplication.mMIDISongDisplayInQueue.put(new MIDIIncomingMessage(new byte[]{messageByte}));
-                                if(messageByte==MIDIMessage.MIDI_START_BYTE)
+                                BeatPrompterApplication.mMIDISongDisplayInQueue.put(new IncomingMessage(new byte[]{messageByte}));
+                                if(messageByte== Message.MIDI_START_BYTE)
                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI Start message.");
-                                else if(messageByte==MIDIMessage.MIDI_CONTINUE_BYTE)
+                                else if(messageByte== Message.MIDI_CONTINUE_BYTE)
                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI Continue message.");
-                                if(messageByte==MIDIMessage.MIDI_STOP_BYTE)
+                                if(messageByte== Message.MIDI_STOP_BYTE)
                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI Stop message.");
                             } catch (InterruptedException ie) {
                                 Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);
                             }
-                        } else if(messageByte==MIDIMessage.MIDI_SONG_POSITION_POINTER_BYTE)
+                        } else if(messageByte== Message.MIDI_SONG_POSITION_POINTER_BYTE)
                         {
                             // This message requires two additional bytes.
                             if (f < dataRead - 2)
                                 try {
-                                    MIDIIncomingMessage msg = new MIDIIncomingSongPositionPointerMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
+                                    IncomingMessage msg = new IncomingSongPositionPointerMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI Song Position Pointer message: " + msg.toString());
                                     BeatPrompterApplication.mMIDISongDisplayInQueue.put(msg);
                                 } catch (InterruptedException ie) {
@@ -89,10 +89,10 @@ public class MIDIUSBInTask extends MIDIUSBTask
                             else
                                 preBuffer = new byte[]{messageByte};
                         }
-                        else if (messageByte == MIDIMessage.MIDI_SONG_SELECT_BYTE) {
+                        else if (messageByte == Message.MIDI_SONG_SELECT_BYTE) {
                             if (f < dataRead - 1)
                                 try {
-                                    MIDIIncomingMessage msg = new MIDIIncomingMessage(new byte[]{messageByte, workBuffer[++f]});
+                                    IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f]});
                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI SongSelect message: " + msg.toString());
                                     BeatPrompterApplication.mMIDISongListInQueue.put(msg);
                                 } catch (InterruptedException ie) {
@@ -100,7 +100,7 @@ public class MIDIUSBInTask extends MIDIUSBTask
                                 }
                             else
                                 preBuffer = new byte[]{workBuffer[f]};
-                        } else if (messageByte == MIDIMessage.MIDI_SYSEX_START_BYTE) {
+                        } else if (messageByte == Message.MIDI_SYSEX_START_BYTE) {
                             Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI SysEx start message.");
                             inSysEx = true;
                         } else {
@@ -110,10 +110,10 @@ public class MIDIUSBInTask extends MIDIUSBTask
                             if(messageByteWithoutChannel!=(byte)0xF0) {
                                 byte channel = (byte) (messageByte & 0x0F);
                                 if ((channelsToListenTo & (1 << channel)) != 0) {
-                                    if (messageByteWithoutChannel == MIDIMessage.MIDI_PROGRAM_CHANGE_BYTE) {
+                                    if (messageByteWithoutChannel == Message.MIDI_PROGRAM_CHANGE_BYTE) {
                                         if (f < dataRead - 1)
                                             try {
-                                                MIDIIncomingMessage msg = new MIDIIncomingMessage(new byte[]{messageByte, workBuffer[++f]});
+                                                IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f]});
                                                 Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI ProgramChange message: " + msg.toString());
                                                 BeatPrompterApplication.mMIDISongListInQueue.put(msg);
                                             } catch (InterruptedException ie) {
@@ -121,11 +121,11 @@ public class MIDIUSBInTask extends MIDIUSBTask
                                            }
                                         else
                                             preBuffer = new byte[]{messageByte};
-                                    } else if (messageByteWithoutChannel == MIDIMessage.MIDI_CONTROL_CHANGE_BYTE) {
+                                    } else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {
                                         // This message requires two additional bytes.
                                         if (f < dataRead - 2)
                                             try {
-                                                MIDIIncomingMessage msg = new MIDIIncomingMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
+                                                IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
                                                 if ((msg.isLSBBankSelect()) || (msg.isMSBBankSelect())) {
                                                     Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI Control Change message: " + msg.toString());
                                                     BeatPrompterApplication.mMIDISongListInQueue.put(msg);
@@ -141,7 +141,7 @@ public class MIDIUSBInTask extends MIDIUSBTask
                                 }
                             }
                         }
-                    } else if (messageByte == MIDIMessage.MIDI_SYSEX_END_BYTE) {
+                    } else if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
                         Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI SysEx end message.");
                         inSysEx = false;
                     }

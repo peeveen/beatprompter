@@ -211,4 +211,46 @@ public class Utils
             out.println(str);
         }
     }
+    public static String stripHexSignifiers(String str)
+    {
+        str = str.toLowerCase();
+        if (str.startsWith("0x"))
+            str = str.substring(2);
+        else if (str.endsWith("h"))
+            str = str.substring(0, str.length() - 1);
+        return str;
+    }
+    public static byte parseHexByte(String str)
+    {
+        return Byte.parseByte(stripHexSignifiers(str),16);
+    }
+    public static boolean looksLikeHex(String str) {
+        if (str == null)
+            return false;
+        str = str.toLowerCase();
+        boolean signifierFound = false;
+        if (str.startsWith("0x")) {
+            signifierFound = true;
+            str = str.substring(2);
+        } else if (str.endsWith("h"))
+        {
+            signifierFound = true;
+            str = str.substring(0, str.length() - 1);
+        }
+        try
+        {
+            Integer.parseInt(str);
+            // non-hex integer
+            return signifierFound;
+        }
+        catch(Exception e)
+        {
+        }
+        for(int f=0;f<str.length();++f) {
+            char c=str.charAt(f);
+            if ((!Character.isDigit(c))&&(c != 'a')&&(c != 'b')&&(c != 'c')&&(c != 'd')&&(c != 'e')&&(c != 'f'))
+                return false;
+        }
+        return true;
+    }
 }

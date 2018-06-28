@@ -5,7 +5,7 @@ import android.hardware.usb.UsbEndpoint;
 
 import com.stevenfrew.beatprompter.Task;
 
-abstract class MIDIUSBTask extends Task
+abstract class USBTask extends Task
 {
     private UsbDeviceConnection mUsbDeviceConnection;
     private UsbEndpoint mUsbEndpoint;
@@ -36,7 +36,7 @@ abstract class MIDIUSBTask extends Task
         }
     }
 
-    MIDIUSBTask(UsbDeviceConnection connection, UsbEndpoint endpoint,boolean initialRunningState)
+    USBTask(UsbDeviceConnection connection, UsbEndpoint endpoint, boolean initialRunningState)
     {
         super(initialRunningState);
         mUsbDeviceConnection=connection;

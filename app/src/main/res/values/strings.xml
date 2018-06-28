@@ -588,6 +588,9 @@
     <string name="non_beat_characters_in_midi_offset">MIDI offset should be a numerical value or beat offset characters.</string>
     <string name="multiple_semi_colons_in_midi_tag">MIDI tags can contain a maximum of one semi-colon character.</string>
     <string name="midi_offset_is_before_start_of_song">MIDI event offset puts it before the start of the song.</string>
+    <string name="blank_midi_value">Blank value found in MIDI directive.</string>
+    <string name="not_a_valid_argument_index">Invalid argument index found in MIDI directive.</string>
+    <string name="not_a_valid_byte_value">Invalid byte value found in MIDI directive.</string>
 
     <string name="pref_wasPowerwashed_key" translatable="false">pref_wasPowerwashed</string>
     <string name="cache_cleared">Cache cleared.</string>

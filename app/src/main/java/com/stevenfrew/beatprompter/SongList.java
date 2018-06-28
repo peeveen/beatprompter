@@ -72,15 +72,15 @@ import com.stevenfrew.beatprompter.filter.SetListFilter;
 import com.stevenfrew.beatprompter.filter.SongFilter;
 import com.stevenfrew.beatprompter.filter.TagFilter;
 import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
-import com.stevenfrew.beatprompter.midi.MIDIAlias;
+import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
-import com.stevenfrew.beatprompter.midi.MIDIInTask;
-import com.stevenfrew.beatprompter.midi.MIDISongDisplayInTask;
-import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
-import com.stevenfrew.beatprompter.midi.MIDIUSBInTask;
-import com.stevenfrew.beatprompter.midi.MIDIUSBOutTask;
+import com.stevenfrew.beatprompter.midi.InTask;
+import com.stevenfrew.beatprompter.midi.SongDisplayInTask;
+import com.stevenfrew.beatprompter.midi.SongTrigger;
+import com.stevenfrew.beatprompter.midi.USBInTask;
+import com.stevenfrew.beatprompter.midi.USBOutTask;
 import com.stevenfrew.beatprompter.pref.FontSizePreference;
 import com.stevenfrew.beatprompter.pref.SettingsActivity;
 import com.stevenfrew.beatprompter.ui.FilterListAdapter;
@@ -174,10 +174,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     static SongLoaderTask mSongLoaderTask = null;
 
-    MIDIUSBInTask mMidiUsbInTask = null;
-    MIDIUSBOutTask mMidiUsbOutTask = new MIDIUSBOutTask();
-    MIDIInTask mMidiInTask = new MIDIInTask(mSongListMessageHandler);
-    MIDISongDisplayInTask mMidiSongDisplayInTask = new MIDISongDisplayInTask();
+    USBInTask mMidiUsbInTask = null;
+    USBOutTask mMidiUsbOutTask = new USBOutTask();
+    InTask mMidiInTask = new InTask(mSongListMessageHandler);
+    SongDisplayInTask mMidiSongDisplayInTask = new SongDisplayInTask();
     Thread mMidiUsbInTaskThread = null;
     Thread mMidiUsbOutTaskThread = new Thread(mMidiUsbOutTask);
     Thread mMidiInTaskThread = new Thread(mMidiInTask);
@@ -246,7 +246,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                                                 mMidiUsbOutTask.setConnection(conn, endPoint);
                                             } else if (endPoint.getDirection() == UsbConstants.USB_DIR_IN) {
                                                 if (mMidiUsbInTask == null) {
-                                                    mMidiUsbInTask = new MIDIUSBInTask(conn, endPoint, getIncomingMIDIChannelsPref());
+                                                    mMidiUsbInTask = new USBInTask(conn, endPoint, getIncomingMIDIChannelsPref());
                                                     (mMidiUsbInTaskThread = new Thread(mMidiUsbInTask)).start();
                                                 }
                                             }
@@ -265,8 +265,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if ((mSelectedFilter != null) && (mSelectedFilter instanceof MIDIAliasFilesFilter)) {
             final MIDIAliasFile maf = mCachedCloudFiles.getMIDIAliasFiles().get(position);
-            if (maf.getErrors().size() > 0)
-                showMIDIAliasErrors(maf.getErrors());
+            if (maf.mErrors.size() > 0)
+                showMIDIAliasErrors(maf.mErrors);
         } else {
             // Don't allow another song to be started from the song list (by clicking)
             // if one is already loading. The only circumstances this is allowed is via
@@ -291,14 +291,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     void startSongViaMidiProgramChange(byte bankMSB, byte bankLSB, byte program, byte channel) {
-        startSongViaMidiSongTrigger(new MIDISongTrigger(bankMSB, bankLSB, program, false, channel));
+        startSongViaMidiSongTrigger(new SongTrigger(bankMSB, bankLSB, program, channel, false));
     }
 
     void startSongViaMidiSongSelect(byte song) {
-        startSongViaMidiSongTrigger(new MIDISongTrigger((byte) 0, (byte) 0, song, true, (byte) 0));
+        startSongViaMidiSongTrigger(new SongTrigger((byte) 0, (byte) 0, song, (byte) 0, true));
     }
 
-    void startSongViaMidiSongTrigger(MIDISongTrigger mst) {
+    void startSongViaMidiSongTrigger(SongTrigger mst) {
         for (PlaylistNode node : mPlaylist.getNodesAsArray())
             if (node.mSongFile.matchesTrigger(mst)) {
                 playPlaylistNode(node, true);
@@ -601,7 +601,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void onMIDIAliasListLongClick(int position)
     {
         final MIDIAliasFile maf=mCachedCloudFiles.getMIDIAliasFiles().get(position);
-        final boolean showErrors=maf.getErrors().size()>0;
+        final boolean showErrors=maf.mErrors.size()>0;
 
         int arrayID=R.array.midi_alias_options_array;
         if(showErrors)
@@ -613,7 +613,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     if (which == 0)
                         performCloudSync(maf,false);
                     else if (which == 1)
-                        showMIDIAliasErrors(maf.getErrors());
+                        showMIDIAliasErrors(maf.mErrors);
                 });
         AlertDialog al = builder.create();
         al.setCanceledOnTouchOutside(true);
@@ -1499,11 +1499,11 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return mFullVersionUnlocked;
     }
 
-    static ArrayList<MIDIAlias> getMIDIAliases()
+    static ArrayList<Alias> getMIDIAliases()
     {
-        ArrayList<MIDIAlias> aliases=new ArrayList<>();
+        ArrayList<Alias> aliases=new ArrayList<>();
         for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())
-            aliases.addAll(maf.getAliases());
+            aliases.addAll(maf.mAliasSet.mAliases);
         return aliases;
     }
 

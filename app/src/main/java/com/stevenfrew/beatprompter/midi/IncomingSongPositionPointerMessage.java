@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter.midi;
 
-public class MIDIIncomingSongPositionPointerMessage extends MIDIIncomingMessage
+public class IncomingSongPositionPointerMessage extends IncomingMessage
 {
-    MIDIIncomingSongPositionPointerMessage(byte[] bytes)
+    IncomingSongPositionPointerMessage(byte[] bytes)
     {
         super(bytes);
     }

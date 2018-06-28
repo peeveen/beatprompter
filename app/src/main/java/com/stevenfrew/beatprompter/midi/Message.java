@@ -1,9 +1,6 @@
 package com.stevenfrew.beatprompter.midi;
 
-import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
-
-public class MIDIMessage
+public class Message
 {
     final static byte MIDI_SYSEX_START_BYTE=(byte)0xf0;
     final static byte MIDI_SONG_POSITION_POINTER_BYTE=(byte)0xf2;
@@ -20,13 +17,7 @@ public class MIDIMessage
     private final static byte MIDI_LSB_BANK_SELECT_CONTROLLER=(byte)32;
 
     byte[] mMessageBytes;
-    protected MIDIMessage(MIDIValue[] bytes)
-    {
-        mMessageBytes = new byte[bytes.length];
-        for (int f = 0; f < bytes.length; ++f)
-            mMessageBytes[f] = bytes[f].mValue;
-    }
-    protected MIDIMessage(byte[] bytes)
+    protected Message(byte[] bytes)
     {
         mMessageBytes=bytes;
     }
@@ -52,80 +43,6 @@ public class MIDIMessage
         }
         while(counter<16);
         return 0;
-    }
-    public static MIDIValue parseValue(String str)
-    {
-        return parseValue(str,false);
-    }
-    static MIDIValue parseChannelValue(String str,boolean fromTrigger)
-    {
-        return parseValue(str,fromTrigger,true);
-    }
-    static MIDIValue parseValue(String str, boolean fromTrigger)
-    {
-        return parseValue(str,fromTrigger,false);
-    }
-    private static MIDIValue parseValue(String str, boolean fromTrigger,boolean asChannel)
-    {
-        boolean isChannel=false;
-        str=str.trim();
-        if(str.startsWith("#")) {
-            isChannel = true;
-            str = str.substring(1);
-        }
-        if(fromTrigger)
-            if(str.equals(MIDISongTrigger.WILDCARD_STRING))
-                return new MIDIValue(MIDISongTrigger.WILDCARD_VALUE,asChannel);
-        int returnVal;
-        if(looksLikeHex(str))
-            returnVal=parseHexInt(str);
-        else
-            returnVal=Integer.parseInt(str);
-        if((isChannel)&&((returnVal < 1) || (returnVal > 16)))
-            throw new IllegalArgumentException(SongList.mSongListInstance.getString(R.string.invalid_channel_value));
-/*        else if(returnVal<0||returnVal>127)
-            throw new IllegalArgumentException(context.getString(R.string.value_must_be_zero_to_onehundredtwentyseven));*/
-        if(isChannel)
-            --returnVal; // channels are zero-based internally.
-        return new MIDIValue((byte)returnVal,isChannel);
-    }
-    private static int parseHexInt(String str)
-    {
-        str = str.toLowerCase();
-        if (str.startsWith("0x"))
-            str = str.substring(2);
-        else if (str.endsWith("h"))
-            str = str.substring(0, str.length() - 1);
-        return Integer.parseInt(str,16);
-    }
-    static boolean looksLikeHex(String str) {
-        if (str == null)
-            return false;
-        str = str.toLowerCase();
-        boolean signifierFound = false;
-        if (str.startsWith("0x")) {
-            signifierFound = true;
-            str = str.substring(2);
-        } else if (str.endsWith("h"))
-        {
-            signifierFound = true;
-            str = str.substring(0, str.length() - 1);
-        }
-        try
-        {
-            Integer.parseInt(str);
-            // non-hex integer
-            return signifierFound;
-        }
-        catch(Exception e)
-        {
-        }
-        for(int f=0;f<str.length();++f) {
-            char c=str.charAt(f);
-            if ((!Character.isDigit(c))&&(c != 'a')&&(c != 'b')&&(c != 'c')&&(c != 'd')&&(c != 'e')&&(c != 'f'))
-                return false;
-        }
-        return true;
     }
     private boolean isSystemCommonMessage(byte message)
     {

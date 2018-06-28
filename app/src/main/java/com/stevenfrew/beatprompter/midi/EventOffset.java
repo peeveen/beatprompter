@@ -7,13 +7,13 @@ import com.stevenfrew.beatprompter.cache.Tag;
 
 import java.util.ArrayList;
 
-public class MIDIEventOffset {
+public class EventOffset {
     public enum OffsetType{Milliseconds,Beats}
     public Tag mSourceTag;
     public int mAmount;
     public OffsetType mOffsetType;
 
-    public MIDIEventOffset(String str, Tag tag, ArrayList<FileParseError> errors)
+    public EventOffset(String str, Tag tag, ArrayList<FileParseError> errors)
     {
         mSourceTag=tag;
         if(str==null)

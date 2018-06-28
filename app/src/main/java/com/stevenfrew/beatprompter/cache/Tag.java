@@ -5,17 +5,19 @@ import android.graphics.Color;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
-import com.stevenfrew.beatprompter.midi.MIDIAlias;
+import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
-import com.stevenfrew.beatprompter.midi.MIDIEventOffset;
-import com.stevenfrew.beatprompter.midi.MIDIMessage;
-import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
-import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
-import com.stevenfrew.beatprompter.midi.MIDIValue;
+import com.stevenfrew.beatprompter.midi.ChannelValue;
+import com.stevenfrew.beatprompter.midi.EventOffset;
+import com.stevenfrew.beatprompter.midi.OutgoingMessage;
+import com.stevenfrew.beatprompter.midi.ResolutionException;
+import com.stevenfrew.beatprompter.midi.SongTrigger;
+import com.stevenfrew.beatprompter.midi.Value;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 public class Tag
 {
@@ -63,11 +65,11 @@ public class Tag
         mPosition=position;
     }
 
-    public static MIDIEvent getMIDIEventFromTag(long time, Tag tag, ArrayList<MIDIAlias> aliases, byte defaultChannel, ArrayList<FileParseError> parseErrors)
+    public static MIDIEvent getMIDIEventFromTag(long time, Tag tag, ArrayList<Alias> aliases, byte defaultChannel, ArrayList<FileParseError> parseErrors)
     {
-        ArrayList<MIDIOutgoingMessage> outArray=null;
+        List<OutgoingMessage> outArray=null;
         String val=tag.mValue.trim();
-        MIDIEventOffset eventOffset=null;
+        EventOffset eventOffset=null;
         if(val.isEmpty())
         {
             // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
@@ -77,7 +79,7 @@ public class Tag
                 if(bits.length>2)
                     parseErrors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.multiple_semi_colons_in_midi_tag)));
                 if(bits.length>1) {
-                    eventOffset=new MIDIEventOffset(bits[1].trim(),tag,parseErrors);
+                    eventOffset=new EventOffset(bits[1].trim(),tag,parseErrors);
                     tag.mName=bits[0].trim();
                 }
             }
@@ -89,15 +91,15 @@ public class Tag
                 if (firstSplitBits.length > 2)
                     parseErrors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.multiple_semi_colons_in_midi_tag)));
                 val = firstSplitBits[0].trim();
-                eventOffset = new MIDIEventOffset(firstSplitBits[1].trim(), tag, parseErrors);
+                eventOffset = new EventOffset(firstSplitBits[1].trim(), tag, parseErrors);
             }
         }
         String[] bits=(val.length()==0?new String[0]:val.split(","));
-        MIDIValue[] paramBytes=new MIDIValue[bits.length];
+        Value[] paramBytes=new Value[bits.length];
         Exception parseValueException=null;
         try {
             for (int f = 0; f < bits.length; ++f)
-                paramBytes[f] = MIDIMessage.parseValue(bits[f].trim());
+                paramBytes[f] = Value.parseValue(bits[f].trim());
         }
         catch(Exception e)
         {
@@ -106,35 +108,37 @@ public class Tag
         boolean lastParamIsChannel=false;
         byte channel=defaultChannel;
         for(int f=0;f<paramBytes.length;++f)
-            if(paramBytes[f].mChannelSpecifier)
+            if(paramBytes[f] instanceof ChannelValue)
                 if(f==paramBytes.length-1)
                     lastParamIsChannel=true;
                 else
                     parseErrors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.channel_must_be_last_parameter)));
-        if(lastParamIsChannel) {
-            MIDIValue lastParam= paramBytes[paramBytes.length - 1];
-            channel = lastParam.mValue;
-            MIDIValue[] paramBytesWithoutChannel=new MIDIValue[paramBytes.length-1];
-            System.arraycopy(paramBytes,0,paramBytesWithoutChannel,0,paramBytesWithoutChannel.length);
-            paramBytes=paramBytesWithoutChannel;
-        }
-        // TODO: MIDI items should now be stored in memory with references to other aliases. Missing aliases will be noticed here.
-        for(MIDIAlias alias:aliases)
-            if(alias.mName.equalsIgnoreCase(tag.mName))
-                if(alias.mParamCount==paramBytes.length)
-                    outArray=alias.resolveMessages(paramBytes,channel);
-        if(tag.mName.equals("midi_send"))
-        {
-            if(paramBytes[0].isChannelledMessage())
-            {
-                byte b=paramBytes[0].mValue;
-                b&=(byte)0xF0;
-                b|=channel;
-                paramBytes[0]=new MIDIValue(b);
+        try {
+            if (lastParamIsChannel) {
+                ChannelValue lastParam = (ChannelValue) paramBytes[paramBytes.length - 1];
+                channel = lastParam.resolve();
+                Value[] paramBytesWithoutChannel = new Value[paramBytes.length - 1];
+                System.arraycopy(paramBytes, 0, paramBytesWithoutChannel, 0, paramBytesWithoutChannel.length);
+                paramBytes = paramBytesWithoutChannel;
             }
-            MIDIOutgoingMessage customMidiMessage=new MIDIOutgoingMessage(paramBytes);
-            outArray=new ArrayList<>();
-            outArray.add(customMidiMessage);
+            byte[] resolvedBytes = new byte[paramBytes.length];
+            for (int f = 0; f < paramBytes.length; ++f)
+                resolvedBytes[f] = paramBytes[f].resolve();
+            // TODO: MIDI items should now be stored in memory with references to other aliases. Missing aliases will be noticed here.
+            for (Alias alias : aliases)
+                if (alias.mName.equalsIgnoreCase(tag.mName)) {
+                    outArray = alias.resolve(aliases, resolvedBytes, channel);
+                    break;
+                }
+            if (tag.mName.equals("midi_send")) {
+                OutgoingMessage customMidiMessage = new OutgoingMessage(resolvedBytes);
+                outArray = new ArrayList<>();
+                outArray.add(customMidiMessage);
+            }
+        }
+        catch(ResolutionException re)
+        {
+            parseErrors.add(new FileParseError(tag.mLineNumber,re.getMessage()));
         }
         if((outArray==null)||(outArray.isEmpty())) {
             parseErrors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.unknown_midi_directive)));
@@ -248,7 +252,7 @@ public class Tag
     {
         try
         {
-            MIDISongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"));
+            SongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"),tag.mLineNumber,parseErrors);
         }
         catch(Exception e)
         {

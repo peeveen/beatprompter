@@ -34,7 +34,7 @@ import com.stevenfrew.beatprompter.event.LineEvent;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
-import com.stevenfrew.beatprompter.midi.MIDITriggerSafetyCatch;
+import com.stevenfrew.beatprompter.midi.TriggerSafetyCatch;
 
 import java.io.FileInputStream;
 import java.util.Collection;
@@ -113,7 +113,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     private BeatPrompterApplication mApp = null;
     private SongDisplayActivity mSongDisplayActivity;
     private Handler mSongDisplayActivityHandler;
-    MIDITriggerSafetyCatch mMIDITriggerSafetyCatch;
+    TriggerSafetyCatch mMIDITriggerSafetyCatch;
     boolean mSendMidiClock=false;
 
     public SongView(Context context, AttributeSet attrs) {
@@ -138,7 +138,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mSong = BeatPrompterApplication.getCurrentSong();
         calculateScrollEnd();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(songDisplayActivity);
-        mMIDITriggerSafetyCatch=MIDITriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
+        mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
         String metronomePref=sharedPref.getString(songDisplayActivity.getString(R.string.pref_metronome_key), songDisplayActivity.getString(R.string.pref_metronome_defaultValue));
 
         if(mSong.mInitialBPM!=0) {

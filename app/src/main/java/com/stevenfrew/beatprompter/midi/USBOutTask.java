@@ -6,15 +6,15 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 
-public class MIDIUSBOutTask extends MIDIUSBTask
+public class USBOutTask extends USBTask
 {
-    public MIDIUSBOutTask()
+    public USBOutTask()
     {
         super(null,null,true);
     }
     public void doWork()
     {
-        MIDIMessage message;
+        Message message;
         try {
             while (((message = BeatPrompterApplication.mMIDIOutQueue.take()) != null) && (!getShouldStop()))
             {

@@ -30,14 +30,15 @@ import com.stevenfrew.beatprompter.event.EndEvent;
 import com.stevenfrew.beatprompter.event.LineEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
-import com.stevenfrew.beatprompter.midi.MIDIAlias;
-import com.stevenfrew.beatprompter.midi.MIDIBeatBlock;
+import com.stevenfrew.beatprompter.midi.Alias;
+import com.stevenfrew.beatprompter.midi.BeatBlock;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
-import com.stevenfrew.beatprompter.midi.MIDIEventOffset;
-import com.stevenfrew.beatprompter.midi.MIDIMessage;
-import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
-import com.stevenfrew.beatprompter.midi.MIDISongTrigger;
-import com.stevenfrew.beatprompter.midi.MIDITriggerOutputContext;
+import com.stevenfrew.beatprompter.midi.EventOffset;
+import com.stevenfrew.beatprompter.midi.Message;
+import com.stevenfrew.beatprompter.midi.OutgoingMessage;
+import com.stevenfrew.beatprompter.midi.ResolutionException;
+import com.stevenfrew.beatprompter.midi.SongTrigger;
+import com.stevenfrew.beatprompter.midi.TriggerOutputContext;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -96,8 +97,8 @@ public class SongFile extends CachedCloudFile
     private boolean mMixedMode=false;
     public String mArtist;
 
-    private MIDISongTrigger mSongSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
-    private MIDISongTrigger mProgramChangeTrigger=MIDISongTrigger.DEAD_TRIGGER;
+    private SongTrigger mSongSelectTrigger= SongTrigger.DEAD_TRIGGER;
+    private SongTrigger mProgramChangeTrigger= SongTrigger.DEAD_TRIGGER;
 
     public HashSet<String> mTags=new HashSet<>();
     public ArrayList<String> mAudioFiles=new ArrayList<>();
@@ -152,13 +153,13 @@ public class SongFile extends CachedCloudFile
         for(int f=0;f<imageNodes.getLength();++f)
             mImageFiles.add(imageNodes.item(f).getTextContent());
         NodeList pcTriggerNodes=element.getElementsByTagName(PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME);
-        mProgramChangeTrigger=MIDISongTrigger.DEAD_TRIGGER;
+        mProgramChangeTrigger= SongTrigger.DEAD_TRIGGER;
         for(int f=0;f<pcTriggerNodes.getLength();++f)
-            mProgramChangeTrigger=MIDISongTrigger.readFromXMLElement((Element)pcTriggerNodes.item(f));
+            mProgramChangeTrigger= SongTrigger.readFromXMLElement((Element)pcTriggerNodes.item(f));
         NodeList ssTriggerNodes=element.getElementsByTagName(SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME);
-        mSongSelectTrigger=MIDISongTrigger.DEAD_TRIGGER;
+        mSongSelectTrigger= SongTrigger.DEAD_TRIGGER;
         for(int f=0;f<ssTriggerNodes.getLength();++f)
-            mSongSelectTrigger=MIDISongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
+            mSongSelectTrigger= SongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
     }
 
      private String getTitleFromLine(String line, int lineNumber)
@@ -199,23 +200,23 @@ public class SongFile extends CachedCloudFile
         return getTokenValues(line, lineNumber, "tag");
     }
 
-    private MIDISongTrigger getMIDISongSelectTriggerFromLine(String line, int lineNumber)
+    private SongTrigger getMIDISongSelectTriggerFromLine(String line, int lineNumber)
     {
         return getMIDITriggerFromLine(line,lineNumber,true);
     }
 
-    private MIDISongTrigger getMIDIProgramChangeTriggerFromLine(String line, int lineNumber)
+    private SongTrigger getMIDIProgramChangeTriggerFromLine(String line, int lineNumber)
     {
         return getMIDITriggerFromLine(line,lineNumber,false);
     }
 
-    private MIDISongTrigger getMIDITriggerFromLine(String line,int lineNumber,boolean songSelectTrigger)
+    private SongTrigger getMIDITriggerFromLine(String line, int lineNumber, boolean songSelectTrigger)
     {
         String val = getTokenValue(line, lineNumber, songSelectTrigger?"midi_song_select_trigger":"midi_program_change_trigger");
         if(val!=null)
             try
             {
-                return MIDISongTrigger.parse(val,songSelectTrigger);
+                return SongTrigger.parse(val,songSelectTrigger,lineNumber,new ArrayList<>());
             }
             catch(Exception e)
             {
@@ -273,8 +274,8 @@ public class SongFile extends CachedCloudFile
                 String firstChord=getFirstChordFromLine(line,lineNumber);
                 if(((mKey==null)||(mKey.length()==0))&&(firstChord!=null)&&(firstChord.length()>0))
                     mKey = firstChord;
-                MIDISongTrigger msst=getMIDISongSelectTriggerFromLine(line,lineNumber);
-                MIDISongTrigger mpct=getMIDIProgramChangeTriggerFromLine(line,lineNumber);
+                SongTrigger msst=getMIDISongSelectTriggerFromLine(line,lineNumber);
+                SongTrigger mpct=getMIDIProgramChangeTriggerFromLine(line,lineNumber);
                 if(msst!=null)
                     mSongSelectTrigger=msst;
                 if(mpct!=null)
@@ -368,7 +369,7 @@ public class SongFile extends CachedCloudFile
         parent.appendChild(songElement);
     }
 
-    public Song load(ScrollingMode userChosenScrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler, boolean startedByMidiTrigger, ArrayList<MIDIAlias> aliases, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) throws IOException
+    public Song load(ScrollingMode userChosenScrollMode, String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler, boolean startedByMidiTrigger, ArrayList<Alias> aliases, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) throws IOException
     {
         // OK, the "scrollMode" param is passed in here.
         // This might be what the user has explicitly chosen, i.e.
@@ -404,7 +405,7 @@ public class SongFile extends CachedCloudFile
         int scrollBeatMin=1;
         int scrollBeatDefault=4;
 
-        ArrayList<MIDIOutgoingMessage> initialMIDIMessages=new ArrayList<>();
+        ArrayList<OutgoingMessage> initialMIDIMessages=new ArrayList<>();
         ArrayList<FileParseError> errors=new ArrayList<>();
         boolean stopAddingStartupItems=false;
 
@@ -427,7 +428,7 @@ public class SongFile extends CachedCloudFile
             HashSet<String> tagsSet=new HashSet<>();
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-            MIDITriggerOutputContext triggerContext= MIDITriggerOutputContext.valueOf(sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
+            TriggerOutputContext triggerContext= TriggerOutputContext.valueOf(sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
             int countInPref = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_countIn_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_default)));
             countInPref+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_offset));
 /*            int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
@@ -435,7 +436,7 @@ public class SongFile extends CachedCloudFile
             int defaultTrackVolume=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_default)));
             defaultTrackVolume+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_offset));
             int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_default)));
-            byte defaultMIDIOutputChannel= MIDIMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
+            byte defaultMIDIOutputChannel= Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
             boolean showChords=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_defaultValue)));
             boolean sendMidiClock = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_sendMidi_key), false);
             int backgroundColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_default)));
@@ -472,10 +473,10 @@ public class SongFile extends CachedCloudFile
             ArrayList<BeatEvent> rolloverBeats=new ArrayList<>();
             int pauseTime;
             int scrollBeat=bpb;
-            MIDIBeatBlock lastMIDIBeatBlock=null;
+            BeatBlock lastBeatBlock =null;
             // COMMENT
             ArrayList<Comment> comments=new ArrayList<>();
-            ArrayList<MIDIBeatBlock> beatBlocks=new ArrayList<>();
+            ArrayList<BeatBlock> beatBlocks=new ArrayList<>();
             String commentAudience;
             ImageFile lineImage=null;
 
@@ -1039,9 +1040,9 @@ public class SongFile extends CachedCloudFile
                                     long beatTimeLength=(rolloverBeatLength==0?nanosecondsPerBeat:rolloverBeatLength);
                                     double nanoPerBeat=beatTimeLength/4.0;
                                     // generate MIDI beats.
-                                    if((lastMIDIBeatBlock==null)||(nanoPerBeat!=lastMIDIBeatBlock.mNanoPerBeat)) {
-                                        MIDIBeatBlock midiBeatBlock = lastMIDIBeatBlock = new MIDIBeatBlock(beatEvent.mEventTime, midiBeatCounter++, nanoPerBeat);
-                                        beatBlocks.add(midiBeatBlock);
+                                    if((lastBeatBlock ==null)||(nanoPerBeat!= lastBeatBlock.mNanoPerBeat)) {
+                                        BeatBlock beatBlock = lastBeatBlock = new BeatBlock(beatEvent.mEventTime, midiBeatCounter++, nanoPerBeat);
+                                        beatBlocks.add(beatBlock);
                                     }
 
                                     if (currentBarBeat == beatsForThisLine - 1) {
@@ -1154,14 +1155,26 @@ public class SongFile extends CachedCloudFile
                 reallyTheLastEvent.add(endEvent);
             }
 
-            if((triggerContext==MIDITriggerOutputContext.Always)||(triggerContext==MIDITriggerOutputContext.ManualStartOnly && !startedByMidiTrigger))
+            if((triggerContext== TriggerOutputContext.Always)||(triggerContext== TriggerOutputContext.ManualStartOnly && !startedByMidiTrigger))
             {
                 if(mProgramChangeTrigger!=null)
                     if(mProgramChangeTrigger.isSendable())
-                        initialMIDIMessages.addAll(mProgramChangeTrigger.getMIDIMessages(defaultMIDIOutputChannel));
+                        try {
+                            initialMIDIMessages.addAll(mProgramChangeTrigger.getMIDIMessages(defaultMIDIOutputChannel));
+                        }
+                        catch(ResolutionException re)
+                        {
+                            errors.add(new FileParseError(lineCounter,re.getMessage()));
+                        }
                 if(mSongSelectTrigger!=null)
                     if(mSongSelectTrigger.isSendable())
-                        initialMIDIMessages.addAll(mSongSelectTrigger.getMIDIMessages(defaultMIDIOutputChannel));
+                        try {
+                            initialMIDIMessages.addAll(mSongSelectTrigger.getMIDIMessages(defaultMIDIOutputChannel));
+                        }
+                        catch(ResolutionException re)
+                        {
+                            errors.add(new FileParseError(lineCounter,re.getMessage()));
+                        }
             }
 
             // Now process all MIDI events with offsets.
@@ -1197,7 +1210,7 @@ public class SongFile extends CachedCloudFile
                 {
                     // OK, this event needs moved.
                     long newTime=-1;
-                    if(midiEvent.mOffset.mOffsetType== MIDIEventOffset.OffsetType.Milliseconds)
+                    if(midiEvent.mOffset.mOffsetType== EventOffset.OffsetType.Milliseconds)
                     {
                         long offset=Utils.milliToNano(midiEvent.mOffset.mAmount);
                         newTime=midiEvent.mEventTime+offset;
@@ -1454,7 +1467,7 @@ public class SongFile extends CachedCloudFile
         }
     }
 
-    public boolean matchesTrigger(MIDISongTrigger trigger)
+    public boolean matchesTrigger(SongTrigger trigger)
     {
         return ((mSongSelectTrigger!=null && mSongSelectTrigger.equals(trigger))
             ||(mProgramChangeTrigger!=null && mProgramChangeTrigger.equals(trigger)));

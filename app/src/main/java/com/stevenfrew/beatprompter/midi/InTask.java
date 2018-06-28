@@ -6,17 +6,17 @@ import android.util.Log;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.Task;
 
-public class MIDIInTask extends Task
+public class InTask extends Task
 {
     private Handler mHandler;
-    public MIDIInTask(Handler handler)
+    public InTask(Handler handler)
     {
         super(false);
         mHandler=handler;
     }
     public void doWork()
     {
-        MIDIIncomingMessage message;
+        IncomingMessage message;
         try {
             while (((message = BeatPrompterApplication.mMIDISongListInQueue.take()) != null) && (!getShouldStop())) {
                 if(message.isMSBBankSelect())

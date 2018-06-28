@@ -5,9 +5,9 @@ import android.util.Log;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.Task;
 
-public class MIDISongDisplayInTask extends Task
+public class SongDisplayInTask extends Task
 {
-    public MIDISongDisplayInTask()
+    public SongDisplayInTask()
     {
         super(false);
     }

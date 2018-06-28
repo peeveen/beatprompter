@@ -15,8 +15,8 @@ import com.stevenfrew.beatprompter.event.BaseEvent;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 import com.stevenfrew.beatprompter.event.CommentEvent;
 import com.stevenfrew.beatprompter.event.LineEvent;
-import com.stevenfrew.beatprompter.midi.MIDIBeatBlock;
-import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
+import com.stevenfrew.beatprompter.midi.BeatBlock;
+import com.stevenfrew.beatprompter.midi.OutgoingMessage;
 
 import java.util.ArrayList;
 
@@ -32,7 +32,7 @@ public class Song
     BaseEvent mCurrentEvent; // Last event that executed.
     private BaseEvent mNextEvent; // Upcoming event.
     boolean mCancelled=false;
-    private ArrayList<MIDIBeatBlock> mBeatBlocks;
+    private ArrayList<BeatBlock> mBeatBlocks;
     private int mNumberOfMIDIBeatBlocks;
 
     String mTitle; // Name of song
@@ -47,7 +47,7 @@ public class Song
     int mSongHeight=0;
     private int mMaxLineHeight=0;
     boolean mStartedByBandLeader;
-    ArrayList<MIDIOutgoingMessage> mInitialMIDIMessages;
+    ArrayList<OutgoingMessage> mInitialMIDIMessages;
     private ArrayList<Comment> mInitialComments; // Comments to show on startup screen.
     AudioFile mChosenBackingTrack;
     int mChosenBackingTrackVolume;
@@ -59,7 +59,7 @@ public class Song
     String mNextSong;
     int mOrientation;
 
-    public Song(String title,String artist,AudioFile audioFile,int audioVolume,ArrayList<Comment> initialComments,BaseEvent firstEvent,Line firstLine,ArrayList<FileParseError> errors,ScrollingMode scrollingMode,boolean sendMidiClock,boolean startedByBandLeader,String nextSong,int orientation,ArrayList<MIDIOutgoingMessage> initialMIDIMessages, ArrayList<MIDIBeatBlock> beatBlocks, String key, double initialBPM,int initialBPB,int countIn)
+    public Song(String title, String artist, AudioFile audioFile, int audioVolume, ArrayList<Comment> initialComments, BaseEvent firstEvent, Line firstLine, ArrayList<FileParseError> errors, ScrollingMode scrollingMode, boolean sendMidiClock, boolean startedByBandLeader, String nextSong, int orientation, ArrayList<OutgoingMessage> initialMIDIMessages, ArrayList<BeatBlock> beatBlocks, String key, double initialBPM, int initialBPB, int countIn)
     {
         mTitle=title;
         mArtist=artist;
@@ -463,7 +463,7 @@ public class Song
     long getMIDIBeatTime(int beat)
     {
         for (int f = 0; f < mNumberOfMIDIBeatBlocks; ++f) {
-            MIDIBeatBlock beatBlock=mBeatBlocks.get(f);
+            BeatBlock beatBlock=mBeatBlocks.get(f);
             if ((beatBlock.mMIDIBeatCount <= beat) && ((f + 1 == mNumberOfMIDIBeatBlocks) || (mBeatBlocks.get(f + 1).mMIDIBeatCount > beat))) {
                 return (long)(beatBlock.mBlockStartTime+(beatBlock.mNanoPerBeat*(beat-beatBlock.mMIDIBeatCount)));
             }

@@ -1,21 +1,21 @@
 package com.stevenfrew.beatprompter.event;
 
-import com.stevenfrew.beatprompter.midi.MIDIEventOffset;
-import com.stevenfrew.beatprompter.midi.MIDIOutgoingMessage;
+import com.stevenfrew.beatprompter.midi.EventOffset;
+import com.stevenfrew.beatprompter.midi.OutgoingMessage;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MIDIEvent extends BaseEvent {
-    public ArrayList<MIDIOutgoingMessage> mMessages;
-    public MIDIEventOffset mOffset;
+    public List<OutgoingMessage> mMessages;
+    public EventOffset mOffset;
 
-    public MIDIEvent(long time,ArrayList<MIDIOutgoingMessage> messages)
+    public MIDIEvent(long time,List<OutgoingMessage> messages)
     {
         super(time);
         mMessages=messages;
     }
 
-    public MIDIEvent(long time,ArrayList<MIDIOutgoingMessage> messages,MIDIEventOffset offset)
+    public MIDIEvent(long time, List<OutgoingMessage> messages, EventOffset offset)
     {
         this(time,messages);
         mOffset=offset;

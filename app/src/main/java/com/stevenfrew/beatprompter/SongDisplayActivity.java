@@ -24,11 +24,11 @@ import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
 import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
 import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
-import com.stevenfrew.beatprompter.midi.MIDIClockMessage;
-import com.stevenfrew.beatprompter.midi.MIDIIncomingMessage;
-import com.stevenfrew.beatprompter.midi.MIDIIncomingSongPositionPointerMessage;
-import com.stevenfrew.beatprompter.midi.MIDIStartMessage;
-import com.stevenfrew.beatprompter.midi.MIDIStopMessage;
+import com.stevenfrew.beatprompter.midi.ClockMessage;
+import com.stevenfrew.beatprompter.midi.IncomingMessage;
+import com.stevenfrew.beatprompter.midi.IncomingSongPositionPointerMessage;
+import com.stevenfrew.beatprompter.midi.StartMessage;
+import com.stevenfrew.beatprompter.midi.StopMessage;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
 {
@@ -401,7 +401,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
             while (nanoDiff >= getNanoSecondsPerMidiSignal()) {
                 try {
                     signalSent = true;
-                    BeatPrompterApplication.mMIDIOutQueue.put(new MIDIClockMessage());
+                    BeatPrompterApplication.mMIDIOutQueue.put(new ClockMessage());
                     // We've hit the 24-signal boundary. Switch to the next speed.
                     if (incrementClockSignalsSent() == 24) {
                         setClockSignalsSent(0);
@@ -444,7 +444,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 setLastSignalTime(System.nanoTime());
                 try
                 {
-                    BeatPrompterApplication.mMIDIOutQueue.put(new MIDIStartMessage());
+                    BeatPrompterApplication.mMIDIOutQueue.put(new StartMessage());
                 }
                 catch(Exception e)
                 {
@@ -463,7 +463,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
             setClockSignalsSent(0);
             try
             {
-                BeatPrompterApplication.mMIDIOutQueue.put(new MIDIStopMessage());
+                BeatPrompterApplication.mMIDIOutQueue.put(new StopMessage());
             }
             catch(Exception e)
             {
@@ -505,7 +505,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
 
         public void doWork()
         {
-            MIDIIncomingMessage message;
+            IncomingMessage message;
             try {
                 while (((message = BeatPrompterApplication.mMIDISongDisplayInQueue.take()) != null) && (!getShouldStop())) {
                     if(message.isStart())
@@ -515,7 +515,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     else if(message.isStop())
                         mHandler.obtainMessage(BeatPrompterApplication.MIDI_STOP_SONG).sendToTarget();
                     else if(message.isSongPositionPointer())
-                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_SET_SONG_POSITION,((MIDIIncomingSongPositionPointerMessage)message).getMIDIBeat(),0).sendToTarget();
+                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_SET_SONG_POSITION,((IncomingSongPositionPointerMessage)message).getMIDIBeat(),0).sendToTarget();
                 }
             } catch (InterruptedException ie) {
                 Log.d(TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);

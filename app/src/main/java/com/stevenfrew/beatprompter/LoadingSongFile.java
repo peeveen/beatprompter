@@ -4,7 +4,7 @@ import android.os.Handler;
 
 import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.event.CancelEvent;
-import com.stevenfrew.beatprompter.midi.MIDIAlias;
+import com.stevenfrew.beatprompter.midi.Alias;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class LoadingSongFile {
         mNativeDisplaySettings=nativeSettings;
         mSourceDisplaySettings=sourceSettings;
     }
-    Song load(boolean fullVersionUnlocked, CancelEvent cancelEvent, Handler handler, ArrayList<MIDIAlias> midiAliases) throws IOException
+    Song load(boolean fullVersionUnlocked, CancelEvent cancelEvent, Handler handler, ArrayList<Alias> midiAliases) throws IOException
     {
         return mSongFile.load(mScrollMode, mTrack,mIsDemoSong || fullVersionUnlocked,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
     }
