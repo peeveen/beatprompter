@@ -377,11 +377,11 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 return ++mClockSignalsSent;
             }
         }
-        void setClockSignalsSent(int value)
+        void resetClockSignalsSent()
         {
             synchronized(clockSignalsSentSync)
             {
-                mClockSignalsSent=value;
+                mClockSignalsSent=0;
             }
         }
         public void doWork()
@@ -404,7 +404,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     BeatPrompterApplication.mMIDIOutQueue.put(new ClockMessage());
                     // We've hit the 24-signal boundary. Switch to the next speed.
                     if (incrementClockSignalsSent() == 24) {
-                        setClockSignalsSent(0);
+                        resetClockSignalsSent();
                         setNanoSecondsPerMidiSignal(getNextNanoSecondsPerMidiSignal());
                     }
                 } catch (Exception e) {
@@ -440,7 +440,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
             if(oldNanoSecondsPerMidiSignal==0.0)
             {
                 // This is the first BPM value being set.
-                setClockSignalsSent(0);
+                resetClockSignalsSent();
                 setLastSignalTime(System.nanoTime());
                 try
                 {
@@ -460,7 +460,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         {
             super.stop();
             setLastSignalTime(0);
-            setClockSignalsSent(0);
+            resetClockSignalsSent();
             try
             {
                 BeatPrompterApplication.mMIDIOutQueue.put(new StopMessage());
@@ -490,11 +490,11 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 return mStop;
             }
         }
-        public void setShouldStop(boolean value)
+        public void setShouldStop()
         {
             synchronized (stopSync)
             {
-                mStop=value;
+                mStop=true;
             }
         }
 
@@ -524,7 +524,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
 
         void stop()
         {
-            setShouldStop(true);
+            setShouldStop();
         }
     }
 

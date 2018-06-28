@@ -1,8 +1,5 @@
 package com.stevenfrew.beatprompter.midi;
 
-import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
-
 import java.util.ArrayList;
 import java.util.List;
 

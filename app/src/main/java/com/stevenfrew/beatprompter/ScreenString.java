@@ -69,7 +69,7 @@ public class ScreenString
     }
 
     private static Rect stringWidthRect=new Rect();
-    static int getStringWidth(Paint paint,String str,Typeface face,boolean bold,float fontSize)
+    static int getStringWidth(Paint paint,String str,Typeface face,float fontSize)
     {
         if((str==null)||(str.length()==0))
             return 0;
@@ -78,12 +78,12 @@ public class ScreenString
         if(MASKING)
             str=MASKING_STRING+str+MASKING_STRING;
         getTextRect(str,paint,stringWidthRect);
-        return stringWidthRect.width() - (MASKING?getDoubleXStringLength(paint,fontSize,bold):0);
+        return stringWidthRect.width() - (MASKING?getDoubleXStringLength(paint,fontSize,false):0);
     }
 
-    static int getBestFontSize(String text,Paint paint,float minimumFontSize, float maximumFontSize, int maxWidth,int maxHeight,Typeface face,boolean bold)
+    static int getBestFontSize(String text,Paint paint,float minimumFontSize, float maximumFontSize, int maxWidth,int maxHeight,Typeface face)
     {
-        return getBestFontSize(text,paint,minimumFontSize,maximumFontSize,maxWidth,maxHeight,face,bold,null);
+        return getBestFontSize(text,paint,minimumFontSize,maximumFontSize,maxWidth,maxHeight,face,false,null);
     }
 
     public static ScreenString create(String text,Paint paint,int maxWidth,int maxHeight,int color,Typeface face,boolean bold)
@@ -94,7 +94,7 @@ public class ScreenString
     }
 
     private static Rect createRect=new Rect();
-    static ScreenString create(String text,Paint paint,float fontSize,Typeface face,boolean bold,int color)
+    static ScreenString create(String text,Paint paint,float fontSize,Typeface face,int color)
     {
         paint.setTypeface(face);
         paint.setTextSize(fontSize*Utils.FONT_SCALING);
@@ -103,7 +103,7 @@ public class ScreenString
             measureText=MASKING_STRING+text+MASKING_STRING;
         getTextRect(measureText,paint,createRect);
         if(MASKING)
-            createRect.right-=getDoubleXStringLength(paint,fontSize,bold);
+            createRect.right-=getDoubleXStringLength(paint,fontSize,false);
         return new ScreenString(text,fontSize,color,createRect.width(),createRect.height()+MARGIN_PIXELS,face,createRect.bottom);
     }
 

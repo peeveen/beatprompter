@@ -211,7 +211,7 @@ public class Utils
             out.println(str);
         }
     }
-    public static String stripHexSignifiers(String str)
+    private static String stripHexSignifiers(String str)
     {
         str = str.toLowerCase();
         if (str.startsWith("0x"))

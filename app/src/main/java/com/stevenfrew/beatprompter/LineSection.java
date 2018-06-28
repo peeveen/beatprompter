@@ -38,9 +38,9 @@ class LineSection
         mTags=tags;
     }
 
-    int setTextFontSizeAndMeasure(Paint paint,int fontSize,Typeface face,boolean bold,int color)
+    int setTextFontSizeAndMeasure(Paint paint,int fontSize,Typeface face,int color)
     {
-        mLineSS=ScreenString.create(mLineText,paint,fontSize,face,bold,color);
+        mLineSS=ScreenString.create(mLineText,paint,fontSize,face,color);
         if(mLineText.trim().length()==0)
             mTextHeight=0;
         else
@@ -48,13 +48,13 @@ class LineSection
         return mTextWidth=mLineSS.mWidth;
     }
 
-    int setChordFontSizeAndMeasure(Paint paint,int fontSize,Typeface face,boolean bold,int color)
+    int setChordFontSizeAndMeasure(Paint paint,int fontSize,Typeface face,int color)
     {
-        mChordSS = ScreenString.create(mChordText, paint, fontSize, face, bold,color);
+        mChordSS = ScreenString.create(mChordText, paint, fontSize, face, color);
         String trimChord=mChordText.trim();
         ScreenString trimChordSS;
         if(trimChord.length()<mChordText.length())
-            trimChordSS= ScreenString.create(trimChord, paint, fontSize, face, bold,color);
+            trimChordSS= ScreenString.create(trimChord, paint, fontSize, face, color);
         else
             trimChordSS=mChordSS;
         if(mChordText.trim().length()==0)
@@ -84,7 +84,7 @@ class LineSection
             if ((tag.mName.equals("soh")) && (!lookingForEnd))
             {
                 String strHighlightText=mLineText.substring(0,tag.mPosition-mSectionPosition);
-                startX=ScreenString.getStringWidth(paint,strHighlightText,face,false,textSize);
+                startX=ScreenString.getStringWidth(paint,strHighlightText,face,textSize);
                 startPosition=tag.mPosition-mSectionPosition;
                 if(tag.mValue.length()>0)
                 {
@@ -107,7 +107,7 @@ class LineSection
             else if ((tag.mName.equals("eoh")) && (lookingForEnd))
             {
                 String strHighlightText=mLineText.substring(startPosition,tag.mPosition-mSectionPosition);
-                int sectionWidth=ScreenString.getStringWidth(paint,strHighlightText,face,false,textSize);
+                int sectionWidth=ScreenString.getStringWidth(paint,strHighlightText,face,textSize);
                 mHighlightingRectangles.add(new ColorRect(startX,mChordHeight,startX+sectionWidth,mChordHeight+mTextHeight,highlightColour));
                 highlightColour=0;
                 lookingForEnd=false;

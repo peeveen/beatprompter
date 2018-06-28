@@ -36,11 +36,11 @@ public abstract class Task implements Runnable
             return mStop;
         }
     }
-    protected void setShouldStop(boolean value)
+    void setShouldStop()
     {
         synchronized (stopSync)
         {
-            mStop=value;
+            mStop=true;
         }
     }
     public void run()
@@ -71,7 +71,7 @@ public abstract class Task implements Runnable
     void stop()
     {
         setIsRunning(false);
-        setShouldStop(true);
+        setShouldStop();
     }
     void initialise()
     {

@@ -98,8 +98,8 @@ public class TextLine extends Line
         for (LineSection section : sections) {
             if(!cancelEvent.isCancelled())
                 break;
-            section.setTextFontSizeAndMeasure(paint, 100, font, false, mColorEvent.mLyricColor);
-            section.setChordFontSizeAndMeasure(paint, 100, font, false, mColorEvent.mLyricColor);
+            section.setTextFontSizeAndMeasure(paint, 100, font, mColorEvent.mLyricColor);
+            section.setChordFontSizeAndMeasure(paint, 100, font, mColorEvent.mLyricColor);
             if (section.mChordWidth > section.mTextWidth)
                 longestBits.append(section.mChordText);
             else
@@ -108,7 +108,7 @@ public class TextLine extends Line
         if(cancelEvent.isCancelled())
             return null;
 
-        double maxLongestFontSize = ScreenString.getBestFontSize(longestBits.toString(), paint, minimumFontSize,maximumFontSize, screenWidth, -1, font, false);
+        double maxLongestFontSize = ScreenString.getBestFontSize(longestBits.toString(), paint, minimumFontSize,maximumFontSize, screenWidth, -1, font);
         double textFontSize = maxLongestFontSize;
         double chordFontSize = maxLongestFontSize;
         boolean allTextSmallerThanChords, allChordsSmallerThanText;
@@ -123,8 +123,8 @@ public class TextLine extends Line
                 if(cancelEvent.isCancelled())
                     break;
                 textExists |= section.mLineText.length() > 0;
-                int textWidth = section.setTextFontSizeAndMeasure(paint, (int) Math.floor(textFontSize), font, false, mColorEvent.mLyricColor);
-                int chordWidth = section.setChordFontSizeAndMeasure(paint, (int) Math.floor(chordFontSize), font, false, mColorEvent.mChordColor);
+                int textWidth = section.setTextFontSizeAndMeasure(paint, (int) Math.floor(textFontSize), font, mColorEvent.mLyricColor);
+                int chordWidth = section.setChordFontSizeAndMeasure(paint, (int) Math.floor(chordFontSize), font, mColorEvent.mChordColor);
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false;
                 else if ((textWidth > 0) && (textWidth > chordWidth))
@@ -170,8 +170,8 @@ public class TextLine extends Line
             for (LineSection section : sections) {
                 if(cancelEvent.isCancelled())
                     break;
-                int textWidth = section.setTextFontSizeAndMeasure(paint, (int) Math.floor(proposedLargerTextFontSize), font, false, mColorEvent.mLyricColor);
-                int chordWidth = section.setChordFontSizeAndMeasure(paint, (int) Math.floor(proposedLargerChordFontSize), font, false, mColorEvent.mChordColor);
+                int textWidth = section.setTextFontSizeAndMeasure(paint, (int) Math.floor(proposedLargerTextFontSize), font, mColorEvent.mLyricColor);
+                int chordWidth = section.setChordFontSizeAndMeasure(paint, (int) Math.floor(proposedLargerChordFontSize), font, mColorEvent.mChordColor);
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false;
                 else if ((textWidth > 0) && (textWidth > chordWidth))
@@ -203,8 +203,8 @@ public class TextLine extends Line
         {
             if(cancelEvent.isCancelled())
                 break;
-            section.setTextFontSizeAndMeasure(paint, mLineTextSize, font, false, mColorEvent.mLyricColor);
-            section.setChordFontSizeAndMeasure(paint, mChordTextSize, font, false,mColorEvent.mChordColor);
+            section.setTextFontSizeAndMeasure(paint, mLineTextSize, font, mColorEvent.mLyricColor);
+            section.setChordFontSizeAndMeasure(paint, mChordTextSize, font, mColorEvent.mChordColor);
             mLineDescenderOffset=Math.max(mLineDescenderOffset,section.mLineSS.mDescenderOffset);
             mChordDescenderOffset=Math.max(mChordDescenderOffset,section.mChordSS.mDescenderOffset);
             mLyricHeight=Math.max(mLyricHeight,section.mTextHeight-section.mLineSS.mDescenderOffset);
@@ -275,10 +275,10 @@ public class TextLine extends Line
                         for (int f = wordCount-1; f>=1 && !cancelEvent.isCancelled(); --f) {
                             String tryThisWithWhitespace = Utils.stitchBits(bits, f);
                             String tryThis = tryThisWithWhitespace.trim();
-                            int tryThisWidth = ScreenString.getStringWidth(paint, tryThis, font, false, mLineTextSize);
+                            int tryThisWidth = ScreenString.getStringWidth(paint, tryThis, font, mLineTextSize);
                             int tryThisWithWhitespaceWidth=tryThisWidth;
                             if(tryThisWithWhitespace.length()>tryThis.length())
-                                tryThisWithWhitespaceWidth = ScreenString.getStringWidth(paint, tryThisWithWhitespace, font, false, mLineTextSize);
+                                tryThisWithWhitespaceWidth = ScreenString.getStringWidth(paint, tryThisWithWhitespace, font, mLineTextSize);
                             if ((tryThisWidth >= bothersomeSection.mChordTrimWidth) || ((tryThisWidth<bothersomeSection.mChordTrimWidth)&&(bothersomeSection.mChordTrimWidth+widthWithoutBothersomeSection<screenWidth)))
                             {
                                 int possibleSplitPoint = widthWithoutBothersomeSection + tryThisWidth;
@@ -345,7 +345,7 @@ public class TextLine extends Line
                             if (bits.length > 1) {
                                 for (int f = bits.length-1; f>=1 && !cancelEvent.isCancelled(); --f) {
                                     String tryThis = Utils.stitchBits(bits, f);
-                                    int tryThisWidth = ScreenString.getStringWidth(paint, tryThis, font, false, mLineTextSize);
+                                    int tryThisWidth = ScreenString.getStringWidth(paint, tryThis, font, mLineTextSize);
                                     if (tryThisWidth >= bothersomeSection.mChordTrimWidth)
                                     {
                                         int possibleSplitPoint=widthWithoutBothersomeSection + tryThisWidth;
