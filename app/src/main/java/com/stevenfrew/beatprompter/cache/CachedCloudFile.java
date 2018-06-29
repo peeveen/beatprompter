@@ -87,39 +87,31 @@ public abstract class CachedCloudFile extends CloudFileInfo {
     {
         try
         {
-            return new SongFile(result);
+            return new AudioFile(result);
         }
-        catch(IOException ioe)
+        catch(InvalidBeatPrompterFileException ioe)
         {
             try {
-                // Not a song file. Might be a set file?
-                return new SetListFile(result);
+                return new ImageFile(result);
             }
             catch(InvalidBeatPrompterFileException ibpfe1)
             {
-                // Not a set list file. Might be a MIDI Alias file?
                 try {
-                    // Not a song file. Might be a set file?
                     return new MIDIAliasFile(result);
                 }
                 catch(InvalidBeatPrompterFileException ibpfe2)
                 {
-                    // Not a MIDI Alias file. Might be an audio file?
-                    // Not a set list file. Might be a MIDI Alias file?
                     try {
-                        // Not a song file. Might be a set file?
-                        return new AudioFile(result);
+                        return new SongFile(result);
                     }
                     catch(InvalidBeatPrompterFileException ibpfe3)
                     {
-                        // Not an Audio file. Might be an image file?
                         try {
-                            // Not a song file. Might be a set file?
-                            return new ImageFile(result);
+                            return new SetListFile(result);
                         }
                         catch(InvalidBeatPrompterFileException ibpfe4)
                         {
-                            // Not an Image file.
+                            // Not any kind of file we're interested in?
                             // We don't want this file.
                         }
                     }

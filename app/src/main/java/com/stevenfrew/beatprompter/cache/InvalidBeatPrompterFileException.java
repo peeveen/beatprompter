@@ -7,4 +7,8 @@ class InvalidBeatPrompterFileException extends IOException {
     {
         super(message);
     }
+    InvalidBeatPrompterFileException(String message,Exception inner)
+    {
+        super(message,inner);
+    }
 }

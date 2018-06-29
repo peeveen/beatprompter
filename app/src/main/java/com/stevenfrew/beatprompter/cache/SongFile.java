@@ -106,7 +106,7 @@ public class SongFile extends CachedCloudFile
 
     private final static int MAX_LINE_LENGTH=256;
 
-    public SongFile(CloudDownloadResult result) throws IOException
+    public SongFile(CloudDownloadResult result) throws InvalidBeatPrompterFileException
     {
         super(result.mDownloadedFile,result.mCloudFileInfo);
         parseSongFileInfo(new ArrayList<>(),new ArrayList<>());
@@ -256,11 +256,12 @@ public class SongFile extends CachedCloudFile
         return realimage;
     }
 
-    private void parseSongFileInfo(ArrayList<AudioFile> tempAudioFileCollection,ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    private void parseSongFileInfo(ArrayList<AudioFile> tempAudioFileCollection,ArrayList<ImageFile> tempImageFileCollection) throws InvalidBeatPrompterFileException
     {
-        BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
+        BufferedReader br=null;
         try
         {
+            br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
             String line;
             int lineNumber=0;
             SmoothScrollingTimes sst = getTimePerLineAndBar(null,tempAudioFileCollection,tempImageFileCollection);
@@ -311,11 +312,16 @@ public class SongFile extends CachedCloudFile
             if(mArtist==null)
                 mArtist="";
         }
+        catch(IOException ioe)
+        {
+            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.file_io_read_error),ioe);
+        }
         finally
         {
             try
             {
-               br.close();
+                if(br!=null)
+                    br.close();
             }
             catch(IOException ioe)
             {
