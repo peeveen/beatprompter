@@ -7,7 +7,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -17,24 +16,24 @@ public abstract class CachedCloudFile extends CloudFileInfo {
 
     private final static String CACHED_FILE_PATH_ATTRIBUTE_NAME="path";
 
-    public CachedCloudFile(File file, String id, String name, Date lastModified,String subfolder)
+    CachedCloudFile(File file, String id, String name, Date lastModified,String subfolder)
     {
         super(id,name,lastModified,subfolder);
         mFile=file;
     }
 
-    public CachedCloudFile(File file, CloudFileInfo cloudFileInfo)
+    CachedCloudFile(File file, CloudFileInfo cloudFileInfo)
     {
         super(cloudFileInfo.mID,cloudFileInfo.mName,cloudFileInfo.mLastModified,cloudFileInfo.mSubfolder);
         mFile=file;
     }
 
-    public CachedCloudFile(CloudDownloadResult result)
+    CachedCloudFile(CloudDownloadResult result)
     {
         this(result.mDownloadedFile,result.mCloudFileInfo);
     }
 
-    protected CachedCloudFile(Element element)
+    CachedCloudFile(Element element)
     {
         super(element);
         mFile=new File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME));

@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.stevenfrew.beatprompter.R;
@@ -35,7 +36,9 @@ public class ImageFile extends CachedCloudFile
     {
         BitmapFactory.Options options = new BitmapFactory.Options();
         try {
-            BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
+            Bitmap bitmap=BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
+            if(bitmap==null)
+                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.could_not_read_image_file)+": "+mName);
         }
         catch(Exception e)
         {
