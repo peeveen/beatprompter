@@ -1088,40 +1088,12 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         File bpdb=new File(mBeatPrompterDataFolder,XML_DATABASE_FILE_NAME);
         if(bpdb.exists())
         {
-            clearCachedCloudFileArrays();
+            mPlaylist=new Playlist();
 
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document xmlDoc = docBuilder.parse(bpdb);
-            NodeList songFiles = xmlDoc.getElementsByTagName(SongFile.SONGFILE_ELEMENT_TAG_NAME);
-            for (int f = 0; f < songFiles.getLength(); ++f) {
-                Node n = songFiles.item(f);
-                SongFile song = new SongFile((Element)n);
-                mCachedCloudFiles.add(song);
-            }
-            NodeList setFiles = xmlDoc.getElementsByTagName(SetListFile.SETLISTFILE_ELEMENT_TAG_NAME);
-            for (int f = 0; f < setFiles.getLength(); ++f) {
-                Node n = setFiles.item(f);
-                SetListFile set = new SetListFile((Element)n);
-                mCachedCloudFiles.add(set);
-            }
-            NodeList imageFiles = xmlDoc.getElementsByTagName(ImageFile.IMAGEFILE_ELEMENT_TAG_NAME);
-            for (int f = 0; f < imageFiles.getLength(); ++f) {
-                Node n = imageFiles.item(f);
-                ImageFile imageFile = new ImageFile((Element)n);
-                mCachedCloudFiles.add(imageFile);
-            }
-            NodeList audioFiles = xmlDoc.getElementsByTagName(AudioFile.AUDIOFILE_ELEMENT_TAG_NAME);
-            for (int f = 0; f < audioFiles.getLength(); ++f) {
-                Node n = audioFiles.item(f);
-                AudioFile audioFile = new AudioFile((Element)n);
-                mCachedCloudFiles.add(audioFile);
-            }
-            NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
-            for (int f = 0; f < aliasFiles.getLength(); ++f) {
-                Node n = aliasFiles.item(f);
-                MIDIAliasFile midiAliasCachedCloudFile = new MIDIAliasFile((Element)n);
-                mCachedCloudFiles.add(midiAliasCachedCloudFile);
-            }
+
+            mCachedCloudFiles.readFromXML(xmlDoc);
             buildFilterList();
         }
     }
@@ -1439,19 +1411,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         sharedPref.edit().putLong("pref_lastSyncDate",date.getTime()).apply();
     }
 
-    private void clearCachedCloudFileArrays()
-    {
-        mPlaylist=new Playlist();
-        mCachedCloudFiles.clear();
-    }
-
     public void deleteAllFiles()
     {
         // Clear both cache folders
         setLastSyncDate(new Date(0));
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
         cs.getCacheFolder().clear();
-        clearCachedCloudFileArrays();
+        mPlaylist=new Playlist();
+        mCachedCloudFiles.clear();
         buildFilterList();
         try {
             writeDatabase();

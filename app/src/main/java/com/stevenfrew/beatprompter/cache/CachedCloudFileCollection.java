@@ -22,6 +22,60 @@ public class CachedCloudFileCollection
             ccf.writeToXML(d,root);
     }
 
+    public void readFromXML(Document xmlDoc)
+    {
+        clear();
+
+        NodeList songFiles = xmlDoc.getElementsByTagName(SongFile.SONGFILE_ELEMENT_TAG_NAME);
+        for (int f = 0; f < songFiles.getLength(); ++f) {
+            Node n = songFiles.item(f);
+            SongFile song = new SongFile((Element)n);
+            add(song);
+        }
+        NodeList setFiles = xmlDoc.getElementsByTagName(SetListFile.SETLISTFILE_ELEMENT_TAG_NAME);
+        for (int f = 0; f < setFiles.getLength(); ++f) {
+            Node n = setFiles.item(f);
+            try {
+                SetListFile set = new SetListFile((Element) n);
+                add(set);
+            }
+            catch(InvalidBeatPrompterFileException ibpfe)
+            {
+                // This should never happen. If we could write out the file info, then it was valid.
+                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
+                // has meddled with files outside of the app ...
+                Log.d(BeatPrompterApplication.TAG,"Failed to parse set-list file.");
+            }
+        }
+        NodeList imageFiles = xmlDoc.getElementsByTagName(ImageFile.IMAGEFILE_ELEMENT_TAG_NAME);
+        for (int f = 0; f < imageFiles.getLength(); ++f) {
+            Node n = imageFiles.item(f);
+            ImageFile imageFile = new ImageFile((Element)n);
+            add(imageFile);
+        }
+        NodeList audioFiles = xmlDoc.getElementsByTagName(AudioFile.AUDIOFILE_ELEMENT_TAG_NAME);
+        for (int f = 0; f < audioFiles.getLength(); ++f) {
+            Node n = audioFiles.item(f);
+            AudioFile audioFile = new AudioFile((Element)n);
+            add(audioFile);
+        }
+        NodeList aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME);
+        for (int f = 0; f < aliasFiles.getLength(); ++f) {
+            Node n = aliasFiles.item(f);
+            try{
+                MIDIAliasFile midiAliasCachedCloudFile = new MIDIAliasFile((Element)n);
+                add(midiAliasCachedCloudFile);
+            }
+            catch(InvalidBeatPrompterFileException ibpfe)
+            {
+                // This should never happen. If we could write out the file info, then it was valid.
+                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
+                // has meddled with files outside of the app ...
+                Log.d(BeatPrompterApplication.TAG,"Failed to parse MIDI alias file.");
+            }
+        }
+    }
+
     public void add(CachedCloudFile cachedFile)
     {
         for(int f=mFiles.size()-1;f>=0;--f)
