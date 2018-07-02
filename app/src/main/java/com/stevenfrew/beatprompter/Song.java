@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import com.stevenfrew.beatprompter.cache.AudioFile;
 import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.event.BaseEvent;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 import com.stevenfrew.beatprompter.event.CommentEvent;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 
 public class Song
 {
+    public SongFile mSongFile;
     ScrollingMode mScrollingMode;
     private Line mFirstLine; // First line to show.
     Line mCurrentLine;
@@ -35,11 +37,7 @@ public class Song
     private ArrayList<BeatBlock> mBeatBlocks;
     private int mNumberOfMIDIBeatBlocks;
 
-    String mTitle; // Name of song
-    double mInitialBPM;
     int mInitialBPB;
-    private String mKey;
-    private String mArtist; // Artist
     Rect mBeatCounterRect;
     public int mCountIn;
     int mBeatCounterHeight;
@@ -59,14 +57,11 @@ public class Song
     String mNextSong;
     int mOrientation;
 
-    public Song(String title, String artist, AudioFile audioFile, int audioVolume, ArrayList<Comment> initialComments, BaseEvent firstEvent, Line firstLine, ArrayList<FileParseError> errors, ScrollingMode scrollingMode, boolean sendMidiClock, boolean startedByBandLeader, String nextSong, int orientation, ArrayList<OutgoingMessage> initialMIDIMessages, ArrayList<BeatBlock> beatBlocks, String key, double initialBPM, int initialBPB, int countIn)
+    public Song(SongFile songFile, AudioFile audioFile, int audioVolume, ArrayList<Comment> initialComments, BaseEvent firstEvent, Line firstLine, ArrayList<FileParseError> errors, ScrollingMode scrollingMode, boolean sendMidiClock, boolean startedByBandLeader, String nextSong, int orientation, ArrayList<OutgoingMessage> initialMIDIMessages, ArrayList<BeatBlock> beatBlocks, int initialBPB, int countIn)
     {
-        mTitle=title;
-        mArtist=artist;
-        mKey=key;
+        mSongFile=songFile;
         mInitialBPB=initialBPB;
         mCountIn=countIn;
-        mInitialBPM=initialBPM;
         mInitialMIDIMessages=initialMIDIMessages;
         mOrientation=orientation;
         mNextSong=nextSong;
@@ -144,7 +139,7 @@ public class Song
 
         int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_highlightColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_highlightColor_default))));
         boolean showKey = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_defaultValue)));
-        showKey&=((mKey!=null)&&(mKey.length()>0));
+        showKey&=((mSongFile.mKey!=null)&&(mSongFile.mKey.length()>0));
         String showBPMString = sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_showSongBPM_key), SongList.mSongListInstance.getString(R.string.pref_showSongBPM_defaultValue));
 
         mBeatCounterHeight=0;
@@ -156,7 +151,7 @@ public class Song
         float maxSongTitleWidth=nativeScreenWidth*0.9f;
         float maxSongTitleHeight=mBeatCounterHeight*0.9f;
         float vMargin=(mBeatCounterHeight-maxSongTitleHeight)/2.0f;
-        mSongTitleHeader=ScreenString.create(mTitle,paint,(int)maxSongTitleWidth,(int)maxSongTitleHeight,Utils.makeHighlightColour( Color.BLACK,(byte)0x80),notBoldFont,false);
+        mSongTitleHeader=ScreenString.create(mSongFile.mTitle,paint,(int)maxSongTitleWidth,(int)maxSongTitleHeight,Utils.makeHighlightColour( Color.BLACK,(byte)0x80),notBoldFont,false);
         float extraMargin=(maxSongTitleHeight-mSongTitleHeader.mHeight)/2.0f;
         float x=(float)((nativeScreenWidth-mSongTitleHeader.mWidth)/2.0);
         float y=mBeatCounterHeight-(extraMargin+mSongTitleHeader.mDescenderOffset+vMargin);
@@ -227,9 +222,9 @@ public class Song
         }
         int tenPercent=(int)(availableScreenHeight/10.0);
         int twentyPercent=(int)(availableScreenHeight/5.0);
-        mStartScreenStrings.add(ScreenString.create(mTitle,paint,nativeScreenWidth,twentyPercent, Color.YELLOW,boldFont,true));
-        if((mArtist!=null)&&(mArtist.length()>0))
-            mStartScreenStrings.add(ScreenString.create(mArtist,paint,nativeScreenWidth,tenPercent, Color.YELLOW,boldFont,true));
+        mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle,paint,nativeScreenWidth,twentyPercent, Color.YELLOW,boldFont,true));
+        if((mSongFile.mArtist!=null)&&(mSongFile.mArtist.length()>0))
+            mStartScreenStrings.add(ScreenString.create(mSongFile.mArtist,paint,nativeScreenWidth,tenPercent, Color.YELLOW,boldFont,true));
         ArrayList<String> commentLines=new ArrayList<>();
         for(Comment c:mInitialComments)
            commentLines.add(c.mText);
@@ -239,7 +234,7 @@ public class Song
                nonBlankCommentLines.add(commentLine.trim());
         int errors=mParseErrors.size();
         int messages=Math.min(errors,6)+nonBlankCommentLines.size();
-        boolean showBPM=(!SongList.mSongListInstance.getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mInitialBPM!=0.0);
+        boolean showBPM=(!SongList.mSongListInstance.getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mSongFile.mBPM!=0.0);
         if(showBPM)
             ++messages;
         if(showKey)
@@ -267,19 +262,19 @@ public class Song
             }
             if(showKey)
             {
-                String keyString=SongList.mSongListInstance.getString(R.string.keyPrefix)+": "+mKey;
+                String keyString=SongList.mSongListInstance.getString(R.string.keyPrefix)+": "+mSongFile.mKey;
                 mStartScreenStrings.add(ScreenString.create(keyString,paint,nativeScreenWidth,spacePerMessageLine,Color.CYAN,notBoldFont,false));
             }
             if(showBPM)
             {
                 boolean rounded=SongList.mSongListInstance.getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
-                if(mInitialBPM==(int)mInitialBPM)
+                if(mSongFile.mBPM==(int)mSongFile.mBPM)
                     rounded=true;
                 String bpmString=SongList.mSongListInstance.getString(R.string.bpmPrefix)+": ";
                 if(rounded)
-                    bpmString+=(int)Math.round(mInitialBPM);
+                    bpmString+=(int)Math.round(mSongFile.mBPM);
                 else
-                    bpmString+=mInitialBPM;
+                    bpmString+=mSongFile.mBPM;
                 mStartScreenStrings.add(ScreenString.create(bpmString,paint,nativeScreenWidth,spacePerMessageLine,Color.CYAN,notBoldFont,false));
             }
         }

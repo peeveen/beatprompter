@@ -34,6 +34,7 @@ public class LoadingSongFile {
     }
     Song load(boolean fullVersionUnlocked, CancelEvent cancelEvent, Handler handler, ArrayList<Alias> midiAliases) throws IOException
     {
-        return mSongFile.load(mScrollMode, mTrack,mIsDemoSong || fullVersionUnlocked,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
+        SongLoader loader=new SongLoader(mSongFile,mScrollMode);
+        return loader.load(mTrack,mIsDemoSong || fullVersionUnlocked,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
     }
 }

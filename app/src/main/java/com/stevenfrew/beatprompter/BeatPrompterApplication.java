@@ -133,7 +133,7 @@ public class BeatPrompterApplication extends Application {
         Song loadedSong=getCurrentSong();
         if(loadedSong!=null)
             if(SongDisplayActivity.mSongDisplayActive)
-                if(!loadedSong.mTitle.equals(songWeWantToInterruptWith.mTitle))
+                if(!loadedSong.mSongFile.mTitle.equals(songWeWantToInterruptWith.mTitle))
                     if(SongDisplayActivity.mSongDisplayInstance.canYieldToMIDITrigger()) {
                         loadedSong.mCancelled = true;
                         mSongDisplayHandler.obtainMessage(END_SONG).sendToTarget();

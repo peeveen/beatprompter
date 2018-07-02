@@ -142,7 +142,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
         String metronomePref=sharedPref.getString(songDisplayActivity.getString(R.string.pref_metronome_key), songDisplayActivity.getString(R.string.pref_metronome_defaultValue));
 
-        if(mSong.mInitialBPM!=0) {
+        if(mSong.mSongFile.mBPM!=0) {
             boolean metronomeOn = metronomePref.equals(songDisplayActivity.getString(R.string.metronomeOnValue));
             boolean metronomeOnWhenNoBackingTrack = metronomePref.equals(songDisplayActivity.getString(R.string.metronomeOnWhenNoBackingTrackValue));
             boolean metronomeCount = metronomePref.equals(songDisplayActivity.getString(R.string.metronomeDuringCountValue));
@@ -256,7 +256,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                 if(mSong.mScrollingMode==ScrollingMode.Manual)
                 {
                     if (mMetronomeBeats > 0) {
-                        mMetronomeThread = new Thread(mMetronomeTask = new MetronomeTask(mSong.mInitialBPM, mMetronomeBeats));
+                        mMetronomeThread = new Thread(mMetronomeTask = new MetronomeTask(mSong.mSongFile.mBPM, mMetronomeBeats));
                         // Infinite metronome? Might as well start it now.
                         if(mMetronomeBeats==Long.MAX_VALUE)
                             mMetronomeThread.start();

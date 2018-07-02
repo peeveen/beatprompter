@@ -438,10 +438,10 @@
     <string name="metronomeOnWhenNoBackingTrack">On when there is no backing track</string>
     <string name="metronomeOff">Off</string>
     <string name="metronomeDuringCount">During count-in</string>
-    <string name="metronomeOnValue" translatable="false">on</string>
-    <string name="metronomeOnWhenNoBackingTrackValue" translatable="false">onnotrack</string>
-    <string name="metronomeOffValue" translatable="false">off</string>
-    <string name="metronomeDuringCountValue" translatable="false">count</string>
+    <string name="metronomeOnValue" translatable="false">On</string>
+    <string name="metronomeOnWhenNoBackingTrackValue" translatable="false">OnWhenNoTrack</string>
+    <string name="metronomeOffValue" translatable="false">Off</string>
+    <string name="metronomeDuringCountValue" translatable="false">DuringCountIn</string>
 
     <string name="pref_showSongBPM_key" translatable="false">pref_showSongBPM</string>
     <string name="pref_showSongBPM_title">Show song BPM on title screen</string>

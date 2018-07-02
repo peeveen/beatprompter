@@ -117,7 +117,7 @@ public class Tag
             }
             byte[] resolvedBytes = new byte[paramBytes.length];
             for (int f = 0; f < paramBytes.length; ++f)
-                resolvedBytes[f] = paramBytes[f].resolve();
+                resolvedBytes[f] = paramBytes[f]!=null?paramBytes[f].resolve():0;
             for (Alias alias : aliases)
                 if (alias.mName.equalsIgnoreCase(tag.mName)) {
                     return new MIDIEvent(time,alias.resolve(aliases, resolvedBytes, channel),eventOffset);
