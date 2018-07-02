@@ -8,7 +8,7 @@ import java.io.IOException;
 
 class SongLoaderTask extends Task {
     private CancelEvent mCancelEvent=null;
-    private LoadingSongFile mLoadingSongFile=null;
+    private SongLoadTask.LoadingSongFile mLoadingSongFile=null;
 
     private Handler mSongLoadHandler=null;
     private final Object mSongLoadHandlerSync = new Object();
@@ -29,16 +29,16 @@ class SongLoaderTask extends Task {
             mSongLoadHandler=handler;
         }
     }
-    private LoadingSongFile getLoadingSongFile()
+    private SongLoadTask.LoadingSongFile getLoadingSongFile()
     {
         synchronized (mLoadingSongFileSync)
         {
-            LoadingSongFile result=mLoadingSongFile;
+            SongLoadTask.LoadingSongFile result=mLoadingSongFile;
             mLoadingSongFile=null;
             return result;
         }
     }
-    private void setLoadingSongFile(LoadingSongFile lsf,CancelEvent cancelEvent)
+    private void setLoadingSongFile(SongLoadTask.LoadingSongFile lsf,CancelEvent cancelEvent)
     {
         synchronized (mLoadingSongFileSync)
         {
@@ -70,13 +70,13 @@ class SongLoaderTask extends Task {
     }
     public void doWork()
     {
-        LoadingSongFile lsf=getLoadingSongFile();
+        SongLoadTask.LoadingSongFile lsf=getLoadingSongFile();
         if(lsf!=null) {
             System.gc();
             Handler songLoadHandler=getSongLoadHandler();
             CancelEvent cancelEvent = getCancelEvent();
             try {
-                Song loadingSong = lsf.load(SongList.isFullVersionUnlocked(), cancelEvent, songLoadHandler,SongList.getMIDIAliases());
+                Song loadingSong = lsf.load(cancelEvent, songLoadHandler,SongList.getMIDIAliases());
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
@@ -99,7 +99,7 @@ class SongLoaderTask extends Task {
             {
             }
     }
-    void setSongToLoad(LoadingSongFile lsf,Handler handler,CancelEvent cancelEvent)
+    void setSongToLoad(SongLoadTask.LoadingSongFile lsf, Handler handler, CancelEvent cancelEvent)
     {
         setSongLoadHandler(handler);
         setLoadingSongFile(lsf,cancelEvent);

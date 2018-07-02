@@ -4,13 +4,18 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
+import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.event.CancelEvent;
+import com.stevenfrew.beatprompter.midi.Alias;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
@@ -20,7 +25,6 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
 
     static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
-    static LoadingSongFile mSongToLoadOnResume=null;
 
     private CancelEvent mCancelEvent=new CancelEvent();
 
@@ -28,9 +32,9 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private ProgressDialog mProgressDialog;
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
 
-    SongLoadTask(LoadingSongFile lsf)
+    SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings,boolean demo)
     {
-        mLoadingSongFile=lsf;
+        mLoadingSongFile=new LoadingSongFile(selectedSong,trackName,scrollMode,nextSongName,startedByBandLeader,startedByMidiTrigger,nativeSettings,sourceSettings,demo);
         mSongLoadTaskEventHandler=new SongLoadTaskEventHandler(this);
     }
 
@@ -93,13 +97,23 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     void loadSong()
     {
         if(SongDisplayActivity.mSongDisplayActive) {
-            mSongToLoadOnResume=mLoadingSongFile;
+            SongList.mSongLoadTaskOnResume=this;
             if(!BeatPrompterApplication.cancelCurrentSong(mLoadingSongFile.mSongFile))
-                mSongToLoadOnResume=null;
+                SongList.mSongLoadTaskOnResume=null;
             return;
         }
 
-        BluetoothManager.broadcastMessageToClients(new ChooseSongMessage(mLoadingSongFile));
+        ChooseSongMessage csm=new ChooseSongMessage(mLoadingSongFile.mSongFile.mTitle,
+                mLoadingSongFile.mTrack,
+                mLoadingSongFile.mNativeDisplaySettings.mOrientation,
+                mLoadingSongFile.mScrollMode==ScrollingMode.Beat,
+                mLoadingSongFile.mScrollMode==ScrollingMode.Smooth,
+                mLoadingSongFile.mNativeDisplaySettings.mMinFontSize,
+                mLoadingSongFile.mNativeDisplaySettings.mMaxFontSize,
+                mLoadingSongFile.mNativeDisplaySettings.mScreenWidth,
+                mLoadingSongFile.mNativeDisplaySettings.mScreenHeight);
+        BluetoothManager.broadcastMessageToClients(csm);
+
         SongList.mSongLoaderTask.setSongToLoad(mLoadingSongFile,mSongLoadTaskEventHandler,mCancelEvent);
         this.execute();
     }
@@ -135,6 +149,36 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
                     EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED,msg.obj);
                     break;
             }
+        }
+    }
+
+    class LoadingSongFile {
+        SongFile mSongFile;
+        String mTrack;
+        ScrollingMode mScrollMode;
+        SongDisplaySettings mNativeDisplaySettings;
+        private boolean mStartedByBandLeader;
+        private boolean mStartedByMIDITrigger;
+        private String mNextSong;
+        private SongDisplaySettings mSourceDisplaySettings;
+        private boolean mRegistered;
+
+        LoadingSongFile(SongFile songFile, String track, ScrollingMode mode,String nextSong,boolean startedByBandLeader,boolean startedByMidiTrigger,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings,boolean registered)
+        {
+            mSongFile=songFile;
+            mStartedByMIDITrigger=startedByMidiTrigger;
+            mTrack=track;
+            mRegistered=registered;
+            mScrollMode=mode;
+            mNextSong=nextSong;
+            mStartedByBandLeader=startedByBandLeader;
+            mNativeDisplaySettings=nativeSettings;
+            mSourceDisplaySettings=sourceSettings;
+        }
+        Song load(CancelEvent cancelEvent, Handler handler, ArrayList<Alias> midiAliases) throws IOException
+        {
+            SongLoader loader=new SongLoader(mSongFile,mScrollMode);
+            return loader.load(mTrack,mRegistered,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
         }
     }
 }

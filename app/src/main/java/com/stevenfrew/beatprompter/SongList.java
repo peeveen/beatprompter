@@ -141,6 +141,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     ArrayList<Filter> mFilters = new ArrayList<>();
     TemporarySetListFilter mTemporarySetListFilter = null;
     BaseAdapter mListAdapter = null;
+    static SongLoadTask mSongLoadTaskOnResume=null;
 
     public static File mBeatPrompterDataFolder;
     public static File mBeatPrompterSongFilesFolder;
@@ -385,20 +386,20 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return new SongDisplaySettings(getResources().getConfiguration().orientation, minimumFontSize, maximumFontSize, size.x, size.y);
     }
 
-    private void playSong(PlaylistNode selectedNode, SongFile selectedSong, String trackName, ScrollingMode scrollMode, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) {
+    private void playSong(PlaylistNode selectedNode,  SongFile selectedSong, String trackName, ScrollingMode scrollMode, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) {
         mNowPlayingNode = selectedNode;
 
-        String nextSong = null;
+        String nextSongName = null;
         if ((selectedNode != null) && (selectedNode.mNextNode != null) && (shouldPlayNextSong()))
-            nextSong = selectedNode.mNextNode.mSongFile.mTitle;
+            nextSongName = selectedNode.mNextNode.mSongFile.mTitle;
 
-        LoadingSongFile lsf = new LoadingSongFile(selectedSong, trackName, scrollMode, nextSong, startedByBandLeader, startedByMidiTrigger, getCloud() == CloudType.Demo, nativeSettings, sourceSettings);
-        startSong(lsf);
+        startSong(new SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings,mFullVersionUnlocked||getCloud() == CloudType.Demo));
     }
 
-    void startSong(LoadingSongFile lsf) {
+    void startSong(SongLoadTask loadTask)
+    {
         synchronized (SongLoadTask.mSongLoadSyncObject) {
-            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf);
+            SongLoadTask.mSongLoadTask = loadTask;
         }
         SongLoadTask.mSongLoadTask.loadSong();
     }
@@ -887,15 +888,15 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         // First run? Install demo files.
         if(isFirstRun())
             firstRunSetup();
-        else if(SongLoadTask.mSongToLoadOnResume!=null)
+        else if(mSongLoadTaskOnResume!=null)
         {
             try
             {
-                startSong(SongLoadTask.mSongToLoadOnResume);
+                startSong(mSongLoadTaskOnResume);
             }
             finally
             {
-                SongLoadTask.mSongToLoadOnResume=null;
+                mSongLoadTaskOnResume=null;
             }
         }
     }
@@ -1463,16 +1464,11 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     if(mSongListActive)
                         playSong(null, sf, track, scrollingMode,true,false,nativeSettings,sourceSettings);
                     else
-                        SongLoadTask.mSongToLoadOnResume=new LoadingSongFile(sf,track,scrollingMode,null,true,
-                                false,getCloud()==CloudType.Demo,nativeSettings,sourceSettings);
+                        mSongLoadTaskOnResume=new SongLoadTask(sf,track,scrollingMode,null,true,
+                                false,nativeSettings,sourceSettings,getCloud()==CloudType.Demo);
                     break;
                 }
         }
-    }
-
-    static boolean isFullVersionUnlocked()
-    {
-        return mFullVersionUnlocked;
     }
 
     static ArrayList<Alias> getMIDIAliases()

@@ -3,8 +3,6 @@ package com.stevenfrew.beatprompter.bluetooth;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
-import com.stevenfrew.beatprompter.LoadingSongFile;
-import com.stevenfrew.beatprompter.ScrollingMode;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,21 +23,17 @@ public class ChooseSongMessage extends BluetoothMessage
     public int mScreenWidth;
     public int mScreenHeight;
 
-    public ChooseSongMessage(LoadingSongFile lsf)
+    public ChooseSongMessage(String title,String track,int orientation,boolean beatScroll,boolean smoothScroll,int minFontSize,int maxFontSize,int screenWidth,int screenHeight)
     {
-        mTitle=lsf.mSongFile.mTitle;
-        if(mTitle==null)
-            mTitle="";
-        mTrack=lsf.mTrack;
-        mOrientation=lsf.mNativeDisplaySettings.mOrientation;
-        if(mTrack==null)
-            mTrack="";
-        mBeatScroll=lsf.mScrollMode== ScrollingMode.Beat;
-        mSmoothScroll=lsf.mScrollMode==ScrollingMode.Smooth;
-        mMinFontSize=lsf.mNativeDisplaySettings.mMinFontSize;
-        mMaxFontSize=lsf.mNativeDisplaySettings.mMaxFontSize;
-        mScreenWidth=lsf.mNativeDisplaySettings.mScreenWidth;
-        mScreenHeight=lsf.mNativeDisplaySettings.mScreenHeight;
+        mTitle=title==null?"":title;
+        mTrack=track==null?"":track;
+        mOrientation=orientation;
+        mBeatScroll=beatScroll;
+        mSmoothScroll=smoothScroll;
+        mMinFontSize=minFontSize;
+        mMaxFontSize=maxFontSize;
+        mScreenWidth=screenWidth;
+        mScreenHeight=screenHeight;
     }
 
     ChooseSongMessage(byte[] bytes) throws NotEnoughBluetoothDataException
