@@ -20,7 +20,7 @@ public class ImageFile extends CachedCloudFile
         verifyImageFile();
     }
 
-    public ImageFile(Element element)
+    ImageFile(Element element)
     {
         super(element);
     }

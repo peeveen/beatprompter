@@ -83,6 +83,7 @@ import com.stevenfrew.beatprompter.midi.USBInTask;
 import com.stevenfrew.beatprompter.midi.USBOutTask;
 import com.stevenfrew.beatprompter.pref.FontSizePreference;
 import com.stevenfrew.beatprompter.pref.SettingsActivity;
+import com.stevenfrew.beatprompter.pref.SortingPreference;
 import com.stevenfrew.beatprompter.ui.FilterListAdapter;
 import com.stevenfrew.beatprompter.ui.SongListAdapter;
 

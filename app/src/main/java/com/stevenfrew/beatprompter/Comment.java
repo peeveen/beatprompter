@@ -8,7 +8,7 @@ public class Comment
     public String mText;
     private ArrayList<String> commentAudience=new ArrayList<>();
 
-    public Comment(String text,String audience)
+    Comment(String text,String audience)
     {
         mText=text;
         if(audience!=null)

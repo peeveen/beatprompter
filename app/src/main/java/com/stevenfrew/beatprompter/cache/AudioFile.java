@@ -19,7 +19,7 @@ public class AudioFile extends CachedCloudFile
         verifyAudioFile();
     }
 
-    public AudioFile(Element e)
+    AudioFile(Element e)
     {
         super(e);
     }

@@ -59,7 +59,14 @@ public class USBInTask extends USBTask
                 byte messageByte=workBuffer[f];
                 // All interesting MIDI signals have the top bit set.
                 if((messageByte&0x80)!=0) {
-                    if (!inSysEx) {
+                    if (inSysEx)
+                    {
+                        if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
+                            Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI SysEx end message.");
+                            inSysEx = false;
+                        }
+                    }
+                    else {
                         if ((messageByte == Message.MIDI_START_BYTE) || (messageByte == Message.MIDI_CONTINUE_BYTE) || (messageByte == Message.MIDI_STOP_BYTE)) {
                             // These are single byte messages.
                             try {
@@ -141,9 +148,6 @@ public class USBInTask extends USBTask
                                 }
                             }
                         }
-                    } else if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
-                        Log.d(BeatPrompterApplication.MIDI_TAG, "Received MIDI SysEx end message.");
-                        inSysEx = false;
                     }
                 }
             }

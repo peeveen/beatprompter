@@ -38,7 +38,7 @@ public class MIDIAliasFile extends CachedCloudFile
         mAliasSet=readAliasFile(mFile,mID,mErrors);
     }
 
-    public MIDIAliasFile(Element element) throws InvalidBeatPrompterFileException
+    MIDIAliasFile(Element element) throws InvalidBeatPrompterFileException
     {
         super(element);
         mAliasSet=readAliasFile(mFile,mID,mErrors);

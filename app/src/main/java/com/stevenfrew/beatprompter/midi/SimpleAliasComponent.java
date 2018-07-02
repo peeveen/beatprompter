@@ -15,11 +15,6 @@ public class SimpleAliasComponent implements AliasComponent {
     }
 
     @Override
-    public int getHighestArgumentReference() {
-        return 0;
-    }
-
-    @Override
     public List<OutgoingMessage> resolve(List<Alias> aliases, byte[] arguments, byte channel) throws ResolutionException {
         List<OutgoingMessage> messages=new ArrayList<>();
         byte[] componentBytes=new byte[mValues.size()];

@@ -31,7 +31,7 @@ public class SetListFile extends CachedCloudFile
         parseSetListFileInfo();
     }
 
-    public SetListFile(Element element) throws InvalidBeatPrompterFileException
+    SetListFile(Element element) throws InvalidBeatPrompterFileException
     {
         super(element);
         parseSetListFileInfo();
