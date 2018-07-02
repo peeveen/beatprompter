@@ -16,7 +16,7 @@ public class InTask extends Task
     {
         IncomingMessage message;
         try {
-            while (((message = Controller.mMIDISongListInQueue.take()) != null) && (!getShouldStop())) {
+            while (((message = MIDIController.mMIDISongListInQueue.take()) != null) && (!getShouldStop())) {
                 if(message.isMSBBankSelect())
                     EventHandler.sendEventToSongList(EventHandler.MIDI_MSB_BANK_SELECT,message.getMIDIChannel(),message.getBankSelectValue());
                 else if(message.isLSBBankSelect())

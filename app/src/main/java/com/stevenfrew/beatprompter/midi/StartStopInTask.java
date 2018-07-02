@@ -16,7 +16,7 @@ public class StartStopInTask extends Task
     @Override
     public void initialise()
     {
-        Controller.mMIDISongDisplayInQueue.clear();
+        MIDIController.mMIDISongDisplayInQueue.clear();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class StartStopInTask extends Task
     {
         IncomingMessage message;
         try {
-            while (((message = Controller.mMIDISongDisplayInQueue.take()) != null) && (!getShouldStop())) {
+            while (((message = MIDIController.mMIDISongDisplayInQueue.take()) != null) && (!getShouldStop())) {
                 if(message.isStart())
                     EventHandler.sendEventToSongDisplay(EventHandler.MIDI_START_SONG);
                 else if(message.isContinue())

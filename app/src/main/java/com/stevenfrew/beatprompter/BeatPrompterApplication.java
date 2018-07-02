@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
+import com.stevenfrew.beatprompter.midi.MIDIController;
 
 public class BeatPrompterApplication extends Application {
     public static final String TAG = "beatprompter";
@@ -18,12 +19,14 @@ public class BeatPrompterApplication extends Application {
 
     public void onCreate() {
         super.onCreate();
+        MIDIController.initialise(this);
         BluetoothManager.initialise(this);
     }
 
     public void onTerminate()
     {
         BluetoothManager.shutdown(this);
+        MIDIController.shutdown(this);
         super.onTerminate();
     }
 

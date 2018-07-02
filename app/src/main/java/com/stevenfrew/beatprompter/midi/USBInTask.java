@@ -62,7 +62,7 @@ public class USBInTask extends USBTask
                     if (inSysEx)
                     {
                         if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
-                            Log.d(Controller.MIDI_TAG, "Received MIDI SysEx end message.");
+                            Log.d(MIDIController.MIDI_TAG, "Received MIDI SysEx end message.");
                             inSysEx = false;
                         }
                     }
@@ -70,13 +70,13 @@ public class USBInTask extends USBTask
                         if ((messageByte == Message.MIDI_START_BYTE) || (messageByte == Message.MIDI_CONTINUE_BYTE) || (messageByte == Message.MIDI_STOP_BYTE)) {
                             // These are single byte messages.
                             try {
-                                Controller.mMIDISongDisplayInQueue.put(new IncomingMessage(new byte[]{messageByte}));
+                                MIDIController.mMIDISongDisplayInQueue.put(new IncomingMessage(new byte[]{messageByte}));
                                 if(messageByte== Message.MIDI_START_BYTE)
-                                    Log.d(Controller.MIDI_TAG, "Received MIDI Start message.");
+                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI Start message.");
                                 else if(messageByte== Message.MIDI_CONTINUE_BYTE)
-                                    Log.d(Controller.MIDI_TAG, "Received MIDI Continue message.");
+                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI Continue message.");
                                 if(messageByte== Message.MIDI_STOP_BYTE)
-                                    Log.d(Controller.MIDI_TAG, "Received MIDI Stop message.");
+                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI Stop message.");
                             } catch (InterruptedException ie) {
                                 Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);
                             }
@@ -86,8 +86,8 @@ public class USBInTask extends USBTask
                             if (f < dataRead - 2)
                                 try {
                                     IncomingMessage msg = new IncomingSongPositionPointerMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
-                                    Log.d(Controller.MIDI_TAG, "Received MIDI Song Position Pointer message: " + msg.toString());
-                                    Controller.mMIDISongDisplayInQueue.put(msg);
+                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI Song Position Pointer message: " + msg.toString());
+                                    MIDIController.mMIDISongDisplayInQueue.put(msg);
                                 } catch (InterruptedException ie) {
                                     Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);
                                 }
@@ -100,15 +100,15 @@ public class USBInTask extends USBTask
                             if (f < dataRead - 1)
                                 try {
                                     IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f]});
-                                    Log.d(Controller.MIDI_TAG, "Received MIDI SongSelect message: " + msg.toString());
-                                    Controller.mMIDISongListInQueue.put(msg);
+                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI SongSelect message: " + msg.toString());
+                                    MIDIController.mMIDISongListInQueue.put(msg);
                                 } catch (InterruptedException ie) {
                                     Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);
                                 }
                             else
                                 preBuffer = new byte[]{workBuffer[f]};
                         } else if (messageByte == Message.MIDI_SYSEX_START_BYTE) {
-                            Log.d(Controller.MIDI_TAG, "Received MIDI SysEx start message.");
+                            Log.d(MIDIController.MIDI_TAG, "Received MIDI SysEx start message.");
                             inSysEx = true;
                         } else {
                             int channelsToListenTo=getIncomingChannels();
@@ -121,8 +121,8 @@ public class USBInTask extends USBTask
                                         if (f < dataRead - 1)
                                             try {
                                                 IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f]});
-                                                Log.d(Controller.MIDI_TAG, "Received MIDI ProgramChange message: " + msg.toString());
-                                                Controller.mMIDISongListInQueue.put(msg);
+                                                Log.d(MIDIController.MIDI_TAG, "Received MIDI ProgramChange message: " + msg.toString());
+                                                MIDIController.mMIDISongListInQueue.put(msg);
                                             } catch (InterruptedException ie) {
                                                 Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);
                                            }
@@ -134,8 +134,8 @@ public class USBInTask extends USBTask
                                             try {
                                                 IncomingMessage msg = new IncomingMessage(new byte[]{messageByte, workBuffer[++f], workBuffer[++f]});
                                                 if ((msg.isLSBBankSelect()) || (msg.isMSBBankSelect())) {
-                                                    Log.d(Controller.MIDI_TAG, "Received MIDI Control Change message: " + msg.toString());
-                                                    Controller.mMIDISongListInQueue.put(msg);
+                                                    Log.d(MIDIController.MIDI_TAG, "Received MIDI Control Change message: " + msg.toString());
+                                                    MIDIController.mMIDISongListInQueue.put(msg);
                                                 }
                                             } catch (InterruptedException ie) {
                                                 Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie);

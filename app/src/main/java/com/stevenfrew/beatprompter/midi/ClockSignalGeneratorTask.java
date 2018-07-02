@@ -103,7 +103,7 @@ public class ClockSignalGeneratorTask extends Task
         while (nanoDiff >= getNanoSecondsPerMidiSignal()) {
             try {
                 signalSent = true;
-                Controller.mMIDIOutQueue.put(new ClockMessage());
+                MIDIController.mMIDIOutQueue.put(new ClockMessage());
                 // We've hit the 24-signal boundary. Switch to the next speed.
                 if (incrementClockSignalsSent() == 24) {
                     resetClockSignalsSent();
@@ -146,7 +146,7 @@ public class ClockSignalGeneratorTask extends Task
             setLastSignalTime(System.nanoTime());
             try
             {
-                Controller.mMIDIOutQueue.put(new StartMessage());
+                MIDIController.mMIDIOutQueue.put(new StartMessage());
             }
             catch(Exception e)
             {
@@ -165,7 +165,7 @@ public class ClockSignalGeneratorTask extends Task
         resetClockSignalsSent();
         try
         {
-            Controller.mMIDIOutQueue.put(new StopMessage());
+            MIDIController.mMIDIOutQueue.put(new StopMessage());
         }
         catch(Exception e)
         {

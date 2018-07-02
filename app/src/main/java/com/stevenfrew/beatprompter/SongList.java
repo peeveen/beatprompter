@@ -5,21 +5,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
-import android.hardware.usb.UsbConstants;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
-import android.hardware.usb.UsbManager;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -76,13 +68,9 @@ import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
 import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
-import com.stevenfrew.beatprompter.midi.Controller;
+import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
-import com.stevenfrew.beatprompter.midi.InTask;
-import com.stevenfrew.beatprompter.midi.SongDisplayInTask;
 import com.stevenfrew.beatprompter.midi.SongTrigger;
-import com.stevenfrew.beatprompter.midi.USBInTask;
-import com.stevenfrew.beatprompter.midi.USBOutTask;
 import com.stevenfrew.beatprompter.pref.FontSizePreference;
 import com.stevenfrew.beatprompter.pref.SettingsActivity;
 import com.stevenfrew.beatprompter.pref.SortingPreference;
@@ -117,8 +105,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import static android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK;
-
 public class SongList extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     public static List<CloudDownloadResult> mDefaultCloudDownloads=new ArrayList<>();
     static boolean mFullVersionUnlocked = true;
@@ -130,7 +116,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final String TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt";
     private static final String DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt";
 
-    private boolean mMidiUsbRegistered = false;
     boolean mSongListActive = false;
     public static boolean mSongEndedNaturally = false;
     Menu mMenu = null;
@@ -159,108 +144,20 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             initialiseLocalStorage();
         else if(key.equals(getString(R.string.pref_largePrintList_key)))
             buildList();
-        else if(key.equals(getString(R.string.pref_midiIncomingChannels_key)))
-            setIncomingMIDIChannels();
     };
 
     // Fake cloud items for temporary set list and default midi aliases
     public static File mTemporarySetListFile;
     public static File mDefaultMidiAliasesFile;
 
-    UsbManager mUsbManager;
-    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    PendingIntent mPermissionIntent;
-
     public static SongListEventHandler mSongListEventHandler;
 
     static SongLoaderTask mSongLoaderTask = null;
 
-    USBInTask mMidiUsbInTask = null;
-    USBOutTask mMidiUsbOutTask = new USBOutTask();
-    InTask mMidiInTask = new InTask();
-    SongDisplayInTask mMidiSongDisplayInTask = new SongDisplayInTask();
-    Thread mMidiUsbInTaskThread = null;
-    Thread mMidiUsbOutTaskThread = new Thread(mMidiUsbOutTask);
-    Thread mMidiInTaskThread = new Thread(mMidiInTask);
-    Thread mMidiSongDisplayInTaskThread = new Thread(mMidiSongDisplayInTask);
     Thread mSongLoaderTaskThread = null;
 
     final static private String FULL_VERSION_SKU_NAME = "full_version";
 
-    private static UsbInterface getDeviceMidiInterface(UsbDevice device) {
-        int interfacecount = device.getInterfaceCount();
-        UsbInterface fallbackInterface = null;
-        for (int h = 0; h < interfacecount; ++h) {
-            UsbInterface face = device.getInterface(h);
-            int mainclass = face.getInterfaceClass();
-            int subclass = face.getInterfaceSubclass();
-            // Oh you f***in beauty, we've got a perfect compliant MIDI interface!
-            if ((mainclass == 1) && (subclass == 3))
-                return face;
-                // Aw bollocks, we've got some vendor-specific pish.
-                // Still worth trying.
-            else if ((mainclass == 255) && (fallbackInterface == null)) {
-                // Basically, go with this if:
-                // It has all endpoints of type "bulk transfer"
-                // and
-                // The endpoints have a max packet size that is a mult of 4.
-                int endPointCount = face.getEndpointCount();
-                boolean allEndpointsCheckout = true;
-                for (int g = 0; g < endPointCount; ++g) {
-                    UsbEndpoint ep = face.getEndpoint(g);
-                    int maxPacket = ep.getMaxPacketSize();
-                    int type = ep.getType();
-                    allEndpointsCheckout &= ((type == USB_ENDPOINT_XFER_BULK) && ((maxPacket & 3) == 0));
-                }
-                if (allEndpointsCheckout)
-                    fallbackInterface = face;
-            }
-        }
-        return fallbackInterface;
-    }
-
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                attemptUsbMidiConnection();
-            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                mMidiUsbOutTask.setConnection(null, null);
-                Task.stopTask(mMidiUsbInTask, mMidiUsbInTaskThread);
-                mMidiUsbInTask = null;
-                mMidiUsbInTaskThread = null;
-            }
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                synchronized (this) {
-                    UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if (device != null) {
-                            UsbInterface midiInterface = getDeviceMidiInterface(device);
-                            if (midiInterface != null) {
-                                UsbDeviceConnection conn = mUsbManager.openDevice(device);
-                                if (conn != null) {
-                                    if (conn.claimInterface(midiInterface, true)) {
-                                        int endpointCount = midiInterface.getEndpointCount();
-                                        for (int f = 0; f < endpointCount; ++f) {
-                                            UsbEndpoint endPoint = midiInterface.getEndpoint(f);
-                                            if (endPoint.getDirection() == UsbConstants.USB_DIR_OUT) {
-                                                mMidiUsbOutTask.setConnection(conn, endPoint);
-                                            } else if (endPoint.getDirection() == UsbConstants.USB_DIR_IN) {
-                                                if (mMidiUsbInTask == null) {
-                                                    mMidiUsbInTask = new USBInTask(conn, endPoint, getIncomingMIDIChannelsPref());
-                                                    (mMidiUsbInTaskThread = new Thread(mMidiUsbInTask)).start();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -670,11 +567,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         EventHandler.setSongListEventHandler(mSongListEventHandler);
 
-        mMidiInTaskThread.start();
-        Task.resumeTask(mMidiInTask);
-        mMidiUsbOutTaskThread.start();
-        Task.resumeTask(mMidiUsbOutTask);
-
         mSongLoaderTask=new SongLoaderTask();
         mSongLoaderTaskThread=new Thread(mSongLoaderTask);
         mSongLoaderTaskThread.start();
@@ -686,17 +578,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_USB_PERMISSION);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(mUsbReceiver, filter);
-        mMidiUsbRegistered = true;
-
-        attemptUsbMidiConnection();
 
         // Set font stuff first.
         DisplayMetrics metrics=getResources().getDisplayMetrics();
@@ -729,21 +610,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         catch(Exception e)
         {
             Log.e(BeatPrompterApplication.TAG,e.getMessage());
-        }
-    }
-
-    void attemptUsbMidiConnection()
-    {
-        HashMap<String, UsbDevice> list = mUsbManager.getDeviceList();
-        if ((list != null) && (list.size() > 0)) {
-            Object[] devObjs = list.values().toArray();
-            for (Object devObj : devObjs) {
-                UsbDevice dev = (UsbDevice) devObj;
-                if (getDeviceMidiInterface(dev) != null) {
-                    mUsbManager.requestPermission(dev, mPermissionIntent);
-                    break;
-                }
-            }
         }
     }
 
@@ -818,17 +684,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         EventHandler.setSongListEventHandler(null);
         super.onDestroy();
 
-        Task.stopTask(mMidiInTask,mMidiInTaskThread);
-        Task.stopTask(mMidiSongDisplayInTask,mMidiSongDisplayInTaskThread);
-        Task.stopTask(mMidiUsbInTask,mMidiUsbInTaskThread);
-        Task.stopTask(mMidiUsbOutTask,mMidiUsbOutTaskThread);
         Task.stopTask(mSongLoaderTask,mSongLoaderTaskThread);
 
         if (mServiceConn != null)
             unbindService(mServiceConn);
-        if(mMidiUsbRegistered)
-            unregisterReceiver(mUsbReceiver);
-        // Unregister broadcast listeners
     }
 
     public static AudioFile getMappedAudioFilename(String in,ArrayList<AudioFile> tempAudioFileCollection)
@@ -879,7 +738,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         mSongListActive=true;
         super.onResume();
-        Task.resumeTask(mMidiSongDisplayInTask);
+        MIDIController.resumeDisplayInTask();
 
         updateBluetoothIcon();
 
@@ -916,7 +775,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onPause() {
         mSongListActive=false;
-        Task.pauseTask(mMidiSongDisplayInTask,mMidiSongDisplayInTaskThread);
+        MIDIController.pauseDisplayInTask();
         super.onPause();
     }
 
@@ -1586,17 +1445,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    int getIncomingMIDIChannelsPref() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(SongList.this);
-        return sharedPrefs.getInt(getString(R.string.pref_midiIncomingChannels_key), 65535);
-    }
-
-    void setIncomingMIDIChannels()
-    {
-        if(mMidiUsbInTask!=null)
-            mMidiUsbInTask.setIncomingChannels(getIncomingMIDIChannelsPref());
-    }
-
     void onCacheUpdated(CachedCloudFileCollection cache)
     {
         mCachedCloudFiles=cache;
@@ -1676,13 +1524,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show();
                     break;
                 case MIDI_LSB_BANK_SELECT:
-                    Controller.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
+                    MIDIController.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
                     break;
                 case MIDI_MSB_BANK_SELECT:
-                    Controller.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
+                    MIDIController.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
                     break;
                 case MIDI_PROGRAM_CHANGE:
-                    mSongList.startSongViaMidiProgramChange(Controller.mMidiBankMSBs[msg.arg1], Controller.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
+                    mSongList.startSongViaMidiProgramChange(MIDIController.mMidiBankMSBs[msg.arg1], MIDIController.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
                     break;
                 case MIDI_SONG_SELECT:
                     mSongList.startSongViaMidiSongSelect((byte) msg.arg1);

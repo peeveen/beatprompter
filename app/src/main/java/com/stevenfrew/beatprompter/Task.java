@@ -86,7 +86,7 @@ public abstract class Task implements Runnable
     }
     public abstract void doWork();
 
-    static void pauseTask(Task task,Thread thread) {
+    public static void pauseTask(Task task,Thread thread) {
         if(task!=null) {
             task.pause();
             if(thread!=null)
@@ -94,13 +94,13 @@ public abstract class Task implements Runnable
         }
     }
 
-    static void resumeTask(Task task) {
+    public static void resumeTask(Task task) {
         if(task!=null) {
             task.resume();
         }
     }
 
-    static void stopTask(Task task,Thread thread) {
+    public static void stopTask(Task task,Thread thread) {
         if(task!=null) {
             task.stop();
             if(thread!=null) {

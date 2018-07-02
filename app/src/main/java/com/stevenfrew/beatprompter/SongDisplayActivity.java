@@ -24,7 +24,7 @@ import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
 import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
 import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask;
-import com.stevenfrew.beatprompter.midi.Controller;
+import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.midi.StartStopInTask;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
@@ -79,7 +79,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
             setRequestedOrientation(mOrientation);
 
-            Controller.mMIDIOutQueue.addAll(song.mInitialMIDIMessages);
+            MIDIController.mMIDIOutQueue.addAll(song.mInitialMIDIMessages);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -309,10 +309,10 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     mActivity.finish();
                     break;
                 case EventHandler.MIDI_LSB_BANK_SELECT:
-                    Controller.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
+                    MIDIController.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
                     break;
                 case EventHandler.MIDI_MSB_BANK_SELECT:
-                    Controller.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
+                    MIDIController.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
                     break;
             }
         }

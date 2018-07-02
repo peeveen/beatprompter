@@ -35,7 +35,7 @@ import com.stevenfrew.beatprompter.event.LineEvent;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
-import com.stevenfrew.beatprompter.midi.Controller;
+import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.midi.TriggerSafetyCatch;
 
 import java.io.FileInputStream;
@@ -859,7 +859,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     private void processMIDIEvent(MIDIEvent event)
     {
-        Controller.mMIDIOutQueue.addAll(event.mMessages);
+        MIDIController.mMIDIOutQueue.addAll(event.mMessages);
     }
 
     private void processLineEvent(LineEvent event)
