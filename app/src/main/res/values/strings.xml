@@ -534,9 +534,9 @@
     <string name="bluetoothModeBandLeader">Band Leader (server)</string>
     <string name="bluetoothModeBandMember">Band Member (client)</string>
 
-    <string name="bluetoothModeNoneValue" translatable="false">none</string>
-    <string name="bluetoothModeBandLeaderValue" translatable="false">server</string>
-    <string name="bluetoothModeBandMemberValue" translatable="false">client</string>
+    <string name="bluetoothModeNoneValue" translatable="false">None</string>
+    <string name="bluetoothModeBandLeaderValue" translatable="false">Server</string>
+    <string name="bluetoothModeBandMemberValue" translatable="false">Client</string>
 
     <string name="midiTriggerSafetyCatchNever">Never</string>
     <string name="midiTriggerSafetyCatchTitleScreen">When at title screen</string>

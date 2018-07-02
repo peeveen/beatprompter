@@ -13,7 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.R;
 
 import java.util.ArrayList;
@@ -35,10 +35,10 @@ public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener
         }
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case BeatPrompterApplication.FOLDER_CONTENTS_FETCHED:
+                case EventHandler.FOLDER_CONTENTS_FETCHED:
                     mChooseFolderDialog.populateBrowser((List<CloudItemInfo>)msg.obj);
                     break;
-                case BeatPrompterApplication.FOLDER_CONTENTS_FETCHING:
+                case EventHandler.FOLDER_CONTENTS_FETCHING:
                     mChooseFolderDialog.updateProgress(msg.arg1,msg.arg2);
                     break;
             }
@@ -211,7 +211,7 @@ public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener
     public void onFolderSearchComplete()
     {
         mDisplayItems.sort(CloudItemInfo::compareTo);
-        mHandler.obtainMessage(BeatPrompterApplication.FOLDER_CONTENTS_FETCHED,mDisplayItems).sendToTarget();
+        mHandler.obtainMessage(EventHandler.FOLDER_CONTENTS_FETCHED,mDisplayItems).sendToTarget();
     }
 
     @Override

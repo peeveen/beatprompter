@@ -201,7 +201,7 @@ public class SongLoader {
             boolean createColorEvent=true;
             int lineCounter=0;
             int displayLineCounter=0;
-            handler.obtainMessage(BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED,0,mSongFile.mLines).sendToTarget();
+            handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,0,mSongFile.mLines).sendToTarget();
             while(((line=br.readLine())!=null)&&(!cancelEvent.isCancelled()))
             {
                 line=line.trim();
@@ -773,7 +773,7 @@ public class SongLoader {
                         lastEvent=lastEvent.getLastEvent();
                     }
                 }
-                handler.obtainMessage(BeatPrompterApplication.SONG_LOAD_LINE_READ,lineCounter,mSongFile.mLines).sendToTarget();
+                handler.obtainMessage(EventHandler.SONG_LOAD_LINE_READ,lineCounter,mSongFile.mLines).sendToTarget();
             }
 
             long countTime = 0;

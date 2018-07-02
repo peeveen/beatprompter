@@ -20,7 +20,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -49,6 +48,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
@@ -168,14 +168,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     PendingIntent mPermissionIntent;
 
-    // TODO: replace with class
-    public Handler mSongListMessageHandler;
+    public static SongListEventHandler mSongListEventHandler;
 
     static SongLoaderTask mSongLoaderTask = null;
 
     USBInTask mMidiUsbInTask = null;
     USBOutTask mMidiUsbOutTask = new USBOutTask();
-    InTask mMidiInTask = new InTask(mSongListMessageHandler);
+    InTask mMidiInTask = new InTask();
     SongDisplayInTask mMidiSongDisplayInTask = new SongDisplayInTask();
     Thread mMidiUsbInTaskThread = null;
     Thread mMidiUsbOutTaskThread = new Thread(mMidiUsbOutTask);
@@ -398,7 +397,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void startSong(LoadingSongFile lsf) {
         synchronized (SongLoadTask.mSongLoadSyncObject) {
-            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf, mSongListMessageHandler);
+            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf, mSongListEventHandler);
         }
         SongLoadTask.mSongLoadTask.loadSong((BeatPrompterApplication) getApplicationContext());
     }
@@ -653,7 +652,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSongListMessageHandler=new SongListMessageHandler(this);
+        mSongListEventHandler=new SongListEventHandler(this);
         mSongListInstance=this;
         initialiseLocalStorage();
 
@@ -666,7 +665,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
         }
 
-        ((BeatPrompterApplication)this.getApplicationContext()).setSongListHandler(mSongListMessageHandler);
+        EventHandler.setSongListEventHandler(mSongListEventHandler);
 
         mMidiInTaskThread.start();
         Task.resumeTask(mMidiInTask);
@@ -712,7 +711,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         initialiseList();
 
-        ((BeatPrompterApplication)this.getApplicationContext()).startBluetooth();
+        BluetoothManager.startBluetooth();
     }
 
     void initialiseList()
@@ -813,6 +812,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public void onDestroy()
     {
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
+        EventHandler.setSongListEventHandler(null);
         super.onDestroy();
 
         Task.stopTask(mMidiInTask,mMidiInTaskThread);
@@ -1001,7 +1001,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if ((cloudPath == null) || (cloudPath.length() == 0))
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
         else {
-            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListMessageHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
+            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListEventHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
             cdt.execute();
         }
     }
@@ -1540,11 +1540,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void updateBluetoothIcon()
     {
-        BeatPrompterApplication app=((BeatPrompterApplication)SongList.this.getApplicationContext());
-        boolean slave=app.getBluetoothMode()== BluetoothMode.Client;
-        boolean connectedToServer=app.isConnectedToServer();
-        boolean master=app.getBluetoothMode()==BluetoothMode.Server;
-        int connectedClients=app.getBluetoothClientCount();
+        boolean slave= BluetoothManager.getBluetoothMode()== BluetoothMode.Client;
+        boolean connectedToServer=BluetoothManager.isConnectedToServer();
+        boolean master=BluetoothManager.getBluetoothMode()==BluetoothMode.Server;
+        int connectedClients=BluetoothManager.getBluetoothClientCount();
         int resourceID=slave?(connectedToServer?R.drawable.duncecap:R.drawable.duncecap_outline):R.drawable.blank_icon;
         if(master)
             switch(connectedClients)

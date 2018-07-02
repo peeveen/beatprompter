@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter.midi;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 
-public class ArgumentValue extends Value {
-    int mArgumentIndex;
+class ArgumentValue extends Value {
+    private int mArgumentIndex;
     ArgumentValue(int index)
     {
         mArgumentIndex=index;

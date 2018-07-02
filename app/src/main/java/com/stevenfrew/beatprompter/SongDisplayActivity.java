@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,12 +9,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
@@ -24,16 +20,12 @@ import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
 import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
 import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
-import com.stevenfrew.beatprompter.midi.ClockMessage;
-import com.stevenfrew.beatprompter.midi.IncomingMessage;
-import com.stevenfrew.beatprompter.midi.IncomingSongPositionPointerMessage;
-import com.stevenfrew.beatprompter.midi.StartMessage;
-import com.stevenfrew.beatprompter.midi.StopMessage;
+import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask;
+import com.stevenfrew.beatprompter.midi.StartStopInTask;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
 {
     private SongView mSongView=null;
-    private boolean mRegistered=false;
     static boolean mSongDisplayActive=false;
     static SongDisplayActivity mSongDisplayInstance;
     private boolean mStartedByBandLeader=false;
@@ -45,66 +37,16 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
     private boolean mAnyOtherKeyPageDown=false;
     private boolean mScrollOnProximity;
 
-    // TODO: replace with class
-    public Handler mSongDisplayHandler = new Handler()
-    {
-        public void handleMessage(Message msg)
-        {
-            switch (msg.what)
-            {
-                case BeatPrompterApplication.BLUETOOTH_MESSAGE_RECEIVED:
-                    processBluetoothMessage((BluetoothMessage)msg.obj);
-                    break;
-                case BeatPrompterApplication.MIDI_SET_SONG_POSITION:
-                    if(mSongView!=null)
-                        mSongView.setSongBeatPosition(msg.arg1,true);
-                    else
-                        Log.d(TAG,"MIDI song position pointer received by SongDisplay before view was created.");
-                    break;
-                case BeatPrompterApplication.MIDI_START_SONG:
-                    if(mSongView!=null)
-                        mSongView.startSong(true,true);
-                    else
-                        Log.d(TAG,"MIDI start signal received by SongDisplay before view was created.");
-                    break;
-                case BeatPrompterApplication.MIDI_CONTINUE_SONG:
-                    if(mSongView!=null)
-                        mSongView.startSong(true,false);
-                    else
-                        Log.d(TAG,"MIDI continue signal received by SongDisplay before view was created.");
-                    break;
-                case BeatPrompterApplication.MIDI_STOP_SONG:
-                    if(mSongView!=null)
-                        mSongView.stopSong(true);
-                    else
-                        Log.d(TAG,"MIDI stop signal received by SongDisplay before view was created.");
-                    break;
-                case BeatPrompterApplication.END_SONG:
-                    setResult(Activity.RESULT_OK);
-                    finish();
-                    break;
-                case BeatPrompterApplication.MIDI_LSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
-                    break;
-                case BeatPrompterApplication.MIDI_MSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
-                    break;
-            }
-        }
-    };
+    public SongDisplayEventHandler mSongDisplayEventHandler;
 
-    MIDIClockOutTask mMidiClockOutTask=new MIDIClockOutTask();
-    MIDIStartStopInTask mMidiStartStopInTask=new MIDIStartStopInTask(mSongDisplayHandler);
+    ClockSignalGeneratorTask mMidiClockOutTask;
+    StartStopInTask mMidiStartStopInTask=new StartStopInTask();
     Thread mMidiClockOutTaskThread=new Thread(mMidiClockOutTask);
     Thread mMidiStartStopInTaskThread=new Thread(mMidiStartStopInTask);
-
-    private static final String TAG = "beatprompter";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ((BeatPrompterApplication)getApplicationContext()).setSongDisplayHandler(mSongDisplayHandler);
 
         Intent i=getIntent();
         mSongDisplayInstance=this;
@@ -113,7 +55,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         // Instantiate the gesture detector with the
         // application context and an implementation of
         // GestureDetector.OnGestureListener
-        mRegistered=i.getBooleanExtra("registered",false);
+        mMidiClockOutTask=new ClockSignalGeneratorTask(i.getBooleanExtra("registered",false));
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         boolean sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false);
@@ -140,9 +82,10 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_song_display);
-
         mSongView = findViewById(R.id.song_view);
-        mSongView.init(this, mSongDisplayHandler, (BeatPrompterApplication) getApplicationContext());
+        mSongDisplayEventHandler=new SongDisplayEventHandler(this,mSongView);
+        EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler);
+        mSongView.init(this);
 
         if (sendMidiClock)
             mMidiClockOutTaskThread.start();
@@ -192,6 +135,8 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
 
         Task.stopTask(mMidiClockOutTask,mMidiClockOutTaskThread);
         Task.stopTask(mMidiStartStopInTask,mMidiStartStopInTaskThread);
+
+        EventHandler.setSongDisplayEventHandler(null);
 
         if(mSongView!=null) {
             mSongView.stop(true);
@@ -304,228 +249,6 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         // Don't care.
-    }
-
-    class MIDIClockOutTask extends Task
-    {
-        private double mLastSignalTime=0.0;
-        private int mClockSignalsSent=0;
-        private double mNanoSecondsPerMidiSignal=0.0;
-        private double mNextNanoSecondsPerMidiSignal=0.0;
-        final Object nanoSecondsPerMidiSignalSync=new Object();
-        final Object nextNanoSecondsPerMidiSignalSync=new Object();
-        final Object lastSignalTimeSync=new Object();
-        final Object clockSignalsSentSync=new Object();
-
-        MIDIClockOutTask()
-        {
-            super(false);
-        }
-        double getNanoSecondsPerMidiSignal()
-        {
-            synchronized(nanoSecondsPerMidiSignalSync)
-            {
-                return mNanoSecondsPerMidiSignal;
-            }
-        }
-        void setNanoSecondsPerMidiSignal(double value)
-        {
-            synchronized(nanoSecondsPerMidiSignalSync)
-            {
-                mNanoSecondsPerMidiSignal=value;
-            }
-        }
-        double getNextNanoSecondsPerMidiSignal()
-        {
-            synchronized(nextNanoSecondsPerMidiSignalSync)
-            {
-                return mNextNanoSecondsPerMidiSignal;
-            }
-        }
-        void setNextNanoSecondsPerMidiSignal(double value)
-        {
-            synchronized(nextNanoSecondsPerMidiSignalSync)
-            {
-                mNextNanoSecondsPerMidiSignal=value;
-            }
-        }
-        double getLastSignalTime()
-        {
-            synchronized(lastSignalTimeSync)
-            {
-                return mLastSignalTime;
-            }
-        }
-        void setLastSignalTime(double value)
-        {
-            synchronized(lastSignalTimeSync)
-            {
-                mLastSignalTime=value;
-            }
-        }
-        int getClockSignalsSent()
-        {
-            synchronized(clockSignalsSentSync)
-            {
-                return mClockSignalsSent;
-            }
-        }
-        int incrementClockSignalsSent()
-        {
-            synchronized(clockSignalsSentSync)
-            {
-                return ++mClockSignalsSent;
-            }
-        }
-        void resetClockSignalsSent()
-        {
-            synchronized(clockSignalsSentSync)
-            {
-                mClockSignalsSent=0;
-            }
-        }
-        public void doWork()
-        {
-            double nanoSecondsPerMidiSignal=getNextNanoSecondsPerMidiSignal();
-
-            // No speed set yet? Just return.
-            if(nanoSecondsPerMidiSignal==0.0)
-                return;
-
-            // If we're on a 24-signal boundary, switch to the next speed.
-            if (getClockSignalsSent() == 0)
-                setNanoSecondsPerMidiSignal(nanoSecondsPerMidiSignal);
-            long nanoTime = System.nanoTime();
-            double nanoDiff = nanoTime - getLastSignalTime();
-            boolean signalSent = false;
-            while (nanoDiff >= getNanoSecondsPerMidiSignal()) {
-                try {
-                    signalSent = true;
-                    BeatPrompterApplication.mMIDIOutQueue.put(new ClockMessage());
-                    // We've hit the 24-signal boundary. Switch to the next speed.
-                    if (incrementClockSignalsSent() == 24) {
-                        resetClockSignalsSent();
-                        setNanoSecondsPerMidiSignal(getNextNanoSecondsPerMidiSignal());
-                    }
-                } catch (Exception e) {
-                    Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI timing clock signal to output queue.", e);
-                }
-                nanoDiff -= getNanoSecondsPerMidiSignal();
-            }
-            if (signalSent) {
-                double lastSignalTime = nanoTime - nanoDiff;
-                setLastSignalTime(lastSignalTime);
-                double nextSignalDue = lastSignalTime + getNanoSecondsPerMidiSignal();
-                long nextSignalDueNano = (long) nextSignalDue - nanoTime;
-                if(nextSignalDueNano>0) {
-                    long nextSignalDueMilli = Utils.nanoToMilli(nextSignalDueNano);
-                    long nextSignalDueNanoRoundedToMilli = Utils.milliToNano(nextSignalDueMilli);
-                    int nextSignalDueNanoRemainder = (int) (nextSignalDueNanoRoundedToMilli > 0 ? (nextSignalDueNano % nextSignalDueNanoRoundedToMilli) : nextSignalDueNano);
-                    try {
-                        Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder);
-                    } catch (Exception e) {
-                        Log.e(BeatPrompterApplication.TAG, "Thread sleep was interrupted.", e);
-                    }
-                }
-            }
-        }
-        void setBPM(double bpm)
-        {
-            if(bpm==0.0)
-                return;
-            if(getShouldStop())
-                return;
-            double oldNanoSecondsPerMidiSignal=getNextNanoSecondsPerMidiSignal();
-            double newNanosecondsPerMidiSignal=Utils.bpmToMIDIClockNanoseconds(bpm+(mRegistered?0:(Math.random()*20)));
-            if(oldNanoSecondsPerMidiSignal==0.0)
-            {
-                // This is the first BPM value being set.
-                resetClockSignalsSent();
-                setLastSignalTime(System.nanoTime());
-                try
-                {
-                    BeatPrompterApplication.mMIDIOutQueue.put(new StartMessage());
-                }
-                catch(Exception e)
-                {
-                    Log.d(BeatPrompterApplication.TAG,"Failed to add MIDI start signal to output queue.",e);
-                }
-                setNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
-                setNextNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
-            }
-            else
-                setNextNanoSecondsPerMidiSignal(newNanosecondsPerMidiSignal);
-        }
-        void stop()
-        {
-            super.stop();
-            setLastSignalTime(0);
-            resetClockSignalsSent();
-            try
-            {
-                BeatPrompterApplication.mMIDIOutQueue.put(new StopMessage());
-            }
-            catch(Exception e)
-            {
-                Log.d(BeatPrompterApplication.TAG,"Failed to add MIDI stop signal to output queue.",e);
-            }
-        }
-    }
-
-    class MIDIStartStopInTask extends Task
-    {
-        private boolean mStop=false;
-        final Object stopSync=new Object();
-        Handler mHandler;
-
-        MIDIStartStopInTask(Handler handler)
-        {
-            super(false);
-            mHandler=handler;
-        }
-        public boolean getShouldStop()
-        {
-            synchronized (stopSync)
-            {
-                return mStop;
-            }
-        }
-        public void setShouldStop()
-        {
-            synchronized (stopSync)
-            {
-                mStop=true;
-            }
-        }
-
-        public void initialise()
-        {
-            BeatPrompterApplication.mMIDISongDisplayInQueue.clear();
-        }
-
-        public void doWork()
-        {
-            IncomingMessage message;
-            try {
-                while (((message = BeatPrompterApplication.mMIDISongDisplayInQueue.take()) != null) && (!getShouldStop())) {
-                    if(message.isStart())
-                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_START_SONG).sendToTarget();
-                    else if(message.isContinue())
-                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_CONTINUE_SONG).sendToTarget();
-                    else if(message.isStop())
-                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_STOP_SONG).sendToTarget();
-                    else if(message.isSongPositionPointer())
-                        mHandler.obtainMessage(BeatPrompterApplication.MIDI_SET_SONG_POSITION,((IncomingSongPositionPointerMessage)message).getMIDIBeat(),0).sendToTarget();
-                }
-            } catch (InterruptedException ie) {
-                Log.d(TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);
-            }
-        }
-
-        void stop()
-        {
-            setShouldStop();
-        }
     }
 
     public void onSongBeat(double bpm)

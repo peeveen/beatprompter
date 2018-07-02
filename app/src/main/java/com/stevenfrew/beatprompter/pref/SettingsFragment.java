@@ -2,14 +2,12 @@ package com.stevenfrew.beatprompter.pref;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo;
@@ -19,19 +17,7 @@ import com.stevenfrew.beatprompter.cloud.CloudType;
 
 public class SettingsFragment extends PreferenceFragment implements CloudFolderSelectionListener
 {
-    // TODO: define class for this.
-    public Handler mSettingsHandler = new Handler()
-    {
-        public void handleMessage(Message msg)
-        {
-            switch (msg.what)
-            {
-                case BeatPrompterApplication.SET_CLOUD_PATH:
-                    setCloudPath();
-                    break;
-            }
-        }
-    };
+    public SettingsEventHandler mSettingsHandler;
 
     SharedPreferences.OnSharedPreferenceChangeListener mCloudPathPrefListener = (sharedPreferences, key) -> {
         if(key.equals(getString(R.string.pref_cloudPath_key)))
@@ -42,7 +28,8 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((BeatPrompterApplication)getActivity().getApplicationContext()).setSettingsHandler(mSettingsHandler);
+        mSettingsHandler= new SettingsEventHandler(this);
+        EventHandler.setSettingsEventHandler(mSettingsHandler);
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
@@ -53,7 +40,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
         Preference clearCachePref = findPreference(clearCachePrefName);
         if(clearCachePref!=null) {
             clearCachePref.setOnPreferenceClickListener(preference -> {
-                BeatPrompterApplication.mSongListHandler.obtainMessage(BeatPrompterApplication.CLEAR_CACHE).sendToTarget();
+                EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE);
                 return true;
             });
         }
@@ -62,7 +49,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
         final Preference cloudPathPref = findPreference(cloudPathPrefName);
         if(cloudPathPref!=null) {
             cloudPathPref.setOnPreferenceClickListener(preference -> {
-                BeatPrompterApplication.mSettingsHandler.obtainMessage(BeatPrompterApplication.SET_CLOUD_PATH).sendToTarget();
+                EventHandler.sendEventToSettings(EventHandler.SET_CLOUD_PATH);
                 return true;
             });
         }
@@ -88,6 +75,7 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     public void onDestroy()
     {
         PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance).unregisterOnSharedPreferenceChangeListener(mCloudPathPrefListener);
+        EventHandler.setSettingsEventHandler(null);
         super.onDestroy();
     }
 

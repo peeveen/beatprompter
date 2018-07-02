@@ -168,7 +168,7 @@ public class Song
         mSongHeight=0;
         int lastNonZeroLineHeight=0;
         int lineCounter=0;
-        handler.obtainMessage(BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED,0,lineCount).sendToTarget();
+        handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,0,lineCount).sendToTarget();
         while((line!=null)&&(!cancelEvent.isCancelled()))
         {
             highlightColour = line.measure(paint, minimumFontSize, maximumFontSize, nativeScreenWidth, nativeScreenHeight,notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight,mScrollingMode,cancelEvent);
@@ -181,7 +181,7 @@ public class Song
                 lastNonZeroLineHeight=thisLineHeight;
             mSongHeight+=thisLineHeight;
             line=line.mNextLine;
-            handler.obtainMessage(BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED,++lineCounter,lineCount).sendToTarget();
+            handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,++lineCounter,lineCount).sendToTarget();
         }
         if(cancelEvent.isCancelled())
             return;

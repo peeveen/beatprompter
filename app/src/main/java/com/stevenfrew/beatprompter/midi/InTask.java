@@ -1,18 +1,16 @@
 package com.stevenfrew.beatprompter.midi;
 
-import android.os.Handler;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.Task;
 
 public class InTask extends Task
 {
-    private Handler mHandler;
-    public InTask(Handler handler)
+    public InTask()
     {
         super(false);
-        mHandler=handler;
     }
     public void doWork()
     {
@@ -20,13 +18,13 @@ public class InTask extends Task
         try {
             while (((message = BeatPrompterApplication.mMIDISongListInQueue.take()) != null) && (!getShouldStop())) {
                 if(message.isMSBBankSelect())
-                    mHandler.obtainMessage(BeatPrompterApplication.MIDI_MSB_BANK_SELECT,message.getMIDIChannel(),message.getBankSelectValue()).sendToTarget();
+                    EventHandler.sendEventToSongList(EventHandler.MIDI_MSB_BANK_SELECT,message.getMIDIChannel(),message.getBankSelectValue());
                 else if(message.isLSBBankSelect())
-                    mHandler.obtainMessage(BeatPrompterApplication.MIDI_LSB_BANK_SELECT,message.getMIDIChannel(),message.getBankSelectValue()).sendToTarget();
+                    EventHandler.sendEventToSongList(EventHandler.MIDI_LSB_BANK_SELECT,message.getMIDIChannel(),message.getBankSelectValue());
                 else if(message.isProgramChange())
-                    mHandler.obtainMessage(BeatPrompterApplication.MIDI_PROGRAM_CHANGE,message.getMIDIChannel(),message.getProgramChangeValue()).sendToTarget();
+                    EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE,message.getMIDIChannel(),message.getProgramChangeValue());
                 else if(message.isSongSelect())
-                    mHandler.obtainMessage(BeatPrompterApplication.MIDI_SONG_SELECT,message.getSongSelectValue()).sendToTarget();
+                    EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT,message.getSongSelectValue());
             }
         } catch (InterruptedException ie) {
             Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);

@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 
@@ -40,24 +41,24 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         {
             switch (msg.what)
             {
-                case BeatPrompterApplication.SONG_LOAD_COMPLETED:
+                case EventHandler.SONG_LOAD_COMPLETED:
                     mTaskEndSemaphore.release();
-                    mSongListHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_COMPLETED).sendToTarget();
+                    mSongListHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
                     break;
-                case BeatPrompterApplication.SONG_LOAD_CANCELLED:
+                case EventHandler.SONG_LOAD_CANCELLED:
                     mCancelled=true;
                     mTaskEndSemaphore.release();
                     break;
-                case BeatPrompterApplication.SONG_LOAD_LINE_READ:
+                case EventHandler.SONG_LOAD_LINE_READ:
                     mProgressTitle=SongList.mSongListInstance.getString(R.string.loadingSong);
                     publishProgress(msg.arg1,msg.arg2);
                     break;
-                case BeatPrompterApplication.SONG_LOAD_LINE_PROCESSED:
+                case EventHandler.SONG_LOAD_LINE_PROCESSED:
                     mProgressTitle=SongList.mSongListInstance.getString(R.string.processingSong);
                     publishProgress(msg.arg1,msg.arg2);
                     break;
-                case BeatPrompterApplication.SONG_LOAD_FAILED:
-                    mSongListHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_FAILED,msg.obj).sendToTarget();
+                case EventHandler.SONG_LOAD_FAILED:
+                    mSongListHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED,msg.obj).sendToTarget();
                     break;
             }
         }
@@ -128,7 +129,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
             return;
         }
 
-        app.broadcastMessageToClients(new ChooseSongMessage(mLoadingSongFile));
+        BluetoothManager.broadcastMessageToClients(new ChooseSongMessage(mLoadingSongFile));
         SongList.mSongLoaderTask.setSongToLoad(mLoadingSongFile,mSongLoadHandler,mCancelEvent);
         this.execute();
     }

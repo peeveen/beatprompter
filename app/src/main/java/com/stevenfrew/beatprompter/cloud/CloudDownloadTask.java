@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Handler;
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
@@ -93,7 +93,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onFolderSearchError(Throwable t) {
-        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
+        mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
     }
 
     public void onFolderSearchComplete()
@@ -116,7 +116,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onDownloadError(Throwable t) {
-        mHandler.obtainMessage(BeatPrompterApplication.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
+        mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
         onDownloadComplete();
     }
 
@@ -124,7 +124,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     public void onDownloadComplete() {
         if(!isRefreshingSelectedFiles())
             SongList.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.stream().map(c->c.mID).collect(Collectors.toSet()));
-        mHandler.obtainMessage(BeatPrompterApplication.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
+        mHandler.obtainMessage(EventHandler.CACHE_UPDATED,SongList.mCachedCloudFiles).sendToTarget();
         if (mProgressDialog!=null)
             mProgressDialog.dismiss();
     }

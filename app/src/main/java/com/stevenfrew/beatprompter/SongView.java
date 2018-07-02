@@ -11,7 +11,6 @@ import android.graphics.Rect;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.AppCompatImageView;
@@ -22,6 +21,7 @@ import android.view.MotionEvent;
 import android.widget.OverScroller;
 import android.widget.Toast;
 
+import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
 import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
@@ -111,9 +111,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     private SoundPool mClickSoundPool;
     private int mClickAudioID;
     private long mCommentDisplayTimeNanoseconds = Utils.milliToNano(4000);
-    private BeatPrompterApplication mApp = null;
     private SongDisplayActivity mSongDisplayActivity;
-    private Handler mSongDisplayActivityHandler;
     TriggerSafetyCatch mMIDITriggerSafetyCatch;
     boolean mSendMidiClock=false;
 
@@ -132,10 +130,8 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         initView();
     }
 
-    public void init(SongDisplayActivity songDisplayActivity, Handler songDisplayActivityHandler, BeatPrompterApplication app) {
+    public void init(SongDisplayActivity songDisplayActivity) {
         mSongDisplayActivity = songDisplayActivity;
-        mSongDisplayActivityHandler=songDisplayActivityHandler;
-        mApp = app;
         mSong = BeatPrompterApplication.getCurrentSong();
         calculateScrollEnd();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(songDisplayActivity);
@@ -711,11 +707,11 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                         Log.d(BeatPrompterApplication.TAG, "Resuming, pause time=" + mPauseTime);
                         setSongTime(time=mPauseTime, false, false,true);
                     }
-                    mApp.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,time));
+                    BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,time));
                 }
             }
             else
-                mApp.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,0));
+                BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,0));
         }
         else
         {
@@ -751,7 +747,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             return;
         long nanoTime=System.nanoTime();
         mPauseTime=nanoTime-(mSongStartTime==0?nanoTime:mSongStartTime);
-        mApp.broadcastMessageToClients(new ToggleStartStopMessage(mStartState,mPauseTime));
+        BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(mStartState,mPauseTime));
         mStartState--;
         if (mTrackMediaPlayer != null)
             if(mTrackMediaPlayer.isPlaying())
@@ -767,7 +763,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             pause(false);
         if(destroyed)
         {
-            mApp.broadcastMessageToClients(new QuitSongMessage());
+            BluetoothManager.broadcastMessageToClients(new QuitSongMessage());
             if(mSong!=null)
                 mSong.recycleGraphics();
             mSong=null;
@@ -903,11 +899,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             if(mSong!=null)
                 mSong.recycleGraphics();
             mSong=null;
-            if(mSongDisplayActivityHandler!=null)
-            {
-                mSongDisplayActivityHandler.obtainMessage(BeatPrompterApplication.END_SONG).sendToTarget();
-                mSongDisplayActivityHandler=null;
-            }
+            EventHandler.sendEventToSongDisplay(EventHandler.END_SONG);
             System.gc();
         }
     }
@@ -953,7 +945,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             if(mStartState<2)
                 mPauseTime=nano;
             if (broadcast)
-                mApp.broadcastMessageToClients(new SetSongTimeMessage(nano));
+                BluetoothManager.broadcastMessageToClients(new SetSongTimeMessage(nano));
             mSong.setProgress(nano);
             processColorEvent(mSong.mCurrentEvent.mPrevColorEvent);
             if(mSong.mScrollingMode!=ScrollingMode.Manual) {
@@ -1041,7 +1033,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             return;
         if(mScreenAction!=ScreenAction.Scroll)
             return;
-        mApp.broadcastMessageToClients(new PauseOnScrollStartMessage());
+        BluetoothManager.broadcastMessageToClients(new PauseOnScrollStartMessage());
         mUserHasScrolled = true;
         mStartState = 1;
         if (mTrackMediaPlayer != null)

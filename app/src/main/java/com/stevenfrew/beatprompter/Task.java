@@ -68,12 +68,12 @@ public abstract class Task implements Runnable
         }
         Log.d(TASKTAG,"Task ended.");
     }
-    void stop()
+    public void stop()
     {
         setIsRunning(false);
         setShouldStop();
     }
-    void initialise()
+    protected void initialise()
     {
     }
     private void pause()

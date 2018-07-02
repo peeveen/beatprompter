@@ -78,15 +78,15 @@ class SongLoaderTask extends Task {
             try {
                 Song loadingSong = lsf.load(SongList.isFullVersionUnlocked(), cancelEvent, songLoadHandler,SongList.getMIDIAliases());
                 if (cancelEvent.isCancelled())
-                    songLoadHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_CANCELLED).sendToTarget();
+                    songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
                     BeatPrompterApplication.setCurrentSong(loadingSong);
-                    songLoadHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_COMPLETED).sendToTarget();
+                    songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
                 }
             }
             catch(IOException ioe)
             {
-                songLoadHandler.obtainMessage(BeatPrompterApplication.SONG_LOAD_FAILED,ioe.getMessage()).sendToTarget();
+                songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED,ioe.getMessage()).sendToTarget();
             }
             System.gc();
         }
