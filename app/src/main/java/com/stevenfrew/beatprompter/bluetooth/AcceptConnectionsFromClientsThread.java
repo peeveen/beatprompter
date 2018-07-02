@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
+
 import java.io.IOException;
 
 public class AcceptConnectionsFromClientsThread extends Thread
@@ -32,7 +34,7 @@ public class AcceptConnectionsFromClientsThread extends Thread
                     {
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
-                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BluetoothConstants.APP_BLUETOOTH_NAME, BluetoothConstants.APP_BLUETOOTH_UUID);
+                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, BluetoothManager.BLUETOOTH_UUID);
                         } catch (IOException e) {
                             Log.e(BluetoothManager.BLUETOOTH_TAG, "Error creating Bluetooth socket.",e);
                         }

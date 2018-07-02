@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class BluetoothManager {
+    public static final UUID BLUETOOTH_UUID=new UUID(0x49ED8190882ADC90L,0x93FC920912D3DD2EL);
 
     public final static String BLUETOOTH_TAG="bpbt";
     private static BluetoothAdapter mBluetoothAdapter;

@@ -6,7 +6,7 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class ConnectToServerThread extends Thread
+class ConnectToServerThread extends Thread
 {
     private BluetoothSocket mmSocket;
     private BluetoothDevice mDevice;
@@ -37,7 +37,7 @@ public class ConnectToServerThread extends Thread
                         if (mmSocket == null) {
                             try {
                                 // MY_UUID is the app's UUID string, also used by the server code
-                                mmSocket = mDevice.createRfcommSocketToServiceRecord(BluetoothConstants.APP_BLUETOOTH_UUID);
+                                mmSocket = mDevice.createRfcommSocketToServiceRecord(BluetoothManager.BLUETOOTH_UUID);
                             } catch (IOException e) {
                                 Log.e(BluetoothManager.BLUETOOTH_TAG, "Error creating Bluetooth socket.", e);
                             }

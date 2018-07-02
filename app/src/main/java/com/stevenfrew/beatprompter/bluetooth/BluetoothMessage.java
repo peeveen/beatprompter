@@ -5,7 +5,7 @@ public abstract class BluetoothMessage
     public abstract byte[] getBytes();
     public int mMessageLength;
 
-    public static BluetoothMessage fromBytes(byte[] bytes) throws NotEnoughBluetoothDataException
+    static BluetoothMessage fromBytes(byte[] bytes) throws NotEnoughBluetoothDataException
     {
         if((bytes!=null)&&(bytes.length>0))
         {

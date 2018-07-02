@@ -6,7 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ConnectedClientThread extends Thread {
+class ConnectedClientThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
 
