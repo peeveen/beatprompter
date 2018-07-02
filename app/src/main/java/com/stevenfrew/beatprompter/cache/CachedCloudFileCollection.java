@@ -5,6 +5,7 @@ import android.util.Log;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -147,4 +148,74 @@ public class CachedCloudFileCollection
     {
         return mFiles.isEmpty();
     }
+
+    public AudioFile getMappedAudioFilename(String in,ArrayList<AudioFile> tempAudioFileCollection)
+    {
+        if(in!=null) {
+            for (AudioFile afm : getAudioFiles()) {
+                String secondChance = in.replace('’', '\'');
+                if ((afm.mName.equalsIgnoreCase(in)) || (afm.mName.equalsIgnoreCase(secondChance)))
+                    return afm;
+            }
+            if(tempAudioFileCollection!=null)
+                for (AudioFile afm : tempAudioFileCollection) {
+                    String secondChance = in.replace('’', '\'');
+                    if ((afm.mName.equalsIgnoreCase(in)) || (afm.mName.equalsIgnoreCase(secondChance)))
+                        return afm;
+                }
+        }
+        return null;
+    }
+
+    public ImageFile getMappedImageFilename(String in,ArrayList<ImageFile> tempImageFileCollection)
+    {
+        if(in!=null) {
+            for (ImageFile ifm : getImageFiles()) {
+                String secondChance = in.replace('’', '\'');
+                if ((ifm.mName.equalsIgnoreCase(in)) || (ifm.mName.equalsIgnoreCase(secondChance)))
+                    return ifm;
+            }
+            if(tempImageFileCollection!=null)
+                for (ImageFile ifm : tempImageFileCollection) {
+                    String secondChance = in.replace('’', '\'');
+                    if ((ifm.mName.equalsIgnoreCase(in)) || (ifm.mName.equalsIgnoreCase(secondChance)))
+                        return ifm;
+                }
+        }
+        return null;
+    }
+
+    public ArrayList<CachedCloudFile> getFilesToRefresh(CachedCloudFile fileToRefresh, boolean includeDependencies)
+    {
+        ArrayList<CachedCloudFile> filesToRefresh=new ArrayList<>();
+        if(fileToRefresh!=null)
+        {
+            filesToRefresh.add(fileToRefresh);
+            if((fileToRefresh instanceof SongFile) && (includeDependencies))
+            {
+                SongFile song=(SongFile)fileToRefresh;
+                if (song.mAudioFiles != null)
+                    for (String audioFileName : song.mAudioFiles) {
+                        AudioFile audioFile = getMappedAudioFilename(audioFileName, null);
+                        File actualAudioFile = null;
+                        if (audioFile != null)
+                            actualAudioFile = new File(song.mFile.getParent(), audioFile.mFile.getName());
+                        if ((actualAudioFile != null) && (actualAudioFile.exists()))
+                            filesToRefresh.add(audioFile);
+                    }
+                if (song.mImageFiles != null)
+                    for (String imageFileName : song.mImageFiles) {
+                        ImageFile imageFile = getMappedImageFilename(imageFileName, null);
+                        File actualImageFile = null;
+                        if (imageFile != null)
+                            actualImageFile = new File(song.mFile.getParent(), imageFile.mFile.getName());
+                        if ((actualImageFile != null) && (actualImageFile.exists()))
+                            filesToRefresh.add(imageFile);
+                    }
+            }
+        }
+        return filesToRefresh;
+    }
+
+
 }

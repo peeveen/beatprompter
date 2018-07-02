@@ -105,22 +105,18 @@ public class GoogleDriveCloudStorage extends CloudStorage {
         public void onConnected(Bundle connectionHint) {
             Log.i(BeatPrompterApplication.TAG, "API client connected.");
 
-            if (SongList.mSongListInstance.wasPowerwashed())
-                mClient.clearDefaultAccountAndReconnect();
-            else {
-                String accountName = Plus.AccountApi.getAccountName(mClient);
-                GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-                        mParentActivity, Arrays.asList(SCOPES))
-                        .setSelectedAccountName(accountName)
-                        .setBackOff(new ExponentialBackOff());
-                HttpTransport transport = AndroidHttp.newCompatibleTransport();
-                JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-                com.google.api.services.drive.Drive service = new com.google.api.services.drive.Drive.Builder(
-                        transport, jsonFactory, credential)
-                        .setApplicationName(BeatPrompterApplication.APP_NAME)
-                        .build();
-                mAction.onConnected(service);
-            }
+            String accountName = Plus.AccountApi.getAccountName(mClient);
+            GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
+                    mParentActivity, Arrays.asList(SCOPES))
+                    .setSelectedAccountName(accountName)
+                    .setBackOff(new ExponentialBackOff());
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            com.google.api.services.drive.Drive service = new com.google.api.services.drive.Drive.Builder(
+                    transport, jsonFactory, credential)
+                    .setApplicationName(BeatPrompterApplication.APP_NAME)
+                    .build();
+            mAction.onConnected(service);
         }
 
         @Override

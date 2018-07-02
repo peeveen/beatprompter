@@ -45,11 +45,9 @@ import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
-import com.stevenfrew.beatprompter.cache.AudioFile;
 import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.cache.CachedCloudFileCollection;
 import com.stevenfrew.beatprompter.cache.FileParseError;
-import com.stevenfrew.beatprompter.cache.ImageFile;
 import com.stevenfrew.beatprompter.cache.SetListFile;
 import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
@@ -107,12 +105,13 @@ import javax.xml.transform.stream.StreamResult;
 
 public class SongList extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     public static List<CloudDownloadResult> mDefaultCloudDownloads=new ArrayList<>();
-    static boolean mFullVersionUnlocked = true;
     public static CachedCloudFileCollection mCachedCloudFiles = new CachedCloudFileCollection();
+    public static File mBeatPrompterSongFilesFolder;
 
-    CachedCloudFile mFileToUpdate = null;
-    boolean mFetchDependenciesToo = false;
-
+    private static boolean mFullVersionUnlocked = true;
+    private static File mBeatPrompterDataFolder;
+    private static final String XML_DATABASE_FILE_NAME="bpdb.xml";
+    private static final String XML_DATABASE_FILE_ROOT_ELEMENT_TAG="beatprompterDatabase";
     private static final String TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt";
     private static final String DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt";
 
@@ -128,12 +127,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     TemporarySetListFilter mTemporarySetListFilter = null;
     BaseAdapter mListAdapter = null;
     static SongLoadTask mSongLoadTaskOnResume=null;
-
-    public static File mBeatPrompterDataFolder;
-    public static File mBeatPrompterSongFilesFolder;
-
-    private static final String XML_DATABASE_FILE_NAME="bpdb.xml";
-    private static final String XML_DATABASE_FILE_ROOT_ELEMENT_TAG="beatprompterDatabase";
 
     private static final int PLAY_SONG_REQUEST_CODE=3;
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
@@ -690,42 +683,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             unbindService(mInAppPurchaseServiceConn);
     }
 
-    public static AudioFile getMappedAudioFilename(String in,ArrayList<AudioFile> tempAudioFileCollection)
-    {
-        if(in!=null) {
-            for (AudioFile afm : mCachedCloudFiles.getAudioFiles()) {
-                String secondChance = in.replace('’', '\'');
-                if ((afm.mName.equalsIgnoreCase(in)) || (afm.mName.equalsIgnoreCase(secondChance)))
-                    return afm;
-            }
-            if(tempAudioFileCollection!=null)
-                for (AudioFile afm : tempAudioFileCollection) {
-                    String secondChance = in.replace('’', '\'');
-                    if ((afm.mName.equalsIgnoreCase(in)) || (afm.mName.equalsIgnoreCase(secondChance)))
-                        return afm;
-                }
-        }
-        return null;
-    }
-
-    public static ImageFile getMappedImageFilename(String in,ArrayList<ImageFile> tempImageFileCollection)
-    {
-        if(in!=null) {
-            for (ImageFile ifm : mCachedCloudFiles.getImageFiles()) {
-                String secondChance = in.replace('’', '\'');
-                if ((ifm.mName.equalsIgnoreCase(in)) || (ifm.mName.equalsIgnoreCase(secondChance)))
-                    return ifm;
-            }
-            if(tempImageFileCollection!=null)
-                for (ImageFile ifm : tempImageFileCollection) {
-                    String secondChance = in.replace('’', '\'');
-                    if ((ifm.mName.equalsIgnoreCase(in)) || (ifm.mName.equalsIgnoreCase(secondChance)))
-                        return ifm;
-                }
-        }
-        return null;
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -817,63 +774,16 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mNowPlayingNode=null;
     }
 
-    private ArrayList<CachedCloudFile> getFilesToRefresh()
-    {
-        ArrayList<CachedCloudFile> filesToRefresh=new ArrayList<>();
-        if(mFileToUpdate!=null)
-        {
-            filesToRefresh.add(mFileToUpdate);
-            if((mFileToUpdate instanceof SongFile) && (mFetchDependenciesToo))
-            {
-                SongFile song=(SongFile)mFileToUpdate;
-                if (song.mAudioFiles != null)
-                    for (String audioFileName : song.mAudioFiles) {
-                        AudioFile audioFile = getMappedAudioFilename(audioFileName, null);
-                        File actualAudioFile = null;
-                        if (audioFile != null)
-                            actualAudioFile = new File(song.mFile.getParent(), audioFile.mFile.getName());
-                        if ((actualAudioFile != null) && (actualAudioFile.exists()))
-                            filesToRefresh.add(audioFile);
-                    }
-                if (song.mImageFiles != null)
-                    for (String imageFileName : song.mImageFiles) {
-                        ImageFile imageFile = getMappedImageFilename(imageFileName, null);
-                        File actualImageFile = null;
-                        if (imageFile != null)
-                            actualImageFile = new File(song.mFile.getParent(), imageFile.mFile.getName());
-                        if ((actualImageFile != null) && (actualImageFile.exists()))
-                            filesToRefresh.add(imageFile);
-                    }
-            }
-        }
-        return filesToRefresh;
-    }
-
     void performCloudSync(CachedCloudFile fileToUpdate,boolean dependenciesToo)
-    {
-        mFileToUpdate = fileToUpdate;
-        mFetchDependenciesToo = dependenciesToo;
-        performCloudSync();
-    }
-
-    void performCloudSync()
     {
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
         String cloudPath = getCloudPath();
         if ((cloudPath == null) || (cloudPath.length() == 0))
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
         else {
-            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListEventHandler, cloudPath, getIncludeSubfolders(), getFilesToRefresh());
+            CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListEventHandler, cloudPath, getIncludeSubfolders(), mCachedCloudFiles.getFilesToRefresh(fileToUpdate,dependenciesToo));
             cdt.execute();
         }
-    }
-
-    public boolean wasPowerwashed()
-    {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        boolean powerwashed = sharedPrefs.getBoolean(getString(R.string.pref_wasPowerwashed_key), false);
-        sharedPrefs.edit().putBoolean(getString(R.string.pref_wasPowerwashed_key), false).apply();
-        return powerwashed;
     }
 
     private void sortSongList()
@@ -1037,9 +947,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             String tag2 = f2.mName.toLowerCase();
             return tag1.compareTo(tag2);
         });
-
-//        if(mTemporarySetListFilter!=null)
-//            mFilters.add(0, mTemporarySetListFilter);
 
         Filter allSongsFilter=new AllSongsFilter(getString(R.string.no_tag_selected),mCachedCloudFiles.getSongFiles());
         mFilters.add(0, allSongsFilter);
@@ -1283,7 +1190,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         buildFilterList();
         try {
             writeDatabase();
-//            buildList();
         }
         catch(Exception ioe)
         {
@@ -1547,6 +1453,5 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     break;
             }
         }
-
     }
 }

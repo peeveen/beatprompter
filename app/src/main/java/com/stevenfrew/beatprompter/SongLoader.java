@@ -268,7 +268,7 @@ public class SongLoader {
                                 }
                                 String image=new File(imageName).getName();
                                 File imageFile;
-                                ImageFile mappedImage=SongList.getMappedImageFilename(image,null);
+                                ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
                                     errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                 else
@@ -304,7 +304,7 @@ public class SongLoader {
                                 }
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
-                                AudioFile mappedTrack=SongList.getMappedAudioFilename(track,null);
+                                AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,null);
                                 if(mappedTrack==null)
                                     errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
                                 else
@@ -1021,7 +1021,7 @@ public class SongLoader {
                                     imageName=imageName.substring(0,colonindex);
                                 String image=new File(imageName).getName();
                                 File imageFile;
-                                ImageFile mappedImage=SongList.getMappedImageFilename(image,tempImageFileCollection);
+                                ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
                                     errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
                                 else
@@ -1044,7 +1044,7 @@ public class SongLoader {
                                     trackName=trackName.substring(0,trackColonindex);
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
-                                AudioFile mappedTrack=SongList.getMappedAudioFilename(track,tempAudioFileCollection);
+                                AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,tempAudioFileCollection);
                                 if(mappedTrack==null) {
                                     errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile, track)));
                                 }
