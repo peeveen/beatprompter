@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.pref;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -125,5 +126,25 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     @Override
     public boolean shouldCancel() {
         return false;
+    }
+
+    public static class SettingsEventHandler extends EventHandler {
+        private SettingsFragment mFragment;
+
+        SettingsEventHandler(SettingsFragment fragment)
+        {
+            mFragment=fragment;
+        }
+
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case EventHandler.SET_CLOUD_PATH:
+                    mFragment.setCloudPath();
+                    break;
+            }
+        }
+
     }
 }

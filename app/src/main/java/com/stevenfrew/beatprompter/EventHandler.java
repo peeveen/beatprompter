@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter;
 
 import android.os.Handler;
 
-import com.stevenfrew.beatprompter.pref.SettingsEventHandler;
+import com.stevenfrew.beatprompter.pref.SettingsFragment;
 
 public abstract class EventHandler extends Handler {
     private static final int HANDLER_MESSAGE_BASE_ID=1834739585;
@@ -36,11 +36,11 @@ public abstract class EventHandler extends Handler {
     private static final Object mSongListEventHandlerLock=new Object();
     private static final Object mSongDisplayEventHandlerLock=new Object();
     private static final Object mSettingsEventHandlerLock=new Object();
-    private static SongListEventHandler mSongListEventHandler=null;
-    private static SongDisplayEventHandler mSongDisplayEventHandler=null;
+    private static SongList.SongListEventHandler mSongListEventHandler=null;
+    private static SongDisplayActivity.SongDisplayEventHandler mSongDisplayEventHandler=null;
     private static Handler mSettingsEventHandler=null;
 
-    public static void setSongListEventHandler(SongListEventHandler songListEventHandler)
+    public static void setSongListEventHandler(SongList.SongListEventHandler songListEventHandler)
     {
         synchronized(mSongListEventHandlerLock)
         {
@@ -48,14 +48,14 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void setSongDisplayEventHandler(SongDisplayEventHandler songDisplayEventHandler)
+    public static void setSongDisplayEventHandler(SongDisplayActivity.SongDisplayEventHandler songDisplayEventHandler)
     {
         synchronized(mSongDisplayEventHandlerLock) {
             mSongDisplayEventHandler = songDisplayEventHandler;
         }
     }
 
-    public static void setSettingsEventHandler(SettingsEventHandler settingsEventHandler)
+    public static void setSettingsEventHandler(SettingsFragment.SettingsEventHandler settingsEventHandler)
     {
         synchronized(mSettingsEventHandlerLock) {
             mSettingsEventHandler = settingsEventHandler;

@@ -21,6 +21,7 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -397,9 +398,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void startSong(LoadingSongFile lsf) {
         synchronized (SongLoadTask.mSongLoadSyncObject) {
-            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf, mSongListEventHandler);
+            SongLoadTask.mSongLoadTask = new SongLoadTask(lsf);
         }
-        SongLoadTask.mSongLoadTask.loadSong((BeatPrompterApplication) getApplicationContext());
+        SongLoadTask.mSongLoadTask.loadSong();
     }
 
     void clearTemporarySetList() {
@@ -1638,5 +1639,69 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
+    static class SongListEventHandler extends EventHandler {
+        private SongList mSongList;
+        SongListEventHandler(SongList songList)
+        {
+            mSongList=songList;
+        }
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case BLUETOOTH_MESSAGE_RECEIVED:
+                    mSongList.processBluetoothMessage((BluetoothMessage) msg.obj);
+                    break;
+                case CLIENT_CONNECTED:
+                    Toast.makeText(mSongList, msg.obj + " " + SongList.mSongListInstance.getString(R.string.hasConnected), Toast.LENGTH_LONG).show();
+                    mSongList.updateBluetoothIcon();
+                    break;
+                case CLIENT_DISCONNECTED:
+                    Toast.makeText(mSongList, msg.obj + " " + SongList.mSongListInstance.getString(R.string.hasDisconnected), Toast.LENGTH_LONG).show();
+                    mSongList.updateBluetoothIcon();
+                    break;
+                case SERVER_DISCONNECTED:
+                    Toast.makeText(mSongList, SongList.mSongListInstance.getString(R.string.disconnectedFromBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
+                    mSongList.updateBluetoothIcon();
+                    break;
+                case SERVER_CONNECTED:
+                    Toast.makeText(mSongList, SongList.mSongListInstance.getString(R.string.connectedToBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
+                    mSongList.updateBluetoothIcon();
+                    break;
+                case CLOUD_SYNC_ERROR:
+                    AlertDialog.Builder adb = new AlertDialog.Builder(mSongList);
+                    adb.setMessage(SongList.mSongListInstance.getString(R.string.cloudSyncErrorMessage, (String) msg.obj));
+                    adb.setTitle(SongList.mSongListInstance.getString(R.string.cloudSyncErrorTitle));
+                    adb.setPositiveButton("OK", (dialog, id) -> dialog.cancel());
+                    AlertDialog ad = adb.create();
+                    ad.setCanceledOnTouchOutside(true);
+                    ad.show();
+                    break;
+                case SONG_LOAD_FAILED:
+                    Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show();
+                    break;
+                case MIDI_LSB_BANK_SELECT:
+                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
+                    break;
+                case MIDI_MSB_BANK_SELECT:
+                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
+                    break;
+                case MIDI_PROGRAM_CHANGE:
+                    mSongList.startSongViaMidiProgramChange(BeatPrompterApplication.mMidiBankMSBs[msg.arg1], BeatPrompterApplication.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
+                    break;
+                case MIDI_SONG_SELECT:
+                    mSongList.startSongViaMidiSongSelect((byte) msg.arg1);
+                    break;
+                case SONG_LOAD_COMPLETED:
+                    mSongList.startSongActivity();
+                    break;
+                case CLEAR_CACHE:
+                    mSongList.clearCache();
+                    break;
+                case CACHE_UPDATED:
+                    CachedCloudFileCollection cache = (CachedCloudFileCollection) msg.obj;
+                    mSongList.onCacheUpdated(cache);
+                    break;
+            }
+        }
 
+    }
 }

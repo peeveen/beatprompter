@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
@@ -15,54 +14,25 @@ import com.stevenfrew.beatprompter.event.CancelEvent;
 import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
-    private Semaphore mTaskEndSemaphore=new Semaphore(0);
+    Semaphore mTaskEndSemaphore=new Semaphore(0);
+    boolean mCancelled=false;
+    String mProgressTitle="";
+
     static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
     static LoadingSongFile mSongToLoadOnResume=null;
 
     private CancelEvent mCancelEvent=new CancelEvent();
-    private boolean mCancelled=false;
-    private String mProgressTitle="";
 
     private LoadingSongFile mLoadingSongFile;
     private ProgressDialog mProgressDialog;
-    private Handler mSongListHandler;
+    private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
 
-    SongLoadTask(LoadingSongFile lsf,Handler handler)
+    SongLoadTask(LoadingSongFile lsf)
     {
         mLoadingSongFile=lsf;
-        this.mSongListHandler=handler;
+        mSongLoadTaskEventHandler=new SongLoadTaskEventHandler(this);
     }
-
-    // TODO: replace with class
-    Handler mSongLoadHandler = new Handler()
-    {
-        public void handleMessage(Message msg)
-        {
-            switch (msg.what)
-            {
-                case EventHandler.SONG_LOAD_COMPLETED:
-                    mTaskEndSemaphore.release();
-                    mSongListHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
-                    break;
-                case EventHandler.SONG_LOAD_CANCELLED:
-                    mCancelled=true;
-                    mTaskEndSemaphore.release();
-                    break;
-                case EventHandler.SONG_LOAD_LINE_READ:
-                    mProgressTitle=SongList.mSongListInstance.getString(R.string.loadingSong);
-                    publishProgress(msg.arg1,msg.arg2);
-                    break;
-                case EventHandler.SONG_LOAD_LINE_PROCESSED:
-                    mProgressTitle=SongList.mSongListInstance.getString(R.string.processingSong);
-                    publishProgress(msg.arg1,msg.arg2);
-                    break;
-                case EventHandler.SONG_LOAD_FAILED:
-                    mSongListHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED,msg.obj).sendToTarget();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected Boolean doInBackground(String... paramParams) {
@@ -120,7 +90,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         mProgressDialog.show();
     }
 
-    void loadSong(BeatPrompterApplication app)
+    void loadSong()
     {
         if(SongDisplayActivity.mSongDisplayActive) {
             mSongToLoadOnResume=mLoadingSongFile;
@@ -130,8 +100,42 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         }
 
         BluetoothManager.broadcastMessageToClients(new ChooseSongMessage(mLoadingSongFile));
-        SongList.mSongLoaderTask.setSongToLoad(mLoadingSongFile,mSongLoadHandler,mCancelEvent);
+        SongList.mSongLoaderTask.setSongToLoad(mLoadingSongFile,mSongLoadTaskEventHandler,mCancelEvent);
         this.execute();
+    }
+
+    public static class SongLoadTaskEventHandler extends EventHandler {
+
+        SongLoadTask mSongLoadTask;
+        SongLoadTaskEventHandler(SongLoadTask songLoadTask)
+        {
+            mSongLoadTask=songLoadTask;
+        }
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case EventHandler.SONG_LOAD_COMPLETED:
+                    mSongLoadTask.mTaskEndSemaphore.release();
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED);
+                    break;
+                case EventHandler.SONG_LOAD_CANCELLED:
+                    mSongLoadTask.mCancelled=true;
+                    mSongLoadTask.mTaskEndSemaphore.release();
+                    break;
+                case EventHandler.SONG_LOAD_LINE_READ:
+                    mSongLoadTask.mProgressTitle=SongList.mSongListInstance.getString(R.string.loadingSong);
+                    mSongLoadTask.publishProgress(msg.arg1,msg.arg2);
+                    break;
+                case EventHandler.SONG_LOAD_LINE_PROCESSED:
+                    mSongLoadTask.mProgressTitle=SongList.mSongListInstance.getString(R.string.processingSong);
+                    mSongLoadTask.publishProgress(msg.arg1,msg.arg2);
+                    break;
+                case EventHandler.SONG_LOAD_FAILED:
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED,msg.obj);
+                    break;
+            }
+        }
     }
 }
 
