@@ -6,9 +6,9 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 
-public class USBOutTask extends USBTask
+class USBOutTask extends USBTask
 {
-    public USBOutTask()
+    USBOutTask()
     {
         super(null,null,true);
     }

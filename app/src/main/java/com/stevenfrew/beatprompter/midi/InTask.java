@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.Task;
 
 public class InTask extends Task
 {
-    public InTask()
+    InTask()
     {
         super(false);
     }

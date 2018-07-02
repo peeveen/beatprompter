@@ -139,6 +139,22 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
     private static final int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS=4;
 
+    IInAppBillingService mIAPService;
+
+    ServiceConnection mInAppPurchaseServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mIAPService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name,
+                                       IBinder service) {
+            mIAPService = IInAppBillingService.Stub.asInterface(service);
+            fullVersionUnlocked();
+        }
+    };
+
     SharedPreferences.OnSharedPreferenceChangeListener mStorageLocationPrefListener = (sharedPreferences, key) -> {
         if((key.equals(getString(R.string.pref_storageLocation_key)))||(key.equals(getString(R.string.pref_useExternalStorage_key))))
             initialiseLocalStorage();
@@ -577,7 +593,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
-        bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
+        bindService(serviceIntent, mInAppPurchaseServiceConn, Context.BIND_AUTO_CREATE);
 
         // Set font stuff first.
         DisplayMetrics metrics=getResources().getDisplayMetrics();
@@ -661,22 +677,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                 deleteAllFiles();
     }
 
-    IInAppBillingService mIAPService;
-
-    ServiceConnection mServiceConn = new ServiceConnection() {
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mIAPService = null;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name,
-                                       IBinder service) {
-            mIAPService = IInAppBillingService.Stub.asInterface(service);
-            fullVersionUnlocked();
-        }
-    };
-
     @Override
     public void onDestroy()
     {
@@ -686,8 +686,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         Task.stopTask(mSongLoaderTask,mSongLoaderTaskThread);
 
-        if (mServiceConn != null)
-            unbindService(mServiceConn);
+        if (mInAppPurchaseServiceConn != null)
+            unbindService(mInAppPurchaseServiceConn);
     }
 
     public static AudioFile getMappedAudioFilename(String in,ArrayList<AudioFile> tempAudioFileCollection)

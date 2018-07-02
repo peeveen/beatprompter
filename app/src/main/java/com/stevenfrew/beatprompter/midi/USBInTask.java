@@ -6,14 +6,14 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 
-public class USBInTask extends USBTask
+class USBInTask extends USBTask
 {
     private byte[] mBuffer;
     private int mBufferSize;
     private int mIncomingChannels;
     private final Object mIncomingChannelsLock=new Object();
 
-    public USBInTask(UsbDeviceConnection connection, UsbEndpoint endpoint, int incomingChannels)
+    USBInTask(UsbDeviceConnection connection, UsbEndpoint endpoint, int incomingChannels)
     {
         super(connection,endpoint,true);
         mIncomingChannels=incomingChannels;
