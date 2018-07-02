@@ -23,7 +23,7 @@ import java.util.Locale;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 
-public class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,DialogInterface.OnDismissListener,CloudFolderSearchListener {
+class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,DialogInterface.OnDismissListener,CloudFolderSearchListener {
     private static final String PARENT_DIR = "..";
 
     static class FolderContentsFetchHandler extends Handler
