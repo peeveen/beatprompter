@@ -19,15 +19,16 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
-    Semaphore mTaskEndSemaphore=new Semaphore(0);
-    boolean mCancelled=false;
-    String mProgressTitle="";
-
+    private static Song mCurrentSong=null;
+    private final static Object mCurrentSongSync=new Object();
+    private static final String AUTOLOAD_TAG="autoload";
     static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
 
+    Semaphore mTaskEndSemaphore=new Semaphore(0);
+    boolean mCancelled=false;
+    String mProgressTitle="";
     private CancelEvent mCancelEvent=new CancelEvent();
-
     private LoadingSongFile mLoadingSongFile;
     private ProgressDialog mProgressDialog;
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
@@ -62,15 +63,15 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean b) {
-        Log.d(BeatPrompterApplication.AUTOLOAD_TAG,"In load task PostExecute.");
+        Log.d(AUTOLOAD_TAG,"In load task PostExecute.");
         super.onPostExecute(b);
         if (mProgressDialog!=null) {
             mProgressDialog.dismiss();}
         if(mCancelled)
-            Log.d(BeatPrompterApplication.AUTOLOAD_TAG,"Song load was cancelled.");
+            Log.d(AUTOLOAD_TAG,"Song load was cancelled.");
         else
-            Log.d(BeatPrompterApplication.AUTOLOAD_TAG,"Song loaded successfully.");
-        Log.d(BeatPrompterApplication.AUTOLOAD_TAG,"Song loaded successfully.");
+            Log.d(AUTOLOAD_TAG,"Song loaded successfully.");
+        Log.d(AUTOLOAD_TAG,"Song loaded successfully.");
         synchronized (mSongLoadSyncObject)
         {
             mSongLoadTask=null;
@@ -98,7 +99,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     {
         if(SongDisplayActivity.mSongDisplayActive) {
             SongList.mSongLoadTaskOnResume=this;
-            if(!BeatPrompterApplication.cancelCurrentSong(mLoadingSongFile.mSongFile))
+            if(!SongLoadTask.cancelCurrentSong(mLoadingSongFile.mSongFile))
                 SongList.mSongLoadTaskOnResume=null;
             return;
         }
@@ -180,6 +181,42 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
             SongLoader loader=new SongLoader(mSongFile,mScrollMode);
             return loader.load(mTrack,mRegistered,mStartedByBandLeader,mNextSong,cancelEvent,handler,mStartedByMIDITrigger,midiAliases,mNativeDisplaySettings,mSourceDisplaySettings);
         }
+    }
+
+
+    static Song getCurrentSong()
+    {
+        synchronized (mCurrentSongSync)
+        {
+            return mCurrentSong;
+        }
+    }
+
+    static void setCurrentSong(Song song)
+    {
+        synchronized (mCurrentSongSync)
+        {
+            mCurrentSong=song;
+            System.gc();
+        }
+    }
+
+    private static boolean cancelCurrentSong(SongFile songWeWantToInterruptWith)
+    {
+        Song loadedSong=getCurrentSong();
+        if(loadedSong!=null)
+            if(SongDisplayActivity.mSongDisplayActive)
+                if(!loadedSong.mSongFile.mTitle.equals(songWeWantToInterruptWith.mTitle))
+                    if(SongDisplayActivity.mSongDisplayInstance.canYieldToMIDITrigger()) {
+                        loadedSong.mCancelled = true;
+                        EventHandler.sendEventToSongDisplay(EventHandler.END_SONG);
+                    }
+                    else
+                        return false;
+                else
+                    // Trying to interrupt a song with itself is pointless!
+                    return false;
+        return true;
     }
 }
 

@@ -36,7 +36,7 @@ public abstract class Task implements Runnable
             return mStop;
         }
     }
-    void setShouldStop()
+    private void setShouldStop()
     {
         synchronized (stopSync)
         {
@@ -62,7 +62,7 @@ public abstract class Task implements Runnable
                 }
                 catch(InterruptedException ie)
                 {
-                    Log.d(TASKTAG,"MIDI thread sleep (while paused) was interrupted.",ie);
+                    Log.d(TASKTAG,"Thread sleep (while paused) was interrupted.",ie);
                 }
             }
         }

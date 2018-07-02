@@ -35,6 +35,7 @@ import com.stevenfrew.beatprompter.event.LineEvent;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
+import com.stevenfrew.beatprompter.midi.Controller;
 import com.stevenfrew.beatprompter.midi.TriggerSafetyCatch;
 
 import java.io.FileInputStream;
@@ -47,7 +48,6 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         Scroll, Volume, None
     }
 
-    public static int POPUP_MARGIN = 25;
     private static int SONG_END_PEDAL_PRESSES=3;
     private static long SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS = Utils.milliToNano(2000);
     private static int[] mAccelerations = new int[2048];
@@ -132,7 +132,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void init(SongDisplayActivity songDisplayActivity) {
         mSongDisplayActivity = songDisplayActivity;
-        mSong = BeatPrompterApplication.getCurrentSong();
+        mSong = SongLoadTask.getCurrentSong();
         calculateScrollEnd();
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(songDisplayActivity);
         mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
@@ -587,6 +587,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     }
 
     public void showTempMessage(String message, int textSize, int textColor, Canvas canvas) {
+        int POPUP_MARGIN = 25;
         mPaint.setTextSize(textSize *Utils.FONT_SCALING);
         mPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         Rect outRect = new Rect();
@@ -858,7 +859,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     private void processMIDIEvent(MIDIEvent event)
     {
-        BeatPrompterApplication.mMIDIOutQueue.addAll(event.mMessages);
+        Controller.mMIDIOutQueue.addAll(event.mMessages);
     }
 
     private void processLineEvent(LineEvent event)

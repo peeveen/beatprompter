@@ -80,7 +80,7 @@ class SongLoaderTask extends Task {
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
-                    BeatPrompterApplication.setCurrentSong(loadingSong);
+                    SongLoadTask.setCurrentSong(loadingSong);
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
                 }
             }

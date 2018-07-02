@@ -14,12 +14,12 @@ public class SongDisplayInTask extends Task
     public void doWork()
     {
         try {
-            while ((BeatPrompterApplication.mMIDISongDisplayInQueue.take() != null) && (!getShouldStop())) {
-                Log.d(BeatPrompterApplication.MIDI_TAG,"Discarding message intended for song display mode");
+            while ((Controller.mMIDISongDisplayInQueue.take() != null) && (!getShouldStop())) {
+                Log.d(Controller.MIDI_TAG,"Discarding message intended for song display mode");
                 // Do nothing. These messages aren't meant for this activity.
             }
         } catch (InterruptedException ie) {
-            Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);
+            Log.d(Controller.MIDI_TAG, "Interrupted while attempting to retrieve MIDI in message.", ie);
         }
     }
 }

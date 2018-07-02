@@ -24,6 +24,7 @@ import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
 import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
 import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask;
+import com.stevenfrew.beatprompter.midi.Controller;
 import com.stevenfrew.beatprompter.midi.StartStopInTask;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
@@ -67,7 +68,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         // TODO: some sort of normal keyboard support.
         mAnyOtherKeyPageDown=false;//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
-        Song song=BeatPrompterApplication.getCurrentSong();
+        Song song=SongLoadTask.getCurrentSong();
         if(song!=null) {
             mStartedByBandLeader=song.mStartedByBandLeader;
             sendMidiClock |= song.mSendMidiClock;
@@ -78,7 +79,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                 mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
             setRequestedOrientation(mOrientation);
 
-            BeatPrompterApplication.mMIDIOutQueue.addAll(song.mInitialMIDIMessages);
+            Controller.mMIDIOutQueue.addAll(song.mInitialMIDIMessages);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -138,8 +139,6 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
 
         Task.stopTask(mMidiClockOutTask,mMidiClockOutTaskThread);
         Task.stopTask(mMidiStartStopInTask,mMidiStartStopInTaskThread);
-
-        EventHandler.setSongDisplayEventHandler(null);
 
         if(mSongView!=null) {
             mSongView.stop(true);
@@ -310,10 +309,10 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     mActivity.finish();
                     break;
                 case EventHandler.MIDI_LSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
+                    Controller.mMidiBankLSBs[msg.arg1]=(byte)msg.arg2;
                     break;
                 case EventHandler.MIDI_MSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
+                    Controller.mMidiBankMSBs[msg.arg1]=(byte)msg.arg1;
                     break;
             }
         }

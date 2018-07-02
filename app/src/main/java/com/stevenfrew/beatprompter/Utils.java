@@ -17,13 +17,6 @@ import java.util.regex.Pattern;
 public class Utils
 {
     static double[] mSineLookup=new double[91];
-//    private static double[] mCosineLookup=new double[91];
-//    private static double[] mInverseSineLookup=new double[91];
-//    private static double[] mInverseCosineLookup=new double[91];
-//    private static double[] mReverseSineLookup=new double[91];
-//    private static double[] mReverseCosineLookup=new double[91];
-//    private static double[] mReverseInverseSineLookup=new double[91];
-//    private static double[] mReverseInverseCosineLookup=new double[91];
 
     // Set by onCreate() in SongList.java
     static int MAXIMUM_FONT_SIZE;
@@ -34,15 +27,7 @@ public class Utils
     {
         for(int f=0;f<=90;++f) {
             double radians=Math.toRadians(f);
-//            double reverseRadians=Math.toRadians(90-f);
             mSineLookup[f] = Math.sin(radians);
-//            mCosineLookup[f] = Math.cos(radians);
-//            mInverseSineLookup[f] = 1.0-mSineLookup[f];
-//            mInverseCosineLookup[f] = 1.0-mCosineLookup[f];
-//            mReverseSineLookup[f] = Math.sin(reverseRadians);
-//            mReverseCosineLookup[f] = Math.cos(reverseRadians);
-//            mReverseInverseSineLookup[f] = 1.0-mReverseSineLookup[f];
-//            mReverseInverseCosineLookup[f] = 1.0-mReverseCosineLookup[f];
         }
     }
 

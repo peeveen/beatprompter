@@ -76,6 +76,7 @@ import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
 import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
+import com.stevenfrew.beatprompter.midi.Controller;
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
 import com.stevenfrew.beatprompter.midi.InTask;
 import com.stevenfrew.beatprompter.midi.SongDisplayInTask;
@@ -1675,13 +1676,13 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show();
                     break;
                 case MIDI_LSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
+                    Controller.mMidiBankLSBs[msg.arg1] = (byte) msg.arg2;
                     break;
                 case MIDI_MSB_BANK_SELECT:
-                    BeatPrompterApplication.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
+                    Controller.mMidiBankMSBs[msg.arg1] = (byte) msg.arg2;
                     break;
                 case MIDI_PROGRAM_CHANGE:
-                    mSongList.startSongViaMidiProgramChange(BeatPrompterApplication.mMidiBankMSBs[msg.arg1], BeatPrompterApplication.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
+                    mSongList.startSongViaMidiProgramChange(Controller.mMidiBankMSBs[msg.arg1], Controller.mMidiBankLSBs[msg.arg1], (byte) msg.arg2, (byte) msg.arg1);
                     break;
                 case MIDI_SONG_SELECT:
                     mSongList.startSongViaMidiSongSelect((byte) msg.arg1);

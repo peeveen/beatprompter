@@ -51,6 +51,7 @@ public class DropboxCloudStorage extends CloudStorage {
     private final static String DROPBOX_CACHE_FOLDER_NAME="dropbox";
     private final static String DROPBOX_APP_KEY = "hay1puzmg41f02r";
     private final static String DROPBOX_ROOT_PATH="/";
+    private final static String SHARED_PREFERENCES_ID="beatPrompterSharedPreferences";
 
     private static final Set<String> EXTENSIONS_TO_DOWNLOAD = new HashSet<>(Arrays.asList(
             "txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"));
@@ -193,7 +194,7 @@ public class DropboxCloudStorage extends CloudStorage {
 
     private void doDropboxAction(DropboxAction action)
     {
-        SharedPreferences sharedPrefs = SongList.mSongListInstance.getSharedPreferences(BeatPrompterApplication.SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefs = SongList.mSongListInstance.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
         String storedAccessToken = sharedPrefs.getString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null);
         if (storedAccessToken == null) {
             // Did we authenticate last time it failed?

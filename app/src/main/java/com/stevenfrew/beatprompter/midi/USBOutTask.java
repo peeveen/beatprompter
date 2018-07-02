@@ -16,7 +16,7 @@ public class USBOutTask extends USBTask
     {
         Message message;
         try {
-            while (((message = BeatPrompterApplication.mMIDIOutQueue.take()) != null) && (!getShouldStop()))
+            while (((message = Controller.mMIDIOutQueue.take()) != null) && (!getShouldStop()))
             {
                 UsbDeviceConnection connection=getConnection();
                 UsbEndpoint endpoint=getEndpoint();
