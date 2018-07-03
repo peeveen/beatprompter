@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
@@ -114,7 +113,7 @@ public class BluetoothManager {
         IntentFilter deviceFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         application.registerReceiver(mDeviceReceiver, deviceFilter);
 
-        PreferenceManager.getDefaultSharedPreferences(application).registerOnSharedPreferenceChangeListener(mPrefListener);
+        BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(mPrefListener);
     }
 
     private static void onStopBluetooth()
@@ -323,7 +322,7 @@ public class BluetoothManager {
 
     public static void shutdown(BeatPrompterApplication application)
     {
-        PreferenceManager.getDefaultSharedPreferences(application).unregisterOnSharedPreferenceChangeListener(mPrefListener);
+        BeatPrompterApplication.getPreferences().unregisterOnSharedPreferenceChangeListener(mPrefListener);
         application.unregisterReceiver(mAdapterReceiver);
         application.unregisterReceiver(mDeviceReceiver);
         shutDownBluetoothClient();

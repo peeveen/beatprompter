@@ -12,7 +12,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -61,7 +60,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         // GestureDetector.OnGestureListener
         mMidiClockOutTask=new ClockSignalGeneratorTask(i.getBooleanExtra("registered",false));
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         boolean sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false);
         boolean readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false);
         mScrollOnProximity=sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);

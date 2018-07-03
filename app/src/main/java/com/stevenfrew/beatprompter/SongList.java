@@ -14,7 +14,6 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -230,7 +229,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             trackName = selectedSong.mAudioFiles.get(0);
         boolean beatScroll = selectedSong.isBeatScrollable();
         boolean smoothScroll = selectedSong.isSmoothScrollable();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
         boolean manualMode = sharedPrefs.getBoolean(getString(R.string.pref_manualMode_key), false);
         if (manualMode) {
             beatScroll = smoothScroll = false;
@@ -242,7 +241,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     private boolean shouldPlayNextSong() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
         String playNextSongPref = sharedPrefs.getString(getString(R.string.pref_automaticallyPlayNextSong_key), getString(R.string.pref_automaticallyPlayNextSong_defaultValue));
         boolean playNextSong = false;
         if (playNextSongPref.equals(getString(R.string.playNextSongAlwaysValue)))
@@ -253,7 +252,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     SongDisplaySettings getSongDisplaySettings(ScrollingMode scrollMode) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         boolean onlyUseBeatFontSizes = sharedPref.getBoolean(getString(R.string.pref_alwaysUseBeatFontPrefs_key), Boolean.parseBoolean(getString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue)));
 
         int fontSizeMin = Integer.parseInt(getString(R.string.fontSizeMin));
@@ -581,7 +580,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         mSongLoaderTaskThread.start();
         Task.resumeTask(mSongLoaderTask);
 
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
+        BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
         //SharedPreferences sharedPrefs =getPreferences(Context.MODE_PRIVATE);
 
         Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
@@ -635,7 +634,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             Log.e(BeatPrompterApplication.TAG, "Package name not found ", e);
         }
 
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs=BeatPrompterApplication.getPreferences();
         String songFilesFolder;
         boolean useExternalStorage=sharedPrefs.getBoolean(getString(R.string.pref_useExternalStorage_key), false);
         File externalFilesDir=getExternalFilesDir(null);
@@ -673,7 +672,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public void onDestroy()
     {
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
+        BeatPrompterApplication.getPreferences().unregisterOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
         EventHandler.setSongListEventHandler(null);
         super.onDestroy();
 
@@ -720,7 +719,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void firstRunSetup()
     {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
         SharedPreferences.Editor editor=sharedPrefs.edit();
         editor.putBoolean(getString(R.string.pref_firstRun_key), false);
         editor.putString(getString(R.string.pref_cloudStorageSystem_key), "demo");
@@ -772,6 +771,15 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             playPlaylistNode(mNowPlayingNode.mNextNode,false);
         else
             mNowPlayingNode=null;
+    }
+
+    boolean canPerformCloudSync()
+    {
+        return getCloud()!=CloudType.Demo && getCloudPath()!=null;
+    }
+
+    void performFullCloudSync() {
+        performCloudSync(null,false);
     }
 
     void performCloudSync(CachedCloudFile fileToUpdate,boolean dependenciesToo)
@@ -887,7 +895,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void setSortingPreference(SortingPreference pref)
     {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         sharedPref.edit().putInt("pref_sorting",pref==SortingPreference.TITLE?0:pref==SortingPreference.ARTIST?1:pref==SortingPreference.DATE?2:3).apply();
         mSortingPreference=pref;
         sortSongList();
@@ -967,7 +975,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private SortingPreference getSortingPreference()
     {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         int pref=sharedPref.getInt("pref_sorting",0);
         return pref==0?SortingPreference.TITLE:(pref==1?SortingPreference.ARTIST:(pref==2?SortingPreference.DATE:SortingPreference.KEY));
     }
@@ -1014,8 +1022,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
         item = menu.findItem(R.id.synchronize);
         item.setEnabled(canPerformCloudSync());
-//        item = menu.findItem(R.id.connect_to_leader);
-//        item.setEnabled(((BeatPrompterApplication)SongList.this.getApplicationContext()).getBluetoothMode()==BluetoothMode.client);
         return true;
     }
 
@@ -1069,9 +1075,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     ad.show();
                 }
                 return true;
-//            case R.id.connect_to_leader:
-//                ((BeatPrompterApplication)this.getApplicationContext()).connectToLeader();
-//                return true;
             case R.id.settings:
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(i);
@@ -1167,22 +1170,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         customAD.show();
     }
 
-   /* private Date getLastSyncDate()
-    {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        return new Date(sharedPref.getLong("pref_lastSyncDate",0));
-    }*/
-
-    private void setLastSyncDate(Date date)
-    {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPref.edit().putLong("pref_lastSyncDate",date.getTime()).apply();
-    }
-
     void clearCache(boolean report)
     {
         // Clear both cache folders
-        setLastSyncDate(new Date(0));
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
         cs.getCacheFolder().clear();
         mPlaylist=new Playlist();
@@ -1211,7 +1201,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             boolean smooth = csm.mSmoothScroll;
             ScrollingMode scrollingMode=beat?ScrollingMode.Beat:(smooth?ScrollingMode.Smooth:ScrollingMode.Manual);
 
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(SongList.this);
+            SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
             String prefName=getString(R.string.pref_mimicBandLeaderDisplay_key);
             boolean mimicDisplay=(scrollingMode==ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true));
 
@@ -1278,23 +1268,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     String getCloudPath()
     {
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs=BeatPrompterApplication.getPreferences();
         return sharedPrefs.getString(getString(R.string.pref_cloudPath_key),null);
     }
 
     boolean getIncludeSubfolders()
     {
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs=BeatPrompterApplication.getPreferences();
         return sharedPrefs.getBoolean(getString(R.string.pref_includeSubfolders_key),false);
-    }
-
-    void performFullCloudSync() {
-        performCloudSync(null,false);
-    }
-
-    boolean canPerformCloudSync()
-    {
-        return getCloud()!=CloudType.Demo && getCloudPath()!=null;
     }
 
     void updateBluetoothIcon()

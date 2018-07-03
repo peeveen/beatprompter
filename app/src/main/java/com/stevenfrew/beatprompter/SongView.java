@@ -11,7 +11,6 @@ import android.graphics.Rect;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.preference.PreferenceManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
@@ -134,7 +133,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mSongDisplayActivity = songDisplayActivity;
         mSong = SongLoadTask.getCurrentSong();
         calculateScrollEnd();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(songDisplayActivity);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
         String metronomePref=sharedPref.getString(songDisplayActivity.getString(R.string.pref_metronome_key), songDisplayActivity.getString(R.string.pref_metronome_defaultValue));
 
@@ -182,7 +181,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mSongPixelPosition = 0;
 
         Context context = this.getContext();
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         String screenAction = sharedPref.getString(context.getString(R.string.pref_screenAction_key), context.getString(R.string.pref_screenAction_defaultValue));
         if (screenAction.equalsIgnoreCase(context.getString(R.string.screenActionNoneValue)))
             mScreenAction = ScreenAction.None;

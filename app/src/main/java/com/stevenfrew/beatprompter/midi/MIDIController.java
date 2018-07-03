@@ -12,7 +12,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.preference.PreferenceManager;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
@@ -154,7 +153,7 @@ public class MIDIController {
 
         attemptUsbMidiConnection();
 
-        PreferenceManager.getDefaultSharedPreferences(application).registerOnSharedPreferenceChangeListener(mPrefListener);
+        BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(mPrefListener);
     }
 
     public static void shutdown(BeatPrompterApplication app)
