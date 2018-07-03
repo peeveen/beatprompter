@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter.cache;
 
+import android.media.MediaMetadataRetriever;
 import android.util.Log;
 
-import com.stevenfrew.beatprompter.ScrollingMode;
 import com.stevenfrew.beatprompter.SmoothScrollingTimings;
-import com.stevenfrew.beatprompter.SongLoader;
+import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.Utils;
@@ -214,13 +214,12 @@ public class SongFile extends CachedCloudFile
         BufferedReader br=null;
         try
         {
+            SmoothScrollingTimings sst = getTimePerLineAndBar(null,tempAudioFileCollection,tempImageFileCollection);
+            mTimePerLine=sst.mTimePerLine;
+            mTimePerBar=sst.mTimePerBar;
             br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
             String line;
             int lineNumber=0;
-            SongLoader loader=new SongLoader(this, ScrollingMode.Beat); // scroll mode not important
-            SmoothScrollingTimings sst = loader.getTimePerLineAndBar(null,tempAudioFileCollection,tempImageFileCollection);
-            mTimePerLine=sst.mTimePerLine;
-            mTimePerBar=sst.mTimePerBar;
             while((line=br.readLine())!=null)
             {
                 String title = getTitleFromLine(line, lineNumber);
@@ -335,4 +334,193 @@ public class SongFile extends CachedCloudFile
             ||(mProgramChangeTrigger!=null && mProgramChangeTrigger.equals(trigger)));
     }
 
+    public SmoothScrollingTimings getTimePerLineAndBar(String chosenTrack, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
+    {
+        int bplOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_offset));
+        int bplMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_min))+bplOffset;
+        int bplMax=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_max))+bplOffset;
+        int bplDefault=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_default))+bplOffset;
+
+//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+/*        int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
+        defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
+        BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
+
+        try
+        {
+            long songTime=0;
+            int songMilli=0;
+            long pauseTime=0;
+            int realLineCount=0;
+            int realBarCount=0;
+            int barsPerLine=bplDefault;
+            long totalPauseTime=0;//defaultPausePref*1000;
+            String line;
+            ImageFile lineImage=null;
+            int lineNumber=0;
+            ArrayList<FileParseError> errors=new ArrayList<>();
+            ArrayList<Tag> tagsOut=new ArrayList<>();
+            while((line=br.readLine())!=null)
+            {
+                line=line.trim();
+                lineNumber++;
+                // Ignore comments.
+                if(!line.startsWith("#"))
+                {
+                    tagsOut.clear();
+                    String strippedLine=Tag.extractTags(line, lineNumber, tagsOut);
+                    // Replace stupid unicode BOM character
+                    strippedLine = strippedLine.replace("\uFEFF", "");
+                    boolean chordsFound=false;
+                    int barsTag=0;
+                    for(Tag tag:tagsOut) {
+                        // Not bothered about chords at the moment.
+                        if (tag.mChordTag) {
+                            chordsFound = true;
+                            continue;
+                        }
+
+                        switch (tag.mName)
+                        {
+                            case "time":
+                                songTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, true,errors);
+                                break;
+                            case "pause":
+                                pauseTime = Tag.getDurationValueFromTag( tag, 1000, 60 * 60 * 1000, 0, false,errors);
+                                break;
+                            case "bars":
+                            case "b":
+                                barsTag=Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors);
+                                break;
+                            case "bpl":
+                            case "barsperline":
+                                barsPerLine=Tag.getIntegerValueFromTag(tag, bplMin, bplMax, bplDefault, errors);
+                                break;
+                            case "image":
+                                if(lineImage!=null)
+                                {
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)));
+                                    break;
+                                }
+                                String imageName=tag.mValue;
+                                int colonindex=imageName.indexOf(":");
+                                if((colonindex!=-1)&&(colonindex<imageName.length()-1))
+                                    imageName=imageName.substring(0,colonindex);
+                                String image=new File(imageName).getName();
+                                File imageFile;
+                                ImageFile mappedImage= SongList.mCachedCloudFiles.getMappedImageFilename(image,tempImageFileCollection);
+                                if(mappedImage==null)
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
+                                else
+                                {
+                                    imageFile = new File(mFile.getParent(), mappedImage.mFile.getName());
+                                    if (!imageFile.exists()) {
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
+                                        mappedImage=null;
+                                    }
+                                }
+                                lineImage=mappedImage;
+                                break;
+                            case "track":
+                            case "audio":
+                            case "musicpath":
+                                String trackName=tag.mValue;
+                                int trackColonindex=trackName.indexOf(":");
+                                // volume?
+                                if((trackColonindex!=-1)&&(trackColonindex<trackName.length()-1))
+                                    trackName=trackName.substring(0,trackColonindex);
+                                String track=new File(trackName).getName();
+                                File trackFile=null;
+                                AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,tempAudioFileCollection);
+                                if(mappedTrack==null) {
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)));
+                                }
+                                else
+                                {
+                                    trackFile = new File(mFile.getParent(), mappedTrack.mFile.getName());
+                                    if (!trackFile.exists()) {
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile,track)));
+                                        trackFile = null;
+                                    }
+                                }
+                                if((songMilli==0)&&(trackFile!=null)&&((chosenTrack==null)||(track.equalsIgnoreCase(chosenTrack))))
+                                {
+                                    try
+                                    {
+                                        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                                        mmr.setDataSource(trackFile.getAbsolutePath());
+                                        String data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                                        if(data!=null)
+                                            songMilli=Integer.parseInt(data);
+                                    }
+                                    catch(Exception e)
+                                    {
+                                        Log.e(BeatPrompterApplication.TAG,"Failed to extract duration metadata from media file.",e);
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    int bars=barsTag;
+                    if(bars==0) {
+                        boolean commasFound = false;
+                        while (strippedLine.startsWith(",")) {
+                            commasFound = true;
+                            strippedLine = strippedLine.substring(1);
+                            bars++;
+                        }
+                        bars = Math.max(1, bars);
+                        if (!commasFound)
+                            bars = barsPerLine;
+                    }
+
+                    // Contains only tags? Or contains nothing? Don't use it as a blank line.
+                    if((strippedLine.trim().length()>0)||(chordsFound)||(pauseTime>0)||(lineImage!=null))
+                    {
+                        lineImage=null;
+                        totalPauseTime += pauseTime;
+                        pauseTime=0;
+                        // Line could potentially have been "{sometag} # comment"?
+                        if ((lineImage!=null)||(chordsFound)||(!strippedLine.trim().startsWith("#")))
+                        {
+                            realBarCount+=bars;
+                            realLineCount++;
+                        }
+                    }
+                }
+                ++lineNumber;
+            }
+
+            if(songTime==Utils.TRACK_AUDIO_LENGTH_VALUE)
+                songTime=songMilli;
+
+            boolean negateResult=false;
+            if(totalPauseTime>songTime) {
+                negateResult = true;
+                totalPauseTime=0;
+            }
+            long lineresult=(long)((double)(Utils.milliToNano(songTime - totalPauseTime))/(double)realLineCount);
+            long barresult=(long)((double)(Utils.milliToNano(songTime - totalPauseTime))/(double)realBarCount);
+            long trackresult=Utils.milliToNano(songMilli);
+            if(negateResult) {
+                lineresult = -lineresult;
+                barresult=-barresult;
+            }
+            return new SmoothScrollingTimings(lineresult,barresult,trackresult);
+        }
+        finally
+        {
+            try
+            {
+                br.close();
+            }
+            catch(IOException ioe)
+            {
+                Log.e(BeatPrompterApplication.TAG,"Failed to close song file.",ioe);
+            }
+        }
+    }
 }

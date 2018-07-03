@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.MediaMetadataRetriever;
 import android.os.Handler;
 import android.util.Log;
 
@@ -22,7 +21,6 @@ import com.stevenfrew.beatprompter.event.LineEvent;
 import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
-import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.midi.BeatBlock;
 import com.stevenfrew.beatprompter.midi.EventOffset;
 import com.stevenfrew.beatprompter.midi.Message;
@@ -38,11 +36,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/**
+ * Takes a SongFile and parses it into a Song.
+ */
 public class SongLoader {
 
     private final static int MAX_LINE_LENGTH=256;
     private final static int DEMO_LINE_COUNT=15;
 
+    private SongLoadTask.LoadingSongFile mLoadingSongFile;
     private SongFile mSongFile;
     private int mCountInMin,mCountInMax,mCountInDefault;
     private int mBPMMin,mBPMMax,mBPMDefault;
@@ -60,11 +62,18 @@ public class SongLoader {
     private String mCustomCommentsUser;
     private boolean mIgnoreColorInfo;
     private MetronomeContext mMetronomeContext;
+    private Handler mSongLoadHandler;
+    private CancelEvent mCancelEvent;
+    private boolean mRegistered;
 
-    public SongLoader(SongFile songFile,ScrollingMode userChosenScrollMode)
+    SongLoader(SongLoadTask.LoadingSongFile loadingSongFile,CancelEvent cancelEvent, Handler songLoadHandler,boolean registered)
     {
-        mSongFile=songFile;
-        mUserChosenScrollMode=userChosenScrollMode;
+        mRegistered=registered;
+        mLoadingSongFile=loadingSongFile;
+        mSongFile=loadingSongFile.mSongFile;
+        mUserChosenScrollMode=loadingSongFile.mScrollMode;
+        mCancelEvent=cancelEvent;
+        mSongLoadHandler=songLoadHandler;
 
         int countInOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_offset));
         mCountInMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_min))+countInOffset;
@@ -89,11 +98,10 @@ public class SongLoader {
         // OK, the "scrollMode" param is passed in here.
         // This might be what the user has explicitly chosen, i.e.
         // smooth mode or manual mode, chosen via the long-press play dialog.
-        mCurrentScrollMode=userChosenScrollMode;
+        mCurrentScrollMode=mUserChosenScrollMode;
         // BUT, if the mode that has come in is "beat mode", and this is a mixed mode
         // song, we should be switching when we encounter beatstart/beatstop tags.
-        boolean allowModeSwitching=((mSongFile.mMixedMode)&&(userChosenScrollMode==ScrollingMode.Beat));
-        if(allowModeSwitching)
+        if(mSongFile.mMixedMode && mCurrentScrollMode==ScrollingMode.Beat)
             // And if we ARE in mixed mode with switching allowed, we start in manual.
             mCurrentScrollMode= ScrollingMode.Manual;
 
@@ -134,14 +142,15 @@ public class SongLoader {
         }
     }
 
-    public Song load(String chosenTrack, boolean appRegistered, boolean startedByBandLeader, String nextSong, CancelEvent cancelEvent, Handler handler, boolean startedByMidiTrigger, ArrayList<Alias> aliases, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) throws IOException
+    public Song load() throws IOException
     {
         int scrollBeatMin=1,scrollBeatDefault=4;
         ArrayList<OutgoingMessage> initialMIDIMessages=new ArrayList<>();
         ArrayList<FileParseError> errors=new ArrayList<>();
         boolean stopAddingStartupItems=false;
 
-        SmoothScrollingTimings sst=getTimePerLineAndBar(chosenTrack,null,null);
+        String chosenTrack=mLoadingSongFile.mTrack;
+        SmoothScrollingTimings sst=mSongFile.getTimePerLineAndBar(chosenTrack,null,null);
         long timePerLine=sst.mTimePerLine;
         long timePerBar=sst.mTimePerBar;
 
@@ -200,8 +209,8 @@ public class SongLoader {
             boolean createColorEvent=true;
             int lineCounter=0;
             int displayLineCounter=0;
-            handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,0,mSongFile.mLines).sendToTarget();
-            while(((line=br.readLine())!=null)&&(!cancelEvent.isCancelled()))
+            mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,0,mSongFile.mLines).sendToTarget();
+            while(((line=br.readLine())!=null)&&(!mCancelEvent.isCancelled()))
             {
                 line=line.trim();
                 pauseTime=0;
@@ -479,10 +488,10 @@ public class SongLoader {
                                 break;
                             default:
                                 try {
-                                    if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
+                                    if((displayLineCounter>DEMO_LINE_COUNT)&&(!mRegistered))
                                         // NO MIDI FOR YOU
                                         break;
-                                    MIDIEvent me = Tag.getMIDIEventFromTag(currentTime,tag, aliases, mDefaultMIDIOutputChannel, errors);
+                                    MIDIEvent me = Tag.getMIDIEventFromTag(currentTime,tag, SongList.getMIDIAliases(), mDefaultMIDIOutputChannel, errors);
                                     if (me!=null)
                                     {
                                         if(stopAddingStartupItems) {
@@ -610,7 +619,7 @@ public class SongLoader {
                         if(createLine)
                         {
                             displayLineCounter++;
-                            if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
+                            if((displayLineCounter>DEMO_LINE_COUNT)&&(!mRegistered))
                             {
                                 tagsOut=new ArrayList<>();
                                 strippedLine = BeatPrompterApplication.getResourceString(R.string.please_buy);
@@ -772,7 +781,7 @@ public class SongLoader {
                         lastEvent=lastEvent.getLastEvent();
                     }
                 }
-                handler.obtainMessage(EventHandler.SONG_LOAD_LINE_READ,lineCounter,mSongFile.mLines).sendToTarget();
+                mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_READ,lineCounter,mSongFile.mLines).sendToTarget();
             }
 
             long countTime = 0;
@@ -836,7 +845,7 @@ public class SongLoader {
                 reallyTheLastEvent.add(endEvent);
             }
 
-            if((mTriggerContext== TriggerOutputContext.Always)||(mTriggerContext== TriggerOutputContext.ManualStartOnly && !startedByMidiTrigger))
+            if((mTriggerContext== TriggerOutputContext.Always)||(mTriggerContext== TriggerOutputContext.ManualStartOnly && !mLoadingSongFile.mStartedByMIDITrigger))
             {
                 if(mSongFile.mProgramChangeTrigger!=null)
                     if(mSongFile.mProgramChangeTrigger.isSendable())
@@ -861,8 +870,8 @@ public class SongLoader {
             // Now process all MIDI events with offsets.
             offsetMIDIEvents(firstEvent,errors);
 
-            Song song=new Song(mSongFile,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,mUserChosenScrollMode,mSendMidiClock,startedByBandLeader,nextSong,sourceSettings.mOrientation,initialMIDIMessages,beatBlocks,initialBPB,count);
-            song.doMeasurements(new Paint(),cancelEvent,handler,nativeSettings,sourceSettings);
+            Song song=new Song(mSongFile,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,mUserChosenScrollMode,mSendMidiClock,mLoadingSongFile.mStartedByBandLeader,mLoadingSongFile.mNextSong,mLoadingSongFile.mSourceDisplaySettings.mOrientation,initialMIDIMessages,beatBlocks,initialBPB,count);
+            song.doMeasurements(new Paint(),mCancelEvent,mSongLoadHandler,mLoadingSongFile.mNativeDisplaySettings,mLoadingSongFile.mSourceDisplaySettings);
             return song;
         }
         finally
@@ -950,191 +959,4 @@ public class SongLoader {
         }
         return currentTime;
     }
-
-    public SmoothScrollingTimings getTimePerLineAndBar(String chosenTrack, ArrayList<AudioFile> tempAudioFileCollection, ArrayList<ImageFile> tempImageFileCollection) throws IOException
-    {
-//        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-/*        int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
-        defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
-        BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mSongFile.mFile)));
-
-        try
-        {
-            long songTime=0;
-            int songMilli=0;
-            long pauseTime=0;
-            int realLineCount=0;
-            int realBarCount=0;
-            int barsPerLine=mBPLDefault;
-            long totalPauseTime=0;//defaultPausePref*1000;
-            String line;
-            ImageFile lineImage=null;
-            int lineNumber=0;
-            ArrayList<FileParseError> errors=new ArrayList<>();
-            ArrayList<Tag> tagsOut=new ArrayList<>();
-            while((line=br.readLine())!=null)
-            {
-                line=line.trim();
-                lineNumber++;
-                // Ignore comments.
-                if(!line.startsWith("#"))
-                {
-                    tagsOut.clear();
-                    String strippedLine=Tag.extractTags(line, lineNumber, tagsOut);
-                    // Replace stupid unicode BOM character
-                    strippedLine = strippedLine.replace("\uFEFF", "");
-                    boolean chordsFound=false;
-                    int barsTag=0;
-                    for(Tag tag:tagsOut) {
-                        // Not bothered about chords at the moment.
-                        if (tag.mChordTag) {
-                            chordsFound = true;
-                            continue;
-                        }
-
-                        switch (tag.mName)
-                        {
-                            case "time":
-                                songTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, true,errors);
-                                break;
-                            case "pause":
-                                pauseTime = Tag.getDurationValueFromTag( tag, 1000, 60 * 60 * 1000, 0, false,errors);
-                                break;
-                            case "bars":
-                            case "b":
-                                barsTag=Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors);
-                                break;
-                            case "bpl":
-                            case "barsperline":
-                                barsPerLine=Tag.getIntegerValueFromTag(tag, mBPLMin, mBPLMax, mBPLDefault, errors);
-                                break;
-                            case "image":
-                                if(lineImage!=null)
-                                {
-                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)));
-                                    break;
-                                }
-                                String imageName=tag.mValue;
-                                int colonindex=imageName.indexOf(":");
-                                if((colonindex!=-1)&&(colonindex<imageName.length()-1))
-                                    imageName=imageName.substring(0,colonindex);
-                                String image=new File(imageName).getName();
-                                File imageFile;
-                                ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,tempImageFileCollection);
-                                if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
-                                else
-                                {
-                                    imageFile = new File(mSongFile.mFile.getParent(), mappedImage.mFile.getName());
-                                    if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
-                                        mappedImage=null;
-                                    }
-                                }
-                                lineImage=mappedImage;
-                                break;
-                            case "track":
-                            case "audio":
-                            case "musicpath":
-                                String trackName=tag.mValue;
-                                int trackColonindex=trackName.indexOf(":");
-                                // volume?
-                                if((trackColonindex!=-1)&&(trackColonindex<trackName.length()-1))
-                                    trackName=trackName.substring(0,trackColonindex);
-                                String track=new File(trackName).getName();
-                                File trackFile=null;
-                                AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,tempAudioFileCollection);
-                                if(mappedTrack==null) {
-                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)));
-                                }
-                                else
-                                {
-                                    trackFile = new File(mSongFile.mFile.getParent(), mappedTrack.mFile.getName());
-                                    if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile,track)));
-                                        trackFile = null;
-                                    }
-                                }
-                                if((songMilli==0)&&(trackFile!=null)&&((chosenTrack==null)||(track.equalsIgnoreCase(chosenTrack))))
-                                {
-                                    try
-                                    {
-                                        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                                        mmr.setDataSource(trackFile.getAbsolutePath());
-                                        String data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                                        if(data!=null)
-                                            songMilli=Integer.parseInt(data);
-                                    }
-                                    catch(Exception e)
-                                    {
-                                        Log.e(BeatPrompterApplication.TAG,"Failed to extract duration metadata from media file.",e);
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    int bars=barsTag;
-                    if(bars==0) {
-                        boolean commasFound = false;
-                        while (strippedLine.startsWith(",")) {
-                            commasFound = true;
-                            strippedLine = strippedLine.substring(1);
-                            bars++;
-                        }
-                        bars = Math.max(1, bars);
-                        if (!commasFound)
-                            bars = barsPerLine;
-                    }
-
-                    // Contains only tags? Or contains nothing? Don't use it as a blank line.
-                    if((strippedLine.trim().length()>0)||(chordsFound)||(pauseTime>0)||(lineImage!=null))
-                    {
-                        lineImage=null;
-                        totalPauseTime += pauseTime;
-                        pauseTime=0;
-                        // Line could potentially have been "{sometag} # comment"?
-                        if ((lineImage!=null)||(chordsFound)||(!strippedLine.trim().startsWith("#")))
-                        {
-                            realBarCount+=bars;
-                            realLineCount++;
-                        }
-                    }
-                }
-                ++lineNumber;
-            }
-
-            if(songTime==Utils.TRACK_AUDIO_LENGTH_VALUE)
-                songTime=songMilli;
-
-            boolean negateResult=false;
-            if(totalPauseTime>songTime) {
-                negateResult = true;
-                totalPauseTime=0;
-            }
-            long lineresult=(long)((double)(Utils.milliToNano(songTime - totalPauseTime))/(double)realLineCount);
-            long barresult=(long)((double)(Utils.milliToNano(songTime - totalPauseTime))/(double)realBarCount);
-            long trackresult=Utils.milliToNano(songMilli);
-            if(negateResult) {
-                lineresult = -lineresult;
-                barresult=-barresult;
-            }
-            return new SmoothScrollingTimings(lineresult,barresult,trackresult);
-        }
-        finally
-        {
-            try
-            {
-                br.close();
-            }
-            catch(IOException ioe)
-            {
-                Log.e(BeatPrompterApplication.TAG,"Failed to close song file.",ioe);
-            }
-        }
-    }
-
-
 }

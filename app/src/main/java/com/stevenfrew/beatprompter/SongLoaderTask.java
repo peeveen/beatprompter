@@ -14,6 +14,12 @@ class SongLoaderTask extends Task {
     private final Object mSongLoadHandlerSync = new Object();
     private final Object mLoadingSongFileSync = new Object();
     private final Object mCancelEventSync = new Object();
+    private boolean mRegistered;
+
+    SongLoaderTask()
+    {
+        super(true);
+    }
 
     private Handler getSongLoadHandler()
     {
@@ -38,17 +44,6 @@ class SongLoaderTask extends Task {
             return result;
         }
     }
-    private void setLoadingSongFile(SongLoadTask.LoadingSongFile lsf,CancelEvent cancelEvent)
-    {
-        synchronized (mLoadingSongFileSync)
-        {
-            CancelEvent existingCancelEvent=getCancelEvent();
-            if(existingCancelEvent!=null)
-                existingCancelEvent.set();
-            setCancelEvent(cancelEvent);
-            mLoadingSongFile=lsf;
-        }
-    }
     private CancelEvent getCancelEvent()
     {
         synchronized (mCancelEventSync)
@@ -64,10 +59,6 @@ class SongLoaderTask extends Task {
         }
     }
 
-    SongLoaderTask()
-    {
-        super(true);
-    }
     public void doWork()
     {
         SongLoadTask.LoadingSongFile lsf=getLoadingSongFile();
@@ -76,11 +67,12 @@ class SongLoaderTask extends Task {
             Handler songLoadHandler=getSongLoadHandler();
             CancelEvent cancelEvent = getCancelEvent();
             try {
-                Song loadingSong = lsf.load(cancelEvent, songLoadHandler,SongList.getMIDIAliases());
+                SongLoader loader=new SongLoader(lsf,cancelEvent,songLoadHandler,mRegistered);
+                Song loadedSong = loader.load();
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
-                    SongLoadTask.setCurrentSong(loadingSong);
+                    SongLoadTask.setCurrentSong(loadedSong);
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
                 }
             }
@@ -99,10 +91,18 @@ class SongLoaderTask extends Task {
             {
             }
     }
-    void setSongToLoad(SongLoadTask.LoadingSongFile lsf, Handler handler, CancelEvent cancelEvent)
+    void loadSong(SongLoadTask.LoadingSongFile lsf, Handler handler, CancelEvent cancelEvent,boolean registered)
     {
         setSongLoadHandler(handler);
-        setLoadingSongFile(lsf,cancelEvent);
+        synchronized (mLoadingSongFileSync)
+        {
+            CancelEvent existingCancelEvent=getCancelEvent();
+            if(existingCancelEvent!=null)
+                existingCancelEvent.set();
+            setCancelEvent(cancelEvent);
+            mRegistered=registered;
+            mLoadingSongFile=lsf;
+        }
     }
 }
 

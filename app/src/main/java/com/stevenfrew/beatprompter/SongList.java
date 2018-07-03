@@ -160,9 +160,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     public static SongListEventHandler mSongListEventHandler;
 
-    static SongLoaderTask mSongLoaderTask = null;
-
-    Thread mSongLoaderTaskThread = null;
+    static SongLoaderTask mSongLoaderTask = new SongLoaderTask();
+    Thread mSongLoaderTaskThread = new Thread(mSongLoaderTask);
 
     final static private String FULL_VERSION_SKU_NAME = "full_version";
 
@@ -575,8 +574,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
         EventHandler.setSongListEventHandler(mSongListEventHandler);
 
-        mSongLoaderTask=new SongLoaderTask();
-        mSongLoaderTaskThread=new Thread(mSongLoaderTask);
         mSongLoaderTaskThread.start();
         Task.resumeTask(mSongLoaderTask);
 
@@ -1217,7 +1214,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                         playSong(null, sf, track, scrollingMode,true,false,nativeSettings,sourceSettings);
                     else
                         mSongLoadTaskOnResume=new SongLoadTask(sf,track,scrollingMode,null,true,
-                                false,nativeSettings,sourceSettings,getCloud()==CloudType.Demo);
+                                false,nativeSettings,sourceSettings,mFullVersionUnlocked || getCloud()==CloudType.Demo);
                     break;
                 }
         }

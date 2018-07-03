@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter;
 
 public class SmoothScrollingTimings
 {
-    SmoothScrollingTimings(long line,long bar,long track)
+    public SmoothScrollingTimings(long line,long bar,long track)
     {
         mTimePerLine=line;
         mTimePerBar=bar;
