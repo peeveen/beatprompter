@@ -119,7 +119,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     Menu mMenu = null;
     public static SongList mSongListInstance = null;
     Filter mSelectedFilter = null;
-    SortingPreference mSortingPreference = SortingPreference.TITLE;
+    SortingPreference mSortingPreference = SortingPreference.Title;
     Playlist mPlaylist = new Playlist();
     PlaylistNode mNowPlayingNode = null;
     ArrayList<Filter> mFilters = new ArrayList<>();
@@ -795,16 +795,16 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         if((mSelectedFilter==null)||(mSelectedFilter.mCanSort)) {
             switch (mSortingPreference) {
-                case DATE:
+                case Date:
                     sortSongsByDateModified();
                     return;
-                case ARTIST:
+                case Artist:
                     sortSongsByArtist();
                     return;
-                case TITLE:
+                case Title:
                     sortSongsByTitle();
                     return;
-                case KEY:
+                case Key:
                     sortSongsByKey();
             }
         }
@@ -892,8 +892,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void setSortingPreference(SortingPreference pref)
     {
-        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
-        sharedPref.edit().putInt("pref_sorting",pref==SortingPreference.TITLE?0:pref==SortingPreference.ARTIST?1:pref==SortingPreference.DATE?2:3).apply();
+        BeatPrompterApplication.getPreferences().edit().putString("pref_sorting",pref.name()).apply();
         mSortingPreference=pref;
         sortSongList();
     }
@@ -972,9 +971,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private SortingPreference getSortingPreference()
     {
-        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
-        int pref=sharedPref.getInt("pref_sorting",0);
-        return pref==0?SortingPreference.TITLE:(pref==1?SortingPreference.ARTIST:(pref==2?SortingPreference.DATE:SortingPreference.KEY));
+        try {
+            return SortingPreference.valueOf(BeatPrompterApplication.getPreferences().getString("pref_sorting", SortingPreference.Title.name()));
+        }
+        catch(Exception ignored)
+        {
+            // for old shite legacy values.
+            return SortingPreference.Title;
+        }
     }
 
     public boolean fullVersionUnlocked()
@@ -1050,19 +1054,19 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     adb.setItems(items, (d, n) -> {
                         if (n == 0) {
                             d.dismiss();
-                            setSortingPreference(SortingPreference.TITLE);
+                            setSortingPreference(SortingPreference.Title);
                             buildList();
                         } else if (n == 1) {
                             d.dismiss();
-                            setSortingPreference(SortingPreference.ARTIST);
+                            setSortingPreference(SortingPreference.Artist);
                             buildList();
                         } else if (n == 2) {
                             d.dismiss();
-                            setSortingPreference(SortingPreference.DATE);
+                            setSortingPreference(SortingPreference.Date);
                             buildList();
                         } else if (n == 3) {
                             d.dismiss();
-                            setSortingPreference(SortingPreference.KEY);
+                            setSortingPreference(SortingPreference.Key);
                             buildList();
                         }
                     });
