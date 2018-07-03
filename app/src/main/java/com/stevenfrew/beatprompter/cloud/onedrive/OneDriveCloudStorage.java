@@ -173,13 +173,13 @@ public class OneDriveCloudStorage extends CloudStorage {
                     if (driveFile != null) {
                         String title = file.mName;
                         Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                        mMessageSource.onNext(SongList.mSongListInstance.getString(R.string.checking, title));
+                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title));
                         String safeFilename = Utils.makeSafeFilename(title);
                         File targetFile = new File(mDownloadFolder, safeFilename);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                        mMessageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, title));
+                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title));
                         // Don't check lastModified ... ALWAYS download.
                         if (mListener.shouldCancel())
                             break;
@@ -293,7 +293,7 @@ public class OneDriveCloudStorage extends CloudStorage {
 
             @Override
             public void onAuthenticationRequired() {
-                rootPathSource.onError(new CloudException(SongList.mSongListInstance.getString(R.string.could_not_find_cloud_root_error)));
+                rootPathSource.onError(new CloudException(BeatPrompterApplication.getResourceString(R.string.could_not_find_cloud_root_error)));
             }
         });
     }
@@ -310,7 +310,7 @@ public class OneDriveCloudStorage extends CloudStorage {
 
     @Override
     public String getCloudStorageName() {
-        return SongList.mSongListInstance.getString(R.string.onedrive_string);
+        return BeatPrompterApplication.getResourceString(R.string.onedrive_string);
     }
 
     @Override

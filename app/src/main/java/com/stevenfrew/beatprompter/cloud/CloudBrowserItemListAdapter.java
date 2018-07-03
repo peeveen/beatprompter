@@ -9,20 +9,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 
 import java.util.List;
 
 class CloudBrowserItemListAdapter extends ArrayAdapter<CloudItemInfo> {
 
     CloudBrowserItemListAdapter(List<CloudItemInfo> items) {
-        super(SongList.mSongListInstance, -1, items);
+        super(BeatPrompterApplication.getContext(), -1, items);
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
+        LayoutInflater inflater = (LayoutInflater) BeatPrompterApplication.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView==null?inflater.inflate(R.layout.cloud_browser_item, parent, false):convertView;
         TextView textView =  rowView.findViewById(R.id.file_or_folder_name);

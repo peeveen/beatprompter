@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.PlaylistNode;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.SongFile;
 
 import java.util.List;
@@ -24,16 +23,17 @@ public class SongListAdapter extends ArrayAdapter<PlaylistNode> {
     private SharedPreferences sharedPref;
 
     public SongListAdapter(List<PlaylistNode> playlist) {
-        super(SongList.mSongListInstance, -1, playlist);
-        sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        mLargePrint= sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_defaultValue)));
+        super(BeatPrompterApplication.getContext(), -1, playlist);
+        sharedPref= BeatPrompterApplication.getPreferences();
+        mLargePrint= sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key),Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue)));
         this.values = playlist;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
+        LayoutInflater inflater = (LayoutInflater) BeatPrompterApplication.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressWarnings("ConstantConditions")
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.song_list_item_large:R.layout.song_list_item, parent, false):convertView;
         TextView artistView = rowView.findViewById(R.id.songartist);
         TextView titleView = rowView.findViewById(R.id.songtitle);
@@ -41,9 +41,9 @@ public class SongListAdapter extends ArrayAdapter<PlaylistNode> {
         ImageView docIcon= rowView.findViewById(R.id.smoothicon);
         ImageView notesIcon= rowView.findViewById(R.id.musicicon);
         SongFile song=values.get(position).mSongFile;
-        boolean showBeatIcons=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showBeatStyleIcons_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showBeatStyleIcons_defaultValue)));
-        boolean showKey=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showKeyInList_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showKeyInList_defaultValue)));
-        boolean showMusicIcon=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showMusicIcon_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showMusicIcon_defaultValue)));
+        boolean showBeatIcons=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue)));
+        boolean showKey=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue)));
+        boolean showMusicIcon=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue)));
         if((song.mAudioFiles==null)||(song.mAudioFiles.size()==0)||(!showMusicIcon))
         {
             notesIcon.setVisibility(View.GONE);

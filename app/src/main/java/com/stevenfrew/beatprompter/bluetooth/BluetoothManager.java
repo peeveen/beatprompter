@@ -14,7 +14,6 @@ import android.util.Log;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -232,9 +231,9 @@ public class BluetoothManager {
     {
         try
         {
-            return BluetoothMode.valueOf(PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance).
-                    getString(SongList.mSongListInstance.getString(R.string.pref_bluetoothMode_key),
-                            SongList.mSongListInstance.getString(R.string.bluetoothModeNoneValue)));
+            return BluetoothMode.valueOf(BeatPrompterApplication.getPreferences().
+                    getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
+                            BeatPrompterApplication.getResourceString(R.string.bluetoothModeNoneValue)));
         }
         catch(Exception e)
         {
@@ -276,7 +275,7 @@ public class BluetoothManager {
 
     private static SharedPreferences.OnSharedPreferenceChangeListener mPrefListener =
             (prefs, key) -> {
-                if (key.equals(SongList.mSongListInstance.getString(R.string.pref_bluetoothMode_key)))
+                if (key.equals(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key)))
                 {
                     BluetoothMode mode=getBluetoothMode();
                     if(mode==BluetoothMode.None)

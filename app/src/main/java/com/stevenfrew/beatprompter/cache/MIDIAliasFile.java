@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.midi.Alias;
 import com.stevenfrew.beatprompter.midi.AliasComponent;
@@ -58,7 +57,7 @@ public class MIDIAliasFile extends CachedCloudFile
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, storageName));
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, storageName));
         }
     }
 
@@ -90,7 +89,7 @@ public class MIDIAliasFile extends CachedCloudFile
                 if(!isMidiAliasFile) {
                     aliasFilename=CachedCloudFile.getTokenValue(line,lineNumber,"midi_aliases");
                     if((aliasFilename==null)||(aliasFilename.trim().length()==0)) {
-                        throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, aliasFilename));
+                        throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, aliasFilename));
                     }
                     isMidiAliasFile=true;
                 }
@@ -106,9 +105,9 @@ public class MIDIAliasFile extends CachedCloudFile
                         currentAliasName = CachedCloudFile.getTokenValue(line, lineNumber, "midi_alias");
                         if (currentAliasName != null) {
                             if (currentAliasName.contains(":"))
-                                midiParsingErrors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.midi_alias_name_contains_more_than_two_parts)));
+                                midiParsingErrors.add(new FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts)));
                             if (currentAliasName.isEmpty()) {
-                                midiParsingErrors.add(new FileParseError(lineNumber, SongList.mSongListInstance.getString(R.string.midi_alias_without_a_name)));
+                                midiParsingErrors.add(new FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.midi_alias_without_a_name)));
                                 currentAliasName=null;
                             }
                         }
@@ -121,7 +120,7 @@ public class MIDIAliasFile extends CachedCloudFile
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_midi_alias_file, filename));
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename));
         }
         finally
         {
@@ -151,7 +150,7 @@ public class MIDIAliasFile extends CachedCloudFile
                     List<Value> componentArgs=new ArrayList<>();
                     String tagName = bits[0].trim();
                     if(bits.length>2)
-                        errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.midi_alias_message_contains_more_than_two_parts)));
+                        errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts)));
                     else if (bits.length > 1) {
                         String params = bits[1].trim();
                         String[] paramBits=params.split(",");
@@ -169,13 +168,13 @@ public class MIDIAliasFile extends CachedCloudFile
                         return new RecursiveAliasComponent(tagName,componentArgs);
                 }
                 else
-                    errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.empty_tag)));
+                    errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.empty_tag)));
             }
             else
-                errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.badly_formed_tag)));
+                errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.badly_formed_tag)));
         }
         else
-            errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.badly_formed_tag)));
+            errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.badly_formed_tag)));
         return null;
     }
 }

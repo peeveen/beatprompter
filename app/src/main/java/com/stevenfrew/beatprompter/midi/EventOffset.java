@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.midi;
 
-import com.stevenfrew.beatprompter.SongList;
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.cache.Tag;
@@ -39,7 +39,7 @@ public class EventOffset {
                     ++diff;
                 else if(!bErrorAdded){
                     bErrorAdded=true;
-                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.non_beat_characters_in_midi_offset)));
+                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset)));
                 }
             }
             mAmount=diff;
@@ -48,12 +48,12 @@ public class EventOffset {
         if(Math.abs(mAmount)>16 && mOffsetType==OffsetType.Beats)
         {
             mAmount=(Math.abs(mAmount)/mAmount)*16;
-            errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.max_midi_offset_exceeded)));
+            errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)));
         }
         else if(Math.abs(mAmount)>10000 && mOffsetType==OffsetType.Milliseconds)
         {
             mAmount=(Math.abs(mAmount)/mAmount)*10000;
-            errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.max_midi_offset_exceeded)));
+            errors.add(new FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)));
         }
     }
 }

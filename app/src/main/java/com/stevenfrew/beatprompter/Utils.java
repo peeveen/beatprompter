@@ -145,6 +145,7 @@ public class Utils
     }
 
 
+    @SuppressWarnings("RegExpRedundantEscape")
     private static final String REGEXP =
             "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
                     +"(([ABCDEFG])([b\u266D#\u266F\u266E])?)" //note name + accidental

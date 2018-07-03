@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.midi;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 
 import java.util.List;
 
@@ -26,6 +26,6 @@ public class RecursiveAliasComponent implements AliasComponent {
                     newArgs[counter++]=arg.resolve(parameters,channel);
                 return alias.resolve(aliases,newArgs,channel);
             }
-        throw new ResolutionException(SongList.mSongListInstance.getString(R.string.unknown_midi_directive,mReferencedAliasName));
+        throw new ResolutionException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive,mReferencedAliasName));
     }
 }

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.MediaMetadataRetriever;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.cache.AudioFile;
@@ -67,25 +66,25 @@ public class SongLoader {
         mSongFile=songFile;
         mUserChosenScrollMode=userChosenScrollMode;
 
-        int countInOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_offset));
-        mCountInMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_min))+countInOffset;
-        mCountInMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_max))+countInOffset;
-        mCountInDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_default))+countInOffset;
+        int countInOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_offset));
+        mCountInMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_min))+countInOffset;
+        mCountInMax=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_max))+countInOffset;
+        mCountInDefault=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default))+countInOffset;
 
-        int bpmOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_offset));
-        mBPMMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_min))+bpmOffset;
-        mBPMMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_max))+bpmOffset;
-        mBPMDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpm_default))+bpmOffset;
+        int bpmOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpm_offset));
+        mBPMMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpm_min))+bpmOffset;
+        mBPMMax=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpm_max))+bpmOffset;
+        mBPMDefault=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpm_default))+bpmOffset;
 
-        int bplOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_offset));
-        mBPLMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_min))+bplOffset;
-        mBPLMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_max))+bplOffset;
-        mBPLDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpl_default))+bplOffset;
+        int bplOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_offset));
+        mBPLMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_min))+bplOffset;
+        mBPLMax=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_max))+bplOffset;
+        mBPLDefault=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_default))+bplOffset;
 
-        int bpbOffset=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_offset));
-        mBPBMin=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_min))+bpbOffset;
-        mBPBMax=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_max))+bpbOffset;
-        mBPBDefault=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_bpb_default))+bpbOffset;
+        int bpbOffset=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpb_offset));
+        mBPBMin=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpb_min))+bpbOffset;
+        mBPBMax=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpb_max))+bpbOffset;
+        mBPBDefault=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpb_default))+bpbOffset;
 
         // OK, the "scrollMode" param is passed in here.
         // This might be what the user has explicitly chosen, i.e.
@@ -98,35 +97,35 @@ public class SongLoader {
             // And if we ARE in mixed mode with switching allowed, we start in manual.
             mCurrentScrollMode= ScrollingMode.Manual;
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        mTriggerContext= TriggerOutputContext.valueOf(sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_key),SongList.mSongListInstance.getString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
-        mCountInPref = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_countIn_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_default)));
-        mCountInPref+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_countIn_offset));
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
+        mTriggerContext= TriggerOutputContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key),BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue)));
+        mCountInPref = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)));
+        mCountInPref+=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_offset));
 /*            int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
             defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
-        mDefaultTrackVolume=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_default)));
-        mDefaultTrackVolume+=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultTrackVolume_offset));
-        int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_defaultMIDIOutputChannel_default)));
+        mDefaultTrackVolume=sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_default)));
+        mDefaultTrackVolume+=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_offset));
+        int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)));
         mDefaultMIDIOutputChannel= Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
-        mShowChords=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showChords_defaultValue)));
-        mSendMidiClock = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_sendMidi_key), false);
-        mBackgroundColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_backgroundColor_default)));
-        mPulseColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_pulseColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_pulseColor_default)));
-        mBeatCounterColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_beatCounterColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_beatCounterColor_default)));
-        mScrollMarkerColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_scrollMarkerColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_scrollMarkerColor_default)));
-        mLyricColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_lyricColor_key),Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_lyricColor_default)));
-        mChordColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_chordColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_chordColor_default)));
-        mAnnotationColour = sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_annotationColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_annotationColor_default)));
-        mCustomCommentsUser=sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_customComments_key), SongList.mSongListInstance.getString(R.string.pref_customComments_defaultValue));
+        mShowChords=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue)));
+        mSendMidiClock = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false);
+        mBackgroundColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)));
+        mPulseColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_default)));
+        mBeatCounterColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)));
+        mScrollMarkerColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_default)));
+        mLyricColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key),Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)));
+        mChordColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)));
+        mAnnotationColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)));
+        mCustomCommentsUser=sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue));
         mBackgroundColour|=0xff000000;
         mAnnotationColour|=0xff000000;
         mPulseColour|=0xff000000;
         mBeatCounterColour|=0xff000000;
         mLyricColour|=0xff000000;
         mChordColour|=0xff000000;
-        mIgnoreColorInfo=sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_ignoreColorInfo_defaultValue)));
+        mIgnoreColorInfo=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue)));
         try {
-            mMetronomeContext = MetronomeContext.valueOf(sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_metronome_key), SongList.mSongListInstance.getString(R.string.pref_metronome_defaultValue)));
+            mMetronomeContext = MetronomeContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_metronome_key), BeatPrompterApplication.getResourceString(R.string.pref_metronome_defaultValue)));
         }
         catch(Exception e)
         {
@@ -147,7 +146,7 @@ public class SongLoader {
         long timePerBar=sst.mTimePerBar;
 
         if((timePerLine<0)||(timePerBar<0)) {
-            errors.add(new FileParseError(null, SongList.mSongListInstance.getString(R.string.pauseLongerThanSong)));
+            errors.add(new FileParseError(null, BeatPrompterApplication.getResourceString(R.string.pauseLongerThanSong)));
             sst.mTimePerLine=-timePerLine;
             sst.mTimePerBar=-timePerBar;
         }
@@ -213,7 +212,7 @@ public class SongLoader {
                     if(line.length()>MAX_LINE_LENGTH)
                     {
                         line=line.substring(0,MAX_LINE_LENGTH);
-                        errors.add(new FileParseError(null, SongList.mSongListInstance.getString(R.string.lineTooLong,lineCounter,MAX_LINE_LENGTH)));
+                        errors.add(new FileParseError(null, BeatPrompterApplication.getResourceString(R.string.lineTooLong,lineCounter,MAX_LINE_LENGTH)));
                     }
                     tagsOut.clear();
                     String strippedLine=Tag.extractTags(line, lineCounter, tagsOut);
@@ -232,7 +231,7 @@ public class SongLoader {
                         if((Tag.COLOR_TAGS.contains(tag.mName))&&(!mIgnoreColorInfo))
                             createColorEvent=true;
                         if((Tag.ONE_SHOT_TAGS.contains(tag.mName))&&(tagsSet.contains(tag.mName)))
-                            errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.oneShotTagDefinedTwice,tag.mName)));
+                            errors.add(new FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice,tag.mName)));
                         commentAudience=null;
                         if(tag.mName.startsWith("c@"))
                         {
@@ -249,7 +248,7 @@ public class SongLoader {
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(lineCounter, SongList.mSongListInstance.getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -264,18 +263,18 @@ public class SongLoader {
                                     else if(strScalingMode.equalsIgnoreCase("original"))
                                         imageScalingMode=ImageScalingMode.Original;
                                     else
-                                        errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.unknown_image_scaling_mode)));
+                                        errors.add(new FileParseError(lineCounter,BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)));
                                 }
                                 String image=new File(imageName).getName();
                                 File imageFile;
                                 ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
                                 else
                                 {
                                     imageFile = new File(mSongFile.mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists())
-                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
                                 }
                                 lineImage=mappedImage;
                                 break;
@@ -293,25 +292,25 @@ public class SongLoader {
                                     {
                                         int tryvolume = Integer.parseInt(strVolume);
                                         if((tryvolume<0)||(tryvolume>100))
-                                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.badAudioVolume)));
+                                            errors.add(new FileParseError(lineCounter,BeatPrompterApplication.getResourceString(R.string.badAudioVolume)));
                                         else
                                             volume=(int)((double)volume*((double)tryvolume/100.0));
                                     }
                                     catch(NumberFormatException nfe)
                                     {
-                                        errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.badAudioVolume)));
+                                        errors.add(new FileParseError(lineCounter,BeatPrompterApplication.getResourceString(R.string.badAudioVolume)));
                                     }
                                 }
                                 String track=new File(trackName).getName();
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,null);
                                 if(mappedTrack==null)
-                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile,track)));
                                 else
                                 {
                                     trackFile = new File(mSongFile.mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile,track)));
                                         trackFile = null;
                                     }
                                 }
@@ -497,7 +496,7 @@ public class SongLoader {
                                         {
                                             initialMIDIMessages.addAll(me.mMessages);
                                             if(me.mOffset!=null)
-                                                errors.add(new FileParseError(tag,SongList.mSongListInstance.getString(R.string.midi_offset_before_first_line)));
+                                                errors.add(new FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)));
                                         }
                                     }
                                 }
@@ -593,14 +592,14 @@ public class SongLoader {
 
                         if((scrollbeatOffset<-bpbThisLine)||(scrollbeatOffset>=bpbThisLine))
                         {
-                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.scrollbeatOffTheMap)));
+                            errors.add(new FileParseError(lineCounter,BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)));
                             scrollbeatOffset=0;
                         }
                         if(!commasFound)
                             bars=bpl;
 
                         if((lineImage!=null)&&((strippedLine.trim().length()>0)||(chordsFound)))
-                            errors.add(new FileParseError(lineCounter,SongList.mSongListInstance.getString(R.string.text_found_with_image)));
+                            errors.add(new FileParseError(lineCounter,BeatPrompterApplication.getResourceString(R.string.text_found_with_image)));
 
                         if((strippedLine.trim().length()==0)&&(!chordsFound))
                             strippedLine="▼";
@@ -614,7 +613,7 @@ public class SongLoader {
                             if((displayLineCounter>DEMO_LINE_COUNT)&&(!appRegistered))
                             {
                                 tagsOut=new ArrayList<>();
-                                strippedLine = SongList.mSongListInstance.getString(R.string.please_buy);
+                                strippedLine = BeatPrompterApplication.getResourceString(R.string.please_buy);
                                 lineImage=null;
                             }
                             Line lastLine = null;
@@ -921,7 +920,7 @@ public class SongLoader {
                         }
                     }
                     if(newTime<0) {
-                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, SongList.mSongListInstance.getString(R.string.midi_offset_is_before_start_of_song)));
+                        errors.add(new FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)));
                         newTime=0;
                     }
                     MIDIEvent newMIDIEvent=new MIDIEvent(newTime,midiEvent.mMessages);
@@ -1012,7 +1011,7 @@ public class SongLoader {
                             case "image":
                                 if(lineImage!=null)
                                 {
-                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.multiple_images_in_one_line)));
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)));
                                     break;
                                 }
                                 String imageName=tag.mValue;
@@ -1023,12 +1022,12 @@ public class SongLoader {
                                 File imageFile;
                                 ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,tempImageFileCollection);
                                 if(mappedImage==null)
-                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
                                 else
                                 {
                                     imageFile = new File(mSongFile.mFile.getParent(), mappedImage.mFile.getName());
                                     if (!imageFile.exists()) {
-                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindImageFile,image)));
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
                                         mappedImage=null;
                                     }
                                 }
@@ -1046,13 +1045,13 @@ public class SongLoader {
                                 File trackFile=null;
                                 AudioFile mappedTrack=SongList.mCachedCloudFiles.getMappedAudioFilename(track,tempAudioFileCollection);
                                 if(mappedTrack==null) {
-                                    errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile, track)));
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)));
                                 }
                                 else
                                 {
                                     trackFile = new File(mSongFile.mFile.getParent(), mappedTrack.mFile.getName());
                                     if (!trackFile.exists()) {
-                                        errors.add(new FileParseError(tag, SongList.mSongListInstance.getString(R.string.cannotFindAudioFile,track)));
+                                        errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile,track)));
                                         trackFile = null;
                                     }
                                 }

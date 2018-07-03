@@ -5,16 +5,15 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.preference.ListPreference;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.app.AlertDialog.Builder;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.ui.ImageArrayAdapter;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 
 public class ImageListPreference extends ListPreference {
     private int[] resourceIds = null;
@@ -50,14 +49,14 @@ public class ImageListPreference extends ListPreference {
     public void onBindView(View view) {
         super.onBindView(view);
         ImageView imageView = view.findViewById(R.id.iconImageView);
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+        SharedPreferences sharedPrefs=BeatPrompterApplication.getPreferences();
         String value=sharedPrefs.getString(getKey(),"");
 
-        if(value.equals(SongList.mSongListInstance.getString(R.string.googleDriveValue)))
+        if(value.equals(BeatPrompterApplication.getResourceString(R.string.googleDriveValue)))
             imageView.setImageResource(R.drawable.ic_google_drive);
-        else if(value.equals(SongList.mSongListInstance.getString(R.string.dropboxValue)))
+        else if(value.equals(BeatPrompterApplication.getResourceString(R.string.dropboxValue)))
             imageView.setImageResource(R.drawable.ic_dropbox);
-        else if(value.equals(SongList.mSongListInstance.getString(R.string.oneDriveValue)))
+        else if(value.equals(BeatPrompterApplication.getResourceString(R.string.oneDriveValue)))
             imageView.setImageResource(R.drawable.ic_onedrive);
         else
             imageView.setImageResource(R.drawable.blank_icon);

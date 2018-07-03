@@ -139,11 +139,11 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
                     mSongLoadTask.mTaskEndSemaphore.release();
                     break;
                 case EventHandler.SONG_LOAD_LINE_READ:
-                    mSongLoadTask.mProgressTitle=SongList.mSongListInstance.getString(R.string.loadingSong);
+                    mSongLoadTask.mProgressTitle=BeatPrompterApplication.getResourceString(R.string.loadingSong);
                     mSongLoadTask.publishProgress(msg.arg1,msg.arg2);
                     break;
                 case EventHandler.SONG_LOAD_LINE_PROCESSED:
-                    mSongLoadTask.mProgressTitle=SongList.mSongListInstance.getString(R.string.processingSong);
+                    mSongLoadTask.mProgressTitle=BeatPrompterApplication.getResourceString(R.string.processingSong);
                     mSongLoadTask.publishProgress(msg.arg1,msg.arg2);
                     break;
                 case EventHandler.SONG_LOAD_FAILED:

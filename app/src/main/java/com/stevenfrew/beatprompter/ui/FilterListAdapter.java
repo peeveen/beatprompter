@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
 import com.stevenfrew.beatprompter.filter.SetListFilter;
@@ -24,15 +24,16 @@ public class FilterListAdapter extends ArrayAdapter<Filter> {
     private final ArrayList<Filter> values;
 
     public FilterListAdapter(ArrayList<Filter> values) {
-        super(SongList.mSongListInstance, -1, values);
+        super(BeatPrompterApplication.getContext(), -1, values);
         this.values = values;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
-        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
+        LayoutInflater inflater = (LayoutInflater) BeatPrompterApplication.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressWarnings("ConstantConditions")
         View rowView = convertView==null?inflater.inflate(R.layout.filter_item_selected, parent, false):convertView;
         TextView titleView = rowView.findViewById(R.id.filtertitleselected);
         Filter filter=values.get(position);
@@ -43,8 +44,9 @@ public class FilterListAdapter extends ArrayAdapter<Filter> {
     @Override
     public View getDropDownView(int position, View convertView,
                                 @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
+        LayoutInflater inflater = (LayoutInflater) BeatPrompterApplication.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressWarnings("ConstantConditions")
         View dropDownView = convertView==null?inflater.inflate(R.layout.filter_list_item, parent, false):convertView;
         TextView titleView = dropDownView.findViewById(R.id.filtertitle);
         ImageView filterIcon= dropDownView.findViewById(R.id.filterIcon);

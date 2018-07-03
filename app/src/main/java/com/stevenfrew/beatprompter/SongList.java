@@ -667,7 +667,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if(previousSongFilesFolder!=null)
             if(!previousSongFilesFolder.equals(mBeatPrompterSongFilesFolder))
                 // Song file storage folder has changed. We need to clear the cache.
-                deleteAllFiles();
+                clearCache(false);
     }
 
     @Override
@@ -1179,7 +1179,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         sharedPref.edit().putLong("pref_lastSyncDate",date.getTime()).apply();
     }
 
-    public void deleteAllFiles()
+    void clearCache(boolean report)
     {
         // Clear both cache folders
         setLastSyncDate(new Date(0));
@@ -1195,12 +1195,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             Log.e(BeatPrompterApplication.TAG,ioe.getMessage());
         }
-    }
-
-    void clearCache()
-    {
-        deleteAllFiles();
-        Toast.makeText(this, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show();
+        if(report)
+            Toast.makeText(this, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show();
     }
 
     public void processBluetoothMessage(BluetoothMessage btm)
@@ -1247,7 +1243,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     boolean isFirstRun()
     {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mSongListInstance);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
         return sharedPrefs.getBoolean(getString(R.string.pref_firstRun_key), true);
     }
 
@@ -1266,15 +1262,15 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     public static CloudType getCloud()
     {
         CloudType cloud=CloudType.Demo;
-        SharedPreferences sharedPrefs=PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        String cloudPref=sharedPrefs.getString(mSongListInstance.getString(R.string.pref_cloudStorageSystem_key),null);
+        SharedPreferences sharedPrefs=BeatPrompterApplication.getPreferences();
+        String cloudPref=sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_cloudStorageSystem_key),null);
         if(cloudPref!=null)
         {
-            if(cloudPref.equals(mSongListInstance.getString(R.string.googleDriveValue)))
+            if(cloudPref.equals(BeatPrompterApplication.getResourceString(R.string.googleDriveValue)))
                 cloud= CloudType.GoogleDrive;
-            else if(cloudPref.equals(mSongListInstance.getString(R.string.dropboxValue)))
+            else if(cloudPref.equals(BeatPrompterApplication.getResourceString(R.string.dropboxValue)))
                 cloud= CloudType.Dropbox;
-            else if(cloudPref.equals(mSongListInstance.getString(R.string.oneDriveValue)))
+            else if(cloudPref.equals(BeatPrompterApplication.getResourceString(R.string.oneDriveValue)))
                 cloud= CloudType.OneDrive;
         }
         return cloud;
@@ -1370,7 +1366,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         InputStream inputStream=null;
         OutputStream outputStream=null;
         try {
-            inputStream = SongList.mSongListInstance.getAssets().open(filename);
+            inputStream = BeatPrompterApplication.getAssetManager().open(filename);
             if (inputStream != null) {
                 outputStream = new FileOutputStream(destination);
                 Utils.streamToStream(inputStream,outputStream);
@@ -1402,25 +1398,25 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     mSongList.processBluetoothMessage((BluetoothMessage) msg.obj);
                     break;
                 case CLIENT_CONNECTED:
-                    Toast.makeText(mSongList, msg.obj + " " + SongList.mSongListInstance.getString(R.string.hasConnected), Toast.LENGTH_LONG).show();
+                    Toast.makeText(mSongList, msg.obj + " " + BeatPrompterApplication.getResourceString(R.string.hasConnected), Toast.LENGTH_LONG).show();
                     mSongList.updateBluetoothIcon();
                     break;
                 case CLIENT_DISCONNECTED:
-                    Toast.makeText(mSongList, msg.obj + " " + SongList.mSongListInstance.getString(R.string.hasDisconnected), Toast.LENGTH_LONG).show();
+                    Toast.makeText(mSongList, msg.obj + " " + BeatPrompterApplication.getResourceString(R.string.hasDisconnected), Toast.LENGTH_LONG).show();
                     mSongList.updateBluetoothIcon();
                     break;
                 case SERVER_DISCONNECTED:
-                    Toast.makeText(mSongList, SongList.mSongListInstance.getString(R.string.disconnectedFromBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.disconnectedFromBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
                     mSongList.updateBluetoothIcon();
                     break;
                 case SERVER_CONNECTED:
-                    Toast.makeText(mSongList, SongList.mSongListInstance.getString(R.string.connectedToBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connectedToBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show();
                     mSongList.updateBluetoothIcon();
                     break;
                 case CLOUD_SYNC_ERROR:
                     AlertDialog.Builder adb = new AlertDialog.Builder(mSongList);
-                    adb.setMessage(SongList.mSongListInstance.getString(R.string.cloudSyncErrorMessage, (String) msg.obj));
-                    adb.setTitle(SongList.mSongListInstance.getString(R.string.cloudSyncErrorTitle));
+                    adb.setMessage(BeatPrompterApplication.getResourceString(R.string.cloudSyncErrorMessage, (String) msg.obj));
+                    adb.setTitle(BeatPrompterApplication.getResourceString(R.string.cloudSyncErrorTitle));
                     adb.setPositiveButton("OK", (dialog, id) -> dialog.cancel());
                     AlertDialog ad = adb.create();
                     ad.setCanceledOnTouchOutside(true);
@@ -1445,7 +1441,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     mSongList.startSongActivity();
                     break;
                 case CLEAR_CACHE:
-                    mSongList.clearCache();
+                    mSongList.clearCache(true);
                     break;
                 case CACHE_UPDATED:
                     CachedCloudFileCollection cache = (CachedCloudFileCollection) msg.obj;

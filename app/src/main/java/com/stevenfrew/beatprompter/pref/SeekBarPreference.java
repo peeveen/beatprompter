@@ -138,11 +138,13 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     public void setMax(int max) { mMax = max; }
     public int getMax() { return mMax; }
 
+    @SuppressWarnings("unused")
     public void setProgress(int progress) {
         mValue = progress;
         if (mSeekBar != null)
             mSeekBar.setProgress(progress);
     }
+    @SuppressWarnings("unused")
     public int getProgress() { return mValue; }
     // ------------------------------------------------------------------------------------------
 

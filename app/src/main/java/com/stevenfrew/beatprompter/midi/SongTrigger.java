@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.midi;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 
 import org.w3c.dom.Document;
@@ -92,12 +92,12 @@ public class SongTrigger
         Value channel=new WildcardValue();
         if(bits.length>1)
             if(songSelect)
-                errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.song_index_must_have_one_value)));
+                errors.add(new FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)));
         if((bits.length>4)||(bits.length<1))
             if(songSelect)
-                errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.song_index_must_have_one_value)));
+                errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)));
             else
-                errors.add(new FileParseError(lineNumber,SongList.mSongListInstance.getString(R.string.song_index_must_have_one_two_or_three_values)));
+                errors.add(new FileParseError(lineNumber,BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_two_or_three_values)));
 
         if(bits.length>3) {
             Value value=Value.parseValue(bits[3],lineNumber,3,bits.length,errors);

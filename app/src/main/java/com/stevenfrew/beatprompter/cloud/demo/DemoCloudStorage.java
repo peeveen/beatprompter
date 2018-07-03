@@ -62,12 +62,12 @@ public class DemoCloudStorage extends CloudStorage {
         for(CloudFileInfo cloudFile:filesToRefresh)
         {
             if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_TEXT_ID)) {
-                messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, DEMO_SONG_FILENAME));
+                messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_FILENAME));
                 itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongTextFile()));
             }
             else if(cloudFile.mID.equalsIgnoreCase(DEMO_SONG_AUDIO_ID))
                 try {
-                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME));
+                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME));
                     itemSource.onNext(new CloudDownloadResult(cloudFile, createDemoSongAudioFile()));
                 }
                 catch(IOException ioe)
@@ -87,7 +87,7 @@ public class DemoCloudStorage extends CloudStorage {
 
     private File createDemoSongTextFile()
     {
-        String demoFileText= SongList.mSongListInstance.getString(R.string.demo_song);
+        String demoFileText= BeatPrompterApplication.getResourceString(R.string.demo_song);
         File destinationSongFile = new File(mCloudCacheFolder, DEMO_SONG_FILENAME);
         BufferedWriter bw=null;
         try

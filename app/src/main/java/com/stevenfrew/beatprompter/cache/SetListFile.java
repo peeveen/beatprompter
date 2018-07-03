@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 
 import org.w3c.dom.Document;
@@ -64,13 +63,13 @@ public class SetListFile extends CachedCloudFile
             }
 
             if((setTitle==null)||(setTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list, mID));
+                throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_set_list, mID));
             else
                 mSetTitle=setTitle;
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.not_a_valid_set_list, mID));
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_set_list, mID));
         }
         finally
         {

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Handler;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.R;
@@ -73,8 +74,8 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     protected void onPreExecute() {
         super.onPreExecute();
         mProgressDialog = new ProgressDialog(SongList.mSongListInstance);
-        mProgressDialog.setTitle(SongList.mSongListInstance.getString(R.string.downloadingFiles));
-        mProgressDialog.setMessage(SongList.mSongListInstance.getString(R.string.accessingCloudStorage,mCloudStorage.getCloudStorageName()));
+        mProgressDialog.setTitle(BeatPrompterApplication.getResourceString(R.string.downloadingFiles));
+        mProgressDialog.setMessage(BeatPrompterApplication.getResourceString(R.string.accessingCloudStorage,mCloudStorage.getCloudStorageName()));
         mProgressDialog.setCancelable(false);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.show();

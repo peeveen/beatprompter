@@ -8,8 +8,8 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
 
 import java.util.Locale;
@@ -24,6 +24,7 @@ public class FontSizePreference extends DialogPreference implements SeekBar.OnSe
     public static int FONT_SIZE_MIN;
     private int mCurrentValue=-1;
 
+    @SuppressWarnings("unused")
     public FontSizePreference(Context context, AttributeSet attrs, int defStyleAttr)
     {
         super(context, attrs, defStyleAttr);
@@ -32,6 +33,7 @@ public class FontSizePreference extends DialogPreference implements SeekBar.OnSe
         setNegativeButtonText(android.R.string.cancel);
     }
 
+    @SuppressWarnings("unused")
     public FontSizePreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setDialogLayoutResource(R.layout.font_size_preference_dialog);
@@ -48,14 +50,14 @@ public class FontSizePreference extends DialogPreference implements SeekBar.OnSe
         mCurrentValue=getPersistedInt(FONT_SIZE_MIN);
         if(mCurrentValue<=0) {
             String prefKey = this.getKey();
-            if(prefKey.equals(SongList.mSongListInstance.getString(R.string.pref_maxFontSize_key)))
-                mCurrentValue=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_maxFontSize_default));
-            else if(prefKey.equals(SongList.mSongListInstance.getString(R.string.pref_minFontSize_key)))
-                mCurrentValue=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_minFontSize_default));
-            else if(prefKey.equals(SongList.mSongListInstance.getString(R.string.pref_maxFontSizeSmooth_key)))
-                mCurrentValue=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_maxFontSizeSmooth_default));
+            if(prefKey.equals(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_key)))
+                mCurrentValue=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_default));
+            else if(prefKey.equals(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_key)))
+                mCurrentValue=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_default));
+            else if(prefKey.equals(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_key)))
+                mCurrentValue=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_default));
             else
-                mCurrentValue=Integer.parseInt(SongList.mSongListInstance.getString(R.string.pref_minFontSizeSmooth_default));
+                mCurrentValue=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default));
         }
         mSeekBar.setProgress(mCurrentValue);
         mTextView.setText(String.format(Locale.getDefault(),"%d",mCurrentValue));

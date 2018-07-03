@@ -17,6 +17,7 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
 
     private static final String sfns="http://com.stevenfrew/";
 
+    @SuppressWarnings("unused")
     public MIDIChannelPreference(Context context, AttributeSet attrs, int defStyleAttr)
     {
         super(context, attrs, defStyleAttr);
@@ -27,6 +28,7 @@ public class MIDIChannelPreference extends DialogPreference implements CompoundB
         mCurrentValue=mSingleSelect?1:65535;
     }
 
+    @SuppressWarnings("unused")
     public MIDIChannelPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setDialogLayoutResource(R.layout.midi_channel_preference_dialog);

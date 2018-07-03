@@ -120,12 +120,12 @@ public class CachedCloudFileCollection
         return mFiles.stream().filter(f->f instanceof MIDIAliasFile).map(f->(MIDIAliasFile)f).collect(Collectors.toList());
     }
 
-    public List<AudioFile> getAudioFiles()
+    private List<AudioFile> getAudioFiles()
     {
         return mFiles.stream().filter(f->f instanceof AudioFile).map(f->(AudioFile)f).collect(Collectors.toList());
     }
 
-    public List<ImageFile> getImageFiles()
+    private List<ImageFile> getImageFiles()
     {
         return mFiles.stream().filter(f->f instanceof ImageFile).map(f->(ImageFile)f).collect(Collectors.toList());
     }

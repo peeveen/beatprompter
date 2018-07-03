@@ -16,7 +16,6 @@ import android.preference.PreferenceManager;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Task;
 
 import java.util.HashMap;
@@ -169,8 +168,8 @@ public class MIDIController {
     }
 
     private static int getIncomingMIDIChannelsPref() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        return sharedPrefs.getInt(SongList.mSongListInstance.getString(R.string.pref_midiIncomingChannels_key), 65535);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPreferences();
+        return sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_midiIncomingChannels_key), 65535);
     }
 
     private static void setIncomingMIDIChannels()
@@ -181,7 +180,7 @@ public class MIDIController {
 
     private static SharedPreferences.OnSharedPreferenceChangeListener mPrefListener =
             (prefs, key) -> {
-                if(key.equals(SongList.mSongListInstance.getString(R.string.pref_midiIncomingChannels_key)))
+                if(key.equals(BeatPrompterApplication.getResourceString(R.string.pref_midiIncomingChannels_key)))
                 {
                     setIncomingMIDIChannels();
                 }

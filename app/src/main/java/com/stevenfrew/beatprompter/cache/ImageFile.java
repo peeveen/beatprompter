@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter.cache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 
 import org.w3c.dom.Document;
@@ -38,11 +38,11 @@ public class ImageFile extends CachedCloudFile
         try {
             Bitmap bitmap=BitmapFactory.decodeFile(mFile.getAbsolutePath(), options);
             if(bitmap==null)
-                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.could_not_read_image_file)+": "+mName);
+                throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)+": "+mName);
         }
         catch(Exception e)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.could_not_read_image_file)+": "+mName);
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)+": "+mName);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.cloud.dropbox;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -17,7 +16,6 @@ import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResultType;
@@ -51,7 +49,6 @@ public class DropboxCloudStorage extends CloudStorage {
     private final static String DROPBOX_CACHE_FOLDER_NAME="dropbox";
     private final static String DROPBOX_APP_KEY = "hay1puzmg41f02r";
     private final static String DROPBOX_ROOT_PATH="/";
-    private final static String SHARED_PREFERENCES_ID="beatPrompterSharedPreferences";
 
     private static final Set<String> EXTENSIONS_TO_DOWNLOAD = new HashSet<>(Arrays.asList(
             "txt", "mp3", "wav", "m4a", "aac", "ogg", "png","jpg","bmp","tif","tiff","jpeg","jpe","pcx"));
@@ -78,13 +75,13 @@ public class DropboxCloudStorage extends CloudStorage {
                     FileMetadata fmdata = (FileMetadata) mdata;
                     String title = file.mName;
                     Log.d(BeatPrompterApplication.TAG, "File title: " + title);
-                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.checking, title));
+                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title));
                     String safeFilename = Utils.makeSafeFilename(title);
                     File targetFile = new File(mCloudCacheFolder, safeFilename);
                     Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
 
                     Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                    messageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, title));
+                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title));
                     // Don't check lastModified ... ALWAYS download.
                     if (listener.shouldCancel())
                         break;
@@ -194,13 +191,13 @@ public class DropboxCloudStorage extends CloudStorage {
 
     private void doDropboxAction(DropboxAction action)
     {
-        SharedPreferences sharedPrefs = SongList.mSongListInstance.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE);
-        String storedAccessToken = sharedPrefs.getString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), null);
+        SharedPreferences sharedPrefs = BeatPrompterApplication.getPrivatePreferences();
+        String storedAccessToken = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), null);
         if (storedAccessToken == null) {
             // Did we authenticate last time it failed?
             storedAccessToken = Auth.getOAuth2Token();
             if (storedAccessToken != null)
-                sharedPrefs.edit().putString(SongList.mSongListInstance.getString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
+                sharedPrefs.edit().putString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply();
         }
         if (storedAccessToken == null) {
             action.onAuthenticationRequired();
@@ -263,6 +260,6 @@ public class DropboxCloudStorage extends CloudStorage {
 
     @Override
     public String getCloudStorageName() {
-        return SongList.mSongListInstance.getString(R.string.dropbox_string);
+        return BeatPrompterApplication.getResourceString(R.string.dropbox_string);
     }
 }

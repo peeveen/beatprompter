@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.cache;
 
 import android.media.MediaMetadataRetriever;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 
 import org.w3c.dom.Document;
@@ -42,7 +42,7 @@ public class AudioFile extends CachedCloudFile
         }
         catch(Exception e)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.notAnAudioFile, mName));
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.notAnAudioFile, mName));
         }
     }
 }

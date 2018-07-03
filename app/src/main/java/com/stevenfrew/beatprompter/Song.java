@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 
 import com.stevenfrew.beatprompter.cache.AudioFile;
 import com.stevenfrew.beatprompter.cache.FileParseError;
@@ -131,16 +130,16 @@ public class Song
         maximumFontSize*=ratioMultiplier;
 
         if (minimumFontSize > maximumFontSize) {
-            mParseErrors.add(new FileParseError(null,SongList.mSongListInstance.getString(R.string.fontSizesAllMessedUp)));
+            mParseErrors.add(new FileParseError(null,BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)));
             maximumFontSize = minimumFontSize;
         }
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
+        SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
 
-        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(SongList.mSongListInstance.getString(R.string.pref_highlightColor_key), Color.parseColor(SongList.mSongListInstance.getString(R.string.pref_highlightColor_default))));
-        boolean showKey = sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_key), Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_showSongKey_defaultValue)));
+        int defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))));
+        boolean showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue)));
         showKey&=((mSongFile.mKey!=null)&&(mSongFile.mKey.length()>0));
-        String showBPMString = sharedPref.getString(SongList.mSongListInstance.getString(R.string.pref_showSongBPM_key), SongList.mSongListInstance.getString(R.string.pref_showSongBPM_defaultValue));
+        String showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue));
 
         mBeatCounterHeight=0;
         // Top 5% of screen is used for beat counter
@@ -234,7 +233,7 @@ public class Song
                nonBlankCommentLines.add(commentLine.trim());
         int errors=mParseErrors.size();
         int messages=Math.min(errors,6)+nonBlankCommentLines.size();
-        boolean showBPM=(!SongList.mSongListInstance.getString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mSongFile.mBPM!=0.0);
+        boolean showBPM=(!BeatPrompterApplication.getResourceString(R.string.showBPMNo).equalsIgnoreCase(showBPMString)) &&(mSongFile.mBPM!=0.0);
         if(showBPM)
             ++messages;
         if(showKey)
@@ -251,7 +250,7 @@ public class Song
                 ++errorCounter;
                 --errors;
                 if ((errorCounter == 5) && (errors > 0)) {
-                    mStartScreenStrings.add(ScreenString.create(String.format(SongList.mSongListInstance.getString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
+                    mStartScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount),errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false));
                     break;
                 }
             }
@@ -262,15 +261,15 @@ public class Song
             }
             if(showKey)
             {
-                String keyString=SongList.mSongListInstance.getString(R.string.keyPrefix)+": "+mSongFile.mKey;
+                String keyString=BeatPrompterApplication.getResourceString(R.string.keyPrefix)+": "+mSongFile.mKey;
                 mStartScreenStrings.add(ScreenString.create(keyString,paint,nativeScreenWidth,spacePerMessageLine,Color.CYAN,notBoldFont,false));
             }
             if(showBPM)
             {
-                boolean rounded=SongList.mSongListInstance.getString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
+                boolean rounded=BeatPrompterApplication.getResourceString(R.string.showBPMYesRoundedValue).equalsIgnoreCase(showBPMString);
                 if(mSongFile.mBPM==(int)mSongFile.mBPM)
                     rounded=true;
-                String bpmString=SongList.mSongListInstance.getString(R.string.bpmPrefix)+": ";
+                String bpmString=BeatPrompterApplication.getResourceString(R.string.bpmPrefix)+": ";
                 if(rounded)
                     bpmString+=(int)Math.round(mSongFile.mBPM);
                 else
@@ -281,7 +280,7 @@ public class Song
         if(cancelEvent.isCancelled())
             return;
         if(mScrollingMode!=ScrollingMode.Manual)
-            mStartScreenStrings.add(ScreenString.create(SongList.mSongListInstance.getString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
+            mStartScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart),paint,nativeScreenWidth,tenPercent,Color.GREEN,boldFont,true));
         mTotalStartScreenTextHeight=0;
         for(ScreenString ss: mStartScreenStrings)
             mTotalStartScreenTextHeight+=ss.mHeight;

@@ -7,7 +7,6 @@ import com.stevenfrew.beatprompter.SmoothScrollingTimings;
 import com.stevenfrew.beatprompter.SongLoader;
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.Utils;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
 import com.stevenfrew.beatprompter.midi.SongTrigger;
@@ -263,13 +262,13 @@ public class SongFile extends CachedCloudFile
             }
             mLines=lineNumber;
             if((mTitle==null)||(mTitle.length()==0))
-                throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.noTitleFound, mName));
+                throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mName));
             if(mArtist==null)
                 mArtist="";
         }
         catch(IOException ioe)
         {
-            throw new InvalidBeatPrompterFileException(SongList.mSongListInstance.getString(R.string.file_io_read_error),ioe);
+            throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.file_io_read_error),ioe);
         }
         finally
         {

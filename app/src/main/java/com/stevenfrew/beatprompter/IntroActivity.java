@@ -19,36 +19,36 @@ public class IntroActivity extends AppIntro {
         int backgroundColor=Color.parseColor("#CCCCCC");
 
         SliderPage page1=new SliderPage();
-        page1.setTitle(SongList.mSongListInstance.getString(R.string.welcome_to_beatprompter));
-        page1.setDescription(SongList.mSongListInstance.getString(R.string.welcome_to_beatprompter_description));
+        page1.setTitle(BeatPrompterApplication.getResourceString(R.string.welcome_to_beatprompter));
+        page1.setDescription(BeatPrompterApplication.getResourceString(R.string.welcome_to_beatprompter_description));
         page1.setImageDrawable(R.drawable.beatprompter_logo);
         page1.setBgColor(backgroundColor);
         addSlide(AppIntroFragment.newInstance(page1));
 
         SliderPage page2=new SliderPage();
-        page2.setTitle(SongList.mSongListInstance.getString(R.string.turn_turn_turn));
-        page2.setDescription(SongList.mSongListInstance.getString(R.string.works_best_in_landscape));
+        page2.setTitle(BeatPrompterApplication.getResourceString(R.string.turn_turn_turn));
+        page2.setDescription(BeatPrompterApplication.getResourceString(R.string.works_best_in_landscape));
         page2.setImageDrawable(R.drawable.landscape_best);
         page2.setBgColor(backgroundColor);
         addSlide(AppIntroFragment.newInstance(page2));
 
         SliderPage page3=new SliderPage();
-        page3.setTitle(SongList.mSongListInstance.getString(R.string.cloud_sync_explanation_title));
-        page3.setDescription(SongList.mSongListInstance.getString(R.string.cloud_sync_explanation));
+        page3.setTitle(BeatPrompterApplication.getResourceString(R.string.cloud_sync_explanation_title));
+        page3.setDescription(BeatPrompterApplication.getResourceString(R.string.cloud_sync_explanation));
         page3.setImageDrawable(R.drawable.cloud_sync_diagram);
         page3.setBgColor(backgroundColor);
         addSlide(AppIntroFragment.newInstance(page3));
 
         SliderPage page4=new SliderPage();
-        page4.setTitle(SongList.mSongListInstance.getString(R.string.keep_the_beat_title));
-        page4.setDescription(SongList.mSongListInstance.getString(R.string.keep_the_beat));
+        page4.setTitle(BeatPrompterApplication.getResourceString(R.string.keep_the_beat_title));
+        page4.setDescription(BeatPrompterApplication.getResourceString(R.string.keep_the_beat));
         page4.setImageDrawable(R.drawable.keep_the_beat);
         page4.setBgColor(backgroundColor);
         addSlide(AppIntroFragment.newInstance(page4));
 
         SliderPage page5=new SliderPage();
-        page5.setTitle(SongList.mSongListInstance.getString(R.string.not_just_text_title));
-        page5.setDescription(SongList.mSongListInstance.getString(R.string.not_just_text));
+        page5.setTitle(BeatPrompterApplication.getResourceString(R.string.not_just_text_title));
+        page5.setDescription(BeatPrompterApplication.getResourceString(R.string.not_just_text));
         page5.setImageDrawable(R.drawable.not_just_text);
         page5.setBgColor(backgroundColor);
         addSlide(AppIntroFragment.newInstance(page5));

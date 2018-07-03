@@ -37,7 +37,7 @@ public class ImageLine extends Line
             mBitmap=BitmapFactory.decodeFile(path, options);
         }
         catch(Exception e) {
-            errors.add(new FileParseError(null,SongList.mSongListInstance.getString(R.string.could_not_read_image_file)+": "+mImageFile.mName));
+            errors.add(new FileParseError(null,BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)+": "+mImageFile.mName));
             return null;
         }
 

@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 
 import java.util.List;
@@ -22,16 +21,17 @@ public class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasFile> {
     private boolean mLargePrint;
 
     public MIDIAliasListAdapter(List<MIDIAliasFile> fileList) {
-        super(SongList.mSongListInstance,-1, fileList);
-        SharedPreferences sharedPref= PreferenceManager.getDefaultSharedPreferences(SongList.mSongListInstance);
-        mLargePrint= sharedPref.getBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_key),Boolean.parseBoolean(SongList.mSongListInstance.getString(R.string.pref_largePrintList_defaultValue)));
+        super(BeatPrompterApplication.getContext(),-1, fileList);
+        SharedPreferences sharedPref= BeatPrompterApplication.getPreferences();
+        mLargePrint= sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key),Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue)));
         values = fileList;
     }
 
     @Override @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) SongList.mSongListInstance
+        LayoutInflater inflater = (LayoutInflater) BeatPrompterApplication.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressWarnings("ConstantConditions")
         View rowView = convertView==null?inflater.inflate(mLargePrint?R.layout.midi_alias_list_item_large:R.layout.midi_alias_list_item, parent, false):convertView;
         TextView titleView = rowView.findViewById(R.id.alias_file_name);
         ImageView errorIcon=rowView.findViewById(R.id.erroricon);

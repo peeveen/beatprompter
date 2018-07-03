@@ -258,7 +258,7 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                         String safeFilename = Utils.makeSafeFilename(cloudFile.mID);
                         Log.d(BeatPrompterApplication.TAG, "Safe filename: " + safeFilename);
                         Log.d(BeatPrompterApplication.TAG, "Downloading now ...");
-                        mMessageSource.onNext(SongList.mSongListInstance.getString(R.string.downloading, title));
+                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title));
                         if (mListener.shouldCancel())
                             break;
                         File localFile = downloadGoogleDriveFile(file, safeFilename);
@@ -329,7 +329,7 @@ public class GoogleDriveCloudStorage extends CloudStorage {
 
     @Override
     public String getCloudStorageName() {
-        return SongList.mSongListInstance.getString(R.string.google_drive_string);
+        return BeatPrompterApplication.getResourceString(R.string.google_drive_string);
     }
 
     @Override

@@ -102,7 +102,8 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void sendEventToSettings(int event,Object arg)
+    @SuppressWarnings("unused")
+    public static void sendEventToSettings(int event, Object arg)
     {
         synchronized(mSettingsEventHandlerLock) {
             if (mSettingsEventHandler != null)
@@ -126,7 +127,8 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void sendEventToSettings(int event,int arg1,int arg2)
+    @SuppressWarnings("unused")
+    public static void sendEventToSettings(int event, int arg1, int arg2)
     {
         synchronized(mSettingsEventHandlerLock) {
             if (mSettingsEventHandler != null)
@@ -134,7 +136,8 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void sendEventToSongList(int event,int arg1,int arg2,Object arg3)
+    @SuppressWarnings("unused")
+    public static void sendEventToSongList(int event, int arg1, int arg2, Object arg3)
     {
         synchronized(mSongListEventHandlerLock) {
             if (mSongListEventHandler != null)
@@ -142,7 +145,8 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void sendEventToSongDisplay(int event,int arg1,int arg2,Object arg3)
+    @SuppressWarnings("unused")
+    public static void sendEventToSongDisplay(int event, int arg1, int arg2, Object arg3)
     {
         synchronized(mSongDisplayEventHandlerLock) {
             if (mSongDisplayEventHandler != null)
@@ -150,7 +154,8 @@ public abstract class EventHandler extends Handler {
         }
     }
 
-    public static void sendEventToSettings(int event,int arg1,int arg2,Object arg3)
+    @SuppressWarnings("unused")
+    public static void sendEventToSettings(int event, int arg1, int arg2, Object arg3)
     {
         synchronized(mSettingsEventHandlerLock) {
             if (mSettingsEventHandler != null)
