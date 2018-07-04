@@ -66,12 +66,12 @@ public class SongLoader {
     private CancelEvent mCancelEvent;
     private boolean mRegistered;
 
-    SongLoader(SongLoadInfo loadingSongFile,CancelEvent cancelEvent, Handler songLoadHandler,boolean registered)
+    SongLoader(SongLoadInfo loadingSongFile, CancelEvent cancelEvent, Handler songLoadHandler, boolean registered)
     {
         mRegistered=registered;
         mLoadingSongFile=loadingSongFile;
-        mSongFile=loadingSongFile.mSongFile;
-        mUserChosenScrollMode=loadingSongFile.mScrollMode;
+        mSongFile=loadingSongFile.getSongFile();
+        mUserChosenScrollMode=loadingSongFile.getScrollMode();
         mCancelEvent=cancelEvent;
         mSongLoadHandler=songLoadHandler;
 
@@ -149,15 +149,15 @@ public class SongLoader {
         ArrayList<FileParseError> errors=new ArrayList<>();
         boolean stopAddingStartupItems=false;
 
-        String chosenTrack=mLoadingSongFile.mTrack;
+        String chosenTrack=mLoadingSongFile.getTrack();
         SmoothScrollingTimings sst=mSongFile.getTimePerLineAndBar(chosenTrack,null,null);
-        long timePerLine=sst.mTimePerLine;
-        long timePerBar=sst.mTimePerBar;
+        long timePerLine=sst.getTimePerLine();
+        long timePerBar=sst.getTimePerBar();
 
         if((timePerLine<0)||(timePerBar<0)) {
             errors.add(new FileParseError(null, BeatPrompterApplication.getResourceString(R.string.pauseLongerThanSong)));
-            sst.mTimePerLine=-timePerLine;
-            sst.mTimePerBar=-timePerBar;
+            sst.setTimePerLine(-timePerLine);
+            sst.setTimePerBar(-timePerBar);
         }
 
         BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(mSongFile.mFile)));
@@ -838,14 +838,14 @@ public class SongLoader {
             {
                 long trackEndTime=0;
                 if(trackEvent!=null)
-                    trackEndTime=trackEvent.mEventTime+sst.mTrackLength;
+                    trackEndTime=trackEvent.mEventTime+sst.getTrackLength();
                 // The end event will be where the final beat occurs.
                 // But there is a chance that the audio track is longer than that.
                 EndEvent endEvent = new EndEvent(Math.max(currentTime,trackEndTime));
                 reallyTheLastEvent.add(endEvent);
             }
 
-            if((mTriggerContext== TriggerOutputContext.Always)||(mTriggerContext== TriggerOutputContext.ManualStartOnly && !mLoadingSongFile.mStartedByMIDITrigger))
+            if((mTriggerContext== TriggerOutputContext.Always)||(mTriggerContext== TriggerOutputContext.ManualStartOnly && !mLoadingSongFile.getStartedByMIDITrigger()))
             {
                 if(mSongFile.mProgramChangeTrigger!=null)
                     if(mSongFile.mProgramChangeTrigger.isSendable())
@@ -870,8 +870,8 @@ public class SongLoader {
             // Now process all MIDI events with offsets.
             offsetMIDIEvents(firstEvent,errors);
 
-            Song song=new Song(mSongFile,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,mUserChosenScrollMode,mSendMidiClock,mLoadingSongFile.mStartedByBandLeader,mLoadingSongFile.mNextSong,mLoadingSongFile.mSourceDisplaySettings.mOrientation,initialMIDIMessages,beatBlocks,initialBPB,count);
-            song.doMeasurements(new Paint(),mCancelEvent,mSongLoadHandler,mLoadingSongFile.mNativeDisplaySettings,mLoadingSongFile.mSourceDisplaySettings);
+            Song song=new Song(mSongFile,chosenAudioFile,chosenAudioVolume,comments,firstEvent,firstLine,errors,mUserChosenScrollMode,mSendMidiClock,mLoadingSongFile.getStartedByBandLeader(),mLoadingSongFile.getNextSong(),mLoadingSongFile.getSourceDisplaySettings().mOrientation,initialMIDIMessages,beatBlocks,initialBPB,count);
+            song.doMeasurements(new Paint(),mCancelEvent,mSongLoadHandler,mLoadingSongFile.getNativeDisplaySettings(),mLoadingSongFile.getSourceDisplaySettings());
             return song;
         }
         finally

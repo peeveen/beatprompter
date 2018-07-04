@@ -1217,7 +1217,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                     if(mSongListActive)
                         playSong(null, sf, track, scrollingMode,true,false,nativeSettings,sourceSettings);
                     else
-                        mSongLoadTaskOnResume=new SongLoadTask(sf,track,scrollingMode,null,true,
+                        mSongLoadTaskOnResume=new SongLoadTask(sf,track,scrollingMode,"",true,
                                 false,nativeSettings,sourceSettings,mFullVersionUnlocked || getCloud()==CloudType.Demo);
                     break;
                 }

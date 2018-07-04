@@ -47,7 +47,7 @@ class SongLoaderTask extends Task {
         }
     }
 
-    static void setCurrentSong(Song song)
+    private static void setCurrentSong(Song song)
     {
         synchronized (mCurrentSongSync)
         {
@@ -112,7 +112,7 @@ class SongLoaderTask extends Task {
             {
             }
     }
-    void loadSong(SongLoadInfo sli, Handler handler, CancelEvent cancelEvent,boolean registered)
+    void loadSong(SongLoadInfo sli, Handler handler, CancelEvent cancelEvent, boolean registered)
     {
         setSongLoadHandler(handler);
         synchronized (mLoadingSongFileSync)

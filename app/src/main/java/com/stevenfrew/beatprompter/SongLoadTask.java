@@ -35,7 +35,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
     private boolean mRegistered;
 
-    SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings,boolean registered)
+    SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings, boolean registered)
     {
         mSongLoadInfo=new SongLoadInfo(selectedSong,trackName,scrollMode,nextSongName,startedByBandLeader,startedByMidiTrigger,nativeSettings,sourceSettings);
         mSongLoadTaskEventHandler=new SongLoadTaskEventHandler(this);
@@ -63,7 +63,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if(values.length>1) {
-            mProgressDialog.setMessage(mProgressTitle+mSongLoadInfo.mSongFile.mTitle);
+            mProgressDialog.setMessage(mProgressTitle+mSongLoadInfo.getSongFile().mTitle);
             mProgressDialog.setMax(values[1]);
             mProgressDialog.setProgress(values[0]);
         }
@@ -91,8 +91,8 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         super.onPreExecute();
         mProgressDialog = new ProgressDialog(SongList.mSongListInstance);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setMessage(mSongLoadInfo.mSongFile.mTitle);
-        mProgressDialog.setMax(mSongLoadInfo.mSongFile.mLines);
+        mProgressDialog.setMessage(mSongLoadInfo.getSongFile().mTitle);
+        mProgressDialog.setMax(mSongLoadInfo.getSongFile().mLines);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setCancelable(false);
         mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel), (dialog, which) -> {
@@ -112,21 +112,21 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         // the current song with this one. If not possible, don't bother.
         if(SongDisplayActivity.mSongDisplayActive) {
             SongList.mSongLoadTaskOnResume=this;
-            if(!SongLoadTask.cancelCurrentSong(mSongLoadInfo.mSongFile))
+            if(!SongLoadTask.cancelCurrentSong(mSongLoadInfo.getSongFile()))
                 SongList.mSongLoadTaskOnResume=null;
             return;
         }
 
         // Create a bluetooth song-selection message to broadcast to other listeners.
-        ChooseSongMessage csm=new ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
-                mSongLoadInfo.mTrack,
-                mSongLoadInfo.mNativeDisplaySettings.mOrientation,
-                mSongLoadInfo.mScrollMode==ScrollingMode.Beat,
-                mSongLoadInfo.mScrollMode==ScrollingMode.Smooth,
-                mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
-                mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
-                mSongLoadInfo.mNativeDisplaySettings.mScreenWidth,
-                mSongLoadInfo.mNativeDisplaySettings.mScreenHeight);
+        ChooseSongMessage csm=new ChooseSongMessage(mSongLoadInfo.getSongFile().mTitle,
+                mSongLoadInfo.getTrack(),
+                mSongLoadInfo.getNativeDisplaySettings().mOrientation,
+                mSongLoadInfo.getScrollMode()==ScrollingMode.Beat,
+                mSongLoadInfo.getScrollMode()==ScrollingMode.Smooth,
+                mSongLoadInfo.getNativeDisplaySettings().mMinFontSize,
+                mSongLoadInfo.getNativeDisplaySettings().mMaxFontSize,
+                mSongLoadInfo.getNativeDisplaySettings().mScreenWidth,
+                mSongLoadInfo.getNativeDisplaySettings().mScreenHeight);
         BluetoothManager.broadcastMessageToClients(csm);
 
         // Kick off the loading of the new song.

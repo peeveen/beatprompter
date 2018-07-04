@@ -215,8 +215,8 @@ public class SongFile extends CachedCloudFile
         try
         {
             SmoothScrollingTimings sst = getTimePerLineAndBar(null,tempAudioFileCollection,tempImageFileCollection);
-            mTimePerLine=sst.mTimePerLine;
-            mTimePerBar=sst.mTimePerBar;
+            mTimePerLine=sst.getTimePerLine();
+            mTimePerBar=sst.getTimePerBar();
             br=new BufferedReader(new InputStreamReader(new FileInputStream(mFile)));
             String line;
             int lineNumber=0;
