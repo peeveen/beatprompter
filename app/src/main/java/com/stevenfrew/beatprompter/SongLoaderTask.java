@@ -8,13 +8,15 @@ import java.io.IOException;
 
 class SongLoaderTask extends Task {
     private CancelEvent mCancelEvent=null;
-    private SongLoadTask.LoadingSongFile mLoadingSongFile=null;
-
+    private SongLoadInfo mSongLoadInfo=null;
+    private static Song mCurrentSong=null;
     private Handler mSongLoadHandler=null;
+    private boolean mRegistered;
+
+    private final static Object mCurrentSongSync=new Object();
     private final Object mSongLoadHandlerSync = new Object();
     private final Object mLoadingSongFileSync = new Object();
     private final Object mCancelEventSync = new Object();
-    private boolean mRegistered;
 
     SongLoaderTask()
     {
@@ -35,12 +37,31 @@ class SongLoaderTask extends Task {
             mSongLoadHandler=handler;
         }
     }
-    private SongLoadTask.LoadingSongFile getLoadingSongFile()
+
+
+    static Song getCurrentSong()
+    {
+        synchronized (mCurrentSongSync)
+        {
+            return mCurrentSong;
+        }
+    }
+
+    static void setCurrentSong(Song song)
+    {
+        synchronized (mCurrentSongSync)
+        {
+            mCurrentSong=song;
+            System.gc();
+        }
+    }
+
+    private SongLoadInfo getLoadingSongFile()
     {
         synchronized (mLoadingSongFileSync)
         {
-            SongLoadTask.LoadingSongFile result=mLoadingSongFile;
-            mLoadingSongFile=null;
+            SongLoadInfo result=mSongLoadInfo;
+            mSongLoadInfo=null;
             return result;
         }
     }
@@ -61,18 +82,18 @@ class SongLoaderTask extends Task {
 
     public void doWork()
     {
-        SongLoadTask.LoadingSongFile lsf=getLoadingSongFile();
-        if(lsf!=null) {
+        SongLoadInfo sli=getLoadingSongFile();
+        if(sli!=null) {
             System.gc();
             Handler songLoadHandler=getSongLoadHandler();
             CancelEvent cancelEvent = getCancelEvent();
             try {
-                SongLoader loader=new SongLoader(lsf,cancelEvent,songLoadHandler,mRegistered);
+                SongLoader loader=new SongLoader(sli,cancelEvent,songLoadHandler,mRegistered);
                 Song loadedSong = loader.load();
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
-                    SongLoadTask.setCurrentSong(loadedSong);
+                    setCurrentSong(loadedSong);
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget();
                 }
             }
@@ -91,7 +112,7 @@ class SongLoaderTask extends Task {
             {
             }
     }
-    void loadSong(SongLoadTask.LoadingSongFile lsf, Handler handler, CancelEvent cancelEvent,boolean registered)
+    void loadSong(SongLoadInfo sli, Handler handler, CancelEvent cancelEvent,boolean registered)
     {
         setSongLoadHandler(handler);
         synchronized (mLoadingSongFileSync)
@@ -101,7 +122,7 @@ class SongLoaderTask extends Task {
                 existingCancelEvent.set();
             setCancelEvent(cancelEvent);
             mRegistered=registered;
-            mLoadingSongFile=lsf;
+            mSongLoadInfo=sli;
         }
     }
 }

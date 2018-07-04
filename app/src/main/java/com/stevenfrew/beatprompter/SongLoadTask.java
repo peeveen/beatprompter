@@ -14,9 +14,14 @@ import com.stevenfrew.beatprompter.event.CancelEvent;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * This task does not actually load the song. It creates a second task (SongLoaderTask) which uses
+ * the SongLoader class internally to load the song.
+ * This task deals with the progress dialog UI side of things, and caters for situations where some
+ * external event triggers the loading of a song either while a song is currently active, or while
+ * a song is already being loaded.
+ */
 class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
-    private static Song mCurrentSong=null;
-    private final static Object mCurrentSongSync=new Object();
     private static final String AUTOLOAD_TAG="autoload";
     static final Object mSongLoadSyncObject=new Object();
     static SongLoadTask mSongLoadTask=null;
@@ -25,14 +30,14 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     boolean mCancelled=false;
     String mProgressTitle="";
     private CancelEvent mCancelEvent=new CancelEvent();
-    private LoadingSongFile mLoadingSongFile;
+    private SongLoadInfo mSongLoadInfo;
     private ProgressDialog mProgressDialog;
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
     private boolean mRegistered;
 
     SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings,boolean registered)
     {
-        mLoadingSongFile=new LoadingSongFile(selectedSong,trackName,scrollMode,nextSongName,startedByBandLeader,startedByMidiTrigger,nativeSettings,sourceSettings);
+        mSongLoadInfo=new SongLoadInfo(selectedSong,trackName,scrollMode,nextSongName,startedByBandLeader,startedByMidiTrigger,nativeSettings,sourceSettings);
         mSongLoadTaskEventHandler=new SongLoadTaskEventHandler(this);
         mRegistered=registered;
     }
@@ -41,6 +46,11 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     protected Boolean doInBackground(String... paramParams) {
         try
         {
+            // The only thing that this "task" does here is attempt to acquire the
+            // semaphore. The semaphore is created initially with zero permits, so
+            // this will fail/wait until the semaphore is released, which occurs
+            // when the handler receives a "completed" or "cancelled" message from
+            // the SongLoaderTask.
             mTaskEndSemaphore.acquire();
         }
         catch(InterruptedException ignored)
@@ -53,7 +63,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if(values.length>1) {
-            mProgressDialog.setMessage(mProgressTitle+mLoadingSongFile.mSongFile.mTitle);
+            mProgressDialog.setMessage(mProgressTitle+mSongLoadInfo.mSongFile.mTitle);
             mProgressDialog.setMax(values[1]);
             mProgressDialog.setProgress(values[0]);
         }
@@ -81,8 +91,8 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         super.onPreExecute();
         mProgressDialog = new ProgressDialog(SongList.mSongListInstance);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setMessage(mLoadingSongFile.mSongFile.mTitle);
-        mProgressDialog.setMax(mLoadingSongFile.mSongFile.mLines);
+        mProgressDialog.setMessage(mSongLoadInfo.mSongFile.mTitle);
+        mProgressDialog.setMax(mSongLoadInfo.mSongFile.mLines);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setCancelable(false);
         mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel), (dialog, which) -> {
@@ -93,27 +103,34 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         mProgressDialog.show();
     }
 
+    /**
+     * This is the entry point for kicking off the loading of a song file.
+     */
     void loadSong()
     {
+        // If the song-display activity is currently active, then try to interrupt
+        // the current song with this one. If not possible, don't bother.
         if(SongDisplayActivity.mSongDisplayActive) {
             SongList.mSongLoadTaskOnResume=this;
-            if(!SongLoadTask.cancelCurrentSong(mLoadingSongFile.mSongFile))
+            if(!SongLoadTask.cancelCurrentSong(mSongLoadInfo.mSongFile))
                 SongList.mSongLoadTaskOnResume=null;
             return;
         }
 
-        ChooseSongMessage csm=new ChooseSongMessage(mLoadingSongFile.mSongFile.mTitle,
-                mLoadingSongFile.mTrack,
-                mLoadingSongFile.mNativeDisplaySettings.mOrientation,
-                mLoadingSongFile.mScrollMode==ScrollingMode.Beat,
-                mLoadingSongFile.mScrollMode==ScrollingMode.Smooth,
-                mLoadingSongFile.mNativeDisplaySettings.mMinFontSize,
-                mLoadingSongFile.mNativeDisplaySettings.mMaxFontSize,
-                mLoadingSongFile.mNativeDisplaySettings.mScreenWidth,
-                mLoadingSongFile.mNativeDisplaySettings.mScreenHeight);
+        // Create a bluetooth song-selection message to broadcast to other listeners.
+        ChooseSongMessage csm=new ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
+                mSongLoadInfo.mTrack,
+                mSongLoadInfo.mNativeDisplaySettings.mOrientation,
+                mSongLoadInfo.mScrollMode==ScrollingMode.Beat,
+                mSongLoadInfo.mScrollMode==ScrollingMode.Smooth,
+                mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
+                mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
+                mSongLoadInfo.mNativeDisplaySettings.mScreenWidth,
+                mSongLoadInfo.mNativeDisplaySettings.mScreenHeight);
         BluetoothManager.broadcastMessageToClients(csm);
 
-        SongList.mSongLoaderTask.loadSong(mLoadingSongFile,mSongLoadTaskEventHandler,mCancelEvent,mRegistered);
+        // Kick off the loading of the new song.
+        SongList.mSongLoaderTask.loadSong(mSongLoadInfo,mSongLoadTaskEventHandler,mCancelEvent,mRegistered);
         this.execute();
     }
 
@@ -151,50 +168,9 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         }
     }
 
-    class LoadingSongFile {
-        SongFile mSongFile;
-        String mTrack;
-        ScrollingMode mScrollMode;
-        SongDisplaySettings mNativeDisplaySettings;
-        boolean mStartedByBandLeader;
-        boolean mStartedByMIDITrigger;
-        String mNextSong;
-        SongDisplaySettings mSourceDisplaySettings;
-
-        LoadingSongFile(SongFile songFile, String track, ScrollingMode mode,String nextSong,boolean startedByBandLeader,boolean startedByMidiTrigger,SongDisplaySettings nativeSettings,SongDisplaySettings sourceSettings)
-        {
-            mSongFile=songFile;
-            mStartedByMIDITrigger=startedByMidiTrigger;
-            mTrack=track;
-            mScrollMode=mode;
-            mNextSong=nextSong;
-            mStartedByBandLeader=startedByBandLeader;
-            mNativeDisplaySettings=nativeSettings;
-            mSourceDisplaySettings=sourceSettings;
-        }
-    }
-
-
-    static Song getCurrentSong()
-    {
-        synchronized (mCurrentSongSync)
-        {
-            return mCurrentSong;
-        }
-    }
-
-    static void setCurrentSong(Song song)
-    {
-        synchronized (mCurrentSongSync)
-        {
-            mCurrentSong=song;
-            System.gc();
-        }
-    }
-
     private static boolean cancelCurrentSong(SongFile songWeWantToInterruptWith)
     {
-        Song loadedSong=getCurrentSong();
+        Song loadedSong=SongLoaderTask.getCurrentSong();
         if(loadedSong!=null)
             if(SongDisplayActivity.mSongDisplayActive)
                 if(!loadedSong.mSongFile.mTitle.equals(songWeWantToInterruptWith.mTitle))

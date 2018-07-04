@@ -44,7 +44,7 @@ public class SongLoader {
     private final static int MAX_LINE_LENGTH=256;
     private final static int DEMO_LINE_COUNT=15;
 
-    private SongLoadTask.LoadingSongFile mLoadingSongFile;
+    private SongLoadInfo mLoadingSongFile;
     private SongFile mSongFile;
     private int mCountInMin,mCountInMax,mCountInDefault;
     private int mBPMMin,mBPMMax,mBPMDefault;
@@ -66,7 +66,7 @@ public class SongLoader {
     private CancelEvent mCancelEvent;
     private boolean mRegistered;
 
-    SongLoader(SongLoadTask.LoadingSongFile loadingSongFile,CancelEvent cancelEvent, Handler songLoadHandler,boolean registered)
+    SongLoader(SongLoadInfo loadingSongFile,CancelEvent cancelEvent, Handler songLoadHandler,boolean registered)
     {
         mRegistered=registered;
         mLoadingSongFile=loadingSongFile;

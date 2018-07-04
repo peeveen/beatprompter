@@ -131,7 +131,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void init(SongDisplayActivity songDisplayActivity) {
         mSongDisplayActivity = songDisplayActivity;
-        mSong = SongLoadTask.getCurrentSong();
+        mSong = SongLoaderTask.getCurrentSong();
         calculateScrollEnd();
         SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
         mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));

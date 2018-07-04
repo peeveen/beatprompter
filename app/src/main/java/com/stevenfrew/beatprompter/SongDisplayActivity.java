@@ -67,7 +67,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         // TODO: some sort of normal keyboard support.
         mAnyOtherKeyPageDown=false;//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
-        Song song=SongLoadTask.getCurrentSong();
+        Song song=SongLoaderTask.getCurrentSong();
         if(song!=null) {
             mStartedByBandLeader=song.mStartedByBandLeader;
             sendMidiClock |= song.mSendMidiClock;
