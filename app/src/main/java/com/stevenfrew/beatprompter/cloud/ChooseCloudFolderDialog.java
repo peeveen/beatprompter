@@ -33,10 +33,11 @@ class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,Dialog
         {
             mChooseFolderDialog=parentDialog;
         }
+        @SuppressWarnings("unchecked")
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case EventHandler.FOLDER_CONTENTS_FETCHED:
-                    mChooseFolderDialog.populateBrowser((List<CloudItemInfo>)msg.obj);
+                    mChooseFolderDialog.populateBrowser((List<CloudItemInfo>) msg.obj);
                     break;
                 case EventHandler.FOLDER_CONTENTS_FETCHING:
                     mChooseFolderDialog.updateProgress(msg.arg1,msg.arg2);
