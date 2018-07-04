@@ -730,7 +730,7 @@ public class SongLoader {
                                     long beatTimeLength=(rolloverBeatLength==0?nanosecondsPerBeat:rolloverBeatLength);
                                     double nanoPerBeat=beatTimeLength/4.0;
                                     // generate MIDI beats.
-                                    if((lastBeatBlock ==null)||(nanoPerBeat!= lastBeatBlock.mNanoPerBeat)) {
+                                    if((lastBeatBlock ==null)||(nanoPerBeat!= lastBeatBlock.getNanoPerBeat())) {
                                         BeatBlock beatBlock = lastBeatBlock = new BeatBlock(beatEvent.mEventTime, midiBeatCounter++, nanoPerBeat);
                                         beatBlocks.add(beatBlock);
                                     }

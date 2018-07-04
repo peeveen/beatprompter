@@ -459,8 +459,8 @@ public class Song
     {
         for (int f = 0; f < mNumberOfMIDIBeatBlocks; ++f) {
             BeatBlock beatBlock=mBeatBlocks.get(f);
-            if ((beatBlock.mMIDIBeatCount <= beat) && ((f + 1 == mNumberOfMIDIBeatBlocks) || (mBeatBlocks.get(f + 1).mMIDIBeatCount > beat))) {
-                return (long)(beatBlock.mBlockStartTime+(beatBlock.mNanoPerBeat*(beat-beatBlock.mMIDIBeatCount)));
+            if ((beatBlock.getMidiBeatCount() <= beat) && ((f + 1 == mNumberOfMIDIBeatBlocks) || (mBeatBlocks.get(f + 1).getMidiBeatCount() > beat))) {
+                return (long)(beatBlock.getBlockStartTime()+(beatBlock.getNanoPerBeat()*(beat-beatBlock.getMidiBeatCount())));
             }
         }
         return 0;
