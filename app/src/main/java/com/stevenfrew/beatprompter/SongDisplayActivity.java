@@ -32,8 +32,8 @@ import com.stevenfrew.beatprompter.songload.SongLoaderTask;
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
 {
     private SongView mSongView=null;
-    public static boolean mSongDisplayActive=false;
-    public static SongDisplayActivity mSongDisplayInstance;
+    private static boolean mSongDisplayActive=false;
+    private static SongDisplayActivity mSongDisplayInstance;
     private boolean mStartedByBandLeader=false;
     int mPreferredOrientation;
     int mOrientation;
