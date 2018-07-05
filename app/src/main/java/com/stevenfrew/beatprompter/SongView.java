@@ -36,6 +36,7 @@ import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
 import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.midi.TriggerSafetyCatch;
+import com.stevenfrew.beatprompter.songload.SongLoaderTask;
 
 import java.io.FileInputStream;
 import java.util.Collection;

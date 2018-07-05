@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter;
+package com.stevenfrew.beatprompter.songload;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -6,6 +6,20 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.Comment;
+import com.stevenfrew.beatprompter.EventHandler;
+import com.stevenfrew.beatprompter.ImageLine;
+import com.stevenfrew.beatprompter.ImageScalingMode;
+import com.stevenfrew.beatprompter.Line;
+import com.stevenfrew.beatprompter.MetronomeContext;
+import com.stevenfrew.beatprompter.R;
+import com.stevenfrew.beatprompter.ScrollingMode;
+import com.stevenfrew.beatprompter.SmoothScrollingTimings;
+import com.stevenfrew.beatprompter.Song;
+import com.stevenfrew.beatprompter.SongList;
+import com.stevenfrew.beatprompter.TextLine;
+import com.stevenfrew.beatprompter.Utils;
 import com.stevenfrew.beatprompter.cache.AudioFile;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.cache.ImageFile;
@@ -276,7 +290,7 @@ public class SongLoader {
                                 }
                                 String image=new File(imageName).getName();
                                 File imageFile;
-                                ImageFile mappedImage=SongList.mCachedCloudFiles.getMappedImageFilename(image,null);
+                                ImageFile mappedImage= SongList.mCachedCloudFiles.getMappedImageFilename(image,null);
                                 if(mappedImage==null)
                                     errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile,image)));
                                 else
@@ -654,7 +668,7 @@ public class SongLoader {
                             beatsForThisLine-=lastScrollbeatOffset;
 
                             if(bpm>0)
-                                nanosecondsPerBeat=Utils.nanosecondsPerBeat(bpm);
+                                nanosecondsPerBeat= Utils.nanosecondsPerBeat(bpm);
                             else
                                 nanosecondsPerBeat=0;
 

@@ -71,6 +71,7 @@ import com.stevenfrew.beatprompter.midi.SongTrigger;
 import com.stevenfrew.beatprompter.pref.FontSizePreference;
 import com.stevenfrew.beatprompter.pref.SettingsActivity;
 import com.stevenfrew.beatprompter.pref.SortingPreference;
+import com.stevenfrew.beatprompter.songload.SongLoadTask;
 import com.stevenfrew.beatprompter.ui.FilterListAdapter;
 import com.stevenfrew.beatprompter.ui.SongListAdapter;
 
@@ -125,7 +126,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     ArrayList<Filter> mFilters = new ArrayList<>();
     TemporarySetListFilter mTemporarySetListFilter = null;
     BaseAdapter mListAdapter = null;
-    static SongLoadTask mSongLoadTaskOnResume=null;
+    public static SongLoadTask mSongLoadTaskOnResume=null;
 
     private static final int PLAY_SONG_REQUEST_CODE=3;
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
@@ -160,9 +161,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     public static SongListEventHandler mSongListEventHandler;
 
-    static SongLoaderTask mSongLoaderTask = new SongLoaderTask();
-    Thread mSongLoaderTaskThread = new Thread(mSongLoaderTask);
-
     final static private String FULL_VERSION_SKU_NAME = "full_version";
 
 
@@ -176,16 +174,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             // Don't allow another song to be started from the song list (by clicking)
             // if one is already loading. The only circumstances this is allowed is via
             // MIDI triggers.
-            if (!songCurrentlyLoading()) {
+            if (!SongLoadTask.songCurrentlyLoading()) {
                 PlaylistNode selectedNode = mPlaylist.getNodeAt(position);
                 playPlaylistNode(selectedNode, false);
             }
-        }
-    }
-
-    boolean songCurrentlyLoading() {
-        synchronized (SongLoadTask.mSongLoadSyncObject) {
-            return SongLoadTask.mSongLoadTask != null;
         }
     }
 
@@ -223,7 +215,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     void playSongFile(SongFile selectedSong, PlaylistNode node, boolean startedByMidiTrigger) {
-        String trackName = null;
+        String trackName = "";
         if ((selectedSong.mAudioFiles != null) && (selectedSong.mAudioFiles.size() > 0))
             trackName = selectedSong.mAudioFiles.get(0);
         boolean beatScroll = selectedSong.isBeatScrollable();
@@ -232,7 +224,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         boolean manualMode = sharedPrefs.getBoolean(getString(R.string.pref_manualMode_key), false);
         if (manualMode) {
             beatScroll = smoothScroll = false;
-            trackName = null;
+            trackName = "";
         }
         ScrollingMode scrollingMode = beatScroll ? ScrollingMode.Beat : (smoothScroll ? ScrollingMode.Smooth : ScrollingMode.Manual);
         SongDisplaySettings sds = getSongDisplaySettings(scrollingMode);
@@ -294,19 +286,11 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private void playSong(PlaylistNode selectedNode,  SongFile selectedSong, String trackName, ScrollingMode scrollMode, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) {
         mNowPlayingNode = selectedNode;
 
-        String nextSongName = null;
+        String nextSongName = "";
         if ((selectedNode != null) && (selectedNode.mNextNode != null) && (shouldPlayNextSong()))
             nextSongName = selectedNode.mNextNode.mSongFile.mTitle;
 
-        startSong(new SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings,mFullVersionUnlocked||getCloud() == CloudType.Demo));
-    }
-
-    void startSong(SongLoadTask loadTask)
-    {
-        synchronized (SongLoadTask.mSongLoadSyncObject) {
-            SongLoadTask.mSongLoadTask = loadTask;
-        }
-        SongLoadTask.mSongLoadTask.loadSong();
+        SongLoadTask.loadSong(new SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings,mFullVersionUnlocked||getCloud() == CloudType.Demo));
     }
 
     void clearTemporarySetList() {
@@ -487,7 +471,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                                     String selectedTrack = (String) (audioSpinner.getSelectedItem());
                                     ScrollingMode mode=beatButton.isChecked()?ScrollingMode.Beat:(smoothButton.isChecked()?ScrollingMode.Smooth:ScrollingMode.Manual);
                                     if (audioSpinner.getSelectedItemPosition() == 0)
-                                        selectedTrack = null;
+                                        selectedTrack = "";
                                     SongDisplaySettings sds=getSongDisplaySettings(mode);
                                     playSong(selectedNode, selectedSong, selectedTrack,mode,false,false,sds,sds);
                                 })
@@ -573,9 +557,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
 
         EventHandler.setSongListEventHandler(mSongListEventHandler);
-
-        mSongLoaderTaskThread.start();
-        Task.resumeTask(mSongLoaderTask);
 
         BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(mStorageLocationPrefListener);
         //SharedPreferences sharedPrefs =getPreferences(Context.MODE_PRIVATE);
@@ -673,8 +654,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         EventHandler.setSongListEventHandler(null);
         super.onDestroy();
 
-        Task.stopTask(mSongLoaderTask,mSongLoaderTaskThread);
-
         if (mInAppPurchaseServiceConn != null)
             unbindService(mInAppPurchaseServiceConn);
     }
@@ -705,7 +684,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             try
             {
-                startSong(mSongLoadTaskOnResume);
+                SongLoadTask.loadSong(mSongLoadTaskOnResume);
             }
             finally
             {
@@ -1196,7 +1175,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         {
             ChooseSongMessage csm = (ChooseSongMessage) btm;
             String title = csm.mTitle;
-            String track = csm.mTrack.length() == 0 ? null : csm.mTrack;
+            String track = csm.mTrack;
 
             boolean beat = csm.mBeatScroll;
             boolean smooth = csm.mSmoothScroll;
@@ -1224,7 +1203,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    static ArrayList<Alias> getMIDIAliases()
+    public static ArrayList<Alias> getMIDIAliases()
     {
         ArrayList<Alias> aliases=new ArrayList<>();
         for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())

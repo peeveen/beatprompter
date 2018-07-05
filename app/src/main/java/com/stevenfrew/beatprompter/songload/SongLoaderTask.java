@@ -1,12 +1,15 @@
-package com.stevenfrew.beatprompter;
+package com.stevenfrew.beatprompter.songload;
 
 import android.os.Handler;
 
+import com.stevenfrew.beatprompter.EventHandler;
+import com.stevenfrew.beatprompter.Song;
+import com.stevenfrew.beatprompter.Task;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 
 import java.io.IOException;
 
-class SongLoaderTask extends Task {
+public class SongLoaderTask extends Task {
     private CancelEvent mCancelEvent=null;
     private SongLoadInfo mSongLoadInfo=null;
     private static Song mCurrentSong=null;
@@ -18,7 +21,7 @@ class SongLoaderTask extends Task {
     private final Object mLoadingSongFileSync = new Object();
     private final Object mCancelEventSync = new Object();
 
-    SongLoaderTask()
+    public SongLoaderTask()
     {
         super(true);
     }
@@ -38,8 +41,7 @@ class SongLoaderTask extends Task {
         }
     }
 
-
-    static Song getCurrentSong()
+    public static Song getCurrentSong()
     {
         synchronized (mCurrentSongSync)
         {
@@ -112,7 +114,7 @@ class SongLoaderTask extends Task {
             {
             }
     }
-    void loadSong(SongLoadInfo sli, Handler handler, CancelEvent cancelEvent, boolean registered)
+    public void loadSong(SongLoadInfo sli, Handler handler, CancelEvent cancelEvent, boolean registered)
     {
         setSongLoadHandler(handler);
         synchronized (mLoadingSongFileSync)

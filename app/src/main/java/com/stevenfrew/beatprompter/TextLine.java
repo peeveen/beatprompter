@@ -33,7 +33,7 @@ public class TextLine extends Line
     private int mLineDescenderOffset;
     private int mChordDescenderOffset;
 
-    TextLine(String lineText, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
+    public TextLine(String lineText, Collection<Tag> lineTags, int bars, ColorEvent lastColor, int bpb, int scrollbeat, int scrollbeatOffset, ScrollingMode scrollingMode, ArrayList<FileParseError> parseErrors)
     {
         super(lineTags,bars,lastColor,bpb,scrollbeat,scrollbeatOffset,scrollingMode,parseErrors);
         mText=lineText;

@@ -32,7 +32,7 @@ public class Song
     BaseEvent mFirstEvent; // First event in the event chain.
     BaseEvent mCurrentEvent; // Last event that executed.
     private BaseEvent mNextEvent; // Upcoming event.
-    boolean mCancelled=false;
+    public boolean mCancelled=false;
     private ArrayList<BeatBlock> mBeatBlocks;
     private int mNumberOfMIDIBeatBlocks;
 

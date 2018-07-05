@@ -25,12 +25,13 @@ import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
 import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask;
 import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.midi.StartStopInTask;
+import com.stevenfrew.beatprompter.songload.SongLoaderTask;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
 {
     private SongView mSongView=null;
-    static boolean mSongDisplayActive=false;
-    static SongDisplayActivity mSongDisplayInstance;
+    public static boolean mSongDisplayActive=false;
+    public static SongDisplayActivity mSongDisplayInstance;
     private boolean mStartedByBandLeader=false;
     int mPreferredOrientation;
     int mOrientation;
@@ -67,7 +68,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         // TODO: some sort of normal keyboard support.
         mAnyOtherKeyPageDown=false;//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
-        Song song=SongLoaderTask.getCurrentSong();
+        Song song= SongLoaderTask.getCurrentSong();
         if(song!=null) {
             mStartedByBandLeader=song.mStartedByBandLeader;
             sendMidiClock |= song.mSendMidiClock;
@@ -110,7 +111,7 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         });
     }
 
-    boolean canYieldToMIDITrigger() {
+    public boolean canYieldToMIDITrigger() {
         return mSongView == null || mSongView.canYieldToMIDITrigger();
     }
 

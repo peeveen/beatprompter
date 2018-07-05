@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter;
+package com.stevenfrew.beatprompter.songload;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -7,6 +7,14 @@ import android.os.AsyncTask;
 import android.os.Message;
 import android.util.Log;
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.EventHandler;
+import com.stevenfrew.beatprompter.R;
+import com.stevenfrew.beatprompter.ScrollingMode;
+import com.stevenfrew.beatprompter.Song;
+import com.stevenfrew.beatprompter.SongDisplayActivity;
+import com.stevenfrew.beatprompter.SongDisplaySettings;
+import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
 import com.stevenfrew.beatprompter.cache.SongFile;
@@ -21,10 +29,10 @@ import java.util.concurrent.Semaphore;
  * external event triggers the loading of a song either while a song is currently active, or while
  * a song is already being loaded.
  */
-class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
+public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private static final String AUTOLOAD_TAG="autoload";
-    static final Object mSongLoadSyncObject=new Object();
-    static SongLoadTask mSongLoadTask=null;
+    private static final Object mSongLoadSyncObject=new Object();
+    private static SongLoadTask mSongLoadTask=null;
 
     Semaphore mTaskEndSemaphore=new Semaphore(0);
     boolean mCancelled=false;
@@ -35,7 +43,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
     private boolean mRegistered;
 
-    SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings, boolean registered)
+    public SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings, boolean registered)
     {
         mSongLoadInfo=new SongLoadInfo(selectedSong,trackName,scrollMode,nextSongName,startedByBandLeader,startedByMidiTrigger,nativeSettings,sourceSettings);
         mSongLoadTaskEventHandler=new SongLoadTaskEventHandler(this);
@@ -103,10 +111,17 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         mProgressDialog.show();
     }
 
+    public static void loadSong(SongLoadTask loadTask) {
+        synchronized (mSongLoadSyncObject) {
+            mSongLoadTask = loadTask;
+        }
+        mSongLoadTask.loadSong();
+    }
+
     /**
      * This is the entry point for kicking off the loading of a song file.
      */
-    void loadSong()
+    private void loadSong()
     {
         // If the song-display activity is currently active, then try to interrupt
         // the current song with this one. If not possible, don't bother.
@@ -130,7 +145,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         BluetoothManager.broadcastMessageToClients(csm);
 
         // Kick off the loading of the new song.
-        SongList.mSongLoaderTask.loadSong(mSongLoadInfo,mSongLoadTaskEventHandler,mCancelEvent,mRegistered);
+        BeatPrompterApplication.loadSong(mSongLoadInfo,mSongLoadTaskEventHandler,mCancelEvent,mRegistered);
         this.execute();
     }
 
@@ -154,7 +169,7 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
                     mSongLoadTask.mTaskEndSemaphore.release();
                     break;
                 case EventHandler.SONG_LOAD_LINE_READ:
-                    mSongLoadTask.mProgressTitle=BeatPrompterApplication.getResourceString(R.string.loadingSong);
+                    mSongLoadTask.mProgressTitle= BeatPrompterApplication.getResourceString(R.string.loadingSong);
                     mSongLoadTask.publishProgress(msg.arg1,msg.arg2);
                     break;
                 case EventHandler.SONG_LOAD_LINE_PROCESSED:
@@ -184,6 +199,13 @@ class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
                     // Trying to interrupt a song with itself is pointless!
                     return false;
         return true;
+    }
+
+    public static boolean songCurrentlyLoading()
+    {
+        synchronized (mSongLoadSyncObject) {
+            return mSongLoadTask != null;
+        }
     }
 }
 
