@@ -1203,7 +1203,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    public static ArrayList<Alias> getMIDIAliases()
+    static ArrayList<Alias> getMIDIAliases()
     {
         ArrayList<Alias> aliases=new ArrayList<>();
         for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())

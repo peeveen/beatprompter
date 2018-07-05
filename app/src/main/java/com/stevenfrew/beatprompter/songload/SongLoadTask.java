@@ -23,20 +23,19 @@ import com.stevenfrew.beatprompter.event.CancelEvent;
 import java.util.concurrent.Semaphore;
 
 /**
- * This task does not actually load the song. It creates a second task (SongLoaderTask) which uses
- * the SongLoader class internally to load the song.
+ * This task does not actually load the song. It delegates the work to the main loader task (SongLoaderTask)
+ * the SongParser class internally to load the song.
  * This task deals with the progress dialog UI side of things, and caters for situations where some
- * external event triggers the loading of a song either while a song is currently active, or while
- * a song is already being loaded.
+ * external event (MIDI, Bluetooth, double-tap) triggers the loading of a song either while a song is
+ * currently active, or while a song is already being loaded.
  */
 public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private static final String AUTOLOAD_TAG="autoload";
     private static final Object mSongLoadSyncObject=new Object();
     private static SongLoadTask mSongLoadTask=null;
-
-    Semaphore mTaskEndSemaphore=new Semaphore(0);
-    boolean mCancelled=false;
-    String mProgressTitle="";
+    private boolean mCancelled=false;
+    private Semaphore mTaskEndSemaphore=new Semaphore(0);
+    private String mProgressTitle="";
     private CancelEvent mCancelEvent=new CancelEvent();
     private SongLoadInfo mSongLoadInfo;
     private ProgressDialog mProgressDialog;
@@ -114,8 +113,9 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     public static void loadSong(SongLoadTask loadTask) {
         synchronized (mSongLoadSyncObject) {
             mSongLoadTask = loadTask;
+            // This was previously outside of this sync block.
+            mSongLoadTask.loadSong();
         }
-        mSongLoadTask.loadSong();
     }
 
     /**

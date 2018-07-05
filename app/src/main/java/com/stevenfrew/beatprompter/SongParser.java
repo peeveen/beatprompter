@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.songload;
+package com.stevenfrew.beatprompter;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -6,20 +6,6 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.util.Log;
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication;
-import com.stevenfrew.beatprompter.Comment;
-import com.stevenfrew.beatprompter.EventHandler;
-import com.stevenfrew.beatprompter.ImageLine;
-import com.stevenfrew.beatprompter.ImageScalingMode;
-import com.stevenfrew.beatprompter.Line;
-import com.stevenfrew.beatprompter.MetronomeContext;
-import com.stevenfrew.beatprompter.R;
-import com.stevenfrew.beatprompter.ScrollingMode;
-import com.stevenfrew.beatprompter.SmoothScrollingTimings;
-import com.stevenfrew.beatprompter.Song;
-import com.stevenfrew.beatprompter.SongList;
-import com.stevenfrew.beatprompter.TextLine;
-import com.stevenfrew.beatprompter.Utils;
 import com.stevenfrew.beatprompter.cache.AudioFile;
 import com.stevenfrew.beatprompter.cache.FileParseError;
 import com.stevenfrew.beatprompter.cache.ImageFile;
@@ -41,6 +27,7 @@ import com.stevenfrew.beatprompter.midi.Message;
 import com.stevenfrew.beatprompter.midi.OutgoingMessage;
 import com.stevenfrew.beatprompter.midi.ResolutionException;
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext;
+import com.stevenfrew.beatprompter.songload.SongLoadInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,7 +40,7 @@ import java.util.HashSet;
 /**
  * Takes a SongFile and parses it into a Song.
  */
-public class SongLoader {
+public class SongParser {
 
     private final static int MAX_LINE_LENGTH=256;
     private final static int DEMO_LINE_COUNT=15;
@@ -80,7 +67,7 @@ public class SongLoader {
     private CancelEvent mCancelEvent;
     private boolean mRegistered;
 
-    SongLoader(SongLoadInfo loadingSongFile, CancelEvent cancelEvent, Handler songLoadHandler, boolean registered)
+    public SongParser(SongLoadInfo loadingSongFile, CancelEvent cancelEvent, Handler songLoadHandler, boolean registered)
     {
         mRegistered=registered;
         mLoadingSongFile=loadingSongFile;
@@ -156,7 +143,7 @@ public class SongLoader {
         }
     }
 
-    public Song load() throws IOException
+    public Song parse() throws IOException
     {
         int scrollBeatMin=1,scrollBeatDefault=4;
         ArrayList<OutgoingMessage> initialMIDIMessages=new ArrayList<>();

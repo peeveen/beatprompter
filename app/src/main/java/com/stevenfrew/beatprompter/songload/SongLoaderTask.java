@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.Song;
+import com.stevenfrew.beatprompter.SongParser;
 import com.stevenfrew.beatprompter.Task;
 import com.stevenfrew.beatprompter.event.CancelEvent;
 
@@ -90,8 +91,8 @@ public class SongLoaderTask extends Task {
             Handler songLoadHandler=getSongLoadHandler();
             CancelEvent cancelEvent = getCancelEvent();
             try {
-                SongLoader loader=new SongLoader(sli,cancelEvent,songLoadHandler,mRegistered);
-                Song loadedSong = loader.load();
+                SongParser loader=new SongParser(sli,cancelEvent,songLoadHandler,mRegistered);
+                Song loadedSong = loader.parse();
                 if (cancelEvent.isCancelled())
                     songLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget();
                 else {
