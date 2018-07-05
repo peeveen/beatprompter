@@ -22,9 +22,11 @@ import com.stevenfrew.beatprompter.bluetooth.PauseOnScrollStartMessage;
 import com.stevenfrew.beatprompter.bluetooth.QuitSongMessage;
 import com.stevenfrew.beatprompter.bluetooth.SetSongTimeMessage;
 import com.stevenfrew.beatprompter.bluetooth.ToggleStartStopMessage;
+import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask;
 import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.midi.StartStopInTask;
+import com.stevenfrew.beatprompter.songload.SongLoadTask;
 import com.stevenfrew.beatprompter.songload.SongLoaderTask;
 
 public class SongDisplayActivity extends AppCompatActivity implements SensorEventListener
@@ -111,8 +113,8 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
         });
     }
 
-    public boolean canYieldToMIDITrigger() {
-        return mSongView == null || mSongView.canYieldToMIDITrigger();
+    public boolean canYieldToExternalTrigger() {
+        return mSongView == null || mSongView.canYieldToExternalTrigger();
     }
 
     @Override
@@ -316,5 +318,33 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
                     break;
             }
         }
+    }
+
+    public static SongInterruptResult interruptCurrentSong(SongLoadTask loadTask, SongFile songToInterruptWith)
+    {
+        if(mSongDisplayActive)
+        {
+            Song loadedSong=SongLoaderTask.getCurrentSong();
+
+            // This should never happen, but we'll check just to be sure.
+            if(loadedSong==null)
+                return SongInterruptResult.NoSongToInterrupt;
+
+            // Trying to interrupt a song with itself is pointless!
+            if(loadedSong.mSongFile.mID.equals(songToInterruptWith.mID))
+                return SongInterruptResult.NoSongToInterrupt;
+
+            if(mSongDisplayInstance.canYieldToExternalTrigger()) {
+                loadedSong.mCancelled = true;
+                SongLoadTask.mSongLoadTaskOnResume=loadTask;
+                EventHandler.sendEventToSongDisplay(EventHandler.END_SONG);
+                return SongInterruptResult.CanInterrupt;
+            }
+            else {
+                SongLoadTask.mSongLoadTaskOnResume = null;
+                return SongInterruptResult.CannotInterrupt;
+            }
+        }
+        return SongInterruptResult.NoSongToInterrupt;
     }
 }

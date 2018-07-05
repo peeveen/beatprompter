@@ -35,7 +35,6 @@ import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
 import com.stevenfrew.beatprompter.midi.MIDIController;
-import com.stevenfrew.beatprompter.midi.TriggerSafetyCatch;
 import com.stevenfrew.beatprompter.songload.SongLoaderTask;
 
 import java.io.FileInputStream;
@@ -112,7 +111,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     private int mClickAudioID;
     private long mCommentDisplayTimeNanoseconds = Utils.milliToNano(4000);
     private SongDisplayActivity mSongDisplayActivity;
-    TriggerSafetyCatch mMIDITriggerSafetyCatch;
+    TriggerSafetyCatch mExternalTriggerSafetyCatch;
     boolean mSendMidiClock=false;
 
     public SongView(Context context, AttributeSet attrs) {
@@ -135,7 +134,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mSong = SongLoaderTask.getCurrentSong();
         calculateScrollEnd();
         SharedPreferences sharedPref = BeatPrompterApplication.getPreferences();
-        mMIDITriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
+        mExternalTriggerSafetyCatch= TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key),songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)));
         String metronomePref=sharedPref.getString(songDisplayActivity.getString(R.string.pref_metronome_key), songDisplayActivity.getString(R.string.pref_metronome_defaultValue));
 
         if(mSong.mSongFile.mBPM!=0) {
@@ -1231,9 +1230,9 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             startToggle(null,midiInitiated);
     }
 
-    boolean canYieldToMIDITrigger()
+    boolean canYieldToExternalTrigger()
     {
-        switch(mMIDITriggerSafetyCatch)
+        switch(mExternalTriggerSafetyCatch)
         {
             case Always:
                 return true;

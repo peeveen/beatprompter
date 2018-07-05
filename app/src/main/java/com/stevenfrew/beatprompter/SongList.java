@@ -126,7 +126,6 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     ArrayList<Filter> mFilters = new ArrayList<>();
     TemporarySetListFilter mTemporarySetListFilter = null;
     BaseAdapter mListAdapter = null;
-    public static SongLoadTask mSongLoadTaskOnResume=null;
 
     private static final int PLAY_SONG_REQUEST_CODE=3;
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
@@ -228,7 +227,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         }
         ScrollingMode scrollingMode = beatScroll ? ScrollingMode.Beat : (smoothScroll ? ScrollingMode.Smooth : ScrollingMode.Manual);
         SongDisplaySettings sds = getSongDisplaySettings(scrollingMode);
-        playSong(node, selectedSong, trackName, scrollingMode, false, startedByMidiTrigger, sds, sds);
+        playSong(node, selectedSong, trackName, scrollingMode, startedByMidiTrigger, sds, sds);
     }
 
     private boolean shouldPlayNextSong() {
@@ -283,14 +282,14 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         return new SongDisplaySettings(getResources().getConfiguration().orientation, minimumFontSize, maximumFontSize, size.x, size.y);
     }
 
-    private void playSong(PlaylistNode selectedNode,  SongFile selectedSong, String trackName, ScrollingMode scrollMode, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) {
+    private void playSong(PlaylistNode selectedNode,  SongFile selectedSong, String trackName, ScrollingMode scrollMode, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings) {
         mNowPlayingNode = selectedNode;
 
         String nextSongName = "";
         if ((selectedNode != null) && (selectedNode.mNextNode != null) && (shouldPlayNextSong()))
             nextSongName = selectedNode.mNextNode.mSongFile.mTitle;
 
-        SongLoadTask.loadSong(new SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings,mFullVersionUnlocked||getCloud() == CloudType.Demo));
+        SongLoadTask.loadSong(new SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings,mFullVersionUnlocked||getCloud() == CloudType.Demo));
     }
 
     void clearTemporarySetList() {
@@ -473,7 +472,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
                                     if (audioSpinner.getSelectedItemPosition() == 0)
                                         selectedTrack = "";
                                     SongDisplaySettings sds=getSongDisplaySettings(mode);
-                                    playSong(selectedNode, selectedSong, selectedTrack,mode,false,false,sds,sds);
+                                    playSong(selectedNode, selectedSong, selectedTrack,mode,false,sds,sds);
                                 })
                                 .setNegativeButton(R.string.cancel, (dialog12, id) -> {
                                 });
@@ -680,17 +679,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         // First run? Install demo files.
         if(isFirstRun())
             firstRunSetup();
-        else if(mSongLoadTaskOnResume!=null)
-        {
-            try
-            {
-                SongLoadTask.loadSong(mSongLoadTaskOnResume);
-            }
-            finally
-            {
-                mSongLoadTaskOnResume=null;
-            }
-        }
+        else
+            SongLoadTask.onResume();
     }
 
     private void firstRunSetup()
@@ -1193,11 +1183,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             for (SongFile sf : mCachedCloudFiles.getSongFiles())
                 if (sf.mTitle.equals(title))
                 {
-                    if(mSongListActive)
-                        playSong(null, sf, track, scrollingMode,true,false,nativeSettings,sourceSettings);
-                    else
-                        mSongLoadTaskOnResume=new SongLoadTask(sf,track,scrollingMode,"",true,
-                                false,nativeSettings,sourceSettings,mFullVersionUnlocked || getCloud()==CloudType.Demo);
+                    SongLoadTask loadTask=new SongLoadTask(sf,track,scrollingMode,"",true,
+                            false,nativeSettings,sourceSettings,mFullVersionUnlocked || getCloud()==CloudType.Demo);
+                    SongDisplayActivity.interruptCurrentSong(loadTask,sf);
                     break;
                 }
         }

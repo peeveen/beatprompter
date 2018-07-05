@@ -11,9 +11,9 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.EventHandler;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.ScrollingMode;
-import com.stevenfrew.beatprompter.Song;
 import com.stevenfrew.beatprompter.SongDisplayActivity;
 import com.stevenfrew.beatprompter.SongDisplaySettings;
+import com.stevenfrew.beatprompter.SongInterruptResult;
 import com.stevenfrew.beatprompter.SongList;
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager;
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
@@ -41,6 +41,7 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private ProgressDialog mProgressDialog;
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
     private boolean mRegistered;
+    public static SongLoadTask mSongLoadTaskOnResume=null;
 
     public SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings, boolean registered)
     {
@@ -125,28 +126,28 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     {
         // If the song-display activity is currently active, then try to interrupt
         // the current song with this one. If not possible, don't bother.
-        if(SongDisplayActivity.mSongDisplayActive) {
-            SongList.mSongLoadTaskOnResume=this;
-            if(!SongLoadTask.cancelCurrentSong(mSongLoadInfo.getSongFile()))
-                SongList.mSongLoadTaskOnResume=null;
-            return;
+        SongInterruptResult interruptResult=SongDisplayActivity.interruptCurrentSong(this,mSongLoadInfo.getSongFile());
+        // A result of CannotInterrupt means that the current song refuses to stop. In which case, we can't load.
+        // A result of CanInterrupt means that the current song has been instructed to end and, once it has, it will load the new one.
+        // A result of NoSongToInterrupt, however, means full steam ahead.
+        if(interruptResult==SongInterruptResult.NoSongToInterrupt) {
+
+            // Create a bluetooth song-selection message to broadcast to other listeners.
+            ChooseSongMessage csm = new ChooseSongMessage(mSongLoadInfo.getSongFile().mTitle,
+                    mSongLoadInfo.getTrack(),
+                    mSongLoadInfo.getNativeDisplaySettings().mOrientation,
+                    mSongLoadInfo.getScrollMode() == ScrollingMode.Beat,
+                    mSongLoadInfo.getScrollMode() == ScrollingMode.Smooth,
+                    mSongLoadInfo.getNativeDisplaySettings().mMinFontSize,
+                    mSongLoadInfo.getNativeDisplaySettings().mMaxFontSize,
+                    mSongLoadInfo.getNativeDisplaySettings().mScreenWidth,
+                    mSongLoadInfo.getNativeDisplaySettings().mScreenHeight);
+            BluetoothManager.broadcastMessageToClients(csm);
+
+            // Kick off the loading of the new song.
+            BeatPrompterApplication.loadSong(mSongLoadInfo, mSongLoadTaskEventHandler, mCancelEvent, mRegistered);
+            this.execute();
         }
-
-        // Create a bluetooth song-selection message to broadcast to other listeners.
-        ChooseSongMessage csm=new ChooseSongMessage(mSongLoadInfo.getSongFile().mTitle,
-                mSongLoadInfo.getTrack(),
-                mSongLoadInfo.getNativeDisplaySettings().mOrientation,
-                mSongLoadInfo.getScrollMode()==ScrollingMode.Beat,
-                mSongLoadInfo.getScrollMode()==ScrollingMode.Smooth,
-                mSongLoadInfo.getNativeDisplaySettings().mMinFontSize,
-                mSongLoadInfo.getNativeDisplaySettings().mMaxFontSize,
-                mSongLoadInfo.getNativeDisplaySettings().mScreenWidth,
-                mSongLoadInfo.getNativeDisplaySettings().mScreenHeight);
-        BluetoothManager.broadcastMessageToClients(csm);
-
-        // Kick off the loading of the new song.
-        BeatPrompterApplication.loadSong(mSongLoadInfo,mSongLoadTaskEventHandler,mCancelEvent,mRegistered);
-        this.execute();
     }
 
     public static class SongLoadTaskEventHandler extends EventHandler {
@@ -183,28 +184,20 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         }
     }
 
-    private static boolean cancelCurrentSong(SongFile songWeWantToInterruptWith)
-    {
-        Song loadedSong=SongLoaderTask.getCurrentSong();
-        if(loadedSong!=null)
-            if(SongDisplayActivity.mSongDisplayActive)
-                if(!loadedSong.mSongFile.mTitle.equals(songWeWantToInterruptWith.mTitle))
-                    if(SongDisplayActivity.mSongDisplayInstance.canYieldToMIDITrigger()) {
-                        loadedSong.mCancelled = true;
-                        EventHandler.sendEventToSongDisplay(EventHandler.END_SONG);
-                    }
-                    else
-                        return false;
-                else
-                    // Trying to interrupt a song with itself is pointless!
-                    return false;
-        return true;
-    }
-
     public static boolean songCurrentlyLoading()
     {
         synchronized (mSongLoadSyncObject) {
             return mSongLoadTask != null;
+        }
+    }
+
+    public static void onResume()
+    {
+        if(mSongLoadTaskOnResume!=null)
+        {
+            SongLoadTask resumeTask=mSongLoadTaskOnResume;
+            mSongLoadTaskOnResume=null;
+            SongLoadTask.loadSong(resumeTask);
         }
     }
 }
