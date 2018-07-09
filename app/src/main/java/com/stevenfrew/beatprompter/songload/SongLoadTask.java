@@ -33,6 +33,8 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private static final String AUTOLOAD_TAG="autoload";
     private static final Object mSongLoadSyncObject=new Object();
     private static SongLoadTask mSongLoadTask=null;
+    public static SongLoadTask mSongLoadTaskOnResume=null;
+
     private boolean mCancelled=false;
     private Semaphore mTaskEndSemaphore=new Semaphore(0);
     private String mProgressTitle="";
@@ -41,7 +43,6 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
     private ProgressDialog mProgressDialog;
     private SongLoadTaskEventHandler mSongLoadTaskEventHandler;
     private boolean mRegistered;
-    public static SongLoadTask mSongLoadTaskOnResume=null;
 
     public SongLoadTask(SongFile selectedSong, String trackName, ScrollingMode scrollMode, String nextSongName, boolean startedByBandLeader, boolean startedByMidiTrigger, SongDisplaySettings nativeSettings, SongDisplaySettings sourceSettings, boolean registered)
     {
