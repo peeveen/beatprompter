@@ -50,7 +50,7 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     private final static String GOOGLE_DRIVE_ROOT_PATH="/";
     private final static String GOOGLE_DRIVE_CACHE_FOLDER_NAME="google_drive";
     private final static String GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder";
-    private final static String[] SCOPES = { DriveScopes.DRIVE_READONLY, DriveScopes.DRIVE_METADATA };
+    private final static String[] SCOPES = { DriveScopes.DRIVE_READONLY };
     private final static int REQUEST_CODE_RESOLUTION = 1;
     private final static int COMPLETE_AUTHORIZATION_REQUEST_CODE=2;
 
