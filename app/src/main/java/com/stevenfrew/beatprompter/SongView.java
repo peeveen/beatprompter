@@ -83,7 +83,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     public int mLineUpPixel = 0;
 
     private long mSongStartTime;
-    private int mStartState = 0;
+    private PlayState mStartState = PlayState.AtTitleScreen;
     private boolean mUserHasScrolled = false;
     private long mPauseTime = 0;
     private long mNanosecondsPerBeat = Utils.nanosecondsPerBeat(120);
@@ -268,13 +268,13 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             return;
         ensureInitialised();
         boolean scrolling = false;
-        if (mStartState > 0)
+        if (mStartState !=PlayState.AtTitleScreen)
             scrolling = calculateScrolling();
         long timePassed = 0;
         double beatPercent = 1.0;
         boolean showTempMessage = false;
         boolean showComment = false;
-        if ((mStartState == 2) && (!scrolling)) {
+        if ((mStartState == PlayState.Playing) && (!scrolling)) {
             long time = System.nanoTime();
             timePassed = Math.max(0, time - mSongStartTime);
             if (mLastBeatTime > 0) {
@@ -318,7 +318,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         if (currentLine != null) {
             double scrollPercentage = 0.0;
             // If a scroll event in underway, move currentY up
-            if ((mStartState < 2) || (mSong.mScrollingMode == ScrollingMode.Manual)) {
+            if ((mStartState !=PlayState.Playing) || (mSong.mScrollingMode == ScrollingMode.Manual)) {
                 yScrollOffset = mSongPixelPosition - currentLine.mSongPixelPosition;
                 if (mSong.mScrollingMode == ScrollingMode.Smooth)
                     scrollPercentage = (double) yScrollOffset / (double) currentLine.mLineMeasurements.mLineHeight;
@@ -335,7 +335,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                 }
             }
             currentY -= yScrollOffset;
-            if (mStartState == 2)
+            if (mStartState == PlayState.Playing)
                 mSongPixelPosition = currentLine.mSongPixelPosition + yScrollOffset;
             if (mSong.mScrollingMode == ScrollingMode.Smooth)
                 currentY += mSong.mSmoothScrollOffset;
@@ -410,9 +410,9 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             mEndSongByPedalCounter = 0;
         if (showComment)
             showComment(canvas);
-        if (mStartState > 0)
+        if (mStartState !=PlayState.AtTitleScreen)
             invalidate();  // Force a re-draw
-        else if ((mStartState == 0) && (mSong != null))
+        else if (mSong != null)
             drawTitleScreen(canvas);
     }
 
@@ -424,7 +424,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             //if (mSong.mScrollingMode != ScrollingMode.Manual)
             {
                 long songTime = mSong.mCurrentLine.getTimeFromPixel(mSongPixelPosition);
-                setSongTime(songTime, mStartState == 1, true,false);
+                setSongTime(songTime, mStartState == PlayState.Paused, true,false);
             }
             scrolling = true;
         } else if ((mTargetPixelPosition != -1) && (mTargetPixelPosition != mSongPixelPosition)) {
@@ -442,7 +442,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             if (mSongPixelPosition == mTargetPixelPosition)
                 clearScrollTarget();
             long songTime = mSong.mCurrentLine.getTimeFromPixel(mSongPixelPosition);
-            setSongTime(songTime, mStartState == 1, true,false);
+            setSongTime(songTime, mStartState == PlayState.Paused, true,false);
         }
         return scrolling;
     }
@@ -650,9 +650,9 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         }
     }
 
-    public void startToggle(MotionEvent e, boolean midiInitiated,int startState)
+    public void startToggle(MotionEvent e, boolean midiInitiated,PlayState playState)
     {
-        mStartState=startState;
+        mStartState=playState;
         startToggle(e,midiInitiated);
     }
 
@@ -660,9 +660,9 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     {
         if(mSong==null)
             return true;
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
-            if(mStartState==0)
+            if(mStartState==PlayState.AtTitleScreen)
                 if(e!=null)
                     if(e.getY()>mScreenHeight*0.85f)
                         if((mSong.mNextSong!=null)&&(mSong.mNextSong.length()>0))
@@ -670,9 +670,9 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                             endSong(true);
                             return true;
                         }
-            int oldStartState=mStartState;
-            mStartState++;
-            if (mStartState == 2)
+            PlayState oldPlayState=mStartState;
+            mStartState=PlayState.increase(mStartState);
+            if (mStartState == PlayState.Playing)
             {
                 if(mSong.mScrollingMode==ScrollingMode.Manual)
                 {
@@ -707,11 +707,11 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                         Log.d(BeatPrompterApplication.TAG, "Resuming, pause time=" + mPauseTime);
                         setSongTime(time=mPauseTime, false, false,true);
                     }
-                    BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,time));
+                    BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldPlayState,time));
                 }
             }
             else
-                BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldStartState,0));
+                BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(oldPlayState,0));
         }
         else
         {
@@ -735,7 +735,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void changeVolume(int amount)
     {
-        if(mStartState==0)
+        if(mStartState==PlayState.Paused)
             return;
         mCurrentVolume += amount;
         onVolumeChanged();
@@ -748,7 +748,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         long nanoTime=System.nanoTime();
         mPauseTime=nanoTime-(mSongStartTime==0?nanoTime:mSongStartTime);
         BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(mStartState,mPauseTime));
-        mStartState--;
+        mStartState=PlayState.reduce(mStartState);
         if (mTrackMediaPlayer != null)
             if(mTrackMediaPlayer.isPlaying())
                 mTrackMediaPlayer.pause();
@@ -759,7 +759,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void stop(boolean destroyed)
     {
-        if(mStartState==2)
+        if(mStartState==PlayState.Playing)
             pause(false);
         if(destroyed)
         {
@@ -840,7 +840,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             mScrollIndicatorRect=null;
         mBeatCountRect=new Rect((int)(currentBeatCounterWidth-beatWidth),0,currentBeatCounterWidth,mSong.mBeatCounterHeight);
         mLastBeatTime=mSongStartTime+event.mEventTime;
-        if((event.mClick)&&(mStartState==2)&&(mSong.mScrollingMode!=ScrollingMode.Manual)&&(allowClick))
+        if((event.mClick)&&(mStartState==PlayState.Playing)&&(mSong.mScrollingMode!=ScrollingMode.Manual)&&(allowClick))
             mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f);
         if((mSongDisplayActivity!=null)/*&&(!event.mCount)*/)
             mSongDisplayActivity.onSongBeat(event.mBPM);
@@ -894,7 +894,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         {
             mSkipping=skipped;
             SongList.mSongEndedNaturally = true;
-            mStartState=0;
+            mStartState=PlayState.AtTitleScreen;
             mSongDisplayActivity = null;
             if(mSong!=null)
                 mSong.recycleGraphics();
@@ -942,7 +942,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             mSongPixelPosition=mSong.getPixelFromTime(nano);
 //        if(mSong.mScrollingMode!=ScrollingMode.Manual)
         {
-            if(mStartState<2)
+            if(mStartState!=PlayState.Playing)
                 mPauseTime=nano;
             if (broadcast)
                 BluetoothManager.broadcastMessageToClients(new SetSongTimeMessage(nano));
@@ -962,7 +962,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                         int nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime);
                         seekTrack(nTime);
 //                    Log.d(BeatPrompterApplication.TAG, "Seek to=" + nTime);
-                        if (mStartState == 2) {
+                        if (mStartState == PlayState.Playing) {
                             Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer");
                             mTrackMediaPlayer.start();
                         }
@@ -981,7 +981,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     public boolean onDown(MotionEvent e) {
         if (mSong.mScrollingMode == ScrollingMode.Manual)
             if (mMetronomeThread != null)
-                if(mStartState==2)
+                if(mStartState==PlayState.Playing)
                     mMetronomeThread.interrupt();
         // Abort any active scroll animations and invalidate.
         if((mScreenAction==ScreenAction.Scroll)||(mSong.mScrollingMode==ScrollingMode.Manual))
@@ -1005,7 +1005,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         if(mScreenAction==ScreenAction.None)
             return false;
-        if(mStartState==0)
+        if(mStartState==PlayState.AtTitleScreen)
             return false;
         if(mSong==null)
             return false;
@@ -1035,7 +1035,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             return;
         BluetoothManager.broadcastMessageToClients(new PauseOnScrollStartMessage());
         mUserHasScrolled = true;
-        mStartState = 1;
+        mStartState = PlayState.Paused;
         if (mTrackMediaPlayer != null)
             if (mTrackMediaPlayer.isPlaying())
             {
@@ -1067,7 +1067,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     {
         if(mScreenAction==ScreenAction.None)
             return false;
-        if(mStartState==0)
+        if(mStartState==PlayState.AtTitleScreen)
             return false;
         if(mSong==null)
             return false;
@@ -1095,19 +1095,18 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     }
 
     public void onOtherPageDownActivated() {
-        if(mStartState>0)
+        if(mStartState!=PlayState.AtTitleScreen)
             onPageDownKeyPressed();
     }
 
     public void onPageDownKeyPressed() {
-        if (mStartState < 2) {
+        if (mStartState !=PlayState.Playing) {
             if (!startToggle(null, false) && (mSong.mScrollingMode == ScrollingMode.Manual))
                 changeThePageDown();
         }
         else if (mSong.mScrollingMode == ScrollingMode.Manual)
         {
-            if (mStartState == 2)
-                changeThePageDown();
+            changeThePageDown();
         }
         else
             changeVolume(+5);
@@ -1115,7 +1114,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void onPageUpKeyPressed()
     {
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
                 changePage(false);
@@ -1138,14 +1137,13 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void onLineDownKeyPressed()
     {
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
                 changeTheLineDown();
         }
         else if(mSong.mScrollingMode==ScrollingMode.Manual) {
-            if (mStartState == 2)
-                changeTheLineDown();
+            changeTheLineDown();
         }
         else
             changeVolume(+5);
@@ -1153,7 +1151,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void onLineUpKeyPressed()
     {
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
                 changeLine(false);
@@ -1166,7 +1164,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void onLeftKeyPressed()
     {
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
                 changeVolume(-5);
@@ -1177,7 +1175,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void onRightKeyPressed()
     {
-        if(mStartState<2)
+        if(mStartState!=PlayState.Playing)
         {
             if (!startToggle(null,false)&&(mSong.mScrollingMode==ScrollingMode.Manual))
                 changeVolume(+5);
@@ -1188,7 +1186,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void changePage(boolean down)
     {
-        if(mStartState==0)
+        if(mStartState==PlayState.AtTitleScreen)
             return;
         if((mTargetPixelPosition!=-1)&&(mTargetPixelPosition!=mSongPixelPosition))
             return;
@@ -1197,7 +1195,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
 
     public void changeLine(boolean down)
     {
-        if(mStartState==0)
+        if(mStartState==PlayState.AtTitleScreen)
             return;
         if((mTargetPixelPosition!=-1)&&(mTargetPixelPosition!=mSongPixelPosition))
             return;
@@ -1220,13 +1218,13 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
     {
         if(fromStart)
            setSongTime(0, true, midiInitiated,true);
-        while(mStartState!=2)
+        while(mStartState!=PlayState.Playing)
           startToggle(null,midiInitiated);
     }
 
     public void stopSong(boolean midiInitiated)
     {
-        if(mStartState==2)
+        if(mStartState==PlayState.Playing)
             startToggle(null,midiInitiated);
     }
 
@@ -1237,11 +1235,11 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
             case Always:
                 return true;
             case WhenAtTitleScreen:
-                return mStartState==0;
+                return mStartState==PlayState.AtTitleScreen;
             case WhenAtTitleScreenOrPaused:
-                return mStartState<2 || (mSong!=null && mSong.mScrollingMode==ScrollingMode.Manual);
+                return mStartState!=PlayState.Playing || (mSong!=null && mSong.mScrollingMode==ScrollingMode.Manual);
             case WhenAtTitleScreenOrPausedOrLastLine:
-                return mStartState<2 || mSong==null || (mSong.mCurrentLine==null || mSong.mCurrentLine.mNextLine==null) || mSong.mScrollingMode==ScrollingMode.Manual;
+                return mStartState!=PlayState.Playing || mSong==null || (mSong.mCurrentLine==null || mSong.mCurrentLine.mNextLine==null) || mSong.mScrollingMode==ScrollingMode.Manual;
             case Never:
             default:
                 return false;

@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.bluetooth;
 import android.util.Log;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
+import com.stevenfrew.beatprompter.PlayState;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,12 +14,13 @@ public class ToggleStartStopMessage extends BluetoothMessage
 
     private static final int LONG_BUFFER_SIZE=Long.SIZE/Byte.SIZE;
 
-    public int mStartState;
+    public PlayState mStartState;
     public long mTime;
 
-    public ToggleStartStopMessage(int startState,long time)
+    public ToggleStartStopMessage(PlayState startState, long time)
     {
-        mStartState=startState; mTime=time;
+        mStartState=startState;
+        mTime=time;
     }
 
     ToggleStartStopMessage(byte[] bytes) throws NotEnoughBluetoothDataException
@@ -32,7 +34,7 @@ public class ToggleStartStopMessage extends BluetoothMessage
                 byte[] startStateBytes=new byte[1];
                 //noinspection ResultOfMethodCallIgnored
                 byteArrayInputStream.read(startStateBytes);
-                mStartState=startStateBytes[0];
+                mStartState=PlayState.fromValue(startStateBytes[0]);
                 mTime = 0;
                 byte[] longBytes = new byte[LONG_BUFFER_SIZE];
                 bytesRead=byteArrayInputStream.read(longBytes);
@@ -66,7 +68,7 @@ public class ToggleStartStopMessage extends BluetoothMessage
         try
         {
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            byteArrayOutputStream.write(new byte[]{TOGGLE_START_STOP_MESSAGE_ID,(byte)mStartState});
+            byteArrayOutputStream.write(new byte[]{TOGGLE_START_STOP_MESSAGE_ID,(byte)mStartState.asValue()});
             byte[] longBytes=new byte[LONG_BUFFER_SIZE];
             long time=mTime;
             for(int f=0;f<LONG_BUFFER_SIZE;++f)
