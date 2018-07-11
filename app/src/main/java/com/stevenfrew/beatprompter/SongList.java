@@ -295,8 +295,18 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void clearTemporarySetList() {
         if(mTemporarySetListFilter!=null)
             mTemporarySetListFilter.clear();
+        for(SetListFile slf:mCachedCloudFiles.getSetListFiles())
+            if(slf.mFile.equals(mTemporarySetListFile))
+                slf.mSongTitles.clear();
         initialiseTemporarySetListFile(true);
         buildFilterList();
+        try {
+            writeDatabase();
+        }
+        catch(Exception ioe)
+        {
+            Log.e(BeatPrompterApplication.TAG,ioe.getMessage());
+        }
     }
 
     void addToTemporarySet(SongFile song) {
