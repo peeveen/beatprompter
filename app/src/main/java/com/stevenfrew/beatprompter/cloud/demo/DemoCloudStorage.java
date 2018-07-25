@@ -79,7 +79,7 @@ public class DemoCloudStorage extends CloudStorage {
     }
 
     @Override
-    protected void readFolderContents(CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource, boolean includeSubfolders, boolean returnFolders) {
+    protected void readFolderContents(CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource, boolean includeSubfolders, boolean returnFolders) {
         itemSource.onNext(new CloudFileInfo(DEMO_SONG_TEXT_ID,DEMO_SONG_FILENAME, new Date(),""));
         itemSource.onNext(new CloudFileInfo(DEMO_SONG_AUDIO_ID,DEMO_SONG_AUDIO_FILENAME, new Date(),""));
         itemSource.onComplete();

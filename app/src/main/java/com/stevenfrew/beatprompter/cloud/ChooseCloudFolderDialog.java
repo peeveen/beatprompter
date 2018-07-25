@@ -216,6 +216,11 @@ class ChooseCloudFolderDialog implements DialogInterface.OnCancelListener,Dialog
     }
 
     @Override
+    public void onProgressMessageReceived(String message) {
+        // Do nothing.
+    }
+
+    @Override
     public void onAuthenticationRequired() {
         // Cancel the dialog.
         mDialog.cancel();

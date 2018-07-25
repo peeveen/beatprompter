@@ -99,10 +99,13 @@ public class DropboxCloudStorage extends CloudStorage {
                     result = new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
                     itemSource.onNext(result);
                 }
-                else
+                else {
                     itemSource.onError(gmee);
+                    return;
+                }
             } catch (Exception e) {
                 itemSource.onError(e);
+                return;
             }
         }
         itemSource.onComplete();
@@ -130,7 +133,7 @@ public class DropboxCloudStorage extends CloudStorage {
         return localfile;
     }
 
-    private void readFolderContents(DbxClientV2 client, CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders)
+    private void readFolderContents(DbxClientV2 client, CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders)
     {
         List<CloudFolderInfo> foldersToSearch=new ArrayList<>();
         foldersToSearch.add(folder);
@@ -142,6 +145,8 @@ public class DropboxCloudStorage extends CloudStorage {
             CloudFolderInfo folderToSearch=foldersToSearch.remove(0);
             String currentFolderID=folderToSearch.mID;
             String currentFolderName=folderToSearch.mName;
+            messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder,currentFolderName));
+
             try
             {
                 Log.d(BeatPrompterApplication.TAG, "Getting list of everything in Dropbox folder.");
@@ -184,6 +189,7 @@ public class DropboxCloudStorage extends CloudStorage {
             catch(DbxException de)
             {
                 itemSource.onError(de);
+                return;
             }
         }
         itemSource.onComplete();
@@ -226,11 +232,11 @@ public class DropboxCloudStorage extends CloudStorage {
     }
 
     @Override
-    public void readFolderContents(CloudFolderInfo folder, CloudListener cloudListener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders) {
+    public void readFolderContents(CloudFolderInfo folder, CloudListener cloudListener,PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders) {
         doDropboxAction(new DropboxAction() {
             @Override
             public void onConnected(DbxClientV2 client) {
-                readFolderContents(client,folder,cloudListener,itemSource,includeSubfolders,returnFolders);
+                readFolderContents(client,folder,cloudListener,itemSource,messageSource,includeSubfolders,returnFolders);
             }
 
             @Override

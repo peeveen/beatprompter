@@ -20,6 +20,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     private ProgressDialog mProgressDialog;
     private String mCloudPath;
     private boolean mIncludeSubFolders;
+    private boolean mErrorOccurred=false;
     private List<CloudFileInfo> mFilesToUpdate;
     private CloudStorage mCloudStorage;
     private List<CloudFileInfo> mCloudFilesFound=new ArrayList<>();
@@ -94,6 +95,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onFolderSearchError(Throwable t) {
+        mErrorOccurred=true;
         mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
     }
 
@@ -104,8 +106,12 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onItemDownloaded(CloudDownloadResult downloadResult) {
-        if(downloadResult.mResultType==CloudDownloadResultType.Succeeded)
-            SongList.mCachedCloudFiles.add(CachedCloudFile.createCachedCloudFile(downloadResult));
+        if(downloadResult.mResultType==CloudDownloadResultType.Succeeded) {
+            CachedCloudFile cacheFile=CachedCloudFile.createCachedCloudFile(downloadResult);
+            // cacheFile will be null if it is not a file of any type that we're interested in using.
+            if(cacheFile!=null)
+                SongList.mCachedCloudFiles.add(cacheFile);
+        }
         else// IMPLICIT if(downloadResult.mResultType==CloudDownloadResultType.NoLongerExists)
             SongList.mCachedCloudFiles.remove(downloadResult.mCloudFileInfo);
     }
@@ -117,6 +123,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public void onDownloadError(Throwable t) {
+        mErrorOccurred=true;
         mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.getMessage()).sendToTarget();
         onDownloadComplete();
     }
@@ -137,6 +144,6 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
 
     @Override
     public boolean shouldCancel() {
-        return isCancelled();
+        return mErrorOccurred||isCancelled();
     }
 }

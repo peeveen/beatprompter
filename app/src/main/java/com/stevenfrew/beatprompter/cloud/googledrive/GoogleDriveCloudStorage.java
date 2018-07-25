@@ -149,11 +149,12 @@ public class GoogleDriveCloudStorage extends CloudStorage {
         CloudFolderInfo mFolder;
         CloudListener mListener;
         PublishSubject<CloudItemInfo> mItemSource;
+        PublishSubject<String> mMessageSource;
         boolean mIncludeSubfolders;
         GoogleDriveCloudStorage mCloudStorage;
         boolean mReturnFolders;
 
-        ReadGoogleDriveFolderContentsTask(com.google.api.services.drive.Drive client, GoogleDriveCloudStorage cloudStorage, CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource, boolean includeSubfolders, boolean returnFolders) {
+        ReadGoogleDriveFolderContentsTask(com.google.api.services.drive.Drive client, GoogleDriveCloudStorage cloudStorage, CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource, PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders) {
             mClient = client;
             mCloudStorage = cloudStorage;
             mFolder = folder;
@@ -161,18 +162,23 @@ public class GoogleDriveCloudStorage extends CloudStorage {
             mItemSource = itemSource;
             mIncludeSubfolders = includeSubfolders;
             mReturnFolders = returnFolders;
+            mMessageSource=messageSource;
         }
 
         protected Void doInBackground(Void... args) {
             List<CloudFolderInfo> foldersToQuery = new ArrayList<>();
             foldersToQuery.add(mFolder);
 
+            boolean firstFolder=true;
             while (!foldersToQuery.isEmpty()) {
                 if (mListener.shouldCancel())
                     break;
                 CloudFolderInfo currentFolder = foldersToQuery.remove(0);
                 String currentFolderID = currentFolder.mID;
                 String currentFolderName = currentFolder.mName;
+                mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder,firstFolder?"...":currentFolderName));
+                firstFolder=false;
+
                 String queryString = "trashed=false and '" + currentFolderID + "' in parents";
                 if ((!mIncludeSubfolders) && (!mReturnFolders))
                     queryString += " and mimeType != '" + GOOGLE_DRIVE_FOLDER_MIMETYPE + "'";
@@ -218,6 +224,7 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                     recoverAuthorization(uraioe);
                 } catch (Exception e) {
                     mItemSource.onError(e);
+                    return null;
                 }
             }
             mItemSource.onComplete();
@@ -276,11 +283,14 @@ public class GoogleDriveCloudStorage extends CloudStorage {
                         result = new CloudDownloadResult(cloudFile, CloudDownloadResultType.NoLongerExists);
                         mItemSource.onNext(result);
                     }
-                    else
+                    else {
                         mItemSource.onError(gjre);
+                        return null;
+                    }
                 }
                 catch(Exception e) {
                     mItemSource.onError(e);
+                    return null;
                 }
             }
             mItemSource.onComplete();
@@ -364,11 +374,11 @@ public class GoogleDriveCloudStorage extends CloudStorage {
     }
 
     @Override
-    protected void readFolderContents(CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource, boolean includeSubfolders, boolean returnFolders) {
+    protected void readFolderContents(CloudFolderInfo folder, CloudListener listener, PublishSubject<CloudItemInfo> itemSource, PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders) {
         doGoogleDriveAction(new GoogleDriveAction() {
             @Override
             public void onConnected(com.google.api.services.drive.Drive client) {
-                new ReadGoogleDriveFolderContentsTask(client,GoogleDriveCloudStorage.this,folder,listener,itemSource,includeSubfolders,returnFolders).execute();
+                new ReadGoogleDriveFolderContentsTask(client,GoogleDriveCloudStorage.this,folder,listener,itemSource,messageSource,includeSubfolders,returnFolders).execute();
             }
 
             @Override
