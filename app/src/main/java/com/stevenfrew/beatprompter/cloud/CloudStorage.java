@@ -75,10 +75,12 @@ public abstract class CloudStorage {
         CompositeDisposable disp=new CompositeDisposable();
         PublishSubject<CloudItemInfo> folderContentsSource=PublishSubject.create();
         disp.add(folderContentsSource.subscribe(listener::onCloudItemFound,listener::onFolderSearchError,listener::onFolderSearchComplete));
+        PublishSubject<String> messageSource=PublishSubject.create();
+        disp.add(messageSource.subscribe(listener::onProgressMessageReceived));
         try {
             for(CloudDownloadResult defaultCloudDownload:SongList.mDefaultCloudDownloads)
                 folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo);
-            readFolderContents(folder, listener,folderContentsSource, includeSubfolders, returnFolders);
+            readFolderContents(folder, listener,folderContentsSource,messageSource, includeSubfolders, returnFolders);
         }
         finally
         {
@@ -149,6 +151,6 @@ public abstract class CloudStorage {
 
     protected abstract void downloadFiles(List<CloudFileInfo> filesToRefresh,CloudListener cloudListener, PublishSubject<CloudDownloadResult> itemSource,PublishSubject<String> messageSource);
 
-    protected abstract void readFolderContents(CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource, boolean includeSubfolders,boolean returnFolders);
+    protected abstract void readFolderContents(CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource, boolean includeSubfolders,boolean returnFolders);
 
 }

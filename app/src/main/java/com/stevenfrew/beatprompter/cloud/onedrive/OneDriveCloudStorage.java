@@ -74,10 +74,11 @@ public class OneDriveCloudStorage extends CloudStorage {
         CloudFolderInfo mFolder;
         CloudListener mListener;
         PublishSubject<CloudItemInfo> mItemSource;
+        PublishSubject<String> mMessageSource;
         boolean mIncludeSubfolders;
         OneDriveCloudStorage mCloudStorage;
         boolean mReturnFolders;
-        GetOneDriveFolderContentsTask(IOneDriveClient client, OneDriveCloudStorage cloudStorage,CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders)
+        GetOneDriveFolderContentsTask(IOneDriveClient client, OneDriveCloudStorage cloudStorage,CloudFolderInfo folder, CloudListener listener,PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders)
         {
             mClient=client;
             mCloudStorage=cloudStorage;
@@ -86,6 +87,7 @@ public class OneDriveCloudStorage extends CloudStorage {
             mItemSource=itemSource;
             mIncludeSubfolders=includeSubfolders;
             mReturnFolders=returnFolders;
+            mMessageSource=messageSource;
         }
         private boolean isSuitableFileToDownload(Item childItem)
         {
@@ -100,6 +102,7 @@ public class OneDriveCloudStorage extends CloudStorage {
                     break;
                 CloudFolderInfo nextFolder = folders.remove(0);
                 String currentFolderID = nextFolder.mID;
+                mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder,nextFolder.mName));
 
                 try {
                     Log.d(BeatPrompterApplication.TAG, "Getting list of everything in OneDrive folder.");
@@ -136,6 +139,7 @@ public class OneDriveCloudStorage extends CloudStorage {
                     }
                 } catch (Exception e) {
                     mItemSource.onError(e);
+                    return null;
                 }
             }
             mItemSource.onComplete();
@@ -197,11 +201,14 @@ public class OneDriveCloudStorage extends CloudStorage {
                         result = new CloudDownloadResult(file, CloudDownloadResultType.NoLongerExists);
                         mItemSource.onNext(result);
                     }
-                    else
+                    else {
                         mItemSource.onError(odse);
+                        return null;
+                    }
                 }
                 catch (Exception e) {
                     mItemSource.onError(e);
+                    return null;
                 }
             }
             mItemSource.onComplete();
@@ -335,12 +342,12 @@ public class OneDriveCloudStorage extends CloudStorage {
     }
 
     @Override
-    public void readFolderContents(CloudFolderInfo folder, CloudListener cloudListener,PublishSubject<CloudItemInfo> itemSource,boolean includeSubfolders, boolean returnFolders) {
+    public void readFolderContents(CloudFolderInfo folder, CloudListener cloudListener,PublishSubject<CloudItemInfo> itemSource,PublishSubject<String> messageSource,boolean includeSubfolders, boolean returnFolders) {
         doOneDriveAction(new OneDriveAction() {
             @Override
             public void onConnected(IOneDriveClient client) {
                 try {
-                    new GetOneDriveFolderContentsTask(client, OneDriveCloudStorage.this, folder, cloudListener, itemSource, includeSubfolders, returnFolders).execute();
+                    new GetOneDriveFolderContentsTask(client, OneDriveCloudStorage.this, folder, cloudListener, itemSource, messageSource,includeSubfolders, returnFolders).execute();
                 }
                 catch(Exception e)
                 {
