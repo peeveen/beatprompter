@@ -42,7 +42,6 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
     private long mLastOtherPageDownEvent=0;
     private boolean mAnyOtherKeyPageDown=false;
     private boolean mScrollOnProximity;
-
     public SongDisplayEventHandler mSongDisplayEventHandler;
 
     ClockSignalGeneratorTask mMidiClockOutTask;
@@ -51,6 +50,13 @@ public class SongDisplayActivity extends AppCompatActivity implements SensorEven
     Thread mMidiStartStopInTaskThread=new Thread(mMidiStartStopInTask);
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Any config change, go back to the song list.
+        finish();
+    }
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

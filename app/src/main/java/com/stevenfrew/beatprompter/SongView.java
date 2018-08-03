@@ -356,7 +356,8 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                     int lineCounter = 0;
                     int lineTop = currentY;
                     for (LineGraphic graphic : graphics) {
-                        canvas.drawBitmap(graphic.mBitmap, 0, currentY, mPaint);
+                        if(!graphic.mBitmap.isRecycled())
+                            canvas.drawBitmap(graphic.mBitmap, 0, currentY, mPaint);
                         currentY += currentLine.mLineMeasurements.mGraphicHeights[lineCounter++];
                     }
                     if (highlight) {
