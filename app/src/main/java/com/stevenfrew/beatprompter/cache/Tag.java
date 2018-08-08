@@ -235,7 +235,7 @@ public class Tag
     {
         try
         {
-            SongTrigger.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"),tag.mLineNumber,parseErrors);
+            SongTrigger.Companion.parse( tag.mValue, tag.mName.equals("midi_song_select_trigger"),tag.mLineNumber,parseErrors);
         }
         catch(Exception e)
         {

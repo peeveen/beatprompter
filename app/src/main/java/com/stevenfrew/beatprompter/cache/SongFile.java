@@ -108,11 +108,11 @@ public class SongFile extends CachedCloudFile
         NodeList pcTriggerNodes=element.getElementsByTagName(PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME);
         mProgramChangeTrigger= SongTrigger.DEAD_TRIGGER;
         for(int f=0;f<pcTriggerNodes.getLength();++f)
-            mProgramChangeTrigger= SongTrigger.readFromXMLElement((Element)pcTriggerNodes.item(f));
+            mProgramChangeTrigger= SongTrigger.Companion.readFromXMLElement((Element)pcTriggerNodes.item(f));
         NodeList ssTriggerNodes=element.getElementsByTagName(SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME);
         mSongSelectTrigger= SongTrigger.DEAD_TRIGGER;
         for(int f=0;f<ssTriggerNodes.getLength();++f)
-            mSongSelectTrigger= SongTrigger.readFromXMLElement((Element)ssTriggerNodes.item(f));
+            mSongSelectTrigger= SongTrigger.Companion.readFromXMLElement((Element)ssTriggerNodes.item(f));
     }
 
      private String getTitleFromLine(String line, int lineNumber)
@@ -169,7 +169,7 @@ public class SongFile extends CachedCloudFile
         if(val!=null)
             try
             {
-                return SongTrigger.parse(val,songSelectTrigger,lineNumber,new ArrayList<>());
+                return SongTrigger.Companion.parse(val,songSelectTrigger,lineNumber,new ArrayList<>());
             }
             catch(Exception e)
             {
