@@ -127,6 +127,10 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     TemporarySetListFilter mTemporarySetListFilter = null;
     BaseAdapter mListAdapter = null;
 
+    boolean mPerformingCloudSync=false;
+    int mSavedListIndex=0;
+    int mSavedListOffset=0;
+
     private static final int PLAY_SONG_REQUEST_CODE=3;
     private static final int GOOGLE_PLAY_TRANSACTION_FINISHED=4;
     private static final int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS=4;
@@ -669,9 +673,17 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+        ListView listView = findViewById(R.id.listView);
+        int currentPosition = listView.getFirstVisiblePosition();
+        View v = listView.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
+
         super.onConfigurationChanged(newConfig);
         setContentView(R.layout.activity_song_list);
         buildList();
+
+        listView = findViewById(R.id.listView);
+        listView.setSelectionFromTop(currentPosition,top);
     }
 
     @Override
@@ -765,6 +777,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         if ((cloudPath == null) || (cloudPath.length() == 0))
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
         else {
+            mPerformingCloudSync=true;
             CloudDownloadTask cdt = new CloudDownloadTask(cs, mSongListEventHandler, cloudPath, getIncludeSubfolders(), mCachedCloudFiles.getFilesToRefresh(fileToUpdate,dependenciesToo));
             cdt.execute();
         }
@@ -826,16 +839,9 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             mListAdapter = new SongListAdapter(mPlaylist.getNodesAsArray());
 
         ListView listView = findViewById(R.id.listView);
-
-        int index = listView.getFirstVisiblePosition();
-        View v = listView.getChildAt(0);
-        int top = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
-
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
         listView.setAdapter(mListAdapter);
-
-        listView.setSelectionFromTop(index, top);
     }
 
     private void readDatabase() throws IOException, ParserConfigurationException, SAXException
@@ -1073,6 +1079,12 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         applyFileFilter(mFilters.get(position));
+        if(mPerformingCloudSync)
+        {
+            mPerformingCloudSync=false;
+            ListView listView = findViewById(R.id.listView);
+            listView.setSelectionFromTop(mSavedListIndex, mSavedListOffset);
+        }
     }
 
     public void buyFullVersion()
@@ -1308,6 +1320,11 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void onCacheUpdated(CachedCloudFileCollection cache)
     {
+        ListView listView = findViewById(R.id.listView);
+        mSavedListIndex = listView.getFirstVisiblePosition();
+        View v = listView.getChildAt(0);
+        mSavedListOffset = (v == null) ? 0 : (v.getTop() - listView.getPaddingTop());
+
         mCachedCloudFiles=cache;
         try
         {

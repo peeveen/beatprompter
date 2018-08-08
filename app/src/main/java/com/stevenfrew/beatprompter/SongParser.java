@@ -44,6 +44,9 @@ public class SongParser {
 
     private final static int MAX_LINE_LENGTH=256;
     private final static int DEMO_LINE_COUNT=15;
+    // Every beatstart/beatstop block has events that are offset by this amount (one year).
+    // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
+    private final static long BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS= Utils.milliToNano(1000*60*24*365);
 
     private SongLoadInfo mLoadingSongFile;
     private SongFile mSongFile;
@@ -213,6 +216,7 @@ public class SongParser {
             mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,0,mSongFile.mLines).sendToTarget();
             while(((line=br.readLine())!=null)&&(!mCancelEvent.isCancelled()))
             {
+                boolean beatStartOrStopFoundOnThisLine=false;
                 line=line.trim();
                 pauseTime=0;
                 lineCounter++;
@@ -483,9 +487,27 @@ public class SongParser {
                             case "tuning":
                                 // SongBook stuff we're not supporting.
                                 break;
-                            case"beatstart":
+                            case "beatstart":
+                                if(beatStartOrStopFoundOnThisLine) {
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)));
+                                    break;
+                                }
+                                beatStartOrStopFoundOnThisLine=true;
+                                if(mCurrentScrollMode==ScrollingMode.Manual)
+                                    mCurrentScrollMode=ScrollingMode.Beat;
+                                else if(mSongFile.mBPM==0)
+                                    errors.add(new FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)));
                                 break;
                             case "beatstop":
+                                if(beatStartOrStopFoundOnThisLine) {
+                                    errors.add(new FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)));
+                                    break;
+                                }
+                                beatStartOrStopFoundOnThisLine=true;
+                                if(mCurrentScrollMode==ScrollingMode.Beat) {
+                                    mCurrentScrollMode = ScrollingMode.Manual;
+                                    currentTime += BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS;
+                                }
                                 break;
                             default:
                                 try {
