@@ -156,7 +156,7 @@ public class MIDIAliasFile extends CachedCloudFile
                         String[] paramBits=params.split(",");
                         int paramCounter=0;
                         for(String paramBit:paramBits) {
-                            Value aliasValue = Value.parseValue(paramBit,lineNumber,paramCounter++,paramBits.length,errors);
+                            Value aliasValue = Value.Companion.parseValue(paramBit,lineNumber,paramCounter++,paramBits.length,errors);
                             if(aliasValue!=null)
                                 componentArgs.add(aliasValue);
                         }

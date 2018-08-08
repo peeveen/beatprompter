@@ -5,7 +5,7 @@ import kotlin.experimental.or
 
 open class Message constructor(bytes:ByteArray)
 {
-    protected val mMessageBytes=bytes
+    internal val mMessageBytes=bytes
 
     companion object {
         internal val MIDI_SYSEX_START_BYTE = 0xf0.toByte()
@@ -25,24 +25,24 @@ open class Message constructor(bytes:ByteArray)
         fun mergeMessageByteWithChannel(message: Byte, channel: Byte): Byte {
             return (message and 0xf0.toByte()) or (channel and 0x0f)
         }
+
+        fun getChannelFromBitmask(bitmask: Int): Byte {
+            var n = 1
+            var counter: Byte = 0
+            do {
+                if (n == bitmask)
+                    return counter
+                n = n shl 1
+                ++counter
+            } while (counter < 16)
+            return 0
+        }
     }
 
     override fun toString(): String {
         val strFormat = StringBuilder()
         for (mMessageByte in mMessageBytes) strFormat.append(String.format("%02X ", mMessageByte))
         return strFormat.toString()
-    }
-
-    fun getChannelFromBitmask(bitmask: Int): Byte {
-        var n = 1
-        var counter: Byte = 0
-        do {
-            if (n == bitmask)
-                return counter
-            n = n shl 1
-            ++counter
-        } while (counter < 16)
-        return 0
     }
 
     private fun isSystemCommonMessage(message: Byte): Boolean {

@@ -9,7 +9,7 @@ class ChanneledCommandValue internal constructor(value: Byte) : ByteValue(value)
         return ((mValue and 0xF0.toByte()) or (channel and 0x0F))
     }
 
-    override fun matches(otherValue: Value): Boolean {
+    override fun matches(otherValue: Value?): Boolean {
         return if (otherValue is ChanneledCommandValue) otherValue.mValue == mValue else otherValue is WildcardValue
     }
 

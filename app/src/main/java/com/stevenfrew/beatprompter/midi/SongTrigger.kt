@@ -35,7 +35,6 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
             return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue, isSongSelect)
         }
 
-
         fun parse(descriptor: String?, songSelect: Boolean, lineNumber: Int, errors: MutableList<FileParseError>): SongTrigger? {
             if (descriptor == null)
                 return null

@@ -22,7 +22,7 @@ import com.stevenfrew.beatprompter.event.MIDIEvent;
 import com.stevenfrew.beatprompter.event.PauseEvent;
 import com.stevenfrew.beatprompter.event.TrackEvent;
 import com.stevenfrew.beatprompter.midi.BeatBlock;
-import com.stevenfrew.beatprompter.midi.EventOffset;
+import com.stevenfrew.beatprompter.midi.EventOffsetType;
 import com.stevenfrew.beatprompter.midi.Message;
 import com.stevenfrew.beatprompter.midi.OutgoingMessage;
 import com.stevenfrew.beatprompter.midi.ResolutionException;
@@ -118,7 +118,7 @@ public class SongParser {
         mDefaultTrackVolume=sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_default)));
         mDefaultTrackVolume+=Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_offset));
         int defaultMIDIOutputChannelPrefValue=sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key),Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)));
-        mDefaultMIDIOutputChannel= Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
+        mDefaultMIDIOutputChannel= Message.Companion.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue);
         mShowChords=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue)));
         mSendMidiClock = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false);
         mBackgroundColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)));
@@ -923,7 +923,7 @@ public class SongParser {
                 {
                     // OK, this event needs moved.
                     long newTime=-1;
-                    if(midiEvent.mOffset.mOffsetType== EventOffset.OffsetType.Milliseconds)
+                    if(midiEvent.mOffset.mOffsetType== EventOffsetType.Milliseconds)
                     {
                         long offset=Utils.milliToNano(midiEvent.mOffset.mAmount);
                         newTime=midiEvent.mEventTime+offset;

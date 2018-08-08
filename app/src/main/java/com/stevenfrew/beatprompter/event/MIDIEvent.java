@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.event;
 
-import com.stevenfrew.beatprompter.midi.EventOffset;
 import com.stevenfrew.beatprompter.midi.OutgoingMessage;
+import com.stevenfrew.beatprompter.midi.EventOffset;
 
 import java.util.ArrayList;
 import java.util.List;

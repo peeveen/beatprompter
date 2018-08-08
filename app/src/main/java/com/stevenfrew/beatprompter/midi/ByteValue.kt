@@ -6,7 +6,7 @@ abstract class ByteValue internal constructor(internal var mValue: Byte) : Value
         return mValue
     }
 
-    internal override fun matches(otherValue: Value): Boolean {
+    internal override fun matches(otherValue: Value?): Boolean {
         return if (otherValue is ByteValue) otherValue.mValue == mValue else otherValue is WildcardValue
     }
 

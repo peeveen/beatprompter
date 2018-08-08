@@ -9,7 +9,7 @@ class WildcardValue : Value() {
         return 0
     }
 
-    internal override fun matches(otherValue: Value): Boolean {
+    internal override fun matches(otherValue: Value?): Boolean {
         return true
     }
 

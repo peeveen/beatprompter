@@ -95,7 +95,7 @@ public class Tag
         String[] bits=(val.length()==0?new String[0]:val.split(","));
         Value[] paramBytes=new Value[bits.length];
         for (int f = 0; f < bits.length; ++f) {
-            Value v = Value.parseValue(bits[f].trim());
+            Value v = Value.Companion.parseValue(bits[f].trim());
             if(v!=null)
                 paramBytes[f]=v;
         }
