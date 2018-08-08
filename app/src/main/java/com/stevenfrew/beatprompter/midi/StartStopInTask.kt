@@ -16,14 +16,12 @@ class StartStopInTask : Task(false) {
             while (!shouldStop) {
                 val message = MIDIController.mMIDISongDisplayInQueue.take()
                 if(message!=null) {
-                    if (message.isStart())
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_START_SONG)
-                    else if (message.isContinue())
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_CONTINUE_SONG)
-                    else if (message.isStop())
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
-                    else if (message.isSongPositionPointer())
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, (message as IncomingSongPositionPointerMessage).midiBeat, 0)
+                    when {
+                        message.isStart() -> EventHandler.sendEventToSongDisplay(EventHandler.MIDI_START_SONG)
+                        message.isContinue() -> EventHandler.sendEventToSongDisplay(EventHandler.MIDI_CONTINUE_SONG)
+                        message.isStop() -> EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
+                        message.isSongPositionPointer() -> EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, (message as IncomingSongPositionPointerMessage).midiBeat, 0)
+                    }
                 }
             }
         } catch (ie: InterruptedException) {

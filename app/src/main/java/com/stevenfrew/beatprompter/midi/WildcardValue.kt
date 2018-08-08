@@ -5,11 +5,11 @@ package com.stevenfrew.beatprompter.midi
  */
 class WildcardValue : Value() {
 
-    internal override fun resolve(arguments: ByteArray, channel: Byte): Byte {
+    override fun resolve(arguments: ByteArray, channel: Byte): Byte {
         return 0
     }
 
-    internal override fun matches(otherValue: Value?): Boolean {
+    override fun matches(otherValue: Value?): Boolean {
         return true
     }
 

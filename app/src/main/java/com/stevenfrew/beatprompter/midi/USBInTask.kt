@@ -25,7 +25,7 @@ class USBInTask constructor(connection: UsbDeviceConnection, endpoint: UsbEndpoi
             dataRead = connection.bulkTransfer(endpoint, mBuffer, mBufferSize, 250)
             if (dataRead > 0)
                 bufferClear += dataRead
-        } while (dataRead > 0 && dataRead == mBufferSize && !getShouldStop() && bufferClear < 1024)
+        } while (dataRead > 0 && dataRead == mBufferSize && !shouldStop && bufferClear < 1024)
     }
 
     override fun doWork() {
@@ -75,18 +75,17 @@ class USBInTask constructor(connection: UsbDeviceConnection, endpoint: UsbEndpoi
 
                             } else if (messageByte == Message.MIDI_SONG_POSITION_POINTER_BYTE) {
                                 // This message requires two additional bytes.
-                                if (f < dataRead - 2)
-                                    try {
+                                when {
+                                    f < dataRead - 2 -> try {
                                         val msg = IncomingSongPositionPointerMessage(byteArrayOf(messageByte, workBuffer[++f], workBuffer[++f]))
                                         Log.d(MIDIController.MIDI_TAG, "Received MIDI Song Position Pointer message: " + msg.toString())
                                         MIDIController.mMIDISongDisplayInQueue.put(msg)
                                     } catch (ie: InterruptedException) {
                                         Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie)
                                     }
-                                else if (f < dataRead - 1)
-                                    preBuffer = byteArrayOf(messageByte, workBuffer[++f])
-                                else
-                                    preBuffer = byteArrayOf(messageByte)
+                                    f < dataRead - 1 -> preBuffer = byteArrayOf(messageByte, workBuffer[++f])
+                                    else -> preBuffer = byteArrayOf(messageByte)
+                                }
                             } else if (messageByte == Message.MIDI_SONG_SELECT_BYTE) {
                                 if (f < dataRead - 1)
                                     try {
@@ -121,8 +120,8 @@ class USBInTask constructor(connection: UsbDeviceConnection, endpoint: UsbEndpoi
                                                 preBuffer = byteArrayOf(messageByte)
                                         } else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {
                                             // This message requires two additional bytes.
-                                            if (f < dataRead - 2)
-                                                try {
+                                            when {
+                                                f < dataRead - 2 -> try {
                                                     val msg = IncomingMessage(byteArrayOf(messageByte, workBuffer[++f], workBuffer[++f]))
                                                     if (msg.isLSBBankSelect() || msg.isMSBBankSelect()) {
                                                         Log.d(MIDIController.MIDI_TAG, "Received MIDI Control Change message: " + msg.toString())
@@ -131,10 +130,9 @@ class USBInTask constructor(connection: UsbDeviceConnection, endpoint: UsbEndpoi
                                                 } catch (ie: InterruptedException) {
                                                     Log.d(BeatPrompterApplication.TAG, "Interrupted while attempting to write new MIDI message to queue.", ie)
                                                 }
-                                            else if (f < dataRead - 1)
-                                                preBuffer = byteArrayOf(messageByte, workBuffer[++f])
-                                            else
-                                                preBuffer = byteArrayOf(messageByte)
+                                                f < dataRead - 1 -> preBuffer = byteArrayOf(messageByte, workBuffer[++f])
+                                                else -> preBuffer = byteArrayOf(messageByte)
+                                            }
                                         }
                                     }
                                 }

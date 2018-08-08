@@ -2,11 +2,11 @@ package com.stevenfrew.beatprompter.midi
 
 abstract class ByteValue internal constructor(internal var mValue: Byte) : Value() {
 
-    internal override fun resolve(arguments: ByteArray, channel: Byte): Byte {
+    override fun resolve(arguments: ByteArray, channel: Byte): Byte {
         return mValue
     }
 
-    internal override fun matches(otherValue: Value?): Boolean {
+    override fun matches(otherValue: Value?): Boolean {
         return if (otherValue is ByteValue) otherValue.mValue == mValue else otherValue is WildcardValue
     }
 

@@ -12,14 +12,12 @@ class InTask internal constructor() : Task(false) {
             {
                 val message = MIDIController.mMIDISongListInQueue.take()
                 if(message!=null) {
-                    if (message.isMSBBankSelect())
-                        EventHandler.sendEventToSongList(EventHandler.MIDI_MSB_BANK_SELECT, message.getMIDIChannel().toInt(), message.getBankSelectValue())
-                    else if (message.isLSBBankSelect())
-                        EventHandler.sendEventToSongList(EventHandler.MIDI_LSB_BANK_SELECT, message.getMIDIChannel().toInt(), message.getBankSelectValue())
-                    else if (message.isProgramChange())
-                        EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, message.getMIDIChannel().toInt(), message.getProgramChangeValue())
-                    else if (message.isSongSelect())
-                        EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, message.getSongSelectValue())
+                    when {
+                        message.isMSBBankSelect() -> EventHandler.sendEventToSongList(EventHandler.MIDI_MSB_BANK_SELECT, message.getMIDIChannel().toInt(), message.getBankSelectValue())
+                        message.isLSBBankSelect() -> EventHandler.sendEventToSongList(EventHandler.MIDI_LSB_BANK_SELECT, message.getMIDIChannel().toInt(), message.getBankSelectValue())
+                        message.isProgramChange() -> EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, message.getMIDIChannel().toInt(), message.getProgramChangeValue())
+                        message.isSongSelect() -> EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, message.getSongSelectValue())
+                    }
                 }
             }
         } catch (ie: InterruptedException) {

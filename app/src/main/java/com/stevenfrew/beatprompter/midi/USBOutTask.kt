@@ -8,7 +8,7 @@ internal class USBOutTask : USBTask(null, null, true) {
         try {
             while (!shouldStop)
             {
-                val message = MIDIController.mMIDIOutQueue.take();
+                val message = MIDIController.mMIDIOutQueue.take()
                 if(message!=null) {
                     val connection = connection
                     val endpoint = endpoint

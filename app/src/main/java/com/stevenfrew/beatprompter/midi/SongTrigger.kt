@@ -12,12 +12,12 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, isSongSelect: Boolean): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), isSongSelect)
 
     companion object {
-        private val MSB_ATTRIBUTE_NAME = "bankSelectMSB"
-        private val LSB_ATTRIBUTE_NAME = "bankSelectLSB"
-        private val TRIGGER_INDEX_ATTRIBUTE_NAME = "triggerIndex"
-        private val CHANNEL_ATTRIBUTE_NAME = "channel"
-        private val IS_SONG_SELECT_ATTRIBUTE_NAME = "isSongSelect"
-        @JvmField var DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), true)
+        private const val MSB_ATTRIBUTE_NAME = "bankSelectMSB"
+        private const val LSB_ATTRIBUTE_NAME = "bankSelectLSB"
+        private const val TRIGGER_INDEX_ATTRIBUTE_NAME = "triggerIndex"
+        private const val CHANNEL_ATTRIBUTE_NAME = "channel"
+        private const val IS_SONG_SELECT_ATTRIBUTE_NAME = "isSongSelect"
+        @JvmField val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), true)
 
         fun readFromXMLElement(element: Element): SongTrigger {
             val msbString = element.getAttribute(MSB_ATTRIBUTE_NAME)
@@ -47,7 +47,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
             if (bits.size > 1)
                 if (songSelect)
                     errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)))
-            if (bits.size > 4 || bits.size < 1)
+            if (bits.size > 4 || bits.isEmpty())
                 if (songSelect)
                     errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)))
                 else
@@ -111,17 +111,25 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         if (mSongSelect)
             outputMessages.add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
         else {
-            val channel: Byte
-            if (mChannel is WildcardValue)
-                channel = defaultOutputChannel
+            val channel = if (mChannel is WildcardValue)
+                defaultOutputChannel
             else
-                channel = mChannel.resolve()
+                mChannel.resolve()
 
             outputMessages.add(ControlChangeMessage(Message.MIDI_MSB_BANK_SELECT_CONTROLLER, mBankSelectMSB.resolve(), channel))
             outputMessages.add(ControlChangeMessage(Message.MIDI_LSB_BANK_SELECT_CONTROLLER, mBankSelectLSB.resolve(), channel))
             outputMessages.add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
         }
         return outputMessages
+    }
+
+    override fun hashCode(): Int {
+        var result = mBankSelectMSB.hashCode()
+        result = 31 * result + mBankSelectLSB.hashCode()
+        result = 31 * result + mTriggerIndex.hashCode()
+        result = 31 * result + mChannel.hashCode()
+        result = 31 * result + mSongSelect.hashCode()
+        return result
     }
 
 }
