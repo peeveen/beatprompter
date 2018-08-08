@@ -1205,7 +1205,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     {
         ArrayList<Alias> aliases=new ArrayList<>();
         for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())
-            aliases.addAll(maf.mAliasSet.mAliases);
+            aliases.addAll(maf.mAliasSet.getAliases());
         return aliases;
     }
 

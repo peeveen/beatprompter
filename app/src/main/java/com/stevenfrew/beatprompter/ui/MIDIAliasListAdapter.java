@@ -38,7 +38,7 @@ public class MIDIAliasListAdapter extends ArrayAdapter<MIDIAliasFile> {
         com.stevenfrew.beatprompter.cache.MIDIAliasFile maf=values.get(position);
         if(maf.mErrors.size()==0)
             errorIcon.setVisibility(View.GONE);
-        titleView.setText(maf.mAliasSet.mName);
+        titleView.setText(maf.mAliasSet.getName());
         return rowView;
     }
 }

@@ -1,0 +1,18 @@
+package com.stevenfrew.beatprompter.midi
+
+/**
+ * Represents "no value", used for matching against nothing.
+ */
+class NoValue : Value() {
+    internal override fun resolve(arguments: ByteArray, channel: Byte): Byte {
+        return 0
+    }
+
+    internal override fun matches(otherValue: Value): Boolean {
+        return false
+    }
+
+    override fun toString(): String {
+        return ""
+    }
+}
