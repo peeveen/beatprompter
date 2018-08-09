@@ -2,22 +2,20 @@ package com.stevenfrew.beatprompter.event
 
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
-import java.util.ArrayList
 
 class MIDIEvent : BaseEvent {
-    @JvmField var mMessages: MutableList<OutgoingMessage>
+    @JvmField var mMessages: List<OutgoingMessage>
     @JvmField var mOffset: EventOffset?=null
 
-    constructor(time: Long, messages: MutableList<OutgoingMessage>) : super(time) {
+    constructor(time: Long, messages: List<OutgoingMessage>) : super(time) {
         mMessages = messages
     }
 
     private constructor(time: Long, message: OutgoingMessage) : super(time) {
-        mMessages = ArrayList()
-        mMessages.add(message)
+        mMessages = listOf(message)
     }
 
-    constructor(time: Long, messages: MutableList<OutgoingMessage>, offset: EventOffset) : this(time, messages) {
+    constructor(time: Long, messages: List<OutgoingMessage>, offset: EventOffset) : this(time, messages) {
         mOffset = offset
     }
 

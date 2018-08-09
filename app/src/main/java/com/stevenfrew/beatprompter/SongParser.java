@@ -154,7 +154,7 @@ public class SongParser {
         boolean stopAddingStartupItems=false;
 
         String chosenTrack=mLoadingSongFile.getTrack();
-        SmoothScrollingTimings sst=mSongFile.getTimePerLineAndBar(chosenTrack,null,null);
+        SmoothScrollingTimings sst=mSongFile.getTimePerLineAndBar(chosenTrack,new ArrayList<>(),new ArrayList<>());
         long timePerLine=sst.getTimePerLine();
         long timePerBar=sst.getTimePerBar();
 
@@ -229,7 +229,7 @@ public class SongParser {
                         errors.add(new FileParseError(null, BeatPrompterApplication.getResourceString(R.string.lineTooLong,lineCounter,MAX_LINE_LENGTH)));
                     }
                     tagsOut.clear();
-                    String strippedLine=Tag.extractTags(line, lineCounter, tagsOut);
+                    String strippedLine=Tag.Companion.extractTags(line, lineCounter, tagsOut);
                     // Replace stupid unicode BOM character
                     strippedLine = strippedLine.replace("\uFEFF", "");
                     boolean chordsFound=false;
@@ -242,9 +242,9 @@ public class SongParser {
                             continue;
                         }
 
-                        if((Tag.COLOR_TAGS.contains(tag.mName))&&(!mIgnoreColorInfo))
+                        if((Tag.Companion.getColorTags().contains(tag.mName))&&(!mIgnoreColorInfo))
                             createColorEvent=true;
-                        if((Tag.ONE_SHOT_TAGS.contains(tag.mName))&&(tagsSet.contains(tag.mName)))
+                        if((Tag.Companion.getOneShotTags().contains(tag.mName))&&(tagsSet.contains(tag.mName)))
                             errors.add(new FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice,tag.mName)));
                         commentAudience=null;
                         if(tag.mName.startsWith("c@"))
@@ -339,7 +339,7 @@ public class SongParser {
                                 break;
                             case "count":
                             case "countin":
-                                count=Tag.getIntegerValueFromTag(tag, mCountInMin, mCountInMax, mCountInDefault, errors);
+                                count=Tag.Companion.getIntegerValueFromTag(tag, mCountInMin, mCountInMax, mCountInDefault, errors);
                                 break;
 //                            case "trackoffset":
 //                                trackOffset=Tag.getLongValueFromTag(tag, trackOffsetMin, trackOffsetMax, trackOffsetDefault, errors);
@@ -348,37 +348,37 @@ public class SongParser {
                             case "backgroundcolor":
                             case "bgcolour":
                             case "bgcolor":
-                                mBackgroundColour=Tag.getColourValueFromTag(tag, mBackgroundColour, errors);
+                                mBackgroundColour=Tag.Companion.getColourValueFromTag(tag, mBackgroundColour, errors);
                                 break;
                             case "pulsecolour":
                             case "pulsecolor":
                             case "beatcolour":
                             case "beatcolor":
-                                mPulseColour=Tag.getColourValueFromTag(tag, mPulseColour, errors);
+                                mPulseColour=Tag.Companion.getColourValueFromTag(tag, mPulseColour, errors);
                                 break;
                             case "lyriccolour":
                             case "lyriccolor":
                             case "lyricscolour":
                             case "lyricscolor":
-                                mLyricColour=Tag.getColourValueFromTag(tag, mLyricColour, errors);
+                                mLyricColour=Tag.Companion.getColourValueFromTag(tag, mLyricColour, errors);
                                 break;
                             case "chordcolour":
                             case "chordcolor":
-                                mChordColour=Tag.getColourValueFromTag(tag, mChordColour, errors);
+                                mChordColour=Tag.Companion.getColourValueFromTag(tag, mChordColour, errors);
                                 break;
                             case "beatcountercolour":
                             case "beatcountercolor":
-                                mBeatCounterColour=Tag.getColourValueFromTag(tag, mBeatCounterColour, errors);
+                                mBeatCounterColour=Tag.Companion.getColourValueFromTag(tag, mBeatCounterColour, errors);
                                 break;
                             case "bpm":
                             case "metronome":
                             case "beatsperminute":
-                                bpm=Tag.getDoubleValueFromTag(tag, mBPMMin, mBPMMax, mBPMDefault, errors);
+                                bpm=Tag.Companion.getDoubleValueFromTag(tag, mBPMMin, mBPMMax, mBPMDefault, errors);
                                 break;
                             case "bpb":
                             case "beatsperbar":
                                 int prevScrollBeatDiff=bpb-scrollBeat;
-                                bpb=Tag.getIntegerValueFromTag(tag, mBPBMin, mBPBMax, mBPBDefault, errors);
+                                bpb=Tag.Companion.getIntegerValueFromTag(tag, mBPBMin, mBPBMax, mBPBDefault, errors);
                                 if(!initialBPBSet) {
                                     initialBPB = bpb;
                                     initialBPBSet=true;
@@ -391,11 +391,11 @@ public class SongParser {
                                 break;
                             case "bpl":
                             case "barsperline":
-                                bpl=Tag.getIntegerValueFromTag(tag, mBPLMin, mBPLMax, mBPLDefault, errors);
+                                bpl=Tag.Companion.getIntegerValueFromTag(tag, mBPLMin, mBPLMax, mBPLDefault, errors);
                                 break;
                             case "scrollbeat":
                             case "sb":
-                                scrollBeat=Tag.getIntegerValueFromTag(tag, scrollBeatMin, bpb, scrollBeatDefault, errors);
+                                scrollBeat=Tag.Companion.getIntegerValueFromTag(tag, scrollBeatMin, bpb, scrollBeatDefault, errors);
                                 if(scrollBeat>bpb)
                                     scrollBeat=bpb;
                                 break;
@@ -422,13 +422,13 @@ public class SongParser {
                                 }
                                 break;
                             case "pause":
-                                pauseTime=Tag.getDurationValueFromTag(tag,1000,60*60*1000,0,false,errors);
+                                pauseTime=Tag.Companion.getDurationValueFromTag(tag,1000,60*60*1000,0,false,errors);
                                 break;
                             case "midi_song_select_trigger":
                             case "midi_program_change_trigger":
                                 // Don't need the value after the song is loaded, we're just showing informational
                                 // errors about bad formatting.
-                                Tag.verifySongTriggerFromTag(tag,errors);
+                                Tag.Companion.verifySongTriggerFromTag(tag,errors);
                                 break;
                             case "time":
                             case "tag":
@@ -514,7 +514,7 @@ public class SongParser {
                                     if((displayLineCounter>DEMO_LINE_COUNT)&&(!mRegistered))
                                         // NO MIDI FOR YOU
                                         break;
-                                    MIDIEvent me = Tag.getMIDIEventFromTag(currentTime,tag, SongList.getMIDIAliases(), mDefaultMIDIOutputChannel, errors);
+                                    MIDIEvent me = Tag.Companion.getMIDIEventFromTag(currentTime,tag, SongList.getMIDIAliases(), mDefaultMIDIOutputChannel, errors);
                                     if (me!=null)
                                     {
                                         if(stopAddingStartupItems) {

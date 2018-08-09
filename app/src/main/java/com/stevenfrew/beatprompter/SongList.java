@@ -47,6 +47,7 @@ import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage;
 import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.cache.CachedCloudFileCollection;
 import com.stevenfrew.beatprompter.cache.FileParseError;
+import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.cache.SetListFile;
 import com.stevenfrew.beatprompter.cache.SongFile;
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult;
@@ -63,7 +64,6 @@ import com.stevenfrew.beatprompter.filter.SongFilter;
 import com.stevenfrew.beatprompter.filter.TagFilter;
 import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
 import com.stevenfrew.beatprompter.midi.Alias;
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile;
 import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
@@ -170,7 +170,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if ((mSelectedFilter != null) && (mSelectedFilter instanceof MIDIAliasFilesFilter)) {
-            final MIDIAliasFile maf = mCachedCloudFiles.getMIDIAliasFiles().get(position);
+            final MIDIAliasFile maf = mCachedCloudFiles.getMidiAliasFiles().get(position);
             if (maf.mErrors.size() > 0)
                 showMIDIAliasErrors(maf.mErrors);
         } else {
@@ -219,7 +219,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void playSongFile(SongFile selectedSong, PlaylistNode node, boolean startedByMidiTrigger) {
         String trackName = "";
-        if ((selectedSong.mAudioFiles != null) && (selectedSong.mAudioFiles.size() > 0))
+        if (selectedSong.mAudioFiles.size() > 0)
             trackName = selectedSong.mAudioFiles.get(0);
         boolean beatScroll = selectedSong.isBeatScrollable();
         boolean smoothScroll = selectedSong.isSmoothScrollable();
@@ -502,7 +502,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void onMIDIAliasListLongClick(int position)
     {
-        final MIDIAliasFile maf=removeDefaultAliasFile(mCachedCloudFiles.getMIDIAliasFiles()).get(position);
+        final MIDIAliasFile maf=removeDefaultAliasFile(mCachedCloudFiles.getMidiAliasFiles()).get(position);
         final boolean showErrors=maf.mErrors.size()>0;
 
         int arrayID=R.array.midi_alias_options_array;
@@ -770,7 +770,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         performCloudSync(null,false);
     }
 
-    void performCloudSync(CachedCloudFile fileToUpdate,boolean dependenciesToo)
+    void performCloudSync(CachedCloudFile fileToUpdate, boolean dependenciesToo)
     {
         CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
         String cloudPath = getCloudPath();
@@ -834,7 +834,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     private void buildList()
     {
         if((mSelectedFilter!=null)&&(mSelectedFilter instanceof MIDIAliasFilesFilter))
-            mListAdapter=new MIDIAliasListAdapter(removeDefaultAliasFile(mCachedCloudFiles.getMIDIAliasFiles()));
+            mListAdapter=new MIDIAliasListAdapter(removeDefaultAliasFile(mCachedCloudFiles.getMidiAliasFiles()));
         else
             mListAdapter = new SongListAdapter(mPlaylist.getNodesAsArray());
 
@@ -940,7 +940,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         Filter allSongsFilter=new AllSongsFilter(getString(R.string.no_tag_selected),mCachedCloudFiles.getSongFiles());
         mFilters.add(0, allSongsFilter);
 
-        if(!mCachedCloudFiles.getMIDIAliasFiles().isEmpty())
+        if(!mCachedCloudFiles.getMidiAliasFiles().isEmpty())
         {
             MIDIAliasFilesFilter filter=new MIDIAliasFilesFilter(getString(R.string.midi_alias_files));
             mFilters.add(filter);
@@ -1216,7 +1216,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     static ArrayList<Alias> getMIDIAliases()
     {
         ArrayList<Alias> aliases=new ArrayList<>();
-        for(MIDIAliasFile maf:mCachedCloudFiles.getMIDIAliasFiles())
+        for(MIDIAliasFile maf:mCachedCloudFiles.getMidiAliasFiles())
             aliases.addAll(maf.mAliasSet.getAliases());
         return aliases;
     }

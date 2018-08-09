@@ -44,7 +44,7 @@ public class SongListAdapter extends ArrayAdapter<PlaylistNode> {
         boolean showBeatIcons=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue)));
         boolean showKey=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue)));
         boolean showMusicIcon=sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue)));
-        if((song.mAudioFiles==null)||(song.mAudioFiles.size()==0)||(!showMusicIcon))
+        if((song.mAudioFiles.size()==0)||(!showMusicIcon))
         {
             notesIcon.setVisibility(View.GONE);
 //            RelativeLayout.LayoutParams docIconLayoutParams=(RelativeLayout.LayoutParams)docIcon.getLayoutParams();

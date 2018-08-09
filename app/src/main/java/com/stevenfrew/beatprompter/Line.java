@@ -36,12 +36,12 @@ public abstract class Line {
         for(Tag tag:lineTags)
             if(!tag.mChordTag)
                 if((tag.mName.equals("b"))||(tag.mName.equals("bars")))
-                    bars= Tag.getIntegerValueFromTag(tag,1,128,1,parseErrors);
+                    bars= Tag.Companion.getIntegerValueFromTag(tag,1,128,1,parseErrors);
         mBars=Math.max(1,bars);
         mColorEvent=lastColor;
     }
 
-    int measure(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, int songPixelPosition, ScrollingMode scrollMode,CancelEvent cancelEvent)
+    int measure(Paint paint, float minimumFontSize, float maximumFontSize, int screenWidth, int screenHeight, Typeface font, int highlightColour, int defaultHighlightColour, ArrayList<FileParseError> errors, int songPixelPosition, ScrollingMode scrollMode, CancelEvent cancelEvent)
     {
         mSongPixelPosition=songPixelPosition;
         mLineMeasurements=doMeasurements(paint,minimumFontSize,maximumFontSize,screenWidth,screenHeight,font,highlightColour,defaultHighlightColour,errors,scrollMode,cancelEvent);

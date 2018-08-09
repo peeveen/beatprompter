@@ -6,9 +6,9 @@ import android.os.Handler;
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.EventHandler;
-import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.SongList;
+import com.stevenfrew.beatprompter.cache.CachedCloudFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +107,7 @@ public class CloudDownloadTask extends AsyncTask<String, String, Boolean> implem
     @Override
     public void onItemDownloaded(CloudDownloadResult downloadResult) {
         if(downloadResult.mResultType==CloudDownloadResultType.Succeeded) {
-            CachedCloudFile cacheFile=CachedCloudFile.createCachedCloudFile(downloadResult);
+            CachedCloudFile cacheFile=CachedCloudFile.Companion.createCachedCloudFile(downloadResult);
             // cacheFile will be null if it is not a file of any type that we're interested in using.
             if(cacheFile!=null)
                 SongList.mCachedCloudFiles.add(cacheFile);
