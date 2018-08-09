@@ -822,7 +822,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         mSongTitleContrastBackground=Utils.makeContrastingColour(mBackgroundColorLookup[100]);
     }
 
-    private void processBeatEvent(BeatEvent event,boolean allowClick)
+    private void processBeatEvent(BeatEvent event, boolean allowClick)
     {
         if(event==null)
             return;

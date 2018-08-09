@@ -90,6 +90,6 @@ class ChooseSongMessage : BluetoothMessage {
     }
 
     companion object {
-        internal val CHOOSE_SONG_MESSAGE_ID: Byte = 0
+        internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
     }
 }
