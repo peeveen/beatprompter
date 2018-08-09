@@ -6,7 +6,7 @@ class CloudFolderInfo// The ID field of these objects will be whatever the under
         var mParentFolder: CloudFolderInfo?, id: String, name: String, // Path for displaying this in the preferences.
         @JvmField var mDisplayPath: String) : CloudItemInfo(id, name) {
 
-    constructor(id: String, folderDisplayName: String, displayPath: String) : this(null, id, folderDisplayName, displayPath) {}
+    constructor(id: String, folderDisplayName: String, displayPath: String) : this(null, id, folderDisplayName, displayPath)
 
-    internal constructor(rootFolderIdentifier: String) : this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier) {}
+    internal constructor(rootFolderIdentifier: String) : this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier)
 }

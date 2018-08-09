@@ -10,8 +10,7 @@ open class CloudFileInfo(id: String, name: String, var mLastModified: Date,
     constructor(element: Element) : this(element.getAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME),
             element.getAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME),
             Date(element.getAttribute(CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME).toLong()),
-            element.getAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME)) {
-    }
+            element.getAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME))
 
     open fun writeToXML(element: Element) {
         element.setAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME, mName)
@@ -21,9 +20,9 @@ open class CloudFileInfo(id: String, name: String, var mLastModified: Date,
     }
 
     companion object {
-        private val CLOUD_FILE_NAME_ATTRIBUTE_NAME = "name"
-        private val CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME = "storageID"
-        private val CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME = "lastModified"
-        private val CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME = "subfolder"
+        private const val CLOUD_FILE_NAME_ATTRIBUTE_NAME = "name"
+        private const val CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME = "storageID"
+        private const val CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME = "lastModified"
+        private const val CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME = "subfolder"
     }
 }

@@ -9,8 +9,6 @@ import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage
 import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage
 import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Action
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 
 abstract class CloudStorage protected constructor(protected var mParentActivity: Activity, cloudCacheFolderName: String) {
@@ -44,9 +42,9 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
 
         val disp = CompositeDisposable()
         val downloadSource = PublishSubject.create<CloudDownloadResult>()
-        disp.add(downloadSource.subscribe(Consumer<CloudDownloadResult> { listener.onItemDownloaded(it) }, Consumer<Throwable> { listener.onDownloadError(it) }, Action { listener.onDownloadComplete() }))
+        disp.add(downloadSource.subscribe({ listener.onItemDownloaded(it) }, { listener.onDownloadError(it) }, { listener.onDownloadComplete() }))
         val messageSource = PublishSubject.create<String>()
-        disp.add(messageSource.subscribe(Consumer<String> { listener.onProgressMessageReceived(it) }))
+        disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
         try {
             // Always include the temporary set list and default midi alias files.
             for (defaultCloudDownload in SongList.mDefaultCloudDownloads)
@@ -61,9 +59,9 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     fun readFolderContents(folder: CloudFolderInfo, listener: CloudFolderSearchListener, includeSubfolders: Boolean, returnFolders: Boolean) {
         val disp = CompositeDisposable()
         val folderContentsSource = PublishSubject.create<CloudItemInfo>()
-        disp.add(folderContentsSource.subscribe(Consumer<CloudItemInfo> { listener.onCloudItemFound(it) }, Consumer<Throwable> { listener.onFolderSearchError(it) }, Action { listener.onFolderSearchComplete() }))
+        disp.add(folderContentsSource.subscribe({ listener.onCloudItemFound(it) }, { listener.onFolderSearchError(it) }, { listener.onFolderSearchComplete() }))
         val messageSource = PublishSubject.create<String>()
-        disp.add(messageSource.subscribe(Consumer<String> { listener.onProgressMessageReceived(it) }))
+        disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
         try {
             for (defaultCloudDownload in SongList.mDefaultCloudDownloads)
                 folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo)
@@ -103,7 +101,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     private fun getRootPath(listener: CloudRootPathListener) {
         val disp = CompositeDisposable()
         val rootPathSource = PublishSubject.create<CloudFolderInfo>()
-        disp.add(rootPathSource.subscribe(Consumer<CloudFolderInfo> { listener.onRootPathFound(it) }, Consumer<Throwable> { listener.onRootPathError(it) }))
+        disp.add(rootPathSource.subscribe({ listener.onRootPathFound(it) }, { listener.onRootPathError(it) }))
         try {
             getRootPath(listener, rootPathSource)
         } finally {
