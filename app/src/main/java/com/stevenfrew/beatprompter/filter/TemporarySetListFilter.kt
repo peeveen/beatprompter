@@ -1,0 +1,19 @@
+package com.stevenfrew.beatprompter.filter
+
+import com.stevenfrew.beatprompter.cache.SetListFile
+import com.stevenfrew.beatprompter.cache.SongFile
+
+class TemporarySetListFilter(setListFile: SetListFile, songs: MutableList<SongFile>) : SetListFileFilter(setListFile, songs) {
+    fun addSong(sf: SongFile) {
+        mSongs.add(sf)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other != null && other is TemporarySetListFilter
+    }
+
+    fun clear() {
+        mMissingSongs.clear()
+        mSongs.clear()
+    }
+}

@@ -58,13 +58,13 @@ import com.stevenfrew.beatprompter.cloud.CloudType;
 import com.stevenfrew.beatprompter.filter.AllSongsFilter;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
+import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 import com.stevenfrew.beatprompter.filter.SetListFileFilter;
 import com.stevenfrew.beatprompter.filter.SetListFilter;
 import com.stevenfrew.beatprompter.filter.SongFilter;
 import com.stevenfrew.beatprompter.filter.TagFilter;
 import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
 import com.stevenfrew.beatprompter.midi.Alias;
-import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 import com.stevenfrew.beatprompter.midi.MIDIController;
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter;
 import com.stevenfrew.beatprompter.midi.SongTrigger;
@@ -1019,7 +1019,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
         getMenuInflater().inflate(R.menu.songlistmenu, menu);
         Spinner spinner = (Spinner) menu.findItem(R.id.tagspinner).getActionView();
         spinner.setOnItemSelectedListener(this);
-        FilterListAdapter filterListAdapter = new FilterListAdapter( mFilters);
+        FilterListAdapter filterListAdapter = new FilterListAdapter(mFilters);
         spinner.setAdapter(filterListAdapter);
 
         updateBluetoothIcon();

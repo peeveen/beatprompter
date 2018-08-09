@@ -13,10 +13,10 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication;
 import com.stevenfrew.beatprompter.R;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
+import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 import com.stevenfrew.beatprompter.filter.SetListFilter;
 import com.stevenfrew.beatprompter.filter.TagFilter;
 import com.stevenfrew.beatprompter.filter.TemporarySetListFilter;
-import com.stevenfrew.beatprompter.filter.MIDIAliasFilesFilter;
 
 import java.util.ArrayList;
 
