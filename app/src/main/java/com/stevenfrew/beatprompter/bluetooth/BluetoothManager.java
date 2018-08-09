@@ -246,18 +246,19 @@ public class BluetoothManager {
         if(getBluetoothMode()==BluetoothMode.Server)
         {
             byte[] bytes = message.getBytes();
-            synchronized(mBluetoothSocketsLock) {
-                for (BluetoothSocket outputSocket : mOutputBluetoothSockets) {
-                    try {
-                        if (outputSocket.isConnected()) {
-                            Log.d(BLUETOOTH_TAG, "Broadcasting message " + message + " to listening apps.");
-                            outputSocket.getOutputStream().write(bytes);
+            if(bytes!=null)
+                synchronized(mBluetoothSocketsLock) {
+                    for (BluetoothSocket outputSocket : mOutputBluetoothSockets) {
+                        try {
+                            if (outputSocket.isConnected()) {
+                                Log.d(BLUETOOTH_TAG, "Broadcasting message " + message + " to listening apps.");
+                                outputSocket.getOutputStream().write(bytes);
+                            }
+                        } catch (IOException e) {
+                            Log.e(BLUETOOTH_TAG, "Failed to send Bluetooth message.", e);
                         }
-                    } catch (IOException e) {
-                        Log.e(BLUETOOTH_TAG, "Failed to send Bluetooth message.", e);
                     }
                 }
-            }
         }
     }
 
