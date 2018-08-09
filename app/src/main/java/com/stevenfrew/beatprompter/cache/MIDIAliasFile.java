@@ -116,7 +116,10 @@ public class MIDIAliasFile extends CachedCloudFile
             }
             if (currentAliasName != null)
                 aliases.add(new Alias(currentAliasName, currentAliasComponents));
-            return new AliasSet(aliasFilename,aliases);
+            if(aliasFilename!=null)
+                return new AliasSet(aliasFilename,aliases);
+            else
+                throw new InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename));
         }
         catch(IOException ioe)
         {
