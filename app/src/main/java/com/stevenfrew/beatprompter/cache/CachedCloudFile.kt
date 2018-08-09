@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.File
@@ -10,14 +11,14 @@ import java.util.*
 abstract class CachedCloudFile : CloudFileInfo {
     @JvmField var mFile: File
 
-    internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String):super(id,name,lastModified,subfolder)
+    internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(id,name,lastModified,subfolder)
     {
-        mFile=file;
+        mFile=file
     }
 
     internal constructor(file: File, cloudFileInfo: CloudFileInfo) : this(file,cloudFileInfo.mID, cloudFileInfo.mName, cloudFileInfo.mLastModified, cloudFileInfo.mSubfolder)
 
-    internal constructor(result: CloudDownloadResult) : this(result.mDownloadedFile, result.mCloudFileInfo)
+    internal constructor(result: SuccessfulCloudDownloadResult) : this(result.mDownloadedFile, result.mCloudFileInfo)
 
     internal constructor(element: Element) : super(element) {
         mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
@@ -63,7 +64,7 @@ abstract class CachedCloudFile : CloudFileInfo {
             return false
         }
 
-        fun createCachedCloudFile(result: CloudDownloadResult): CachedCloudFile? {
+        fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile? {
             try {
                 return AudioFile(result)
             } catch (ioe: InvalidBeatPrompterFileException) {

@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -41,7 +41,7 @@ class SongFile : CachedCloudFile {
         get() = mBPM > 0
 
     @Throws(InvalidBeatPrompterFileException::class)
-    constructor(result: CloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
+    constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
         parseSongFileInfo(ArrayList(), ArrayList())
     }
 

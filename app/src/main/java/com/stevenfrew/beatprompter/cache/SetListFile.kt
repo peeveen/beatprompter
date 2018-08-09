@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.BufferedReader
@@ -18,7 +18,7 @@ class SetListFile : CachedCloudFile {
     @JvmField var mSetTitle=""
 
     @Throws(InvalidBeatPrompterFileException::class)
-    internal constructor(result: CloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
+    internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
         parseSetListFileInfo()
     }
 

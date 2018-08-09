@@ -55,6 +55,7 @@ import com.stevenfrew.beatprompter.cloud.CloudDownloadTask;
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo;
 import com.stevenfrew.beatprompter.cloud.CloudStorage;
 import com.stevenfrew.beatprompter.cloud.CloudType;
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult;
 import com.stevenfrew.beatprompter.filter.AllSongsFilter;
 import com.stevenfrew.beatprompter.filter.Filter;
 import com.stevenfrew.beatprompter.filter.FolderFilter;
@@ -651,8 +652,8 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
             Toast.makeText(this, ioe.getMessage(), Toast.LENGTH_LONG).show();
         }
         mDefaultCloudDownloads.clear();
-        mDefaultCloudDownloads.add(new CloudDownloadResult(new CloudFileInfo("idBeatPrompterTemporarySetList","BeatPrompterTemporarySetList",new Date(),""),mTemporarySetListFile));
-        mDefaultCloudDownloads.add(new CloudDownloadResult(new CloudFileInfo("idBeatPrompterDefaultMidiAliases",getString(R.string.default_alias_set_name),new Date(),""),mDefaultMidiAliasesFile));
+        mDefaultCloudDownloads.add(new SuccessfulCloudDownloadResult(new CloudFileInfo("idBeatPrompterTemporarySetList","BeatPrompterTemporarySetList",new Date(),""),mTemporarySetListFile));
+        mDefaultCloudDownloads.add(new SuccessfulCloudDownloadResult(new CloudFileInfo("idBeatPrompterDefaultMidiAliases",getString(R.string.default_alias_set_name),new Date(),""),mDefaultMidiAliasesFile));
 
         if(previousSongFilesFolder!=null)
             if(!previousSongFilesFolder.equals(mBeatPrompterSongFilesFolder))
@@ -772,7 +773,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     void performCloudSync(CachedCloudFile fileToUpdate, boolean dependenciesToo)
     {
-        CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
+        CloudStorage cs= CloudStorage.Companion.getInstance(getCloud(),this);
         String cloudPath = getCloudPath();
         if ((cloudPath == null) || (cloudPath.length() == 0))
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show();
@@ -1165,7 +1166,7 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
     void clearCache(boolean report)
     {
         // Clear both cache folders
-        CloudStorage cs=CloudStorage.getInstance(getCloud(),this);
+        CloudStorage cs=CloudStorage.Companion.getInstance(getCloud(),this);
         cs.getCacheFolder().clear();
         mPlaylist=new Playlist();
         mCachedCloudFiles.clear();

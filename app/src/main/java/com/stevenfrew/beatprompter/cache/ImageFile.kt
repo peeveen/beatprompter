@@ -3,14 +3,14 @@ package com.stevenfrew.beatprompter.cache
 import android.graphics.BitmapFactory
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
 class ImageFile : CachedCloudFile {
 
     @Throws(InvalidBeatPrompterFileException::class)
-    internal constructor(result: CloudDownloadResult) : super(result) {
+    internal constructor(result: SuccessfulCloudDownloadResult) : super(result) {
         verifyImageFile()
     }
 

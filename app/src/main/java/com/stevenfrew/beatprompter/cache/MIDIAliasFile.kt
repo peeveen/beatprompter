@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
+import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -17,7 +17,7 @@ class MIDIAliasFile : CachedCloudFile {
     @JvmField var mErrors = ArrayList<FileParseError>()
 
     @Throws(InvalidBeatPrompterFileException::class)
-    internal constructor(result: CloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
+    internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
         mAliasSet = readAliasFile(mFile, mID, mErrors)
     }
 

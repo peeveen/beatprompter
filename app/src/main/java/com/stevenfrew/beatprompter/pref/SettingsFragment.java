@@ -95,8 +95,8 @@ public class SettingsFragment extends PreferenceFragment implements CloudFolderS
     void setCloudPath()
     {
         CloudType cloudType=SongList.getCloud();
-        if(cloudType!=CloudType.Demo) {
-            CloudStorage cs = CloudStorage.getInstance(cloudType, getActivity());
+        if(cloudType!= CloudType.Demo) {
+            CloudStorage cs = CloudStorage.Companion.getInstance(cloudType, getActivity());
             cs.selectFolder(getActivity(), this);
         }
         else
