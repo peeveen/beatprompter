@@ -18,7 +18,7 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
         // Cancel discovery because it will slow down the connection
         //            mBluetoothAdapter.cancelDiscovery();
         while (!mStop) {
-            val alreadyConnected = BluetoothManager.isConnectedToServer()
+            val alreadyConnected = BluetoothManager.isConnectedToServer
             if (!alreadyConnected)
                 try {
                     // Connect the device through the socket. This will block

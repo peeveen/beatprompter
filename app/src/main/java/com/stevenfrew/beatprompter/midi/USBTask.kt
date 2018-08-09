@@ -17,7 +17,7 @@ abstract class USBTask(private var mUsbDeviceConnection: UsbDeviceConnection?, p
             return mUsbEndpoint
         }
 
-    fun setConnection(connection: UsbDeviceConnection, endpoint: UsbEndpoint) {
+    fun setConnection(connection: UsbDeviceConnection?, endpoint: UsbEndpoint?) {
         synchronized(connectionSync) {
             mUsbDeviceConnection = connection
             mUsbEndpoint = endpoint
