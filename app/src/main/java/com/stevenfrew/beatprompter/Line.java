@@ -46,9 +46,7 @@ public abstract class Line {
         mSongPixelPosition=songPixelPosition;
         mLineMeasurements=doMeasurements(paint,minimumFontSize,maximumFontSize,screenWidth,screenHeight,font,highlightColour,defaultHighlightColour,errors,scrollMode,cancelEvent);
         if(mLineMeasurements!=null)
-        {
             return mLineMeasurements.mHighlightColour;
-        }
         return 0;
     }
 

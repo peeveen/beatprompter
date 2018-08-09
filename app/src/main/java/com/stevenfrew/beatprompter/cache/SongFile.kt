@@ -21,6 +21,12 @@ class SongFile : CachedCloudFile {
     @JvmField var mMixedMode = false
     @JvmField var mArtist: String? = null
 
+    val sortableArtist
+        get()= sortableString(mArtist)
+
+    val sortableTitle
+        get()= sortableString(mTitle)
+
     @JvmField var mSongSelectTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
     @JvmField var mProgramChangeTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
 
@@ -434,6 +440,8 @@ class SongFile : CachedCloudFile {
     }
 
     companion object {
+        private var thePrefix=BeatPrompterApplication.getResourceString(R.string.lowerCaseThe)+" "
+
         private const val SONG_FILE_TITLE_ATTRIBUTE_NAME = "title"
         private const val SONG_FILE_ARTIST_ATTRIBUTE_NAME = "artist"
         private const val SONG_FILE_LINECOUNT_ATTRIBUTE_NAME = "lines"
@@ -450,5 +458,18 @@ class SongFile : CachedCloudFile {
 
         private const val PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME = "programChangeTrigger"
         private const val SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME = "songSelectTrigger"
+
+        fun sortableString(inStr:String?):String
+        {
+                val str=inStr?.toLowerCase()
+                if(str!=null)
+                {
+                    return if(str.startsWith(thePrefix))
+                        str.substring(thePrefix.length)
+                    else
+                        str
+                }
+                return ""
+        }
     }
 }

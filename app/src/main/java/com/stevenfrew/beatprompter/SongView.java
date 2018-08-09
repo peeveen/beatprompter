@@ -672,7 +672,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
                             return true;
                         }
             PlayState oldPlayState=mStartState;
-            mStartState=PlayState.increase(mStartState);
+            mStartState=PlayState.Companion.increase(mStartState);
             if (mStartState == PlayState.Playing)
             {
                 if(mSong.mScrollingMode==ScrollingMode.Manual)
@@ -749,7 +749,7 @@ public class SongView extends AppCompatImageView implements GestureDetector.OnGe
         long nanoTime=System.nanoTime();
         mPauseTime=nanoTime-(mSongStartTime==0?nanoTime:mSongStartTime);
         BluetoothManager.broadcastMessageToClients(new ToggleStartStopMessage(mStartState,mPauseTime));
-        mStartState=PlayState.reduce(mStartState);
+        mStartState=PlayState.Companion.reduce(mStartState);
         if (mTrackMediaPlayer != null)
             if(mTrackMediaPlayer.isPlaying())
                 mTrackMediaPlayer.pause();

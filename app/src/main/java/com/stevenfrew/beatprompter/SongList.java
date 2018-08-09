@@ -804,12 +804,12 @@ public class SongList extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void sortSongsByTitle()
     {
-        mPlaylist.sortByTitle(getString(R.string.lowerCaseThe)+" ");
+        mPlaylist.sortByTitle();
     }
 
     private void sortSongsByArtist()
     {
-        mPlaylist.sortByArtist(getString(R.string.lowerCaseThe)+" ");
+        mPlaylist.sortByArtist();
     }
 
     private void sortSongsByDateModified()

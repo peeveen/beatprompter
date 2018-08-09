@@ -131,7 +131,7 @@ public class SongLoadTask extends AsyncTask<String, Integer, Boolean> {
         // A result of CannotInterrupt means that the current song refuses to stop. In which case, we can't load.
         // A result of CanInterrupt means that the current song has been instructed to end and, once it has, it will load the new one.
         // A result of NoSongToInterrupt, however, means full steam ahead.
-        if(interruptResult==SongInterruptResult.NoSongToInterrupt) {
+        if(interruptResult== SongInterruptResult.NoSongToInterrupt) {
 
             // Create a bluetooth song-selection message to broadcast to other listeners.
             ChooseSongMessage csm = new ChooseSongMessage(mSongLoadInfo.getSongFile().mTitle,
