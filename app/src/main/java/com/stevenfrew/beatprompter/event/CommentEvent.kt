@@ -4,10 +4,10 @@ import android.graphics.*
 import com.stevenfrew.beatprompter.Comment
 import com.stevenfrew.beatprompter.ScreenString
 
-class CommentEvent(eventTime: Long, @JvmField var mComment: Comment) : BaseEvent(eventTime) {
-    @JvmField var mScreenString: ScreenString?=null
-    @JvmField var mTextDrawLocation: PointF?=null
-    @JvmField var mPopupRect: RectF?=null
+class CommentEvent(eventTime: Long, var mComment: Comment) : BaseEvent(eventTime) {
+    var mScreenString: ScreenString?=null
+    var mTextDrawLocation: PointF?=null
+    var mPopupRect: RectF?=null
 
     fun doMeasurements(screenWidth: Int, screenHeight: Int, paint: Paint, face: Typeface) {
         val maxCommentBoxHeight = (screenHeight / 4.0).toInt()

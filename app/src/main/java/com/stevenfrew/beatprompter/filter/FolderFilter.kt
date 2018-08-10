@@ -8,4 +8,8 @@ class FolderFilter(folderName: String, songs: ArrayList<SongFile>) : SongFilter(
     override fun equals(other: Any?): Boolean {
         return other is FolderFilter && mName == other.mName
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

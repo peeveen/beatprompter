@@ -14,8 +14,8 @@ import java.util.ArrayList
 
 class SetListFile : CachedCloudFile {
 
-    @JvmField var mSongTitles: MutableList<String> = ArrayList()
-    @JvmField var mSetTitle=""
+    var mSongTitles: MutableList<String> = ArrayList()
+    var mSetTitle=""
 
     @Throws(InvalidBeatPrompterFileException::class)
     internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {

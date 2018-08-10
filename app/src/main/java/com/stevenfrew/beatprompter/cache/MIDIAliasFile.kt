@@ -12,9 +12,9 @@ import java.util.ArrayList
 
 class MIDIAliasFile : CachedCloudFile {
 
-    @JvmField var mAliasSet: AliasSet
+    var mAliasSet: AliasSet
     // The errors that were found in the file.
-    @JvmField var mErrors = ArrayList<FileParseError>()
+    var mErrors = ArrayList<FileParseError>()
 
     @Throws(InvalidBeatPrompterFileException::class)
     internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {

@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter
 
 import java.util.*
 
-class Comment internal constructor(@JvmField var mText: String, audience: String?) {
+class Comment internal constructor(var mText: String, audience: String?) {
     private val commentAudience = ArrayList<String>()
 
     init {

@@ -8,8 +8,8 @@ import java.io.ByteArrayOutputStream
 
 class ToggleStartStopMessage : BluetoothMessage {
 
-    @JvmField var mStartState: PlayState
-    @JvmField var mTime: Long = 0
+    var mStartState: PlayState
+    var mTime: Long = 0
 
     override val bytes: ByteArray?
         get() {

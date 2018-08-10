@@ -1,9 +1,9 @@
 package com.stevenfrew.beatprompter.midi
 
 open class OutgoingMessage : Message {
-    protected constructor(byte1: Byte, byte2: Byte) : this(byteArrayOf(getCodeIndex(byte1), byte1, byte2, 0.toByte())) {}
-    protected constructor(byte1: Byte, byte2: Byte, byte3: Byte) : this(byteArrayOf(getCodeIndex(byte1), byte1, byte2, byte3)) {}
-    protected constructor(bytes: ByteArray, codeIndexPresent: Boolean) : super(if (codeIndexPresent) bytes else appendCodeIndex(bytes)) {}
+    protected constructor(byte1: Byte, byte2: Byte) : this(byteArrayOf(getCodeIndex(byte1), byte1, byte2, 0.toByte()))
+    protected constructor(byte1: Byte, byte2: Byte, byte3: Byte) : this(byteArrayOf(getCodeIndex(byte1), byte1, byte2, byte3))
+    protected constructor(bytes: ByteArray, codeIndexPresent: Boolean) : super(if (codeIndexPresent) bytes else appendCodeIndex(bytes))
     constructor(bytes: ByteArray) : super(appendCodeIndex(bytes))
 
     companion object {

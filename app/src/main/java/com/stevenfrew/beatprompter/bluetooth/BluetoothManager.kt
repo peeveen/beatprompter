@@ -90,7 +90,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     }
 
     // Backwards compatibility with old shite values.
-    @JvmStatic val bluetoothMode: BluetoothMode
+    val bluetoothMode: BluetoothMode
         get() {
             return try {
                 BluetoothMode.valueOf(BeatPrompterApplication.preferences.getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
@@ -101,17 +101,17 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
 
         }
 
-    @JvmStatic val isConnectedToServer: Boolean
+    val isConnectedToServer: Boolean
         get() = synchronized(mBluetoothSocketsLock) {
             return mInputBluetoothSocket != null
         }
 
-    @JvmStatic val bluetoothClientCount: Int
+    val bluetoothClientCount: Int
         get() = synchronized(mBluetoothSocketsLock) {
             return mOutputBluetoothSockets.size
         }
 
-    @JvmStatic fun initialise(application: BeatPrompterApplication) {
+    fun initialise(application: BeatPrompterApplication) {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
@@ -220,7 +220,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
             }
     }
 
-    @JvmStatic fun broadcastMessageToClients(message: BluetoothMessage) {
+    fun broadcastMessageToClients(message: BluetoothMessage) {
         if (bluetoothMode === BluetoothMode.Server) {
             val bytes = message.bytes
             if (bytes != null)
@@ -249,7 +249,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
         }
     }
 
-    @JvmStatic fun startBluetooth() {
+    fun startBluetooth() {
         val bluetoothMode = bluetoothMode
         if (bluetoothMode !== BluetoothMode.None)
             onStartBluetooth(bluetoothMode)
@@ -269,7 +269,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
             EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_MESSAGE_RECEIVED, btm)
     }
 
-    @JvmStatic fun shutdown(application: BeatPrompterApplication) {
+    fun shutdown(application: BeatPrompterApplication) {
         BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
         application.unregisterReceiver(mAdapterReceiver)
         application.unregisterReceiver(mDeviceReceiver)

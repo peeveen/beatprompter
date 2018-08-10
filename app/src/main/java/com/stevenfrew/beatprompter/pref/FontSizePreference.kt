@@ -37,14 +37,12 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
         mCurrentValue = getPersistedInt(FONT_SIZE_MIN)
         if (mCurrentValue <= 0) {
             val prefKey = this.key
-            mCurrentValue = if (prefKey == BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_key))
-                Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_default))
-            else if (prefKey == BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_key))
-                Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_default))
-            else if (prefKey == BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_key))
-                Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_default))
-            else
-                Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default))
+            mCurrentValue = when (prefKey) {
+                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_default))
+                BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_default))
+                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_default))
+                else -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default))
+            }
         }
         mSeekBar!!.progress = mCurrentValue
         mTextView!!.text = String.format(Locale.getDefault(), "%d", mCurrentValue)
@@ -83,8 +81,8 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
 
     companion object {
 
-        @JvmField var FONT_SIZE_OFFSET: Int = 0
-        @JvmField var FONT_SIZE_MAX: Int = 0
-        @JvmField var FONT_SIZE_MIN: Int = 0
+        var FONT_SIZE_OFFSET: Int = 0
+        var FONT_SIZE_MAX: Int = 0
+        var FONT_SIZE_MIN: Int = 0
     }
 }

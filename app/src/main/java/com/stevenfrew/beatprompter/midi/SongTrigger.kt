@@ -17,7 +17,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         private const val TRIGGER_INDEX_ATTRIBUTE_NAME = "triggerIndex"
         private const val CHANNEL_ATTRIBUTE_NAME = "channel"
         private const val IS_SONG_SELECT_ATTRIBUTE_NAME = "isSongSelect"
-        @JvmField val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), true)
+        val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), true)
 
         fun readFromXMLElement(element: Element): SongTrigger {
             val msbString = element.getAttribute(MSB_ATTRIBUTE_NAME)

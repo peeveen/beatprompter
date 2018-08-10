@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.midi
 
 class Alias constructor(name:String,components:List<AliasComponent>)
 {
-    @JvmField val mName=name
+    val mName=name
     private val mComponents=components
 
     @Throws(ResolutionException::class)

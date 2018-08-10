@@ -5,9 +5,9 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import java.util.ArrayList
 import java.util.HashMap
 
-open class SetListFileFilter(@JvmField var mSetListFile: SetListFile, songs: MutableList<SongFile>) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSongTitles, songs)) {
-    @JvmField var mMissingSongs: MutableList<String>
-    @JvmField var mWarned: Boolean = false
+open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<SongFile>) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSongTitles, songs)) {
+    var mMissingSongs: MutableList<String>
+    var mWarned: Boolean = false
 
     init {
         mMissingSongs = getMissingSongList(mSetListFile.mSongTitles, mSongs)

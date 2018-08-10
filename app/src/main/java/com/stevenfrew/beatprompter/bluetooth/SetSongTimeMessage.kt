@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
 
 class SetSongTimeMessage : BluetoothMessage {
 
-    @JvmField var mTime: Long = 0
+    var mTime: Long = 0
 
     override val bytes: ByteArray?
         get() {

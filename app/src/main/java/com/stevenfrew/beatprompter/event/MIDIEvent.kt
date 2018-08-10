@@ -4,8 +4,8 @@ import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
 class MIDIEvent : BaseEvent {
-    @JvmField var mMessages: List<OutgoingMessage>
-    @JvmField var mOffset: EventOffset?=null
+    var mMessages: List<OutgoingMessage>
+    var mOffset: EventOffset?=null
 
     constructor(time: Long, messages: List<OutgoingMessage>) : super(time) {
         mMessages = messages

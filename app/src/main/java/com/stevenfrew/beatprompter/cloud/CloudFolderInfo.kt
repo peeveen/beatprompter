@@ -4,7 +4,7 @@ class CloudFolderInfo// The ID field of these objects will be whatever the under
 // It might be an actual number/hex ID, or it might be a path string.
 (// The parent item, used for navigating upwards in the folder browser.
         var mParentFolder: CloudFolderInfo?, id: String, name: String, // Path for displaying this in the preferences.
-        @JvmField var mDisplayPath: String) : CloudItemInfo(id, name) {
+        var mDisplayPath: String) : CloudItemInfo(id, name) {
 
     constructor(id: String, folderDisplayName: String, displayPath: String) : this(null, id, folderDisplayName, displayPath)
 

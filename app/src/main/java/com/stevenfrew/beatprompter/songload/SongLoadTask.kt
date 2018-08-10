@@ -147,7 +147,7 @@ class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: Scroll
         private const val AUTOLOAD_TAG = "autoload"
         private val mSongLoadSyncObject = Any()
         private var mSongLoadTask: SongLoadTask? = null
-        @JvmField var mSongLoadTaskOnResume: SongLoadTask? = null
+        var mSongLoadTaskOnResume: SongLoadTask? = null
 
         fun loadSong(loadTask: SongLoadTask) {
             synchronized(mSongLoadSyncObject) {

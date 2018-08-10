@@ -7,9 +7,9 @@ import com.stevenfrew.beatprompter.cache.Tag
 import java.util.ArrayList
 
 class EventOffset(offsetString: String?, sourceTag: Tag, errors: ArrayList<FileParseError>) {
-    @JvmField var mSourceTag = sourceTag
-    @JvmField var mAmount: Int = 0
-    @JvmField var mOffsetType: EventOffsetType=EventOffsetType.Milliseconds
+    var mSourceTag = sourceTag
+    var mAmount: Int = 0
+    var mOffsetType: EventOffsetType=EventOffsetType.Milliseconds
 
     init {
         var str = offsetString

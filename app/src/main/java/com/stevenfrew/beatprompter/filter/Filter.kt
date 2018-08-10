@@ -1,3 +1,3 @@
 package com.stevenfrew.beatprompter.filter
 
-abstract class Filter internal constructor(@JvmField var mName: String, @JvmField var mCanSort: Boolean)
+abstract class Filter internal constructor(var mName: String, var mCanSort: Boolean)

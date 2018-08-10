@@ -5,7 +5,7 @@ import java.util.*
 
 open class CloudFileInfo(id: String, name: String, var mLastModified: Date,
 // Name of the immediate subfolder that it comes from, for filtering purposes.
-                         @JvmField var mSubfolder: String?) : CloudItemInfo(id, name) {
+                         var mSubfolder: String?) : CloudItemInfo(id, name) {
 
     constructor(element: Element) : this(element.getAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME),
             element.getAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME),

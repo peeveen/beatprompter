@@ -20,7 +20,7 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
             onCloudPathChanged(prefs.getString(key, null))
     }
 
-    var mSettingsHandler: SettingsEventHandler?=null
+    private var mSettingsHandler: SettingsEventHandler?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +68,7 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
         super.onDestroy()
     }
 
-    internal fun onCloudPathChanged(newValue: Any?) {
+    private fun onCloudPathChanged(newValue: Any?) {
         val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
         val cloudDisplayPathPrefName = getString(R.string.pref_cloudDisplayPath_key)
         val sharedPrefs = BeatPrompterApplication.preferences

@@ -8,9 +8,9 @@ import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.*
 import java.util.*
 
-class Tag private constructor(@JvmField var mChordTag: Boolean, str: String, internal var mLineNumber: Int, @JvmField var mPosition: Int) {
-    @JvmField var mName: String
-    @JvmField var mValue: String
+class Tag private constructor(var mChordTag: Boolean, str: String, internal var mLineNumber: Int, var mPosition: Int) {
+    var mName: String
+    var mValue: String
 
     init {
         var colonIndex = str.indexOf(":")
@@ -31,9 +31,9 @@ class Tag private constructor(@JvmField var mChordTag: Boolean, str: String, int
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
 
         fun getMIDIEventFromTag(time: Long, tag: Tag, aliases: ArrayList<Alias>, defaultChannel: Byte, parseErrors: ArrayList<FileParseError>): MIDIEvent? {
-            var `val` = tag.mValue.trim { it <= ' ' }
+            var tagValue = tag.mValue.trim { it <= ' ' }
             var eventOffset: EventOffset? = null
-            if (`val`.isEmpty()) {
+            if (tagValue.isEmpty()) {
                 // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
                 if (tag.mName.contains(";")) {
                     val bits = tag.mName.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -45,16 +45,16 @@ class Tag private constructor(@JvmField var mChordTag: Boolean, str: String, int
                     }
                 }
             } else {
-                val firstSplitBits = `val`.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val firstSplitBits = tagValue.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 if (firstSplitBits.size > 1) {
                     if (firstSplitBits.size > 2)
                         parseErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag)))
-                    `val` = firstSplitBits[0].trim { it <= ' ' }
+                    tagValue = firstSplitBits[0].trim { it <= ' ' }
                     eventOffset = EventOffset(firstSplitBits[1].trim { it <= ' ' }, tag, parseErrors)
                 }
             }
-            val bits = if (`val`.length == 0) arrayOf() else `val`.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            var paramBytes = bits.map{Value.parseValue(it.trim { it <= ' ' })}
+            val bits = if (tagValue.isEmpty()) arrayOf() else tagValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            var paramBytes = bits.map{ bit -> Value.parseValue(bit.trim { it <= ' ' })}
             var lastParamIsChannel = false
             var channel = defaultChannel
             for (f in paramBytes.indices)
@@ -178,14 +178,13 @@ class Tag private constructor(@JvmField var mChordTag: Boolean, str: String, int
             var directiveStart = line.indexOf("{")
             var chordStart = line.indexOf("[")
             while (directiveStart != -1 || chordStart != -1) {
-                val start: Int
-                if (directiveStart != -1)
+                val start: Int = if (directiveStart != -1)
                     if (chordStart != -1 && chordStart < directiveStart)
-                        start = chordStart
+                        chordStart
                     else
-                        start = directiveStart
+                        directiveStart
                 else
-                    start = chordStart
+                    chordStart
                 val tagCloser = if (start == directiveStart) "}" else "]"
                 var end = line.indexOf(tagCloser, start + 1)
                 if (end != -1) {
@@ -193,7 +192,7 @@ class Tag private constructor(@JvmField var mChordTag: Boolean, str: String, int
                     lineOut.append(line.substring(0, start))
                     line = line.substring(end + tagCloser.length)
                     end = 0
-                    if (contents.trim { it <= ' ' }.length > 0)
+                    if (contents.trim { it <= ' ' }.isNotEmpty())
                         tagsOut.add(Tag(start == chordStart, contents, lineNumber, lineOut.length))
                 } else
                     end = start + 1

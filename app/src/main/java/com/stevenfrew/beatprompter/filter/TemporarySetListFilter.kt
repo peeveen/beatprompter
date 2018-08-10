@@ -16,4 +16,8 @@ class TemporarySetListFilter(setListFile: SetListFile, songs: MutableList<SongFi
         mMissingSongs.clear()
         mSongs.clear()
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

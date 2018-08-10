@@ -14,12 +14,12 @@ class SongFile : CachedCloudFile {
 
     private var mTimePerLine: Long = 0
     private var mTimePerBar: Long = 0
-    @JvmField var mBPM = 0.0
-    @JvmField var mTitle: String? = null
-    @JvmField var mKey: String? = ""
-    @JvmField var mLines = 0
-    @JvmField var mMixedMode = false
-    @JvmField var mArtist: String? = null
+    var mBPM = 0.0
+    var mTitle: String? = null
+    var mKey: String? = ""
+    var mLines = 0
+    var mMixedMode = false
+    var mArtist: String? = null
 
     val sortableArtist
         get()= sortableString(mArtist)
@@ -27,11 +27,11 @@ class SongFile : CachedCloudFile {
     val sortableTitle
         get()= sortableString(mTitle)
 
-    @JvmField var mSongSelectTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
-    @JvmField var mProgramChangeTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
+    var mSongSelectTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
+    var mProgramChangeTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
 
-    @JvmField var mTags = HashSet<String>()
-    @JvmField var mAudioFiles = ArrayList<String>()
+    var mTags = HashSet<String>()
+    var mAudioFiles = ArrayList<String>()
     var mImageFiles = ArrayList<String>()
 
     val isSmoothScrollable: Boolean

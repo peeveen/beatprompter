@@ -9,15 +9,15 @@ import java.io.ObjectOutputStream
 
 class ChooseSongMessage : BluetoothMessage {
 
-    @JvmField var mTitle: String
-    @JvmField var mTrack: String
-    @JvmField var mBeatScroll: Boolean = false
-    @JvmField var mSmoothScroll: Boolean = false
-    @JvmField var mOrientation: Int = 0
-    @JvmField var mMinFontSize: Int = 0
-    @JvmField var mMaxFontSize: Int = 0
-    @JvmField var mScreenWidth: Int = 0
-    @JvmField var mScreenHeight: Int = 0
+    var mTitle: String
+    var mTrack: String
+    var mBeatScroll: Boolean = false
+    var mSmoothScroll: Boolean = false
+    var mOrientation: Int = 0
+    var mMinFontSize: Int = 0
+    var mMaxFontSize: Int = 0
+    var mScreenWidth: Int = 0
+    var mScreenHeight: Int = 0
 
     override val bytes: ByteArray?
         get() {

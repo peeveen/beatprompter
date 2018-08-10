@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.event
 
 import com.stevenfrew.beatprompter.Line
 
-class LineEvent(eventTime: Long, @JvmField var mDuration: Long) : BaseEvent(eventTime) {
-    @JvmField var mLine: Line? = null
+class LineEvent(eventTime: Long, var mDuration: Long) : BaseEvent(eventTime) {
+    var mLine: Line? = null
 
     init {
         mPrevLineEvent = this

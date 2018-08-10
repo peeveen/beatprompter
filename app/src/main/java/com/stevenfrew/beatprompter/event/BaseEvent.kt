@@ -1,14 +1,14 @@
 package com.stevenfrew.beatprompter.event
 
-open class BaseEvent protected constructor(@JvmField var mEventTime: Long // Time at which this event occurs (in nanoseconds AFTER the globalStart time)
+open class BaseEvent protected constructor(var mEventTime: Long // Time at which this event occurs (in nanoseconds AFTER the globalStart time)
 ) {
-    @JvmField var mPrevEvent: BaseEvent? = null
-    @JvmField var mNextEvent: BaseEvent? = null
-    @JvmField var mPrevColorEvent: ColorEvent? = null
-    @JvmField var mPrevTrackEvent: TrackEvent? = null
+    var mPrevEvent: BaseEvent? = null
+    var mNextEvent: BaseEvent? = null
+    var mPrevColorEvent: ColorEvent? = null
+    var mPrevTrackEvent: TrackEvent? = null
     //ScrollEvent mPrevScrollEvent;
-    @JvmField var mPrevBeatEvent: BeatEvent? = null
-    @JvmField var mPrevLineEvent: LineEvent? = null
+    var mPrevBeatEvent: BeatEvent? = null
+    var mPrevLineEvent: LineEvent? = null
 
     val lastEvent: BaseEvent
         get() {

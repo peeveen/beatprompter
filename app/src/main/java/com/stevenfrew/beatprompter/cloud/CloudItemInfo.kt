@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cloud
 
 abstract class CloudItemInfo internal constructor(// Unique ID of the item in the cloud storage.
-        @JvmField var mID: String, // Display name.
+        var mID: String, // Display name.
         var mName: String):Comparable<CloudItemInfo> {
 
     override operator fun compareTo(other: CloudItemInfo): Int {

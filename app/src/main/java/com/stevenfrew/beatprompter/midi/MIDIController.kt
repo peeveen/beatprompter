@@ -25,11 +25,11 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
 
     const val MIDI_TAG = "midi"
     private const val MIDI_QUEUE_SIZE = 1024
-    @JvmField var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
+    var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
     var mMIDISongDisplayInQueue = ArrayBlockingQueue<IncomingMessage>(MIDI_QUEUE_SIZE)
     var mMIDISongListInQueue = ArrayBlockingQueue<IncomingMessage>(MIDI_QUEUE_SIZE)
-    @JvmField var mMidiBankMSBs = ByteArray(16)
-    @JvmField var mMidiBankLSBs = ByteArray(16)
+    var mMidiBankMSBs = ByteArray(16)
+    var mMidiBankLSBs = ByteArray(16)
 
     private var mMidiUsbInTask: USBInTask? = null
     private val mMidiUsbOutTask = USBOutTask()
@@ -136,7 +136,7 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
         }
     }
 
-    @JvmStatic fun initialise(application: BeatPrompterApplication) {
+    fun initialise(application: BeatPrompterApplication) {
         mMidiInTaskThread.start()
         Task.resumeTask(mMidiInTask)
         mMidiUsbOutTaskThread.start()
@@ -156,7 +156,7 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
         BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
-    @JvmStatic fun shutdown(app: BeatPrompterApplication) {
+    fun shutdown(app: BeatPrompterApplication) {
         Task.stopTask(mMidiInTask, mMidiInTaskThread)
         Task.stopTask(mMidiSongDisplayInTask, mMidiSongDisplayInTaskThread)
         Task.stopTask(mMidiUsbInTask, mMidiUsbInTaskThread)
@@ -170,11 +170,11 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
             mMidiUsbInTask!!.setIncomingChannels(incomingMIDIChannelsPref)
     }
 
-    @JvmStatic fun pauseDisplayInTask() {
+    fun pauseDisplayInTask() {
         Task.pauseTask(mMidiSongDisplayInTask, mMidiSongDisplayInTaskThread)
     }
 
-    @JvmStatic fun resumeDisplayInTask() {
+    fun resumeDisplayInTask() {
         Task.resumeTask(mMidiSongDisplayInTask)
     }
 }

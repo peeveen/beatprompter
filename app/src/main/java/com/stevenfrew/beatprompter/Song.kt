@@ -12,26 +12,26 @@ import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 import java.util.ArrayList
 
-class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBackingTrack: AudioFile, @JvmField internal var mChosenBackingTrackVolume: Int, private val mInitialComments: ArrayList<Comment> // Comments to show on startup screen.
-           , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: ArrayList<FileParseError>, @JvmField internal var mScrollingMode: ScrollingMode, @JvmField internal var mSendMidiClock: Boolean, @JvmField internal var mStartedByBandLeader: Boolean, @JvmField internal var mNextSong: String?, @JvmField internal var mOrientation: Int, @JvmField internal var mInitialMIDIMessages: ArrayList<OutgoingMessage>, private val mBeatBlocks: ArrayList<BeatBlock>, @JvmField internal var mInitialBPB: Int, @JvmField var mCountIn: Int) {
+class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: ArrayList<Comment> // Comments to show on startup screen.
+           , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: ArrayList<FileParseError>, internal var mScrollingMode: ScrollingMode, internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?, internal var mOrientation: Int, internal var mInitialMIDIMessages: ArrayList<OutgoingMessage>, private val mBeatBlocks: ArrayList<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
     private var mFirstLine: Line? = null // First line to show.
-    @JvmField internal var mCurrentLine: Line? = null
-    @JvmField internal var mLastLine: Line? = null
-    @JvmField internal var mSongTitleHeaderLocation: PointF?=null
-    @JvmField internal var mSongTitleHeader: ScreenString?=null
-    @JvmField internal var mFirstEvent: BaseEvent // First event in the event chain.
-    @JvmField internal var mCurrentEvent: BaseEvent? = null // Last event that executed.
+    internal var mCurrentLine: Line? = null
+    internal var mLastLine: Line? = null
+    internal var mSongTitleHeaderLocation: PointF?=null
+    internal var mSongTitleHeader: ScreenString?=null
+    internal var mFirstEvent: BaseEvent // First event in the event chain.
+    internal var mCurrentEvent: BaseEvent? = null // Last event that executed.
     private var mNextEvent: BaseEvent? = null // Upcoming event.
-    @JvmField var mCancelled = false
+    var mCancelled = false
     private val mNumberOfMIDIBeatBlocks: Int
-    @JvmField internal var mBeatCounterRect: Rect?=null
-    @JvmField internal var mBeatCounterHeight: Int = 0
-    @JvmField internal var mSmoothScrollOffset: Int = 0
-    @JvmField internal var mSongHeight = 0
+    internal var mBeatCounterRect: Rect?=null
+    internal var mBeatCounterHeight: Int = 0
+    internal var mSmoothScrollOffset: Int = 0
+    internal var mSongHeight = 0
     private var mMaxLineHeight = 0
-    @JvmField internal var mStartScreenStrings = ArrayList<ScreenString>()
-    @JvmField internal var mNextSongString: ScreenString? = null
-    @JvmField internal var mTotalStartScreenTextHeight: Int = 0
+    internal var mStartScreenStrings = ArrayList<ScreenString>()
+    internal var mNextSongString: ScreenString? = null
+    internal var mTotalStartScreenTextHeight: Int = 0
 
     init {
         mCurrentEvent = firstEvent

@@ -6,4 +6,8 @@ class AllSongsFilter(name: String, songs: MutableList<SongFile>) : SongFilter(na
     override fun equals(other: Any?): Boolean {
         return other == null || other is AllSongsFilter
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

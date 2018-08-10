@@ -8,4 +8,8 @@ class TagFilter(tag: String, songs: ArrayList<SongFile>) : SongFilter(tag, songs
     override fun equals(other: Any?): Boolean {
         return other is TagFilter && mName == other.mName
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

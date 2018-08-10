@@ -11,4 +11,8 @@ open class SetListFilter internal constructor(name: String, songs: MutableList<S
     override fun equals(other: Any?): Boolean {
         return other is SetListFilter && mName == other.mName
     }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
 }

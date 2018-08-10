@@ -20,7 +20,7 @@ abstract class Line internal constructor(lineTags: Collection<Tag>, vBars: Int, 
    var mYStartScrollTime: Long = 0
    var mYStopScrollTime: Long = 0
 
-    @JvmField var mBars: Int = 0 // How many bars does this line last?
+    var mBars: Int = 0 // How many bars does this line last?
 
     val lastLine: Line
         get() {

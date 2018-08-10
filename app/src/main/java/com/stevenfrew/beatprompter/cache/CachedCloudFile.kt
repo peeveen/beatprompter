@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.cloud.CloudDownloadResult
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
@@ -9,7 +8,7 @@ import java.io.File
 import java.util.*
 
 abstract class CachedCloudFile : CloudFileInfo {
-    @JvmField var mFile: File
+    var mFile: File
 
     internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(id,name,lastModified,subfolder)
     {
