@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.cache.SongFile
 import java.util.ArrayList
-import java.util.Comparator
 
 internal class Playlist {
     private val mItems = ArrayList<PlaylistNode>()
@@ -39,7 +38,7 @@ internal class Playlist {
     }
 
     fun sortByKey() {
-        buildSongList( songFiles.sortedBy{it.mKey});
+        buildSongList( songFiles.sortedBy{it.mKey})
     }
 
     fun sortByDateModified() {

@@ -40,7 +40,7 @@ class ImageLine internal constructor(private val mImageFile: ImageFile, private 
         return LineMeasurements(1, mDestRect!!.width(), mDestRect!!.height(), graphicHeights, highlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
     }
 
-    internal override fun getGraphics(allocate: Boolean): Collection<LineGraphic> {
+    override fun getGraphics(allocate: Boolean): Collection<LineGraphic> {
         for (f in 0 until mLineMeasurements!!.mLines) {
             val graphic = mGraphics[f]
             if (graphic.mLastDrawnLine !== this && allocate) {

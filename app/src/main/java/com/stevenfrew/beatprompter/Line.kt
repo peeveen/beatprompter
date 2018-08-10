@@ -9,16 +9,16 @@ import com.stevenfrew.beatprompter.event.ColorEvent
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-abstract class Line internal constructor(lineTags: Collection<Tag>, vBars: Int, @JvmField internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
-                                         , @JvmField var mBPB: Int, @JvmField var mScrollbeat: Int, @JvmField var mScrollbeatOffset: Int, private val mScrollingMode: ScrollingMode, parseErrors: ArrayList<FileParseError>) {
-    @JvmField internal var mPrevLine: Line? = null
-    @JvmField internal var mNextLine: Line? = null
-    @JvmField internal var mSongPixelPosition: Int = 0
-    @JvmField var mLineEvent: LineEvent? = null // the LineEvent that will display this line.
-    @JvmField internal var mGraphics = ArrayList<LineGraphic>() // pointer to the allocated graphic, if one exists
-    @JvmField internal var mLineMeasurements: LineMeasurements? = null
-    @JvmField var mYStartScrollTime: Long = 0
-    @JvmField var mYStopScrollTime: Long = 0
+abstract class Line internal constructor(lineTags: Collection<Tag>, vBars: Int, internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
+                                         , var mBPB: Int, var mScrollbeat: Int, var mScrollbeatOffset: Int, private val mScrollingMode: ScrollingMode, parseErrors: ArrayList<FileParseError>) {
+   internal var mPrevLine: Line? = null
+   internal var mNextLine: Line? = null
+   internal var mSongPixelPosition: Int = 0
+   var mLineEvent: LineEvent? = null // the LineEvent that will display this line.
+   internal var mGraphics = ArrayList<LineGraphic>() // pointer to the allocated graphic, if one exists
+   internal var mLineMeasurements: LineMeasurements? = null
+   var mYStartScrollTime: Long = 0
+   var mYStopScrollTime: Long = 0
 
     @JvmField var mBars: Int = 0 // How many bars does this line last?
 

@@ -3,13 +3,12 @@ package com.stevenfrew.beatprompter
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-class LineMeasurements internal constructor(@JvmField internal var mLines: Int, @JvmField internal var mLineWidth: Int, @JvmField internal var mLineHeight: Int, graphicHeights: ArrayList<Int>, @JvmField internal var mHighlightColour: Int, lineEvent: LineEvent?, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
-    @JvmField internal var mPixelsToTimes: LongArray
-    @JvmField internal var mGraphicHeights: IntArray
-    @JvmField internal var mJumpScrollIntervals = IntArray(101)
+class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, graphicHeights: ArrayList<Int>, internal var mHighlightColour: Int, lineEvent: LineEvent?, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
+    internal var mPixelsToTimes: LongArray
+    internal var mGraphicHeights: IntArray = IntArray(graphicHeights.size)
+    internal var mJumpScrollIntervals = IntArray(101)
 
     init {
-        mGraphicHeights = IntArray(graphicHeights.size)
         for (f in mGraphicHeights.indices)
             mGraphicHeights[f] = graphicHeights[f]
 

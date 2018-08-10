@@ -40,7 +40,7 @@ abstract class EventHandler : Handler() {
         private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
         private var mSettingsEventHandler: Handler? = null
 
-        fun setSongListEventHandler(songListEventHandler: SongList.SongListEventHandler) {
+        fun setSongListEventHandler(songListEventHandler: SongList.SongListEventHandler?) {
             synchronized(mSongListEventHandlerLock) {
                 mSongListEventHandler = songListEventHandler
             }

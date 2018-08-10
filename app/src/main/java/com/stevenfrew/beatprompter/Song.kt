@@ -55,10 +55,10 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
             mCurrentEvent = newCurrentEvent
             mNextEvent = mCurrentEvent!!.mNextEvent
             val newCurrentLineEvent = newCurrentEvent!!.mPrevLineEvent
-            if (newCurrentLineEvent != null)
-                mCurrentLine = newCurrentLineEvent.mLine
+            mCurrentLine = if (newCurrentLineEvent != null)
+                newCurrentLineEvent.mLine
             else
-                mCurrentLine = mFirstLine
+                mFirstLine
         }
     }
 
@@ -98,7 +98,7 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
 
         val defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))))
         var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue)))
-        showKey = showKey and (mSongFile.mKey != null && mSongFile.mKey!!.length > 0)
+        showKey = showKey and (mSongFile.mKey != null && mSongFile.mKey!!.isNotEmpty())
         val showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))
 
         mBeatCounterHeight = 0
@@ -165,7 +165,7 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
         // The rest of the space is allocated for the comments and error messages,
         // each line no more than 10% of the screen height.
         var availableScreenHeight = nativeScreenHeight
-        if (mNextSong != null && mNextSong!!.length > 0) {
+        if (mNextSong != null && mNextSong!!.isNotEmpty()) {
             // OK, we have a next song title to display.
             // This should take up no more than 15% of the screen.
             // But that includes a border, so use 13 percent for the text.
@@ -177,14 +177,14 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
         val tenPercent = (availableScreenHeight / 10.0).toInt()
         val twentyPercent = (availableScreenHeight / 5.0).toInt()
         mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle!!, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
-        if (mSongFile.mArtist != null && mSongFile.mArtist!!.length > 0)
+        if (mSongFile.mArtist != null && mSongFile.mArtist!!.isNotEmpty())
             mStartScreenStrings.add(ScreenString.create(mSongFile.mArtist!!, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
         val commentLines = ArrayList<String>()
         for (c in mInitialComments)
             commentLines.add(c.mText)
         val nonBlankCommentLines = ArrayList<String>()
         for (commentLine in commentLines)
-            if (commentLine.trim { it <= ' ' }.length > 0)
+            if (commentLine.trim { it <= ' ' }.isNotEmpty())
                 nonBlankCommentLines.add(commentLine.trim { it <= ' ' })
         var errors = mParseErrors.size
         var messages = Math.min(errors, 6) + nonBlankCommentLines.size
@@ -223,10 +223,10 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
                 if (mSongFile.mBPM == mSongFile.mBPM.toInt().toDouble())
                     rounded = true
                 var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
-                if (rounded)
-                    bpmString += Math.round(mSongFile.mBPM).toInt()
+                bpmString += if (rounded)
+                    Math.round(mSongFile.mBPM).toInt()
                 else
-                    bpmString += mSongFile.mBPM
+                    mSongFile.mBPM
                 mStartScreenStrings.add(ScreenString.create(bpmString, paint, nativeScreenWidth, spacePerMessageLine, Color.CYAN, notBoldFont, false))
             }
         }
@@ -271,7 +271,7 @@ class Song(@JvmField var mSongFile: SongFile, @JvmField internal var mChosenBack
                 mLineGraphics[f - 1]!!.mNextGraphic = mLineGraphics[f]
             }
         }
-        if (mLineGraphics.size > 0) {
+        if (mLineGraphics.isNotEmpty()) {
             mLineGraphics[0]!!.mPrevGraphic = mLineGraphics[mLineGraphics.size - 1]
             mLineGraphics[mLineGraphics.size - 1]!!.mNextGraphic = mLineGraphics[0]
         }

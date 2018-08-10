@@ -16,7 +16,7 @@ import java.util.HashSet
  * Takes a SongFile and parses it into a Song.
  */
 class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancelEvent: CancelEvent, private val mSongLoadHandler: Handler, private val mRegistered: Boolean) {
-    private val mSongFile: SongFile
+    private val mSongFile: SongFile = mLoadingSongFile.songFile
     private val mCountInMin: Int
     private val mCountInMax: Int
     private val mCountInDefault: Int
@@ -29,7 +29,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
     private val mBPBMin: Int
     private val mBPBMax: Int
     private val mBPBDefault: Int
-    private val mUserChosenScrollMode: ScrollingMode
+    private val mUserChosenScrollMode: ScrollingMode = mLoadingSongFile.scrollMode
     private var mCurrentScrollMode: ScrollingMode? = null
     private val mTriggerContext: TriggerOutputContext
     private var mCountInPref: Int = 0
@@ -49,8 +49,6 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
     private var mMetronomeContext: MetronomeContext? = null
 
     init {
-        mSongFile = mLoadingSongFile.songFile
-        mUserChosenScrollMode = mLoadingSongFile.scrollMode
 
         val countInOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_offset))
         mCountInMin = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_min)) + countInOffset
@@ -109,11 +107,11 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         mLyricColour = mLyricColour or -0x1000000
         mChordColour = mChordColour or -0x1000000
         mIgnoreColorInfo = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue)))
-        try {
-            mMetronomeContext = MetronomeContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_metronome_key), BeatPrompterApplication.getResourceString(R.string.pref_metronome_defaultValue)))
+        mMetronomeContext = try {
+            MetronomeContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_metronome_key), BeatPrompterApplication.getResourceString(R.string.pref_metronome_defaultValue)))
         } catch (e: Exception) {
             // backward compatibility with old shite values.
-            mMetronomeContext = MetronomeContext.Off
+            MetronomeContext.Off
         }
 
     }
@@ -236,12 +234,11 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         if (colonindex != -1 && colonindex < imageName.length - 1) {
                                             val strScalingMode = imageName.substring(colonindex + 1)
                                             imageName = imageName.substring(0, colonindex)
-                                            if (strScalingMode.equals("stretch", ignoreCase = true))
-                                                imageScalingMode = ImageScalingMode.Stretch
-                                            else if (strScalingMode.equals("original", ignoreCase = true))
-                                                imageScalingMode = ImageScalingMode.Original
-                                            else
-                                                errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)))
+                                            when {
+                                                strScalingMode.equals("stretch", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Stretch
+                                                strScalingMode.equals("original", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Original
+                                                else -> errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)))
+                                            }
                                         }
                                         val image = File(imageName).name
                                         val imageFile: File
@@ -407,7 +404,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                     noChordsTags.add(tag)
                             tagsOut = noChordsTags
                         }
-                        if (strippedLine.trim { it <= ' ' }.length > 0 || allowBlankLine || chordsFound || lineImage != null)
+                        if (strippedLine.trim { it <= ' ' }.isNotEmpty() || allowBlankLine || chordsFound || lineImage != null)
                             createLine = true
 
                         // Contains only tags? Or contains nothing? Don't use it as a blank line.
@@ -477,10 +474,10 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             if (!commasFound)
                                 bars = bpl
 
-                            if (lineImage != null && (strippedLine.trim { it <= ' ' }.length > 0 || chordsFound))
+                            if (lineImage != null && (strippedLine.trim { it <= ' ' }.isNotEmpty() || chordsFound))
                                 errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.text_found_with_image)))
 
-                            if (strippedLine.trim { it <= ' ' }.length == 0 && !chordsFound)
+                            if (strippedLine.trim { it <= ' ' }.isEmpty() && !chordsFound)
                                 strippedLine = "▼"
 
                             //                        if((firstLine==null)&&(smoothScrolling))
@@ -520,16 +517,16 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 beatsForThisLine += scrollbeatDifference
                                 beatsForThisLine -= lastScrollbeatOffset
 
-                                if (bpm > 0)
-                                    nanosecondsPerBeat = Utils.nanosecondsPerBeat(bpm)
+                                nanosecondsPerBeat = if (bpm > 0)
+                                    Utils.nanosecondsPerBeat(bpm)
                                 else
-                                    nanosecondsPerBeat = 0
+                                    0
 
                                 var totalLineTime: Long
-                                if (pauseTime > 0)
-                                    totalLineTime = Utils.milliToNano(pauseTime)
+                                totalLineTime = if (pauseTime > 0)
+                                    Utils.milliToNano(pauseTime)
                                 else
-                                    totalLineTime = beatsForThisLine * nanosecondsPerBeat
+                                    beatsForThisLine * nanosecondsPerBeat
                                 if (totalLineTime == 0L || mCurrentScrollMode === ScrollingMode.Smooth)
                                     totalLineTime = timePerBar * bars
 
@@ -561,10 +558,10 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         while (lastBeatEvent != null && beatsToAdjust > 0) {
                                             lastBeatEvent.mBPB = bpbThisLine
                                             beatsToAdjust--
-                                            if (lastBeatEvent.mPrevEvent != null)
-                                                lastBeatEvent = lastBeatEvent.mPrevEvent!!.mPrevBeatEvent
+                                            lastBeatEvent = if (lastBeatEvent.mPrevEvent != null)
+                                                lastBeatEvent.mPrevEvent!!.mPrevBeatEvent
                                             else
-                                                lastBeatEvent = null
+                                                null
                                         }
                                         beatsToAdjust = 0
                                     }
@@ -572,10 +569,10 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                     var currentBarBeat = 0
                                     while (!finished && currentBarBeat < beatsForThisLine) {
                                         val beatsRemaining = beatsForThisLine - currentBarBeat
-                                        if (beatsRemaining > bpbThisLine)
-                                            beatThatWeWillScrollOn = -1
+                                        beatThatWeWillScrollOn = if (beatsRemaining > bpbThisLine)
+                                            -1
                                         else
-                                            beatThatWeWillScrollOn = (currentBeat + (beatsRemaining - 1)) % bpbThisLine
+                                            (currentBeat + (beatsRemaining - 1)) % bpbThisLine
                                         val beatEvent: BeatEvent
                                         var rolloverBPB = 0
                                         var rolloverBeatLength: Long = 0
@@ -738,8 +735,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
 
     companion object {
 
-        private val MAX_LINE_LENGTH = 256
-        private val DEMO_LINE_COUNT = 15
+        private const val MAX_LINE_LENGTH = 256
+        private const val DEMO_LINE_COUNT = 15
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
@@ -760,15 +757,12 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             var beatCount = midiEvent.mOffset!!.mAmount
                             var currentEvent: BaseEvent = midiEvent
                             while (beatCount != 0) {
-                                val beatEvent: BeatEvent?
-                                if (beatCount > 0)
-                                    beatEvent = currentEvent.nextBeatEvent
+                                val beatEvent: BeatEvent = (if (beatCount > 0)
+                                    currentEvent.nextBeatEvent
                                 else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
-                                    beatEvent = currentEvent.mPrevEvent!!.mPrevBeatEvent
+                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
                                 else
-                                    beatEvent = currentEvent.mPrevBeatEvent
-                                if (beatEvent == null)
-                                    break
+                                    currentEvent.mPrevBeatEvent) ?: break
                                 if (beatEvent.mEventTime != midiEvent.mEventTime) {
                                     beatCount -= beatCount / Math.abs(beatCount)
                                     newTime = beatEvent.mEventTime
@@ -791,21 +785,21 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         }
 
         private fun generatePause(pauseTime: Long, lastEvent: BaseEvent?, currentTime: Long): Long {
-            var lastEvent = lastEvent
-            var currentTime = currentTime
+            var vLastEvent = lastEvent
+            var vCurrentTime = currentTime
             // pauseTime is in milliseconds.
             // We don't want to generate thousands of events, so let's say every 1/10th of a second.
             val deciSeconds = Math.ceil(pauseTime.toDouble() / 100.0).toInt()
             val remainder = Utils.milliToNano(pauseTime) - Utils.milliToNano(deciSeconds * 100)
             val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
-            currentTime += remainder
+            vCurrentTime += remainder
             for (f in 0 until deciSeconds) {
-                val pauseEvent = PauseEvent(currentTime, deciSeconds, f)
-                lastEvent!!.insertEvent(pauseEvent)
-                lastEvent = lastEvent.lastEvent
-                currentTime += oneDeciSecondInNanoseconds
+                val pauseEvent = PauseEvent(vCurrentTime, deciSeconds, f)
+                vLastEvent!!.insertEvent(pauseEvent)
+                vLastEvent = vLastEvent.lastEvent
+                vCurrentTime += oneDeciSecondInNanoseconds
             }
-            return currentTime
+            return vCurrentTime
         }
     }
 }

@@ -14,10 +14,10 @@ class ScreenString private constructor(internal var mText: String, internal var 
     }
 
     companion object {
-        private val MARGIN_PIXELS = 10
-        private val MASKING = true
-        private val MASKING_STRING = "X"
-        private val DOUBLE_MASKING_STRING = MASKING_STRING + MASKING_STRING
+        private const val MARGIN_PIXELS = 10
+        private const val MASKING = true
+        private const val MASKING_STRING = "X"
+        private const val DOUBLE_MASKING_STRING = MASKING_STRING + MASKING_STRING
 
         private val boldDoubleXWidth = IntArray(Utils.MAXIMUM_FONT_SIZE - Utils.MINIMUM_FONT_SIZE + 1)
         private val regularDoubleXWidth = IntArray(Utils.MAXIMUM_FONT_SIZE - Utils.MINIMUM_FONT_SIZE + 1)
@@ -58,9 +58,9 @@ class ScreenString private constructor(internal var mText: String, internal var 
         }
 
         private val stringWidthRect = Rect()
-        internal fun getStringWidth(paint: Paint, str: String?, face: Typeface, fontSize: Float): Int {
-            var str = str
-            if (str == null || str.length == 0)
+        internal fun getStringWidth(paint: Paint, strIn: String?, face: Typeface, fontSize: Float): Int {
+            var str = strIn
+            if (str == null || str.isEmpty())
                 return 0
             paint.typeface = face
             paint.textSize = fontSize * Utils.FONT_SCALING
@@ -93,8 +93,8 @@ class ScreenString private constructor(internal var mText: String, internal var 
             return ScreenString(text, fontSize, color, createRect.width(), createRect.height() + MARGIN_PIXELS, face, createRect.bottom)
         }
 
-        private fun getBestFontSize(text: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean, outRect: Rect?): Int {
-            var text = text
+        private fun getBestFontSize(textIn: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean, outRect: Rect?): Int {
+            var text = textIn
             if (maxWidth <= 0)
                 return 0
             var hi = maximumFontSize

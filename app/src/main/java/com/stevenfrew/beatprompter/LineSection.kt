@@ -7,19 +7,19 @@ import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
 import java.util.ArrayList
 
-internal class LineSection(@JvmField var mLineText: String?, @JvmField var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
-    @JvmField var mNextSection: LineSection? = null
-    @JvmField var mPrevSection: LineSection? = null
-    @JvmField var mIsChord: Boolean = false
-    @JvmField var mTextWidth = 0
-    @JvmField var mChordWidth = 0
-    @JvmField var mChordTrimWidth = 0
-    @JvmField var mTextHeight = 0
-    @JvmField var mChordHeight = 0
-    @JvmField var mChordDrawLine = -1
-    @JvmField var mLineSS: ScreenString?=null
-    @JvmField var mChordSS: ScreenString?=null
-    @JvmField var mHighlightingRectangles = ArrayList<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
+internal class LineSection(var mLineText: String?, var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+    var mNextSection: LineSection? = null
+    var mPrevSection: LineSection? = null
+    var mIsChord: Boolean = false
+    var mTextWidth = 0
+    var mChordWidth = 0
+    var mChordTrimWidth = 0
+    var mTextHeight = 0
+    var mChordHeight = 0
+    var mChordDrawLine = -1
+    var mLineSS: ScreenString?=null
+    var mChordSS: ScreenString?=null
+    var mHighlightingRectangles = ArrayList<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
 
     val width: Int
         get() = Math.max(mTextWidth, mChordWidth)
@@ -32,10 +32,10 @@ internal class LineSection(@JvmField var mLineText: String?, @JvmField var mChor
 
     fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
         mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face, color)
-        if (mLineText!!.trim { it <= ' ' }.length == 0)
-            mTextHeight = 0
+        mTextHeight = if (mLineText!!.trim { it <= ' ' }.isEmpty())
+            0
         else
-            mTextHeight = mLineSS!!.mHeight
+            mLineSS!!.mHeight
         mTextWidth = mLineSS!!.mWidth
         return mTextWidth
     }

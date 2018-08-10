@@ -596,7 +596,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 
-    fun startToggle(e: MotionEvent, midiInitiated: Boolean, playState: PlayState) {
+    fun startToggle(e: MotionEvent?, midiInitiated: Boolean, playState: PlayState) {
         mStartState = playState
         startToggle(e, midiInitiated)
     }

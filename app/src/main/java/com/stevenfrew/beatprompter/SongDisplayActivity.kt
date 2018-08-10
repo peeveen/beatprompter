@@ -25,19 +25,19 @@ import com.stevenfrew.beatprompter.songload.SongLoaderTask
 class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mSongView: SongView? = null
     private var mStartedByBandLeader = false
-    internal var mPreferredOrientation: Int = 0
-    internal var mOrientation: Int = 0
+    private var mPreferredOrientation: Int = 0
+    private var mOrientation: Int = 0
     private var mSensorManager: SensorManager? = null
     private var mProximitySensor: Sensor? = null
     private var mLastOtherPageDownEvent: Long = 0
     private var mAnyOtherKeyPageDown = false
     private var mScrollOnProximity: Boolean = false
-    var mSongDisplayEventHandler: SongDisplayEventHandler?=null
+    private var mSongDisplayEventHandler: SongDisplayEventHandler?=null
 
-    internal var mMidiClockOutTask: ClockSignalGeneratorTask?=null
-    internal var mMidiStartStopInTask = StartStopInTask()
-    internal var mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
-    internal var mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
+    private var mMidiClockOutTask: ClockSignalGeneratorTask?=null
+    private var mMidiStartStopInTask = StartStopInTask()
+    private var mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
+    private var mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -69,10 +69,10 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             mStartedByBandLeader = song.mStartedByBandLeader
             sendMidiClock = sendMidiClock or song.mSendMidiClock
             val orientation = song.mOrientation
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE)
-                mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             else
-                mOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
             requestedOrientation = mOrientation
 
             MIDIController.mMIDIOutQueue.addAll(song.mInitialMIDIMessages)
@@ -102,15 +102,11 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // Set up the user interaction to manually show or hide the system UI.
-        mSongView!!.setOnClickListener { view -> }
+        mSongView!!.setOnClickListener { _ -> }
     }
 
     fun canYieldToExternalTrigger(): Boolean {
         return mSongView == null || mSongView!!.canYieldToExternalTrigger()
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
     }
 
     override fun onPause() {
@@ -160,7 +156,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 if (mSongView != null) {
                     if (btm.mTime >= 0)
                         mSongView!!.setSongTime(btm.mTime, true, false, true)
-                    mSongView!!.startToggle(null!!, false, btm.mStartState)
+                    mSongView!!.startToggle(null, false, btm.mStartState)
                 }
             } else if (btm is SetSongTimeMessage) {
                 if (mSongView != null)
@@ -205,11 +201,11 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                     mSongView!!.onRightKeyPressed()
                 return true
             }
-            else -> if (mAnyOtherKeyPageDown) {
+            else -> return if (mAnyOtherKeyPageDown) {
                 activateOtherPageDown(System.nanoTime())
-                return true
+                true
             } else
-                return super.onKeyUp(keyCode, event)
+                super.onKeyUp(keyCode, event)
         }
     }
 
@@ -221,7 +217,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             }
     }
 
-    internal fun activateOtherPageDown(eventTime: Long) {
+    private fun activateOtherPageDown(eventTime: Long) {
         // Don't allow two of these events to happen within the same second.
         if (eventTime - mLastOtherPageDownEvent > 1000000000) {
             mLastOtherPageDownEvent = eventTime
@@ -279,14 +275,14 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
                     return SongInterruptResult.NoSongToInterrupt
 
-                if (mSongDisplayInstance!!.canYieldToExternalTrigger()) {
+                return if (mSongDisplayInstance!!.canYieldToExternalTrigger()) {
                     loadedSong.mCancelled = true
                     SongLoadTask.mSongLoadTaskOnResume = loadTask
                     EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
-                    return SongInterruptResult.CanInterrupt
+                    SongInterruptResult.CanInterrupt
                 } else {
                     SongLoadTask.mSongLoadTaskOnResume = null
-                    return SongInterruptResult.CannotInterrupt
+                    SongInterruptResult.CannotInterrupt
                 }
             }
             return SongInterruptResult.NoSongToInterrupt
