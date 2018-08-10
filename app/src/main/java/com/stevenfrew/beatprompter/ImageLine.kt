@@ -41,7 +41,7 @@ class ImageLine internal constructor(private val mImageFile: ImageFile, private 
     }
 
     internal override fun getGraphics(allocate: Boolean): Collection<LineGraphic> {
-        for (f in 0 until mLineMeasurements.mLines) {
+        for (f in 0 until mLineMeasurements!!.mLines) {
             val graphic = mGraphics[f]
             if (graphic.mLastDrawnLine !== this && allocate) {
                 val paint = Paint()
@@ -53,7 +53,7 @@ class ImageLine internal constructor(private val mImageFile: ImageFile, private 
         return mGraphics
     }
 
-    internal override fun recycleGraphics() {
+    override fun recycleGraphics() {
         super.recycleGraphics()
         mBitmap!!.recycle()
     }

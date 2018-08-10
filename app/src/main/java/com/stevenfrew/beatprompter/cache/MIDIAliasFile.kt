@@ -71,7 +71,7 @@ class MIDIAliasFile : CachedCloudFile {
                         if (!isMidiAliasFile) {
                             aliasFilename = CachedCloudFile.getTokenValue(line, lineNumber, "midi_aliases")
                             if (aliasFilename == null || aliasFilename.trim { it <= ' ' }.isEmpty()) {
-                                throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, aliasFilename))
+                                throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
                             }
                             isMidiAliasFile = true
                         } else {

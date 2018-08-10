@@ -157,7 +157,7 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
     }
 
     private fun doDropboxAction(action: DropboxAction) {
-        val sharedPrefs = BeatPrompterApplication.getPrivatePreferences()
+        val sharedPrefs = BeatPrompterApplication.privatePreferences
         var storedAccessToken = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), null)
         if (storedAccessToken == null) {
             // Did we authenticate last time it failed?

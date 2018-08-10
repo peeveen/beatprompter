@@ -10,11 +10,10 @@ import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 
-internal class CloudBrowserItemListAdapter(items: List<CloudItemInfo>) : ArrayAdapter<CloudItemInfo>(BeatPrompterApplication.getContext(), -1, items) {
+internal class CloudBrowserItemListAdapter(items: List<CloudItemInfo>) : ArrayAdapter<CloudItemInfo>(BeatPrompterApplication.context, -1, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = BeatPrompterApplication.getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater = BeatPrompterApplication.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = convertView ?: inflater.inflate(R.layout.cloud_browser_item, parent, false)
         val textView = rowView.findViewById<TextView>(R.id.file_or_folder_name)
         val imageView = rowView.findViewById<ImageView>(R.id.file_or_folder_icon)

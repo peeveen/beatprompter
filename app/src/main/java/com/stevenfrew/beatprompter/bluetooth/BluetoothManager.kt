@@ -93,7 +93,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     @JvmStatic val bluetoothMode: BluetoothMode
         get() {
             return try {
-                BluetoothMode.valueOf(BeatPrompterApplication.getPreferences().getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
+                BluetoothMode.valueOf(BeatPrompterApplication.preferences.getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
                         BeatPrompterApplication.getResourceString(R.string.bluetoothModeNoneValue)))
             } catch (e: Exception) {
                 BluetoothMode.None
@@ -120,7 +120,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
         val deviceFilter = IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED)
         application.registerReceiver(mDeviceReceiver, deviceFilter)
 
-        BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(this)
+        BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun onStopBluetooth() {
@@ -270,7 +270,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     }
 
     @JvmStatic fun shutdown(application: BeatPrompterApplication) {
-        BeatPrompterApplication.getPreferences().unregisterOnSharedPreferenceChangeListener(this)
+        BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
         application.unregisterReceiver(mAdapterReceiver)
         application.unregisterReceiver(mDeviceReceiver)
         shutDownBluetoothClient()

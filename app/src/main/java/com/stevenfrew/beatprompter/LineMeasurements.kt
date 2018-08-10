@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-class LineMeasurements internal constructor(@JvmField internal var mLines: Int, @JvmField internal var mLineWidth: Int, @JvmField internal var mLineHeight: Int, graphicHeights: ArrayList<Int>, @JvmField internal var mHighlightColour: Int, lineEvent: LineEvent, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
+class LineMeasurements internal constructor(@JvmField internal var mLines: Int, @JvmField internal var mLineWidth: Int, @JvmField internal var mLineHeight: Int, graphicHeights: ArrayList<Int>, @JvmField internal var mHighlightColour: Int, lineEvent: LineEvent?, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
     @JvmField internal var mPixelsToTimes: LongArray
     @JvmField internal var mGraphicHeights: IntArray
     @JvmField internal var mJumpScrollIntervals = IntArray(101)
@@ -19,7 +19,7 @@ class LineMeasurements internal constructor(@JvmField internal var mLines: Int, 
         }
 
         mPixelsToTimes = LongArray(Math.max(1, mLineHeight))
-        val lineStartTime = lineEvent.mEventTime
+        val lineStartTime = lineEvent!!.mEventTime
         val lineEndTime = lineEvent.mEventTime + if (scrollMode == ScrollingMode.Smooth || nextLine != null) lineEvent.mDuration else 0
         val timeDiff = lineEndTime - yStartScrollTime
         mPixelsToTimes[0] = lineStartTime

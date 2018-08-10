@@ -22,7 +22,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     abstract val cloudIconResourceId: Int
 
     init {
-        cacheFolder = CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder, cloudCacheFolderName)
+        cacheFolder = CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
         if (!cacheFolder.exists())
             if (!cacheFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG, "Failed to create cloud cache folder.")

@@ -87,7 +87,7 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val incomingMIDIChannelsPref: Int
         get() {
-            val sharedPrefs = BeatPrompterApplication.getPreferences()
+            val sharedPrefs = BeatPrompterApplication.preferences
             return sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_midiIncomingChannels_key), 65535)
         }
 
@@ -153,7 +153,7 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
 
         attemptUsbMidiConnection()
 
-        BeatPrompterApplication.getPreferences().registerOnSharedPreferenceChangeListener(this)
+        BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     @JvmStatic fun shutdown(app: BeatPrompterApplication) {

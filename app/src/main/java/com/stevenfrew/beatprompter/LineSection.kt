@@ -1,0 +1,104 @@
+package com.stevenfrew.beatprompter
+
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import com.stevenfrew.beatprompter.cache.FileParseError
+import com.stevenfrew.beatprompter.cache.Tag
+import java.util.ArrayList
+
+internal class LineSection(@JvmField var mLineText: String?, @JvmField var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+    @JvmField var mNextSection: LineSection? = null
+    @JvmField var mPrevSection: LineSection? = null
+    @JvmField var mIsChord: Boolean = false
+    @JvmField var mTextWidth = 0
+    @JvmField var mChordWidth = 0
+    @JvmField var mChordTrimWidth = 0
+    @JvmField var mTextHeight = 0
+    @JvmField var mChordHeight = 0
+    @JvmField var mChordDrawLine = -1
+    @JvmField var mLineSS: ScreenString?=null
+    @JvmField var mChordSS: ScreenString?=null
+    @JvmField var mHighlightingRectangles = ArrayList<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
+
+    val width: Int
+        get() = Math.max(mTextWidth, mChordWidth)
+    val height: Int
+        get() = mTextHeight + mChordHeight
+
+    init {
+        mIsChord = Utils.isChord(mChordText)
+    }
+
+    fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
+        mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face, color)
+        if (mLineText!!.trim { it <= ' ' }.length == 0)
+            mTextHeight = 0
+        else
+            mTextHeight = mLineSS!!.mHeight
+        mTextWidth = mLineSS!!.mWidth
+        return mTextWidth
+    }
+
+    fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
+        mChordSS = ScreenString.create(mChordText!!, paint, fontSize.toFloat(), face, color)
+        val trimChord = mChordText!!.trim { it <= ' ' }
+        val trimChordSS: ScreenString
+        trimChordSS = if (trimChord.length < mChordText!!.length)
+            ScreenString.create(trimChord, paint, fontSize.toFloat(), face, color)
+        else
+            mChordSS!!
+        mChordHeight = if (mChordText!!.trim { it <= ' ' }.isEmpty())
+            0
+        else
+            mChordSS!!.mHeight
+        mChordTrimWidth = trimChordSS.mWidth
+        mChordWidth = mChordSS!!.mWidth
+        return mChordWidth
+    }
+
+    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>): Int {
+        var lookingForEnd = currentHighlightColour != 0
+        var highlightColour = if (lookingForEnd) currentHighlightColour else 0
+        var startX = 0
+        var startPosition = 0
+        for (tag in mTags) {
+            if (tag.mName == "soh" && !lookingForEnd) {
+                val strHighlightText = mLineText!!.substring(0, tag.mPosition - mSectionPosition)
+                startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
+                startPosition = tag.mPosition - mSectionPosition
+                if (tag.mValue.isNotEmpty()) {
+                    highlightColour = try {
+                        Color.parseColor(tag.mValue)
+                    } catch (e: IllegalArgumentException) {
+                        // We're past the titlescreen at this point, so don't bother.
+                        errors.add(FileParseError(tag, "Could not interpret \"" + tag.mValue + "\" as a valid colour. Using default."))
+                        defaultHighlightColour
+                    }
+
+                    highlightColour = Utils.makeHighlightColour(highlightColour)
+                } else
+                    highlightColour = defaultHighlightColour
+                lookingForEnd = true
+            } else if (tag.mName == "eoh" && lookingForEnd) {
+                val strHighlightText = mLineText!!.substring(startPosition, tag.mPosition - mSectionPosition)
+                val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
+                mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour))
+                highlightColour = 0
+                lookingForEnd = false
+            }
+        }
+        if (lookingForEnd)
+            mHighlightingRectangles.add(ColorRect(startX, mChordHeight, Math.max(mTextWidth, mChordWidth), mChordHeight + mTextHeight, highlightColour))
+        return highlightColour
+    }
+
+    fun hasChord(): Boolean {
+        return mChordText != null && mChordText!!.trim { it <= ' ' }.isNotEmpty()
+    }
+
+    fun hasText(): Boolean {
+        return mLineText != null && mLineText!!.trim { it <= ' ' }.isNotEmpty()
+    }
+
+}

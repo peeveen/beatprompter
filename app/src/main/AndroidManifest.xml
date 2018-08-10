@@ -35,27 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".IntroActivity"
-            android:label="@string/title_activity_intro"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        </activity>
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".SongDisplayActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_song_display"
-            android:launchMode="singleTask"
-            android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name=".pref.SettingsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_settings"
-            android:launchMode="singleTask">
-        </activity>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
