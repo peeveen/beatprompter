@@ -22,7 +22,7 @@ import java.io.FileInputStream
 
 class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
-    internal var mBeatCountRect = Rect()
+    private var mBeatCountRect = Rect()
     private var mEndSongByPedalCounter = 0
     private var mMetronomeBeats: Long = 0
     private var mInitialized = false
@@ -38,15 +38,16 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mLastBeatTime: Long = 0
     private var mPaint: Paint? = null           // The paint (e.g. style, color) used for drawing
     private var mScroller: OverScroller? = null
-    internal var mMetronomeTask: MetronomeTask? = null
-    internal var mMetronomeThread: Thread? = null
 
-    var mSong: Song? = null
+    private  var mMetronomeTask: MetronomeTask? = null
+    private  var mMetronomeThread: Thread? = null
 
-    var mPageDownPixel = 0
-    var mPageUpPixel = 0
-    var mLineDownPixel = 0
-    var mLineUpPixel = 0
+    private var mSong: Song? = null
+
+    private var mPageDownPixel = 0
+    private var mPageUpPixel = 0
+    private var mLineDownPixel = 0
+    private var mLineUpPixel = 0
 
     private var mSongStartTime: Long = 0
     private var mStartState = PlayState.AtTitleScreen
@@ -70,15 +71,15 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mScreenAction = ScreenAction.Scroll
     private var mBeatCounterColor = Color.WHITE
     private var mScrollMarkerColor = Color.BLACK
-    internal var mPulse = true
+    private var mPulse = true
     private var mTrackMediaPlayer: MediaPlayer? = null
     private var mSilenceMediaPlayer: MediaPlayer? = null
     private var mClickSoundPool: SoundPool? = null
     private var mClickAudioID: Int = 0
     private var mCommentDisplayTimeNanoseconds = Utils.milliToNano(4000)
     private var mSongDisplayActivity: SongDisplayActivity? = null
-    internal var mExternalTriggerSafetyCatch: TriggerSafetyCatch?=null
-    internal var mSendMidiClock = false
+    private  var mExternalTriggerSafetyCatch: TriggerSafetyCatch?=null
+    private  var mSendMidiClock = false
 
     internal enum class ScreenAction {
         Scroll, Volume, None
@@ -318,12 +319,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         endOnscreen = currentY + currentLine.mLineMeasurements!!.mLineHeight <= mScreenHeight
                     }
                     val graphics = currentLine.graphics
-                    var lineCounter = 0
                     val lineTop = currentY
-                    for (graphic in graphics) {
+                    for ((lineCounter, graphic) in graphics.withIndex()) {
                         if (!graphic.mBitmap!!.isRecycled)
                             canvas.drawBitmap(graphic.mBitmap!!, 0f, currentY.toFloat(), mPaint)
-                        currentY += currentLine.mLineMeasurements!!.mGraphicHeights[lineCounter++]
+                        currentY += currentLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
                     if (highlight) {
                         mPaint!!.color = mDefaultCurrentLineHighlightColour
@@ -346,10 +346,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     mPaint!!.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
                     currentY = startY - prevLine.mLineMeasurements!!.mLineHeight
                     val graphics = prevLine.graphics
-                    var lineCounter = 0
-                    for (graphic in graphics) {
+                    for ((lineCounter, graphic) in graphics.withIndex()) {
                         canvas.drawBitmap(graphic.mBitmap!!, 0f, currentY.toFloat(), mPaint)
-                        currentY += prevLine.mLineMeasurements!!.mGraphicHeights[lineCounter++]
+                        currentY += prevLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
                     mPaint!!.alpha = 255
                 }
@@ -382,7 +381,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             drawTitleScreen(canvas)
     }
 
-    internal fun calculateScrolling(): Boolean {
+    private fun calculateScrolling(): Boolean {
         var scrolling = false
         if ((mScreenAction == ScreenAction.Scroll || mSong!!.mScrollingMode === ScrollingMode.Manual) && mScroller!!.computeScrollOffset()) {
             mSongPixelPosition = mScroller!!.currY
@@ -412,7 +411,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return scrolling
     }
 
-    internal fun drawTitleScreen(canvas: Canvas) {
+    private fun drawTitleScreen(canvas: Canvas) {
         canvas.drawColor(Color.BLACK)
         val midX = mScreenWidth shr 1
         val fifteenPercent = mScreenHeight * 0.15f
@@ -440,21 +439,21 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 
-    internal fun calculateManualScrollingPositions(firstLineOnscreen: Line?, currentLine: Line?, currentY: Int, startOnscreen: Boolean, endOnscreen: Boolean) {
-        var currentLine = currentLine
+    private fun calculateManualScrollingPositions(firstLineOnscreen: Line?, currentLine: Line?, currentY: Int, startOnscreen: Boolean, endOnscreen: Boolean) {
+        var vCurrentLine = currentLine
         // If the end of the current line is on-screen, the linedown pixel position should be the start of the next line.
         // Otherwise, it should be 80% of the screen further down than it currently is.
-        if (endOnscreen) {
-            if (firstLineOnscreen != null && firstLineOnscreen.mNextLine != null)
-                mLineDownPixel = firstLineOnscreen.mNextLine!!.mSongPixelPosition
+        mLineDownPixel = if (endOnscreen) {
+            if (firstLineOnscreen?.mNextLine != null)
+                firstLineOnscreen.mNextLine!!.mSongPixelPosition
             else
-                mLineDownPixel = mSongPixelPosition
+                mSongPixelPosition
         } else
-            mLineDownPixel = mSongPixelPosition + mPageUpDownScreenHeight
+            mSongPixelPosition + mPageUpDownScreenHeight
 
         val lineUpLine: Line?
         if (startOnscreen) {
-            if (firstLineOnscreen != null && firstLineOnscreen.mPrevLine != null) {
+            if (firstLineOnscreen?.mPrevLine != null) {
                 mLineUpPixel = firstLineOnscreen.mPrevLine!!.mSongPixelPosition
                 lineUpLine = firstLineOnscreen.mPrevLine
             } else {
@@ -476,46 +475,44 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
         // If we managed to draw any of the last line, then page down should take us to the last line.
         // Is the END of the last line onscreen?
-        if (currentY < mScreenHeight) {
-            // Is the START of the last line onscreen?
-            if (mSong!!.mLastLine != null && currentY - mSong!!.mLastLine!!.mLineMeasurements!!.mLineHeight >= 0)
-            // Yes? Then move the last line to the top of the screen
-                mPageDownPixel = mSong!!.mLastLine!!.mSongPixelPosition
-            else
-            // No? Then don't move.
-                mPageDownPixel = mSongPixelPosition
-        } else if (currentLine == null) {
-            // Does the entire last line fit onscreen?
-            if (mSong!!.mLastLine != null && mSong!!.mLastLine!!.mLineMeasurements!!.mLineHeight < mScreenHeight)
-            // Yes? Then move the last line to the top of the screen.
-                mPageDownPixel = mSong!!.mLastLine!!.mSongPixelPosition
-            else
-            // No? Then scroll 80%.
-                mPageDownPixel = mSongPixelPosition + mPageUpDownScreenHeight
-        } else {
-            // Is the end of the first line drawn onscreen?
-            if (currentLine.mPrevLine != null && endOnscreen)
-            // Yes? Then scroll to the last line drawn.
-                mPageDownPixel = currentLine.mPrevLine!!.mSongPixelPosition
-            else
-            // No? Then scroll 80%
-                mPageDownPixel = mSongPixelPosition + mPageUpDownScreenHeight
+        when {
+            currentY < mScreenHeight -> // Is the START of the last line onscreen?
+                mPageDownPixel = if (mSong!!.mLastLine != null && currentY - mSong!!.mLastLine!!.mLineMeasurements!!.mLineHeight >= 0)
+                // Yes? Then move the last line to the top of the screen
+                    mSong!!.mLastLine!!.mSongPixelPosition
+                else
+                // No? Then don't move.
+                    mSongPixelPosition
+            vCurrentLine == null -> // Does the entire last line fit onscreen?
+                mPageDownPixel = if (mSong!!.mLastLine != null && mSong!!.mLastLine!!.mLineMeasurements!!.mLineHeight < mScreenHeight)
+                // Yes? Then move the last line to the top of the screen.
+                    mSong!!.mLastLine!!.mSongPixelPosition
+                else
+                // No? Then scroll 80%.
+                    mSongPixelPosition + mPageUpDownScreenHeight
+            else -> // Is the end of the first line drawn onscreen?
+                mPageDownPixel = if (vCurrentLine.mPrevLine != null && endOnscreen)
+                // Yes? Then scroll to the last line drawn.
+                    vCurrentLine.mPrevLine!!.mSongPixelPosition
+                else
+                // No? Then scroll 80%
+                    mSongPixelPosition + mPageUpDownScreenHeight
         }// We haven't reached the last line yet.
         // Did we draw at least SOME of the last line?
 
-        currentLine = lineUpLine
-        val pageUpLine = currentLine
+        vCurrentLine = lineUpLine
+        val pageUpLine = vCurrentLine
         if (pageUpLine != null) {
             var totalHeight = mSongPixelPosition - lineUpLine!!.mSongPixelPosition
-            currentLine = currentLine!!.mPrevLine
+            vCurrentLine = vCurrentLine!!.mPrevLine
             mPageUpPixel = mSongPixelPosition
-            while (currentLine != null) {
-                totalHeight += currentLine.mLineMeasurements!!.mLineHeight
+            while (vCurrentLine != null) {
+                totalHeight += vCurrentLine.mLineMeasurements!!.mLineHeight
                 if (totalHeight < mScreenHeight)
-                    mPageUpPixel = currentLine.mSongPixelPosition
+                    mPageUpPixel = vCurrentLine.mSongPixelPosition
                 else
                     break
-                currentLine = currentLine.mPrevLine
+                vCurrentLine = vCurrentLine.mPrevLine
             }
             if (mPageUpPixel == mSongPixelPosition)
                 mPageUpPixel = mSongPixelPosition - mPageUpDownScreenHeight
@@ -538,16 +535,16 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mPageUpDownScreenHeight = (mScreenHeight * 0.8).toInt()
     }
 
-    fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
-        val POPUP_MARGIN = 25
+    private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
+        val popupMargin = 25
         mPaint!!.textSize = textSize * Utils.FONT_SCALING
         mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
         val outRect = Rect()
         mPaint!!.getTextBounds(message, 0, message.length, outRect)
         val textWidth = mPaint!!.measureText(message)
         val textHeight = outRect.height()
-        val volumeControlWidth = textWidth + POPUP_MARGIN * 2.0f
-        val volumeControlHeight = textHeight + POPUP_MARGIN * 2
+        val volumeControlWidth = textWidth + popupMargin * 2.0f
+        val volumeControlHeight = textHeight + popupMargin * 2
         val x = (mScreenWidth - volumeControlWidth) / 2.0f
         val y = (mScreenHeight - volumeControlHeight) / 2
         mPaint!!.color = Color.BLACK
@@ -558,7 +555,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         canvas.drawText(message, (mScreenWidth - textWidth) / 2, ((mScreenHeight - textHeight) / 2 + textHeight).toFloat(), mPaint!!)
     }
 
-    fun showSongTitle(canvas: Canvas) {
+    private fun showSongTitle(canvas: Canvas) {
         if (mSong == null || mSong!!.mSongTitleHeader == null)
             return
 
@@ -585,7 +582,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mPaint!!.alpha = 255
     }
 
-    fun showComment(canvas: Canvas) {
+    private fun showComment(canvas: Canvas) {
         if (mLastCommentEvent != null) {
             mPaint!!.textSize = mLastCommentEvent!!.mScreenString!!.mFontSize * Utils.FONT_SCALING
             mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
@@ -604,14 +601,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         startToggle(e, midiInitiated)
     }
 
-    fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
+    private fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
         if (mSong == null)
             return true
         if (mStartState !== PlayState.Playing) {
             if (mStartState === PlayState.AtTitleScreen)
                 if (e != null)
                     if (e.y > mScreenHeight * 0.85f)
-                        if (mSong!!.mNextSong != null && mSong!!.mNextSong!!.length > 0) {
+                        if (mSong!!.mNextSong != null && mSong!!.mNextSong!!.isNotEmpty()) {
                             endSong(true)
                             return true
                         }
@@ -622,11 +619,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     // Start the count in.
                     if (mMetronomeThread != null) {
                         if (!mMetronomeThread!!.isAlive) {
-                            if (mMetronomeBeats != 0L) {
+                            return if (mMetronomeBeats != 0L) {
                                 mMetronomeThread!!.start()
-                                return true
+                                true
                             } else
-                                return processTrackEvent()
+                                processTrackEvent()
                         }
                     } else
                         return processTrackEvent()
@@ -662,7 +659,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return true
     }
 
-    fun changeVolume(amount: Int) {
+    private fun changeVolume(amount: Int) {
         if (mStartState === PlayState.Paused)
             return
         mCurrentVolume += amount
@@ -710,12 +707,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 
-    fun processCommentEvent(event: CommentEvent, systemTime: Long) {
+    private fun processCommentEvent(event: CommentEvent, systemTime: Long) {
         mLastCommentTime = systemTime
         mLastCommentEvent = event
     }
 
-    fun processColorEvent(event: ColorEvent?) {
+    private fun processColorEvent(event: ColorEvent?) {
         if (event == mLastProcessedColorEvent)
             return
         mBeatCounterColor = event!!.mBeatCounterColor
@@ -749,14 +746,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mNanosecondsPerBeat = Utils.nanosecondsPerBeat(event.mBPM)
         val beatWidth = mScreenWidth.toDouble() / event.mBPB.toDouble()
         val currentBeatCounterWidth = (beatWidth * (event.mBeat + 1).toDouble()).toInt()
-        if (event.mWillScrollOnBeat != -1) {
+        mScrollIndicatorRect = if (event.mWillScrollOnBeat != -1) {
             val thirdWidth = beatWidth / 3
             val thirdHeight = mSong!!.mBeatCounterHeight / 3.0
             val scrollIndicatorStart = (beatWidth * event.mWillScrollOnBeat + thirdWidth).toInt()
             val scrollIndicatorEnd = (beatWidth * (event.mWillScrollOnBeat + 1) - thirdWidth).toInt()
-            mScrollIndicatorRect = Rect(scrollIndicatorStart, thirdHeight.toInt(), scrollIndicatorEnd, (thirdHeight * 2.0).toInt())
+            Rect(scrollIndicatorStart, thirdHeight.toInt(), scrollIndicatorEnd, (thirdHeight * 2.0).toInt())
         } else
-            mScrollIndicatorRect = null
+            null
         mBeatCountRect = Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterHeight)
         mLastBeatTime = mSongStartTime + event.mEventTime
         if (event.mClick && mStartState === PlayState.Playing && mSong!!.mScrollingMode !== ScrollingMode.Manual && allowClick)
@@ -941,7 +938,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mSongDisplayActivity!!.onSongStop()
     }
 
-    fun onVolumeChanged() {
+    private fun onVolumeChanged() {
         if (mTrackMediaPlayer != null) {
             mCurrentVolume = Math.max(0, mCurrentVolume)
             mCurrentVolume = Math.min(100, mCurrentVolume)
@@ -1049,7 +1046,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             changeVolume(+5)
     }
 
-    fun changePage(down: Boolean) {
+    private fun changePage(down: Boolean) {
         if (mStartState === PlayState.AtTitleScreen)
             return
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
@@ -1057,7 +1054,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mTargetPixelPosition = if (down) mPageDownPixel else mPageUpPixel
     }
 
-    fun changeLine(down: Boolean) {
+    private fun changeLine(down: Boolean) {
         if (mStartState === PlayState.AtTitleScreen)
             return
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
@@ -1088,19 +1085,19 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     internal fun canYieldToExternalTrigger(): Boolean {
-        when (mExternalTriggerSafetyCatch) {
-            TriggerSafetyCatch.Always -> return true
-            TriggerSafetyCatch.WhenAtTitleScreen -> return mStartState === PlayState.AtTitleScreen
-            TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> return mStartState !== PlayState.Playing || mSong != null && mSong!!.mScrollingMode === ScrollingMode.Manual
-            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> return mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine == null || mSong!!.mCurrentLine!!.mNextLine == null || mSong!!.mScrollingMode === ScrollingMode.Manual
-            TriggerSafetyCatch.Never -> return false
-            else -> return false
+        return when (mExternalTriggerSafetyCatch) {
+            TriggerSafetyCatch.Always -> true
+            TriggerSafetyCatch.WhenAtTitleScreen -> mStartState === PlayState.AtTitleScreen
+            TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong!!.mScrollingMode === ScrollingMode.Manual
+            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine == null || mSong!!.mCurrentLine!!.mNextLine == null || mSong!!.mScrollingMode === ScrollingMode.Manual
+            TriggerSafetyCatch.Never -> false
+            else -> false
         }
     }
 
-    internal inner class MetronomeTask(bpm: Double, var mBeats: Long) : Task(true) {
-        var mNanosecondsPerBeat: Long = 0
-        var mNextClickTime: Long = 0
+    internal inner class MetronomeTask(bpm: Double, private var mBeats: Long) : Task(true) {
+        private var mNanosecondsPerBeat: Long = 0
+        private var mNextClickTime: Long = 0
 
         init {
             mNanosecondsPerBeat = Utils.nanosecondsPerBeat(bpm)
@@ -1136,7 +1133,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     companion object {
 
-        private val SONG_END_PEDAL_PRESSES = 3
+        private const val SONG_END_PEDAL_PRESSES = 3
         private val SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS = Utils.milliToNano(2000)
         private val mAccelerations = IntArray(2048)
 

@@ -18,7 +18,7 @@ object Utils {
     private val splitters = ArrayList(Arrays.asList(" ", "-"))
 
 
-    private val REGEXP = (
+    private const val REGEXP = (
             "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
 
                     + "(([ABCDEFG])([b\u266D#\u266F\u266E])?)" //note name + accidental
@@ -37,7 +37,7 @@ object Utils {
 
     private val pattern = Pattern.compile(REGEXP)
 
-    private val ReservedChars = "|\\?*<\":>+[]/'"
+    private const val ReservedChars = "|\\?*<\":>+[]/'"
 
     init {
         for (f in 0..90) {
@@ -99,7 +99,7 @@ object Utils {
         val result = StringBuilder()
         var nonWhitespaceBitsJoined = 0
         for (bit in bits) {
-            val whitespace = bit.trim { it <= ' ' }.length == 0
+            val whitespace = bit.trim { it <= ' ' }.isEmpty()
             if (!whitespace && nonWhitespaceBitsJoined == nonWhitespaceBitsToJoin)
                 break
             result.append(bit)
@@ -125,7 +125,7 @@ object Utils {
                 }
             }
             val bit = str.substring(0, bestSplitIndex)
-            if (bit.length > 0)
+            if (bit.isNotEmpty())
                 bits.add(bit)
             if (bestSplitter != null) {
                 bits.add(bestSplitter)
@@ -150,10 +150,10 @@ object Utils {
             // Might be mm:ss
             val colonIndex = str.indexOf(":")
             if (colonIndex != -1 && colonIndex < str.length - 1) {
-                val strmins = str.substring(0, colonIndex)
-                val strsecs = str.substring(colonIndex + 1)
-                val mins = Integer.parseInt(strmins)
-                val secs = Integer.parseInt(strsecs)
+                val strMins = str.substring(0, colonIndex)
+                val strSecs = str.substring(colonIndex + 1)
+                val mins = Integer.parseInt(strMins)
+                val secs = Integer.parseInt(strSecs)
                 return (secs + mins * 60) * 1000
             }
             throw nfe
@@ -165,7 +165,7 @@ object Utils {
         var text = textIn
         if (text != null)
             text = text.trim { it <= ' ' }
-        return !(text == null || text.length == 0) && pattern.matcher(text).matches()
+        return !(text == null || text.isEmpty()) && pattern.matcher(text).matches()
     }
 
     @Throws(IOException::class)
@@ -217,8 +217,8 @@ object Utils {
         return (`val` and 0x000000FF).toByte()
     }
 
-    fun looksLikeHex(str: String?): Boolean {
-        var str: String? = str ?: return false
+    fun looksLikeHex(strIn: String?): Boolean {
+        var str: String? = strIn ?: return false
         str = str!!.toLowerCase()
         var signifierFound = false
         if (str.startsWith("0x")) {

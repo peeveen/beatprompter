@@ -41,8 +41,8 @@ class TextLine internal constructor(private val mText: String, lineTags: Collect
     }
 
     // TODO: Fix this, for god's sake!
-    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, vHighlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
-        var highlightColour = vHighlightColour
+    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
+        var vHighlightColour = highlightColour
         mFont = font
         val sections = ArrayList<LineSection>()
 
@@ -205,7 +205,7 @@ class TextLine internal constructor(private val mText: String, lineTags: Collect
             mChordHeight = Math.max(mChordHeight, section.mChordHeight - section.mChordSS!!.mDescenderOffset)
             actualLineHeight = Math.max(mLyricHeight + mChordHeight + mLineDescenderOffset + mChordDescenderOffset, actualLineHeight)
             actualLineWidth += Math.max(section.mLineSS!!.mWidth, section.mChordSS!!.mWidth)
-            highlightColour = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), font, highlightColour, defaultHighlightColour, errors)
+            vHighlightColour = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), font, vHighlightColour, defaultHighlightColour, errors)
         }
         if (cancelEvent.isCancelled)
             return null
@@ -409,7 +409,7 @@ class TextLine internal constructor(private val mText: String, lineTags: Collect
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        return LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights, highlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
+        return LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights, vHighlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
