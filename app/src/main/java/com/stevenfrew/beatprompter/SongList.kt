@@ -647,11 +647,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         super.onPause()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             GOOGLE_PLAY_TRANSACTION_FINISHED -> {
                 //int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
-                val purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA")
+                val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
                 //String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
 
                 if (resultCode == Activity.RESULT_OK) {

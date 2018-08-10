@@ -178,7 +178,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             processColorEvent(mSong!!.mFirstEvent as ColorEvent)
 
             if (mSong!!.mChosenBackingTrack != null)
-                if (mSong!!.mChosenBackingTrack.mFile.exists()) {
+                if (mSong!!.mChosenBackingTrack!!.mFile.exists()) {
                     // Shitty Archos workaround.
                     mTrackMediaPlayer = MediaPlayer()
                     // Play silence to kickstart audio system, allowing snappier playback.
@@ -187,7 +187,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     mSilenceMediaPlayer!!.setVolume(0.01f, 0.01f)
                     var fis: FileInputStream? = null
                     try {
-                        fis = FileInputStream(mSong!!.mChosenBackingTrack.mFile.absolutePath)
+                        fis = FileInputStream(mSong!!.mChosenBackingTrack!!.mFile.absolutePath)
                         mTrackMediaPlayer!!.setDataSource(fis.fd)
                         mTrackMediaPlayer!!.prepare()
                         seekTrack(0)

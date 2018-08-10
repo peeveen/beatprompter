@@ -719,7 +719,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             // Now process all MIDI events with offsets.
             offsetMIDIEvents(firstEvent, errors)
 
-            val song = Song(mSongFile, chosenAudioFile!!, chosenAudioVolume, comments, firstEvent, firstLine!!, errors, mUserChosenScrollMode, mSendMidiClock, mLoadingSongFile.startedByBandLeader, mLoadingSongFile.nextSong, mLoadingSongFile.sourceDisplaySettings.mOrientation, initialMIDIMessages, beatBlocks, initialBPB, count)
+            val song = Song(mSongFile, chosenAudioFile, chosenAudioVolume, comments, firstEvent, firstLine!!, errors, mUserChosenScrollMode, mSendMidiClock, mLoadingSongFile.startedByBandLeader, mLoadingSongFile.nextSong, mLoadingSongFile.sourceDisplaySettings.mOrientation, initialMIDIMessages, beatBlocks, initialBPB, count)
             song.doMeasurements(Paint(), mCancelEvent, mSongLoadHandler, mLoadingSongFile.nativeDisplaySettings, mLoadingSongFile.sourceDisplaySettings)
             return song
         } finally {

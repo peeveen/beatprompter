@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 import java.util.ArrayList
 
-class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: ArrayList<Comment> // Comments to show on startup screen.
+class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: ArrayList<Comment> // Comments to show on startup screen.
            , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: ArrayList<FileParseError>, internal var mScrollingMode: ScrollingMode, internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?, internal var mOrientation: Int, internal var mInitialMIDIMessages: ArrayList<OutgoingMessage>, private val mBeatBlocks: ArrayList<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
     private var mFirstLine: Line? = null // First line to show.
     internal var mCurrentLine: Line? = null
