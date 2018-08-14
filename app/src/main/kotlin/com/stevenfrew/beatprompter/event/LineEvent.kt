@@ -2,16 +2,17 @@ package com.stevenfrew.beatprompter.event
 
 import com.stevenfrew.beatprompter.Line
 
-class LineEvent(eventTime: Long, var mDuration: Long) : BaseEvent(eventTime) {
-    var mLine: Line? = null
+class LineEvent(eventTime: Long, line:Line, var mDuration: Long) : BaseEvent(eventTime) {
+    val mLine=line
 
     init {
+        line.mLineEvent = this
         mPrevLineEvent = this
     }
 
     override fun offset(amount: Long) {
         super.offset(amount)
-        mLine!!.mYStartScrollTime += amount
-        mLine!!.mYStopScrollTime += amount
+        mLine.mYStartScrollTime += amount
+        mLine.mYStopScrollTime += amount
     }
 }

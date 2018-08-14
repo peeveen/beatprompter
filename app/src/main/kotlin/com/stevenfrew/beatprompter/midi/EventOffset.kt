@@ -14,7 +14,7 @@ class EventOffset(offsetString: String?, sourceTag: Tag, errors: ArrayList<FileP
     init {
         var str = offsetString
         if (str != null) {
-            str = str.trim { it <= ' ' }
+            str = str.trim()
             if (!str.isEmpty()) {
                 try {
                     mAmount = Integer.parseInt(str)
@@ -23,11 +23,10 @@ class EventOffset(offsetString: String?, sourceTag: Tag, errors: ArrayList<FileP
                     // Might be in the beat format
                     var diff = 0
                     var bErrorAdded = false
-                    for (f in 0 until str.length) {
-                        val c = str[f]
-                        if (c == '<')
+                    str.toCharArray().forEach{
+                        if (it == '<')
                             --diff
-                        else if (c == '>')
+                        else if (it == '>')
                             ++diff
                         else if (!bErrorAdded) {
                             bErrorAdded = true

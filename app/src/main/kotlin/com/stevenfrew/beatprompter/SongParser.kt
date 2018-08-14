@@ -530,10 +530,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 if (totalLineTime == 0L || mCurrentScrollMode === ScrollingMode.Smooth)
                                     totalLineTime = timePerBar * bars
 
-                                val lineEvent = LineEvent(currentTime, totalLineTime)
                                 lastLine?.insertAfter(lineObj)
-                                lineObj.mLineEvent = lineEvent
-                                lineEvent.mLine = lineObj
+                                val lineEvent = LineEvent(currentTime, lineObj, totalLineTime)
                                 if (firstLine == null)
                                     firstLine = lineObj
                                 lastEvent.insertEvent(lineEvent)
@@ -544,8 +542,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 if (pauseTime > 0) {
                                     currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
                                     lastEvent = lastEvent.lastEvent
-                                    lineEvent.mLine!!.mYStartScrollTime = currentTime - nanosecondsPerBeat
-                                    lineEvent.mLine!!.mYStopScrollTime = currentTime
+                                    lineEvent.mLine.mYStartScrollTime = currentTime - nanosecondsPerBeat
+                                    lineEvent.mLine.mYStopScrollTime = currentTime
                                 } else if (bpm > 0 && mCurrentScrollMode !== ScrollingMode.Smooth) {
                                     var finished = false
                                     var beatThatWeWillScrollOn = 0
@@ -596,8 +594,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         }
 
                                         if (currentBarBeat == beatsForThisLine - 1) {
-                                            lineEvent.mLine!!.mYStartScrollTime = if (mCurrentScrollMode === ScrollingMode.Smooth) lineEvent.mEventTime else currentTime
-                                            lineEvent.mLine!!.mYStopScrollTime = currentTime + nanosecondsPerBeat
+                                            lineEvent.mLine.mYStartScrollTime = if (mCurrentScrollMode === ScrollingMode.Smooth) lineEvent.mEventTime else currentTime
+                                            lineEvent.mLine.mYStopScrollTime = currentTime + nanosecondsPerBeat
                                             finished = true
                                         }
                                         currentTime += beatTimeLength
@@ -625,9 +623,9 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         }
                                     }
                                 } else {
-                                    lineEvent.mLine!!.mYStartScrollTime = currentTime
+                                    lineEvent.mLine.mYStartScrollTime = currentTime
                                     currentTime += totalLineTime
-                                    lineEvent.mLine!!.mYStopScrollTime = currentTime
+                                    lineEvent.mLine.mYStopScrollTime = currentTime
                                 }
                             } else if (pauseTime > 0)
                                 currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
