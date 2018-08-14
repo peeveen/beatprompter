@@ -48,7 +48,7 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
             var result: CloudDownloadResult
             try {
                 val mdata = client.files().getMetadata(file.mID)
-                if (mdata != null && mdata is FileMetadata) {
+                if (mdata is FileMetadata) {
                     val title = file.mName
                     Log.d(BeatPrompterApplication.TAG, "File title: $title")
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
@@ -93,13 +93,11 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
             val downloader = client.files().download(file.id)
             downloader.download(fos)
         } finally {
-            if (fos != null)
-                try {
-                    fos.close()
-                } catch (eee: Exception) {
-                    Log.e(BeatPrompterApplication.TAG, "Failed to close file", eee)
-                }
-
+            try {
+                fos?.close()
+            } catch (eee: Exception) {
+                Log.e(BeatPrompterApplication.TAG, "Failed to close file", eee)
+            }
         }
         return localfile
     }

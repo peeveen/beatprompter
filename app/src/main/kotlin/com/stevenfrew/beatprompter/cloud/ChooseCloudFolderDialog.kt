@@ -18,7 +18,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
 
-internal class ChooseCloudFolderDialog(private val mActivity: Activity, private val mCloudStorage: CloudStorage, listener: CloudFolderSelectionListener, private var mCurrentFolder: CloudFolderInfo?) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, CloudFolderSearchListener {
+internal class ChooseCloudFolderDialog(private val mActivity: Activity, private val mCloudStorage: CloudStorage, listener: CloudFolderSelectionListener, private var mCurrentFolder: CloudFolderInfo) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, CloudFolderSearchListener {
 
     private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)
     private val mFolderSelectionEventSubscription: CompositeDisposable
@@ -55,7 +55,7 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
 
     fun showDialog() {
         refresh(mCurrentFolder)
-        mDialog.setTitle(getDisplayPath(mCurrentFolder!!))
+        mDialog.setTitle(getDisplayPath(mCurrentFolder))
         mDialog.show()
     }
 
@@ -82,14 +82,15 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
         else {
             contents.sort()
 
-            if (mCurrentFolder!!.mParentFolder != null)
-                contents.add(0, CloudFolderInfo(mCurrentFolder!!.mParentFolder!!.mParentFolder, mCurrentFolder!!.mParentFolder!!.mID, PARENT_DIR, mCurrentFolder!!.mParentFolder!!.mDisplayPath))
+            val parentFolder=mCurrentFolder.mParentFolder
+            if (parentFolder != null)
+                contents.add(0, CloudFolderInfo(parentFolder.mParentFolder, parentFolder.mID, PARENT_DIR, parentFolder.mDisplayPath))
 
             // refresh the user interface
             mDialog.setContentView(R.layout.choose_folder_dialog)
             val list = mDialog.findViewById<ListView>(R.id.chooseFolderListView)
             val okButton = mDialog.findViewById<Button>(R.id.chooseFolderOkButton)
-            mDialog.setTitle(getDisplayPath(mCurrentFolder!!))
+            mDialog.setTitle(getDisplayPath(mCurrentFolder))
             list.adapter = CloudBrowserItemListAdapter(contents)
 
             list.setOnItemClickListener { _, _, which, _ ->

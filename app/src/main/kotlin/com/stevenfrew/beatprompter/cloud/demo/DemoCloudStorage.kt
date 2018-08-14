@@ -28,17 +28,21 @@ class DemoCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, 
 
     override fun downloadFiles(filesToRefresh: List<CloudFileInfo>, cloudListener: CloudListener, itemSource: PublishSubject<CloudDownloadResult>, messageSource: PublishSubject<String>) {
         for (cloudFile in filesToRefresh) {
-            if (cloudFile.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true)) {
-                messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_FILENAME))
-                itemSource.onNext(SuccessfulCloudDownloadResult(cloudFile, createDemoSongTextFile()!!))
-            } else if (cloudFile.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true))
-                try {
+            try {
+                if (cloudFile.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true)) {
+                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_FILENAME))
+                    itemSource.onNext(SuccessfulCloudDownloadResult(cloudFile, createDemoSongTextFile()))
+                } else if (cloudFile.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true)) {
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME))
                     itemSource.onNext(SuccessfulCloudDownloadResult(cloudFile, createDemoSongAudioFile()))
-                } catch (ioe: IOException) {
-                    itemSource.onError(ioe)
                 }
-
+            }
+            catch(ioe:IOException)
+            {
+                Log.d(BeatPrompterApplication.TAG, "Failed to create demo file", ioe)
+                itemSource.onError(ioe)
+                return
+            }
         }
         itemSource.onComplete()
     }
@@ -49,24 +53,16 @@ class DemoCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, 
         itemSource.onComplete()
     }
 
-    private fun createDemoSongTextFile(): File? {
+    private fun createDemoSongTextFile(): File {
+        val destinationSongFile = File(cacheFolder, DEMO_SONG_FILENAME)
         val demoFileText = BeatPrompterApplication.getResourceString(R.string.demo_song)
-        var destinationSongFile: File? = File(cacheFolder, DEMO_SONG_FILENAME)
         var bw: BufferedWriter? = null
         try {
-            bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile!!)))
+            bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
             bw.write(demoFileText)
-        } catch (e: Exception) {
-            Log.d(BeatPrompterApplication.TAG, "Failed to create demo file", e)
-            destinationSongFile = null
-        } finally {
-            if (bw != null)
-                try {
-                    bw.close()
-                } catch (e: Exception) {
-                    Log.d(BeatPrompterApplication.TAG, "Failed to close demo file", e)
-                }
-
+        }
+        finally {
+            bw?.close()
         }
         return destinationSongFile
     }

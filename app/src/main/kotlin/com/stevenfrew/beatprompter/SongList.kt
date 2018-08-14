@@ -1178,7 +1178,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         private const val TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt"
         private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
         var mSongEndedNaturally = false
-        var mSongListInstance: SongList? = null
+        lateinit var mSongListInstance: SongList
 
         private const val PLAY_SONG_REQUEST_CODE = 3
         private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4

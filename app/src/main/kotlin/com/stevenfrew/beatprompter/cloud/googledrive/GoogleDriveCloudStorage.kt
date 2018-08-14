@@ -297,7 +297,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
         private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
 
         internal fun recoverAuthorization(uraioe: UserRecoverableAuthIOException) {
-            SongList.mSongListInstance!!.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
+            SongList.mSongListInstance.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
         }
     }
 }
