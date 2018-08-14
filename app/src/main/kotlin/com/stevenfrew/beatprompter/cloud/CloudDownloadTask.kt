@@ -78,12 +78,9 @@ class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHa
     }
 
     override fun onItemDownloaded(result: CloudDownloadResult) {
-        if (result is SuccessfulCloudDownloadResult) {
-            val cacheFile = CachedCloudFile.createCachedCloudFile(result)
-            // cacheFile will be null if it is not a file of any type that we're interested in using.
-            if (cacheFile != null)
-                SongList.mCachedCloudFiles.add(cacheFile)
-        } else
+        if (result is SuccessfulCloudDownloadResult)
+            SongList.mCachedCloudFiles.add(CachedCloudFile.createCachedCloudFile(result))
+        else
         // IMPLICIT if(result is FailedCloudDownloadResult)
             SongList.mCachedCloudFiles.remove(result.mCloudFileInfo)
     }

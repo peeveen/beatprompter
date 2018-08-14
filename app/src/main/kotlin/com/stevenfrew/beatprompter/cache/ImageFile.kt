@@ -6,12 +6,13 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import java.io.File
 
 class ImageFile : CachedCloudFile {
 
     @Throws(InvalidBeatPrompterFileException::class)
     internal constructor(result: SuccessfulCloudDownloadResult) : super(result) {
-        verifyImageFile()
+        verifyImageFile(mFile,mName)
     }
 
     internal constructor(element: Element) : super(element)
@@ -22,19 +23,18 @@ class ImageFile : CachedCloudFile {
         element.appendChild(imageFileElement)
     }
 
-    @Throws(InvalidBeatPrompterFileException::class)
-    private fun verifyImageFile() {
-        val options = BitmapFactory.Options()
-        try {
-            BitmapFactory.decodeFile(mFile.absolutePath, options)
-                    ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mName)
-        } catch (e: Exception) {
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mName)
-        }
-
-    }
-
     companion object {
         const val IMAGEFILE_ELEMENT_TAG_NAME = "imagefile"
+
+        @Throws(InvalidBeatPrompterFileException::class)
+        private fun verifyImageFile(file: File, name:String) {
+            val options = BitmapFactory.Options()
+            try {
+                BitmapFactory.decodeFile(file.absolutePath, options)
+                        ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + name)
+            } catch (e: Exception) {
+                throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + name)
+            }
+        }
     }
 }

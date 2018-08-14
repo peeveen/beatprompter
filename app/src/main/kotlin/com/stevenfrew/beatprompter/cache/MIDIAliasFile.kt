@@ -108,7 +108,6 @@ class MIDIAliasFile : CachedCloudFile {
                 } catch (ioe: IOException) {
                     Log.e(BeatPrompterApplication.TAG, "Failed to close set list file", ioe)
                 }
-
             }
         }
 

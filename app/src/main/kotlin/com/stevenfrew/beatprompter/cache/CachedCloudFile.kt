@@ -63,30 +63,28 @@ abstract class CachedCloudFile : CloudFileInfo {
             return false
         }
 
-        fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile? {
-            try {
-                return AudioFile(result)
+        fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile {
+            return try {
+                AudioFile(result)
             } catch (ioe: InvalidBeatPrompterFileException) {
                 try {
-                    return ImageFile(result)
+                    ImageFile(result)
                 } catch (ibpfe1: InvalidBeatPrompterFileException) {
                     try {
-                        return MIDIAliasFile(result)
+                        MIDIAliasFile(result)
                     } catch (ibpfe2: InvalidBeatPrompterFileException) {
                         try {
-                            return SongFile(result)
+                            SongFile(result)
                         } catch (ibpfe3: InvalidBeatPrompterFileException) {
                             try {
-                                return SetListFile(result)
+                                SetListFile(result)
                             } catch (ibpfe4: InvalidBeatPrompterFileException) {
-                                // Not any kind of file we're interested in?
-                                // We don't want this file.
+                                IrrelevantFile(result)
                             }
                         }
                     }
                 }
             }
-            return null
         }
     }
 }

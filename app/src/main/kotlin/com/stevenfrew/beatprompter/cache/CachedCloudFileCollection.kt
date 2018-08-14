@@ -88,6 +88,12 @@ class CachedCloudFileCollection {
             }
 
         }
+        val irrelevantFiles = xmlDoc.getElementsByTagName(IrrelevantFile.IRRELEVANTFILE_ELEMENT_TAG_NAME)
+        for (f in 0 until irrelevantFiles.length) {
+            val n = irrelevantFiles.item(f)
+            val irrelevantFile = IrrelevantFile(n as Element)
+            add(irrelevantFile)
+        }
     }
 
     fun add(cachedFile: CachedCloudFile) {
