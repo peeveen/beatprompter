@@ -552,6 +552,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             val p = m.getPackageInfo(s, 0)
             mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
         } catch (e: PackageManager.NameNotFoundException) {
+            // There is no way that this can happen.
             Log.e(BeatPrompterApplication.TAG, "Package name not found ", e)
         }
 
@@ -1169,10 +1170,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     companion object {
         var mDefaultCloudDownloads: MutableList<CloudDownloadResult> = ArrayList()
         var mCachedCloudFiles = CachedCloudFileCollection()
-        var mBeatPrompterSongFilesFolder: File? = null
+
+        private var mBeatPrompterDataFolder: File?=null
+        var mBeatPrompterSongFilesFolder: File?=null
 
         private var mFullVersionUnlocked = true
-        private var mBeatPrompterDataFolder: File? = null
         private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
         private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
         private const val TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt"

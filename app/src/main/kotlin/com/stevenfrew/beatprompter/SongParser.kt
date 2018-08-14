@@ -165,7 +165,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             var lineImage: ImageFile? = null
 
             var metronomeOn = mMetronomeContext === MetronomeContext.On
-            if (mMetronomeContext === MetronomeContext.OnWhenNoTrack && (chosenTrack == null || chosenTrack.length == 0))
+            if (mMetronomeContext === MetronomeContext.OnWhenNoTrack && chosenTrack.length == 0)
                 metronomeOn = true
 
             var currentBeat = 0
@@ -283,7 +283,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                             trackFile = null
                                         }
                                     }
-                                    if (trackFile != null && chosenTrack != null && track.equals(chosenTrack, ignoreCase = true)) {
+                                    if (trackFile != null && track.equals(chosenTrack, ignoreCase = true)) {
                                         chosenAudioFile = mappedTrack
                                         chosenAudioVolume = volume
                                     }
@@ -675,10 +675,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             if (bpm > 0 && mCurrentScrollMode === ScrollingMode.Beat) {
                 // Last Y scroll should never happen. No point scrolling last line offscreen.
                 val mLastLine = firstLine!!.lastLine
-                if (mLastLine != null) {
-                    mLastLine.mYStopScrollTime = java.lang.Long.MAX_VALUE
-                    mLastLine.mYStartScrollTime = mLastLine.mYStopScrollTime
-                }
+                mLastLine.mYStopScrollTime = java.lang.Long.MAX_VALUE
+                mLastLine.mYStartScrollTime = mLastLine.mYStopScrollTime
             }
 
             // Nothing at all in the song file? We at least want the colors set right.
@@ -723,13 +721,11 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             song.doMeasurements(Paint(), mCancelEvent, mSongLoadHandler, mLoadingSongFile.nativeDisplaySettings, mLoadingSongFile.sourceDisplaySettings)
             return song
         } finally {
-            if (br != null)
-                try {
-                    br.close()
-                } catch (ioe: IOException) {
-                    Log.e(BeatPrompterApplication.TAG, "Failed to close song file.", ioe)
-                }
-
+            try {
+                br.close()
+            } catch (ioe: IOException) {
+                Log.e(BeatPrompterApplication.TAG, "Failed to close song file.", ioe)
+            }
         }
     }
 

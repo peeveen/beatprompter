@@ -142,10 +142,9 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
     }
 
     private fun cancelFolderFetcher() {
-        if (mFolderFetcher != null) {
+        if (mFolderFetcher != null)
             mFolderFetcher!!.cancel(true)
-            mFolderFetcher = null
-        }
+        mFolderFetcher = null
     }
 
     class FolderFetcherTask internal constructor(private var mCloudStorage: CloudStorage, private var mCloudFolderSearchListener: CloudFolderSearchListener) : AsyncTask<CloudFolderInfo, Void, Void>() {

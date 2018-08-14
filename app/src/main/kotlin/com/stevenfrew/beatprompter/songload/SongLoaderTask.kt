@@ -49,11 +49,11 @@ class SongLoaderTask : Task(true) {
             try {
                 val loader = SongParser(sli, cancelEvent!!, vSongLoadHandler!!, mRegistered)
                 val loadedSong = loader.parse()
-                if (cancelEvent!!.isCancelled)
-                    vSongLoadHandler!!.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
+                if (cancelEvent.isCancelled)
+                    vSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
                 else {
                     currentSong = loadedSong
-                    vSongLoadHandler!!.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget()
+                    vSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED).sendToTarget()
                 }
             } catch (ioe: IOException) {
                 vSongLoadHandler!!.obtainMessage(EventHandler.SONG_LOAD_FAILED, ioe.message).sendToTarget()

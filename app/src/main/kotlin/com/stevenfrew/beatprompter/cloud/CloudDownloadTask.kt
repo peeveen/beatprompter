@@ -13,18 +13,15 @@ import java.util.ArrayList
 class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHandler: Handler, private val mCloudPath: String, private val mIncludeSubFolders: Boolean, filesToUpdate: ArrayList<CachedCloudFile>?) : AsyncTask<String, String, Boolean>(), CloudFolderSearchListener, CloudItemDownloadListener {
     private var mProgressDialog: ProgressDialog? = null
     private var mErrorOccurred = false
-    private var mFilesToUpdate: MutableList<CloudFileInfo>? = null
+    private var mFilesToUpdate: MutableList<CloudFileInfo>
     private val mCloudFilesFound = ArrayList<CloudFileInfo>()
     private val mCloudFilesToDownload = ArrayList<CloudFileInfo>()
 
     private val isRefreshingSelectedFiles: Boolean
-        get() = mFilesToUpdate != null && !mFilesToUpdate!!.isEmpty()
+        get() = !mFilesToUpdate.isEmpty()
 
     init {
-        if (filesToUpdate == null)
-            mFilesToUpdate = null
-        else
-            mFilesToUpdate = filesToUpdate.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }.toMutableList()
+        mFilesToUpdate = filesToUpdate?.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList() ?: ArrayList()
     }
 
     override fun doInBackground(vararg paramParams: String): Boolean? {
@@ -41,7 +38,7 @@ class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHa
     }
 
     private fun updateSelectedFiles() {
-        mCloudStorage.downloadFiles(mFilesToUpdate!!, this)
+        mCloudStorage.downloadFiles(mFilesToUpdate, this)
     }
 
     override fun onProgressUpdate(vararg values: String) {
