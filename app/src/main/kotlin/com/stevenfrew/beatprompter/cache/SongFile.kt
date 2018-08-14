@@ -119,7 +119,7 @@ class SongFile : CachedCloudFile {
         return getTokenValue(line, lineNumber, "bpm", "beatsperminute", "metronome")
     }
 
-    private fun getTagsFromLine(line: String, lineNumber: Int): ArrayList<String> {
+    private fun getTagsFromLine(line: String, lineNumber: Int): List<String> {
         return getTokenValues(line, lineNumber, "tag")
     }
 

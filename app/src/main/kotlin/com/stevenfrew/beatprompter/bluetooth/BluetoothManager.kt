@@ -18,12 +18,12 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
     private val mBluetoothSocketsLock = Any()
-    private val mOutputBluetoothSockets = ArrayList<BluetoothSocket>()
+    private val mOutputBluetoothSockets = mutableListOf<BluetoothSocket>()
     private var mInputBluetoothSocket: BluetoothSocket? = null
 
     private val mBluetoothThreadsLock = Any()
     private var mServerBluetoothThread: AcceptConnectionsFromClientsThread? = null
-    private val mConnectToServerThreads = ArrayList<ConnectToServerThread>()
+    private val mConnectToServerThreads = mutableListOf<ConnectToServerThread>()
 
     private val mAdapterReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

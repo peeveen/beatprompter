@@ -34,33 +34,19 @@ abstract class CachedCloudFile : CloudFileInfo {
 
         private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
 
-        fun getTokenValue(line: String, lineNumber: Int, vararg tokens: String): String? {
-            val values = getTokenValues(line, lineNumber, *tokens)
-            return if (values.size == 0) null else values[values.size - 1]
+        internal fun getTokenValues(line: String, lineNumber: Int, vararg tokens: String): List<String> {
+            val tagsOut = mutableListOf<Tag>()
+            if (!line.trim().startsWith("#"))
+                Tag.extractTags(line, lineNumber, tagsOut)
+            return tagsOut.filter{tokens.contains(it.mName)}.map{it.mValue.trim()}
         }
 
-        internal fun getTokenValues(line: String, lineNumber: Int, vararg tokens: String): ArrayList<String> {
-            val tagsOut = ArrayList<Tag>()
-            val values = ArrayList<String>()
-            if (!line.trim().startsWith("#")) {
-                Tag.extractTags(line, lineNumber, tagsOut)
-                for (tag in tagsOut)
-                    for (token in tokens)
-                        if (tag.mName == token)
-                            values.add(tag.mValue.trim())
-            }
-            return values
+        fun getTokenValue(line: String, lineNumber: Int, vararg tokens: String): String? {
+            return getTokenValues(line, lineNumber, *tokens).lastOrNull()
         }
 
         internal fun containsToken(line: String, lineNumber: Int, tokenToFind: String): Boolean {
-            val tagsOut = ArrayList<Tag>()
-            if (!line.trim().startsWith("#")) {
-                Tag.extractTags(line, lineNumber, tagsOut)
-                for (tag in tagsOut)
-                    if (tag.mName == tokenToFind)
-                        return true
-            }
-            return false
+            return getTokenValues(line,lineNumber,tokenToFind).any()
         }
 
         fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile {

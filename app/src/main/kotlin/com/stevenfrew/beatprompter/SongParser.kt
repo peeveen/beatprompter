@@ -242,7 +242,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         }
                                         val image = File(imageName).name
                                         val imageFile: File
-                                        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image, null)
+                                        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image)
                                         if (mappedImage == null)
                                             errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
                                         else {
@@ -269,11 +269,10 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                         } catch (nfe: NumberFormatException) {
                                             errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
                                         }
-
                                     }
                                     val track = File(trackName).name
                                     var trackFile: File? = null
-                                    val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track, null)
+                                    val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track)
                                     if (mappedTrack == null)
                                         errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
                                     else {

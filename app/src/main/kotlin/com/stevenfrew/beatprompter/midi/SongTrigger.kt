@@ -106,8 +106,8 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     }
 
     @Throws(ResolutionException::class)
-    fun getMIDIMessages(defaultOutputChannel: Byte): ArrayList<OutgoingMessage> {
-        val outputMessages = ArrayList<OutgoingMessage>()
+    fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
+        val outputMessages = mutableListOf<OutgoingMessage>()
         if (mSongSelect)
             outputMessages.add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
         else {

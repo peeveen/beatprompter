@@ -171,7 +171,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
 
         }
 
-        fun extractTags(lineStr: String, lineNumber: Int, tagsOut: ArrayList<Tag>): String {
+        fun extractTags(lineStr: String, lineNumber: Int, tagsOut: MutableList<Tag>): String {
             var line = lineStr
             tagsOut.clear()
             val lineOut = StringBuilder()
