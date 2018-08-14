@@ -12,10 +12,10 @@ import java.util.*
 
 class SongFile : CachedCloudFile {
 
+    lateinit var mTitle: String
     private var mTimePerLine: Long = 0
     private var mTimePerBar: Long = 0
     var mBPM = 0.0
-    var mTitle: String? = null
     var mKey: String? = ""
     var mLines = 0
     var mMixedMode = false
@@ -177,6 +177,7 @@ class SongFile : CachedCloudFile {
         var br: BufferedReader? = null
         try {
             val (timePerLine, timePerBar) = getTimePerLineAndBar(null, tempAudioFileCollection, tempImageFileCollection)
+            var title:String?=null
             mTimePerLine = timePerLine
             mTimePerBar = timePerBar
             br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
@@ -185,7 +186,8 @@ class SongFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    val title = getTitleFromLine(line, lineNumber)
+                    if(title!=null)
+                        title = getTitleFromLine(line, lineNumber)
                     val artist = getArtistFromLine(line, lineNumber)
                     val key = getKeyFromLine(line, lineNumber)
                     val firstChord = getFirstChordFromLine(line, lineNumber)
@@ -198,8 +200,6 @@ class SongFile : CachedCloudFile {
                     if (mpct != null)
                         mProgramChangeTrigger = mpct
                     val bpm = getBPMFromLine(line, lineNumber)
-                    if (title != null)
-                        mTitle = title
                     if (key != null)
                         mKey = key
                     if (artist != null)
@@ -223,8 +223,9 @@ class SongFile : CachedCloudFile {
                 }
             } while(line!=null)
             mLines = lineNumber
-            if (mTitle == null || mTitle!!.isEmpty())
+            if (title == null || title.isEmpty())
                 throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mName))
+            mTitle=title
             if (mArtist == null)
                 mArtist = ""
         } catch (ioe: IOException) {

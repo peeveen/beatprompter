@@ -17,7 +17,6 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
         while (!mStop) {
             try {
                 var serverSocket: BluetoothServerSocket?=null
-                val acceptedSocket: BluetoothSocket?
                 synchronized(mSocketNullLock) {
                     if (mmServerSocket == null) {
                         try {
@@ -32,7 +31,7 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
                 }
 
                 if (serverSocket != null) {
-                    acceptedSocket = serverSocket!!.accept(2000)
+                    val acceptedSocket: BluetoothSocket? = serverSocket!!.accept(2000)
                     // If a connection was accepted
                     if (acceptedSocket != null) {
                         // Do work to manage the connection (in a separate thread)
@@ -50,7 +49,8 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
     fun stopListening() {
         mStop = true
         try {
-            mmServerSocket!!.close()
+            if(mmServerSocket!=null)
+                mmServerSocket!!.close()
         } catch (e: IOException) {
             Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to close Bluetooth listener socket.", e)
         } finally {

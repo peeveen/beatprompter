@@ -31,8 +31,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
 
             if (action != null)
                 if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
-                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                            BluetoothAdapter.ERROR)
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
                     when (state) {
                         BluetoothAdapter.STATE_OFF, BluetoothAdapter.STATE_TURNING_OFF -> BluetoothManager.onStopBluetooth()
                         BluetoothAdapter.STATE_ON -> {

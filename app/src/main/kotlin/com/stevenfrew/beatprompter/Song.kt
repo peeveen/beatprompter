@@ -110,7 +110,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         val maxSongTitleWidth = nativeScreenWidth * 0.9f
         val maxSongTitleHeight = mBeatCounterHeight * 0.9f
         val vMargin = (mBeatCounterHeight - maxSongTitleHeight) / 2.0f
-        mSongTitleHeader = ScreenString.create(mSongFile.mTitle!!, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
+        mSongTitleHeader = ScreenString.create(mSongFile.mTitle, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
         val extraMargin = (maxSongTitleHeight - mSongTitleHeader!!.mHeight) / 2.0f
         val x = ((nativeScreenWidth - mSongTitleHeader!!.mWidth) / 2.0).toFloat()
         val y = mBeatCounterHeight - (extraMargin + mSongTitleHeader!!.mDescenderOffset.toFloat() + vMargin)
@@ -176,7 +176,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         }
         val tenPercent = (availableScreenHeight / 10.0).toInt()
         val twentyPercent = (availableScreenHeight / 5.0).toInt()
-        mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle!!, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
+        mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
         if (mSongFile.mArtist != null && mSongFile.mArtist!!.isNotEmpty())
             mStartScreenStrings.add(ScreenString.create(mSongFile.mArtist!!, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
         val commentLines = ArrayList<String>()

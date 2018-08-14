@@ -51,7 +51,7 @@ class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: Scroll
     override fun onProgressUpdate(vararg values: Int?) {
         super.onProgressUpdate(*values)
         if (values.size > 1) {
-            mProgressDialog!!.setMessage(mProgressTitle + mSongLoadInfo.songFile.mTitle!!)
+            mProgressDialog!!.setMessage(mProgressTitle + mSongLoadInfo.songFile.mTitle)
             mProgressDialog!!.max = values[1]!!
             mProgressDialog!!.progress = values[0]!!
         }

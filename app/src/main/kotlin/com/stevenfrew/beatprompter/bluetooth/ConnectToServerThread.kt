@@ -67,7 +67,8 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
 
     fun closeSocket() {
         try {
-            mmSocket!!.close()
+            if(mmSocket!=null)
+                mmSocket!!.close()
         } catch (e: IOException) {
             Log.e(BluetoothManager.BLUETOOTH_TAG, "Error closing Bluetooth socket.", e)
         } finally {

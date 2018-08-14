@@ -6,10 +6,10 @@ import com.stevenfrew.beatprompter.PlayState
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-class ToggleStartStopMessage : BluetoothMessage {
+class ToggleStartStopMessage(startState: PlayState, time: Long) : BluetoothMessage() {
 
-    var mStartState: PlayState
-    var mTime: Long = 0
+    var mStartState: PlayState = startState
+    var mTime: Long = time
 
     override val bytes: ByteArray?
         get() {
@@ -34,43 +34,6 @@ class ToggleStartStopMessage : BluetoothMessage {
             return null
         }
 
-    constructor(startState: PlayState, time: Long) {
-        mStartState = startState
-        mTime = time
-    }
-
-    @Throws(NotEnoughBluetoothDataException::class)
-    internal constructor(bytes: ByteArray) {
-        try {
-            val byteArrayInputStream = ByteArrayInputStream(bytes)
-            var bytesRead = byteArrayInputStream.read(ByteArray(1))
-            if (bytesRead == 1) {
-                val startStateBytes = ByteArray(1)
-
-                byteArrayInputStream.read(startStateBytes)
-                mStartState = PlayState.fromValue(startStateBytes[0].toInt())
-                mTime = 0
-                val longBytes = ByteArray(LONG_BUFFER_SIZE)
-                bytesRead = byteArrayInputStream.read(longBytes)
-                if (bytesRead == LONG_BUFFER_SIZE) {
-                    for (f in LONG_BUFFER_SIZE - 1 downTo 0) {
-                        mTime = mTime shl 8
-                        mTime = mTime or (longBytes[f].toLong() and 0x00000000000000FFL)
-                    }
-                } else
-                    throw NotEnoughBluetoothDataException()
-            } else
-                throw NotEnoughBluetoothDataException()
-            byteArrayInputStream.close()
-            mMessageLength = 2 + LONG_BUFFER_SIZE
-        } catch (nebde: NotEnoughBluetoothDataException) {
-            throw nebde
-        } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, "Couldn't read ToggleStartStopMessage data, assuming insuffient data.", e)
-            throw NotEnoughBluetoothDataException()
-        }
-    }
-
     override fun toString(): String {
         return "ToggleStartStopMessage($mStartState,$mTime)"
     }
@@ -79,5 +42,35 @@ class ToggleStartStopMessage : BluetoothMessage {
         internal const val TOGGLE_START_STOP_MESSAGE_ID: Byte = 1
 
         private const val LONG_BUFFER_SIZE = java.lang.Long.SIZE / java.lang.Byte.SIZE
+
+        @Throws(NotEnoughBluetoothDataException::class)
+        internal fun fromBytes(bytes: ByteArray):IncomingBluetoothMessage {
+            val byteArrayInputStream = ByteArrayInputStream(bytes)
+            try {
+                var bytesRead = byteArrayInputStream.read(ByteArray(1))
+                if (bytesRead == 1) {
+                    val startStateBytes = ByteArray(1)
+
+                    byteArrayInputStream.read(startStateBytes)
+                    val startState = PlayState.fromValue(startStateBytes[0].toInt())
+                    var time: Long = 0
+                    val longBytes = ByteArray(LONG_BUFFER_SIZE)
+                    bytesRead = byteArrayInputStream.read(longBytes)
+                    if (bytesRead == LONG_BUFFER_SIZE) {
+                        for (f in LONG_BUFFER_SIZE - 1 downTo 0) {
+                            time = time shl 8
+                            time = time or (longBytes[f].toLong() and 0x00000000000000FFL)
+                        }
+                        return IncomingBluetoothMessage(ToggleStartStopMessage(startState, time), 2 + LONG_BUFFER_SIZE)
+                    }
+                }
+                throw NotEnoughBluetoothDataException()
+            } catch (e: Exception) {
+                Log.e(BeatPrompterApplication.TAG, "Couldn't read ToggleStartStopMessage data, assuming insufficient data.", e)
+                throw NotEnoughBluetoothDataException()
+            } finally {
+                byteArrayInputStream.close()
+            }
+        }
     }
 }

@@ -272,7 +272,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         mTemporarySetListFilter!!.addSong(song)
         try {
             initialiseTemporarySetListFile(false)
-            Utils.appendToTextFile(mTemporarySetListFile!!, song.mTitle!!)
+            Utils.appendToTextFile(mTemporarySetListFile!!, song.mTitle)
         } catch (ioe: IOException) {
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }

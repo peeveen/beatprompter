@@ -18,7 +18,7 @@ open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<S
         private fun getSongList(titles: List<String>, songFiles: List<SongFile>): MutableList<SongFile> {
             val songsByTitle = HashMap<String, SongFile>()
             for (sf in songFiles)
-                songsByTitle[normalizeTitle(sf.mTitle!!)] = sf
+                songsByTitle[normalizeTitle(sf.mTitle)] = sf
             val foundSongs = ArrayList<SongFile>()
             for (title in titles) {
                 val sf = songsByTitle[normalizeTitle(title)]
@@ -31,7 +31,7 @@ open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<S
         private fun getMissingSongList(titles: List<String>, songFiles: List<SongFile>): MutableList<String> {
             val songsByTitle = HashMap<String, SongFile>()
             for (sf in songFiles)
-                songsByTitle[normalizeTitle(sf.mTitle!!)] = sf
+                songsByTitle[normalizeTitle(sf.mTitle)] = sf
             val missingSongs = ArrayList<String>()
             for (title in titles) {
                 val sf = songsByTitle[normalizeTitle(title)]

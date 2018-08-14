@@ -7,17 +7,17 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-class ChooseSongMessage : BluetoothMessage {
+class ChooseSongMessage constructor(title: String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Int, maxFontSize: Int, screenWidth: Int, screenHeight: Int): BluetoothMessage() {
 
-    var mTitle: String
-    var mTrack: String
-    var mBeatScroll: Boolean = false
-    var mSmoothScroll: Boolean = false
-    var mOrientation: Int = 0
-    var mMinFontSize: Int = 0
-    var mMaxFontSize: Int = 0
-    var mScreenWidth: Int = 0
-    var mScreenHeight: Int = 0
+    var mTitle=title
+    var mTrack=track
+    var mBeatScroll=beatScroll
+    var mSmoothScroll=smoothScroll
+    var mOrientation=orientation
+    var mMinFontSize=minFontSize
+    var mMaxFontSize=maxFontSize
+    var mScreenWidth=screenWidth
+    var mScreenHeight=screenHeight
 
     override val bytes: ByteArray?
         get() {
@@ -48,48 +48,37 @@ class ChooseSongMessage : BluetoothMessage {
             return null
         }
 
-    constructor(title: String?, track: String?, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Int, maxFontSize: Int, screenWidth: Int, screenHeight: Int) {
-        mTitle = title ?: ""
-        mTrack = track ?: ""
-        mOrientation = orientation
-        mBeatScroll = beatScroll
-        mSmoothScroll = smoothScroll
-        mMinFontSize = minFontSize
-        mMaxFontSize = maxFontSize
-        mScreenWidth = screenWidth
-        mScreenHeight = screenHeight
-    }
-
-    @Throws(NotEnoughBluetoothDataException::class)
-    internal constructor(bytes: ByteArray) {
-        try {
-            val byteArrayInputStream = ByteArrayInputStream(bytes)
-            val dataRead = byteArrayInputStream.read(ByteArray(1))
-            if (dataRead == 1) {
-                val availableStart = byteArrayInputStream.available()
-                val objectInputStream = ObjectInputStream(byteArrayInputStream)
-                mTitle = objectInputStream.readObject() as String
-                mTrack = objectInputStream.readObject() as String
-                mBeatScroll = objectInputStream.readBoolean()
-                mSmoothScroll = objectInputStream.readBoolean()
-                mOrientation = objectInputStream.readInt()
-                mMinFontSize = objectInputStream.readInt()
-                mMaxFontSize = objectInputStream.readInt()
-                mScreenWidth = objectInputStream.readInt()
-                mScreenHeight = objectInputStream.readInt()
-                val availableEnd = byteArrayInputStream.available()
-                objectInputStream.close()
-                byteArrayInputStream.close()
-                mMessageLength = 1 + (availableStart - availableEnd)
-            } else
-                throw NotEnoughBluetoothDataException()
-        } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, "Couldn't read ChooseSongMessage data, assuming not enough data", e)
-            throw NotEnoughBluetoothDataException()
-        }
-    }
-
     companion object {
         internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
+
+        @Throws(NotEnoughBluetoothDataException::class)
+        internal fun fromBytes(bytes: ByteArray):IncomingBluetoothMessage {
+            try {
+                val byteArrayInputStream = ByteArrayInputStream(bytes)
+                val dataRead = byteArrayInputStream.read(ByteArray(1))
+                if (dataRead == 1) {
+                    val availableStart = byteArrayInputStream.available()
+                    val objectInputStream = ObjectInputStream(byteArrayInputStream)
+                    val title = objectInputStream.readObject() as String
+                    val track = objectInputStream.readObject() as String
+                    val beatScroll = objectInputStream.readBoolean()
+                    val smoothScroll = objectInputStream.readBoolean()
+                    val orientation = objectInputStream.readInt()
+                    val minFontSize = objectInputStream.readInt()
+                    val maxFontSize = objectInputStream.readInt()
+                    val screenWidth = objectInputStream.readInt()
+                    val screenHeight = objectInputStream.readInt()
+                    val availableEnd = byteArrayInputStream.available()
+                    objectInputStream.close()
+                    byteArrayInputStream.close()
+                    val messageLength = 1 + (availableStart - availableEnd)
+                    return IncomingBluetoothMessage(ChooseSongMessage(title,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenWidth,screenHeight),messageLength)
+                } else
+                    throw NotEnoughBluetoothDataException()
+            } catch (e: Exception) {
+                Log.e(BeatPrompterApplication.TAG, "Couldn't read ChooseSongMessage data, assuming not enough data", e)
+                throw NotEnoughBluetoothDataException()
+            }
+        }
     }
 }
