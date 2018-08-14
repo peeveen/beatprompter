@@ -26,11 +26,27 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
         }
     }
 
+    fun parsePotentialCommentTag(): String
+    {
+        if(mName.contains('@'))
+        {
+            val bit=mName.substringBefore('@')
+            when(bit)
+            {
+                "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
+                    mName = "comment"
+                    return mName.substringAfter('@')
+                }
+            }
+        }
+        return ""
+    }
+
     companion object {
         val colorTags: HashSet<String> = hashSetOf("backgroundcolour", "bgcolour", "backgroundcolor", "bgcolor", "pulsecolour", "beatcolour", "pulsecolor", "beatcolor", "lyriccolour", "lyricscolour", "lyriccolor", "lyricscolor", "chordcolour", "chordcolor", "commentcolour", "commentcolor", "beatcountercolour", "beatcountercolor")
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
 
-        fun getMIDIEventFromTag(time: Long, tag: Tag, aliases: ArrayList<Alias>, defaultChannel: Byte, parseErrors: ArrayList<FileParseError>): MIDIEvent? {
+        fun getMIDIEventFromTag(time: Long, tag: Tag, aliases: List<Alias>, defaultChannel: Byte, parseErrors: MutableList<FileParseError>): MIDIEvent? {
             var tagValue = tag.mValue.trim()
             var eventOffset: EventOffset? = null
             if (tagValue.isEmpty()) {
@@ -54,7 +70,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                 }
             }
             val bits = if (tagValue.isEmpty()) arrayOf() else tagValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            var paramBytes = bits.map{ bit -> Value.parseValue(bit.trim())}
+            var paramBytes = bits.map { bit -> Value.parseValue(bit.trim()) }
             var lastParamIsChannel = false
             var channel = defaultChannel
             for (f in paramBytes.indices)
@@ -67,7 +83,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                 if (lastParamIsChannel) {
                     val lastParam = paramBytes[paramBytes.size - 1] as ChannelValue
                     channel = lastParam.resolve()
-                    val paramBytesWithoutChannel = paramBytes.subList(0,paramBytes.size - 1)
+                    val paramBytesWithoutChannel = paramBytes.subList(0, paramBytes.size - 1)
                     paramBytes = paramBytesWithoutChannel
                 }
                 val resolvedBytes = ByteArray(paramBytes.size)
@@ -88,7 +104,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
 
         }
 
-        fun getIntegerValueFromTag(tag: Tag, min: Int, max: Int, defolt: Int, parseErrors: ArrayList<FileParseError>): Int {
+        fun getIntegerValueFromTag(tag: Tag, min: Int, max: Int, defolt: Int, parseErrors: MutableList<FileParseError>): Int {
             var `val`: Int
             try {
                 `val` = Integer.parseInt(tag.mValue)
@@ -107,7 +123,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
             return `val`
         }
 
-        fun getDurationValueFromTag(tag: Tag, min: Int, max: Int, defolt: Int, trackLengthAllowed: Boolean, parseErrors: ArrayList<FileParseError>): Int {
+        fun getDurationValueFromTag(tag: Tag, min: Int, max: Int, defolt: Int, trackLengthAllowed: Boolean, parseErrors: MutableList<FileParseError>): Int {
             var `val`: Int
             try {
                 `val` = Utils.parseDuration(tag.mValue, trackLengthAllowed)
@@ -126,7 +142,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
             return `val`
         }
 
-        fun getDoubleValueFromTag(tag: Tag, min: Double, max: Double, defolt: Double, parseErrors: ArrayList<FileParseError>): Double {
+        fun getDoubleValueFromTag(tag: Tag, min: Double, max: Double, defolt: Double, parseErrors: MutableList<FileParseError>): Double {
             var `val`: Double
             try {
                 `val` = java.lang.Double.parseDouble(tag.mValue)
@@ -145,7 +161,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
             return `val`
         }
 
-        fun getColourValueFromTag(tag: Tag, defolt: Int, parseErrors: ArrayList<FileParseError>): Int {
+        fun getColourValueFromTag(tag: Tag, defolt: Int, parseErrors: MutableList<FileParseError>): Int {
             try {
                 return Color.parseColor(tag.mValue)
             } catch (iae: IllegalArgumentException) {
@@ -162,7 +178,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
             return defolt
         }
 
-        fun verifySongTriggerFromTag(tag: Tag, parseErrors: ArrayList<FileParseError>) {
+        fun verifySongTriggerFromTag(tag: Tag, parseErrors: MutableList<FileParseError>) {
             try {
                 SongTrigger.parse(tag.mValue, tag.mName == "midi_song_select_trigger", tag.mLineNumber, parseErrors)
             } catch (e: Exception) {

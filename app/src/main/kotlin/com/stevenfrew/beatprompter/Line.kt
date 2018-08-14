@@ -34,13 +34,13 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: 
         get() = getGraphics(true)
 
 
-    internal fun measure(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, songPixelPosition: Int, scrollMode: ScrollingMode, cancelEvent: CancelEvent): Int {
+    internal fun measure(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, songPixelPosition: Int, scrollMode: ScrollingMode, cancelEvent: CancelEvent): Int {
         mSongPixelPosition = songPixelPosition
         mLineMeasurements = doMeasurements(paint, minimumFontSize, maximumFontSize, screenWidth, screenHeight, font, highlightColour, defaultHighlightColour, errors, scrollMode, cancelEvent)
         return if (mLineMeasurements != null) mLineMeasurements!!.mHighlightColour else 0
     }
 
-    abstract fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements?
+    abstract fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements?
 
     internal fun getTimeFromPixel(pixelPosition: Int): Long {
         if (pixelPosition == 0)

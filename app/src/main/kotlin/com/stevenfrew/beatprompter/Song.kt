@@ -10,10 +10,9 @@ import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.CommentEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
-import java.util.ArrayList
 
-class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: ArrayList<Comment> // Comments to show on startup screen.
-           , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: ArrayList<FileParseError>, internal var mScrollingMode: ScrollingMode, internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?, internal var mOrientation: Int, internal var mInitialMIDIMessages: ArrayList<OutgoingMessage>, private val mBeatBlocks: ArrayList<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
+class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment> // Comments to show on startup screen.
+           , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode, internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?, internal var mOrientation: Int, internal var mInitialMIDIMessages: List<OutgoingMessage>, private val mBeatBlocks: List<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
     private var mFirstLine: Line? = null // First line to show.
     internal var mCurrentLine: Line? = null
     internal var mLastLine: Line? = null
@@ -29,7 +28,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
     internal var mSmoothScrollOffset: Int = 0
     internal var mSongHeight = 0
     private var mMaxLineHeight = 0
-    internal var mStartScreenStrings = ArrayList<ScreenString>()
+    internal var mStartScreenStrings = mutableListOf<ScreenString>()
     internal var mNextSongString: ScreenString? = null
     internal var mTotalStartScreenTextHeight: Int = 0
 
@@ -174,10 +173,10 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
         if (mSongFile.mArtist != null && mSongFile.mArtist!!.isNotEmpty())
             mStartScreenStrings.add(ScreenString.create(mSongFile.mArtist!!, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
-        val commentLines = ArrayList<String>()
+        val commentLines = mutableListOf<String>()
         for (c in mInitialComments)
             commentLines.add(c.mText)
-        val nonBlankCommentLines = ArrayList<String>()
+        val nonBlankCommentLines = mutableListOf<String>()
         for (commentLine in commentLines)
             if (commentLine.trim().isNotEmpty())
                 nonBlankCommentLines.add(commentLine.trim())

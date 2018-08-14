@@ -1,9 +1,8 @@
 package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.event.LineEvent
-import java.util.ArrayList
 
-class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, graphicHeights: ArrayList<Int>, internal var mHighlightColour: Int, lineEvent: LineEvent?, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
+class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, graphicHeights: List<Int>, internal var mHighlightColour: Int, lineEvent: LineEvent?, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
     internal var mPixelsToTimes: LongArray
     internal var mGraphicHeights: IntArray = IntArray(graphicHeights.size)
     internal var mJumpScrollIntervals = IntArray(101)

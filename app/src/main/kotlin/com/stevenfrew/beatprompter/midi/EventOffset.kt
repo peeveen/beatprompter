@@ -4,9 +4,8 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
-import java.util.ArrayList
 
-class EventOffset(offsetString: String?, sourceTag: Tag, errors: ArrayList<FileParseError>) {
+class EventOffset(offsetString: String?, sourceTag: Tag, errors: MutableList<FileParseError>) {
     var mSourceTag = sourceTag
     var mAmount: Int = 0
     var mOffsetType: EventOffsetType=EventOffsetType.Milliseconds

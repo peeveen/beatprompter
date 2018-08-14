@@ -10,22 +10,17 @@ import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.cache.CachedCloudFile
 import java.util.ArrayList
 
-class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHandler: Handler, private val mCloudPath: String, private val mIncludeSubFolders: Boolean, filesToUpdate: ArrayList<CachedCloudFile>?) : AsyncTask<String, String, Boolean>(), CloudFolderSearchListener, CloudItemDownloadListener {
+class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHandler: Handler, private val mCloudPath: String, private val mIncludeSubFolders: Boolean, filesToUpdate: List<CachedCloudFile>?) : AsyncTask<String, String, Boolean>(), CloudFolderSearchListener, CloudItemDownloadListener {
     private var mProgressDialog: ProgressDialog? = null
     private var mErrorOccurred = false
-    private var mFilesToUpdate: MutableList<CloudFileInfo>
-    private val mCloudFilesFound = ArrayList<CloudFileInfo>()
-    private val mCloudFilesToDownload = ArrayList<CloudFileInfo>()
+    private var mFilesToUpdate= filesToUpdate?.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList() ?: mutableListOf()
+    private val mCloudFilesFound = mutableListOf<CloudFileInfo>()
+    private val mCloudFilesToDownload = mutableListOf<CloudFileInfo>()
 
     private val isRefreshingSelectedFiles: Boolean
         get() = !mFilesToUpdate.isEmpty()
 
-    init {
-        mFilesToUpdate = filesToUpdate?.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList() ?: ArrayList()
-    }
-
     override fun doInBackground(vararg paramParams: String): Boolean? {
-
         if (isRefreshingSelectedFiles)
             updateSelectedFiles()
         else

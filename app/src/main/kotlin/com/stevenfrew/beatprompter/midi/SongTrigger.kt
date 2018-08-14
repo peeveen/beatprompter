@@ -5,7 +5,6 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.FileParseError
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.util.ArrayList
 
 class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, songSelect: Boolean) {
 

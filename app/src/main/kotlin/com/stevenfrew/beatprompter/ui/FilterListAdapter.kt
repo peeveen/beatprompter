@@ -10,9 +10,8 @@ import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.filter.*
-import java.util.ArrayList
 
-class FilterListAdapter(private val values: ArrayList<Filter>) : ArrayAdapter<Filter>(BeatPrompterApplication.context, -1, values) {
+class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>(BeatPrompterApplication.context, -1, values) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = BeatPrompterApplication.context

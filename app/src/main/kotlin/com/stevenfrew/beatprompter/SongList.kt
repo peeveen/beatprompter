@@ -59,7 +59,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private var mSortingPreference = SortingPreference.Title
     private var mPlaylist = Playlist()
     private var mNowPlayingNode: PlaylistNode? = null
-    private var mFilters = ArrayList<Filter>()
+    private var mFilters = mutableListOf<Filter>()
     private var mTemporarySetListFilter: TemporarySetListFilter? = null
     private var mListAdapter: BaseAdapter? = null
 
@@ -296,7 +296,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val selectedNode = mPlaylist.getNodeAt(position)
         val selectedSong = selectedNode.mSongFile
         val selectedSet = if (mSelectedFilter != null && mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
-        val trackNames = ArrayList<String>()
+        val trackNames = mutableListOf<String>()
         trackNames.add(getString(R.string.no_audio))
         trackNames.addAll(selectedSong.mAudioFiles)
         var addAllowed = false
@@ -461,7 +461,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         al.show()
     }
 
-    private fun showMIDIAliasErrors(errors: ArrayList<FileParseError>) {
+    private fun showMIDIAliasErrors(errors: MutableList<FileParseError>) {
         val builder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         @SuppressLint("InflateParams")
@@ -781,18 +781,18 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun buildFilterList() {
         Log.d(BeatPrompterApplication.TAG, "Building taglist ...")
-        mFilters = ArrayList()
+        mFilters = mutableListOf()
         val mOldSelectedFilter = mSelectedFilter
         mSelectedFilter = null
-        val tagDicts = HashMap<String, ArrayList<SongFile>>()
-        val folderDicts = HashMap<String, ArrayList<SongFile>>()
+        val tagDicts = HashMap<String, MutableList<SongFile>>()
+        val folderDicts = HashMap<String, MutableList<SongFile>>()
         for (song in mCachedCloudFiles.songFiles) {
             for (tag in song.mTags) {
-                val songs = tagDicts.getOrPut(tag) {ArrayList()}
+                val songs = tagDicts.getOrPut(tag) {mutableListOf()}
                 songs.add(song)
             }
             if (song.mSubfolder != null && song.mSubfolder!!.isNotEmpty()) {
-                val songs = folderDicts.getOrPut(song.mSubfolder!!) {ArrayList()}
+                val songs = folderDicts.getOrPut(song.mSubfolder!!) {mutableListOf()}
                 songs.add(song)
             }
         }
@@ -1168,7 +1168,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     companion object {
-        var mDefaultCloudDownloads: MutableList<CloudDownloadResult> = ArrayList()
+        var mDefaultCloudDownloads: MutableList<CloudDownloadResult> = mutableListOf()
         var mCachedCloudFiles = CachedCloudFileCollection()
 
         private var mBeatPrompterDataFolder: File?=null
@@ -1195,16 +1195,16 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         private const val FULL_VERSION_SKU_NAME = "full_version"
 
         private fun removeDefaultAliasFile(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
-            val nonDefaults = ArrayList<MIDIAliasFile>()
+            val nonDefaults = mutableListOf<MIDIAliasFile>()
             for (file in fileList)
                 if (file.mFile != mDefaultMidiAliasesFile)
                     nonDefaults.add(file)
             return nonDefaults
         }
 
-        internal val midiAliases: ArrayList<Alias>
+        internal val midiAliases: MutableList<Alias>
             get() {
-                val aliases = ArrayList<Alias>()
+                val aliases = mutableListOf<Alias>()
                 for (maf in mCachedCloudFiles.midiAliasFiles)
                     aliases.addAll(maf.mAliasSet.aliases)
                 return aliases

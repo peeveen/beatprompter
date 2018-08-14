@@ -276,7 +276,7 @@ class SongFile : CachedCloudFile {
     }
 
     @Throws(IOException::class)
-    fun getTimePerLineAndBar(chosenTrack: String?, tempAudioFileCollection: ArrayList<AudioFile>, tempImageFileCollection: ArrayList<ImageFile>): SmoothScrollingTimings {
+    fun getTimePerLineAndBar(chosenTrack: String?, tempAudioFileCollection: MutableList<AudioFile> =mutableListOf(), tempImageFileCollection: MutableList<ImageFile> =mutableListOf()): SmoothScrollingTimings {
         val bplOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_offset))
         val bplMin = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_min)) + bplOffset
         val bplMax = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_max)) + bplOffset

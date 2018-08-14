@@ -9,7 +9,6 @@ import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 import java.io.*
-import java.util.ArrayList
 import java.util.HashSet
 
 /**
@@ -120,12 +119,12 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
     fun parse(): Song {
         val scrollBeatMin = 1
         var scrollBeatDefault = 4
-        val initialMIDIMessages = ArrayList<OutgoingMessage>()
-        val errors = ArrayList<FileParseError>()
+        val initialMIDIMessages = mutableListOf<OutgoingMessage>()
+        val errors = mutableListOf<FileParseError>()
         var stopAddingStartupItems = false
 
         val chosenTrack = mLoadingSongFile.track
-        val sst = mSongFile.getTimePerLineAndBar(chosenTrack, ArrayList(), ArrayList())
+        val sst = mSongFile.getTimePerLineAndBar(chosenTrack)
         val timePerLine = sst.timePerLine
         val timePerBar = sst.timePerBar
 
@@ -139,7 +138,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         try {
             var line: String?=""
 
-            var tagsOut = ArrayList<Tag>()
+            var tagsOut = mutableListOf<Tag>()
             val tagsSet = HashSet<String>()
 
             // ONE SHOT
@@ -154,14 +153,13 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             var initialBPBSet = false
             var bpl = 1
             var beatsToAdjust = 0
-            val rolloverBeats = ArrayList<BeatEvent>()
+            val rolloverBeats = mutableListOf<BeatEvent>()
             var pauseTime: Int
             var scrollBeat = bpb
             var lastBeatBlock: BeatBlock? = null
             // COMMENT
-            val comments = ArrayList<Comment>()
-            val beatBlocks = ArrayList<BeatBlock>()
-            var commentAudience: String?
+            val comments = mutableListOf<Comment>()
+            val beatBlocks = mutableListOf<BeatBlock>()
             var lineImage: ImageFile? = null
 
             var metronomeOn = mMetronomeContext === MetronomeContext.On
@@ -214,14 +212,9 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 createColorEvent = true
                             if (Tag.oneShotTags.contains(tag.mName) && tagsSet.contains(tag.mName))
                                 errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice, tag.mName)))
-                            commentAudience = null
-                            if (tag.mName.startsWith("c@")) {
-                                commentAudience = tag.mName.substring(1)
-                                tag.mName = "c"
-                            } else if (tag.mName.startsWith("comment@")) {
-                                commentAudience = tag.mName.substring(7)
-                                tag.mName = "c"
-                            }
+
+                            val commentAudience=tag.parsePotentialCommentTag()
+
                             when (tag.mName) {
                                 "image" -> {
                                     if (lineImage != null) {
@@ -317,8 +310,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                     if (scrollBeat > bpb)
                                         scrollBeat = bpb
                                 }
-                                "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
-                                    val comment = Comment(tag.mValue, commentAudience)
+                                "comment" -> {
+                                    val comment = Comment(tag.mValue,commentAudience)
                                     if (stopAddingStartupItems) {
                                         val ce = CommentEvent(currentTime, comment)
                                         if (firstEvent == null)
@@ -397,7 +390,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                         if (!mShowChords && chordsFound) {
                             chordsFound = false
                             allowBlankLine = true
-                            val noChordsTags = ArrayList<Tag>()
+                            val noChordsTags = mutableListOf<Tag>()
                             for (tag in tagsOut)
                                 if (!tag.mChordTag)
                                     noChordsTags.add(tag)
@@ -485,7 +478,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             if (createLine) {
                                 displayLineCounter++
                                 if (displayLineCounter > DEMO_LINE_COUNT && !mRegistered) {
-                                    tagsOut = ArrayList()
+                                    tagsOut = mutableListOf()
                                     strippedLine = BeatPrompterApplication.getResourceString(R.string.please_buy)
                                     lineImage = null
                                 }
@@ -732,14 +725,13 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
     }
 
     companion object {
-
         private const val MAX_LINE_LENGTH = 256
         private const val DEMO_LINE_COUNT = 15
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
 
-        private fun offsetMIDIEvents(firstEvent: BaseEvent?, errors: ArrayList<FileParseError>) {
+        private fun offsetMIDIEvents(firstEvent: BaseEvent?, errors: MutableList<FileParseError>) {
             var event = firstEvent
             while (event != null) {
                 if (event is MIDIEvent) {

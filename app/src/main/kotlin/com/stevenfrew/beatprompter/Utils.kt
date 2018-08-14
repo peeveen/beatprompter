@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter
 
 import android.graphics.Color
 import java.io.*
-import java.util.*
 import java.util.regex.Pattern
 
 object Utils {
@@ -15,8 +14,7 @@ object Utils {
 
     // Special token.
     const val TRACK_AUDIO_LENGTH_VALUE = -93781472
-    private val splitters = ArrayList(Arrays.asList(" ", "-"))
-
+    private val splitters = listOf(" ", "-")
 
     private const val REGEXP = (
             "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
@@ -87,7 +85,7 @@ object Utils {
         return if (r * 0.299 + g * 0.587 + b * 0.114 > 186) Color.BLACK else Color.WHITE
     }
 
-    fun countWords(words: Array<String>): Int {
+    fun countWords(words: List<String>): Int {
         var wordCount = 0
         for (w in words)
             if (!splitters.contains(w))
@@ -95,7 +93,7 @@ object Utils {
         return wordCount
     }
 
-    fun stitchBits(bits: Array<String>, nonWhitespaceBitsToJoin: Int): String {
+    fun stitchBits(bits: List<String>, nonWhitespaceBitsToJoin: Int): String {
         val result = StringBuilder()
         var nonWhitespaceBitsJoined = 0
         for (bit in bits) {
@@ -109,9 +107,9 @@ object Utils {
         return result.toString()
     }
 
-    fun splitText(strIn: String): Array<String> {
+    fun splitText(strIn: String): List<String> {
         var str = strIn
-        val bits = ArrayList<String>()
+        val bits = mutableListOf<String>()
         var bestSplitIndex: Int
         while (true) {
             bestSplitIndex = str.length
@@ -133,11 +131,11 @@ object Utils {
             } else
                 break
         }
-        return bits.toTypedArray()
+        return bits.toList()
     }
 
-    fun splitIntoLetters(str: String): Array<String> {
-        return str.toCharArray().map{it.toString()}.toTypedArray()
+    fun splitIntoLetters(str: String): List<String> {
+        return str.toCharArray().map{it.toString()}
     }
 
     fun parseDuration(str: String, trackLengthAllowed: Boolean): Int {

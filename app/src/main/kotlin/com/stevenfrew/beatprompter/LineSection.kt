@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
-import java.util.ArrayList
 
 internal class LineSection(var mLineText: String?, var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
     var mNextSection: LineSection? = null
@@ -19,7 +18,7 @@ internal class LineSection(var mLineText: String?, var mChordText: String?, priv
     var mChordDrawLine = -1
     var mLineSS: ScreenString?=null
     var mChordSS: ScreenString?=null
-    var mHighlightingRectangles = ArrayList<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
+    var mHighlightingRectangles = mutableListOf<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
 
     val width: Int
         get() = Math.max(mTextWidth, mChordWidth)
@@ -57,7 +56,7 @@ internal class LineSection(var mLineText: String?, var mChordText: String?, priv
         return mChordWidth
     }
 
-    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>): Int {
+    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>): Int {
         var lookingForEnd = currentHighlightColour != 0
         var highlightColour = if (lookingForEnd) currentHighlightColour else 0
         var startX = 0

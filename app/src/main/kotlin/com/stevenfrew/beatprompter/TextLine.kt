@@ -5,7 +5,6 @@ import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
 import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
-import java.util.ArrayList
 
 class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
@@ -13,14 +12,14 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
     private var mChordHeight: Int = 0
     private var mLyricHeight: Int = 0
     private var mFont: Typeface? = null
-    private val mLineTags = ArrayList<Tag>()
-    private val mChordTags = ArrayList<Tag>()
+    private val mLineTags = mutableListOf<Tag>()
+    private val mChordTags = mutableListOf<Tag>()
     private var mFirstLineSection: LineSection? = null
-    private val mXSplits = ArrayList<Int>()
-    private val mLineWidths = ArrayList<Int>()
-    private val mChordsDrawn = ArrayList<Boolean>()
-    private val mTextDrawn = ArrayList<Boolean>()
-    private val mPixelSplits = ArrayList<Boolean>()
+    private val mXSplits = mutableListOf<Int>()
+    private val mLineWidths = mutableListOf<Int>()
+    private val mChordsDrawn = mutableListOf<Boolean>()
+    private val mTextDrawn = mutableListOf<Boolean>()
+    private val mPixelSplits = mutableListOf<Boolean>()
     private var mLineDescenderOffset: Int = 0
     private var mChordDescenderOffset: Int = 0
 
@@ -41,10 +40,10 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
     }
 
     // TODO: Fix this, for god's sake!
-    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
+    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
         var vHighlightColour = highlightColour
         mFont = font
-        val sections = ArrayList<LineSection>()
+        val sections = mutableListOf<LineSection>()
 
         var chordPositionStart = 0
         var chordTagIndex = -1
@@ -71,7 +70,7 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
                     chordTag.mName = chordText
                 }
             }
-            val otherTags = ArrayList<Tag>()
+            val otherTags = mutableListOf<Tag>()
             for (tag in mLineTags)
                 if (tag.mPosition in chordPositionStart..chordPositionEnd)
                     otherTags.add(tag)
@@ -393,7 +392,7 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
         }
 
         val lines = mXSplits.size + 1
-        val graphicHeights = ArrayList<Int>()
+        val graphicHeights = mutableListOf<Int>()
         if (lines == 1)
             graphicHeights.add(actualLineHeight)
         else {

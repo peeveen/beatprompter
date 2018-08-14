@@ -5,14 +5,13 @@ import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
-import java.util.ArrayList
 
 class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mSourceRect: Rect? = null
     private var mDestRect: Rect? = null
     private var mBitmap: Bitmap? = null
 
-    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
+    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
         val path = mImageFile.mFile.absolutePath
         val options = BitmapFactory.Options()
         try {
@@ -32,7 +31,7 @@ class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private va
             scaledImageWidth = screenWidth
         }
 
-        val graphicHeights = ArrayList<Int>()
+        val graphicHeights = mutableListOf<Int>()
         graphicHeights.add(scaledImageHeight)
         mSourceRect = Rect(0, 0, imageWidth, imageHeight)
         mDestRect = Rect(0, 0, scaledImageWidth, scaledImageHeight)
