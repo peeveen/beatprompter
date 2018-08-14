@@ -72,9 +72,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mBeatCounterColor = Color.WHITE
     private var mScrollMarkerColor = Color.BLACK
     private var mPulse = true
-    private var mTrackMediaPlayer: MediaPlayer? = null
-    private var mSilenceMediaPlayer: MediaPlayer? = null
-    private var mClickSoundPool: SoundPool? = null
+    private var mTrackMediaPlayer: MediaPlayer= MediaPlayer()
+    private var mSilenceMediaPlayer: MediaPlayer= MediaPlayer.create(context, R.raw.silence)
+    private var mClickSoundPool: SoundPool= SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
     private var mClickAudioID: Int = 0
     private var mCommentDisplayTimeNanoseconds = Utils.milliToNano(4000)
     private var mSongDisplayActivity: SongDisplayActivity? = null
@@ -139,11 +139,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun initView() {
-        val audioAttributesBuilder = AudioAttributes.Builder()
-        val audioAttributes = audioAttributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
-        val soundPoolBuilder = SoundPool.Builder()
-        mClickSoundPool = soundPoolBuilder.setMaxStreams(16).setAudioAttributes(audioAttributes).build()
-        mClickAudioID = mClickSoundPool!!.load(this.context, R.raw.click, 0)
+        mClickAudioID = mClickSoundPool.load(this.context, R.raw.click, 0)
         mPaint = Paint()
         mSongPixelPosition = 0
 
@@ -179,40 +175,32 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
             if (mSong!!.mChosenBackingTrack != null)
                 if (mSong!!.mChosenBackingTrack!!.mFile.exists()) {
-                    // Shitty Archos workaround.
-                    mTrackMediaPlayer = MediaPlayer()
                     // Play silence to kickstart audio system, allowing snappier playback.
-                    mSilenceMediaPlayer = MediaPlayer.create(context, R.raw.silence)
-                    mSilenceMediaPlayer!!.isLooping = true
-                    mSilenceMediaPlayer!!.setVolume(0.01f, 0.01f)
+                    mSilenceMediaPlayer.isLooping = true
+                    mSilenceMediaPlayer.setVolume(0.01f, 0.01f)
+                    // Shitty Archos workaround.
                     var fis: FileInputStream? = null
                     try {
                         fis = FileInputStream(mSong!!.mChosenBackingTrack!!.mFile.absolutePath)
-                        mTrackMediaPlayer!!.setDataSource(fis.fd)
-                        mTrackMediaPlayer!!.prepare()
+                        mTrackMediaPlayer.setDataSource(fis.fd)
+                        mTrackMediaPlayer.prepare()
                         seekTrack(0)
                         mCurrentVolume = mSong!!.mChosenBackingTrackVolume
-                        mTrackMediaPlayer!!.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
-                        mTrackMediaPlayer!!.isLooping = false
-                        mSilenceMediaPlayer!!.start()
+                        mTrackMediaPlayer.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
+                        mTrackMediaPlayer.isLooping = false
+                        mSilenceMediaPlayer.start()
                     } catch (e: Exception) {
-                        mTrackMediaPlayer = null
                         val toast = Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG)
                         toast.show()
                     }
 
-                    if (fis != null) {
-                        try {
-                            fis.close()
-                        } catch (ee: Exception) {
-                            Log.e(BeatPrompterApplication.TAG, "Failed to close audio file input stream.", ee)
-                        }
-
+                    try {
+                        fis?.close()
+                    } catch (ee: Exception) {
+                        Log.e(BeatPrompterApplication.TAG, "Failed to close audio file input stream.", ee)
                     }
                 } else {
                     val toast = Toast.makeText(context, R.string.missing_audio_file_warning, Toast.LENGTH_LONG)
-                    mTrackMediaPlayer = null
-                    mSilenceMediaPlayer = null
                     toast.show()
                 }
             if (mSong!!.mScrollingMode === ScrollingMode.Manual) {
@@ -321,8 +309,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val graphics = currentLine.graphics
                     val lineTop = currentY
                     for ((lineCounter, graphic) in graphics.withIndex()) {
-                        if (!graphic.mBitmap!!.isRecycled)
-                            canvas.drawBitmap(graphic.mBitmap!!, 0f, currentY.toFloat(), mPaint)
+                        if (!graphic.mBitmap.isRecycled)
+                            canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += currentLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
                     if (highlight) {
@@ -347,7 +335,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     currentY = startY - prevLine.mLineMeasurements!!.mLineHeight
                     val graphics = prevLine.graphics
                     for ((lineCounter, graphic) in graphics.withIndex()) {
-                        canvas.drawBitmap(graphic.mBitmap!!, 0f, currentY.toFloat(), mPaint)
+                        canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += prevLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
                     mPaint!!.alpha = 255
@@ -673,9 +661,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
         BluetoothManager.broadcastMessageToClients(ToggleStartStopMessage(mStartState, mPauseTime))
         mStartState = PlayState.reduce(mStartState)
-        if (mTrackMediaPlayer != null)
-            if (mTrackMediaPlayer!!.isPlaying)
-                mTrackMediaPlayer!!.pause()
+        if (mTrackMediaPlayer.isPlaying)
+            mTrackMediaPlayer.pause()
         if (!midiInitiated)
             if (mSongDisplayActivity != null)
                 mSongDisplayActivity!!.onSongStop()
@@ -690,19 +677,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 mSong!!.recycleGraphics()
             mSong = null
             Task.stopTask(mMetronomeTask, mMetronomeThread)
-            if (mTrackMediaPlayer != null) {
-                mTrackMediaPlayer!!.stop()
-                mTrackMediaPlayer!!.release()
-            }
-            if (mSilenceMediaPlayer != null) {
-                mSilenceMediaPlayer!!.stop()
-                mSilenceMediaPlayer!!.release()
-            }
-            if (mClickSoundPool != null)
-                mClickSoundPool!!.release()
-            mTrackMediaPlayer = null
-            mSilenceMediaPlayer = null
-            mClickSoundPool = null
+            mTrackMediaPlayer.stop()
+            mTrackMediaPlayer.release()
+            mSilenceMediaPlayer.stop()
+            mSilenceMediaPlayer.release()
+            mClickSoundPool.release()
             System.gc()
         }
     }
@@ -757,7 +736,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mBeatCountRect = Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterHeight)
         mLastBeatTime = mSongStartTime + event.mEventTime
         if (event.mClick && mStartState === PlayState.Playing && mSong!!.mScrollingMode !== ScrollingMode.Manual && allowClick)
-            mClickSoundPool!!.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
+            mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
         if (mSongDisplayActivity != null/*&&(!event.mCount)*/)
             mSongDisplayActivity!!.onSongBeat(event.mBPM)
     }
@@ -782,17 +761,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processTrackEvent(): Boolean {
-        if (mTrackMediaPlayer != null) {
-            Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
-            mTrackMediaPlayer!!.start()
-            return true
-        }
-        return false
+        Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
+        mTrackMediaPlayer.start()
+        return true
     }
 
     private fun processEndEvent(): Boolean {
         // End the song in beat mode, or if we're using a track in any other mode.
-        val end = mSong!!.mScrollingMode === ScrollingMode.Beat || mTrackMediaPlayer != null
+        val end = mSong!!.mScrollingMode === ScrollingMode.Beat
         if (end)
             endSong(false)
         return end
@@ -826,7 +802,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun seekTrack(time: Int) {
-        mTrackMediaPlayer!!.seekTo(time)
+        mTrackMediaPlayer.seekTo(time)
         //        while(mTrackMediaPlayer.getCurrentPosition()!=time)
         //        while(!getSeekCompleted())
         /*            try {
@@ -859,20 +835,18 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             }
             mSongStartTime = System.nanoTime() - nano
             if (mSong!!.mScrollingMode !== ScrollingMode.Manual) {
-                if (mTrackMediaPlayer != null) {
-                    val trackEvent = mSong!!.mCurrentEvent!!.mPrevTrackEvent
-                    if (trackEvent != null) {
-                        val nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime)
-                        seekTrack(nTime)
-                        //                    Log.d(BeatPrompterApplication.TAG, "Seek to=" + nTime);
-                        if (mStartState === PlayState.Playing) {
-                            Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer")
-                            mTrackMediaPlayer!!.start()
-                        }
-                    } else {
-                        Log.d(BeatPrompterApplication.TAG, "Seek to=0")
-                        seekTrack(0)
+                val trackEvent = mSong!!.mCurrentEvent!!.mPrevTrackEvent
+                if (trackEvent != null) {
+                    val nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime)
+                    seekTrack(nTime)
+                    //                    Log.d(BeatPrompterApplication.TAG, "Seek to=" + nTime);
+                    if (mStartState === PlayState.Playing) {
+                        Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer")
+                        mTrackMediaPlayer.start()
                     }
+                } else {
+                    Log.d(BeatPrompterApplication.TAG, "Seek to=0")
+                    seekTrack(0)
                 }
             }
             if (redraw)
@@ -929,22 +903,19 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         BluetoothManager.broadcastMessageToClients(PauseOnScrollStartMessage())
         mUserHasScrolled = true
         mStartState = PlayState.Paused
-        if (mTrackMediaPlayer != null)
-            if (mTrackMediaPlayer!!.isPlaying) {
-                Log.d(BeatPrompterApplication.TAG, "Pausing MediaPlayer")
-                mTrackMediaPlayer!!.pause()
-            }
+        if (mTrackMediaPlayer.isPlaying) {
+            Log.d(BeatPrompterApplication.TAG, "Pausing MediaPlayer")
+            mTrackMediaPlayer.pause()
+        }
         if (mSongDisplayActivity != null)
             mSongDisplayActivity!!.onSongStop()
     }
 
     private fun onVolumeChanged() {
-        if (mTrackMediaPlayer != null) {
-            mCurrentVolume = Math.max(0, mCurrentVolume)
-            mCurrentVolume = Math.min(100, mCurrentVolume)
-            mTrackMediaPlayer!!.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
-            mLastTempMessageTime = System.nanoTime()
-        }
+        mCurrentVolume = Math.max(0, mCurrentVolume)
+        mCurrentVolume = Math.min(100, mCurrentVolume)
+        mTrackMediaPlayer.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
+        mLastTempMessageTime = System.nanoTime()
     }
 
     override fun onLongPress(e: MotionEvent) {}
@@ -1107,7 +1078,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mMetronomeBeats = 0
             mNextClickTime = System.nanoTime()
             while (!shouldStop) {
-                mClickSoundPool!!.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
+                mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
                 if (--mBeats == 0L)
                     stop()
                 mNextClickTime += mNanosecondsPerBeat

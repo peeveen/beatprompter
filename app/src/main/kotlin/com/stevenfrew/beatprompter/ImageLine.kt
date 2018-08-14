@@ -3,12 +3,11 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.ImageFile
-import com.stevenfrew.beatprompter.cache.Tag
 import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 import java.util.ArrayList
 
-class ImageLine internal constructor(private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode, parseErrors: ArrayList<FileParseError>) : Line(lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors) {
+class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mSourceRect: Rect? = null
     private var mDestRect: Rect? = null
     private var mBitmap: Bitmap? = null
@@ -45,7 +44,7 @@ class ImageLine internal constructor(private val mImageFile: ImageFile, private 
             val graphic = mGraphics[f]
             if (graphic.mLastDrawnLine !== this && allocate) {
                 val paint = Paint()
-                val c = Canvas(graphic.mBitmap!!)
+                val c = Canvas(graphic.mBitmap)
                 c.drawBitmap(mBitmap!!, mSourceRect, mDestRect!!, paint)
                 graphic.mLastDrawnLine = this
             }

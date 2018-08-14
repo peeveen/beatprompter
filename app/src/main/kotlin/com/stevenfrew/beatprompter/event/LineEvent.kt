@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.event
 
 import com.stevenfrew.beatprompter.Line
 
-class LineEvent(eventTime: Long, line:Line, var mDuration: Long) : BaseEvent(eventTime) {
+class LineEvent constructor(eventTime: Long, line:Line, var mDuration: Long) : BaseEvent(eventTime) {
     val mLine=line
 
     init {

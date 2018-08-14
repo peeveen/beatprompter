@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.ImageArrayAdapter
 
 class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreference(context, attrs) {
-    private var resourceIds: IntArray? = null
+    private lateinit var resourceIds: IntArray
 
     private var inForceUpdate = false
 
@@ -33,7 +33,7 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
                         imageNames[i].lastIndexOf('/') + 1,
                         imageNames[i].lastIndexOf('.'))
 
-                resourceIds!![i] = resources.getIdentifier(imageName,
+                resourceIds[i] = resources.getIdentifier(imageName,
                         "drawable", packageName)
             }
 
@@ -75,7 +75,7 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
                 key, "1"))
 
         val listAdapter = ImageArrayAdapter(context,
-                R.layout.imagelistitem, entries, resourceIds!!, index)
+                R.layout.imagelistitem, entries, resourceIds, index)
 
         // Order matters.
         builder.setAdapter(listAdapter, this)

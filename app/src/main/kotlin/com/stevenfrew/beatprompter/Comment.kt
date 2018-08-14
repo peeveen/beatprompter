@@ -20,7 +20,7 @@ class Comment internal constructor(var mText: String, audience: String?) {
         val bits = audience.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         for (bit in bits)
             for (a in commentAudience)
-                if (bit.trim { it <= ' ' }.equals(a.trim { it <= ' ' }, ignoreCase = true))
+                if (bit.trim().equals(a.trim(), ignoreCase = true))
                     return true
         return false
     }

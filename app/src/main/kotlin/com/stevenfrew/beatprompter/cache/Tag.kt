@@ -31,7 +31,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
 
         fun getMIDIEventFromTag(time: Long, tag: Tag, aliases: ArrayList<Alias>, defaultChannel: Byte, parseErrors: ArrayList<FileParseError>): MIDIEvent? {
-            var tagValue = tag.mValue.trim { it <= ' ' }
+            var tagValue = tag.mValue.trim()
             var eventOffset: EventOffset? = null
             if (tagValue.isEmpty()) {
                 // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
@@ -40,8 +40,8 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                     if (bits.size > 2)
                         parseErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag)))
                     if (bits.size > 1) {
-                        eventOffset = EventOffset(bits[1].trim { it <= ' ' }, tag, parseErrors)
-                        tag.mName = bits[0].trim { it <= ' ' }
+                        eventOffset = EventOffset(bits[1].trim(), tag, parseErrors)
+                        tag.mName = bits[0].trim()
                     }
                 }
             } else {
@@ -49,12 +49,12 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                 if (firstSplitBits.size > 1) {
                     if (firstSplitBits.size > 2)
                         parseErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag)))
-                    tagValue = firstSplitBits[0].trim { it <= ' ' }
-                    eventOffset = EventOffset(firstSplitBits[1].trim { it <= ' ' }, tag, parseErrors)
+                    tagValue = firstSplitBits[0].trim()
+                    eventOffset = EventOffset(firstSplitBits[1].trim(), tag, parseErrors)
                 }
             }
             val bits = if (tagValue.isEmpty()) arrayOf() else tagValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            var paramBytes = bits.map{ bit -> Value.parseValue(bit.trim { it <= ' ' })}
+            var paramBytes = bits.map{ bit -> Value.parseValue(bit.trim())}
             var lastParamIsChannel = false
             var channel = defaultChannel
             for (f in paramBytes.indices)
@@ -188,11 +188,11 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                 val tagCloser = if (start == directiveStart) "}" else "]"
                 var end = line.indexOf(tagCloser, start + 1)
                 if (end != -1) {
-                    val contents = line.substring(start + 1, end).trim { it <= ' ' }
+                    val contents = line.substring(start + 1, end).trim()
                     lineOut.append(line.substring(0, start))
                     line = line.substring(end + tagCloser.length)
                     end = 0
-                    if (contents.trim { it <= ' ' }.isNotEmpty())
+                    if (contents.trim().isNotEmpty())
                         tagsOut.add(Tag(start == chordStart, contents, lineNumber, lineOut.length))
                 } else
                     end = start + 1

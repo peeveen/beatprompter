@@ -40,7 +40,7 @@ abstract class Value {
 
         fun parseValue(valueStr: String, lineNumber: Int, argIndex: Int, argCount: Int, errors: MutableList<FileParseError>): Value {
             var strVal = valueStr
-            strVal = strVal.trim { it <= ' ' }
+            strVal = strVal.trim()
             if (strVal.isEmpty())
                 return NoValue()
             when {

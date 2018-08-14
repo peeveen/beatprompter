@@ -27,14 +27,16 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mStartedByBandLeader = false
     private var mPreferredOrientation: Int = 0
     private var mOrientation: Int = 0
+
     private var mSensorManager: SensorManager? = null
     private var mProximitySensor: Sensor? = null
+    private var mScrollOnProximity: Boolean = false
+
     private var mLastOtherPageDownEvent: Long = 0
     private var mAnyOtherKeyPageDown = false
-    private var mScrollOnProximity: Boolean = false
-    private var mSongDisplayEventHandler: SongDisplayEventHandler?=null
+    private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
-    private var mMidiClockOutTask: ClockSignalGeneratorTask?=null
+    private lateinit var mMidiClockOutTask: ClockSignalGeneratorTask
     private var mMidiStartStopInTask = StartStopInTask()
     private var mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
     private var mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
@@ -84,7 +86,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         setContentView(R.layout.activity_song_display)
         mSongView = findViewById(R.id.song_view)
         mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
-        EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler!!)
+        EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
         mSongView!!.init(this)
 
         if (sendMidiClock)
@@ -231,7 +233,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     fun onSongBeat(bpm: Double) {
         if (bpm != 0.0)
-            mMidiClockOutTask!!.setBPM(bpm)
+            mMidiClockOutTask.setBPM(bpm)
     }
 
     fun onSongStop() {
@@ -262,7 +264,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     companion object {
         private var mSongDisplayActive = false
-        private var mSongDisplayInstance: SongDisplayActivity? = null
+        private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(loadTask: SongLoadTask, songToInterruptWith: SongFile): SongInterruptResult {
             if (mSongDisplayActive) {
@@ -275,7 +277,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
                     return SongInterruptResult.NoSongToInterrupt
 
-                return if (mSongDisplayInstance!!.canYieldToExternalTrigger()) {
+                return if (mSongDisplayInstance.canYieldToExternalTrigger()) {
                     loadedSong.mCancelled = true
                     SongLoadTask.mSongLoadTaskOnResume = loadTask
                     EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)

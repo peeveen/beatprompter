@@ -40,7 +40,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
                 return null
             val bits = descriptor.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (f in bits.indices)
-                bits[f] = bits[f].trim { it <= ' ' }
+                bits[f] = bits[f].trim()
             var msb: Value = WildcardValue()
             var lsb: Value = WildcardValue()
             var channel: Value = WildcardValue()

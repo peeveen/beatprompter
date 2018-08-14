@@ -50,16 +50,11 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         var e = mCurrentEvent
         if (e == null)
             e = mFirstEvent
-        if (e != null) {
-            val newCurrentEvent = e.findEventOnOrBefore(nano)
-            mCurrentEvent = newCurrentEvent
-            mNextEvent = mCurrentEvent!!.mNextEvent
-            val newCurrentLineEvent = newCurrentEvent!!.mPrevLineEvent
-            mCurrentLine = if (newCurrentLineEvent != null)
-                newCurrentLineEvent.mLine
-            else
-                mFirstLine
-        }
+        val newCurrentEvent = e.findEventOnOrBefore(nano)
+        mCurrentEvent = newCurrentEvent
+        mNextEvent = mCurrentEvent!!.mNextEvent
+        val newCurrentLineEvent = newCurrentEvent!!.mPrevLineEvent
+        mCurrentLine = newCurrentLineEvent?.mLine ?: mFirstLine
     }
 
     fun doMeasurements(paint: Paint, cancelEvent: CancelEvent, handler: Handler, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
@@ -184,8 +179,8 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
             commentLines.add(c.mText)
         val nonBlankCommentLines = ArrayList<String>()
         for (commentLine in commentLines)
-            if (commentLine.trim { it <= ' ' }.isNotEmpty())
-                nonBlankCommentLines.add(commentLine.trim { it <= ' ' })
+            if (commentLine.trim().isNotEmpty())
+                nonBlankCommentLines.add(commentLine.trim())
         var errors = mParseErrors.size
         var messages = Math.min(errors, 6) + nonBlankCommentLines.size
         val showBPM = !BeatPrompterApplication.getResourceString(R.string.showBPMNo).equals(showBPMString!!, ignoreCase = true) && mSongFile.mBPM != 0.0
@@ -283,7 +278,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
                 //                if(!line.hasOwnGraphics())
                 for (f in 0 until line.mLineMeasurements!!.mLines) {
                     line.setGraphic(graphic!!)
-                    graphic = graphic!!.mNextGraphic
+                    graphic = graphic.mNextGraphic
                 }
                 line = line.mNextLine
             }
@@ -302,8 +297,8 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
                         prevLastLine.mYStopScrollTime = java.lang.Long.MAX_VALUE
                     break
                 }
-                line.mLineEvent!!.remove()
-                line.mLineEvent = null
+                line.mLineEvent.remove()
+                // TODO: POTENTIAL BREAKING CHANGE!!! line.mLineEvent = null
                 //                line.mLineEvent.mEventTime=Long.MAX_VALUE;
                 prevLastLine = line
                 line = line.mPrevLine

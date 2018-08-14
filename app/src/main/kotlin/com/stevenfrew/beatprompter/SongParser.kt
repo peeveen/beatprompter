@@ -165,7 +165,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             var lineImage: ImageFile? = null
 
             var metronomeOn = mMetronomeContext === MetronomeContext.On
-            if (mMetronomeContext === MetronomeContext.OnWhenNoTrack && chosenTrack.length == 0)
+            if (mMetronomeContext === MetronomeContext.OnWhenNoTrack && chosenTrack.isEmpty())
                 metronomeOn = true
 
             var currentBeat = 0
@@ -188,7 +188,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                 line = br.readLine()
                 if(line!=null) {
                     var beatStartOrStopFoundOnThisLine = false
-                    line = line.trim { it <= ' ' }
+                    line = line.trim()
                     pauseTime = 0
                     lineCounter++
                     // Ignore comments.
@@ -404,7 +404,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                     noChordsTags.add(tag)
                             tagsOut = noChordsTags
                         }
-                        if (strippedLine.trim { it <= ' ' }.isNotEmpty() || allowBlankLine || chordsFound || lineImage != null)
+                        if (strippedLine.trim().isNotEmpty() || allowBlankLine || chordsFound || lineImage != null)
                             createLine = true
 
                         // Contains only tags? Or contains nothing? Don't use it as a blank line.
@@ -474,10 +474,10 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             if (!commasFound)
                                 bars = bpl
 
-                            if (lineImage != null && (strippedLine.trim { it <= ' ' }.isNotEmpty() || chordsFound))
+                            if (lineImage != null && (strippedLine.trim().isNotEmpty() || chordsFound))
                                 errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.text_found_with_image)))
 
-                            if (strippedLine.trim { it <= ' ' }.isEmpty() && !chordsFound)
+                            if (strippedLine.trim().isEmpty() && !chordsFound)
                                 strippedLine = "▼"
 
                             //                        if((firstLine==null)&&(smoothScrolling))
@@ -503,14 +503,12 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 }
                                 val scrollbeatDifference = scrollBeat - bpbThisLine - (lastScrollbeat - lastBPB)
 
-                                val lineObj: Line
-                                if (lineImage != null) {
-                                    lineObj = ImageLine(lineImage, imageScalingMode, tagsOut, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!, errors)
-                                    lineImage = null
-                                } else
-                                    lineObj = TextLine(strippedLine, tagsOut, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!, errors)
+                                for (tag in tagsOut)
+                                    if (!tag.mChordTag)
+                                        if (tag.mName == "b" || tag.mName == "bars")
+                                            bars = Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors)
+                                bars = Math.max(1, bars)
 
-                                bars = lineObj.mBars
                                 var beatsForThisLine = bpbThisLine * bars
                                 val simpleBeatsForThisLine = beatsForThisLine
                                 beatsForThisLine += scrollbeatOffset
@@ -530,8 +528,15 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 if (totalLineTime == 0L || mCurrentScrollMode === ScrollingMode.Smooth)
                                     totalLineTime = timePerBar * bars
 
+                                val lineObj: Line
+                                if (lineImage != null) {
+                                    lineObj = ImageLine(currentTime, totalLineTime, lineImage, imageScalingMode, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
+                                    lineImage = null
+                                } else
+                                    lineObj = TextLine(currentTime, totalLineTime, strippedLine, tagsOut, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
+
                                 lastLine?.insertAfter(lineObj)
-                                val lineEvent = LineEvent(currentTime, lineObj, totalLineTime)
+                                val lineEvent = lineObj.mLineEvent
                                 if (firstLine == null)
                                     firstLine = lineObj
                                 lastEvent.insertEvent(lineEvent)

@@ -99,7 +99,7 @@ object Utils {
         val result = StringBuilder()
         var nonWhitespaceBitsJoined = 0
         for (bit in bits) {
-            val whitespace = bit.trim { it <= ' ' }.isEmpty()
+            val whitespace = bit.trim().isEmpty()
             if (!whitespace && nonWhitespaceBitsJoined == nonWhitespaceBitsToJoin)
                 break
             result.append(bit)
@@ -164,7 +164,7 @@ object Utils {
     fun isChord(textIn: String?): Boolean {
         var text = textIn
         if (text != null)
-            text = text.trim { it <= ' ' }
+            text = text.trim()
         return !(text == null || text.isEmpty()) && pattern.matcher(text).matches()
     }
 

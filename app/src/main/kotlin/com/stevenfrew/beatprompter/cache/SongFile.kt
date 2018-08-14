@@ -105,8 +105,8 @@ class SongFile : CachedCloudFile {
         Tag.extractTags(line, lineNumber, tagsOut)
         for (t in tagsOut) {
             if (t.mChordTag)
-                if (Utils.isChord(t.mName.trim { it <= ' ' }))
-                    return t.mName.trim { it <= ' ' }
+                if (Utils.isChord(t.mName.trim()))
+                    return t.mName.trim()
         }
         return null
     }
@@ -303,7 +303,7 @@ class SongFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    line = line.trim { it <= ' ' }
+                    line = line.trim()
                     lineNumber++
                     // Ignore comments.
                     if (!line.startsWith("#")) {
@@ -399,12 +399,12 @@ class SongFile : CachedCloudFile {
                         }
 
                         // Contains only tags? Or contains nothing? Don't use it as a blank line.
-                        if (strippedLine.trim { it <= ' ' }.isNotEmpty() || chordsFound || pauseTime > 0 || lineImage != null) {
+                        if (strippedLine.trim().isNotEmpty() || chordsFound || pauseTime > 0 || lineImage != null) {
                             // removed lineImage=null from here
                             totalPauseTime += pauseTime
                             pauseTime = 0
                             // Line could potentially have been "{sometag} # comment"?
-                            if (lineImage != null || chordsFound || !strippedLine.trim { it <= ' ' }.startsWith("#")) {
+                            if (lineImage != null || chordsFound || !strippedLine.trim().startsWith("#")) {
                                 realBarCount += bars
                                 realLineCount++
                             }

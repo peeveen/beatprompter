@@ -42,7 +42,7 @@ class SetListFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    line = line.trim { it <= ' ' }
+                    line = line.trim()
                     if (line.startsWith("#"))
                         continue
                     if (setTitle == null || setTitle.isEmpty())

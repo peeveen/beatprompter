@@ -245,11 +245,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, trackName: String, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
         mNowPlayingNode = selectedNode
 
-        var nextSongName: String? = ""
+        var nextSongName = ""
         if (selectedNode?.mNextNode != null && shouldPlayNextSong())
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
-        SongLoadTask.loadSong(SongLoadTask(selectedSong, trackName, scrollMode, nextSongName!!, false, startedByMidiTrigger, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo))
+        SongLoadTask.loadSong(SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo))
     }
 
     private fun clearTemporarySetList() {
@@ -471,7 +471,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val str = StringBuilder()
         for (fpe in errors)
             str.append(fpe.errorMessage).append("\n")
-        tv.text = str.toString().trim { it <= ' ' }
+        tv.text = str.toString().trim()
         val customAD = builder.create()
         customAD.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
         ) { dialog, _ -> dialog.dismiss() }

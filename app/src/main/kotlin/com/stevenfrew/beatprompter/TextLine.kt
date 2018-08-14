@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 import java.util.ArrayList
 
-class TextLine internal constructor(private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode, parseErrors: ArrayList<FileParseError>) : Line(lineTags, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode, parseErrors) {
+class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -429,7 +429,7 @@ class TextLine internal constructor(private val mText: String, lineTags: Collect
                 val paint = Paint()
                 val chordsDrawn = if (mChordsDrawn.size > f) mChordsDrawn[f] else true
                 val thisLineHeight = mLineMeasurements!!.mGraphicHeights[f]
-                val c = Canvas(graphic.mBitmap!!)
+                val c = Canvas(graphic.mBitmap)
                 var currentX = 0
                 var g = 0
                 while (g < mXSplits.size && g < f) {

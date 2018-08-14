@@ -3,46 +3,36 @@ package com.stevenfrew.beatprompter
 import android.graphics.Paint
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.FileParseError
-import com.stevenfrew.beatprompter.cache.Tag
 import com.stevenfrew.beatprompter.event.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-abstract class Line internal constructor(lineTags: Collection<Tag>, vBars: Int, internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
-                                         , var mBPB: Int, var mScrollbeat: Int, var mScrollbeatOffset: Int, private val mScrollingMode: ScrollingMode, parseErrors: ArrayList<FileParseError>) {
-   internal var mPrevLine: Line? = null
-   internal var mNextLine: Line? = null
-   internal var mSongPixelPosition: Int = 0
-   var mLineEvent: LineEvent? = null // the LineEvent that will display this line.
-   internal var mGraphics = ArrayList<LineGraphic>() // pointer to the allocated graphic, if one exists
-   internal var mLineMeasurements: LineMeasurements? = null
-   var mYStartScrollTime: Long = 0
-   var mYStopScrollTime: Long = 0
-
-    var mBars: Int = 0 // How many bars does this line last?
+abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: Int, internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
+                                         , var mBPB: Int, var mScrollbeat: Int, var mScrollbeatOffset: Int, private val mScrollingMode: ScrollingMode) {
+    internal var mPrevLine: Line? = null
+    internal var mNextLine: Line? = null
+    internal var mSongPixelPosition: Int = 0
+    var mLineEvent: LineEvent=LineEvent(lineTime,this,lineDuration) // the LineEvent that will display this line.
+    internal var mGraphics = ArrayList<LineGraphic>() // pointer to the allocated graphic, if one exists
+    internal var mLineMeasurements: LineMeasurements? = null
+    var mYStartScrollTime: Long = 0
+    var mYStopScrollTime: Long = 0
+    var mBars=bars // How many bars does this line last?
 
     val lastLine: Line
         get() {
-            var l: Line? = this
+            var l: Line = this
             while (true) {
-                if (l!!.mNextLine == null)
+                if (l.mNextLine == null)
                     return l
-                l = l.mNextLine
+                l = l.mNextLine!!
             }
         }
 
     internal val graphics: Collection<LineGraphic>
         get() = getGraphics(true)
 
-    init {
-        var bars = vBars
-        for (tag in lineTags)
-            if (!tag.mChordTag)
-                if (tag.mName == "b" || tag.mName == "bars")
-                    bars = Tag.getIntegerValueFromTag(tag, 1, 128, 1, parseErrors)
-        mBars = Math.max(1, bars)
-    }
 
     internal fun measure(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: ArrayList<FileParseError>, songPixelPosition: Int, scrollMode: ScrollingMode, cancelEvent: CancelEvent): Int {
         mSongPixelPosition = songPixelPosition
@@ -69,11 +59,11 @@ abstract class Line internal constructor(lineTags: Collection<Tag>, vBars: Int, 
             return 0
         var lineEndTime = java.lang.Long.MAX_VALUE
         if (mNextLine != null)
-            lineEndTime = mNextLine!!.mLineEvent!!.mEventTime
+            lineEndTime = mNextLine!!.mLineEvent.mEventTime
 
-        if (time >= mLineEvent!!.mEventTime && time < lineEndTime)
+        if (time >= mLineEvent.mEventTime && time < lineEndTime)
             return calculatePixelFromTime(time)
-        else if (time < mLineEvent!!.mEventTime && mPrevLine != null)
+        else if (time < mLineEvent.mEventTime && mPrevLine != null)
             return mPrevLine!!.getPixelFromTime(time)
         else if (time >= lineEndTime && mNextLine != null)
             return mNextLine!!.getPixelFromTime(time)

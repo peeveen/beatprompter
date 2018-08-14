@@ -5,13 +5,8 @@ import android.graphics.Rect
 import android.graphics.Typeface
 
 class ScreenString private constructor(internal var mText: String, internal var mFontSize: Float, internal var mColor: Int, width: Int, height: Int, internal var mFace: Typeface, var mDescenderOffset: Int) {
-    var mWidth: Int = 0
-    var mHeight: Int = 0
-
-    init {
-        mWidth = Math.max(0, width)
-        mHeight = Math.max(0, height)
-    }
+    val mWidth = Math.max(0, width)
+    val mHeight = Math.max(0, height)
 
     companion object {
         private const val MARGIN_PIXELS = 10

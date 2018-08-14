@@ -58,7 +58,7 @@ class MIDIAliasFile : CachedCloudFile {
                     line = br.readLine()
                     if(line!=null) {
                         ++lineNumber
-                        line = line.trim { it <= ' ' }
+                        line = line.trim()
                         if (line.startsWith("#"))
                             continue
                         if (line.isEmpty()) {
@@ -70,7 +70,7 @@ class MIDIAliasFile : CachedCloudFile {
                         }
                         if (!isMidiAliasFile) {
                             aliasFilename = CachedCloudFile.getTokenValue(line, lineNumber, "midi_aliases")
-                            if (aliasFilename == null || aliasFilename.trim { it <= ' ' }.isEmpty()) {
+                            if (aliasFilename == null || aliasFilename.trim().isEmpty()) {
                                 throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
                             }
                             isMidiAliasFile = true
@@ -116,15 +116,15 @@ class MIDIAliasFile : CachedCloudFile {
             if (bracketStart != -1) {
                 val bracketEnd = line.indexOf("}", bracketStart)
                 if (bracketEnd != -1) {
-                    val contents = line.substring(bracketStart + 1, bracketEnd - bracketStart).trim { it <= ' ' }.toLowerCase()
+                    val contents = line.substring(bracketStart + 1, bracketEnd - bracketStart).trim().toLowerCase()
                     if (contents.isNotEmpty()) {
                         val bits = contents.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                         val componentArgs = ArrayList<Value>()
-                        val tagName = bits[0].trim { it <= ' ' }
+                        val tagName = bits[0].trim()
                         if (bits.size > 2)
                             errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts)))
                         else if (bits.size > 1) {
-                            val params = bits[1].trim { it <= ' ' }
+                            val params = bits[1].trim()
                             val paramBits = params.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                             for ((paramCounter, paramBit) in paramBits.withIndex()) {
                                 val aliasValue = Value.parseValue(paramBit, lineNumber, paramCounter, paramBits.size, errors)

@@ -42,19 +42,19 @@ abstract class CachedCloudFile : CloudFileInfo {
         internal fun getTokenValues(line: String, lineNumber: Int, vararg tokens: String): ArrayList<String> {
             val tagsOut = ArrayList<Tag>()
             val values = ArrayList<String>()
-            if (!line.trim { it <= ' ' }.startsWith("#")) {
+            if (!line.trim().startsWith("#")) {
                 Tag.extractTags(line, lineNumber, tagsOut)
                 for (tag in tagsOut)
                     for (token in tokens)
                         if (tag.mName == token)
-                            values.add(tag.mValue.trim { it <= ' ' })
+                            values.add(tag.mValue.trim())
             }
             return values
         }
 
         internal fun containsToken(line: String, lineNumber: Int, tokenToFind: String): Boolean {
             val tagsOut = ArrayList<Tag>()
-            if (!line.trim { it <= ' ' }.startsWith("#")) {
+            if (!line.trim().startsWith("#")) {
                 Tag.extractTags(line, lineNumber, tagsOut)
                 for (tag in tagsOut)
                     if (tag.mName == tokenToFind)

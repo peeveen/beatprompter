@@ -40,29 +40,29 @@ class BeatPrompterApplication : Application() {
     companion object {
         const val TAG = "beatprompter"
         const val APP_NAME = "BeatPrompter"
-        private var mApp: Application? = null
+        private lateinit var mApp: Application
         private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
         private val mSongLoaderTask = SongLoaderTask()
 
         fun getResourceString(resID: Int): String {
-            return mApp!!.getString(resID)
+            return mApp.getString(resID)
         }
 
         fun getResourceString(resID: Int, vararg args: Any): String {
-            return mApp!!.getString(resID, *args)
+            return mApp.getString(resID, *args)
         }
 
         val preferences: SharedPreferences
             get() = PreferenceManager.getDefaultSharedPreferences(mApp)
 
         val privatePreferences: SharedPreferences
-            get() = mApp!!.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE)
+            get() = mApp.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE)
 
         val assetManager: AssetManager
-            get() = mApp!!.assets
+            get() = mApp.assets
 
         val context: Context
-            get() = mApp!!.applicationContext
+            get() = mApp.applicationContext
 
         fun loadSong(sli: SongLoadInfo, handler: Handler, cancelEvent: CancelEvent, registered: Boolean) {
             mSongLoaderTask.loadSong(sli, handler, cancelEvent, registered)
