@@ -787,11 +787,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val folderDicts = HashMap<String, ArrayList<SongFile>>()
         for (song in mCachedCloudFiles.songFiles) {
             for (tag in song.mTags) {
-                val songs = (tagDicts as Map<String, ArrayList<SongFile>>).getOrElse(tag) {ArrayList()}
+                val songs = tagDicts.getOrPut(tag) {ArrayList()}
                 songs.add(song)
             }
             if (song.mSubfolder != null && song.mSubfolder!!.isNotEmpty()) {
-                val songs = (folderDicts as Map<String, ArrayList<SongFile>>).getOrElse(song.mSubfolder!!) {ArrayList()}
+                val songs = folderDicts.getOrPut(song.mSubfolder!!) {ArrayList()}
                 songs.add(song)
             }
         }
@@ -950,7 +950,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         }
     }
 
-    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         applyFileFilter(mFilters[position])
         if (mPerformingCloudSync) {
             mPerformingCloudSync = false
