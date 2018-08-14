@@ -49,8 +49,7 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
     fun stopListening() {
         mStop = true
         try {
-            if(mmServerSocket!=null)
-                mmServerSocket!!.close()
+            mmServerSocket?.close()
         } catch (e: IOException) {
             Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to close Bluetooth listener socket.", e)
         } finally {

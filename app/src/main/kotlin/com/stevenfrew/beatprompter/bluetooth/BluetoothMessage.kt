@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter.bluetooth
 
 abstract class BluetoothMessage {
-    abstract val bytes: ByteArray?
+    abstract val bytes: ByteArray
 
     companion object {
         @Throws(NotEnoughBluetoothDataException::class)
-        internal fun fromBytes(bytes: ByteArray?): IncomingBluetoothMessage? {
-            if (bytes != null && bytes.isNotEmpty())
+        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage? {
+            if (bytes.isNotEmpty())
                 when(bytes[0]) {
                     ChooseSongMessage.CHOOSE_SONG_MESSAGE_ID -> return ChooseSongMessage.fromBytes(bytes)
                     ToggleStartStopMessage.TOGGLE_START_STOP_MESSAGE_ID -> return ToggleStartStopMessage.fromBytes(bytes)
