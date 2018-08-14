@@ -12,8 +12,8 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
     private var mChordHeight: Int = 0
     private var mLyricHeight: Int = 0
     private var mFont: Typeface? = null
-    private val mLineTags = mutableListOf<Tag>()
-    private val mChordTags = mutableListOf<Tag>()
+    private val mLineTags = lineTags.filter{!it.mChordTag}
+    private val mChordTags = lineTags.filter{it.mChordTag}
     private var mFirstLineSection: LineSection? = null
     private val mXSplits = mutableListOf<Int>()
     private val mLineWidths = mutableListOf<Int>()
@@ -25,19 +25,8 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
 
     private val totalXSplits: Int
         get() {
-            var total = 0
-            for (i in mXSplits)
-                total += i
-            return total
+            return mXSplits.sum()
         }
-
-    init {
-        for (tag in lineTags)
-            if (tag.mChordTag)
-                mChordTags.add(tag)
-            else
-                mLineTags.add(tag)
-    }
 
     // TODO: Fix this, for god's sake!
     override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
@@ -412,13 +401,7 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
-        var totalLineWidth = vTotalLineWidth
-        var widest = 0
-        for (i in mLineWidths)
-            widest = Math.max(i, widest)
-        totalLineWidth -= totalXSplits
-        widest = Math.max(totalLineWidth, widest)
-        return widest
+        return Math.max(vTotalLineWidth-totalXSplits, mLineWidths.max()?:0)
     }
 
     override fun getGraphics(allocate: Boolean): Collection<LineGraphic> {

@@ -419,10 +419,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
         for (ss in mSong!!.mStartScreenStrings) {
             startY += ss.mHeight
-            mPaint!!.color = ss.mColor
-            mPaint!!.textSize = ss.mFontSize * Utils.FONT_SCALING
-            mPaint!!.typeface = ss.mFace
-            mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
+            with(mPaint!!){
+                color = ss.mColor
+                textSize = ss.mFontSize * Utils.FONT_SCALING
+                typeface = ss.mFace
+                flags = Paint.ANTI_ALIAS_FLAG
+            }
             canvas.drawText(ss.mText, (midX - (ss.mWidth shr 1)).toFloat(), (startY - ss.mDescenderOffset).toFloat(), mPaint!!)
         }
     }
@@ -547,11 +549,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mSong == null || mSong!!.mSongTitleHeader == null)
             return
 
-        mPaint!!.textSize = mSong!!.mSongTitleHeader!!.mFontSize * Utils.FONT_SCALING
-        mPaint!!.typeface = mSong!!.mSongTitleHeader!!.mFace
-        mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
+        with(mPaint!!)
+        {
+            textSize = mSong!!.mSongTitleHeader!!.mFontSize * Utils.FONT_SCALING
+            typeface = mSong!!.mSongTitleHeader!!.mFace
+            flags = Paint.ANTI_ALIAS_FLAG
+            color = mSongTitleContrastBackground
+        }
 
-        mPaint!!.color = mSongTitleContrastBackground
         canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint!!)
 
         canvas.save()
@@ -572,9 +577,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun showComment(canvas: Canvas) {
         if (mLastCommentEvent != null) {
-            mPaint!!.textSize = mLastCommentEvent!!.mScreenString!!.mFontSize * Utils.FONT_SCALING
-            mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
-            mPaint!!.color = Color.BLACK
+            with(mPaint!!)
+            {
+                textSize = mLastCommentEvent!!.mScreenString!!.mFontSize * Utils.FONT_SCALING
+                flags = Paint.ANTI_ALIAS_FLAG
+                color = Color.BLACK
+            }
             canvas.drawRect(mLastCommentEvent!!.mPopupRect!!, mPaint!!)
             mPaint!!.color = Color.WHITE
             canvas.drawRect(mLastCommentEvent!!.mPopupRect!!.left + 1, mLastCommentEvent!!.mPopupRect!!.top + 1, mLastCommentEvent!!.mPopupRect!!.right - 1, mLastCommentEvent!!.mPopupRect!!.bottom - 1, mPaint!!)

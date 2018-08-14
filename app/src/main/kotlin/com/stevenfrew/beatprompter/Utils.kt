@@ -86,11 +86,7 @@ object Utils {
     }
 
     fun countWords(words: List<String>): Int {
-        var wordCount = 0
-        for (w in words)
-            if (!splitters.contains(w))
-                wordCount++
-        return wordCount
+        return words.count{!splitters.contains(it)}
     }
 
     fun stitchBits(bits: List<String>, nonWhitespaceBitsToJoin: Int): String {
