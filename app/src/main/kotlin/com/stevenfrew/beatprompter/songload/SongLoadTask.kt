@@ -51,9 +51,11 @@ class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: Scroll
     override fun onProgressUpdate(vararg values: Int?) {
         super.onProgressUpdate(*values)
         if (values.size > 1) {
-            mProgressDialog!!.setMessage(mProgressTitle + mSongLoadInfo.songFile.mTitle)
-            mProgressDialog!!.max = values[1]!!
-            mProgressDialog!!.progress = values[0]!!
+            mProgressDialog!!.apply {
+                setMessage(mProgressTitle + mSongLoadInfo.songFile.mTitle)
+                max = values[1]!!
+                progress = values[0]!!
+            }
         }
     }
 
@@ -75,18 +77,19 @@ class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: Scroll
 
     override fun onPreExecute() {
         super.onPreExecute()
-        mProgressDialog = ProgressDialog(SongList.mSongListInstance)
-        mProgressDialog!!.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-        mProgressDialog!!.setMessage(mSongLoadInfo.songFile.mTitle)
-        mProgressDialog!!.max = mSongLoadInfo.songFile.mLines
-        mProgressDialog!!.isIndeterminate = false
-        mProgressDialog!!.setCancelable(false)
-        mProgressDialog!!.setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel)) { dialog, _ ->
-            dialog.dismiss()
-            mCancelled = true
-            mCancelEvent.set()
+        mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
+            setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+            setMessage(mSongLoadInfo.songFile.mTitle)
+            max = mSongLoadInfo.songFile.mLines
+            isIndeterminate = false
+            setCancelable(false)
+            setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+                mCancelled = true
+                mCancelEvent.set()
+            }
+            show()
         }
-        mProgressDialog!!.show()
     }
 
     /**

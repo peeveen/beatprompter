@@ -48,12 +48,13 @@ class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHa
 
     override fun onPreExecute() {
         super.onPreExecute()
-        mProgressDialog = ProgressDialog(SongList.mSongListInstance)
-        mProgressDialog!!.setTitle(BeatPrompterApplication.getResourceString(R.string.downloadingFiles))
-        mProgressDialog!!.setMessage(BeatPrompterApplication.getResourceString(R.string.accessingCloudStorage, mCloudStorage.cloudStorageName))
-        mProgressDialog!!.setCancelable(false)
-        mProgressDialog!!.isIndeterminate = true
-        mProgressDialog!!.show()
+        mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
+            setTitle(BeatPrompterApplication.getResourceString(R.string.downloadingFiles))
+            setMessage(BeatPrompterApplication.getResourceString(R.string.accessingCloudStorage, mCloudStorage.cloudStorageName))
+            setCancelable(false)
+            isIndeterminate = true
+            show()
+        }
     }
 
     override fun onCloudItemFound(cloudItem: CloudItemInfo) {

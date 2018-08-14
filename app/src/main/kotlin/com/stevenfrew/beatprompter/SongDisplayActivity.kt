@@ -37,8 +37,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
     private lateinit var mMidiClockOutTask: ClockSignalGeneratorTask
+    private lateinit var mMidiClockOutTaskThread:Thread
+
     private var mMidiStartStopInTask = StartStopInTask()
-    private var mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
     private var mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -57,7 +58,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // Instantiate the gesture detector with the
         // application context and an implementation of
         // GestureDetector.OnGestureListener
+
         mMidiClockOutTask = ClockSignalGeneratorTask(i.getBooleanExtra("registered", false))
+        mMidiClockOutTaskThread=Thread(mMidiClockOutTask)
 
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
