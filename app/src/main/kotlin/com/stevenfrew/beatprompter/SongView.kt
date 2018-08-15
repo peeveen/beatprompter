@@ -36,7 +36,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mLastCommentTime: Long = 0
     private var mLastTempMessageTime: Long = 0
     private var mLastBeatTime: Long = 0
-    private var mPaint: Paint? = null           // The paint (e.g. style, color) used for drawing
+    private val mPaint=Paint()
     private val mScroller: OverScroller
 
     private  var mMetronomeTask: MetronomeTask? = null
@@ -54,49 +54,65 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mUserHasScrolled = false
     private var mPauseTime: Long = 0
     private var mNanosecondsPerBeat = Utils.nanosecondsPerBeat(120.0)
+
     private val mBackgroundColorLookup = IntArray(101)
-    private var mCommentTextColor: Int = 0
-    private var mDefaultCurrentLineHighlightColour: Int = 0
+    private val mCommentTextColor: Int
+    private val mDefaultCurrentLineHighlightColour: Int
+    private val mShowScrollIndicator: Boolean
+    private val mShowSongTitle:Boolean
+    private val mCommentDisplayTimeNanoseconds:Long
+
+    private var mPulse: Boolean
     private var mSongPixelPosition = 0
     private var mTargetPixelPosition = -1
     private var mTargetAcceleration = 1
-    private var mShowScrollIndicator = true
-    private var mShowSongTitle = false
     private var mHighlightCurrentLine = false
     private var mSongTitleContrastBackground: Int = 0
     private var mSongTitleContrastBeatCounter: Int = 0
     private var mScrollIndicatorRect: Rect? = null
-    private val mLastProcessedColorEvent: ColorEvent? = null
     private var mGestureDetector: GestureDetectorCompat? = null
     private var mScreenAction = ScreenAction.Scroll
     private var mBeatCounterColor = Color.WHITE
     private var mScrollMarkerColor = Color.BLACK
-    private var mPulse = true
     private var mTrackMediaPlayer: MediaPlayer= MediaPlayer()
     private var mSilenceMediaPlayer: MediaPlayer= MediaPlayer.create(context, R.raw.silence)
-    private var mClickSoundPool: SoundPool= SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
-    private var mClickAudioID: Int = 0
-    private var mCommentDisplayTimeNanoseconds = Utils.milliToNano(4000)
     private var mSongDisplayActivity: SongDisplayActivity? = null
     private  var mExternalTriggerSafetyCatch: TriggerSafetyCatch?=null
     private  var mSendMidiClock = false
+
+    private val mClickSoundPool: SoundPool= SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
+    private val mClickAudioID=mClickSoundPool.load(this.context, R.raw.click, 0)
 
     internal enum class ScreenAction {
         Scroll, Volume, None
     }
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         mScroller = OverScroller(context)
         mGestureDetector = GestureDetectorCompat(context, this)
-        initView()
+        mSongPixelPosition = 0
+
+        val sharedPref = BeatPrompterApplication.preferences
+        val screenAction = sharedPref.getString(context.getString(R.string.pref_screenAction_key), context.getString(R.string.pref_screenAction_defaultValue))
+        if (screenAction!!.equals(context.getString(R.string.screenActionNoneValue), ignoreCase = true))
+            mScreenAction = ScreenAction.None
+        if (screenAction.equals(context.getString(R.string.screenActionVolumeValue), ignoreCase = true))
+            mScreenAction = ScreenAction.Volume
+        if (screenAction.equals(context.getString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
+            mScreenAction = ScreenAction.Scroll
+        mShowScrollIndicator = sharedPref.getBoolean(context.getString(R.string.pref_showScrollIndicator_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showScrollIndicator_defaultValue)))
+        mShowSongTitle = sharedPref.getBoolean(context.getString(R.string.pref_showSongTitle_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showSongTitle_defaultValue)))
+        var commentDisplayTimeSeconds = sharedPref.getInt(context.getString(R.string.pref_commentDisplayTime_key), Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_default)))
+        commentDisplayTimeSeconds += Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_offset))
+        mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
+
+        mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_commentTextColor_key), Color.parseColor(context.getString(R.string.pref_commentTextColor_default))))
+        mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(context.getString(R.string.pref_currentLineHighlightColor_default))))
+        mPulse = sharedPref.getBoolean(context.getString(R.string.pref_pulse_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_pulse_defaultValue)))
     }
 
     // Constructor
-    constructor(context: Context) : super(context) {
-        mScroller = OverScroller(context)
-        mGestureDetector = GestureDetectorCompat(context, this)
-        initView()
-    }
+    constructor(context: Context) : this(context,null)
 
     fun init(songDisplayActivity: SongDisplayActivity) {
         mSongDisplayActivity = songDisplayActivity
@@ -136,31 +152,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mSongScrollEndPixel += mSong!!.mSmoothScrollOffset
             mSongScrollEndPixel += mSong!!.mBeatCounterHeight
         }
-    }
-
-    private fun initView() {
-        mClickAudioID = mClickSoundPool.load(this.context, R.raw.click, 0)
-        mPaint = Paint()
-        mSongPixelPosition = 0
-
-        val context = this.context
-        val sharedPref = BeatPrompterApplication.preferences
-        val screenAction = sharedPref.getString(context.getString(R.string.pref_screenAction_key), context.getString(R.string.pref_screenAction_defaultValue))
-        if (screenAction!!.equals(context.getString(R.string.screenActionNoneValue), ignoreCase = true))
-            mScreenAction = ScreenAction.None
-        if (screenAction.equals(context.getString(R.string.screenActionVolumeValue), ignoreCase = true))
-            mScreenAction = ScreenAction.Volume
-        if (screenAction.equals(context.getString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
-            mScreenAction = ScreenAction.Scroll
-        mShowScrollIndicator = sharedPref.getBoolean(context.getString(R.string.pref_showScrollIndicator_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showScrollIndicator_defaultValue)))
-        mShowSongTitle = sharedPref.getBoolean(context.getString(R.string.pref_showSongTitle_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showSongTitle_defaultValue)))
-        var commentDisplayTimeSeconds = sharedPref.getInt(context.getString(R.string.pref_commentDisplayTime_key), Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_default)))
-        commentDisplayTimeSeconds += Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_offset))
-        mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-
-        mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_commentTextColor_key), Color.parseColor(context.getString(R.string.pref_commentTextColor_default))))
-        mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(context.getString(R.string.pref_currentLineHighlightColor_default))))
-        mPulse = sharedPref.getBoolean(context.getString(R.string.pref_pulse_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_pulse_defaultValue)))
     }
 
     private fun ensureInitialised() {
@@ -314,9 +305,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         currentY += currentLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
                     if (highlight) {
-                        mPaint!!.color = mDefaultCurrentLineHighlightColour
-                        canvas.drawRect(0f, lineTop.toFloat(), mScreenWidth.toFloat(), (lineTop + currentLine.mLineMeasurements!!.mLineHeight).toFloat(), mPaint!!)
-                        mPaint!!.alpha = 255
+                        mPaint.color = mDefaultCurrentLineHighlightColour
+                        canvas.drawRect(0f, lineTop.toFloat(), mScreenWidth.toFloat(), (lineTop + currentLine.mLineMeasurements!!.mLineHeight).toFloat(), mPaint)
+                        mPaint.alpha = 255
                     }
                 } else
                     currentY += currentLine.mLineMeasurements!!.mLineHeight
@@ -331,25 +322,25 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 // If we've drawn the end of the last line, stop smooth scrolling.
                 val prevLine = mSong!!.mCurrentLine!!.mPrevLine
                 if (prevLine != null && startY > 0) {
-                    mPaint!!.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
+                    mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
                     currentY = startY - prevLine.mLineMeasurements!!.mLineHeight
                     val graphics = prevLine.graphics
                     for ((lineCounter, graphic) in graphics.withIndex()) {
                         canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += prevLine.mLineMeasurements!!.mGraphicHeights[lineCounter]
                     }
-                    mPaint!!.alpha = 255
+                    mPaint.alpha = 255
                 }
             }
         }
-        mPaint!!.color = mBackgroundColorLookup[100]
-        canvas.drawRect(0f, 0f, mScreenWidth.toFloat(), mSong!!.mBeatCounterHeight.toFloat(), mPaint!!)
-        mPaint!!.color = mScrollMarkerColor
+        mPaint.color = mBackgroundColorLookup[100]
+        canvas.drawRect(0f, 0f, mScreenWidth.toFloat(), mSong!!.mBeatCounterHeight.toFloat(), mPaint)
+        mPaint.color = mScrollMarkerColor
         if (mSong!!.mScrollingMode === ScrollingMode.Beat && mShowScrollIndicator && mScrollIndicatorRect != null)
-            canvas.drawRect(mScrollIndicatorRect!!, mPaint!!)
-        mPaint!!.color = mBeatCounterColor
-        canvas.drawRect(mBeatCountRect, mPaint!!)
-        canvas.drawLine(0f, mSong!!.mBeatCounterHeight.toFloat(), mScreenWidth.toFloat(), mSong!!.mBeatCounterHeight.toFloat(), mPaint!!)
+            canvas.drawRect(mScrollIndicatorRect!!, mPaint)
+        mPaint.color = mBeatCounterColor
+        canvas.drawRect(mBeatCountRect, mPaint)
+        canvas.drawLine(0f, mSong!!.mBeatCounterHeight.toFloat(), mScreenWidth.toFloat(), mSong!!.mBeatCounterHeight.toFloat(), mPaint)
         if (mShowSongTitle)
             showSongTitle(canvas)
         if (showTempMessage) {
@@ -406,26 +397,28 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         var startY = Math.floor(((mScreenHeight - mSong!!.mTotalStartScreenTextHeight) / 2).toDouble()).toInt()
         val nextSongSS = mSong!!.mNextSongString
         if (nextSongSS != null) {
-            mPaint!!.color = if (mSkipping) Color.RED else Color.WHITE
+            mPaint.color = if (mSkipping) Color.RED else Color.WHITE
             val halfDiff = (fifteenPercent - nextSongSS.mHeight) / 2.0f
-            canvas.drawRect(0f, mScreenHeight - fifteenPercent, mScreenWidth.toFloat(), mScreenHeight.toFloat(), mPaint!!)
+            canvas.drawRect(0f, mScreenHeight - fifteenPercent, mScreenWidth.toFloat(), mScreenHeight.toFloat(), mPaint)
             val nextSongY = mScreenHeight - (nextSongSS.mDescenderOffset + halfDiff).toInt()
             startY -= (fifteenPercent / 2.0f).toInt()
-            mPaint!!.color = nextSongSS.mColor
-            mPaint!!.textSize = nextSongSS.mFontSize * Utils.FONT_SCALING
-            mPaint!!.typeface = nextSongSS.mFace
-            mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
-            canvas.drawText(nextSongSS.mText, (midX - (nextSongSS.mWidth shr 1)).toFloat(), nextSongY.toFloat(), mPaint!!)
+            with(mPaint) {
+                color = nextSongSS.mColor
+                textSize = nextSongSS.mFontSize * Utils.FONT_SCALING
+                typeface = nextSongSS.mFace
+                flags = Paint.ANTI_ALIAS_FLAG
+            }
+            canvas.drawText(nextSongSS.mText, (midX - (nextSongSS.mWidth shr 1)).toFloat(), nextSongY.toFloat(), mPaint)
         }
         for (ss in mSong!!.mStartScreenStrings) {
             startY += ss.mHeight
-            with(mPaint!!){
+            with(mPaint){
                 color = ss.mColor
                 textSize = ss.mFontSize * Utils.FONT_SCALING
                 typeface = ss.mFace
                 flags = Paint.ANTI_ALIAS_FLAG
             }
-            canvas.drawText(ss.mText, (midX - (ss.mWidth shr 1)).toFloat(), (startY - ss.mDescenderOffset).toFloat(), mPaint!!)
+            canvas.drawText(ss.mText, (midX - (ss.mWidth shr 1)).toFloat(), (startY - ss.mDescenderOffset).toFloat(), mPaint)
         }
     }
 
@@ -527,29 +520,29 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
         val popupMargin = 25
-        mPaint!!.textSize = textSize * Utils.FONT_SCALING
-        mPaint!!.flags = Paint.ANTI_ALIAS_FLAG
+        mPaint.textSize = textSize * Utils.FONT_SCALING
+        mPaint.flags = Paint.ANTI_ALIAS_FLAG
         val outRect = Rect()
-        mPaint!!.getTextBounds(message, 0, message.length, outRect)
-        val textWidth = mPaint!!.measureText(message)
+        mPaint.getTextBounds(message, 0, message.length, outRect)
+        val textWidth = mPaint.measureText(message)
         val textHeight = outRect.height()
         val volumeControlWidth = textWidth + popupMargin * 2.0f
         val volumeControlHeight = textHeight + popupMargin * 2
         val x = (mScreenWidth - volumeControlWidth) / 2.0f
         val y = (mScreenHeight - volumeControlHeight) / 2
-        mPaint!!.color = Color.BLACK
-        canvas.drawRect(x, y.toFloat(), x + volumeControlWidth, (y + volumeControlHeight).toFloat(), mPaint!!)
-        mPaint!!.color = Color.rgb(255, 255, 200)
-        canvas.drawRect(x + 1, (y + 1).toFloat(), x + (volumeControlWidth - 2), (y + (volumeControlHeight - 2)).toFloat(), mPaint!!)
-        mPaint!!.color = textColor
-        canvas.drawText(message, (mScreenWidth - textWidth) / 2, ((mScreenHeight - textHeight) / 2 + textHeight).toFloat(), mPaint!!)
+        mPaint.color = Color.BLACK
+        canvas.drawRect(x, y.toFloat(), x + volumeControlWidth, (y + volumeControlHeight).toFloat(), mPaint)
+        mPaint.color = Color.rgb(255, 255, 200)
+        canvas.drawRect(x + 1, (y + 1).toFloat(), x + (volumeControlWidth - 2), (y + (volumeControlHeight - 2)).toFloat(), mPaint)
+        mPaint.color = textColor
+        canvas.drawText(message, (mScreenWidth - textWidth) / 2, ((mScreenHeight - textHeight) / 2 + textHeight).toFloat(), mPaint)
     }
 
     private fun showSongTitle(canvas: Canvas) {
         if (mSong == null || mSong!!.mSongTitleHeader == null)
             return
 
-        with(mPaint!!)
+        with(mPaint)
         {
             textSize = mSong!!.mSongTitleHeader!!.mFontSize * Utils.FONT_SCALING
             typeface = mSong!!.mSongTitleHeader!!.mFace
@@ -557,38 +550,38 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             color = mSongTitleContrastBackground
         }
 
-        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint!!)
+        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
 
         canvas.save()
         canvas.clipRect(mBeatCountRect)
-        mPaint!!.color = mSongTitleContrastBeatCounter
-        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint!!)
+        mPaint.color = mSongTitleContrastBeatCounter
+        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
         canvas.restore()
 
         if (mScrollIndicatorRect != null) {
             canvas.save()
             canvas.clipRect(mScrollIndicatorRect!!)
-            canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint!!)
+            canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
             canvas.restore()
         }
 
-        mPaint!!.alpha = 255
+        mPaint.alpha = 255
     }
 
     private fun showComment(canvas: Canvas) {
         if (mLastCommentEvent != null) {
-            with(mPaint!!)
+            with(mPaint)
             {
                 textSize = mLastCommentEvent!!.mScreenString!!.mFontSize * Utils.FONT_SCALING
                 flags = Paint.ANTI_ALIAS_FLAG
                 color = Color.BLACK
             }
-            canvas.drawRect(mLastCommentEvent!!.mPopupRect!!, mPaint!!)
-            mPaint!!.color = Color.WHITE
-            canvas.drawRect(mLastCommentEvent!!.mPopupRect!!.left + 1, mLastCommentEvent!!.mPopupRect!!.top + 1, mLastCommentEvent!!.mPopupRect!!.right - 1, mLastCommentEvent!!.mPopupRect!!.bottom - 1, mPaint!!)
-            mPaint!!.color = mCommentTextColor
-            mPaint!!.alpha = 255
-            canvas.drawText(mLastCommentEvent!!.mComment.mText, mLastCommentEvent!!.mTextDrawLocation!!.x, mLastCommentEvent!!.mTextDrawLocation!!.y, mPaint!!)
+            canvas.drawRect(mLastCommentEvent!!.mPopupRect!!, mPaint)
+            mPaint.color = Color.WHITE
+            canvas.drawRect(mLastCommentEvent!!.mPopupRect!!.left + 1, mLastCommentEvent!!.mPopupRect!!.top + 1, mLastCommentEvent!!.mPopupRect!!.right - 1, mLastCommentEvent!!.mPopupRect!!.bottom - 1, mPaint)
+            mPaint.color = mCommentTextColor
+            mPaint.alpha = 255
+            canvas.drawText(mLastCommentEvent!!.mComment.mText, mLastCommentEvent!!.mTextDrawLocation!!.x, mLastCommentEvent!!.mTextDrawLocation!!.y, mPaint)
         }
     }
 
@@ -700,8 +693,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processColorEvent(event: ColorEvent?) {
-        if (event == mLastProcessedColorEvent)
-            return
         mBeatCounterColor = event!!.mBeatCounterColor
         mScrollMarkerColor = event.mScrollMarkerColor
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
