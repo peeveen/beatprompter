@@ -21,7 +21,6 @@ import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.util.ArrayList
 
 class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
@@ -156,27 +155,12 @@ class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivi
 
         @Throws(IOException::class)
         private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File {
-            var fos: FileOutputStream? = null
-            var inputStream: InputStream? = null
-            try {
-                fos = FileOutputStream(localFile)
-                inputStream = client.drive.getItems(file.id).content.buildRequest().get()
-                Utils.streamToStream(inputStream!!, fos)
-            } finally {
-                if (fos != null)
-                    try {
-                        fos.close()
-                    } catch (eee: Exception) {
-                        Log.e(BeatPrompterApplication.TAG, "Failed to close file", eee)
-                    }
-
-                if (inputStream != null)
-                    try {
-                        inputStream.close()
-                    } catch (eee: Exception) {
-                        Log.e(BeatPrompterApplication.TAG, "Failed to close input stream.", eee)
-                    }
-
+            val fos = FileOutputStream(localFile)
+            fos.use {
+                val inputStream = client.drive.getItems(file.id).content.buildRequest().get()
+                inputStream.use { inStream->
+                    Utils.streamToStream(inStream, fos)
+                }
             }
             return localFile
         }

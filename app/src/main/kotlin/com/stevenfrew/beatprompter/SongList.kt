@@ -1225,19 +1225,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         @Throws(IOException::class)
         fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-            var inputStream: InputStream? = null
-            var outputStream: OutputStream? = null
-            try {
-                inputStream = BeatPrompterApplication.assetManager.open(filename)
-                if (inputStream != null) {
-                    outputStream = FileOutputStream(destination)
-                    Utils.streamToStream(inputStream, outputStream)
-                }
-            } finally {
-                try {
-                    inputStream?.close()
-                } finally {
-                    outputStream?.close()
+            val inputStream = BeatPrompterApplication.assetManager.open(filename)
+            inputStream?.use { inStream ->
+                val outputStream = FileOutputStream(destination)
+                outputStream.use{
+                    Utils.streamToStream(inStream, it)
                 }
             }
         }

@@ -87,16 +87,11 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
 
     @Throws(IOException::class, DbxException::class)
     private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localfile: File): File {
-        var fos: FileOutputStream? = null
-        try {
-            fos = FileOutputStream(localfile)
+        val fos = FileOutputStream(localfile)
+        fos.use {
             val downloader = client.files().download(file.id)
-            downloader.download(fos)
-        } finally {
-            try {
-                fos?.close()
-            } catch (eee: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to close file", eee)
+            downloader.use {dler->
+                dler.download(it)
             }
         }
         return localfile

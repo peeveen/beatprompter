@@ -56,13 +56,9 @@ class DemoCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, 
     private fun createDemoSongTextFile(): File {
         val destinationSongFile = File(cacheFolder, DEMO_SONG_FILENAME)
         val demoFileText = BeatPrompterApplication.getResourceString(R.string.demo_song)
-        var bw: BufferedWriter? = null
-        try {
-            bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
+        val bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
+        bw.use {
             bw.write(demoFileText)
-        }
-        finally {
-            bw?.close()
         }
         return destinationSongFile
     }

@@ -226,18 +226,11 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
         private fun downloadGoogleDriveFile(file: com.google.api.services.drive.model.File, filename: String): File {
             val localFile = File(mDownloadFolder, filename)
             val inputStream = getDriveFileInputStream(file)
-            var fos: FileOutputStream? = null
-            if (inputStream != null) {
-                try {
-                    Log.d(BeatPrompterApplication.TAG, "Creating new local file, " + localFile.absolutePath)
-                    fos = FileOutputStream(localFile)
-                    Utils.streamToStream(inputStream, fos)
-                } finally {
-                    try {
-                        fos?.close()
-                    } finally {
-                        inputStream.close()
-                    }
+            inputStream?.use{ inStream ->
+                Log.d(BeatPrompterApplication.TAG, "Creating new local file, " + localFile.absolutePath)
+                val fos = FileOutputStream(localFile)
+                fos.use{
+                    Utils.streamToStream(inStream, it)
                 }
             }
             return localFile
