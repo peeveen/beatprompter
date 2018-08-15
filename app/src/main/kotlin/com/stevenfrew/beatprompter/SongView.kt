@@ -17,7 +17,6 @@ import android.widget.Toast
 import com.stevenfrew.beatprompter.bluetooth.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.MIDIController
-import com.stevenfrew.beatprompter.songload.SongLoaderTask
 import java.io.FileInputStream
 
 class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
@@ -116,7 +115,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun init(songDisplayActivity: SongDisplayActivity,song:Song) {
         mSongDisplayActivity = songDisplayActivity
-        calculateScrollEnd()
+        mSongScrollEndPixel=calculateScrollEnd(song,mScreenHeight)
         val sharedPrefs = BeatPrompterApplication.preferences
         mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue)))
         val metronomePref = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
@@ -139,17 +138,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mBeatCountRect = Rect(0, 0, song.mBeatCounterRect.width(), song.mBeatCounterHeight)
         mHighlightCurrentLine = song.mScrollingMode === ScrollingMode.Beat && sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
         mSong=song
-    }
-
-    private fun calculateScrollEnd() {
-        var songDisplayEndPixel = mSong!!.mSongHeight
-        if (mSong!!.mScrollingMode !== ScrollingMode.Beat)
-            songDisplayEndPixel -= mScreenHeight
-        mSongScrollEndPixel = Math.max(0, songDisplayEndPixel)
-        if (mSong!!.mScrollingMode === ScrollingMode.Smooth) {
-            mSongScrollEndPixel += mSong!!.mSmoothScrollOffset
-            mSongScrollEndPixel += mSong!!.mBeatCounterHeight
-        }
     }
 
     private fun ensureInitialised() {
@@ -512,7 +500,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mScreenWidth = Math.min(w, 4096)
         mScreenHeight = h
         if (mSong != null)
-            calculateScrollEnd()
+            mSongScrollEndPixel=calculateScrollEnd(mSong!!,mScreenHeight)
         mPageUpDownScreenHeight = (mScreenHeight * 0.8).toInt()
     }
 
@@ -1108,6 +1096,18 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         init {
             for (f in 0..2047)
                 mAccelerations[f] = Math.ceil(Math.sqrt((f + 1).toDouble()) * 2.0).toInt()
+        }
+
+        private fun calculateScrollEnd(song:Song,screenHeight:Int):Int {
+            var songDisplayEndPixel = song.mSongHeight
+            if (song.mScrollingMode !== ScrollingMode.Beat)
+                songDisplayEndPixel -= screenHeight
+            var songScrollEndPixel = Math.max(0, songDisplayEndPixel)
+            if (song.mScrollingMode === ScrollingMode.Smooth) {
+                songScrollEndPixel += song.mSmoothScrollOffset
+                songScrollEndPixel += song.mBeatCounterHeight
+            }
+            return songScrollEndPixel
         }
     }
 }

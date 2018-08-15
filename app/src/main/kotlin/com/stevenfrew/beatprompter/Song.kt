@@ -256,23 +256,13 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
 
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(nativeScreenHeight)
-        val mLineGraphics = arrayOfNulls<LineGraphic>(maxGraphicsRequired)
-        for (f in 0 until maxGraphicsRequired) {
-            val maxLineSize = getBiggestLineSize(f, maxGraphicsRequired)
-            mLineGraphics[f] = LineGraphic(maxLineSize)
-            if (f > 0) {
-                mLineGraphics[f]!!.mPrevGraphic = mLineGraphics[f - 1]
-                mLineGraphics[f - 1]!!.mNextGraphic = mLineGraphics[f]
-            }
-        }
-        if (mLineGraphics.isNotEmpty()) {
-            mLineGraphics[0]!!.mPrevGraphic = mLineGraphics[mLineGraphics.size - 1]
-            mLineGraphics[mLineGraphics.size - 1]!!.mNextGraphic = mLineGraphics[0]
-        }
+        val lineGraphics = CircularGraphicsList()
+        for (f in 0 until maxGraphicsRequired)
+            lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
 
         line = mFirstLine
         if (line != null) {
-            var graphic: LineGraphic? = mLineGraphics[0]
+            var graphic: LineGraphic? = lineGraphics[0]
             while (line != null) {
                 //                if(!line.hasOwnGraphics())
                 for (f in 0 until line.mLineMeasurements!!.mLines) {
