@@ -56,7 +56,7 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
         var artist = song.mArtist
         if (showKey) {
             val key = song.mKey
-            if (key != null && key.isNotEmpty())
+            if (key.isNotBlank())
                 artist += " - $key"
         }
         artistView.text = artist

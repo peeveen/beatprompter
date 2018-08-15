@@ -16,7 +16,7 @@ class SongFile : CachedCloudFile {
     private var mTimePerLine: Long = 0
     private var mTimePerBar: Long = 0
     var mBPM = 0.0
-    var mKey: String? = ""
+    var mKey: String = ""
     var mLines = 0
     var mMixedMode = false
     var mArtist: String? = null
@@ -27,8 +27,8 @@ class SongFile : CachedCloudFile {
     val sortableTitle
         get()= sortableString(mTitle)
 
-    var mSongSelectTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
-    var mProgramChangeTrigger: SongTrigger? = SongTrigger.DEAD_TRIGGER
+    var mSongSelectTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
+    var mProgramChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
 
     var mTags = HashSet<String>()
     var mAudioFiles = ArrayList<String>()
@@ -191,7 +191,7 @@ class SongFile : CachedCloudFile {
                     val artist = getArtistFromLine(line, lineNumber)
                     val key = getKeyFromLine(line, lineNumber)
                     val firstChord = getFirstChordFromLine(line, lineNumber)
-                    if ((mKey == null || mKey!!.isEmpty()) && firstChord != null && firstChord.isNotEmpty())
+                    if ((mKey.isBlank()) && firstChord != null && firstChord.isNotEmpty())
                         mKey = firstChord
                     val msst = getMIDISongSelectTriggerFromLine(line, lineNumber)
                     val mpct = getMIDIProgramChangeTriggerFromLine(line, lineNumber)
@@ -266,13 +266,13 @@ class SongFile : CachedCloudFile {
             imageFileElement.textContent = imageFile
             songElement.appendChild(imageFileElement)
         }
-        mProgramChangeTrigger!!.writeToXML(d, songElement, PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME)
-        mSongSelectTrigger!!.writeToXML(d, songElement, SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME)
+        mProgramChangeTrigger.writeToXML(d, songElement, PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME)
+        mSongSelectTrigger.writeToXML(d, songElement, SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME)
         element.appendChild(songElement)
     }
 
     fun matchesTrigger(trigger: SongTrigger): Boolean {
-        return mSongSelectTrigger != null && mSongSelectTrigger == trigger || mProgramChangeTrigger != null && mProgramChangeTrigger == trigger
+        return mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
     }
 
     @Throws(IOException::class)

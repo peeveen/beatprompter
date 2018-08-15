@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
-import com.stevenfrew.beatprompter.event.CancelEvent
+import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
 class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
@@ -397,7 +397,7 @@ class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        return LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights, vHighlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
+        return LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), vHighlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {

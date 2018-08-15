@@ -5,19 +5,22 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.Tag
 
-class EventOffset(offsetString: String?, sourceTag: Tag, errors: MutableList<FileParseError>) {
-    var mSourceTag = sourceTag
-    var mAmount: Int = 0
-    var mOffsetType: EventOffsetType=EventOffsetType.Milliseconds
+class EventOffset {
+    val mAmount:Int
+    val mOffsetType:EventOffsetType
+    val mSourceTag:Tag?
 
-    init {
+    constructor(offsetString: String?, sourceTag: Tag, errors: MutableList<FileParseError>)
+    {
+        var amount=0
+        var offsetType:EventOffsetType=EventOffsetType.Milliseconds
         var str = offsetString
         if (str != null) {
             str = str.trim()
             if (!str.isEmpty()) {
                 try {
-                    mAmount = Integer.parseInt(str)
-                    mOffsetType = EventOffsetType.Milliseconds
+                    amount = Integer.parseInt(str)
+                    offsetType = EventOffsetType.Milliseconds
                 } catch (e: Exception) {
                     // Might be in the beat format
                     var diff = 0
@@ -29,21 +32,36 @@ class EventOffset(offsetString: String?, sourceTag: Tag, errors: MutableList<Fil
                             ++diff
                         else if (!bErrorAdded) {
                             bErrorAdded = true
-                            errors.add(FileParseError(mSourceTag, BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset)))
+                            errors.add(FileParseError(sourceTag, BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset)))
                         }
                     }
-                    mAmount = diff
-                    mOffsetType = EventOffsetType.Beats
+                    amount = diff
+                    offsetType = EventOffsetType.Beats
                 }
 
-                if (Math.abs(mAmount) > 16 && mOffsetType == EventOffsetType.Beats) {
-                    mAmount = Math.abs(mAmount) / mAmount * 16
-                    errors.add(FileParseError(mSourceTag, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)))
-                } else if (Math.abs(mAmount) > 10000 && mOffsetType == EventOffsetType.Milliseconds) {
-                    mAmount = Math.abs(mAmount) / mAmount * 10000
-                    errors.add(FileParseError(mSourceTag, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)))
+                if (Math.abs(amount) > 16 && offsetType == EventOffsetType.Beats) {
+                    amount = Math.abs(amount) / amount * 16
+                    errors.add(FileParseError(sourceTag, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)))
+                } else if (Math.abs(amount) > 10000 && offsetType == EventOffsetType.Milliseconds) {
+                    amount = Math.abs(amount) / amount * 10000
+                    errors.add(FileParseError(sourceTag, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded)))
                 }
             }
         }
+        mAmount=amount
+        mOffsetType=offsetType
+        mSourceTag=sourceTag
+    }
+
+    private constructor(amount:Int,offsetType:EventOffsetType)
+    {
+        mAmount=amount
+        mOffsetType=offsetType
+        mSourceTag=null
+    }
+
+    companion object
+    {
+        val NoOffset=EventOffset(0,EventOffsetType.Milliseconds)
     }
 }

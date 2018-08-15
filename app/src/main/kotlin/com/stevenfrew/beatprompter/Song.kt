@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.BaseEvent
-import com.stevenfrew.beatprompter.event.CancelEvent
+import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.CommentEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
@@ -92,7 +92,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
 
         val defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))))
         var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue)))
-        showKey = showKey and (mSongFile.mKey != null && mSongFile.mKey!!.isNotEmpty())
+        showKey = showKey and mSongFile.mKey.isNotBlank()
         val showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))
 
         mBeatCounterHeight = 0

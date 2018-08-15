@@ -48,12 +48,12 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
     /** Will cancel the listening socket, and cause the thread to finish  */
     fun stopListening() {
         mStop = true
-        try {
-            mmServerSocket?.close()
-        } catch (e: IOException) {
-            Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to close Bluetooth listener socket.", e)
-        } finally {
-            synchronized(mSocketNullLock) {
+        synchronized(mSocketNullLock) {
+            try {
+                mmServerSocket?.close()
+            } catch (e: IOException) {
+                Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to close Bluetooth listener socket.", e)
+            } finally {
                 mmServerSocket = null
             }
         }

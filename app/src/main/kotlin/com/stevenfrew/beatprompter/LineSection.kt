@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.cache.Tag
 internal class LineSection(var mLineText: String?, var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
     var mNextSection: LineSection? = null
     var mPrevSection: LineSection? = null
-    var mIsChord: Boolean = false
+    val mIsChord: Boolean= Utils.isChord(mChordText)
     var mTextWidth = 0
     var mChordWidth = 0
     var mChordTrimWidth = 0
@@ -24,10 +24,6 @@ internal class LineSection(var mLineText: String?, var mChordText: String?, priv
         get() = Math.max(mTextWidth, mChordWidth)
     val height: Int
         get() = mTextHeight + mChordHeight
-
-    init {
-        mIsChord = Utils.isChord(mChordText)
-    }
 
     fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
         mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face, color)

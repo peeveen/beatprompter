@@ -37,7 +37,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mLastTempMessageTime: Long = 0
     private var mLastBeatTime: Long = 0
     private var mPaint: Paint? = null           // The paint (e.g. style, color) used for drawing
-    private var mScroller: OverScroller? = null
+    private val mScroller: OverScroller
 
     private  var mMetronomeTask: MetronomeTask? = null
     private  var mMetronomeThread: Thread? = null
@@ -371,8 +371,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun calculateScrolling(): Boolean {
         var scrolling = false
-        if ((mScreenAction == ScreenAction.Scroll || mSong!!.mScrollingMode === ScrollingMode.Manual) && mScroller!!.computeScrollOffset()) {
-            mSongPixelPosition = mScroller!!.currY
+        if ((mScreenAction == ScreenAction.Scroll || mSong!!.mScrollingMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
+            mSongPixelPosition = mScroller.currY
             //if (mSong.mScrollingMode != ScrollingMode.Manual)
             run {
                 val songTime = mSong!!.mCurrentLine!!.getTimeFromPixel(mSongPixelPosition)
@@ -870,7 +870,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         // Abort any active scroll animations and invalidate.
         if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollingMode === ScrollingMode.Manual)
             clearScrollTarget()
-        mScroller!!.forceFinished(true)
+        mScroller.forceFinished(true)
         return true
     }
 
@@ -938,9 +938,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollingMode === ScrollingMode.Manual) {
             clearScrollTarget()
             pauseOnScrollStart()
-            mScroller!!.fling(0, mSongPixelPosition, 0, (-velocityY).toInt(), 0, 0, 0, mSongScrollEndPixel)
+            mScroller.fling(0, mSongPixelPosition, 0, (-velocityY).toInt(), 0, 0, 0, mSongScrollEndPixel)
         } else if (mScreenAction == ScreenAction.Volume)
-            mScroller!!.fling(0, mCurrentVolume, 0, velocityY.toInt(), 0, 0, 0, 1000)
+            mScroller.fling(0, mCurrentVolume, 0, velocityY.toInt(), 0, 0, 0, 1000)
         return true
     }
 

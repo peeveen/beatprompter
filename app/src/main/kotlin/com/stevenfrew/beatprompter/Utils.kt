@@ -14,7 +14,7 @@ object Utils {
 
     // Special token.
     const val TRACK_AUDIO_LENGTH_VALUE = -93781472
-    private val splitters = listOf(" ", "-")
+    private val splitters = arrayOf(" ", "-")
 
     private const val REGEXP = (
             "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
@@ -34,8 +34,6 @@ object Utils {
                     + "(\\)?[ \\s]*)$") //closing parenthesis, spaces
 
     private val pattern = Pattern.compile(REGEXP)
-
-    private const val ReservedChars = "|\\?*<\":>+[]/'"
 
     init {
         for (f in 0..90) {
@@ -93,7 +91,7 @@ object Utils {
         val result = StringBuilder()
         var nonWhitespaceBitsJoined = 0
         for (bit in bits) {
-            val whitespace = bit.trim().isEmpty()
+            val whitespace = bit.isBlank()
             if (!whitespace && nonWhitespaceBitsJoined == nonWhitespaceBitsToJoin)
                 break
             result.append(bit)
@@ -104,30 +102,7 @@ object Utils {
     }
 
     fun splitText(strIn: String): List<String> {
-        var str = strIn
-        val bits = mutableListOf<String>()
-        var bestSplitIndex: Int
-        while (true) {
-            bestSplitIndex = str.length
-            var bestSplitter: String? = null
-            for (splitter in splitters) {
-                val splitIndex = str.indexOf(splitter)
-                if (splitIndex != -1) {
-                    bestSplitIndex = Math.min(splitIndex, bestSplitIndex)
-                    if (bestSplitIndex == splitIndex)
-                        bestSplitter = splitter
-                }
-            }
-            val bit = str.substring(0, bestSplitIndex)
-            if (bit.isNotEmpty())
-                bits.add(bit)
-            if (bestSplitter != null) {
-                bits.add(bestSplitter)
-                str = str.substring(bestSplitIndex + 1)
-            } else
-                break
-        }
-        return bits.toList()
+        return strIn.split(Regex("(?<=[ -])|(?=[ -])"))
     }
 
     fun splitIntoLetters(str: String): List<String> {
@@ -138,16 +113,15 @@ object Utils {
         if (str.equals("track", ignoreCase = true) && trackLengthAllowed)
             return Utils.TRACK_AUDIO_LENGTH_VALUE
         try {
-            val totalsecs = java.lang.Double.parseDouble(str)
+            val totalsecs = str.toDouble()
             return Math.floor(totalsecs * 1000.0).toInt()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
-            val colonIndex = str.indexOf(":")
-            if (colonIndex != -1 && colonIndex < str.length - 1) {
-                val strMins = str.substring(0, colonIndex)
-                val strSecs = str.substring(colonIndex + 1)
-                val mins = Integer.parseInt(strMins)
-                val secs = Integer.parseInt(strSecs)
+            val bits=str.split(":")
+            if (bits.size==2)
+            {
+                val mins = bits[0].toInt()
+                val secs = bits[1].toInt()
                 return (secs + mins * 60) * 1000
             }
             throw nfe
@@ -156,10 +130,8 @@ object Utils {
     }
 
     fun isChord(textIn: String?): Boolean {
-        var text = textIn
-        if (text != null)
-            text = text.trim()
-        return !(text == null || text.isEmpty()) && pattern.matcher(text).matches()
+        val text =(textIn?:"").trim()
+        return text.isNotEmpty() && pattern.matcher(text).matches()
     }
 
     @Throws(IOException::class)
@@ -174,13 +146,7 @@ object Utils {
     }
 
     fun makeSafeFilename(str: String): String {
-        val builder = StringBuilder()
-        for (c in str.toCharArray())
-            if (ReservedChars.contains("" + c))
-                builder.append("_")
-            else
-                builder.append(c)
-        return builder.toString()
+        return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"),"_")
     }
 
     @Throws(IOException::class)
@@ -189,12 +155,11 @@ object Utils {
     }
 
     private fun stripHexSignifiers(strIn: String): String {
-        var str = strIn
-        str = str.toLowerCase()
+        val str = strIn.toLowerCase()
         if (str.startsWith("0x"))
-            str = str.substring(2)
+            return str.substringAfter("0x")
         else if (str.endsWith("h"))
-            str = str.substring(0, str.length - 1)
+            return str.substring(0, str.length - 1)
         return str
     }
 
@@ -207,37 +172,15 @@ object Utils {
     }
 
     private fun parseByte(str: String, radix: Int): Byte {
-        val `val` = Integer.parseInt(str, radix)
-        return (`val` and 0x000000FF).toByte()
+        val byteVal = str.toInt(radix)
+        return (byteVal and 0x000000FF).toByte()
     }
 
     fun looksLikeHex(strIn: String?): Boolean {
-        var str: String? = strIn ?: return false
-        str = str!!.toLowerCase()
-        var signifierFound = false
-        if (str.startsWith("0x")) {
-            signifierFound = true
-            str = str.substring(2)
-        } else if (str.endsWith("h")) {
-            signifierFound = true
-            str = str.substring(0, str.length - 1)
-        }
-        // Hex values for this app are two-chars long, max.
-        if (str.length > 2)
+        if(strIn==null)
             return false
-        try {
-
-            Integer.parseInt(str)
-            // non-hex integer
-            return signifierFound
-        } catch (ignored: Exception) {
-        }
-
-        for (f in 0 until str.length) {
-            val c = str[f]
-            if (!Character.isDigit(c) && c != 'a' && c != 'b' && c != 'c' && c != 'd' && c != 'e' && c != 'f')
-                return false
-        }
-        return true
+        val strippedString= stripHexSignifiers(strIn.toLowerCase())
+        // Hex values for this app are two-chars long, max.
+        return strippedString.matches(Regex("[0-9a-f]{1,2}"))
     }
 }

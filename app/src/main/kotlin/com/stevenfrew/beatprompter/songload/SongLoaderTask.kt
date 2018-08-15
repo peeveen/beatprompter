@@ -5,7 +5,6 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Song
 import com.stevenfrew.beatprompter.SongParser
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.event.CancelEvent
 import java.io.IOException
 
 

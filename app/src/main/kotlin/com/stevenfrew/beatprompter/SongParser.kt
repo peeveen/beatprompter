@@ -7,6 +7,7 @@ import android.util.Log
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 import java.io.*
 import java.util.HashSet
@@ -310,7 +311,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                     if (scrollBeat > bpb)
                                         scrollBeat = bpb
                                 }
-                                "comment" -> {
+                                "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
                                     val comment = Comment(tag.mValue,commentAudience)
                                     if (stopAddingStartupItems) {
                                         val ce = CommentEvent(currentTime, comment)
@@ -371,7 +372,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                                 lastEvent = me
                                             } else {
                                                 initialMIDIMessages.addAll(me.mMessages)
-                                                if (me.mOffset != null)
+                                                if (me.mOffset != EventOffset.NoOffset)
                                                     errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
                                             }
                                         }
@@ -691,22 +692,19 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             }
 
             if (mTriggerContext === TriggerOutputContext.Always || mTriggerContext === TriggerOutputContext.ManualStartOnly && !mLoadingSongFile.startedByMIDITrigger) {
-                if (mSongFile.mProgramChangeTrigger != null)
-                    if (mSongFile.mProgramChangeTrigger!!.isSendable())
-                        try {
-                            initialMIDIMessages.addAll(mSongFile.mProgramChangeTrigger!!.getMIDIMessages(mDefaultMIDIOutputChannel))
-                        } catch (re: ResolutionException) {
-                            errors.add(FileParseError(lineCounter, re.message))
-                        }
+                if (mSongFile.mProgramChangeTrigger.isSendable())
+                    try {
+                        initialMIDIMessages.addAll(mSongFile.mProgramChangeTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
+                    } catch (re: ResolutionException) {
+                        errors.add(FileParseError(lineCounter, re.message))
+                    }
 
-                if (mSongFile.mSongSelectTrigger != null)
-                    if (mSongFile.mSongSelectTrigger!!.isSendable())
-                        try {
-                            initialMIDIMessages.addAll(mSongFile.mSongSelectTrigger!!.getMIDIMessages(mDefaultMIDIOutputChannel))
-                        } catch (re: ResolutionException) {
-                            errors.add(FileParseError(lineCounter, re.message))
-                        }
-
+                if (mSongFile.mSongSelectTrigger.isSendable())
+                    try {
+                        initialMIDIMessages.addAll(mSongFile.mSongSelectTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
+                    } catch (re: ResolutionException) {
+                        errors.add(FileParseError(lineCounter, re.message))
+                    }
             }
 
             // Now process all MIDI events with offsets.
@@ -735,16 +733,16 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             var event = firstEvent
             while (event != null) {
                 if (event is MIDIEvent) {
-                    val midiEvent = event as MIDIEvent?
-                    if (midiEvent!!.mOffset != null && midiEvent.mOffset!!.mAmount != 0) {
+                    val midiEvent = event
+                    if (midiEvent.mOffset.mAmount != 0) {
                         // OK, this event needs moved.
                         var newTime: Long = -1
-                        if (midiEvent.mOffset!!.mOffsetType === EventOffsetType.Milliseconds) {
-                            val offset = Utils.milliToNano(midiEvent.mOffset!!.mAmount)
+                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
                             newTime = midiEvent.mEventTime + offset
                         } else {
                             // Offset by beat count.
-                            var beatCount = midiEvent.mOffset!!.mAmount
+                            var beatCount = midiEvent.mOffset.mAmount
                             var currentEvent: BaseEvent = midiEvent
                             while (beatCount != 0) {
                                 val beatEvent: BeatEvent = (if (beatCount > 0)
@@ -761,7 +759,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             }
                         }
                         if (newTime < 0) {
-                            errors.add(FileParseError(midiEvent.mOffset!!.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                            errors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
                             newTime = 0
                         }
                         val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)

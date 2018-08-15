@@ -28,11 +28,9 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
 
     fun parsePotentialCommentTag(): String
     {
-        if(mName.contains('@'))
-        {
-            val bit=mName.substringBefore('@')
-            when(bit)
-            {
+        if(mName.contains('@')) {
+            val bit = mName.substringBefore('@')
+            when (bit) {
                 "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
                     mName = "comment"
                     return mName.substringAfter('@')
@@ -48,7 +46,7 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
 
         fun getMIDIEventFromTag(time: Long, tag: Tag, aliases: List<Alias>, defaultChannel: Byte, parseErrors: MutableList<FileParseError>): MIDIEvent? {
             var tagValue = tag.mValue.trim()
-            var eventOffset: EventOffset? = null
+            var eventOffset: EventOffset = EventOffset.NoOffset
             if (tagValue.isEmpty()) {
                 // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
                 if (tag.mName.contains(";")) {
@@ -91,10 +89,10 @@ class Tag private constructor(var mChordTag: Boolean, str: String, internal var 
                     resolvedBytes[f] = paramBytes[f].resolve()
                 for (alias in aliases)
                     if (alias.mName.equals(tag.mName, ignoreCase = true)) {
-                        return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset!!)
+                        return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset)
                     }
                 if (tag.mName == "midi_send")
-                    return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset!!)
+                    return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset)
                 parseErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, tag.mName)))
             } catch (re: ResolutionException) {
                 parseErrors.add(FileParseError(tag.mLineNumber, re.message))

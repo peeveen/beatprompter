@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.FileParseError
 import com.stevenfrew.beatprompter.cache.ImageFile
-import com.stevenfrew.beatprompter.event.CancelEvent
+import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
 class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
@@ -35,7 +35,7 @@ class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private va
         graphicHeights.add(scaledImageHeight)
         mSourceRect = Rect(0, 0, imageWidth, imageHeight)
         mDestRect = Rect(0, 0, scaledImageWidth, scaledImageHeight)
-        return LineMeasurements(1, mDestRect!!.width(), mDestRect!!.height(), graphicHeights, highlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
+        return LineMeasurements(1, mDestRect!!.width(), mDestRect!!.height(), graphicHeights.toIntArray(), highlightColour, mLineEvent, mNextLine, mYStartScrollTime, scrollMode)
     }
 
     override fun getGraphics(allocate: Boolean): Collection<LineGraphic> {

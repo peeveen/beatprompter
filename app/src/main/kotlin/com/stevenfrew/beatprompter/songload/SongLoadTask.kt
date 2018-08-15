@@ -10,7 +10,6 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.event.CancelEvent
 import java.util.concurrent.Semaphore
 
 /**

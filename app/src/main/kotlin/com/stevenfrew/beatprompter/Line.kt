@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.Paint
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.FileParseError
-import com.stevenfrew.beatprompter.event.CancelEvent
+import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
@@ -95,7 +95,6 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: 
     }
 
     internal open fun recycleGraphics() {
-        for (g in getGraphics(false))
-            g.recycle()
+        getGraphics(false).forEach{it.recycle()}
     }
 }

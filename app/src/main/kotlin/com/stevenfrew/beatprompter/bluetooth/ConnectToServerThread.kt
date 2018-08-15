@@ -37,26 +37,28 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
                         }
                         socket = mmSocket
                     }
-                    if (socket != null) {
-                        socket!!.connect()
-
-                        // Do work to manage the connection (in a separate thread)
-                        BluetoothManager.setServerConnection(mmSocket!!)
-                        val connectedClientThread = ConnectedClientThread(mmSocket!!)
-                        connectedClientThread.start()
-                    }
+                    if (socket != null)
+                        startConnectionThread(socket!!)
                 } catch (connectException: IOException) {
                     Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to connect to a BeatPrompter band leader (there probably isn't one!)", connectException)
                 }
             else
-            // Already connected. Wait a bit and try/check again.
+                // Already connected. Wait a bit and try/check again.
                 try {
                     Thread.sleep(5000)
                 } catch (ie: InterruptedException) {
                     Log.w(BluetoothManager.BLUETOOTH_TAG, "Thread that maintains connection to the server was interrupted while waiting.")
                 }
-            //                if(!mStop)
         }
+    }
+
+    private fun startConnectionThread(socket:BluetoothSocket)
+    {
+        socket.connect()
+        // Do work to manage the connection (in a separate thread)
+        BluetoothManager.setServerConnection(socket)
+        val connectedClientThread = ConnectedClientThread(socket)
+        connectedClientThread.start()
     }
 
     /** Will cancel an in-progress connection, and close the socket  */
@@ -66,13 +68,12 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
     }
 
     fun closeSocket() {
-        try {
-            if(mmSocket!=null)
-                mmSocket!!.close()
-        } catch (e: IOException) {
-            Log.e(BluetoothManager.BLUETOOTH_TAG, "Error closing Bluetooth socket.", e)
-        } finally {
-            synchronized(mSocketNullLock) {
+        synchronized(mSocketNullLock) {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e(BluetoothManager.BLUETOOTH_TAG, "Error closing Bluetooth socket.", e)
+            } finally {
                 mmSocket = null
             }
         }
