@@ -262,11 +262,11 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
 
         line = mFirstLine
         if (line != null) {
-            var graphic: LineGraphic? = lineGraphics[0]
+            var graphic: LineGraphic = lineGraphics[0]
             while (line != null) {
                 //                if(!line.hasOwnGraphics())
                 for (f in 0 until line.mLineMeasurements!!.mLines) {
-                    line.setGraphic(graphic!!)
+                    line.setGraphic(graphic)
                     graphic = graphic.mNextGraphic
                 }
                 line = line.mNextLine

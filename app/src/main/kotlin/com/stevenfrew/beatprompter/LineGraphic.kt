@@ -6,8 +6,7 @@ import android.graphics.Rect
 internal class LineGraphic(size: Rect) {
     var mLastDrawnLine: Line? = null
     var mBitmap: Bitmap = Bitmap.createBitmap(size.width(), size.height(), Bitmap.Config.ARGB_8888)
-    var mNextGraphic: LineGraphic? = null
-    var mPrevGraphic: LineGraphic? = null
+    var mNextGraphic: LineGraphic=this
 
     fun recycle() {
         mBitmap.recycle()
