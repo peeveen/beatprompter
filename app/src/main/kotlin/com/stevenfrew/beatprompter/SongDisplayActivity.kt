@@ -69,28 +69,30 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // TODO: some sort of normal keyboard support.
         mAnyOtherKeyPageDown = false//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
-        val song = SongLoaderTask.currentSong
-        if (song != null) {
-            mStartedByBandLeader = song.mStartedByBandLeader
-            sendMidiClock = sendMidiClock or song.mSendMidiClock
-            val orientation = song.mOrientation
-            mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
-                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-            else
-                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-            requestedOrientation = mOrientation
+        setContentView(R.layout.activity_song_display)
+        val potentiallyNullSongView:SongView? = findViewById(R.id.song_view)
+        val songView=potentiallyNullSongView?:return
+        mSongView=songView
 
-            MIDIController.mMIDIOutQueue.addAll(song.mInitialMIDIMessages)
-        }
+        val song = SongLoaderTask.currentSong?:return
+
+        mStartedByBandLeader = song.mStartedByBandLeader
+        sendMidiClock = sendMidiClock or song.mSendMidiClock
+        val orientation = song.mOrientation
+        mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        else
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+        requestedOrientation = mOrientation
+
+        MIDIController.mMIDIOutQueue.addAll(song.mInitialMIDIMessages)
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        setContentView(R.layout.activity_song_display)
-        mSongView = findViewById(R.id.song_view)
         mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
         EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
-        mSongView!!.init(this)
+        songView.init(this,song)
 
         if (sendMidiClock)
             mMidiClockOutTaskThread.start()

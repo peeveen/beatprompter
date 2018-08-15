@@ -107,13 +107,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         mLyricColour = mLyricColour or -0x1000000
         mChordColour = mChordColour or -0x1000000
         mIgnoreColorInfo = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue)))
-        mMetronomeContext = try {
-            MetronomeContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_metronome_key), BeatPrompterApplication.getResourceString(R.string.pref_metronome_defaultValue)))
-        } catch (e: Exception) {
-            // backward compatibility with old shite values.
-            MetronomeContext.Off
-        }
-
+        mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPref)
     }
 
     @Throws(IOException::class)

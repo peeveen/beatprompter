@@ -93,54 +93,52 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mSongPixelPosition = 0
 
         val sharedPref = BeatPrompterApplication.preferences
-        val screenAction = sharedPref.getString(context.getString(R.string.pref_screenAction_key), context.getString(R.string.pref_screenAction_defaultValue))
-        if (screenAction!!.equals(context.getString(R.string.screenActionNoneValue), ignoreCase = true))
+        val screenAction = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_screenAction_key), BeatPrompterApplication.getResourceString(R.string.pref_screenAction_defaultValue))
+        if (screenAction!!.equals(BeatPrompterApplication.getResourceString(R.string.screenActionNoneValue), ignoreCase = true))
             mScreenAction = ScreenAction.None
-        if (screenAction.equals(context.getString(R.string.screenActionVolumeValue), ignoreCase = true))
+        if (screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionVolumeValue), ignoreCase = true))
             mScreenAction = ScreenAction.Volume
-        if (screenAction.equals(context.getString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
+        if (screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
             mScreenAction = ScreenAction.Scroll
-        mShowScrollIndicator = sharedPref.getBoolean(context.getString(R.string.pref_showScrollIndicator_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showScrollIndicator_defaultValue)))
-        mShowSongTitle = sharedPref.getBoolean(context.getString(R.string.pref_showSongTitle_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_showSongTitle_defaultValue)))
-        var commentDisplayTimeSeconds = sharedPref.getInt(context.getString(R.string.pref_commentDisplayTime_key), Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_default)))
-        commentDisplayTimeSeconds += Integer.parseInt(context.getString(R.string.pref_commentDisplayTime_offset))
+        mShowScrollIndicator = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_defaultValue)))
+        mShowSongTitle = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_defaultValue)))
+        var commentDisplayTimeSeconds = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default)))
+        commentDisplayTimeSeconds += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset))
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
 
-        mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_commentTextColor_key), Color.parseColor(context.getString(R.string.pref_commentTextColor_default))))
-        mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(context.getString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(context.getString(R.string.pref_currentLineHighlightColor_default))))
-        mPulse = sharedPref.getBoolean(context.getString(R.string.pref_pulse_key), java.lang.Boolean.parseBoolean(context.getString(R.string.pref_pulse_defaultValue)))
+        mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default))))
+        mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_default))))
+        mPulse = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue)))
     }
 
     // Constructor
     constructor(context: Context) : this(context,null)
 
-    fun init(songDisplayActivity: SongDisplayActivity) {
+    fun init(songDisplayActivity: SongDisplayActivity,song:Song) {
         mSongDisplayActivity = songDisplayActivity
-        mSong = SongLoaderTask.currentSong
         calculateScrollEnd()
-        val sharedPref = BeatPrompterApplication.preferences
-        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPref.getString(songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_key), songDisplayActivity.getString(R.string.pref_midiTriggerSafetyCatch_defaultValue)))
-        val metronomePref = sharedPref.getString(songDisplayActivity.getString(R.string.pref_metronome_key), songDisplayActivity.getString(R.string.pref_metronome_defaultValue))
+        val sharedPrefs = BeatPrompterApplication.preferences
+        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue)))
+        val metronomePref = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
 
-        if (mSong!!.mSongFile.mBPM != 0.0) {
-            var metronomeOn = metronomePref == songDisplayActivity.getString(R.string.metronomeOnValue)
-            val metronomeOnWhenNoBackingTrack = metronomePref == songDisplayActivity.getString(R.string.metronomeOnWhenNoBackingTrackValue)
-            val metronomeCount = metronomePref == songDisplayActivity.getString(R.string.metronomeDuringCountValue)
+        if (song.mSongFile.mBPM != 0.0) {
+            var metronomeOn = metronomePref==MetronomeContext.On
+            val metronomeOnWhenNoBackingTrack = metronomePref==MetronomeContext.OnWhenNoTrack
+            val metronomeCount = metronomePref==MetronomeContext.DuringCountIn
 
-            if (metronomeOnWhenNoBackingTrack && mSong!!.mChosenBackingTrack == null)
+            if (metronomeOnWhenNoBackingTrack && song.mChosenBackingTrack == null)
                 metronomeOn = true
 
             if (metronomeOn)
                 mMetronomeBeats = java.lang.Long.MAX_VALUE
             else if (metronomeCount)
-                mMetronomeBeats = (mSong!!.mCountIn * mSong!!.mInitialBPB).toLong()
+                mMetronomeBeats = (song.mCountIn * song.mInitialBPB).toLong()
         }
 
-        if (mSong != null) {
-            mSendMidiClock = mSong!!.mSendMidiClock || sharedPref.getBoolean(songDisplayActivity.getString(R.string.pref_sendMidi_key), false)
-            mBeatCountRect = Rect(0, 0, mSong!!.mBeatCounterRect!!.width(), mSong!!.mBeatCounterHeight)
-            mHighlightCurrentLine = mSong!!.mScrollingMode === ScrollingMode.Beat && sharedPref.getBoolean(songDisplayActivity.getString(R.string.pref_highlightCurrentLine_key), java.lang.Boolean.parseBoolean(songDisplayActivity.getString(R.string.pref_highlightCurrentLine_defaultValue)))
-        }
+        mSendMidiClock = song.mSendMidiClock || sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
+        mBeatCountRect = Rect(0, 0, song.mBeatCounterRect.width(), song.mBeatCounterHeight)
+        mHighlightCurrentLine = song.mScrollingMode === ScrollingMode.Beat && sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
+        mSong=song
     }
 
     private fun calculateScrollEnd() {

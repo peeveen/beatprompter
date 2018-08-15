@@ -23,7 +23,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
     private var mNextEvent: BaseEvent? = null // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks: Int
-    internal var mBeatCounterRect: Rect?=null
+    internal var mBeatCounterRect: Rect=Rect()
     internal var mBeatCounterHeight: Int = 0
     internal var mSmoothScrollOffset: Int = 0
     internal var mSongHeight = 0
