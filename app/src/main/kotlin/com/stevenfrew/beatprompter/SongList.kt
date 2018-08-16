@@ -69,7 +69,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     internal var mIAPService: IInAppBillingService? = null
 
-    private var mInAppPurchaseServiceConn: ServiceConnection? = object : ServiceConnection {
+    private val mInAppPurchaseServiceConn: ServiceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName) {
             mIAPService = null
         }
@@ -85,7 +85,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     var sortingPreference: SortingPreference
         get() {
             return try {
-                SortingPreference.valueOf(BeatPrompterApplication.preferences.getString("pref_sorting", SortingPreference.Title.name))
+                SortingPreference.valueOf(BeatPrompterApplication.preferences.getString("pref_sorting", SortingPreference.Title.name)!!)
             } catch (ignored: Exception) {
                 SortingPreference.Title
             }
@@ -597,8 +597,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         EventHandler.setSongListEventHandler(null)
         super.onDestroy()
 
-        if (mInAppPurchaseServiceConn != null)
-            unbindService(mInAppPurchaseServiceConn)
+        unbindService(mInAppPurchaseServiceConn)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -1226,7 +1225,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         @Throws(IOException::class)
         fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
             val inputStream = BeatPrompterApplication.assetManager.open(filename)
-            inputStream?.use { inStream ->
+            inputStream.use { inStream ->
                 val outputStream = FileOutputStream(destination)
                 outputStream.use{
                     Utils.streamToStream(inStream, it)

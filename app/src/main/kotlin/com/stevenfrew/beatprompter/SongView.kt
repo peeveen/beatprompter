@@ -117,7 +117,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mSongDisplayActivity = songDisplayActivity
         mSongScrollEndPixel=calculateScrollEnd(song,mScreenHeight)
         val sharedPrefs = BeatPrompterApplication.preferences
-        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue)))
+        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue))!!)
         val metronomePref = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
 
         if (song.mSongFile.mBPM != 0.0) {

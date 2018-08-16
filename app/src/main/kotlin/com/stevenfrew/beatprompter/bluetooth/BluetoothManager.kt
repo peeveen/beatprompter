@@ -93,7 +93,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
         get() {
             return try {
                 BluetoothMode.valueOf(BeatPrompterApplication.preferences.getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
-                        BeatPrompterApplication.getResourceString(R.string.bluetoothModeNoneValue)))
+                        BeatPrompterApplication.getResourceString(R.string.bluetoothModeNoneValue))!!)
             } catch (e: Exception) {
                 BluetoothMode.None
             }

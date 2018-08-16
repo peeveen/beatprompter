@@ -81,7 +81,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             mCurrentScrollMode = ScrollingMode.Manual
 
         val sharedPref = BeatPrompterApplication.preferences
-        mTriggerContext = TriggerOutputContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue)))
+        mTriggerContext = TriggerOutputContext.valueOf(sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue))!!)
         mCountInPref = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
         mCountInPref += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_offset))
         /*            int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));

@@ -186,7 +186,7 @@ class SongFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    if(title!=null)
+                    if(title==null)
                         title = getTitleFromLine(line, lineNumber)
                     val artist = getArtistFromLine(line, lineNumber)
                     val key = getKeyFromLine(line, lineNumber)
