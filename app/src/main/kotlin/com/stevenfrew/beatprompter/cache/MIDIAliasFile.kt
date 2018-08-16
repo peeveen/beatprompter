@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.SongParsingState
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasTag
@@ -43,6 +44,7 @@ class MIDIAliasFile : CachedCloudFile {
 
         @Throws(InvalidBeatPrompterFileException::class)
         private fun readAliasFile(file:File, filename: String, midiParsingErrors: MutableList<FileParseError>): AliasSet {
+            val parsingState=SongParsingState()
             try {
                 var currentAliasName: String? = null
                 var currentAliasComponents: MutableList<AliasComponent> = mutableListOf()
@@ -55,7 +57,7 @@ class MIDIAliasFile : CachedCloudFile {
                     do {
                         line = it.readLine()
                         if(line!=null) {
-                            val fileLine= FileLine(line, ++lineNumber, file,midiParsingErrors)
+                            val fileLine= FileLine(line, ++lineNumber, file,parsingState)
                             if(fileLine.isComment)
                                 continue
 
@@ -86,6 +88,7 @@ class MIDIAliasFile : CachedCloudFile {
                 }
                 if (currentAliasName != null)
                     aliases.add(Alias(currentAliasName!!, currentAliasComponents))
+                midiParsingErrors.addAll(parsingState.mErrors)
                 return if (aliasFilename != null)
                     AliasSet(aliasFilename!!, aliases)
                 else

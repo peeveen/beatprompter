@@ -3,17 +3,16 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
-class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
     private var mLyricHeight: Int = 0
     private var mFont: Typeface? = null
-    private val mLineTags = lineTags.filter{!it.isChord}
-    private val mChordTags = lineTags.filter{it.isChord}
     private var mFirstLineSection: LineSection? = null
     private val mXSplits = mutableListOf<Int>()
     private val mLineWidths = mutableListOf<Int>()
@@ -28,53 +27,61 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             return mXSplits.sum()
         }
 
+    private fun calculateSections(cancelEvent:CancelEvent):LineSectionList
+    {
+        val sections= LineSectionList()
+        var chordPositionStart = 0
+        var chordTagIndex = -1
+        run {
+            val mLineTags = mLineTags.filter { it !is ChordTag }
+            val mChordTags = mLineTags.filterIsInstance<ChordTag>()
+
+            while (chordTagIndex < mChordTags.size && !cancelEvent.isCancelled) {
+                var chordPositionEnd = mText.length
+                if (chordTagIndex < mChordTags.size - 1)
+                    chordPositionEnd = mChordTags[chordTagIndex + 1].mPosition
+                // mText could have been "..." which would be turned into ""
+                if (chordTagIndex != -1)
+                    chordPositionStart = mChordTags[chordTagIndex].mPosition
+                if (chordPositionEnd > mText.length)
+                    chordPositionEnd = mText.length
+                if (chordPositionStart > mText.length)
+                    chordPositionStart = mText.length
+                val linePart = mText.substring(chordPositionStart, chordPositionEnd)
+                var chordText = ""
+                var trueChord = false
+                if (chordTagIndex != -1) {
+                    val chordTag = mChordTags[chordTagIndex]
+                    trueChord = chordTag.isValidChord()
+                    chordText = chordTag.mName
+                    // Stick a couple of spaces on each chord, apart from the last one.
+                    // This is so they don't appear right beside each other.
+                    if (chordTagIndex < mChordTags.size - 1) {
+                        chordText += "  "
+                        // TODO: POTENTIAL BREAKING CHANGE!
+                        //chordTag.mName = chordText
+                    }
+                }
+                val otherTags = mutableListOf<Tag>()
+                for (tag in mLineTags)
+                    if (tag.mPosition in chordPositionStart..chordPositionEnd)
+                        otherTags.add(tag)
+                if (linePart.isNotEmpty() || chordText.isNotEmpty()) {
+                    val section = LineSection(linePart, chordText, trueChord, chordPositionStart, otherTags)
+                    sections.add(section)
+                }
+                chordTagIndex++
+            }
+            return sections
+        }
+    }
+
     // TODO: Fix this, for god's sake!
     override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
         var vHighlightColour = highlightColour
         mFont = font
-        val sections = mutableListOf<LineSection>()
+        val sections = calculateSections(cancelEvent)
 
-        var chordPositionStart = 0
-        var chordTagIndex = -1
-        while (chordTagIndex < mChordTags.size && !cancelEvent.isCancelled) {
-            var chordPositionEnd = mText.length
-            if (chordTagIndex < mChordTags.size - 1)
-                chordPositionEnd = mChordTags[chordTagIndex + 1].mPosition
-            // mText could have been "..." which would be turned into ""
-            if (chordTagIndex != -1)
-                chordPositionStart = mChordTags[chordTagIndex].mPosition
-            if (chordPositionEnd > mText.length)
-                chordPositionEnd = mText.length
-            if (chordPositionStart > mText.length)
-                chordPositionStart = mText.length
-            val linePart = mText.substring(chordPositionStart, chordPositionEnd)
-            var chordText = ""
-            if (chordTagIndex != -1) {
-                val chordTag = mChordTags[chordTagIndex]
-                chordText = chordTag.mName
-                // Stick a couple of spaces on each chord, apart from the last one.
-                // This is so they don't appear right beside each other.
-                if (chordTagIndex < mChordTags.size - 1) {
-                    chordText += "  "
-                    chordTag.mName = chordText
-                }
-            }
-            val otherTags = mutableListOf<Tag>()
-            for (tag in mLineTags)
-                if (tag.mPosition in chordPositionStart..chordPositionEnd)
-                    otherTags.add(tag)
-            if (linePart.isNotEmpty() || chordText.isNotEmpty()) {
-                val section = LineSection(linePart, chordText, chordPositionStart, otherTags)
-                if (mFirstLineSection == null)
-                    mFirstLineSection = section
-                else {
-                    section.mPrevSection = sections[sections.size - 1]
-                    sections[sections.size - 1].mNextSection = section
-                }
-                sections.add(section)
-            }
-            chordTagIndex++
-        }
         if (cancelEvent.isCancelled)
             return null
 
@@ -193,7 +200,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             mChordHeight = Math.max(mChordHeight, section.mChordHeight - section.mChordSS!!.mDescenderOffset)
             actualLineHeight = Math.max(mLyricHeight + mChordHeight + mLineDescenderOffset + mChordDescenderOffset, actualLineHeight)
             actualLineWidth += Math.max(section.mLineSS!!.mWidth, section.mChordSS!!.mWidth)
-            vHighlightColour = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), font, vHighlightColour, defaultHighlightColour, errors)
+            vHighlightColour = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), font, vHighlightColour)
         }
         if (cancelEvent.isCancelled)
             return null
@@ -426,7 +433,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                     val width = section.width
                     if (currentX + width > 0) {
                         if (chordsDrawn && (section.mChordDrawLine == f || section.mChordDrawLine == -1) && currentX < xSplit && section.mChordText!!.trim { it <= ' ' }.isNotEmpty()) {
-                            paint.color = if (section.mIsChord) mColorEvent.mChordColor else mColorEvent.mAnnotationColor
+                            paint.color = if (section.mTrueChord) mColorEvent.mChordColor else mColorEvent.mAnnotationColor
                             paint.textSize = mChordTextSize * Utils.FONT_SCALING
                             paint.flags = Paint.ANTI_ALIAS_FLAG
                             c.drawText(section.mChordText!!, currentX.toFloat(), mChordHeight.toFloat(), paint)

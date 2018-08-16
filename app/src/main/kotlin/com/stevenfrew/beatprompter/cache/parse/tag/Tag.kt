@@ -4,8 +4,7 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
-import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.ImageFile
+import com.stevenfrew.beatprompter.cache.parse.SongParsingState
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import java.io.File
 import java.util.*
@@ -79,7 +78,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
 
         @Throws(MalformedTagException::class)
-        fun parse(tagContents:String,lineNumber:Int,position:Int,sourceFile: File,tempAudioFileCollection: List<AudioFile>,tempImageFileCollection: List<ImageFile>,defaultHighlightColor:Int,songTime:Long,defaultMIDIChannel:Byte):Tag{
+        fun parse(tagContents:String,lineNumber:Int,position:Int,sourceFile: File,parsingState: SongParsingState):Tag{
             var txt=tagContents
             val chord=txt.startsWith('[')
             txt=if(chord)txt.trim('[',']')else txt.trim('{','}')
@@ -111,8 +110,8 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
 
                 "time" -> return TimeTag(name, lineNumber, position, value)
                 "pause"->return PauseTag(name, lineNumber, position, value)
-                "image"->return ImageTag(name, lineNumber, position, value, sourceFile, tempImageFileCollection)
-                "track", "audio", "musicpath"->return TrackTag(name, lineNumber, position, value, sourceFile, tempAudioFileCollection)
+                "image"->return ImageTag(name, lineNumber, position, value, sourceFile, parsingState.mTempImageFileCollection)
+                "track", "audio", "musicpath"->return TrackTag(name, lineNumber, position, value, sourceFile, parsingState.mTempAudioFileCollection)
                 "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
                 "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
                 "midi_song_select_trigger"->return MIDISongSelectTriggerTag(name, lineNumber, position, value)
@@ -124,7 +123,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
                 "chordcolour", "chordcolor" ->return ChordsColorTag(name, lineNumber, position, value)
                 "beatcountercolour", "beatcountercolor"->return BeatCounterColorTag(name, lineNumber, position, value)
 
-                "soh"->return StartOfHighlightTag(name, lineNumber, position, value, defaultHighlightColor)
+                "soh"->return StartOfHighlightTag(name, lineNumber, position, value, parsingState.mCurrentHighlightColor)
                 "eoh"->return EndOfHighlightTag(name, lineNumber, position)
 
                 "title", "t" ->return TitleTag(name, lineNumber, position, value)
@@ -135,7 +134,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
                 // Unused ChordPro tags
                 "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {}
 
-                else->return MIDIEventTag(name, lineNumber, position, value, songTime, defaultMIDIChannel)
+                else->return MIDIEventTag(name, lineNumber, position, value, parsingState.mSongTime, parsingState.mDefaultMIDIChannel)
             }
             throw UnknownTagException(name)
         }

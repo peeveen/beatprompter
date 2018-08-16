@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.ImageScalingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.cache.ImageFile
@@ -10,12 +11,22 @@ import java.io.File
 
 class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String,sourceFile:File,tempImageFileCollection: List<ImageFile>): Tag(name,lineNumber,position) {
     val mImageFile:ImageFile
+    val mImageScalingMode:ImageScalingMode
 
     init {
         var imageName = value
         val colonindex = imageName.indexOf(":")
-        if (colonindex != -1 && colonindex < imageName.length - 1)
+        var imageScalingMode = ImageScalingMode.Stretch
+        if (colonindex != -1 && colonindex < imageName.length - 1) {
+            val strScalingMode = imageName.substring(colonindex + 1)
             imageName = imageName.substring(0, colonindex)
+            try {
+                imageScalingMode=ImageScalingMode.valueOf(strScalingMode.toLowerCase().capitalize())
+            }
+            catch(e:Exception) {
+                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
+            }
+        }
         val image = File(imageName).name
         val imageFile: File
         val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image, tempImageFileCollection)
@@ -27,5 +38,6 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
                 throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
         }
         mImageFile = mappedImage
+        mImageScalingMode=imageScalingMode
     }
 }

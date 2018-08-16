@@ -7,7 +7,8 @@ import android.util.Log
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
+import com.stevenfrew.beatprompter.cache.parse.SongParsingState
+import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.CancelEvent
@@ -115,6 +116,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
 
     @Throws(IOException::class)
     fun parse(): Song {
+        val parsingState= SongParsingState()
         val scrollBeatMin = 1
         var scrollBeatDefault = 4
         val initialMIDIMessages = mutableListOf<OutgoingMessage>()
@@ -151,7 +153,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             var bpl = 1
             var beatsToAdjust = 0
             val rolloverBeats = mutableListOf<BeatEvent>()
-            var pauseTime: Int
+            var pauseTime: Long
             var scrollBeat = bpb
             var lastBeatBlock: BeatBlock? = null
             // COMMENT
@@ -182,7 +184,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             while (line!=null && !mCancelEvent.isCancelled) {
                 line = br.readLine()
                 if(line!=null) {
-                    val fileLine= FileLine(line, ++lineCounter, mSongFile.mFile,errors)
+                    val fileLine= FileLine(line, ++lineCounter, mSongFile.mFile,parsingState)
                     var beatStartOrStopFoundOnThisLine = false
                     pauseTime = 0
                     // Ignore comments.
@@ -196,83 +198,53 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                         if (it.isOneShotTag && tagsSet.contains(it.mName))
                             errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice, it.mName)))
 
-                        when (it.mName) {
-                            "image" -> {
-                                if (lineImage != null) {
-                                    errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
-                                }
-                                else {
-                                    var imageName = it.mValue
-                                    val colonindex = imageName.indexOf(":")
-                                    imageScalingMode = ImageScalingMode.Stretch
-                                    if (colonindex != -1 && colonindex < imageName.length - 1) {
-                                        val strScalingMode = imageName.substring(colonindex + 1)
-                                        imageName = imageName.substring(0, colonindex)
-                                        when {
-                                            strScalingMode.equals("stretch", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Stretch
-                                            strScalingMode.equals("original", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Original
-                                            else -> errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)))
-                                        }
-                                    }
-                                    val image = File(imageName).name
-                                    val imageFile: File
-                                    val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image)
-                                    if (mappedImage == null)
-                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                    else {
-                                        imageFile = File(mSongFile.mFile.parent, mappedImage.mFile.name)
-                                        if (!imageFile.exists())
-                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                    }
-                                    lineImage = mappedImage
-                                }
+                        if(it is ImageTag)
+                        {
+                            if (lineImage != null)
+                                errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
+                            else {
+                                lineImage = it.mImageFile
+                                imageScalingMode=it.mImageScalingMode
                             }
-                            "track", "audio", "musicpath" -> {
-                                var trackName = it.mValue
-                                var volume = mDefaultTrackVolume
-                                val trackcolonindex = trackName.indexOf(":")
-                                if (trackcolonindex != -1 && trackcolonindex < trackName.length - 1) {
-                                    val strVolume = trackName.substring(trackcolonindex + 1)
-                                    trackName = trackName.substring(0, trackcolonindex)
-                                    try {
-                                        val tryvolume = Integer.parseInt(strVolume)
-                                        if (tryvolume < 0 || tryvolume > 100)
-                                            errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
-                                        else
-                                            volume = (volume.toDouble() * (tryvolume.toDouble() / 100.0)).toInt()
-                                    } catch (nfe: NumberFormatException) {
-                                        errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
-                                    }
-                                }
-                                val track = File(trackName).name
-                                var trackFile: File? = null
-                                val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track)
-                                if (mappedTrack == null)
-                                    errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                else {
-                                    trackFile = File(mSongFile.mFile.parent, mappedTrack.mFile.name)
-                                    if (!trackFile.exists()) {
-                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                        trackFile = null
-                                    }
-                                }
-                                if (trackFile != null && track.equals(chosenTrack, ignoreCase = true)) {
-                                    chosenAudioFile = mappedTrack
-                                    chosenAudioVolume = volume
-                                }
-                            }
-                            "send_midi_clock" -> mSendMidiClock = true
-                            "count", "countin" -> count = it.getIntegerValue(mCountInMin, mCountInMax, mCountInDefault, errors)
-                            //                            case "trackoffset":
-                            //                                trackOffset=Tag.getLongValueFromTag(tag, trackOffsetMin, trackOffsetMax, trackOffsetDefault, errors);
-                            //                                break;
-                            "backgroundcolour", "backgroundcolor", "bgcolour", "bgcolor" -> mBackgroundColour = it.getColourValue(mBackgroundColour, errors)
-                            "pulsecolour", "pulsecolor", "beatcolour", "beatcolor" -> mPulseColour = it.getColourValue(mPulseColour, errors)
-                            "lyriccolour", "lyriccolor", "lyricscolour", "lyricscolor" -> mLyricColour = it.getColourValue(mLyricColour, errors)
-                            "chordcolour", "chordcolor" -> mChordColour = it.getColourValue( mChordColour, errors)
-                            "beatcountercolour", "beatcountercolor" -> mBeatCounterColour = it.getColourValue( mBeatCounterColour, errors)
+                        }
+                        else if(it is TrackTag)
+                        {
+                            chosenAudioFile = it.mAudioFile
+                            chosenAudioVolume = it.mVolume
+                        }
+                        else if(it is SendMIDIClockTag)
+                            mSendMidiClock=true
+                        else if(it is CountTag)
+                            count=it.mCount
+                        else if(it is BackgroundColorTag)
+                            mBackgroundColour=it.mColor
+                        else if(it is PulseColorTag)
+                            mPulseColour=it.mColor
+                        else if(it is LyricsColorTag)
+                            mLyricColour=it.mColor
+                        else if(it is ChordsColorTag)
+                            mChordColour=it.mColor
+                        else if(it is BeatCounterColorTag)
+                            mBeatCounterColour=it.mColor
+                        else if(it is CommentTag)
+                        {
+                            val comment = Comment(it.mComment,it.mAudience)
+                            if (stopAddingStartupItems) {
+                                val ce = CommentEvent(currentTime, comment)
+                                if (firstEvent == null)
+                                    firstEvent = ce
+                                else
+                                    lastEvent!!.add(ce)
+                                lastEvent = ce
+                            } else
+                                if (comment.isIntendedFor(mCustomCommentsUser))
+                                    comments.add(comment)
+                        }
+                        else if(it is PauseTag)
+                            pauseTime=it.mDuration
+                        bpm=fileLine.mBPM
 
-                            "bpm", "metronome", "beatsperminute" -> bpm = it.getDoubleValue(mBPMMin.toDouble(), mBPMMax.toDouble(), mBPMDefault.toDouble(), errors)
+                        when (it.mName) {
                             "bpb", "beatsperbar" -> {
                                 val prevScrollBeatDiff = bpb - scrollBeat
                                 bpb = it.getIntegerValue(mBPBMin, mBPBMax, mBPBDefault, errors)
@@ -291,29 +263,6 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 scrollBeat = it.getIntegerValue(scrollBeatMin, bpb, scrollBeatDefault, errors)
                                 if (scrollBeat > bpb)
                                     scrollBeat = bpb
-                            }
-                            "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
-                                val comment = Comment(it.mValue,commentAudience)
-                                if (stopAddingStartupItems) {
-                                    val ce = CommentEvent(currentTime, comment)
-                                    if (firstEvent == null)
-                                        firstEvent = ce
-                                    else
-                                        lastEvent!!.add(ce)
-                                    lastEvent = ce
-                                } else {
-                                    if (comment.isIntendedFor(mCustomCommentsUser))
-                                        comments.add(comment)
-                                }
-                            }
-                            "pause" -> pauseTime = it.getDurationValue(1000, 60 * 60 * 1000, 0, false, errors)
-                            // Don't need the value after the song is loaded.
-                            "midi_song_select_trigger", "midi_program_change_trigger" ->{}
-                            "time", "tag", "bars", "soh", "eoh", "b", "title", "t", "artist", "a", "subtitle", "st", "key" -> {
-                            }
-                            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype" -> {
-                            }
-                            "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {
                             }
                             "beatstart" -> {
                                 if (beatStartOrStopFoundOnThisLine) {
@@ -404,7 +353,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
                             scrollbeatOffset = 0
                         }
-                        val bars = if (fileLine.mBars==0) bpl else fileLine.mBars
+                        val bars = fileLine.mBars
 
                         var displayLine=fileLine.mTaglessLine
                         if (lineImage != null && (displayLine.isNotEmpty() || chordsFound))

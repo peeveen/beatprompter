@@ -1,15 +1,13 @@
 package com.stevenfrew.beatprompter
 
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 
-internal class LineSection(var mLineText: String?, var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
     var mNextSection: LineSection? = null
-    var mPrevSection: LineSection? = null
-    val mIsChord: Boolean= Utils.isChord(mChordText)
     var mTextWidth = 0
     var mChordWidth = 0
     var mChordTrimWidth = 0
@@ -52,31 +50,21 @@ internal class LineSection(var mLineText: String?, var mChordText: String?, priv
         return mChordWidth
     }
 
-    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>): Int {
+    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int): Int {
         var lookingForEnd = currentHighlightColour != 0
         var highlightColour = if (lookingForEnd) currentHighlightColour else 0
         var startX = 0
         var startPosition = 0
-        for (tag in mTags) {
-            if (tag.mName == "soh" && !lookingForEnd) {
-                val strHighlightText = mLineText!!.substring(0, tag.mPosition - mSectionPosition)
+        val highlightTags=mTags.filter{it is StartOfHighlightTag || it is EndOfHighlightTag}
+        highlightTags.forEach{
+            if (it is StartOfHighlightTag && !lookingForEnd) {
+                val strHighlightText = mLineText!!.substring(0, it.mPosition - mSectionPosition)
                 startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
-                startPosition = tag.mPosition - mSectionPosition
-                if (tag.mValue.isNotEmpty()) {
-                    highlightColour = try {
-                        Color.parseColor(tag.mValue)
-                    } catch (e: IllegalArgumentException) {
-                        // We're past the titlescreen at this point, so don't bother.
-                        errors.add(FileParseError(tag, "Could not interpret \"" + tag.mValue + "\" as a valid colour. Using default."))
-                        defaultHighlightColour
-                    }
-
-                    highlightColour = Utils.makeHighlightColour(highlightColour)
-                } else
-                    highlightColour = defaultHighlightColour
+                startPosition = it.mPosition - mSectionPosition
+                highlightColour=it.mColor
                 lookingForEnd = true
-            } else if (tag.mName == "eoh" && lookingForEnd) {
-                val strHighlightText = mLineText!!.substring(startPosition, tag.mPosition - mSectionPosition)
+            } else if (it is EndOfHighlightTag && lookingForEnd) {
+                val strHighlightText = mLineText!!.substring(startPosition, it.mPosition - mSectionPosition)
                 val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour))
                 highlightColour = 0

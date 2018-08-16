@@ -1,12 +1,16 @@
 package com.stevenfrew.beatprompter.midi
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
 class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
+
+    private val mBankSelectMSB=bankSelectMSB
+    private val mBankSelectLSB=bankSelectLSB
+    private val mTriggerIndex=triggerIndex
+    private val mChannel=channel
+    private val mType=type
 
     constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
@@ -25,21 +29,15 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
             val channelString = element.getAttribute(CHANNEL_ATTRIBUTE_NAME)
             val triggerTypeString = element.getAttribute(TRIGGER_TYPE_ATTRIBUTE_NAME)
 
-            val msbValue = Value.parseValue(msbString)
-            val lsbValue = Value.parseValue(lsbString)
-            val triggerIndexValue = Value.parseValue(triggerIndexString)
-            val channelValue = Value.parseChannelValue(channelString)
+            val msbValue = MIDITag.parseValue(msbString)
+            val lsbValue = MIDITag.parseValue(lsbString)
+            val triggerIndexValue = MIDITag.parseValue(triggerIndexString)
+            val channelValue = MIDITag.parseChannelValue(channelString)
             val triggerType = TriggerType.valueOf(triggerTypeString)
 
             return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue,triggerType)
         }
     }
-
-    private val mBankSelectMSB=bankSelectMSB
-    private val mBankSelectLSB=bankSelectLSB
-    private val mTriggerIndex=triggerIndex
-    private val mChannel=channel
-    private val mType=type
 
     override fun equals(other: Any?): Boolean {
         if (other is SongTrigger) {

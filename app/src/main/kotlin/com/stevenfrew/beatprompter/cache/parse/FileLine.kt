@@ -9,14 +9,17 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import java.io.File
 
-open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, errors:MutableList<FileParseError> = mutableListOf(), tempAudioFileCollection: List<AudioFile> = listOf(), tempImageFileCollection: List<ImageFile> = listOf(), defaultHighlightColor:Int =0, songTime:Long=0, defaultMIDIChannel:Byte=0) {
+open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, parsingState:SongParsingState) {
 
     data class TagText constructor(val mText:String,val mPosition:Int)
 
     private val mLine:String
     val mTaglessLine:String
+    val mBPM:Double
+    private val mBPB:Int
     val mBars:Int
-    val mScrollbeatDiff:Int
+    private val mScrollBeat:Int
+
     val mTags:List<Tag>
     val isComment :Boolean
         get()=mLine.startsWith("#")
@@ -31,7 +34,7 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
     {
         if (line.length > MAX_LINE_LENGTH) {
             mLine = line.substring(0, MAX_LINE_LENGTH).trim()
-            errors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.lineTooLong, mLineNumber, MAX_LINE_LENGTH)))
+            parsingState.mErrors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.lineTooLong, mLineNumber, MAX_LINE_LENGTH)))
         }
         else
             mLine=line.trim()
@@ -65,7 +68,7 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
                         }
                         catch(mte: MalformedTagException)
                         {
-                            errors.add(FileParseError(mLineNumber,mte.message))
+                            parsingState.mErrors.add(FileParseError(mLineNumber,mte.message))
                         }
                 } else
                     end = start + 1
@@ -79,11 +82,11 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
             strippedLine=mLine
 
         // Bars can be defined by commas ....
-        var bars = 0
+        var commaBars=0
         while (strippedLine.startsWith(",")) {
             strippedLine = strippedLine.substring(1)
             textTags=textTags.map{if(it.mPosition>0) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
-            bars++
+            commaBars++
         }
 
         var scrollbeatDiff=0
@@ -95,7 +98,6 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
             strippedLine = strippedLine.substring(0, strippedLine.length - 1)
             textTags=textTags.map{if(it.mPosition>strippedLine.length) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
         }
-        mScrollbeatDiff=scrollbeatDiff
 
         // TODO: dynamic BPB changing
 
@@ -103,20 +105,44 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
         mTaglessLine = strippedLine.replace("\uFEFF", "")
         mTags= textTags.mapNotNull { tt->
             try {
-                Tag.parse(tt.mText,mLineNumber,tt.mPosition,sourceFile,tempAudioFileCollection,tempImageFileCollection,defaultHighlightColor,songTime,defaultMIDIChannel)
+                Tag.parse(tt.mText,mLineNumber,tt.mPosition,sourceFile,parsingState)
             }
             catch(mte:MalformedTagException) {
-                errors.add(FileParseError(mLineNumber,mte.message))
+                parsingState.mErrors.add(FileParseError(mLineNumber,mte.message))
                 null
             } catch(ute: UnknownTagException) {
-                errors.add(FileParseError(mLineNumber,ute.message))
+                parsingState.mErrors.add(FileParseError(mLineNumber,ute.message))
                 null
             }
         }
 
         // ... or by a tag (which overrides commas)
-        bars=mTags.filterIsInstance<BarsTag>().firstOrNull()?.mBars?:bars
-        mBars = Math.max(1, bars)
+        val barsTag=mTags.filterIsInstance<BarsTag>().firstOrNull()
+        val barsPerLineTag=mTags.filterIsInstance<BarsPerLineTag>().firstOrNull()
+        val beatsPerBarTag=mTags.filterIsInstance<BeatsPerBarTag>().firstOrNull()
+        val beatsPerMinuteTag=mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
+        val scrollBeatTag=mTags.filterIsInstance<ScrollBeatTag>().firstOrNull()
+
+        val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?:commaBars?:parsingState.mBPL
+        val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:parsingState.mBPB
+        val beatsPerMinuteInThisLine=beatsPerMinuteTag?.mBPM?:parsingState.mBPM
+        var scrollBeatInThisLine=scrollBeatTag?.mScrollBeat?:parsingState.mScrollBeat
+
+        parsingState.mBPB=beatsPerBarInThisLine
+        parsingState.mBPM=beatsPerMinuteInThisLine
+        parsingState.mBPL=barsPerLineTag?.mBPL?:parsingState.mBPL
+        parsingState.mScrollBeat=scrollBeatInThisLine
+
+        if(scrollBeatInThisLine>beatsPerBarInThisLine)
+            scrollBeatInThisLine=beatsPerBarInThisLine-1
+        scrollBeatInThisLine+=scrollbeatDiff
+
+        // TODO: SCROLLBEAT WONKIFIED? PARSE ERROR
+
+        mBars=barsInThisLine
+        mBPB=beatsPerBarInThisLine
+        mBPM=beatsPerMinuteInThisLine
+        mScrollBeat=scrollBeatInThisLine
     }
 
     fun getTitle(): String? {
@@ -139,7 +165,7 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
         return mTags.filterIsInstance<ArtistTag>().firstOrNull()?.mArtist
     }
 
-    fun getBPM(): Int? {
+    fun getBPM(): Double? {
         return mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()?.mBPM
     }
 

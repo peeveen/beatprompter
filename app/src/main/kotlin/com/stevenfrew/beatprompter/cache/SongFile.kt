@@ -6,6 +6,8 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.SongParsingState
+import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import org.w3c.dom.Document
@@ -103,6 +105,7 @@ class SongFile : CachedCloudFile {
             var title:String?=null
             mTimePerLine = timePerLine
             mTimePerBar = timePerBar
+            val parsingState= SongParsingState()
             br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
             var line: String?
             var lineNumber = 0
@@ -110,7 +113,7 @@ class SongFile : CachedCloudFile {
                 line = br.readLine()
                 if(line!=null)
                 {
-                    val fileLine= FileLine(line, ++lineNumber,mFile)
+                    val fileLine= FileLine(line, ++lineNumber,mFile,parsingState)
                     if(title==null)
                         title = fileLine.getTitle()
                     val artist = fileLine.getArtist()
@@ -220,7 +223,7 @@ class SongFile : CachedCloudFile {
             var pauseTime: Long = 0
             var realLineCount = 0
             var realBarCount = 0
-            var barsPerLine = bplDefault
+            val parsingState=SongParsingState()
             var totalPauseTime: Long = 0//defaultPausePref*1000;
             var line: String?
             var lineImage: ImageFile? = null
@@ -229,90 +232,37 @@ class SongFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    val fileLine= FileLine(line, ++lineNumber)
+                    val fileLine= FileLine(line, ++lineNumber,mFile,parsingState)
                     // Ignore comments.
                     if (!fileLine.isComment) {
-                        var strippedLine = fileLine.mTaglessLine
+                        val strippedLine = fileLine.mTaglessLine
                         val chordsFound = fileLine.chordTags.isNotEmpty()
-                        var barsTag = 0
+                        val bars=fileLine.mBars
                         // Not bothered about chords at the moment.
-                        fileLine.mTags.filterNot { it.isChord }.forEach{
-                            when (it.mName) {
-                                "time" -> songTime = it.getDurationValue( 1000, 60 * 60 * 1000, 0, true, errors).toLong()
-                                "pause" -> pauseTime = it.getDurationValue( 1000, 60 * 60 * 1000, 0, false, errors).toLong()
-                                "bars", "b" -> barsTag = it.getIntegerValue( 1, 128, 1, errors)
-                                "bpl", "barsperline" -> barsPerLine = it.getIntegerValue(bplMin, bplMax, bplDefault, errors)
-                                "image" -> {
-                                    if (lineImage != null) {
-                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
+                        fileLine.mTags.filterNot { it is ChordTag }.forEach{
+                            if(it is TimeTag)
+                                songTime=it.mDuration
+                            else if(it is PauseTag)
+                                pauseTime = it.mDuration
+                            else if(it is ImageTag) {
+                                if (lineImage != null)
+                                    errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
+                                else
+                                    lineImage=it.mImageFile
+                            }
+                            else if(it is TrackTag) {
+                                if (songMilli == 0 && (chosenTrack == null || it.mAudioFile.equals(chosenTrack))) {
+                                    try {
+                                        val mmr = MediaMetadataRetriever()
+                                        mmr.setDataSource(it.mAudioFile.mFile.absolutePath)
+                                        val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                                        if (data != null)
+                                            songMilli = Integer.parseInt(data)
+                                    } catch (e: Exception) {
+                                        Log.e(BeatPrompterApplication.TAG, "Failed to extract duration metadata from media file.", e)
                                     }
-                                    else {
-                                        var imageName = it.mValue
-                                        val colonindex = imageName.indexOf(":")
-                                        if (colonindex != -1 && colonindex < imageName.length - 1)
-                                            imageName = imageName.substring(0, colonindex)
-                                        val image = File(imageName).name
-                                        val imageFile: File
-                                        var mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image, tempImageFileCollection)
-                                        if (mappedImage == null)
-                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                        else {
-                                            imageFile = File(mFile.parent, mappedImage.mFile.name)
-                                            if (!imageFile.exists()) {
-                                                errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                                mappedImage = null
-                                            }
-                                        }
-                                        lineImage = mappedImage
-                                    }
-                                }
-                                "track", "audio", "musicpath" -> {
-                                    var trackName = it.mValue
-                                    val trackColonindex = trackName.indexOf(":")
-                                    // volume?
-                                    if (trackColonindex != -1 && trackColonindex < trackName.length - 1)
-                                        trackName = trackName.substring(0, trackColonindex)
-                                    val track = File(trackName).name
-                                    var trackFile: File? = null
-                                    val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track, tempAudioFileCollection)
-                                    if (mappedTrack == null) {
-                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                    } else {
-                                        trackFile = File(mFile.parent, mappedTrack.mFile.name)
-                                        if (!trackFile.exists()) {
-                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                            trackFile = null
-                                        }
-                                    }
-                                    if (songMilli == 0 && trackFile != null && (chosenTrack == null || track.equals(chosenTrack, ignoreCase = true))) {
-                                        try {
-                                            val mmr = MediaMetadataRetriever()
-                                            mmr.setDataSource(trackFile.absolutePath)
-                                            val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                                            if (data != null)
-                                                songMilli = Integer.parseInt(data)
-                                        } catch (e: Exception) {
-                                            Log.e(BeatPrompterApplication.TAG, "Failed to extract duration metadata from media file.", e)
-                                        }
-
-                                    }
-                                }
-                                else -> {
                                 }
                             }
-                        }
-
-                        var bars = barsTag
-                        if (bars == 0) {
-                            var commasFound = false
-                            while (strippedLine.startsWith(",")) {
-                                commasFound = true
-                                strippedLine = strippedLine.substring(1)
-                                bars++
-                            }
-                            bars = Math.max(1, bars)
-                            if (!commasFound)
-                                bars = barsPerLine
                         }
 
                         // Contains only tags? Or contains nothing? Don't use it as a blank line.
