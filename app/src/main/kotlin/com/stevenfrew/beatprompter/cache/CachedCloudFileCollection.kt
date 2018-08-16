@@ -4,6 +4,7 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
+import com.stevenfrew.beatprompter.midi.Alias
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.File
@@ -138,10 +139,15 @@ class CachedCloudFileCollection {
         if (fileToRefresh != null) {
             filesToRefresh.add(fileToRefresh)
             if (fileToRefresh is SongFile && includeDependencies) {
-                filesToRefresh.addAll(fileToRefresh.mAudioFiles.mapNotNull{getMappedAudioFilename(it)}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
-                filesToRefresh.addAll(fileToRefresh.mImageFiles.mapNotNull{getMappedImageFilename(it)}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
+                filesToRefresh.addAll(fileToRefresh.mAudioFiles.map {it}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
+                filesToRefresh.addAll(fileToRefresh.mImageFiles.map {it}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
             }
         }
         return filesToRefresh
     }
+
+    internal val midiAliases: List<Alias>
+        get() {
+            return midiAliasFiles.flatMap { it.mAliasSet.aliases}.toList()
+        }
 }

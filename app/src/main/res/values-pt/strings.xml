@@ -31,10 +31,10 @@
     <string name="colours">Colours</string>
     <string name="missing_audio_file_warning">Não foi possível encontrar o arquivo de áudio.</string>
     <string name="crap_audio_file_warning">Não foi possível carregar arquivo de áudio. É falta ou danificado?</string>
-    <string name="colorValueUnreadable">Não foi possível analisar "%1$s" como uma cor. Usando padrão de "%2$s".</string>
-    <string name="durationValueUnreadable">Não foi possível analisar "%1$s" como um valor de duração (uso mm:ss ou apenas alguns segundos). Usando padrão de "%2$d".</string>
-    <string name="intValueUnreadable">Não foi possível analisar "%1$s" como um valor inteiro. Usando padrão de %2$d.</string>
-    <string name="doubleValueUnreadable">Não foi possível analisar "%1$s" como um valor numerico. Usando padrão de %2$f.</string>
+    <string name="colorValueUnreadable">Não foi possível analisar "%1$s" como uma cor.</string>
+    <string name="durationValueUnreadable">Não foi possível analisar "%1$s" como um valor de duração (uso mm:ss ou apenas alguns segundos).</string>
+    <string name="intValueUnreadable">Não foi possível analisar "%1$s" como um valor inteiro.</string>
+    <string name="doubleValueUnreadable">Não foi possível analisar "%1$s" como um valor numerico.</string>
     <string name="written_by">Criado por</string>
     <string name="pref_bpl_title">Padrão bares-per-line</string>
     <string name="pref_metronome_summary">Cria um som de clique no tempo com a batida. Apenas aplicável a bater-scrolling canções.</string>

@@ -7,7 +7,7 @@ import android.util.Log
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.CancelEvent
@@ -182,7 +182,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             while (line!=null && !mCancelEvent.isCancelled) {
                 line = br.readLine()
                 if(line!=null) {
-                    val fileLine= FileLine(line, ++lineCounter, errors)
+                    val fileLine= FileLine(line, ++lineCounter, mSongFile.mFile,errors)
                     var beatStartOrStopFoundOnThisLine = false
                     pauseTime = 0
                     // Ignore comments.
@@ -190,13 +190,11 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                         continue
 
                     var scrollbeatOffset = 0
-                    fileLine.mTags.filterNot{it.isChord}.forEach {
+                    fileLine.mTags.filterNot{it is ChordTag }.forEach {
                         if (it.isColorTag && !mIgnoreColorInfo)
                             createColorEvent = true
                         if (it.isOneShotTag && tagsSet.contains(it.mName))
                             errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice, it.mName)))
-
-                        val commentAudience=it.parsePotentialCommentTag()
 
                         when (it.mName) {
                             "image" -> {
@@ -273,6 +271,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                             "lyriccolour", "lyriccolor", "lyricscolour", "lyricscolor" -> mLyricColour = it.getColourValue(mLyricColour, errors)
                             "chordcolour", "chordcolor" -> mChordColour = it.getColourValue( mChordColour, errors)
                             "beatcountercolour", "beatcountercolor" -> mBeatCounterColour = it.getColourValue( mBeatCounterColour, errors)
+
                             "bpm", "metronome", "beatsperminute" -> bpm = it.getDoubleValue(mBPMMin.toDouble(), mBPMMax.toDouble(), mBPMDefault.toDouble(), errors)
                             "bpb", "beatsperbar" -> {
                                 val prevScrollBeatDiff = bpb - scrollBeat
@@ -308,10 +307,8 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                                 }
                             }
                             "pause" -> pauseTime = it.getDurationValue(1000, 60 * 60 * 1000, 0, false, errors)
-                            "midi_song_select_trigger", "midi_program_change_trigger" ->
-                                // Don't need the value after the song is loaded, we're just showing informational
-                                // errors about bad formatting.
-                                Tag.verifySongTriggerFromTag(it, errors)
+                            // Don't need the value after the song is loaded.
+                            "midi_song_select_trigger", "midi_program_change_trigger" ->{}
                             "time", "tag", "bars", "soh", "eoh", "b", "title", "t", "artist", "a", "subtitle", "st", "key" -> {
                             }
                             "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype" -> {

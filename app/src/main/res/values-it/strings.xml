@@ -31,10 +31,10 @@
     <string name="colours">Colori</string>
     <string name="missing_audio_file_warning">Impossibile trovare il file audio.</string>
     <string name="crap_audio_file_warning">Impossibile caricare il file audio. E \'mancante o danneggiato?</string>
-    <string name="colorValueUnreadable">Impossibile analizzare "%1$s" come colore. Utilizzando predefinito di "%2$s".</string>
-    <string name="durationValueUnreadable">Impossibile analizzare "%1$s" come un valore di durata (uso mm:ss o pochi secondi). Utilizzando predefinito di "%2$d".</string>
-    <string name="intValueUnreadable">Impossibile analizzare "%1$s" come un valore intero. Utilizzando predefinito di %2$d.</string>
-    <string name="doubleValueUnreadable">Impossibile analizzare "%1$s" come un valore numerico. Utilizzando predefinito di %2$f.</string>
+    <string name="colorValueUnreadable">Impossibile analizzare "%1$s" come colore.</string>
+    <string name="durationValueUnreadable">Impossibile analizzare "%1$s" come un valore di durata (uso mm:ss o pochi secondi).</string>
+    <string name="intValueUnreadable">Impossibile analizzare "%1$s" come un valore intero.</string>
+    <string name="doubleValueUnreadable">Impossibile analizzare "%1$s" come un valore numerico.</string>
     <string name="written_by">Creato da</string>
     <string name="pref_metronome_summary">Crea uno scatto a tempo con il ritmo. Applicabile solo a battere a scorrimento canzoni.</string>
     <string name="pref_bpl_title">Predefinite bar-per-line</string>

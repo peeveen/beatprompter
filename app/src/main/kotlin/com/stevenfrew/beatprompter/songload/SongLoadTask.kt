@@ -9,6 +9,7 @@ import android.util.Log
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
+import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import java.util.concurrent.Semaphore
 
@@ -19,13 +20,13 @@ import java.util.concurrent.Semaphore
  * external event (MIDI, Bluetooth, double-tap) triggers the loading of a song either while a song is
  * currently active, or while a song is already being loaded.
  */
-class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
+class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
 
     private var mCancelled = false
     private val mTaskEndSemaphore = Semaphore(0)
     private var mProgressTitle = ""
     private val mCancelEvent = CancelEvent()
-    private val mSongLoadInfo: SongLoadInfo = SongLoadInfo(selectedSong, trackName, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings)
+    private val mSongLoadInfo: SongLoadInfo = SongLoadInfo(selectedSong, track, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings)
     private var mProgressDialog: ProgressDialog? = null
     private val mSongLoadTaskEventHandler: SongLoadTaskEventHandler
 
@@ -105,7 +106,7 @@ class SongLoadTask(selectedSong: SongFile, trackName: String, scrollMode: Scroll
 
             // Create a bluetooth song-selection message to broadcast to other listeners.
             val csm = ChooseSongMessage(mSongLoadInfo.songFile.mTitle,
-                    mSongLoadInfo.track,
+                    mSongLoadInfo.track?.mName?:"",
                     mSongLoadInfo.nativeDisplaySettings.mOrientation,
                     mSongLoadInfo.scrollMode === ScrollingMode.Beat,
                     mSongLoadInfo.scrollMode === ScrollingMode.Smooth,

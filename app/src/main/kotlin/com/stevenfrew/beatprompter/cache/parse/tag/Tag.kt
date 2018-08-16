@@ -4,20 +4,13 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.event.MIDIEvent
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.cache.ImageFile
+import com.stevenfrew.beatprompter.cache.parse.tag.song.*
+import java.io.File
 import java.util.*
 
-class Tag private constructor(private val mChordTag: Boolean, str: String, internal val mLineNumber: Int, val mPosition: Int) {
-    var mName: String
-    val mValue: String
-
-    val isChord:Boolean
-        get()=mChordTag
-
-    val isValidChord:Boolean
-        get()=mChordTag && Utils.isChord(mName)
+abstract class Tag protected constructor(val mName: String, internal val mLineNumber: Int, val mPosition: Int) {
 
     val isColorTag:Boolean
         get()= colorTags.contains(mName)
@@ -25,178 +18,126 @@ class Tag private constructor(private val mChordTag: Boolean, str: String, inter
     val isOneShotTag:Boolean
         get()= oneShotTags.contains(mName)
 
-    init {
-        var colonIndex = str.indexOf(":")
-        val spaceIndex = str.indexOf(" ")
-        if (colonIndex == -1)
-            colonIndex = spaceIndex
-        if (colonIndex == -1) {
-            mName = if (mChordTag) str.trim() else str.toLowerCase().trim()
-            mValue = ""
-        } else {
-            mName = if (mChordTag) str.trim() else str.substring(0, colonIndex).toLowerCase().trim()
-            mValue = str.substring(colonIndex + 1).trim()
-        }
-    }
-
-    fun parsePotentialCommentTag(): String
-    {
-        if(mName.contains('@')) {
-            val bit = mName.substringBefore('@')
-            when (bit) {
-                "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
-                    mName = "comment"
-                    return mName.substringAfter('@')
-                }
-            }
-        }
-        return ""
-    }
-
-    fun getMIDIEvent(time: Long, aliases: List<Alias>, defaultChannel: Byte, parseErrors: MutableList<FileParseError>): MIDIEvent? {
-        var tagValue = mValue.trim()
-        var eventOffset: EventOffset = EventOffset.NoOffset
-        if (tagValue.isEmpty()) {
-            // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
-            if (mName.contains(";")) {
-                val bits = mName.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                if (bits.size > 2)
-                    parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag)))
-                if (bits.size > 1) {
-                    eventOffset = EventOffset(bits[1].trim(), this, parseErrors)
-                    mName = bits[0].trim()
-                }
-            }
-        } else {
-            val firstSplitBits = tagValue.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            if (firstSplitBits.size > 1) {
-                if (firstSplitBits.size > 2)
-                    parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag)))
-                tagValue = firstSplitBits[0].trim()
-                eventOffset = EventOffset(firstSplitBits[1].trim(), this, parseErrors)
-            }
-        }
-        val bits = if (tagValue.isEmpty()) arrayOf() else tagValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        var paramBytes = bits.map { bit -> Value.parseValue(bit.trim()) }
-        var lastParamIsChannel = false
-        var channel = defaultChannel
-        for (f in paramBytes.indices)
-            if (paramBytes[f] is ChannelValue)
-                if (f == paramBytes.size - 1)
-                    lastParamIsChannel = true
-                else
-                    parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter)))
+    @Throws(MalformedTagException::class)
+    fun parseIntegerValue(value:String,min: Int, max: Int): Int {
+        val intVal: Int
         try {
-            if (lastParamIsChannel) {
-                val lastParam = paramBytes[paramBytes.size - 1] as ChannelValue
-                channel = lastParam.resolve()
-                val paramBytesWithoutChannel = paramBytes.subList(0, paramBytes.size - 1)
-                paramBytes = paramBytesWithoutChannel
-            }
-            val resolvedBytes = ByteArray(paramBytes.size)
-            for (f in paramBytes.indices)
-                resolvedBytes[f] = paramBytes[f].resolve()
-            for (alias in aliases)
-                if (alias.mName.equals(mName, ignoreCase = true)) {
-                    return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset)
-                }
-            if (mName == "midi_send")
-                return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset)
-            parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, mName)))
-        } catch (re: ResolutionException) {
-            parseErrors.add(FileParseError(this.mLineNumber, re.message))
-        }
-
-        return null
-
-    }
-
-    fun getIntegerValue(min: Int, max: Int, defolt: Int, parseErrors: MutableList<FileParseError>): Int {
-        var intVal: Int
-        try {
-            intVal = mValue.toInt()
-            if (intVal < min) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, intVal)))
-                intVal = min
-            } else if (intVal > max) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, intVal)))
-                intVal = max
-            }
+            intVal = value.toInt()
+            if (intVal < min)
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, intVal))
+            else if (intVal > max)
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, intVal))
         } catch (nfe: NumberFormatException) {
-            parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.intValueUnreadable, mValue, defolt)))
-            intVal = defolt
+            throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueUnreadable, value))
         }
         return intVal
     }
 
-    fun getDurationValue(min: Int, max: Int, defolt: Int, trackLengthAllowed: Boolean, parseErrors: MutableList<FileParseError>): Int {
-        var intVal: Int
+    fun parseDurationValue(value:String,min: Long, max: Long, trackLengthAllowed: Boolean): Long {
+        val durVal: Long
         try {
-            intVal = Utils.parseDuration(mValue, trackLengthAllowed)
-            if (intVal < min && intVal != Utils.TRACK_AUDIO_LENGTH_VALUE) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, intVal)))
-                intVal = min
-            } else if (intVal > max) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, intVal)))
-                intVal = max
-            }
+            durVal = Utils.parseDuration(value, trackLengthAllowed)
+            if (durVal < min && durVal != Utils.TRACK_AUDIO_LENGTH_VALUE)
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, durVal))
+            else if (durVal > max)
+                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, durVal))
         } catch (nfe: NumberFormatException) {
-            parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.durationValueUnreadable, mValue, defolt)))
-            intVal = defolt
+            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.durationValueUnreadable, value))
         }
 
-        return intVal
+        return durVal
     }
 
-    fun getDoubleValue(min: Double, max: Double, defolt: Double, parseErrors: MutableList<FileParseError>): Double {
-        var intVal: Double
+    fun parseDoubleValue(value:String,min: Double, max: Double): Double {
+        val doubleVal: Double
         try {
-            intVal = mValue.toDouble()
-            if (intVal < min) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.doubleValueTooLow, min, intVal)))
-                intVal = min
-            } else if (intVal > max) {
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.doubleValueTooHigh, max, intVal)))
-                intVal = max
-            }
+            doubleVal = value.toDouble()
+            if (doubleVal < min)
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueTooLow, min, doubleVal))
+            else if (doubleVal > max)
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueTooHigh, max, doubleVal))
         } catch (nfe: NumberFormatException) {
-            parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.doubleValueUnreadable, mValue, defolt)))
-            intVal = defolt
+            throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueUnreadable, value))
         }
-        return intVal
+        return doubleVal
     }
 
-    fun getColourValue(defolt: Int, parseErrors: MutableList<FileParseError>): Int {
-        try {
-            return Color.parseColor(mValue)
+    fun parseColourValue(value:String): Int {
+        return try {
+            Color.parseColor(value)
         } catch (iae: IllegalArgumentException) {
             try {
-                return Color.parseColor("#$mValue")
+                Color.parseColor("#$value")
             } catch (iae2: IllegalArgumentException) {
-                var defaultString = "000000" + Integer.toHexString(defolt)
-                defaultString = defaultString.substring(defaultString.length - 6)
-                parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.colorValueUnreadable, mValue, defaultString)))
+                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.colorValueUnreadable, value))
             }
-
         }
-        return defolt
     }
 
     companion object {
         val colorTags: HashSet<String> = hashSetOf("backgroundcolour", "bgcolour", "backgroundcolor", "bgcolor", "pulsecolour", "beatcolour", "pulsecolor", "beatcolor", "lyriccolour", "lyricscolour", "lyriccolor", "lyricscolor", "chordcolour", "chordcolor", "commentcolour", "commentcolor", "beatcountercolour", "beatcountercolor")
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
 
-        fun verifySongTriggerFromTag(tag: Tag, parseErrors: MutableList<FileParseError>) {
-            try {
-                SongTrigger.parse(tag.mValue, tag.mName == "midi_song_select_trigger", tag.mLineNumber, parseErrors)
-            } catch (e: Exception) {
-                parseErrors.add(FileParseError(tag, e.message))
-            }
-        }
-
         @Throws(MalformedTagException::class)
-        fun parse(tagContents:String,lineNumber:Int,position:Int):Tag{
-            return Tag(true,tagContents,lineNumber,position)
+        fun parse(tagContents:String,lineNumber:Int,position:Int,sourceFile: File,tempAudioFileCollection: List<AudioFile>,tempImageFileCollection: List<ImageFile>,defaultHighlightColor:Int,songTime:Long,defaultMIDIChannel:Byte):Tag{
+            var txt=tagContents
+            val chord=txt.startsWith('[')
+            txt=if(chord)txt.trim('[',']')else txt.trim('{','}')
+            txt=txt.trim()
+            var colonIndex = txt.indexOf(":")
+            val spaceIndex = txt.indexOf(" ")
+            if (colonIndex == -1)
+                colonIndex = spaceIndex
+            val name:String
+            val value:String
+            if (colonIndex == -1) {
+                name = if (chord) txt else txt.toLowerCase()
+                value = ""
+            } else {
+                name = if (chord) txt else txt.substring(0, colonIndex).toLowerCase()
+                value = txt.substring(colonIndex + 1).trim()
+            }
+            if(chord)
+                return ChordTag(name, lineNumber, position)
+            when(name)
+            {
+                "b","bars"->return BarsTag(name, lineNumber, position, value)
+                "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
+                "bpb", "beatsperbar"->return BeatsPerBarTag(name, lineNumber, position, value)
+                "bpl", "barsperline"->return BarsPerLineTag(name, lineNumber, position, value)
+                "scrollbeat", "sb"->return ScrollBeatTag(name, lineNumber, position, value)
+                "beatstart"->return BeatStartTag(name, lineNumber, position)
+                "beatstop"->return BeatStopTag(name, lineNumber, position)
+
+                "time" -> return TimeTag(name, lineNumber, position, value)
+                "pause"->return PauseTag(name, lineNumber, position, value)
+                "image"->return ImageTag(name, lineNumber, position, value, sourceFile, tempImageFileCollection)
+                "track", "audio", "musicpath"->return TrackTag(name, lineNumber, position, value, sourceFile, tempAudioFileCollection)
+                "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
+                "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
+                "midi_song_select_trigger"->return MIDISongSelectTriggerTag(name, lineNumber, position, value)
+                "midi_program_change_trigger"->return MIDIProgramChangeTriggerTag(name, lineNumber, position, value)
+
+                "backgroundcolour", "backgroundcolor", "bgcolour", "bgcolor"->return BackgroundColorTag(name, lineNumber, position, value)
+                "pulsecolour", "pulsecolor", "beatcolour", "beatcolor"->return PulseColorTag(name, lineNumber, position, value)
+                "lyriccolour", "lyriccolor", "lyricscolour", "lyricscolor"->return LyricsColorTag(name, lineNumber, position, value)
+                "chordcolour", "chordcolor" ->return ChordsColorTag(name, lineNumber, position, value)
+                "beatcountercolour", "beatcountercolor"->return BeatCounterColorTag(name, lineNumber, position, value)
+
+                "soh"->return StartOfHighlightTag(name, lineNumber, position, value, defaultHighlightColor)
+                "eoh"->return EndOfHighlightTag(name, lineNumber, position)
+
+                "title", "t" ->return TitleTag(name, lineNumber, position, value)
+                "artist", "a", "subtitle", "st"->return ArtistTag(name, lineNumber, position, value)
+                "key"->return KeyTag(name, lineNumber, position, value)
+                "tag"->return TagTag(name, lineNumber, position, value)
+
+                // Unused ChordPro tags
+                "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {}
+
+                else->return MIDIEventTag(name, lineNumber, position, value, songTime, defaultMIDIChannel)
+            }
+            throw UnknownTagException(name)
         }
     }
 }

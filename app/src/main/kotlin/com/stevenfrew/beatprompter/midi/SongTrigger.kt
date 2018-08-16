@@ -6,67 +6,32 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
-class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, songSelect: Boolean) {
+class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
 
-    constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, isSongSelect: Boolean): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), isSongSelect)
+    constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
     companion object {
         private const val MSB_ATTRIBUTE_NAME = "bankSelectMSB"
         private const val LSB_ATTRIBUTE_NAME = "bankSelectLSB"
         private const val TRIGGER_INDEX_ATTRIBUTE_NAME = "triggerIndex"
         private const val CHANNEL_ATTRIBUTE_NAME = "channel"
-        private const val IS_SONG_SELECT_ATTRIBUTE_NAME = "isSongSelect"
-        val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), true)
+        private const val TRIGGER_TYPE_ATTRIBUTE_NAME = "triggerType"
+        val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), TriggerType.SongSelect)
 
         fun readFromXMLElement(element: Element): SongTrigger {
             val msbString = element.getAttribute(MSB_ATTRIBUTE_NAME)
             val lsbString = element.getAttribute(LSB_ATTRIBUTE_NAME)
             val triggerIndexString = element.getAttribute(TRIGGER_INDEX_ATTRIBUTE_NAME)
             val channelString = element.getAttribute(CHANNEL_ATTRIBUTE_NAME)
-            val isSongSelectString = element.getAttribute(IS_SONG_SELECT_ATTRIBUTE_NAME)
+            val triggerTypeString = element.getAttribute(TRIGGER_TYPE_ATTRIBUTE_NAME)
 
             val msbValue = Value.parseValue(msbString)
             val lsbValue = Value.parseValue(lsbString)
             val triggerIndexValue = Value.parseValue(triggerIndexString)
             val channelValue = Value.parseChannelValue(channelString)
-            val isSongSelect = isSongSelectString.toBoolean()
+            val triggerType = TriggerType.valueOf(triggerTypeString)
 
-            return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue, isSongSelect)
-        }
-
-        fun parse(descriptor: String?, songSelect: Boolean, lineNumber: Int, errors: MutableList<FileParseError>): SongTrigger? {
-            if (descriptor == null)
-                return null
-            val bits = descriptor.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for (f in bits.indices)
-                bits[f] = bits[f].trim()
-            var msb: Value = WildcardValue()
-            var lsb: Value = WildcardValue()
-            var channel: Value = WildcardValue()
-            if (bits.size > 1)
-                if (songSelect)
-                    errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)))
-            if (bits.size > 4 || bits.isEmpty())
-                if (songSelect)
-                    errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value)))
-                else
-                    errors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_two_or_three_values)))
-
-            if (bits.size > 3) {
-                val value = Value.parseValue(bits[3], lineNumber, 3, bits.size, errors)
-                if (value is ChannelValue)
-                    channel = value
-            }
-
-            if (bits.size > 2)
-                lsb = Value.parseValue(bits[2], lineNumber, 2, bits.size, errors)
-
-            if (bits.size > 1)
-                msb = Value.parseValue(bits[1], lineNumber, 1, bits.size, errors)
-
-            val index = Value.parseValue(bits[0], lineNumber, 0, bits.size, errors)
-
-            return SongTrigger(msb, lsb, index, channel, songSelect)
+            return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue,triggerType)
         }
     }
 
@@ -74,14 +39,14 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     private val mBankSelectLSB=bankSelectLSB
     private val mTriggerIndex=triggerIndex
     private val mChannel=channel
-    private val mSongSelect=songSelect
+    private val mType=type
 
     override fun equals(other: Any?): Boolean {
         if (other is SongTrigger) {
             val mst = other as SongTrigger?
             if (mst!!.mBankSelectMSB.matches(mBankSelectMSB))
                 if (mst.mBankSelectLSB.matches(mBankSelectLSB))
-                    if (mst.mSongSelect == mSongSelect)
+                    if (mst.mType == mType)
                         if (mst.mTriggerIndex.matches(mTriggerIndex))
                             return mst.mChannel.matches(mChannel)
         }
@@ -94,7 +59,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         triggerElement.setAttribute(LSB_ATTRIBUTE_NAME, mBankSelectLSB.toString())
         triggerElement.setAttribute(TRIGGER_INDEX_ATTRIBUTE_NAME, mTriggerIndex.toString())
         triggerElement.setAttribute(CHANNEL_ATTRIBUTE_NAME, mChannel.toString())
-        triggerElement.setAttribute(IS_SONG_SELECT_ATTRIBUTE_NAME, "" + mSongSelect)
+        triggerElement.setAttribute(TRIGGER_TYPE_ATTRIBUTE_NAME, mType.toString())
         parent.appendChild(triggerElement)
     }
 
@@ -107,7 +72,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     @Throws(ResolutionException::class)
     fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
         val outputMessages = mutableListOf<OutgoingMessage>()
-        if (mSongSelect)
+        if (mType==TriggerType.SongSelect)
             outputMessages.add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
         else {
             val channel = if (mChannel is WildcardValue)
@@ -127,7 +92,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         result = 31 * result + mBankSelectLSB.hashCode()
         result = 31 * result + mTriggerIndex.hashCode()
         result = 31 * result + mChannel.hashCode()
-        result = 31 * result + mSongSelect.hashCode()
+        result = 31 * result + mType.hashCode()
         return result
     }
 

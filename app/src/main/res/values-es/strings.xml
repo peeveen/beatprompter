@@ -32,10 +32,10 @@
     <string name="colours">Colores</string>
     <string name="missing_audio_file_warning">No se pudo encontrar el archivo de audio.</string>
     <string name="crap_audio_file_warning">No se pudo cargar el archivo de audio. ¿Se encuentra o está dañado?</string>
-    <string name="colorValueUnreadable">No se pudo analizar "%1$s" como un color. El uso predeterminado de "%2$s".</string>
-    <string name="durationValueUnreadable">No se pudo analizar "%1$s" como un valor de duración (uso MM: SS) o tan sólo unos segundos. El uso predeterminado de "%2$d".</string>
-    <string name="intValueUnreadable">No se pudo analizar "%1$s" como un valor entero. El uso predeterminado de %2$d.</string>
-    <string name="doubleValueUnreadable">No se pudo analizar "%1$s" como un valor numérico. El uso predeterminado de %2$f.</string>
+    <string name="colorValueUnreadable">No se pudo analizar "%1$s" como un color.</string>
+    <string name="durationValueUnreadable">No se pudo analizar "%1$s" como un valor de duración (uso MM: SS) o tan sólo unos segundos.</string>
+    <string name="intValueUnreadable">No se pudo analizar "%1$s" como un valor entero.</string>
+    <string name="doubleValueUnreadable">No se pudo analizar "%1$s" como un valor numérico.</string>
     <string name="pref_metronome_summary">Crea un sonido de clic en el tiempo con el ritmo. Sólo se aplica a batir de desplazamiento canciones.</string>
     <string name="pref_bpl_title">Bares predeterminados por línea</string>
     <string name="pref_bpb_title">Defecto pulsaciones por barra</string>

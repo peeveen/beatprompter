@@ -110,7 +110,7 @@ class SongFile : CachedCloudFile {
                 line = br.readLine()
                 if(line!=null)
                 {
-                    val fileLine= FileLine(line, ++lineNumber)
+                    val fileLine= FileLine(line, ++lineNumber,mFile)
                     if(title==null)
                         title = fileLine.getTitle()
                     val artist = fileLine.getArtist()
@@ -137,7 +137,11 @@ class SongFile : CachedCloudFile {
                         }
 
                     }
-                    mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
+
+                    // TODO: better implementation of this.
+                    //mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
+                    mMixedMode=false
+
                     val tags = fileLine.getTags()
                     mTags.addAll(tags)
                     val audios = fileLine.getAudioFiles()
@@ -199,7 +203,7 @@ class SongFile : CachedCloudFile {
     }
 
     @Throws(IOException::class)
-    fun getTimePerLineAndBar(chosenTrack: String?, tempAudioFileCollection: MutableList<AudioFile> =mutableListOf(), tempImageFileCollection: MutableList<ImageFile> =mutableListOf()): SmoothScrollingTimings {
+    fun getTimePerLineAndBar(chosenTrack: AudioFile?, tempAudioFileCollection: MutableList<AudioFile> =mutableListOf(), tempImageFileCollection: MutableList<ImageFile> =mutableListOf()): SmoothScrollingTimings {
         val bplOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_offset))
         val bplMin = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_min)) + bplOffset
         val bplMax = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_max)) + bplOffset

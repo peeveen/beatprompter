@@ -32,10 +32,10 @@
     <string name="colours">Couleurs</string>
     <string name="missing_audio_file_warning">Impossible de trouver le fichier audio.</string>
     <string name="crap_audio_file_warning">Impossible de charger le fichier audio. Est-il manquant ou endommagé?</string>
-    <string name="colorValueUnreadable">Impossible d\'analyser "%1$s" comme une couleur. Utilisation par défaut de "%2$s".</string>
-    <string name="durationValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur de durée (utilisation mm:ss ou quelques secondes). Utilisation par défaut "%2$d".</string>
-    <string name="intValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur entière. Utilisation par défaut de %2$d.</string>
-    <string name="doubleValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur numerique. Utilisation par défaut de %2$f.</string>
+    <string name="colorValueUnreadable">Impossible d\'analyser "%1$s" comme une couleur.</string>
+    <string name="durationValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur de durée (utilisation mm:ss ou quelques secondes).</string>
+    <string name="intValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur entière.</string>
+    <string name="doubleValueUnreadable">Impossible d\'analyser "%1$s" comme une valeur numerique.</string>
     <string name="written_by">Créé par</string>
     <string name="pref_metronome_summary">Crée un clic dans le temps avec le rythme. Applicable uniquement pour battre défilement des chansons.</string>
     <string name="pref_bpl_title">Par défaut barres par ligne</string>

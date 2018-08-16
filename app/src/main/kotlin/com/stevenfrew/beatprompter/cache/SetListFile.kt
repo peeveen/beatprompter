@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.tag.set.SetTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -40,11 +41,11 @@ class SetListFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    val fileLine= FileLine(line, ++lineNumber)
+                    val fileLine= FileLine(line, ++lineNumber,mFile)
                     if(fileLine.isComment)
                         continue
                     if (setTitle == null || setTitle.isEmpty())
-                        setTitle = fileLine.getTokenValue("set")
+                        setTitle = fileLine.mTags.filterIsInstance<SetTag>().firstOrNull()?.mSetName
                     else
                         mSongTitles.add(line)
                 }

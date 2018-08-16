@@ -34,6 +34,7 @@ import com.stevenfrew.beatprompter.filter.Filter
 import com.stevenfrew.beatprompter.midi.Alias
 import com.stevenfrew.beatprompter.midi.MIDIController
 import com.stevenfrew.beatprompter.midi.SongTrigger
+import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
 import com.stevenfrew.beatprompter.pref.SettingsActivity
 import com.stevenfrew.beatprompter.pref.SortingPreference
@@ -140,11 +141,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     internal fun startSongViaMidiProgramChange(bankMSB: Byte, bankLSB: Byte, program: Byte, channel: Byte) {
-        startSongViaMidiSongTrigger(SongTrigger(bankMSB, bankLSB, program, channel, false))
+        startSongViaMidiSongTrigger(SongTrigger(bankMSB, bankLSB, program, channel, TriggerType.ProgramChange))
     }
 
     internal fun startSongViaMidiSongSelect(song: Byte) {
-        startSongViaMidiSongTrigger(SongTrigger(0.toByte(), 0.toByte(), song, 0.toByte(), true))
+        startSongViaMidiSongTrigger(SongTrigger(0.toByte(), 0.toByte(), song, 0.toByte(), TriggerType.SongSelect))
     }
 
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
@@ -167,9 +168,9 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        var trackName = ""
+        val track:AudioFile?=null
         if (selectedSong.mAudioFiles.size > 0)
-            trackName = selectedSong.mAudioFiles[0]
+            track = selectedSong.mAudioFiles[0]
         var beatScroll = selectedSong.isBeatScrollable
         var smoothScroll = selectedSong.isSmoothScrollable
         val sharedPrefs = BeatPrompterApplication.preferences
@@ -177,11 +178,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         if (manualMode) {
             smoothScroll = false
             beatScroll = smoothScroll
-            trackName = ""
+            track = null
         }
         val scrollingMode = if (beatScroll) ScrollingMode.Beat else if (smoothScroll) ScrollingMode.Smooth else ScrollingMode.Manual
         val sds = getSongDisplaySettings(scrollingMode)
-        playSong(node, selectedSong, trackName, scrollingMode, startedByMidiTrigger, sds, sds)
+        playSong(node, selectedSong, track, scrollingMode, startedByMidiTrigger, sds, sds)
     }
 
     private fun shouldPlayNextSong(): Boolean {
@@ -243,14 +244,14 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return SongDisplaySettings(resources.configuration.orientation, minimumFontSize, maximumFontSize, size.x, size.y)
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, trackName: String, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
         if (selectedNode?.mNextNode != null && shouldPlayNextSong())
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
-        SongLoadTask.loadSong(SongLoadTask(selectedSong, trackName, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo))
+        SongLoadTask.loadSong(SongLoadTask(selectedSong, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo))
     }
 
     private fun clearTemporarySetList() {
@@ -1199,14 +1200,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                     nonDefaults.add(file)
             return nonDefaults
         }
-
-        internal val midiAliases: MutableList<Alias>
-            get() {
-                val aliases = mutableListOf<Alias>()
-                for (maf in mCachedCloudFiles.midiAliasFiles)
-                    aliases.addAll(maf.mAliasSet.aliases)
-                return aliases
-            }
 
         val cloud: CloudType
             get() {

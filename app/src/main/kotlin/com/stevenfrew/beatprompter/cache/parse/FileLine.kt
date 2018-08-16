@@ -1,14 +1,15 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.cache.ImageFile
+import com.stevenfrew.beatprompter.cache.parse.tag.*
+import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
-import java.util.ArrayList
+import java.io.File
 
-class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FileParseError> = mutableListOf()) {
+class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, errors:MutableList<FileParseError> = mutableListOf(), tempAudioFileCollection: List<AudioFile> = listOf(), tempImageFileCollection: List<ImageFile> = listOf(), defaultHighlightColor:Int =0, songTime:Long=0, defaultMIDIChannel:Byte=0) {
 
     data class TagText constructor(val mText:String,val mPosition:Int)
 
@@ -20,9 +21,9 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
     val isComment :Boolean
         get()=mLine.startsWith("#")
     val chordTags :List<Tag>
-        get()= mTags.filter{it.isChord}
+        get()= mTags.filter{it is ChordTag }
     val nonChordTags :List<Tag>
-        get()= mTags.filterNot{it.isChord}
+        get()= mTags.filterNot{it is ChordTag }
     val isEmpty:Boolean
         get()=mLine.isEmpty()
 
@@ -102,36 +103,32 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
         mTaglessLine = strippedLine.replace("\uFEFF", "")
         mTags= textTags.mapNotNull { tt->
             try {
-                Tag.parse(tt.mText,mLineNumber,tt.mPosition)
+                Tag.parse(tt.mText,mLineNumber,tt.mPosition,sourceFile,tempAudioFileCollection,tempImageFileCollection,defaultHighlightColor,songTime,defaultMIDIChannel)
             }
             catch(mte:MalformedTagException) {
                 errors.add(FileParseError(mLineNumber,mte.message))
+                null
+            } catch(ute: UnknownTagException) {
+                errors.add(FileParseError(mLineNumber,ute.message))
                 null
             }
         }
 
         // ... or by a tag (which overrides commas)
-        for (tag in mTags)
-            if (!tag.isChord)
-                if (tag.mName == "b" || tag.mName == "bars") {
-                    if (bars != 0)
-                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.both_bars_tag_and_commas)))
-                    bars = tag.getIntegerValue(1, 128, 1, errors)
-                }
-
+        bars=mTags.filterIsInstance<BarsTag>().firstOrNull()?.mBars?:bars
         mBars = Math.max(1, bars)
     }
 
     fun getTitle(): String? {
-        return getTokenValue("title", "t")
+        return mTags.filterIsInstance<TitleTag>().firstOrNull()?.mTitle
     }
 
     fun getKey(): String? {
-        return getTokenValue("key")
+        return mTags.filterIsInstance<KeyTag>().firstOrNull()?.mKey
     }
 
     private fun getFirstChordTag(): Tag? {
-        return mTags.firstOrNull{it.isValidChord}
+        return mTags.filterIsInstance<ChordTag>().firstOrNull {it.isValidChord()}
     }
 
     fun getFirstChord(): String? {
@@ -139,75 +136,31 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
     }
 
     fun getArtist(): String? {
-        return getTokenValue("artist", "a", "subtitle", "st")
+        return mTags.filterIsInstance<ArtistTag>().firstOrNull()?.mArtist
     }
 
-    fun getBPM(): String? {
-        return getTokenValue("bpm", "beatsperminute", "metronome")
+    fun getBPM(): Int? {
+        return mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()?.mBPM
     }
 
     fun getTags(): List<String> {
-        return getTokenValues("tag")
-    }
-
-    private fun getMIDITrigger(songSelectTrigger: Boolean): SongTrigger? {
-        val `val` = getTokenValue(if (songSelectTrigger) "midi_song_select_trigger" else "midi_program_change_trigger")
-        if (`val` != null)
-            try {
-                return SongTrigger.parse(`val`, songSelectTrigger, mLineNumber, ArrayList())
-            } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to parse MIDI song trigger from song file.", e)
-            }
-        return null
+        return mTags.filterIsInstance<TagTag>().map{it.mTag}
     }
 
     fun getMIDISongSelectTrigger(): SongTrigger? {
-        return getMIDITrigger(true)
+        return mTags.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()?.mTrigger
     }
 
     fun getMIDIProgramChangeTrigger(): SongTrigger? {
-        return getMIDITrigger(false)
+        return mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()?.mTrigger
     }
 
-    fun getAudioFiles(): List<String> {
-        val audio = ArrayList<String>()
-        audio.addAll(getTokenValues("audio"))
-        audio.addAll(getTokenValues("track"))
-        audio.addAll(getTokenValues("musicpath"))
-        val realAudio = ArrayList<String>()
-        for (str in audio) {
-            var audioString=str
-            val index = audioString.indexOf(":")
-            if (index != -1 && index < audioString.length - 1)
-                audioString = audioString.substring(0, index)
-            realAudio.add(audioString)
-        }
-        return realAudio
+    fun getAudioFiles(): List<AudioFile> {
+        return mTags.filterIsInstance<TrackTag>().map{it.mAudioFile}
     }
 
-    fun getImageFiles(): ArrayList<String> {
-        val image = ArrayList(getTokenValues("image"))
-        val realimage = ArrayList<String>()
-        for (str in image) {
-            var imageString=str
-            val index = imageString.indexOf(":")
-            if (index != -1 && index < imageString.length - 1)
-                imageString = imageString.substring(0, index)
-            realimage.add(imageString)
-        }
-        return realimage
-    }
-
-    private fun getTokenValues(vararg tokens: String): List<String> {
-        return mTags.filter{tokens.contains(it.mName)}.map{it.mValue.trim()}
-    }
-
-    internal fun getTokenValue(vararg tokens: String): String? {
-        return getTokenValues(*tokens).lastOrNull()
-    }
-
-    fun containsToken(tokenToFind: String): Boolean {
-        return getTokenValues(tokenToFind).any()
+    fun getImageFiles(): List<ImageFile> {
+        return mTags.filterIsInstance<ImageTag>().map{it.mImageFile}
     }
 
     companion object {

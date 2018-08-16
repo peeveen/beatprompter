@@ -13,27 +13,8 @@ object Utils {
     var FONT_SCALING: Float = 0.toFloat()
 
     // Special token.
-    const val TRACK_AUDIO_LENGTH_VALUE = -93781472
+    const val TRACK_AUDIO_LENGTH_VALUE = -93781472L
     private val splitters = arrayOf(" ", "-")
-
-    private const val REGEXP = (
-            "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis, /
-
-                    + "(([ABCDEFG])([b\u266D#\u266F\u266E])?)" //note name + accidental
-
-                    //\u266D = flat, \u266E = natural, \u266F = sharp
-                    + "([mM1234567890abdijnsu��o�\u00D8\u00F8\u00B0\u0394\u2206\\-\\+]*)"
-                    //handles min(or), Maj/maj(or), dim, sus, Maj7, mb5...
-                    // but not #11 (may be ok for Eb7#11,
-                    // but F#11 will disturb...)
-                    //\u00F8 = slashed o, \u00D8 = slashed O, \u00B0 = degree
-                    //(html ø, Ø, °)
-                    //delta = Maj7, maths=\u2206, greek=\u0394
-                    + "((\\/)(([ABCDEFG])([b\u266D#\u266F\u266E])?))?" // /bass
-
-                    + "(\\)?[ \\s]*)$") //closing parenthesis, spaces
-
-    private val pattern = Pattern.compile(REGEXP)
 
     init {
         for (f in 0..90) {
@@ -109,12 +90,12 @@ object Utils {
         return str.toCharArray().map{it.toString()}
     }
 
-    fun parseDuration(str: String, trackLengthAllowed: Boolean): Int {
+    fun parseDuration(str: String, trackLengthAllowed: Boolean): Long {
         if (str.equals("track", ignoreCase = true) && trackLengthAllowed)
             return Utils.TRACK_AUDIO_LENGTH_VALUE
         try {
             val totalsecs = str.toDouble()
-            return Math.floor(totalsecs * 1000.0).toInt()
+            return Math.floor(totalsecs * 1000.0).toLong()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
             val bits=str.split(":")
@@ -122,16 +103,11 @@ object Utils {
             {
                 val mins = bits[0].toInt()
                 val secs = bits[1].toInt()
-                return (secs + mins * 60) * 1000
+                return (secs + mins * 60) * 1000L
             }
             throw nfe
         }
 
-    }
-
-    fun isChord(textIn: String?): Boolean {
-        val text =(textIn?:"").trim()
-        return text.isNotEmpty() && pattern.matcher(text).matches()
     }
 
     @Throws(IOException::class)
