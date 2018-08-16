@@ -57,7 +57,7 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: 
     internal fun getPixelFromTime(time: Long): Int {
         if (time == 0L)
             return 0
-        var lineEndTime = java.lang.Long.MAX_VALUE
+        var lineEndTime = Long.MAX_VALUE
         if (mNextLine != null)
             lineEndTime = mNextLine!!.mLineEvent.mEventTime
 

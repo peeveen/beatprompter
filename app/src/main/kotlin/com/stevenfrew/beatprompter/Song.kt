@@ -95,7 +95,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         val sharedPref = BeatPrompterApplication.preferences
 
         val defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))))
-        var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue)))
+        var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue).toBoolean())
         showKey = showKey and mSongFile.mKey.isNotBlank()
         val showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))
 
@@ -287,7 +287,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
                 total -= line.mLineMeasurements!!.mLineHeight
                 if (total <= 0) {
                     if (prevLastLine != null)
-                        prevLastLine.mYStopScrollTime = java.lang.Long.MAX_VALUE
+                        prevLastLine.mYStopScrollTime = Long.MAX_VALUE
                     break
                 }
                 line.mLineEvent.remove()

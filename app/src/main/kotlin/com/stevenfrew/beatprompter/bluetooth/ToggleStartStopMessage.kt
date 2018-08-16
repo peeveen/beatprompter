@@ -33,8 +33,6 @@ class ToggleStartStopMessage(startState: PlayState, time: Long) : BluetoothMessa
     companion object {
         internal const val TOGGLE_START_STOP_MESSAGE_ID: Byte = 1
 
-        private const val LONG_BUFFER_SIZE = java.lang.Long.SIZE / java.lang.Byte.SIZE
-
         @Throws(NotEnoughBluetoothDataException::class)
         internal fun fromBytes(bytes: ByteArray):IncomingBluetoothMessage {
             ByteArrayInputStream(bytes).apply{

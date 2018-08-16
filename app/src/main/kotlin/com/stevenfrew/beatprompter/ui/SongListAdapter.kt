@@ -17,7 +17,7 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
     private val sharedPref: SharedPreferences = BeatPrompterApplication.preferences
 
     init {
-        mLargePrint = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue)))
+        mLargePrint = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key), BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue).toBoolean())
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -31,9 +31,9 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
         val docIcon = rowView.findViewById<ImageView>(R.id.smoothicon)
         val notesIcon = rowView.findViewById<ImageView>(R.id.musicicon)
         val song = values[position].mSongFile
-        val showBeatIcons = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue)))
-        val showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue)))
-        val showMusicIcon = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue)))
+        val showBeatIcons = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue).toBoolean())
+        val showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue).toBoolean())
+        val showMusicIcon = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue).toBoolean())
         if (song.mAudioFiles.size == 0 || !showMusicIcon) {
             notesIcon.visibility = View.GONE
             //            RelativeLayout.LayoutParams docIconLayoutParams=(RelativeLayout.LayoutParams)docIcon.getLayoutParams();

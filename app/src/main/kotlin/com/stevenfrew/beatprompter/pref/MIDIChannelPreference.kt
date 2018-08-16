@@ -33,7 +33,7 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
 
     private fun getSingleSelectSetting(attrs: AttributeSet): Boolean {
         val resourceID = attrs.getAttributeResourceValue(sfns, "singleSelect", 0)
-        return if (resourceID == 0) attrs.getAttributeBooleanValue(sfns, "singleSelect", false) else java.lang.Boolean.parseBoolean(context.getString(resourceID))
+        return if (resourceID == 0) attrs.getAttributeBooleanValue(sfns, "singleSelect", false) else context.getString(resourceID).toBoolean()
 
     }
 

@@ -29,7 +29,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
             val lsbValue = Value.parseValue(lsbString)
             val triggerIndexValue = Value.parseValue(triggerIndexString)
             val channelValue = Value.parseChannelValue(channelString)
-            val isSongSelect = java.lang.Boolean.parseBoolean(isSongSelectString)
+            val isSongSelect = isSongSelectString.toBoolean()
 
             return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue, isSongSelect)
         }

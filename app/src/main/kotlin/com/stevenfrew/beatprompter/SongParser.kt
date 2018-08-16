@@ -93,7 +93,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         mDefaultTrackVolume += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_offset))
         val defaultMIDIOutputChannelPrefValue = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
         mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-        mShowChords = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue)))
+        mShowChords = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
         mSendMidiClock = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
         mBackgroundColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
         mPulseColour = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_default)))
@@ -109,7 +109,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         mBeatCounterColour = mBeatCounterColour or -0x1000000
         mLyricColour = mLyricColour or -0x1000000
         mChordColour = mChordColour or -0x1000000
-        mIgnoreColorInfo = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue)))
+        mIgnoreColorInfo = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue).toBoolean())
         mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPref)
     }
 
@@ -606,7 +606,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             if (bpm > 0 && mCurrentScrollMode === ScrollingMode.Beat) {
                 // Last Y scroll should never happen. No point scrolling last line offscreen.
                 val mLastLine = firstLine!!.lastLine
-                mLastLine.mYStopScrollTime = java.lang.Long.MAX_VALUE
+                mLastLine.mYStopScrollTime = Long.MAX_VALUE
                 mLastLine.mYStartScrollTime = mLastLine.mYStopScrollTime
             }
 

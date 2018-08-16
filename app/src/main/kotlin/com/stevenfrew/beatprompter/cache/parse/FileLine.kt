@@ -9,6 +9,9 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
 import java.util.ArrayList
 
 class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FileParseError> = mutableListOf()) {
+
+    data class TagText constructor(val mText:String,val mPosition:Int)
+
     private val mLine:String
     val mTaglessLine:String
     val mBars:Int
@@ -32,7 +35,7 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
         else
             mLine=line.trim()
 
-        val tags = mutableListOf<Tag>()
+        var textTags = mutableListOf<TagText>()
         var strippedLine:String
         if(!isComment) {
             var workLine = mLine
@@ -48,6 +51,7 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
                 else
                     chordStart
                 val tagCloser = if (start == directiveStart) "}" else "]"
+                val tagStarter = if (start == directiveStart) "{" else "["
                 var end = workLine.indexOf(tagCloser, start + 1)
                 if (end != -1) {
                     val contents = workLine.substring(start + 1, end).trim()
@@ -56,7 +60,7 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
                     end = 0
                     if (contents.trim().isNotEmpty())
                         try {
-                            tags.add(Tag.parse(start == chordStart, contents, mLineNumber, lineOut.length))
+                            textTags.add(TagText(tagStarter+contents+tagCloser, lineOut.length))
                         }
                         catch(mte: MalformedTagException)
                         {
@@ -77,17 +81,9 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
         var bars = 0
         while (strippedLine.startsWith(",")) {
             strippedLine = strippedLine.substring(1)
-            tags.forEach{it.retreatPositionFrom(0)}
+            textTags=textTags.map{if(it.mPosition>0) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
             bars++
         }
-
-        // ... or by a tag (which overrides commas)
-        for (tag in tags)
-            if (!tag.isChord)
-                if (tag.mName == "b" || tag.mName == "bars")
-                    bars = tag.getIntegerValue(1, 128, 1, errors)
-
-        mBars = Math.max(1, bars)
 
         var scrollbeatDiff=0
         while (strippedLine.endsWith(">") || strippedLine.endsWith("<")) {
@@ -96,7 +92,7 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
             else if (strippedLine.endsWith("<"))
                 scrollbeatDiff--
             strippedLine = strippedLine.substring(0, strippedLine.length - 1)
-            tags.forEach{it.retreatPositionFrom(strippedLine.length)}
+            textTags=textTags.map{if(it.mPosition>strippedLine.length) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
         }
         mScrollbeatDiff=scrollbeatDiff
 
@@ -104,7 +100,26 @@ class FileLine(line:String,private val mLineNumber:Int,errors:MutableList<FilePa
 
         // Replace stupid unicode BOM character
         mTaglessLine = strippedLine.replace("\uFEFF", "")
-        mTags=tags
+        mTags= textTags.mapNotNull { tt->
+            try {
+                Tag.parse(tt.mText,mLineNumber,tt.mPosition)
+            }
+            catch(mte:MalformedTagException) {
+                errors.add(FileParseError(mLineNumber,mte.message))
+                null
+            }
+        }
+
+        // ... or by a tag (which overrides commas)
+        for (tag in mTags)
+            if (!tag.isChord)
+                if (tag.mName == "b" || tag.mName == "bars") {
+                    if (bars != 0)
+                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.both_bars_tag_and_commas)))
+                    bars = tag.getIntegerValue(1, 128, 1, errors)
+                }
+
+        mBars = Math.max(1, bars)
     }
 
     fun getTitle(): String? {

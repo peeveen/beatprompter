@@ -16,7 +16,7 @@ class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>) : ArrayAdapt
 
     init {
         val sharedPref = BeatPrompterApplication.preferences
-        mLargePrint = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue)))
+        mLargePrint = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key), BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue).toBoolean())
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

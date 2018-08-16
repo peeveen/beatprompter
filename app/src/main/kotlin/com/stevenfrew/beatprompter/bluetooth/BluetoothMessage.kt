@@ -16,5 +16,7 @@ abstract class BluetoothMessage {
                 }
             throw UnknownBluetoothMessageException()
         }
+
+        internal const val LONG_BUFFER_SIZE = 8
     }
 }

@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.*
 import java.util.*
 
-class Tag private constructor(private val mChordTag: Boolean, str: String, internal var mLineNumber: Int, var mPosition: Int) {
+class Tag private constructor(private val mChordTag: Boolean, str: String, internal val mLineNumber: Int, val mPosition: Int) {
     var mName: String
     val mValue: String
 
@@ -151,7 +151,7 @@ class Tag private constructor(private val mChordTag: Boolean, str: String, inter
     fun getDoubleValue(min: Double, max: Double, defolt: Double, parseErrors: MutableList<FileParseError>): Double {
         var intVal: Double
         try {
-            intVal = java.lang.Double.parseDouble(mValue)
+            intVal = mValue.toDouble()
             if (intVal < min) {
                 parseErrors.add(FileParseError(this, BeatPrompterApplication.getResourceString(R.string.doubleValueTooLow, min, intVal)))
                 intVal = min
@@ -182,12 +182,6 @@ class Tag private constructor(private val mChordTag: Boolean, str: String, inter
         return defolt
     }
 
-    internal fun retreatPositionFrom(position:Int)
-    {
-        if(mPosition>position)
-            --mPosition
-    }
-
     companion object {
         val colorTags: HashSet<String> = hashSetOf("backgroundcolour", "bgcolour", "backgroundcolor", "bgcolor", "pulsecolour", "beatcolour", "pulsecolor", "beatcolor", "lyriccolour", "lyricscolour", "lyriccolor", "lyricscolor", "chordcolour", "chordcolor", "commentcolour", "commentcolor", "beatcountercolour", "beatcountercolor")
         val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
@@ -200,8 +194,9 @@ class Tag private constructor(private val mChordTag: Boolean, str: String, inter
             }
         }
 
-        fun parse(chordTag:Boolean,tagContents:String,lineNumber:Int,position:Int):Tag{
-            return Tag(chordTag,tagContents,lineNumber,position)
+        @Throws(MalformedTagException::class)
+        fun parse(tagContents:String,lineNumber:Int,position:Int):Tag{
+            return Tag(true,tagContents,lineNumber,position)
         }
     }
 }

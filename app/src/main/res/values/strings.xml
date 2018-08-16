@@ -9,6 +9,7 @@
     <string name="dropbox_string" translatable="false">Dropbox</string>
     <string name="onedrive_string" translatable="false">OneDrive</string>
     <string name="connect_to_leader_string">Connect to leader</string>
+    <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
     <string name="clear_cache_string">Clear cache</string>
     <string name="sort_songs">Sort ...</string>
     <string name="settings">Settings ...</string>

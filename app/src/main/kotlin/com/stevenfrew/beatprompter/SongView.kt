@@ -99,15 +99,15 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mScreenAction = ScreenAction.Volume
         if (screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
             mScreenAction = ScreenAction.Scroll
-        mShowScrollIndicator = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_defaultValue)))
-        mShowSongTitle = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_defaultValue)))
-        var commentDisplayTimeSeconds = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default)))
+        mShowScrollIndicator = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_key), BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_defaultValue).toBoolean())
+        mShowSongTitle = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_defaultValue).toBoolean())
+        var commentDisplayTimeSeconds = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default).toInt())
         commentDisplayTimeSeconds += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset))
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
 
         mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default))))
         mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_default))))
-        mPulse = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), java.lang.Boolean.parseBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue)))
+        mPulse = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue).toBoolean())
     }
 
     // Constructor
@@ -129,7 +129,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 metronomeOn = true
 
             if (metronomeOn)
-                mMetronomeBeats = java.lang.Long.MAX_VALUE
+                mMetronomeBeats = Long.MAX_VALUE
             else if (metronomeCount)
                 mMetronomeBeats = (song.mCountIn * song.mInitialBPB).toLong()
         }
@@ -185,7 +185,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     mMetronomeTask = MetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
                     mMetronomeThread = Thread(mMetronomeTask)
                     // Infinite metronome? Might as well start it now.
-                    if (mMetronomeBeats == java.lang.Long.MAX_VALUE)
+                    if (mMetronomeBeats == Long.MAX_VALUE)
                         mMetronomeThread!!.start()
                 }
             }
