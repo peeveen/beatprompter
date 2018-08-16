@@ -11,8 +11,12 @@ import com.stevenfrew.beatprompter.event.CommentEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?, internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment> // Comments to show on startup screen.
-           , firstEvent: BaseEvent, firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode, internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?, internal var mOrientation: Int, internal var mInitialMIDIMessages: List<OutgoingMessage>, private val mBeatBlocks: List<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
+class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?,
+           internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment>,firstEvent: BaseEvent,
+           firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode,
+           internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?,
+           internal var mOrientation: Int, internal var mInitialMIDIMessages: List<OutgoingMessage>,
+           private val mBeatBlocks: List<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
     private var mFirstLine: Line? = null // First line to show.
     internal var mCurrentLine: Line? = null
     internal var mLastLine: Line? = null
