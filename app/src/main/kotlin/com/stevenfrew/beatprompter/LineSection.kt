@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import com.stevenfrew.beatprompter.cache.FileParseError
-import com.stevenfrew.beatprompter.cache.Tag
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 internal class LineSection(var mLineText: String?, var mChordText: String?, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
     var mNextSection: LineSection? = null

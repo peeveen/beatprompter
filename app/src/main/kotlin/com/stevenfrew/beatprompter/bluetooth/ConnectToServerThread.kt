@@ -15,11 +15,8 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
     }
 
     override fun run() {
-        // Cancel discovery because it will slow down the connection
-        //            mBluetoothAdapter.cancelDiscovery();
         while (!mStop) {
-            val alreadyConnected = BluetoothManager.isConnectedToServer
-            if (!alreadyConnected)
+            if (!BluetoothManager.isConnectedToServer)
                 try {
                     // Connect the device through the socket. This will block
                     // until it succeeds or throws an exception, which can happen

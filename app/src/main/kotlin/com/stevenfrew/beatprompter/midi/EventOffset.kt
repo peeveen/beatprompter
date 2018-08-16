@@ -2,13 +2,13 @@ package com.stevenfrew.beatprompter.midi
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.FileParseError
-import com.stevenfrew.beatprompter.cache.Tag
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 class EventOffset {
     val mAmount:Int
     val mOffsetType:EventOffsetType
-    val mSourceTag:Tag?
+    val mSourceTag: Tag?
 
     constructor(offsetString: String?, sourceTag: Tag, errors: MutableList<FileParseError>)
     {

@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import android.media.MediaMetadataRetriever
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element

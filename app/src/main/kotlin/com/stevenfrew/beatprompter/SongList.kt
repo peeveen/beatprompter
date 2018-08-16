@@ -27,6 +27,7 @@ import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.*
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter

@@ -1,19 +1,19 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.*
-import com.stevenfrew.beatprompter.cache.FileParseError
-import com.stevenfrew.beatprompter.cache.Tag
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
-class TextLine internal constructor(lineTime: Long,lineDuration:Long,private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, lineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
     private var mLyricHeight: Int = 0
     private var mFont: Typeface? = null
-    private val mLineTags = lineTags.filter{!it.mChordTag}
-    private val mChordTags = lineTags.filter{it.mChordTag}
+    private val mLineTags = lineTags.filter{!it.isChord}
+    private val mChordTags = lineTags.filter{it.isChord}
     private var mFirstLineSection: LineSection? = null
     private val mXSplits = mutableListOf<Int>()
     private val mLineWidths = mutableListOf<Int>()

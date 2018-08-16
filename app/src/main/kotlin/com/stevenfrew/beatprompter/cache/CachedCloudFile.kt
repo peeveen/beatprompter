@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
@@ -33,21 +34,6 @@ abstract class CachedCloudFile : CloudFileInfo {
     companion object {
 
         private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
-
-        internal fun getTokenValues(line: String, lineNumber: Int, vararg tokens: String): List<String> {
-            val tagsOut = mutableListOf<Tag>()
-            if (!line.trim().startsWith("#"))
-                Tag.extractTags(line, lineNumber, tagsOut)
-            return tagsOut.filter{tokens.contains(it.mName)}.map{it.mValue.trim()}
-        }
-
-        fun getTokenValue(line: String, lineNumber: Int, vararg tokens: String): String? {
-            return getTokenValues(line, lineNumber, *tokens).lastOrNull()
-        }
-
-        internal fun containsToken(line: String, lineNumber: Int, tokenToFind: String): Boolean {
-            return getTokenValues(line,lineNumber,tokenToFind).any()
-        }
 
         fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile {
             return try {

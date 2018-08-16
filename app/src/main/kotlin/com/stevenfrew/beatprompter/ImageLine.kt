@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.*
-import com.stevenfrew.beatprompter.cache.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent

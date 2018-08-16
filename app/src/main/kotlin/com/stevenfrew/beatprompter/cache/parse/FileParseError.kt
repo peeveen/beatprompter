@@ -1,4 +1,6 @@
-package com.stevenfrew.beatprompter.cache
+package com.stevenfrew.beatprompter.cache.parse
+
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 class FileParseError(lineNumber: Int, private val mMessage: String?) {
     private val mLineNumber = lineNumber

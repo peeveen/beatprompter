@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.midi
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 

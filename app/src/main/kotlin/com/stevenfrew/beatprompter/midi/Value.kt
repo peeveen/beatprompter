@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.midi
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
-import com.stevenfrew.beatprompter.cache.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import java.util.ArrayList
 import kotlin.experimental.and
 

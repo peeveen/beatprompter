@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element

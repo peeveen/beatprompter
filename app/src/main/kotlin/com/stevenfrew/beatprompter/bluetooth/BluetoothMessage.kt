@@ -4,8 +4,8 @@ abstract class BluetoothMessage {
     abstract val bytes: ByteArray
 
     companion object {
-        @Throws(NotEnoughBluetoothDataException::class)
-        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage? {
+        @Throws(NotEnoughBluetoothDataException::class,UnknownBluetoothMessageException::class)
+        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage {
             if (bytes.isNotEmpty())
                 when(bytes[0]) {
                     ChooseSongMessage.CHOOSE_SONG_MESSAGE_ID -> return ChooseSongMessage.fromBytes(bytes)
@@ -14,7 +14,7 @@ abstract class BluetoothMessage {
                     PauseOnScrollStartMessage.PAUSE_ON_SCROLL_START_MESSAGE_ID -> return IncomingBluetoothMessage(PauseOnScrollStartMessage(),1)
                     QuitSongMessage.QUIT_SONG_MESSAGE_ID -> return IncomingBluetoothMessage(QuitSongMessage(),1)
                 }
-            return null
+            throw UnknownBluetoothMessageException()
         }
     }
 }

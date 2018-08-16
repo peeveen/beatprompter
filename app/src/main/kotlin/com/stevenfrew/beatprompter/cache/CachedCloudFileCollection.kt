@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import org.w3c.dom.Document
 import org.w3c.dom.Element

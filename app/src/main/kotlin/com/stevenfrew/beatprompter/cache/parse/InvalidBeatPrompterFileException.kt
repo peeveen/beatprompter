@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.cache
+package com.stevenfrew.beatprompter.cache.parse
 
 import java.io.IOException
 

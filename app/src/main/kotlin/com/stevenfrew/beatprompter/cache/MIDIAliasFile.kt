@@ -3,6 +3,9 @@ package com.stevenfrew.beatprompter.cache
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.parse.FileLine
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.*
 import org.w3c.dom.Document
@@ -57,11 +60,11 @@ class MIDIAliasFile : CachedCloudFile {
                 do {
                     line = br.readLine()
                     if(line!=null) {
-                        ++lineNumber
-                        line = line.trim()
-                        if (line.startsWith("#"))
+                        val fileLine= FileLine(line, ++lineNumber, midiParsingErrors)
+                        if(fileLine.isComment)
                             continue
-                        if (line.isEmpty()) {
+
+                        if (fileLine.isEmpty) {
                             if (currentAliasName != null) {
                                 aliases.add(Alias(currentAliasName, currentAliasComponents))
                                 currentAliasName = null
@@ -69,7 +72,7 @@ class MIDIAliasFile : CachedCloudFile {
                             }
                         }
                         if (!isMidiAliasFile) {
-                            aliasFilename = CachedCloudFile.getTokenValue(line, lineNumber, "midi_aliases")
+                            aliasFilename = fileLine.getTokenValue("midi_aliases")
                             if (aliasFilename == null || aliasFilename.trim().isEmpty()) {
                                 throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
                             }
@@ -81,7 +84,7 @@ class MIDIAliasFile : CachedCloudFile {
                                 if (component != null)
                                     currentAliasComponents.add(component)
                             } else {
-                                currentAliasName = CachedCloudFile.getTokenValue(line, lineNumber, "midi_alias")
+                                currentAliasName = fileLine.getTokenValue("midi_alias")
                                 if (currentAliasName != null) {
                                     if (currentAliasName.contains(":"))
                                         midiParsingErrors.add(FileParseError(lineNumber, BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts)))

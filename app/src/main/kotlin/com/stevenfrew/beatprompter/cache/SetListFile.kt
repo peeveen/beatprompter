@@ -3,6 +3,8 @@ package com.stevenfrew.beatprompter.cache
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.parse.FileLine
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -27,10 +29,6 @@ class SetListFile : CachedCloudFile {
         parseSetListFileInfo()
     }
 
-    private fun getSetNameFromLine(line: String, lineNumber: Int): String? {
-        return getTokenValue(line, lineNumber, "set")
-    }
-
     @Throws(InvalidBeatPrompterFileException::class)
     private fun parseSetListFileInfo() {
         var br: BufferedReader? = null
@@ -42,14 +40,13 @@ class SetListFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    line = line.trim()
-                    if (line.startsWith("#"))
+                    val fileLine= FileLine(line, ++lineNumber)
+                    if(fileLine.isComment)
                         continue
                     if (setTitle == null || setTitle.isEmpty())
-                        setTitle = getSetNameFromLine(line, lineNumber)
+                        setTitle = fileLine.getTokenValue("set")
                     else
                         mSongTitles.add(line)
-                    ++lineNumber
                 }
             } while(line!=null)
 

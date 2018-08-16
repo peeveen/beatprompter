@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.BaseEvent
 import com.stevenfrew.beatprompter.songload.CancelEvent
@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
 class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?,
-           internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment>,firstEvent: BaseEvent,
+           internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment>, firstEvent: BaseEvent,
            firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode,
            internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?,
            internal var mOrientation: Int, internal var mInitialMIDIMessages: List<OutgoingMessage>,

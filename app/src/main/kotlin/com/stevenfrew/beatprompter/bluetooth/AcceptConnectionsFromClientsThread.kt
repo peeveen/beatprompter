@@ -25,18 +25,14 @@ class AcceptConnectionsFromClientsThread internal constructor(private val mBluet
                         } catch (e: IOException) {
                             Log.e(BluetoothManager.BLUETOOTH_TAG, "Error creating Bluetooth socket.", e)
                         }
-
                     }
                     serverSocket = mmServerSocket
                 }
 
-                if (serverSocket != null) {
-                    val acceptedSocket: BluetoothSocket? = serverSocket!!.accept(2000)
-                    // If a connection was accepted
-                    if (acceptedSocket != null) {
-                        // Do work to manage the connection (in a separate thread)
-                        BluetoothManager.handleConnectionFromClient(acceptedSocket)
-                    }
+                // If a connection was accepted
+                // Do work to manage the connection (in a separate thread)
+                serverSocket?.accept(2000)?.also{
+                    BluetoothManager.handleConnectionFromClient(it)
                 }
             } catch (e: IOException) {
                 //Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);

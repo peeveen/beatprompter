@@ -3,6 +3,9 @@ package com.stevenfrew.beatprompter.cache
 import android.media.MediaMetadataRetriever
 import android.util.Log
 import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.cache.parse.FileLine
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import org.w3c.dom.Document
@@ -92,86 +95,6 @@ class SongFile : CachedCloudFile {
             mSongSelectTrigger = SongTrigger.readFromXMLElement(ssTriggerNodes.item(f) as Element)
     }
 
-    private fun getTitleFromLine(line: String, lineNumber: Int): String? {
-        return getTokenValue(line, lineNumber, "title", "t")
-    }
-
-    private fun getKeyFromLine(line: String, lineNumber: Int): String? {
-        return getTokenValue(line, lineNumber, "key")
-    }
-
-    private fun getFirstChordFromLine(line: String, lineNumber: Int): String? {
-        val tagsOut = ArrayList<Tag>()
-        Tag.extractTags(line, lineNumber, tagsOut)
-        for (t in tagsOut) {
-            if (t.mChordTag)
-                if (Utils.isChord(t.mName.trim()))
-                    return t.mName.trim()
-        }
-        return null
-    }
-
-    private fun getArtistFromLine(line: String, lineNumber: Int): String? {
-        return getTokenValue(line, lineNumber, "artist", "a", "subtitle", "st")
-    }
-
-    private fun getBPMFromLine(line: String, lineNumber: Int): String? {
-        return getTokenValue(line, lineNumber, "bpm", "beatsperminute", "metronome")
-    }
-
-    private fun getTagsFromLine(line: String, lineNumber: Int): List<String> {
-        return getTokenValues(line, lineNumber, "tag")
-    }
-
-    private fun getMIDISongSelectTriggerFromLine(line: String, lineNumber: Int): SongTrigger? {
-        return getMIDITriggerFromLine(line, lineNumber, true)
-    }
-
-    private fun getMIDIProgramChangeTriggerFromLine(line: String, lineNumber: Int): SongTrigger? {
-        return getMIDITriggerFromLine(line, lineNumber, false)
-    }
-
-    private fun getMIDITriggerFromLine(line: String, lineNumber: Int, songSelectTrigger: Boolean): SongTrigger? {
-        val `val` = getTokenValue(line, lineNumber, if (songSelectTrigger) "midi_song_select_trigger" else "midi_program_change_trigger")
-        if (`val` != null)
-            try {
-                return SongTrigger.parse(`val`, songSelectTrigger, lineNumber, ArrayList())
-            } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to parse MIDI song trigger from song file.", e)
-            }
-
-        return null
-    }
-
-    private fun getAudioFilesFromLine(line: String, lineNumber: Int): List<String> {
-        val audio = ArrayList<String>()
-        audio.addAll(getTokenValues(line, lineNumber, "audio"))
-        audio.addAll(getTokenValues(line, lineNumber, "track"))
-        audio.addAll(getTokenValues(line, lineNumber, "musicpath"))
-        val realAudio = ArrayList<String>()
-        for (str in audio) {
-            var audioString=str
-            val index = audioString.indexOf(":")
-            if (index != -1 && index < audioString.length - 1)
-                audioString = audioString.substring(0, index)
-            realAudio.add(audioString)
-        }
-        return realAudio
-    }
-
-    private fun getImageFilesFromLine(line: String, lineNumber: Int): ArrayList<String> {
-        val image = ArrayList(getTokenValues(line, lineNumber, "image"))
-        val realimage = ArrayList<String>()
-        for (str in image) {
-            var imageString=str
-            val index = imageString.indexOf(":")
-            if (index != -1 && index < imageString.length - 1)
-                imageString = imageString.substring(0, index)
-            realimage.add(imageString)
-        }
-        return realimage
-    }
-
     @Throws(InvalidBeatPrompterFileException::class)
     private fun parseSongFileInfo(tempAudioFileCollection: ArrayList<AudioFile>, tempImageFileCollection: ArrayList<ImageFile>) {
         var br: BufferedReader? = null
@@ -185,41 +108,42 @@ class SongFile : CachedCloudFile {
             var lineNumber = 0
             do {
                 line = br.readLine()
-                if(line!=null) {
+                if(line!=null)
+                {
+                    val fileLine= FileLine(line, ++lineNumber)
                     if(title==null)
-                        title = getTitleFromLine(line, lineNumber)
-                    val artist = getArtistFromLine(line, lineNumber)
-                    val key = getKeyFromLine(line, lineNumber)
-                    val firstChord = getFirstChordFromLine(line, lineNumber)
+                        title = fileLine.getTitle()
+                    val artist = fileLine.getArtist()
+                    val key = fileLine.getKey()
+                    val firstChord = fileLine.getFirstChord()
                     if ((mKey.isBlank()) && firstChord != null && firstChord.isNotEmpty())
                         mKey = firstChord
-                    val msst = getMIDISongSelectTriggerFromLine(line, lineNumber)
-                    val mpct = getMIDIProgramChangeTriggerFromLine(line, lineNumber)
+                    val msst = fileLine.getMIDISongSelectTrigger()
+                    val mpct = fileLine.getMIDIProgramChangeTrigger()
                     if (msst != null)
                         mSongSelectTrigger = msst
                     if (mpct != null)
                         mProgramChangeTrigger = mpct
-                    val bpm = getBPMFromLine(line, lineNumber)
                     if (key != null)
                         mKey = key
                     if (artist != null)
                         mArtist = artist
+                    val bpm = fileLine.getBPM()
                     if (bpm != null && mBPM == 0.0) {
                         try {
-                            mBPM = java.lang.Double.parseDouble(bpm)
+                            mBPM = bpm.toDouble()
                         } catch (e: Exception) {
                             Log.e(BeatPrompterApplication.TAG, "Failed to parse BPM value from song file.", e)
                         }
 
                     }
-                    mMixedMode = mMixedMode or containsToken(line, lineNumber, "beatstart")
-                    val tags = getTagsFromLine(line, lineNumber)
+                    mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
+                    val tags = fileLine.getTags()
                     mTags.addAll(tags)
-                    val audio = getAudioFilesFromLine(line, lineNumber)
-                    mAudioFiles.addAll(audio)
-                    val image = getImageFilesFromLine(line, lineNumber)
-                    mImageFiles.addAll(image)
-                    ++lineNumber
+                    val audios = fileLine.getAudioFiles()
+                    mAudioFiles.addAll(audios)
+                    val images = fileLine.getImageFiles()
+                    mImageFiles.addAll(images)
                 }
             } while(line!=null)
             mLines = lineNumber
@@ -236,7 +160,6 @@ class SongFile : CachedCloudFile {
             } catch (ioe: IOException) {
                 Log.e(BeatPrompterApplication.TAG, "Failed to close song file.", ioe)
             }
-
         }
     }
 
@@ -299,38 +222,28 @@ class SongFile : CachedCloudFile {
             var lineImage: ImageFile? = null
             var lineNumber = 0
             val errors = ArrayList<FileParseError>()
-            val tagsOut = ArrayList<Tag>()
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    line = line.trim()
-                    lineNumber++
+                    val fileLine= FileLine(line, ++lineNumber)
                     // Ignore comments.
-                    if (!line.startsWith("#")) {
-                        tagsOut.clear()
-                        var strippedLine = Tag.extractTags(line, lineNumber, tagsOut)
-                        // Replace stupid unicode BOM character
-                        strippedLine = strippedLine.replace("\uFEFF", "")
-                        var chordsFound = false
+                    if (!fileLine.isComment) {
+                        var strippedLine = fileLine.mTaglessLine
+                        val chordsFound = fileLine.chordTags.isNotEmpty()
                         var barsTag = 0
-                        for (tag in tagsOut) {
-                            // Not bothered about chords at the moment.
-                            if (tag.mChordTag) {
-                                chordsFound = true
-                                continue
-                            }
-
-                            when (tag.mName) {
-                                "time" -> songTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, true, errors).toLong()
-                                "pause" -> pauseTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, false, errors).toLong()
-                                "bars", "b" -> barsTag = Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors)
-                                "bpl", "barsperline" -> barsPerLine = Tag.getIntegerValueFromTag(tag, bplMin, bplMax, bplDefault, errors)
+                        // Not bothered about chords at the moment.
+                        fileLine.mTags.filterNot { it.isChord }.forEach{
+                            when (it.mName) {
+                                "time" -> songTime = it.getDurationValue( 1000, 60 * 60 * 1000, 0, true, errors).toLong()
+                                "pause" -> pauseTime = it.getDurationValue( 1000, 60 * 60 * 1000, 0, false, errors).toLong()
+                                "bars", "b" -> barsTag = it.getIntegerValue( 1, 128, 1, errors)
+                                "bpl", "barsperline" -> barsPerLine = it.getIntegerValue(bplMin, bplMax, bplDefault, errors)
                                 "image" -> {
                                     if (lineImage != null) {
-                                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
+                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
                                     }
                                     else {
-                                        var imageName = tag.mValue
+                                        var imageName = it.mValue
                                         val colonindex = imageName.indexOf(":")
                                         if (colonindex != -1 && colonindex < imageName.length - 1)
                                             imageName = imageName.substring(0, colonindex)
@@ -338,11 +251,11 @@ class SongFile : CachedCloudFile {
                                         val imageFile: File
                                         var mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image, tempImageFileCollection)
                                         if (mappedImage == null)
-                                            errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
+                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
                                         else {
                                             imageFile = File(mFile.parent, mappedImage.mFile.name)
                                             if (!imageFile.exists()) {
-                                                errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
+                                                errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
                                                 mappedImage = null
                                             }
                                         }
@@ -350,7 +263,7 @@ class SongFile : CachedCloudFile {
                                     }
                                 }
                                 "track", "audio", "musicpath" -> {
-                                    var trackName = tag.mValue
+                                    var trackName = it.mValue
                                     val trackColonindex = trackName.indexOf(":")
                                     // volume?
                                     if (trackColonindex != -1 && trackColonindex < trackName.length - 1)
@@ -359,11 +272,11 @@ class SongFile : CachedCloudFile {
                                     var trackFile: File? = null
                                     val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track, tempAudioFileCollection)
                                     if (mappedTrack == null) {
-                                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
+                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
                                     } else {
                                         trackFile = File(mFile.parent, mappedTrack.mFile.name)
                                         if (!trackFile.exists()) {
-                                            errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
+                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
                                             trackFile = null
                                         }
                                     }

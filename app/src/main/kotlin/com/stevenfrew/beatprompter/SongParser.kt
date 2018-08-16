@@ -5,6 +5,9 @@ import android.graphics.Paint
 import android.os.Handler
 import android.util.Log
 import com.stevenfrew.beatprompter.cache.*
+import com.stevenfrew.beatprompter.cache.parse.FileLine
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.CancelEvent
@@ -133,7 +136,6 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
         try {
             var line: String?=""
 
-            var tagsOut = mutableListOf<Tag>()
             val tagsSet = HashSet<String>()
 
             // ONE SHOT
@@ -180,450 +182,389 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             while (line!=null && !mCancelEvent.isCancelled) {
                 line = br.readLine()
                 if(line!=null) {
+                    val fileLine= FileLine(line, ++lineCounter, errors)
                     var beatStartOrStopFoundOnThisLine = false
-                    line = line.trim()
                     pauseTime = 0
-                    lineCounter++
                     // Ignore comments.
-                    if (!line.startsWith("#")) {
-                        if (line.length > MAX_LINE_LENGTH) {
-                            line = line.substring(0, MAX_LINE_LENGTH)
-                            errors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.lineTooLong, lineCounter, MAX_LINE_LENGTH)))
-                        }
-                        tagsOut.clear()
-                        var strippedLine = Tag.extractTags(line, lineCounter, tagsOut)
-                        // Replace stupid unicode BOM character
-                        strippedLine = strippedLine.replace("\uFEFF", "")
-                        var chordsFound = false
-                        var scrollbeatOffset = 0
-                        for (tag in tagsOut) {
-                            // Not bothered about chords at the moment.
-                            if (tag.mChordTag) {
-                                chordsFound = true
-                                continue
-                            }
+                    if(fileLine.isComment)
+                        continue
 
-                            if (Tag.colorTags.contains(tag.mName) && !mIgnoreColorInfo)
-                                createColorEvent = true
-                            if (Tag.oneShotTags.contains(tag.mName) && tagsSet.contains(tag.mName))
-                                errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice, tag.mName)))
+                    var scrollbeatOffset = 0
+                    fileLine.mTags.filterNot{it.isChord}.forEach {
+                        if (it.isColorTag && !mIgnoreColorInfo)
+                            createColorEvent = true
+                        if (it.isOneShotTag && tagsSet.contains(it.mName))
+                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.oneShotTagDefinedTwice, it.mName)))
 
-                            val commentAudience=tag.parsePotentialCommentTag()
+                        val commentAudience=it.parsePotentialCommentTag()
 
-                            when (tag.mName) {
-                                "image" -> {
-                                    if (lineImage != null) {
-                                        errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
-                                    }
-                                    else {
-                                        var imageName = tag.mValue
-                                        val colonindex = imageName.indexOf(":")
-                                        imageScalingMode = ImageScalingMode.Stretch
-                                        if (colonindex != -1 && colonindex < imageName.length - 1) {
-                                            val strScalingMode = imageName.substring(colonindex + 1)
-                                            imageName = imageName.substring(0, colonindex)
-                                            when {
-                                                strScalingMode.equals("stretch", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Stretch
-                                                strScalingMode.equals("original", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Original
-                                                else -> errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)))
-                                            }
-                                        }
-                                        val image = File(imageName).name
-                                        val imageFile: File
-                                        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image)
-                                        if (mappedImage == null)
-                                            errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                        else {
-                                            imageFile = File(mSongFile.mFile.parent, mappedImage.mFile.name)
-                                            if (!imageFile.exists())
-                                                errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
-                                        }
-                                        lineImage = mappedImage
-                                    }
-                                }
-                                "track", "audio", "musicpath" -> {
-                                    var trackName = tag.mValue
-                                    var volume = mDefaultTrackVolume
-                                    val trackcolonindex = trackName.indexOf(":")
-                                    if (trackcolonindex != -1 && trackcolonindex < trackName.length - 1) {
-                                        val strVolume = trackName.substring(trackcolonindex + 1)
-                                        trackName = trackName.substring(0, trackcolonindex)
-                                        try {
-                                            val tryvolume = Integer.parseInt(strVolume)
-                                            if (tryvolume < 0 || tryvolume > 100)
-                                                errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
-                                            else
-                                                volume = (volume.toDouble() * (tryvolume.toDouble() / 100.0)).toInt()
-                                        } catch (nfe: NumberFormatException) {
-                                            errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
-                                        }
-                                    }
-                                    val track = File(trackName).name
-                                    var trackFile: File? = null
-                                    val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track)
-                                    if (mappedTrack == null)
-                                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                    else {
-                                        trackFile = File(mSongFile.mFile.parent, mappedTrack.mFile.name)
-                                        if (!trackFile.exists()) {
-                                            errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
-                                            trackFile = null
-                                        }
-                                    }
-                                    if (trackFile != null && track.equals(chosenTrack, ignoreCase = true)) {
-                                        chosenAudioFile = mappedTrack
-                                        chosenAudioVolume = volume
-                                    }
-                                }
-                                "send_midi_clock" -> mSendMidiClock = true
-                                "count", "countin" -> count = Tag.getIntegerValueFromTag(tag, mCountInMin, mCountInMax, mCountInDefault, errors)
-                                //                            case "trackoffset":
-                                //                                trackOffset=Tag.getLongValueFromTag(tag, trackOffsetMin, trackOffsetMax, trackOffsetDefault, errors);
-                                //                                break;
-                                "backgroundcolour", "backgroundcolor", "bgcolour", "bgcolor" -> mBackgroundColour = Tag.getColourValueFromTag(tag, mBackgroundColour, errors)
-                                "pulsecolour", "pulsecolor", "beatcolour", "beatcolor" -> mPulseColour = Tag.getColourValueFromTag(tag, mPulseColour, errors)
-                                "lyriccolour", "lyriccolor", "lyricscolour", "lyricscolor" -> mLyricColour = Tag.getColourValueFromTag(tag, mLyricColour, errors)
-                                "chordcolour", "chordcolor" -> mChordColour = Tag.getColourValueFromTag(tag, mChordColour, errors)
-                                "beatcountercolour", "beatcountercolor" -> mBeatCounterColour = Tag.getColourValueFromTag(tag, mBeatCounterColour, errors)
-                                "bpm", "metronome", "beatsperminute" -> bpm = Tag.getDoubleValueFromTag(tag, mBPMMin.toDouble(), mBPMMax.toDouble(), mBPMDefault.toDouble(), errors)
-                                "bpb", "beatsperbar" -> {
-                                    val prevScrollBeatDiff = bpb - scrollBeat
-                                    bpb = Tag.getIntegerValueFromTag(tag, mBPBMin, mBPBMax, mBPBDefault, errors)
-                                    if (!initialBPBSet) {
-                                        initialBPB = bpb
-                                        initialBPBSet = true
-                                    }
-                                    scrollBeatDefault = bpb
-                                    if (bpb - prevScrollBeatDiff > 0)
-                                        scrollBeat = bpb - prevScrollBeatDiff
-                                    if (scrollBeat > bpb)
-                                        scrollBeat = bpb
-                                }
-                                "bpl", "barsperline" -> bpl = Tag.getIntegerValueFromTag(tag, mBPLMin, mBPLMax, mBPLDefault, errors)
-                                "scrollbeat", "sb" -> {
-                                    scrollBeat = Tag.getIntegerValueFromTag(tag, scrollBeatMin, bpb, scrollBeatDefault, errors)
-                                    if (scrollBeat > bpb)
-                                        scrollBeat = bpb
-                                }
-                                "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
-                                    val comment = Comment(tag.mValue,commentAudience)
-                                    if (stopAddingStartupItems) {
-                                        val ce = CommentEvent(currentTime, comment)
-                                        if (firstEvent == null)
-                                            firstEvent = ce
-                                        else
-                                            lastEvent!!.add(ce)
-                                        lastEvent = ce
-                                    } else {
-                                        if (comment.isIntendedFor(mCustomCommentsUser))
-                                            comments.add(comment)
-                                    }
-                                }
-                                "pause" -> pauseTime = Tag.getDurationValueFromTag(tag, 1000, 60 * 60 * 1000, 0, false, errors)
-                                "midi_song_select_trigger", "midi_program_change_trigger" ->
-                                    // Don't need the value after the song is loaded, we're just showing informational
-                                    // errors about bad formatting.
-                                    Tag.verifySongTriggerFromTag(tag, errors)
-                                "time", "tag", "bars", "soh", "eoh", "b", "title", "t", "artist", "a", "subtitle", "st", "key" -> {
-                                }
-                                "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype" -> {
-                                }
-                                "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {
-                                }
-                                "beatstart" -> {
-                                    if (beatStartOrStopFoundOnThisLine) {
-                                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
-                                    }
-                                    else {
-                                        beatStartOrStopFoundOnThisLine = true
-                                        if (mCurrentScrollMode === ScrollingMode.Manual)
-                                            mCurrentScrollMode = ScrollingMode.Beat
-                                        else if (mSongFile.mBPM == 0.0)
-                                            errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
-                                    }
-                                }
-                                "beatstop" -> {
-                                    if (beatStartOrStopFoundOnThisLine) {
-                                        errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
-                                    }
-                                    else {
-                                        beatStartOrStopFoundOnThisLine = true
-                                        if (mCurrentScrollMode === ScrollingMode.Beat) {
-                                            mCurrentScrollMode = ScrollingMode.Manual
-                                            currentTime += BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS
-                                        }
-                                    }
-                                }
-                                else -> try {
-                                    if (displayLineCounter < DEMO_LINE_COUNT || mRegistered) {
-                                        val me = Tag.getMIDIEventFromTag(currentTime, tag, SongList.midiAliases, mDefaultMIDIOutputChannel, errors)
-                                        if (me != null) {
-                                            if (stopAddingStartupItems) {
-                                                if (firstEvent == null)
-                                                    firstEvent = me
-                                                else
-                                                    lastEvent!!.add(me)
-                                                lastEvent = me
-                                            } else {
-                                                initialMIDIMessages.addAll(me.mMessages)
-                                                if (me.mOffset != EventOffset.NoOffset)
-                                                    errors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
-                                            }
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    errors.add(FileParseError(tag, e.message))
-                                }
-
-                            }// Dealt with in pre-parsing.
-                            // ChordPro stuff we're not supporting.
-                            // SongBook stuff we're not supporting.
-                            tagsSet.add(tag.mName)
-                        }
-                        var createLine = false
-                        var allowBlankLine = false
-                        if (!mShowChords && chordsFound) {
-                            chordsFound = false
-                            allowBlankLine = true
-                            val noChordsTags = mutableListOf<Tag>()
-                            for (tag in tagsOut)
-                                if (!tag.mChordTag)
-                                    noChordsTags.add(tag)
-                            tagsOut = noChordsTags
-                        }
-                        if (strippedLine.trim().isNotEmpty() || allowBlankLine || chordsFound || lineImage != null)
-                            createLine = true
-
-                        // Contains only tags? Or contains nothing? Don't use it as a blank line.
-                        if (createLine || pauseTime > 0) {
-                            // We definitely have a line event!
-                            // Deal with style/time/comment events now.
-                            if (createColorEvent) {
-                                val styleEvent = ColorEvent(currentTime, mBackgroundColour, mPulseColour, mLyricColour, mChordColour, mAnnotationColour, mBeatCounterColour, mScrollMarkerColour)
-                                if (currentTime == 0L && firstEvent != null) {
-                                    // First event should ALWAYS be a color event.
-                                    val oldFirstEvent = firstEvent
-                                    firstEvent = styleEvent
-                                    firstEvent.add(oldFirstEvent)
-                                } else {
-                                    if (firstEvent == null)
-                                        firstEvent = styleEvent
-                                    else
-                                        lastEvent!!.add(styleEvent)
-                                    lastEvent = styleEvent
-                                }
-                                createColorEvent = false
-                            }
-
-                            if (lastEvent!!.mPrevLineEvent == null) {
-                                // There haven't been any line events yet.
-                                // So the comments that have been gathered up until now
-                                // can just be shown on the song startup screen.
-                                stopAddingStartupItems = true
-                            }
-
-                            var bars = 0
-                            var commasFound = false
-                            while (strippedLine.startsWith(",")) {
-                                commasFound = true
-                                strippedLine = strippedLine.substring(1)
-                                for (tag in tagsOut)
-                                    if (tag.mPosition > 0)
-                                        tag.mPosition--
-                                bars++
-                            }
-                            bars = Math.max(1, bars)
-
-                            val bpbThisLine = bpb
-                            while (strippedLine.endsWith(">") || strippedLine.endsWith("<")/*||(strippedLine.endsWith("+"))||(strippedLine.endsWith("_"))*/) {
-                                if (strippedLine.endsWith(">"))
-                                    scrollbeatOffset++
-                                else if (strippedLine.endsWith("<"))
-                                    scrollbeatOffset--
-                                /*                            else if(strippedLine.endsWith("+")) {
-                                scrollbeatOffset++;
-                                bpbThisLine++;
-                            }
-                            else if(strippedLine.endsWith("_")) {
-                                scrollbeatOffset--;
-                                bpbThisLine--;
-                            }*/
-                                strippedLine = strippedLine.substring(0, strippedLine.length - 1)
-                                for (tag in tagsOut)
-                                    if (tag.mPosition > strippedLine.length)
-                                        tag.mPosition--
-                            }
-
-                            if (scrollbeatOffset < -bpbThisLine || scrollbeatOffset >= bpbThisLine) {
-                                errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
-                                scrollbeatOffset = 0
-                            }
-                            if (!commasFound)
-                                bars = bpl
-
-                            if (lineImage != null && (strippedLine.trim().isNotEmpty() || chordsFound))
-                                errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.text_found_with_image)))
-
-                            if (strippedLine.trim().isEmpty() && !chordsFound)
-                                strippedLine = "▼"
-
-                            //                        if((firstLine==null)&&(smoothScrolling))
-                            //                            pauseTime+=defaultPausePref*1000;
-
-                            if (createLine) {
-                                displayLineCounter++
-                                if (displayLineCounter > DEMO_LINE_COUNT && !mRegistered) {
-                                    tagsOut = mutableListOf()
-                                    strippedLine = BeatPrompterApplication.getResourceString(R.string.please_buy)
-                                    lineImage = null
-                                }
-                                var lastLine: Line? = null
-                                if (lastEvent.mPrevLineEvent != null)
-                                    lastLine = lastEvent.mPrevLineEvent!!.mLine
-                                var lastScrollbeatOffset = 0
-                                var lastBPB = bpbThisLine
-                                var lastScrollbeat = scrollBeatDefault
-                                if (lastLine != null) {
-                                    lastBPB = lastLine.mBPB
-                                    lastScrollbeatOffset = lastLine.mScrollbeatOffset
-                                    lastScrollbeat = lastLine.mScrollbeat
-                                }
-                                val scrollbeatDifference = scrollBeat - bpbThisLine - (lastScrollbeat - lastBPB)
-
-                                for (tag in tagsOut)
-                                    if (!tag.mChordTag)
-                                        if (tag.mName == "b" || tag.mName == "bars")
-                                            bars = Tag.getIntegerValueFromTag(tag, 1, 128, 1, errors)
-                                bars = Math.max(1, bars)
-
-                                var beatsForThisLine = bpbThisLine * bars
-                                val simpleBeatsForThisLine = beatsForThisLine
-                                beatsForThisLine += scrollbeatOffset
-                                beatsForThisLine += scrollbeatDifference
-                                beatsForThisLine -= lastScrollbeatOffset
-
-                                nanosecondsPerBeat = if (bpm > 0)
-                                    Utils.nanosecondsPerBeat(bpm)
-                                else
-                                    0
-
-                                var totalLineTime: Long
-                                totalLineTime = if (pauseTime > 0)
-                                    Utils.milliToNano(pauseTime)
-                                else
-                                    beatsForThisLine * nanosecondsPerBeat
-                                if (totalLineTime == 0L || mCurrentScrollMode === ScrollingMode.Smooth)
-                                    totalLineTime = timePerBar * bars
-
-                                val lineObj: Line
+                        when (it.mName) {
+                            "image" -> {
                                 if (lineImage != null) {
-                                    lineObj = ImageLine(currentTime, totalLineTime, lineImage, imageScalingMode, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
-                                    lineImage = null
-                                } else
-                                    lineObj = TextLine(currentTime, totalLineTime, strippedLine, tagsOut, bars, lastEvent.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
-
-                                lastLine?.insertAfter(lineObj)
-                                val lineEvent = lineObj.mLineEvent
-                                if (firstLine == null)
-                                    firstLine = lineObj
-                                lastEvent.insertEvent(lineEvent)
-
-                                // generate beats ...
-
-                                // if a pause is specified on a line, it replaces the actual beats for that line.
-                                if (pauseTime > 0) {
-                                    currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
-                                    lastEvent = lastEvent.lastEvent
-                                    lineEvent.mLine.mYStartScrollTime = currentTime - nanosecondsPerBeat
-                                    lineEvent.mLine.mYStopScrollTime = currentTime
-                                } else if (bpm > 0 && mCurrentScrollMode !== ScrollingMode.Smooth) {
-                                    var finished = false
-                                    var beatThatWeWillScrollOn = 0
-                                    val rolloverBeatCount = rolloverBeats.size
-                                    val beatsToAdjustCount = beatsToAdjust
-                                    if (beatsToAdjust > 0) {
-                                        // We have N beats to adjust.
-                                        // For the previous N beatevents, set the BPB to the new BPB.
-                                        var lastBeatEvent = lastEvent.mPrevBeatEvent
-                                        while (lastBeatEvent != null && beatsToAdjust > 0) {
-                                            lastBeatEvent.mBPB = bpbThisLine
-                                            beatsToAdjust--
-                                            lastBeatEvent = if (lastBeatEvent.mPrevEvent != null)
-                                                lastBeatEvent.mPrevEvent!!.mPrevBeatEvent
-                                            else
-                                                null
-                                        }
-                                        beatsToAdjust = 0
-                                    }
-
-                                    var currentBarBeat = 0
-                                    while (!finished && currentBarBeat < beatsForThisLine) {
-                                        val beatsRemaining = beatsForThisLine - currentBarBeat
-                                        beatThatWeWillScrollOn = if (beatsRemaining > bpbThisLine)
-                                            -1
-                                        else
-                                            (currentBeat + (beatsRemaining - 1)) % bpbThisLine
-                                        val beatEvent: BeatEvent
-                                        var rolloverBPB = 0
-                                        var rolloverBeatLength: Long = 0
-                                        if (rolloverBeats.isEmpty())
-                                            beatEvent = BeatEvent(currentTime, bpm, bpbThisLine, bpl, currentBeat, metronomeOn, beatThatWeWillScrollOn)
-                                        else {
-                                            beatEvent = rolloverBeats[0]
-                                            beatEvent.mWillScrollOnBeat = beatThatWeWillScrollOn
-                                            rolloverBPB = beatEvent.mBPB
-                                            rolloverBeatLength = Utils.nanosecondsPerBeat(beatEvent.mBPM)
-                                            rolloverBeats.removeAt(0)
-                                        }
-                                        lastEvent.insertEvent(beatEvent)
-                                        val beatTimeLength = if (rolloverBeatLength == 0L) nanosecondsPerBeat else rolloverBeatLength
-                                        val nanoPerBeat = beatTimeLength / 4.0
-                                        // generate MIDI beats.
-                                        if (lastBeatBlock == null || nanoPerBeat != lastBeatBlock.nanoPerBeat) {
-                                            lastBeatBlock = BeatBlock(beatEvent.mEventTime, midiBeatCounter++, nanoPerBeat)
-                                            val beatBlock = lastBeatBlock
-                                            beatBlocks.add(beatBlock)
-                                        }
-
-                                        if (currentBarBeat == beatsForThisLine - 1) {
-                                            lineEvent.mLine.mYStartScrollTime = if (mCurrentScrollMode === ScrollingMode.Smooth) lineEvent.mEventTime else currentTime
-                                            lineEvent.mLine.mYStopScrollTime = currentTime + nanosecondsPerBeat
-                                            finished = true
-                                        }
-                                        currentTime += beatTimeLength
-                                        currentBeat++
-                                        if (currentBeat == (if (rolloverBPB > 0) rolloverBPB else bpbThisLine))
-                                            currentBeat = 0
-                                        ++currentBarBeat
-                                    }
-
-                                    beatsForThisLine -= rolloverBeatCount
-                                    beatsForThisLine += beatsToAdjustCount
-                                    if (beatsForThisLine > simpleBeatsForThisLine) {
-                                        // We need to store some information so that the next line can adjust the rollover beats.
-                                        beatsToAdjust = beatsForThisLine - simpleBeatsForThisLine
-                                    } else if (beatsForThisLine < simpleBeatsForThisLine) {
-                                        // We need to generate a few beats to store for the next line to use.
-                                        rolloverBeats.clear()
-                                        var rolloverCurrentBeat = currentBeat
-                                        var rolloverCurrentTime = currentTime
-                                        for (f in beatsForThisLine until simpleBeatsForThisLine) {
-                                            rolloverBeats.add(BeatEvent(rolloverCurrentTime, bpm, bpbThisLine, bpl, rolloverCurrentBeat++, metronomeOn, beatThatWeWillScrollOn))
-                                            rolloverCurrentTime += nanosecondsPerBeat
-                                            if (rolloverCurrentBeat == bpbThisLine)
-                                                rolloverCurrentBeat = 0
-                                        }
-                                    }
-                                } else {
-                                    lineEvent.mLine.mYStartScrollTime = currentTime
-                                    currentTime += totalLineTime
-                                    lineEvent.mLine.mYStopScrollTime = currentTime
+                                    errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.multiple_images_in_one_line)))
                                 }
-                            } else if (pauseTime > 0)
-                                currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
-
-                            lastEvent = lastEvent.lastEvent
+                                else {
+                                    var imageName = it.mValue
+                                    val colonindex = imageName.indexOf(":")
+                                    imageScalingMode = ImageScalingMode.Stretch
+                                    if (colonindex != -1 && colonindex < imageName.length - 1) {
+                                        val strScalingMode = imageName.substring(colonindex + 1)
+                                        imageName = imageName.substring(0, colonindex)
+                                        when {
+                                            strScalingMode.equals("stretch", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Stretch
+                                            strScalingMode.equals("original", ignoreCase = true) -> imageScalingMode = ImageScalingMode.Original
+                                            else -> errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode)))
+                                        }
+                                    }
+                                    val image = File(imageName).name
+                                    val imageFile: File
+                                    val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image)
+                                    if (mappedImage == null)
+                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
+                                    else {
+                                        imageFile = File(mSongFile.mFile.parent, mappedImage.mFile.name)
+                                        if (!imageFile.exists())
+                                            errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image)))
+                                    }
+                                    lineImage = mappedImage
+                                }
+                            }
+                            "track", "audio", "musicpath" -> {
+                                var trackName = it.mValue
+                                var volume = mDefaultTrackVolume
+                                val trackcolonindex = trackName.indexOf(":")
+                                if (trackcolonindex != -1 && trackcolonindex < trackName.length - 1) {
+                                    val strVolume = trackName.substring(trackcolonindex + 1)
+                                    trackName = trackName.substring(0, trackcolonindex)
+                                    try {
+                                        val tryvolume = Integer.parseInt(strVolume)
+                                        if (tryvolume < 0 || tryvolume > 100)
+                                            errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
+                                        else
+                                            volume = (volume.toDouble() * (tryvolume.toDouble() / 100.0)).toInt()
+                                    } catch (nfe: NumberFormatException) {
+                                        errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.badAudioVolume)))
+                                    }
+                                }
+                                val track = File(trackName).name
+                                var trackFile: File? = null
+                                val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track)
+                                if (mappedTrack == null)
+                                    errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
+                                else {
+                                    trackFile = File(mSongFile.mFile.parent, mappedTrack.mFile.name)
+                                    if (!trackFile.exists()) {
+                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track)))
+                                        trackFile = null
+                                    }
+                                }
+                                if (trackFile != null && track.equals(chosenTrack, ignoreCase = true)) {
+                                    chosenAudioFile = mappedTrack
+                                    chosenAudioVolume = volume
+                                }
+                            }
+                            "send_midi_clock" -> mSendMidiClock = true
+                            "count", "countin" -> count = it.getIntegerValue(mCountInMin, mCountInMax, mCountInDefault, errors)
+                            //                            case "trackoffset":
+                            //                                trackOffset=Tag.getLongValueFromTag(tag, trackOffsetMin, trackOffsetMax, trackOffsetDefault, errors);
+                            //                                break;
+                            "backgroundcolour", "backgroundcolor", "bgcolour", "bgcolor" -> mBackgroundColour = it.getColourValue(mBackgroundColour, errors)
+                            "pulsecolour", "pulsecolor", "beatcolour", "beatcolor" -> mPulseColour = it.getColourValue(mPulseColour, errors)
+                            "lyriccolour", "lyriccolor", "lyricscolour", "lyricscolor" -> mLyricColour = it.getColourValue(mLyricColour, errors)
+                            "chordcolour", "chordcolor" -> mChordColour = it.getColourValue( mChordColour, errors)
+                            "beatcountercolour", "beatcountercolor" -> mBeatCounterColour = it.getColourValue( mBeatCounterColour, errors)
+                            "bpm", "metronome", "beatsperminute" -> bpm = it.getDoubleValue(mBPMMin.toDouble(), mBPMMax.toDouble(), mBPMDefault.toDouble(), errors)
+                            "bpb", "beatsperbar" -> {
+                                val prevScrollBeatDiff = bpb - scrollBeat
+                                bpb = it.getIntegerValue(mBPBMin, mBPBMax, mBPBDefault, errors)
+                                if (!initialBPBSet) {
+                                    initialBPB = bpb
+                                    initialBPBSet = true
+                                }
+                                scrollBeatDefault = bpb
+                                if (bpb - prevScrollBeatDiff > 0)
+                                    scrollBeat = bpb - prevScrollBeatDiff
+                                if (scrollBeat > bpb)
+                                    scrollBeat = bpb
+                            }
+                            "bpl", "barsperline" -> bpl = it.getIntegerValue(mBPLMin, mBPLMax, mBPLDefault, errors)
+                            "scrollbeat", "sb" -> {
+                                scrollBeat = it.getIntegerValue(scrollBeatMin, bpb, scrollBeatDefault, errors)
+                                if (scrollBeat > bpb)
+                                    scrollBeat = bpb
+                            }
+                            "comment", "c", "comment_box", "cb", "comment_italic", "ci" -> {
+                                val comment = Comment(it.mValue,commentAudience)
+                                if (stopAddingStartupItems) {
+                                    val ce = CommentEvent(currentTime, comment)
+                                    if (firstEvent == null)
+                                        firstEvent = ce
+                                    else
+                                        lastEvent!!.add(ce)
+                                    lastEvent = ce
+                                } else {
+                                    if (comment.isIntendedFor(mCustomCommentsUser))
+                                        comments.add(comment)
+                                }
+                            }
+                            "pause" -> pauseTime = it.getDurationValue(1000, 60 * 60 * 1000, 0, false, errors)
+                            "midi_song_select_trigger", "midi_program_change_trigger" ->
+                                // Don't need the value after the song is loaded, we're just showing informational
+                                // errors about bad formatting.
+                                Tag.verifySongTriggerFromTag(it, errors)
+                            "time", "tag", "bars", "soh", "eoh", "b", "title", "t", "artist", "a", "subtitle", "st", "key" -> {
+                            }
+                            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype" -> {
+                            }
+                            "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {
+                            }
+                            "beatstart" -> {
+                                if (beatStartOrStopFoundOnThisLine) {
+                                    errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
+                                }
+                                else {
+                                    beatStartOrStopFoundOnThisLine = true
+                                    if (mCurrentScrollMode === ScrollingMode.Manual)
+                                        mCurrentScrollMode = ScrollingMode.Beat
+                                    else if (mSongFile.mBPM == 0.0)
+                                        errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
+                                }
+                            }
+                            "beatstop" -> {
+                                if (beatStartOrStopFoundOnThisLine) {
+                                    errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
+                                }
+                                else {
+                                    beatStartOrStopFoundOnThisLine = true
+                                    if (mCurrentScrollMode === ScrollingMode.Beat) {
+                                        mCurrentScrollMode = ScrollingMode.Manual
+                                        currentTime += BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS
+                                    }
+                                }
+                            }
+                            else -> try {
+                                if (displayLineCounter < DEMO_LINE_COUNT || mRegistered) {
+                                    val me = it.getMIDIEvent(currentTime, SongList.midiAliases, mDefaultMIDIOutputChannel, errors)
+                                    if (me != null) {
+                                        if (stopAddingStartupItems) {
+                                            if (firstEvent == null)
+                                                firstEvent = me
+                                            else
+                                                lastEvent!!.add(me)
+                                            lastEvent = me
+                                        } else {
+                                            initialMIDIMessages.addAll(me.mMessages)
+                                            if (me.mOffset != EventOffset.NoOffset)
+                                                errors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                errors.add(FileParseError(it, e.message))
+                            }
                         }
+                        tagsSet.add(it.mName)
+                    }
+                    val chordTags=fileLine.chordTags
+                    val nonChordTags=fileLine.nonChordTags
+                    val chordsFound = mShowChords && !chordTags.isEmpty()
+                    val chordsFoundButNotShowingThem=!mShowChords && chordsFound
+                    val tagsToProcess=if (chordsFoundButNotShowingThem) nonChordTags else fileLine.mTags
+                    val createLine= (fileLine.mTaglessLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || lineImage != null)
+
+                    // Contains only tags? Or contains nothing? Don't use it as a blank line.
+                    if (createLine || pauseTime > 0) {
+                        // We definitely have a line event!
+                        // Deal with style/time/comment events now.
+                        if (createColorEvent) {
+                            val styleEvent = ColorEvent(currentTime, mBackgroundColour, mPulseColour, mLyricColour, mChordColour, mAnnotationColour, mBeatCounterColour, mScrollMarkerColour)
+                            if (currentTime == 0L && firstEvent != null) {
+                                // First event should ALWAYS be a color event.
+                                val oldFirstEvent = firstEvent!!
+                                styleEvent.add(oldFirstEvent)
+                                firstEvent = styleEvent
+                            } else {
+                                if (firstEvent == null)
+                                    firstEvent = styleEvent
+                                else
+                                    lastEvent!!.add(styleEvent)
+                                lastEvent = styleEvent
+                            }
+                            createColorEvent = false
+                        }
+
+                        if (lastEvent!!.mPrevLineEvent == null) {
+                            // There haven't been any line events yet.
+                            // So the comments that have been gathered up until now
+                            // can just be shown on the song startup screen.
+                            stopAddingStartupItems = true
+                        }
+
+                        val bpbThisLine = bpb
+
+                        scrollbeatOffset+=fileLine.mScrollbeatDiff
+                        if (scrollbeatOffset < -bpbThisLine || scrollbeatOffset >= bpbThisLine) {
+                            errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
+                            scrollbeatOffset = 0
+                        }
+                        val bars = if (fileLine.mBars==0) bpl else fileLine.mBars
+
+                        var displayLine=fileLine.mTaglessLine
+                        if (lineImage != null && (displayLine.isNotEmpty() || chordsFound))
+                            errors.add(FileParseError(lineCounter, BeatPrompterApplication.getResourceString(R.string.text_found_with_image)))
+
+                        if (displayLine.isEmpty() && !chordsFound)
+                            displayLine = "▼"
+
+                        //                        if((firstLine==null)&&(smoothScrolling))
+                        //                            pauseTime+=defaultPausePref*1000;
+
+                        if (createLine) {
+                            displayLineCounter++
+                            if (displayLineCounter > DEMO_LINE_COUNT && !mRegistered) {
+                                displayLine = BeatPrompterApplication.getResourceString(R.string.please_buy)
+                                lineImage = null
+                            }
+                            var lastLine: Line? = null
+                            if (lastEvent!!.mPrevLineEvent != null)
+                                lastLine = lastEvent!!.mPrevLineEvent!!.mLine
+                            var lastScrollbeatOffset = 0
+                            var lastBPB = bpbThisLine
+                            var lastScrollbeat = scrollBeatDefault
+                            if (lastLine != null) {
+                                lastBPB = lastLine.mBPB
+                                lastScrollbeatOffset = lastLine.mScrollbeatOffset
+                                lastScrollbeat = lastLine.mScrollbeat
+                            }
+                            val scrollbeatDifference = scrollBeat - bpbThisLine - (lastScrollbeat - lastBPB)
+
+                            var beatsForThisLine = bpbThisLine * bars
+                            val simpleBeatsForThisLine = beatsForThisLine
+                            beatsForThisLine += scrollbeatOffset
+                            beatsForThisLine += scrollbeatDifference
+                            beatsForThisLine -= lastScrollbeatOffset
+
+                            nanosecondsPerBeat = if (bpm > 0)
+                                Utils.nanosecondsPerBeat(bpm)
+                            else
+                                0
+
+                            var totalLineTime: Long
+                            totalLineTime = if (pauseTime > 0)
+                                Utils.milliToNano(pauseTime)
+                            else
+                                beatsForThisLine * nanosecondsPerBeat
+                            if (totalLineTime == 0L || mCurrentScrollMode === ScrollingMode.Smooth)
+                                totalLineTime = timePerBar * bars
+
+                            val lineObj: Line
+                            if (lineImage != null) {
+                                lineObj = ImageLine(currentTime, totalLineTime, lineImage!!, imageScalingMode, bars, lastEvent!!.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
+                                lineImage = null
+                            } else
+                                lineObj = TextLine(currentTime, totalLineTime, displayLine, tagsToProcess, bars, lastEvent!!.mPrevColorEvent!!, bpbThisLine, scrollBeat, scrollbeatOffset, mCurrentScrollMode!!)
+
+                            lastLine?.insertAfter(lineObj)
+                            val lineEvent = lineObj.mLineEvent
+                            if (firstLine == null)
+                                firstLine = lineObj
+                            lastEvent!!.insertEvent(lineEvent)
+
+                            // generate beats ...
+
+                            // if a pause is specified on a line, it replaces the actual beats for that line.
+                            if (pauseTime > 0) {
+                                currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
+                                lastEvent = lastEvent!!.lastEvent
+                                lineEvent.mLine.mYStartScrollTime = currentTime - nanosecondsPerBeat
+                                lineEvent.mLine.mYStopScrollTime = currentTime
+                            } else if (bpm > 0 && mCurrentScrollMode !== ScrollingMode.Smooth) {
+                                var finished = false
+                                var beatThatWeWillScrollOn = 0
+                                val rolloverBeatCount = rolloverBeats.size
+                                val beatsToAdjustCount = beatsToAdjust
+                                if (beatsToAdjust > 0) {
+                                    // We have N beats to adjust.
+                                    // For the previous N beatevents, set the BPB to the new BPB.
+                                    var lastBeatEvent = lastEvent!!.mPrevBeatEvent
+                                    while (lastBeatEvent != null && beatsToAdjust > 0) {
+                                        lastBeatEvent.mBPB = bpbThisLine
+                                        beatsToAdjust--
+                                        lastBeatEvent = if (lastBeatEvent.mPrevEvent != null)
+                                            lastBeatEvent.mPrevEvent!!.mPrevBeatEvent
+                                        else
+                                            null
+                                    }
+                                    beatsToAdjust = 0
+                                }
+
+                                var currentBarBeat = 0
+                                while (!finished && currentBarBeat < beatsForThisLine) {
+                                    val beatsRemaining = beatsForThisLine - currentBarBeat
+                                    beatThatWeWillScrollOn = if (beatsRemaining > bpbThisLine)
+                                        -1
+                                    else
+                                        (currentBeat + (beatsRemaining - 1)) % bpbThisLine
+                                    val beatEvent: BeatEvent
+                                    var rolloverBPB = 0
+                                    var rolloverBeatLength: Long = 0
+                                    if (rolloverBeats.isEmpty())
+                                        beatEvent = BeatEvent(currentTime, bpm, bpbThisLine, bpl, currentBeat, metronomeOn, beatThatWeWillScrollOn)
+                                    else {
+                                        beatEvent = rolloverBeats[0]
+                                        beatEvent.mWillScrollOnBeat = beatThatWeWillScrollOn
+                                        rolloverBPB = beatEvent.mBPB
+                                        rolloverBeatLength = Utils.nanosecondsPerBeat(beatEvent.mBPM)
+                                        rolloverBeats.removeAt(0)
+                                    }
+                                    lastEvent!!.insertEvent(beatEvent)
+                                    val beatTimeLength = if (rolloverBeatLength == 0L) nanosecondsPerBeat else rolloverBeatLength
+                                    val nanoPerBeat = beatTimeLength / 4.0
+                                    // generate MIDI beats.
+                                    if (lastBeatBlock == null || nanoPerBeat != lastBeatBlock.nanoPerBeat) {
+                                        lastBeatBlock = BeatBlock(beatEvent.mEventTime, midiBeatCounter++, nanoPerBeat)
+                                        val beatBlock = lastBeatBlock
+                                        beatBlocks.add(beatBlock)
+                                    }
+
+                                    if (currentBarBeat == beatsForThisLine - 1) {
+                                        lineEvent.mLine.mYStartScrollTime = if (mCurrentScrollMode === ScrollingMode.Smooth) lineEvent.mEventTime else currentTime
+                                        lineEvent.mLine.mYStopScrollTime = currentTime + nanosecondsPerBeat
+                                        finished = true
+                                    }
+                                    currentTime += beatTimeLength
+                                    currentBeat++
+                                    if (currentBeat == (if (rolloverBPB > 0) rolloverBPB else bpbThisLine))
+                                        currentBeat = 0
+                                    ++currentBarBeat
+                                }
+
+                                beatsForThisLine -= rolloverBeatCount
+                                beatsForThisLine += beatsToAdjustCount
+                                if (beatsForThisLine > simpleBeatsForThisLine) {
+                                    // We need to store some information so that the next line can adjust the rollover beats.
+                                    beatsToAdjust = beatsForThisLine - simpleBeatsForThisLine
+                                } else if (beatsForThisLine < simpleBeatsForThisLine) {
+                                    // We need to generate a few beats to store for the next line to use.
+                                    rolloverBeats.clear()
+                                    var rolloverCurrentBeat = currentBeat
+                                    var rolloverCurrentTime = currentTime
+                                    for (f in beatsForThisLine until simpleBeatsForThisLine) {
+                                        rolloverBeats.add(BeatEvent(rolloverCurrentTime, bpm, bpbThisLine, bpl, rolloverCurrentBeat++, metronomeOn, beatThatWeWillScrollOn))
+                                        rolloverCurrentTime += nanosecondsPerBeat
+                                        if (rolloverCurrentBeat == bpbThisLine)
+                                            rolloverCurrentBeat = 0
+                                    }
+                                }
+                            } else {
+                                lineEvent.mLine.mYStartScrollTime = currentTime
+                                currentTime += totalLineTime
+                                lineEvent.mLine.mYStopScrollTime = currentTime
+                            }
+                        } else if (pauseTime > 0)
+                            currentTime = generatePause(pauseTime.toLong(), lastEvent, currentTime)
+
+                        lastEvent = lastEvent!!.lastEvent
                     }
                 }
                 mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_READ, lineCounter, mSongFile.mLines).sendToTarget()
@@ -649,7 +590,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
                     insertAfterEvent!!.offsetLaterEvents(countTime)
                 } else {
                     val baseBeatEvent = BeatEvent(0, countbpm, countbpb, countbpl, countbpb, false, -1)
-                    firstEvent.insertAfter(baseBeatEvent)
+                    firstEvent!!.insertAfter(baseBeatEvent)
                 }
             }
             var trackEvent: TrackEvent? = null
@@ -673,7 +614,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             if (firstEvent == null)
                 firstEvent = ColorEvent(currentTime, mBackgroundColour, mPulseColour, mLyricColour, mChordColour, mAnnotationColour, mBeatCounterColour, mScrollMarkerColour)
 
-            val reallyTheLastEvent = firstEvent.lastEvent
+            val reallyTheLastEvent = firstEvent!!.lastEvent
             // In beat mode, or in any other mode where we're using a backing track, let's have an end event.
             if (trackEvent != null || mCurrentScrollMode !== ScrollingMode.Manual) {
                 var trackEndTime: Long = 0
@@ -704,7 +645,7 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
             // Now process all MIDI events with offsets.
             offsetMIDIEvents(firstEvent, errors)
 
-            val song = Song(mSongFile, chosenAudioFile, chosenAudioVolume, comments, firstEvent, firstLine!!, errors, mUserChosenScrollMode, mSendMidiClock, mLoadingSongFile.startedByBandLeader, mLoadingSongFile.nextSong, mLoadingSongFile.sourceDisplaySettings.mOrientation, initialMIDIMessages, beatBlocks, initialBPB, count)
+            val song = Song(mSongFile, chosenAudioFile, chosenAudioVolume, comments, firstEvent!!, firstLine!!, errors, mUserChosenScrollMode, mSendMidiClock, mLoadingSongFile.startedByBandLeader, mLoadingSongFile.nextSong, mLoadingSongFile.sourceDisplaySettings.mOrientation, initialMIDIMessages, beatBlocks, initialBPB, count)
             song.doMeasurements(Paint(), mCancelEvent, mSongLoadHandler, mLoadingSongFile.nativeDisplaySettings, mLoadingSongFile.sourceDisplaySettings)
             return song
         } finally {
@@ -717,7 +658,6 @@ class SongParser(private val mLoadingSongFile: SongLoadInfo, private val mCancel
     }
 
     companion object {
-        private const val MAX_LINE_LENGTH = 256
         private const val DEMO_LINE_COUNT = 15
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
