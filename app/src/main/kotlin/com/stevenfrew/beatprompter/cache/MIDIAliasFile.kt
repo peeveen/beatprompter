@@ -6,11 +6,10 @@ import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
+import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasesTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDIEventTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
-import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -75,10 +74,7 @@ class MIDIAliasFile : CachedCloudFile {
                             } else {
                                 // OK, we have a line of content, and we're definitely in a MIDI alias file.
                                 if (currentAliasName != null) {
-                                    currentAliasComponents.addAll(fileLine.mTags.filterIsInstance<MIDIEventTag>().mapNotNull{createAliasComponent(it)})
-                                    val component = parseAliasComponent(line, lineNumber, midiParsingErrors)
-                                    if (component != null)
-                                        currentAliasComponents.add(component)
+                                    currentAliasComponents.addAll(fileLine.mTags.filterIsInstance<MIDIAliasInstructionTag>().map {tag->createAliasComponent(tag)})
                                 } else {
                                     val aliasTag=fileLine.mTags.filterIsInstance<MIDIAliasTag>().firstOrNull()
                                     if (aliasTag != null)
@@ -98,40 +94,22 @@ class MIDIAliasFile : CachedCloudFile {
                 throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
             }
         }
-    }
 
-    @Throws(MalformedTagException::class)
-    fun createAliasComponent(tag:MIDIEventTag):AliasComponent
-    {
-        val bracketStart = line.indexOf("{")
-        if (bracketStart != -1) {
-            val bracketEnd = line.indexOf("}", bracketStart)
-            if (bracketEnd != -1) {
-                val contents = line.substring(bracketStart + 1, bracketEnd - bracketStart).trim().toLowerCase()
-                if (contents.isNotEmpty()) {
-                    val bits = contents.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                    val componentArgs = ArrayList<Value>()
-                    val tagName = bits[0].trim()
-                    if (bits.size > 2)
-                        throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts))
-                    else if (bits.size > 1) {
-                        val params = bits[1].trim()
-                        val paramBits = params.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                        for ((paramCounter, paramBit) in paramBits.withIndex()) {
-                            val aliasValue = parseValue(paramBit, paramCounter, paramBits.size)
-                            componentArgs.add(aliasValue)
-                        }
-                    }
-
-                    return if (tagName.equals("midi_send", ignoreCase = true))
-                        SimpleAliasComponent(componentArgs)
-                    else
-                        RecursiveAliasComponent(tagName, componentArgs)
-                } else
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.empty_tag))
-            } else
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
-        } else
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
+        @Throws(MalformedTagException::class)
+        fun createAliasComponent(tag:MIDIAliasInstructionTag):AliasComponent
+        {
+            val instructions=tag.mInstructions
+            val name=tag.mName
+            val componentArgs = ArrayList<Value>()
+            val paramBits = instructions.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            for ((paramCounter, paramBit) in paramBits.withIndex()) {
+                val aliasValue = tag.parseValue(paramBit, paramCounter, paramBits.size)
+                componentArgs.add(aliasValue)
+            }
+            return if (name.equals("midi_send", ignoreCase = true))
+                SimpleAliasComponent(componentArgs)
+            else
+                RecursiveAliasComponent(name, componentArgs)
+        }
     }
 }

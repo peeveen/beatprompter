@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import java.io.File
 
-class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, errors:MutableList<FileParseError> = mutableListOf(), tempAudioFileCollection: List<AudioFile> = listOf(), tempImageFileCollection: List<ImageFile> = listOf(), defaultHighlightColor:Int =0, songTime:Long=0, defaultMIDIChannel:Byte=0) {
+open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, errors:MutableList<FileParseError> = mutableListOf(), tempAudioFileCollection: List<AudioFile> = listOf(), tempImageFileCollection: List<ImageFile> = listOf(), defaultHighlightColor:Int =0, songTime:Long=0, defaultMIDIChannel:Byte=0) {
 
     data class TagText constructor(val mText:String,val mPosition:Int)
 
