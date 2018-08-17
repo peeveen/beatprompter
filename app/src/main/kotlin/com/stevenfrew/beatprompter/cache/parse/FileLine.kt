@@ -4,7 +4,6 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
-import java.io.File
 
 abstract class FileLine<TParsingState:FileParsingState>(line:String, private val mLineNumber:Int, parsingState:TParsingState) {
 

@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasesTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.*
 import org.w3c.dom.Document
@@ -67,7 +67,7 @@ class MIDIAliasFile : CachedCloudFile {
                                 }
                             }
                             if (!isMidiAliasFile) {
-                                val aliasesTag= fileLine.mTags.filterIsInstance<MIDIAliasesTag>().firstOrNull()
+                                val aliasesTag= fileLine.mTags.filterIsInstance<MIDIAliasSetNameTag>().firstOrNull()
                                         ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
                                 aliasFilename=aliasesTag.mAliasSetName
                                 isMidiAliasFile = true

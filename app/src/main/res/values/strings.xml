@@ -8,6 +8,8 @@
     <string name="google_drive_string" translatable="false">Google Drive</string>
     <string name="dropbox_string" translatable="false">Dropbox</string>
     <string name="onedrive_string" translatable="false">OneDrive</string>
+    <string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
+    <string name="set_name_defined_multiple_times">Set name has already been defined.</string>
     <string name="unexpected_tag_in_setlist_file">Set list files should only contain one {set} tag, and no other tags.</string>
     <string name="connect_to_leader_string">Connect to leader</string>
     <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
