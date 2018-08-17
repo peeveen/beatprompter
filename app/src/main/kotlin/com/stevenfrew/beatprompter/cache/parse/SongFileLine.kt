@@ -6,11 +6,9 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ScrollingMode
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.ImageFile
-import com.stevenfrew.beatprompter.cache.parse.tag.SongTag
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
-import java.io.File
 
 class SongFileLine(line:String, lineNumber:Int, parsingState:SongParsingState):FileLine<SongParsingState>(line,lineNumber,parsingState) {
     val mBeatInfo: LineBeatInfo
@@ -99,7 +97,7 @@ class SongFileLine(line:String, lineNumber:Int, parsingState:SongParsingState):F
 
     override fun parseTag(text:String,lineNumber:Int,position:Int,parsingState:SongParsingState):Tag
     {
-        return SongTag.parse(text,lineNumber,position,parsingState)
+        return Tag.parseSongTag(text,lineNumber,position,parsingState)
     }
 
     fun getTitle(): String? {
