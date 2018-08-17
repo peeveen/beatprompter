@@ -19,7 +19,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             if (name.contains(";")) {
                 val bits = name.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 if (bits.size > 2)
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
                 if (bits.size > 1) {
                     eventOffset = parseMIDIEventOffset(bits[1].trim())
                     name = bits[0].trim()
@@ -29,7 +29,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             val firstSplitBits = tagValue.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (firstSplitBits.size > 1) {
                 if (firstSplitBits.size > 2)
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
+                    throw MalformedTagException( BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
                 tagValue = firstSplitBits[0].trim()
                 eventOffset = parseMIDIEventOffset(firstSplitBits[1].trim())
             }
@@ -43,7 +43,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                 if (f == paramBytes.size - 1)
                     lastParamIsChannel = true
                 else
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
         try {
             if (lastParamIsChannel) {
                 val lastParam = paramBytes[paramBytes.size - 1] as ChannelValue
@@ -60,9 +60,9 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                 }
             if (name == "midi_send")
                 return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset)
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, name))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, name))
         } catch (re: ResolutionException) {
-            throw MalformedTagException(this, re)
+            throw MalformedTagException(re)
         }
     }
 
@@ -88,7 +88,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                         ++diff
                     else if (!bErrorAdded) {
                         bErrorAdded = true
-                        throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset))
                     }
                 }
                 amount = diff
@@ -96,9 +96,9 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             }
 
             if (Math.abs(amount) > 16 && offsetType == EventOffsetType.Beats)
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
             else if (Math.abs(amount) > 10000 && offsetType == EventOffsetType.Milliseconds)
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
         }
         return EventOffset(amount,offsetType,this)
     }
@@ -115,12 +115,12 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                     val componentArgs = ArrayList<Value>()
                     val tagName = bits[0].trim()
                     if (bits.size > 2)
-                        throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts))
                     else if (bits.size > 1) {
                         val params = bits[1].trim()
                         val paramBits = params.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                         for ((paramCounter, paramBit) in paramBits.withIndex()) {
-                            val aliasValue = parseValue(paramBit, paramCounter, paramBits.size,this)
+                            val aliasValue = parseValue(paramBit, paramCounter, paramBits.size)
                             componentArgs.add(aliasValue)
                         }
                     }
@@ -130,46 +130,31 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                     else
                         RecursiveAliasComponent(tagName, componentArgs)
                 } else
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.empty_tag))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.empty_tag))
             } else
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
         } else
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
-    }
-
-    @Throws(MalformedTagException::class)
-    fun parseValue(strVal: String): Value {
-        return parseValue(strVal, 0, 1,this)
-    }
-
-    @Throws(MalformedTagException::class)
-    fun parseChannelValue(channelValStr: String): Value {
-        return parseChannelValue(channelValStr,this)
-    }
-
-    @Throws(MalformedTagException::class)
-    fun parseValue(valueStr: String, argIndex: Int, argCount: Int): Value {
-        return parseValue(valueStr,argIndex,argCount,this)
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badly_formed_tag))
     }
 
     companion object {
         @Throws(MalformedTagException::class)
         fun parseValue(strVal: String): Value {
-            return parseValue(strVal, 0, 1,null)
+            return parseValue(strVal, 0, 1)
         }
 
         @Throws(MalformedTagException::class)
-        fun parseChannelValue(channelValStr: String,tag:MIDITag?=null): Value {
+        fun parseChannelValue(channelValStr: String): Value {
             var strVal = channelValStr
             if (!strVal.isEmpty())
                 if (!strVal.startsWith("*"))
                     if (!strVal.startsWith("#"))
                         strVal = "#$strVal"
-            return parseValue(strVal,0,1,tag)
+            return parseValue(strVal,0,1)
         }
 
         @Throws(MalformedTagException::class)
-        fun parseValue(valueStr: String, argIndex: Int, argCount: Int, tag:MIDITag?): Value {
+        fun parseValue(valueStr: String, argIndex: Int, argCount: Int): Value {
             var strVal = valueStr
             strVal = strVal.trim()
             if (strVal.isEmpty())
@@ -181,54 +166,54 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                     try {
                         val referencedArgIndex = Integer.parseInt(strVal)
                         if (referencedArgIndex < 0)
-                            throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                         else
                             return ArgumentValue(referencedArgIndex)
                     } catch (nfe: NumberFormatException) {
-                        throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                     }
 
                 }
                 strVal.startsWith("#") -> {
                     if (argIndex < argCount - 1)
-                        throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
                     try {
                         val channel = Utils.parseByte(strVal.substring(1))
                         if (channel < 1 || channel > 16)
-                            throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
                         return ChannelValue(channel)
                     } catch (nfe: NumberFormatException) {
-                        throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                     }
 
                 }
                 strVal.contains("_") -> {
                     if (strVal.indexOf("_") != strVal.lastIndexOf("_"))
-                        throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.multiple_underscores_in_midi_value))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_underscores_in_midi_value))
                     strVal = strVal.replace('_', '0')
                     try {
                         if (Utils.looksLikeHex(strVal)) {
                             val channelValue = Utils.parseHexByte(strVal)
                             if (channelValue and 0x0F != 0.toByte())
-                                throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
+                                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
                             else
                                 return ChanneledCommandValue(channelValue)
                         } else
-                            throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.underscore_in_decimal_value))
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.underscore_in_decimal_value))
                     } catch (nfe: NumberFormatException) {
-                        throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                     }
 
                 }
                 Utils.looksLikeHex(strVal) -> try {
                     return CommandValue(Utils.parseHexByte(strVal))
                 } catch (nfe: NumberFormatException) {
-                    throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                 }
                 else -> try {
                     return CommandValue(Utils.parseByte(strVal))
                 } catch (nfe: NumberFormatException) {
-                    throw MalformedTagException(tag, BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                 }
             }
         }

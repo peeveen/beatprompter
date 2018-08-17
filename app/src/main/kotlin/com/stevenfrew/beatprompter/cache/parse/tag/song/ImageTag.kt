@@ -24,18 +24,18 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
                 imageScalingMode=ImageScalingMode.valueOf(strScalingMode.toLowerCase().capitalize())
             }
             catch(e:Exception) {
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
             }
         }
         val image = File(imageName).name
         val imageFile: File
         val mappedImage = SongList.mCachedCloudFiles.getMappedImageFile(image, tempImageFileCollection)
         if (mappedImage == null)
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
         else {
             imageFile = File(sourceFile.parent, mappedImage.mFile.name)
             if (!imageFile.exists())
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
         }
         mImageFile = mappedImage
         mImageScalingMode=imageScalingMode

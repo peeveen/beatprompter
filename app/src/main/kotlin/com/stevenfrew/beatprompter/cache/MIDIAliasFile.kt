@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.FileLine
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.SongParsingState
+import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasTag
@@ -106,7 +107,7 @@ class MIDIAliasFile : CachedCloudFile {
             val componentArgs = ArrayList<Value>()
             val paramBits = instructions.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for ((paramCounter, paramBit) in paramBits.withIndex()) {
-                val aliasValue = tag.parseValue(paramBit, paramCounter, paramBits.size)
+                val aliasValue = MIDITag.parseValue(paramBit, paramCounter, paramBits.size)
                 componentArgs.add(aliasValue)
             }
             return if (name.equals("midi_send", ignoreCase = true))

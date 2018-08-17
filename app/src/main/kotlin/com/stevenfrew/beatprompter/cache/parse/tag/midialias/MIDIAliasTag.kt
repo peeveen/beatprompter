@@ -10,11 +10,9 @@ class MIDIAliasTag internal constructor(name:String,lineNumber:Int,position:Int,
 
     init {
         if (value.contains(":"))
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts))
         if (value.isEmpty())
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.midi_alias_without_a_name))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_without_a_name))
         mAliasName=value
     }
 }
-
-

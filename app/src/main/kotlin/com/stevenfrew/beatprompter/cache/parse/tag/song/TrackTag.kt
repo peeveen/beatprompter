@@ -23,19 +23,19 @@ class TrackTag internal constructor(name:String,lineNumber:Int,position:Int,valu
             try {
                 val tryVolume = Integer.parseInt(strVolume)
                 if (tryVolume < 0 || tryVolume > 100)
-                    throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
                 else
                     volume = (volume.toDouble() * (tryVolume.toDouble() / 100.0)).toInt()
             } catch (nfe: NumberFormatException) {
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
             }
         }
         val track = File(trackName).name
         val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFile(track, tempAudioFileCollection)
-                ?: throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
+                ?: throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
         val trackFile = File(sourceFile.parent, mappedTrack.mFile.name)
         if (!trackFile.exists())
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
         mAudioFile=mappedTrack
         mVolume=volume
     }

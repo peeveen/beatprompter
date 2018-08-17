@@ -23,11 +23,11 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
         try {
             intVal = value.toInt()
             if (intVal < min)
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, intVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, intVal))
             else if (intVal > max)
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, intVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, intVal))
         } catch (nfe: NumberFormatException) {
-            throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueUnreadable, value))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueUnreadable, value))
         }
         return intVal
     }
@@ -37,11 +37,11 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
         try {
             durVal = Utils.parseDuration(value, trackLengthAllowed)
             if (durVal < min && durVal != Utils.TRACK_AUDIO_LENGTH_VALUE)
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, durVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, durVal))
             else if (durVal > max)
-                throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, durVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, durVal))
         } catch (nfe: NumberFormatException) {
-            throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.durationValueUnreadable, value))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.durationValueUnreadable, value))
         }
 
         return durVal
@@ -52,11 +52,11 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
         try {
             doubleVal = value.toDouble()
             if (doubleVal < min)
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueTooLow, min, doubleVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.doubleValueTooLow, min, doubleVal))
             else if (doubleVal > max)
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueTooHigh, max, doubleVal))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.doubleValueTooHigh, max, doubleVal))
         } catch (nfe: NumberFormatException) {
-            throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.doubleValueUnreadable, value))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.doubleValueUnreadable, value))
         }
         return doubleVal
     }
@@ -68,7 +68,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
             try {
                 Color.parseColor("#$value")
             } catch (iae2: IllegalArgumentException) {
-                throw MalformedTagException(this,BeatPrompterApplication.getResourceString(R.string.colorValueUnreadable, value))
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.colorValueUnreadable, value))
             }
         }
     }
