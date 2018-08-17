@@ -98,18 +98,15 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
         fun parseMIDIAliasTag(tagContents: String, lineNumber: Int, position: Int, parsingState: MIDIAliasParsingState): Tag {
             val txt=tagContents.trim('{','}')
             val bits=txt.split(':')
-            if(bits.size==2)
-            {
+            return if(bits.size==2) {
                 val tagName=bits[0].trim()
                 val tagValue=bits[1].trim()
-                when(tagName)
-                {
-                    "midi_aliases"->return MIDIAliasesTag(tagName,lineNumber,position,tagValue)
-                    "midi_alias"->return MIDIAliasNameTag(tagName,lineNumber,position,tagValue)
-                    else->return MIDIAliasInstructionTag(tagName,lineNumber,position,tagValue)
+                when(tagName) {
+                    "midi_aliases"-> MIDIAliasesTag(tagName,lineNumber,position,tagValue)
+                    "midi_alias"-> MIDIAliasNameTag(tagName,lineNumber,position,tagValue)
+                    else-> MIDIAliasInstructionTag(tagName,lineNumber,position,tagValue)
                 }
-            }
-            else
+            } else
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts))
         }
 
