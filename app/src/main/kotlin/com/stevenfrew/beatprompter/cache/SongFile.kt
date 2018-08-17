@@ -47,12 +47,12 @@ class SongFile : CachedCloudFile {
 
     @Throws(InvalidBeatPrompterFileException::class)
     constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
-        parseSongFileInfo(ArrayList(), ArrayList())
+        parseSongFileInfo()
     }
 
     @Throws(IOException::class)
-    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String, tempAudioFileCollection: ArrayList<AudioFile>, tempImageFileCollection: ArrayList<ImageFile>) : super(file, id, name, lastModified, subfolder) {
-        parseSongFileInfo(tempAudioFileCollection, tempImageFileCollection)
+    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String) : super(file, id, name, lastModified, subfolder) {
+        parseSongFileInfo()
     }
 
     constructor(element: Element) : super(element) {
@@ -98,10 +98,10 @@ class SongFile : CachedCloudFile {
     }
 
     @Throws(InvalidBeatPrompterFileException::class)
-    private fun parseSongFileInfo(tempAudioFileCollection: ArrayList<AudioFile>, tempImageFileCollection: ArrayList<ImageFile>) {
+    private fun parseSongFileInfo() {
         var br: BufferedReader? = null
         try {
-            val (timePerLine, timePerBar) = getTimePerLineAndBar(null, tempAudioFileCollection, tempImageFileCollection)
+            val (timePerLine, timePerBar) = getTimePerLineAndBar(null)
             var title:String?=null
             mTimePerLine = timePerLine
             mTimePerBar = timePerBar
@@ -148,9 +148,9 @@ class SongFile : CachedCloudFile {
                     val tags = fileLine.getTags()
                     mTags.addAll(tags)
                     val audios = fileLine.getAudioFiles()
-                    mAudioFiles.addAll(audios)
+                    mAudioFiles.addAll(audios.map{it.mName})
                     val images = fileLine.getImageFiles()
-                    mImageFiles.addAll(images)
+                    mImageFiles.addAll(images.map{it.mName})
                 }
             } while(line!=null)
             mLines = lineNumber
@@ -206,17 +206,8 @@ class SongFile : CachedCloudFile {
     }
 
     @Throws(IOException::class)
-    fun getTimePerLineAndBar(chosenTrack: AudioFile?, tempAudioFileCollection: MutableList<AudioFile> =mutableListOf(), tempImageFileCollection: MutableList<ImageFile> =mutableListOf()): SmoothScrollingTimings {
-        val bplOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_offset))
-        val bplMin = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_min)) + bplOffset
-        val bplMax = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_max)) + bplOffset
-        val bplDefault = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_bpl_default)) + bplOffset
-
-        //        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        /*        int defaultPausePref = sharedPref.getInt(context.getString(R.string.pref_defaultPause_key), Integer.parseInt(context.getString(R.string.pref_defaultPause_default)));
-        defaultPausePref+=Integer.parseInt(context.getString(R.string.pref_defaultPause_offset));*/
+    fun getTimePerLineAndBar(chosenTrack: AudioFile?): SmoothScrollingTimings {
         val br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
-
         try {
             var songTime: Long = 0
             var songMilli = 0
@@ -237,7 +228,7 @@ class SongFile : CachedCloudFile {
                     if (!fileLine.isComment) {
                         val strippedLine = fileLine.mTaglessLine
                         val chordsFound = fileLine.chordTags.isNotEmpty()
-                        val bars=fileLine.mBars
+                        val bars=fileLine.mBeatInfo.mBPL
                         // Not bothered about chords at the moment.
                         fileLine.mTags.filterNot { it is ChordTag }.forEach{
                             if(it is TimeTag)
@@ -251,7 +242,7 @@ class SongFile : CachedCloudFile {
                                     lineImage=it.mImageFile
                             }
                             else if(it is TrackTag) {
-                                if (songMilli == 0 && (chosenTrack == null || it.mAudioFile.equals(chosenTrack))) {
+                                if (songMilli == 0 && (chosenTrack == null || it.mAudioFile == chosenTrack)) {
                                     try {
                                         val mmr = MediaMetadataRetriever()
                                         mmr.setDataSource(it.mAudioFile.mFile.absolutePath)
@@ -281,7 +272,7 @@ class SongFile : CachedCloudFile {
                 }
             } while(line!=null)
 
-            if (songTime == Utils.TRACK_AUDIO_LENGTH_VALUE.toLong())
+            if (songTime == Utils.TRACK_AUDIO_LENGTH_VALUE)
                 songTime = songMilli.toLong()
 
             var negateResult = false

@@ -1,7 +1,9 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.LineBeatInfo
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.ScrollingMode
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.tag.*
@@ -13,12 +15,9 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
 
     data class TagText constructor(val mText:String,val mPosition:Int)
 
+    val mBeatInfo:LineBeatInfo
     private val mLine:String
     val mTaglessLine:String
-    val mBPM:Double
-    private val mBPB:Int
-    val mBars:Int
-    private val mScrollBeat:Int
 
     val mTags:List<Tag>
     val isComment :Boolean
@@ -82,21 +81,23 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
             strippedLine=mLine
 
         // Bars can be defined by commas ....
-        var commaBars=0
+        var commaBars:Int?=null
         while (strippedLine.startsWith(",")) {
+            if(commaBars==null)
+                commaBars=0
             strippedLine = strippedLine.substring(1)
-            textTags=textTags.map{if(it.mPosition>0) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
+            textTags=textTags.map{if(it.mPosition<=0) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
             commaBars++
         }
 
-        var scrollbeatDiff=0
+        var scrollBeatOffset=0
         while (strippedLine.endsWith(">") || strippedLine.endsWith("<")) {
             if (strippedLine.endsWith(">"))
-                scrollbeatDiff++
+                scrollBeatOffset++
             else if (strippedLine.endsWith("<"))
-                scrollbeatDiff--
+                scrollBeatOffset--
             strippedLine = strippedLine.substring(0, strippedLine.length - 1)
-            textTags=textTags.map{if(it.mPosition>strippedLine.length) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
+            textTags=textTags.map{if(it.mPosition<=strippedLine.length) it else TagText(it.mText,it.mPosition-1)}.toMutableList()
         }
 
         // TODO: dynamic BPB changing
@@ -110,9 +111,6 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
             catch(mte:MalformedTagException) {
                 parsingState.mErrors.add(FileParseError(mLineNumber,mte.message))
                 null
-            } catch(ute: UnknownTagException) {
-                parsingState.mErrors.add(FileParseError(mLineNumber,ute.message))
-                null
             }
         }
 
@@ -123,26 +121,52 @@ open class FileLine(line:String, private val mLineNumber:Int, sourceFile: File, 
         val beatsPerMinuteTag=mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
         val scrollBeatTag=mTags.filterIsInstance<ScrollBeatTag>().firstOrNull()
 
-        val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?:commaBars?:parsingState.mBPL
-        val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:parsingState.mBPB
-        val beatsPerMinuteInThisLine=beatsPerMinuteTag?.mBPM?:parsingState.mBPM
-        var scrollBeatInThisLine=scrollBeatTag?.mScrollBeat?:parsingState.mScrollBeat
+        val beatStartTags=mTags.filterIsInstance<BeatStartTag>()
+        val beatStopTags=mTags.filterIsInstance<BeatStopTag>()
+        val beatModeTags=listOf(beatStartTags,beatStopTags).flatMap { it }
 
-        parsingState.mBPB=beatsPerBarInThisLine
-        parsingState.mBPM=beatsPerMinuteInThisLine
-        parsingState.mBPL=barsPerLineTag?.mBPL?:parsingState.mBPL
-        parsingState.mScrollBeat=scrollBeatInThisLine
+        val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?:commaBars?:parsingState.mBeatInfo.mBPL
+        val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:parsingState.mBeatInfo.mBPB
+        val beatsPerMinuteInThisLine=beatsPerMinuteTag?.mBPM?:parsingState.mBeatInfo.mBPM
+        var scrollBeatInThisLine=scrollBeatTag?.mScrollBeat?:parsingState.mBeatInfo.mScrollBeat
+        var modeOnThisLine=parsingState.mBeatInfo.mScrollingMode
+
+        // Multiple beatstart or beatstop tags on the same line are nonsensical
+        if(beatModeTags.size>1)
+            parsingState.mErrors.add(FileParseError(beatModeTags.first(), BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
+        else if(beatModeTags.size==1)
+            if(beatStartTags.isNotEmpty())
+                if(beatsPerMinuteInThisLine==0.0)
+                    parsingState.mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
+                else
+                    modeOnThisLine=ScrollingMode.Beat
+            else
+                modeOnThisLine = ScrollingMode.Manual
+
+        val previousBeatsPerBar=parsingState.mBeatInfo.mBPB
+        val previousScrollBeat=parsingState.mBeatInfo.mScrollBeat
+        // If the beats-per-bar have changed, and there is no indication of what the new scrollbeat should be,
+        // set the new scrollbeat to have the same "difference" as before. For example, if the old BPB was 4,
+        // and the scrollbeat was 3 (one less than BPB), a new BPB of 6 should have a scrollbeat of 5 (one
+        // less than BPB)
+        if((beatsPerBarInThisLine!=previousBeatsPerBar)&&(scrollBeatTag==null))
+        {
+            val prevScrollBeatDiff = previousBeatsPerBar - previousScrollBeat
+            if(beatsPerBarInThisLine-prevScrollBeatDiff>0)
+                scrollBeatInThisLine=beatsPerBarInThisLine-prevScrollBeatDiff
+        }
 
         if(scrollBeatInThisLine>beatsPerBarInThisLine)
-            scrollBeatInThisLine=beatsPerBarInThisLine-1
-        scrollBeatInThisLine+=scrollbeatDiff
+            scrollBeatInThisLine=beatsPerBarInThisLine
 
-        // TODO: SCROLLBEAT WONKIFIED? PARSE ERROR
+        parsingState.mBeatInfo=LineBeatInfo(barsPerLineTag?.mBPL?:parsingState.mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
 
-        mBars=barsInThisLine
-        mBPB=beatsPerBarInThisLine
-        mBPM=beatsPerMinuteInThisLine
-        mScrollBeat=scrollBeatInThisLine
+        if ((beatsPerBarInThisLine!=0)&&(scrollBeatOffset < -beatsPerBarInThisLine || scrollBeatOffset >= beatsPerBarInThisLine)) {
+            parsingState.mErrors.add(FileParseError(mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
+            scrollBeatOffset = 0
+        }
+
+        mBeatInfo= LineBeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
     }
 
     fun getTitle(): String? {

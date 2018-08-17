@@ -4,7 +4,6 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import java.io.File
@@ -32,7 +31,7 @@ class TrackTag internal constructor(name:String,lineNumber:Int,position:Int,valu
             }
         }
         val track = File(trackName).name
-        val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFilename(track, tempAudioFileCollection)
+        val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFile(track, tempAudioFileCollection)
                 ?: throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
         val trackFile = File(sourceFile.parent, mappedTrack.mFile.name)
         if (!trackFile.exists())

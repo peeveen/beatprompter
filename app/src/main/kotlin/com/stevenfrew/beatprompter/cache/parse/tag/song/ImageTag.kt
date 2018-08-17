@@ -29,7 +29,7 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
         }
         val image = File(imageName).name
         val imageFile: File
-        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFilename(image, tempImageFileCollection)
+        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFile(image, tempImageFileCollection)
         if (mappedImage == null)
             throw MalformedTagException(this, BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
         else {

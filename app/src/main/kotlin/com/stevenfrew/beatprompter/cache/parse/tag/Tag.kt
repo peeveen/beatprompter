@@ -114,6 +114,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
                 "track", "audio", "musicpath"->return TrackTag(name, lineNumber, position, value, sourceFile, parsingState.mTempAudioFileCollection)
                 "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
                 "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
+                "count","countin"->return CountTag(name,lineNumber,position,value)
                 "midi_song_select_trigger"->return MIDISongSelectTriggerTag(name, lineNumber, position, value)
                 "midi_program_change_trigger"->return MIDIProgramChangeTriggerTag(name, lineNumber, position, value)
 
@@ -132,11 +133,10 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
                 "tag"->return TagTag(name, lineNumber, position, value)
 
                 // Unused ChordPro tags
-                "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> {}
+                "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return ChordProTag(name,lineNumber,position)
 
                 else->return MIDIEventTag(name, lineNumber, position, value, parsingState.mSongTime, parsingState.mDefaultMIDIChannel)
             }
-            throw UnknownTagException(name)
         }
     }
 }

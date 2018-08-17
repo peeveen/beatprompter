@@ -31,7 +31,6 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
-import com.stevenfrew.beatprompter.midi.Alias
 import com.stevenfrew.beatprompter.midi.MIDIController
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
@@ -168,9 +167,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        val track:AudioFile?=null
-        if (selectedSong.mAudioFiles.size > 0)
-            track = selectedSong.mAudioFiles[0]
+        var track:AudioFile?=if (selectedSong.mAudioFiles.size > 0) mCachedCloudFiles.getMappedAudioFile(selectedSong.mAudioFiles[0]) else null
         var beatScroll = selectedSong.isBeatScrollable
         var smoothScroll = selectedSong.isSmoothScrollable
         val sharedPrefs = BeatPrompterApplication.preferences
@@ -423,12 +420,13 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                     // Add action buttons
                                     .setPositiveButton(R.string.play) { _, _ ->
                                         // sign in the user ...
-                                        var selectedTrack = audioSpinner.selectedItem as String
+                                        var selectedTrackName = audioSpinner.selectedItem as String?
                                         val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
                                         if (audioSpinner.selectedItemPosition == 0)
-                                            selectedTrack = ""
+                                            selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
-                                        playSong(selectedNode, selectedSong, selectedTrack, mode, false, sds, sds)
+                                        val track=if(selectedTrackName!=null)mCachedCloudFiles.getMappedAudioFile(selectedTrackName) else null
+                                        playSong(selectedNode, selectedSong, track, mode, false, sds, sds)
                                     }
                                     .setNegativeButton(R.string.cancel) { _, _ -> }
                             val customAD = builder1.create()
@@ -1061,7 +1059,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
             for (sf in mCachedCloudFiles.songFiles)
                 if (sf.mTitle == title) {
-                    val loadTask = SongLoadTask(sf, track, scrollingMode, "", true,
+                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFile(track), scrollingMode, "", true,
                             false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
                     SongDisplayActivity.interruptCurrentSong(loadTask, sf)
                     break

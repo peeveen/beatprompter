@@ -7,7 +7,6 @@ import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.midi.Alias
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.io.File
 
 class CachedCloudFileCollection {
     private var mFiles = mutableListOf<CachedCloudFile>()
@@ -122,16 +121,16 @@ class CachedCloudFileCollection {
         mFiles.clear()
     }
 
-    fun getMappedAudioFilename(inStr: String, tempAudioFileCollection: List<AudioFile> = mutableListOf()): AudioFile? {
+    fun getMappedAudioFile(inStr: String, tempAudioFileCollection: List<AudioFile> = mutableListOf()): AudioFile? {
         val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return audioFiles.find{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
-        tempAudioFileCollection.find{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+        return audioFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
+        tempAudioFileCollection.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
     }
 
-    fun getMappedImageFilename(inStr: String, tempImageFileCollection: List<ImageFile> = mutableListOf()): ImageFile? {
+    fun getMappedImageFile(inStr: String, tempImageFileCollection: List<ImageFile> = mutableListOf()): ImageFile? {
         val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return imageFiles.find{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
-        tempImageFileCollection.find{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+        return imageFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
+        tempImageFileCollection.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {
@@ -139,8 +138,8 @@ class CachedCloudFileCollection {
         if (fileToRefresh != null) {
             filesToRefresh.add(fileToRefresh)
             if (fileToRefresh is SongFile && includeDependencies) {
-                filesToRefresh.addAll(fileToRefresh.mAudioFiles.map {it}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
-                filesToRefresh.addAll(fileToRefresh.mImageFiles.map {it}.filter{File(fileToRefresh.mFile.parent,it.mFile.name).exists()})
+                filesToRefresh.addAll(fileToRefresh.mAudioFiles.mapNotNull {getMappedAudioFile(it)})
+                filesToRefresh.addAll(fileToRefresh.mImageFiles.mapNotNull {getMappedImageFile(it)})
             }
         }
         return filesToRefresh

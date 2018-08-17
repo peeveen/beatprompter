@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
-class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, bars: Int, lastColor: ColorEvent, bpb: Int, scrollbeat: Int, scrollbeatOffset: Int, scrollingMode: ScrollingMode) : Line(lineTime,lineDuration, bars, lastColor, bpb, scrollbeat, scrollbeatOffset, scrollingMode) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, lastColor: ColorEvent,lineBeatInfo:LineBeatInfo) : Line(lineTime,lineDuration, lastColor, lineBeatInfo) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -33,16 +33,16 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
         var chordPositionStart = 0
         var chordTagIndex = -1
         run {
-            val mLineTags = mLineTags.filter { it !is ChordTag }
-            val mChordTags = mLineTags.filterIsInstance<ChordTag>()
+            val nonChordTags = mLineTags.filter { it !is ChordTag }
+            val chordTags = mLineTags.filterIsInstance<ChordTag>()
 
-            while (chordTagIndex < mChordTags.size && !cancelEvent.isCancelled) {
+            while (chordTagIndex < chordTags.size && !cancelEvent.isCancelled) {
                 var chordPositionEnd = mText.length
-                if (chordTagIndex < mChordTags.size - 1)
-                    chordPositionEnd = mChordTags[chordTagIndex + 1].mPosition
+                if (chordTagIndex < chordTags.size - 1)
+                    chordPositionEnd = chordTags[chordTagIndex + 1].mPosition
                 // mText could have been "..." which would be turned into ""
                 if (chordTagIndex != -1)
-                    chordPositionStart = mChordTags[chordTagIndex].mPosition
+                    chordPositionStart = chordTags[chordTagIndex].mPosition
                 if (chordPositionEnd > mText.length)
                     chordPositionEnd = mText.length
                 if (chordPositionStart > mText.length)
@@ -51,19 +51,19 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 var chordText = ""
                 var trueChord = false
                 if (chordTagIndex != -1) {
-                    val chordTag = mChordTags[chordTagIndex]
+                    val chordTag = chordTags[chordTagIndex]
                     trueChord = chordTag.isValidChord()
                     chordText = chordTag.mName
                     // Stick a couple of spaces on each chord, apart from the last one.
                     // This is so they don't appear right beside each other.
-                    if (chordTagIndex < mChordTags.size - 1) {
+                    if (chordTagIndex < chordTags.size - 1) {
                         chordText += "  "
                         // TODO: POTENTIAL BREAKING CHANGE!
                         //chordTag.mName = chordText
                     }
                 }
                 val otherTags = mutableListOf<Tag>()
-                for (tag in mLineTags)
+                for (tag in nonChordTags)
                     if (tag.mPosition in chordPositionStart..chordPositionEnd)
                         otherTags.add(tag)
                 if (linePart.isNotEmpty() || chordText.isNotEmpty()) {
@@ -72,6 +72,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 }
                 chordTagIndex++
             }
+            mFirstLineSection=sections.firstOrNull()
             return sections
         }
     }

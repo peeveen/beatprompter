@@ -8,8 +8,8 @@ import com.stevenfrew.beatprompter.event.ColorEvent
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: Int, internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
-                                         , var mBPB: Int, var mScrollbeat: Int, var mScrollbeatOffset: Int, private val mScrollingMode: ScrollingMode) {
+abstract class Line internal constructor(lineTime: Long,lineDuration:Long,internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
+                                         ,val mBeatInfo:LineBeatInfo) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     internal var mSongPixelPosition: Int = 0
@@ -18,7 +18,6 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,bars: 
     internal var mLineMeasurements: LineMeasurements? = null
     var mYStartScrollTime: Long = 0
     var mYStopScrollTime: Long = 0
-    var mBars=bars // How many bars does this line last?
 
     val lastLine: Line
         get() {
