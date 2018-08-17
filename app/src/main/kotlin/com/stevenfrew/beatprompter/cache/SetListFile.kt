@@ -3,10 +3,8 @@ package com.stevenfrew.beatprompter.cache
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.FileLine
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.SongParsingState
-import com.stevenfrew.beatprompter.cache.parse.tag.set.SetTag
+import com.stevenfrew.beatprompter.cache.parse.*
+import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -34,7 +32,7 @@ class SetListFile : CachedCloudFile {
     @Throws(InvalidBeatPrompterFileException::class)
     private fun parseSetListFileInfo() {
         var br: BufferedReader? = null
-        val parsingState=SongParsingState()
+        val parsingState=SetParsingState(this)
         try {
             br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
             var setTitle: String? = null
@@ -43,11 +41,11 @@ class SetListFile : CachedCloudFile {
             do {
                 line = br.readLine()
                 if(line!=null) {
-                    val fileLine= FileLine(line, ++lineNumber,mFile,parsingState)
+                    val fileLine= SetFileLine(line, ++lineNumber,parsingState)
                     if(fileLine.isComment)
                         continue
                     if (setTitle == null || setTitle.isEmpty())
-                        setTitle = fileLine.mTags.filterIsInstance<SetTag>().firstOrNull()?.mSetName
+                        setTitle = fileLine.mTags.filterIsInstance<SetNameTag>().firstOrNull()?.mSetName
                     else
                         mSongTitles.add(line)
                 }

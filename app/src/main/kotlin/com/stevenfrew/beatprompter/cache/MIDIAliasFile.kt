@@ -2,14 +2,11 @@ package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.FileLine
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.SongParsingState
+import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasesTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.*
@@ -26,12 +23,12 @@ class MIDIAliasFile : CachedCloudFile {
 
     @Throws(InvalidBeatPrompterFileException::class)
     internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
-        mAliasSet = readAliasFile(mFile, mID, mErrors)
+        mAliasSet = readAliasFile(this, mID, mErrors)
     }
 
     @Throws(InvalidBeatPrompterFileException::class)
     internal constructor(element: Element) : super(element) {
-        mAliasSet = readAliasFile(mFile, mID, mErrors)
+        mAliasSet = readAliasFile(this, mID, mErrors)
     }
 
     override fun writeToXML(d: Document, element: Element) {
@@ -44,21 +41,21 @@ class MIDIAliasFile : CachedCloudFile {
         const val MIDIALIASFILE_ELEMENT_TAG_NAME = "midialiases"
 
         @Throws(InvalidBeatPrompterFileException::class)
-        private fun readAliasFile(file:File, filename: String, midiParsingErrors: MutableList<FileParseError>): AliasSet {
-            val parsingState=SongParsingState()
+        private fun readAliasFile(file:MIDIAliasFile, filename: String, midiParsingErrors: MutableList<FileParseError>): AliasSet {
+            val parsingState= MIDIAliasParsingState(file)
             try {
                 var currentAliasName: String? = null
                 var currentAliasComponents: MutableList<AliasComponent> = mutableListOf()
                 val aliases = ArrayList<Alias>()
                 var aliasFilename: String? = null
-                BufferedReader(InputStreamReader(FileInputStream(file))).use {
+                BufferedReader(InputStreamReader(FileInputStream(file.mFile))).use {
                     var line: String?
                     var lineNumber = 0
                     var isMidiAliasFile = false
                     do {
                         line = it.readLine()
                         if(line!=null) {
-                            val fileLine= FileLine(line, ++lineNumber, file,parsingState)
+                            val fileLine= MIDIAliasFileLine(line, ++lineNumber,parsingState)
                             if(fileLine.isComment)
                                 continue
 
@@ -79,7 +76,7 @@ class MIDIAliasFile : CachedCloudFile {
                                 if (currentAliasName != null) {
                                     currentAliasComponents.addAll(fileLine.mTags.filterIsInstance<MIDIAliasInstructionTag>().map {tag->createAliasComponent(tag)})
                                 } else {
-                                    val aliasTag=fileLine.mTags.filterIsInstance<MIDIAliasTag>().firstOrNull()
+                                    val aliasTag=fileLine.mTags.filterIsInstance<MIDIAliasNameTag>().firstOrNull()
                                     if (aliasTag != null)
                                         currentAliasName=aliasTag.mAliasName
                                 }

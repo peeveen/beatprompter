@@ -39,10 +39,10 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             while (chordTagIndex < chordTags.size && !cancelEvent.isCancelled) {
                 var chordPositionEnd = mText.length
                 if (chordTagIndex < chordTags.size - 1)
-                    chordPositionEnd = chordTags[chordTagIndex + 1].mPosition
+                    chordPositionEnd = chordTags[chordTagIndex + 1].position
                 // mText could have been "..." which would be turned into ""
                 if (chordTagIndex != -1)
-                    chordPositionStart = chordTags[chordTagIndex].mPosition
+                    chordPositionStart = chordTags[chordTagIndex].position
                 if (chordPositionEnd > mText.length)
                     chordPositionEnd = mText.length
                 if (chordPositionStart > mText.length)
@@ -64,7 +64,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 }
                 val otherTags = mutableListOf<Tag>()
                 for (tag in nonChordTags)
-                    if (tag.mPosition in chordPositionStart..chordPositionEnd)
+                    if (tag.position in chordPositionStart..chordPositionEnd)
                         otherTags.add(tag)
                 if (linePart.isNotEmpty() || chordText.isNotEmpty()) {
                     val section = LineSection(linePart, chordText, trueChord, chordPositionStart, otherTags)

@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 
-class MIDIAliasTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): MIDITag(name,lineNumber,position) {
+class MIDIAliasNameTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): MIDITag(name,lineNumber,position) {
     val mAliasName:String
 
     init {
