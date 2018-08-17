@@ -20,11 +20,11 @@ class MIDIAliasFileLine(line:String, lineNumber:Int,  parsingState:MIDIAliasPars
 
         val midiAliasNameTag=mTags.filterIsInstance<MIDIAliasNameTag>().firstOrNull()
         if(midiAliasNameTag!=null)
-            parsingState.startNewAlias(midiAliasNameTag.mAliasName)
+            parsingState.startNewAlias(midiAliasNameTag)
 
         val midiAliasInstructionTag=mTags.filterIsInstance<MIDIAliasInstructionTag>().firstOrNull()
         if(midiAliasInstructionTag!=null)
-            parsingState.addInstructionToCurrentAlias(midiAliasInstructionTag.mInstructions)
+            parsingState.addInstructionToCurrentAlias(midiAliasInstructionTag)
     }
 
     override fun parseTag(text: String, lineNumber: Int, position: Int, parsingState: MIDIAliasParsingState): Tag {

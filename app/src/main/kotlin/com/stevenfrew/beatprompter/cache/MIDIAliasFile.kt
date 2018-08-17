@@ -3,11 +3,6 @@ package com.stevenfrew.beatprompter.cache
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
-import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import com.stevenfrew.beatprompter.midi.*
 import org.w3c.dom.Document
@@ -44,73 +39,25 @@ class MIDIAliasFile : CachedCloudFile {
         private fun readAliasFile(file:MIDIAliasFile, filename: String, midiParsingErrors: MutableList<FileParseError>): AliasSet {
             val parsingState= MIDIAliasParsingState(file)
             try {
-                var currentAliasName: String? = null
-                var currentAliasComponents: MutableList<AliasComponent> = mutableListOf()
-                val aliases = ArrayList<Alias>()
-                var aliasFilename: String? = null
                 BufferedReader(InputStreamReader(FileInputStream(file.mFile))).use {
                     var line: String?
                     var lineNumber = 0
-                    var isMidiAliasFile = false
                     do {
                         line = it.readLine()
                         if(line!=null) {
                             val fileLine= MIDIAliasFileLine(line, ++lineNumber,parsingState)
                             if(fileLine.isComment)
                                 continue
-
-                            if (fileLine.isEmpty) {
-                                if (currentAliasName != null) {
-                                    aliases.add(Alias(currentAliasName!!, currentAliasComponents))
-                                    currentAliasName = null
-                                    currentAliasComponents = ArrayList()
-                                }
-                            }
-                            if (!isMidiAliasFile) {
-                                val aliasesTag= fileLine.mTags.filterIsInstance<MIDIAliasSetNameTag>().firstOrNull()
-                                        ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
-                                aliasFilename=aliasesTag.mAliasSetName
-                                isMidiAliasFile = true
-                            } else {
-                                // OK, we have a line of content, and we're definitely in a MIDI alias file.
-                                if (currentAliasName != null) {
-                                    currentAliasComponents.addAll(fileLine.mTags.filterIsInstance<MIDIAliasInstructionTag>().map {tag->createAliasComponent(tag)})
-                                } else {
-                                    val aliasTag=fileLine.mTags.filterIsInstance<MIDIAliasNameTag>().firstOrNull()
-                                    if (aliasTag != null)
-                                        currentAliasName=aliasTag.mAliasName
-                                }
-                            }
                         }
                     } while(line!=null)
+                    parsingState.finishCurrentAlias()
                 }
-                if (currentAliasName != null)
-                    aliases.add(Alias(currentAliasName!!, currentAliasComponents))
+                val aliasSet=parsingState.getAliasSet()
                 midiParsingErrors.addAll(parsingState.mErrors)
-                return if (aliasFilename != null)
-                    AliasSet(aliasFilename!!, aliases)
-                else
-                    throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
+                return aliasSet
             } catch (ioe: IOException) {
                 throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, filename))
             }
-        }
-
-        @Throws(MalformedTagException::class)
-        fun createAliasComponent(tag:MIDIAliasInstructionTag):AliasComponent
-        {
-            val instructions=tag.mInstructions
-            val name=tag.mName
-            val componentArgs = ArrayList<Value>()
-            val paramBits = instructions.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for ((paramCounter, paramBit) in paramBits.withIndex()) {
-                val aliasValue = MIDITag.parseValue(paramBit, paramCounter, paramBits.size)
-                componentArgs.add(aliasValue)
-            }
-            return if (name.equals("midi_send", ignoreCase = true))
-                SimpleAliasComponent(componentArgs)
-            else
-                RecursiveAliasComponent(name, componentArgs)
         }
     }
 }
