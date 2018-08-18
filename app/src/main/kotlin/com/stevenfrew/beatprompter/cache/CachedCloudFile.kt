@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
@@ -8,48 +8,36 @@ import org.w3c.dom.Element
 import java.io.File
 import java.util.*
 
-abstract class CachedCloudFile : CloudFileInfo {
-    var mFile: File
-
-    internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(id,name,lastModified,subfolder)
-    {
-        mFile=file
-    }
+abstract class CachedCloudFile : CachedCloudFileDescriptor {
+    internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(file,id,name,lastModified,subfolder)
 
     internal constructor(file: File, cloudFileInfo: CloudFileInfo) : this(file,cloudFileInfo.mID, cloudFileInfo.mName, cloudFileInfo.mLastModified, cloudFileInfo.mSubfolder)
 
     internal constructor(result: SuccessfulCloudDownloadResult) : this(result.mDownloadedFile, result.mCloudFileInfo)
 
-    internal constructor(element: Element) : super(element) {
-        mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
-    }
+    internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : this(cachedCloudFileDescriptor.mFile,cachedCloudFileDescriptor)
+
+    internal constructor(element: Element) : super(element)
 
     abstract fun writeToXML(d: Document, element: Element)
 
-    override fun writeToXML(element: Element) {
-        super.writeToXML(element)
-        element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, mFile.absolutePath)
-    }
-
     companion object {
-
-        private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
 
         fun createCachedCloudFile(result: SuccessfulCloudDownloadResult): CachedCloudFile {
             return try {
-                AudioFile(result)
+                AudioFileParser(result.cachedCloudFileDescriptor).parse()
             } catch (ioe: InvalidBeatPrompterFileException) {
                 try {
-                    ImageFile(result)
+                    ImageFileParser(result.cachedCloudFileDescriptor).parse()
                 } catch (ibpfe1: InvalidBeatPrompterFileException) {
                     try {
-                        MIDIAliasFile(result)
+                        MIDIAliasFileParser(result.cachedCloudFileDescriptor).parse()
                     } catch (ibpfe2: InvalidBeatPrompterFileException) {
                         try {
-                            SongFile(result)
+                            SongInfoParser(result.cachedCloudFileDescriptor,listOf(),listOf()).parse()
                         } catch (ibpfe3: InvalidBeatPrompterFileException) {
                             try {
-                                SetListFile(result)
+                                SetFileParser(result.cachedCloudFileDescriptor).parse()
                             } catch (ibpfe4: InvalidBeatPrompterFileException) {
                                 IrrelevantFile(result)
                             }

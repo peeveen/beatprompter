@@ -461,7 +461,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         al.show()
     }
 
-    private fun showMIDIAliasErrors(errors: MutableList<FileParseError>) {
+    private fun showMIDIAliasErrors(errors: List<FileParseError>) {
         val builder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         @SuppressLint("InflateParams")

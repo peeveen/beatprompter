@@ -1,72 +1,10 @@
 package com.stevenfrew.beatprompter.cache
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
-import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.io.BufferedReader
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStreamReader
-import java.util.ArrayList
 
-class SetListFile : CachedCloudFile {
-
-    var mSongTitles: MutableList<String> = ArrayList()
-    var mSetTitle=""
-
-    @Throws(InvalidBeatPrompterFileException::class)
-    internal constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
-        parseSetListFileInfo()
-    }
-
-    @Throws(InvalidBeatPrompterFileException::class)
-    internal constructor(element: Element) : super(element) {
-        parseSetListFileInfo()
-    }
-
-    @Throws(InvalidBeatPrompterFileException::class)
-    private fun parseSetListFileInfo() {
-        var br: BufferedReader? = null
-        val parsingState=SetParsingState(this)
-        try {
-            br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
-            var setTitle: String? = null
-            var line: String?
-            var lineNumber = 0
-            do {
-                line = br.readLine()
-                if(line!=null) {
-                    val fileLine= SetFileLine(line, ++lineNumber,parsingState)
-                    if(fileLine.isComment)
-                        continue
-                    if (setTitle == null || setTitle.isEmpty())
-                        setTitle = fileLine.mTags.filterIsInstance<SetNameTag>().firstOrNull()?.mSetName
-                    else
-                        mSongTitles.add(line)
-                }
-            } while(line!=null)
-
-            if (setTitle == null || setTitle.isEmpty())
-                throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_set_list, mID))
-            else
-                mSetTitle = setTitle
-        } catch (ioe: IOException) {
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_set_list, mID))
-        } finally {
-            try {
-                br?.close()
-            } catch (ioe: IOException) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to close set list file", ioe)
-            }
-
-        }
-    }
-
+class SetListFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mSetTitle:String, val mSongTitles:List<String>, errors: List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
     override fun writeToXML(d: Document, element: Element) {
         val setListFileElement = d.createElement(SETLISTFILE_ELEMENT_TAG_NAME)
         super.writeToXML(setListFileElement)

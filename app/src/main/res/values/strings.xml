@@ -17,6 +17,7 @@
     <string name="connect_to_leader_string">Connect to leader</string>
     <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
     <string name="clear_cache_string">Clear cache</string>
+    <string name="no_set_name_defined">No set name defined in set list file.</string>
     <string name="sort_songs">Sort ...</string>
     <string name="settings">Settings ...</string>
     <string name="multiple_beatstart_beatstop_same_line">Multiple beatstart or beatstop tags were found on the same line. Ignoring all but the first.</string>

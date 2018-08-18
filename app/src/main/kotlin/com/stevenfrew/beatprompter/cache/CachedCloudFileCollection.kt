@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.midi.Alias
 import org.w3c.dom.Document
@@ -39,53 +39,33 @@ class CachedCloudFileCollection {
             ccf.writeToXML(d, root)
     }
 
+    private fun <TCachedCloudFileType:CachedCloudFile>addToCollection(xmlDoc:Document,tagName:String,parser: (element: Element) -> TCachedCloudFileType)
+    {
+        val elements = xmlDoc.getElementsByTagName(tagName)
+        for (f in 0 until elements.length) {
+            val element = elements.item(f) as Element
+            try {
+                add(parser(element))
+            } catch (ibpfe: InvalidBeatPrompterFileException) {
+                // This should never happen. If we could write out the file info, then it was valid.
+                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
+                // has meddled with files outside of the app ...
+                Log.d(BeatPrompterApplication.TAG, "Failed to parse file.")
+                // File has become irrelevant
+                add(IrrelevantFile(element))
+            }
+        }
+    }
+
     fun readFromXML(xmlDoc: Document) {
         clear()
 
-        val songFiles = xmlDoc.getElementsByTagName(SongFile.SONGFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until songFiles.length)
-            try {
-                add(SongFile(songFiles.item(f) as Element))
-            } catch (ibpfe: InvalidBeatPrompterFileException) {
-                // This should never happen. If we could write out the file info, then it was valid.
-                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
-                // has meddled with files outside of the app ...
-                Log.d(BeatPrompterApplication.TAG, "Failed to parse song file.")
-            }
-
-        val setFiles = xmlDoc.getElementsByTagName(SetListFile.SETLISTFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until setFiles.length)
-            try {
-                add(SetListFile(setFiles.item(f) as Element))
-            } catch (ibpfe: InvalidBeatPrompterFileException) {
-                // This should never happen. If we could write out the file info, then it was valid.
-                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
-                // has meddled with files outside of the app ...
-                Log.d(BeatPrompterApplication.TAG, "Failed to parse set-list file.")
-            }
-
-        val imageFiles = xmlDoc.getElementsByTagName(ImageFile.IMAGEFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until imageFiles.length)
-            add(ImageFile(imageFiles.item(f) as Element))
-
-        val audioFiles = xmlDoc.getElementsByTagName(AudioFile.AUDIOFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until audioFiles.length)
-            add(AudioFile(audioFiles.item(f) as Element))
-
-        val aliasFiles = xmlDoc.getElementsByTagName(MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until aliasFiles.length)
-            try {
-                add(MIDIAliasFile(aliasFiles.item(f) as Element))
-            } catch (ibpfe: InvalidBeatPrompterFileException) {
-                // This should never happen. If we could write out the file info, then it was valid.
-                // So it must still be valid when we come to read it in. Unless some dastardly devious sort
-                // has meddled with files outside of the app ...
-                Log.d(BeatPrompterApplication.TAG, "Failed to parse MIDI alias file.")
-            }
-
-        val irrelevantFiles = xmlDoc.getElementsByTagName(IrrelevantFile.IRRELEVANTFILE_ELEMENT_TAG_NAME)
-        for (f in 0 until irrelevantFiles.length)
-            add(IrrelevantFile(irrelevantFiles.item(f) as Element))
+        addToCollection(xmlDoc,AudioFile.AUDIOFILE_ELEMENT_TAG_NAME) { element:Element -> AudioFileParser(CachedCloudFileDescriptor(element)).parse()}
+        addToCollection(xmlDoc,ImageFile.IMAGEFILE_ELEMENT_TAG_NAME) { element:Element -> ImageFileParser(CachedCloudFileDescriptor(element)).parse()}
+        addToCollection(xmlDoc,SongFile.SONGFILE_ELEMENT_TAG_NAME) { element:Element -> SongInfoParser(CachedCloudFileDescriptor(element),audioFiles,imageFiles).parse()}
+        addToCollection(xmlDoc,SetListFile.SETLISTFILE_ELEMENT_TAG_NAME) { element:Element -> SetFileParser(CachedCloudFileDescriptor(element)).parse()}
+        addToCollection(xmlDoc,MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME) { element:Element -> MIDIAliasFileParser(CachedCloudFileDescriptor(element)).parse()}
+        addToCollection(xmlDoc,IrrelevantFile.IRRELEVANTFILE_ELEMENT_TAG_NAME) { element:Element -> IrrelevantFile(element)}
     }
 
     fun add(cachedFile: CachedCloudFile) {
