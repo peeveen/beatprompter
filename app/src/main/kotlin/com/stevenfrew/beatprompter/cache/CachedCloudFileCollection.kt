@@ -63,7 +63,7 @@ class CachedCloudFileCollection {
         addToCollection(xmlDoc,AudioFile.AUDIOFILE_ELEMENT_TAG_NAME) { element:Element -> AudioFileParser(CachedCloudFileDescriptor(element)).parse()}
         addToCollection(xmlDoc,ImageFile.IMAGEFILE_ELEMENT_TAG_NAME) { element:Element -> ImageFileParser(CachedCloudFileDescriptor(element)).parse()}
         addToCollection(xmlDoc,SongFile.SONGFILE_ELEMENT_TAG_NAME) { element:Element -> SongInfoParser(CachedCloudFileDescriptor(element),audioFiles,imageFiles).parse()}
-        addToCollection(xmlDoc,SetListFile.SETLISTFILE_ELEMENT_TAG_NAME) { element:Element -> SetFileParser(CachedCloudFileDescriptor(element)).parse()}
+        addToCollection(xmlDoc,SetListFile.SETLISTFILE_ELEMENT_TAG_NAME) { element:Element -> SetListFileParser(CachedCloudFileDescriptor(element)).parse()}
         addToCollection(xmlDoc,MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME) { element:Element -> MIDIAliasFileParser(CachedCloudFileDescriptor(element)).parse()}
         addToCollection(xmlDoc,IrrelevantFile.IRRELEVANTFILE_ELEMENT_TAG_NAME) { element:Element -> IrrelevantFile(element)}
     }

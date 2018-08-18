@@ -37,7 +37,7 @@ abstract class CachedCloudFile : CachedCloudFileDescriptor {
                             SongInfoParser(result.cachedCloudFileDescriptor,listOf(),listOf()).parse()
                         } catch (ibpfe3: InvalidBeatPrompterFileException) {
                             try {
-                                SetFileParser(result.cachedCloudFileDescriptor).parse()
+                                SetListFileParser(result.cachedCloudFileDescriptor).parse()
                             } catch (ibpfe4: InvalidBeatPrompterFileException) {
                                 IrrelevantFile(result)
                             }

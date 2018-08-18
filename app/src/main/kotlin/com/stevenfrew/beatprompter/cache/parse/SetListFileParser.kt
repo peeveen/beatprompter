@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
 
-class SetFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor) {
+class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor) {
 
     private var mSetName:String=""
     private val mSongs=mutableListOf<String>()

@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.LineBeatInfo
 import com.stevenfrew.beatprompter.R
@@ -11,86 +12,77 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 
 class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,currentAudioFiles:List<AudioFile>,currentImageFiles:List<ImageFile>):SongFileParser<SongFile>(cachedCloudFileDescriptor,currentAudioFiles,currentImageFiles) {
-    override fun parseLine(line: TextFileLine<SongFile>) {
-        // Bars can be defined by commas ....
-        var commaBars:Int?=null
-        // TODO: Deep clone of tags
-        val tags=line.mTags.toList()
+    var mTitle:String?=null
+    var mArtist:String?=null
+    var mKey:String?=null
+    var mFirstChord:String?=null
+    var mMIDIProgramChangeTrigger:String?=null
+    var mMIDISongSelectTrigger:String?=null
+    var mBPM:Double?=null
+    var mMixedMode:Boolean=false
+    val mAudioFiles=mutableListOf<AudioFile>()
+    val mImageFiles=mutableListOf<ImageFile>()
 
-        var workLine=line.mTaglessLine
-        while (workLine.startsWith(",")) {
-            if(commaBars==null)
-                commaBars=0
-            workLine = workLine.substring(1)
-            tags.forEach{it.retreatFrom(0)}
-            commaBars++
-        }
+    override fun parseLine(line: TextFileLine<SongFile>)
+    {
+        val titleTag=line.mTags.filterIsInstance<TitleTag>().firstOrNull()
+        val artistTag=line.mTags.filterIsInstance<ArtistTag>().firstOrNull()
+        val keyTag=line.mTags.filterIsInstance<KeyTag>().firstOrNull()
+        val chordTag=line.mTags.filterIsInstance<ChordTag>().firstOrNull()
+        val midiSongSelectTriggerTag=line.mTags.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()
+        val midiProgramChangeTriggerTag=line.mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
+        val bpmTag=line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
+        val beatStartTag=line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
+        val trackTag=line.mTags.filterIsInstance<TrackTag>().firstOrNull()
+        val imageFileTag=line.mTags.filterIsInstance<ImageTag>().firstOrNull()
 
-        var scrollBeatOffset=0
-        while (workLine.endsWith(">") || workLine.endsWith("<")) {
-            if (workLine.endsWith(">"))
-                scrollBeatOffset++
-            else if (workLine.endsWith("<"))
-                scrollBeatOffset--
-            workLine = workLine.substring(0, workLine.length - 1)
-            tags.forEach{it.retreatFrom(workLine.length)}
-        }
-
-        // TODO: dynamic BPB changing
-
-        // ... or by a tag (which overrides commas)
-        val barsTag=tags.filterIsInstance<BarsTag>().firstOrNull()
-        val barsPerLineTag=tags.filterIsInstance<BarsPerLineTag>().firstOrNull()
-        val beatsPerBarTag=tags.filterIsInstance<BeatsPerBarTag>().firstOrNull()
-        val beatsPerMinuteTag=tags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
-        val scrollBeatTag=tags.filterIsInstance<ScrollBeatTag>().firstOrNull()
-
-        val beatStartTags=tags.filterIsInstance<BeatStartTag>()
-        val beatStopTags=tags.filterIsInstance<BeatStopTag>()
-        val beatModeTags=listOf(beatStartTags,beatStopTags).flatMap { it }
-
-        val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?:commaBars?:mBeatInfo.mBPL
-        val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:mBeatInfo.mBPB
-        val beatsPerMinuteInThisLine=beatsPerMinuteTag?.mBPM?:mBeatInfo.mBPM
-        var scrollBeatInThisLine=scrollBeatTag?.mScrollBeat?:mBeatInfo.mScrollBeat
-        var modeOnThisLine=mBeatInfo.mScrollingMode
-
-        // Multiple beatstart or beatstop tags on the same line are nonsensical
-        if(beatModeTags.size>1)
-            mErrors.add(FileParseError(beatModeTags.first(), BeatPrompterApplication.getResourceString(R.string.multiple_beatstart_beatstop_same_line)))
-        else if(beatModeTags.size==1)
-            if(beatStartTags.isNotEmpty())
-                if(beatsPerMinuteInThisLine==0.0)
-                    mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
-                else
-                    modeOnThisLine= ScrollingMode.Beat
+        if(titleTag!=null)
+            if(!mTitle.isNullOrBlank())
+                mErrors.add(FileParseError(titleTag,BeatPrompterApplication.getResourceString(R.string.title_defined_twice)))
             else
-                modeOnThisLine = ScrollingMode.Manual
+                mTitle=titleTag.mTitle
 
-        val previousBeatsPerBar=mBeatInfo.mBPB
-        val previousScrollBeat=mBeatInfo.mScrollBeat
-        // If the beats-per-bar have changed, and there is no indication of what the new scrollbeat should be,
-        // set the new scrollbeat to have the same "difference" as before. For example, if the old BPB was 4,
-        // and the scrollbeat was 3 (one less than BPB), a new BPB of 6 should have a scrollbeat of 5 (one
-        // less than BPB)
-        if((beatsPerBarInThisLine!=previousBeatsPerBar)&&(scrollBeatTag==null))
-        {
-            val prevScrollBeatDiff = previousBeatsPerBar - previousScrollBeat
-            if(beatsPerBarInThisLine-prevScrollBeatDiff>0)
-                scrollBeatInThisLine=beatsPerBarInThisLine-prevScrollBeatDiff
+        if(artistTag!=null)
+            if(!mArtist.isNullOrBlank())
+                mErrors.add(FileParseError(titleTag,BeatPrompterApplication.getResourceString(R.string.artist_defined_twice)))
+            else
+                mArtist=artistTag.mArtist
+
+        val artist = fileLine.getArtist()
+        val key = fileLine.getKey()
+        val firstChord = fileLine.getFirstChord()
+        if ((mKey.isBlank()) && firstChord != null && firstChord.isNotEmpty())
+            mKey = firstChord
+        val msst = fileLine.getMIDISongSelectTrigger()
+        val mpct = fileLine.getMIDIProgramChangeTrigger()
+        if (msst != null)
+            mSongSelectTrigger = msst
+        if (mpct != null)
+            mProgramChangeTrigger = mpct
+        if (key != null)
+            mKey = key
+        if (artist != null)
+            mArtist = artist
+        val bpm = fileLine.getBPM()
+        if (bpm != null && mBPM == 0.0) {
+            try {
+                mBPM = bpm.toDouble()
+            } catch (e: Exception) {
+                Log.e(BeatPrompterApplication.TAG, "Failed to parse BPM value from song file.", e)
+            }
+
         }
 
-        if(scrollBeatInThisLine>beatsPerBarInThisLine)
-            scrollBeatInThisLine=beatsPerBarInThisLine
+        // TODO: better implementation of this.
+        //mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
+        mMixedMode=false
 
-        mBeatInfo= LineBeatInfo(barsPerLineTag?.mBPL?:mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
-
-        if ((beatsPerBarInThisLine!=0)&&(scrollBeatOffset < -beatsPerBarInThisLine || scrollBeatOffset >= beatsPerBarInThisLine)) {
-            mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
-            scrollBeatOffset = 0
-        }
-
-        thisline.mBeatInfo= LineBeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
+        val tags = fileLine.getTags()
+        mTags.addAll(tags)
+        val audios = fileLine.getAudioFiles()
+        mAudioFiles.addAll(audios.map{it.mName})
+        val images = fileLine.getImageFiles()
+        mImageFiles.addAll(images.map{it.mName})
     }
 
     override fun getResult(): SongFile {
