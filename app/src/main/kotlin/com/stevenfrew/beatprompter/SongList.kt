@@ -168,8 +168,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
         var track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty()) mCachedCloudFiles.getMappedAudioFile(selectedSong.mAudioFiles[0]) else null
-        var beatScroll = selectedSong.isBeatScrollable
-        var smoothScroll = selectedSong.isSmoothScrollable
+        var beatScroll = selectedSong.mIsBeatScrollable
+        var smoothScroll = selectedSong.mIsSmoothScrollable
         val sharedPrefs = BeatPrompterApplication.preferences
         val manualMode = sharedPrefs.getBoolean(getString(R.string.pref_manualMode_key), false)
         if (manualMode) {
@@ -353,8 +353,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                             if (trackNames.size > 1)
                                 audioSpinner.setSelection(1)
 
-                            val beatScrollable = selectedSong.isBeatScrollable
-                            val smoothScrollable = selectedSong.isSmoothScrollable
+                            val beatScrollable = selectedSong.mIsBeatScrollable
+                            val smoothScrollable = selectedSong.mIsSmoothScrollable
                             val beatButton = view
                                     .findViewById<ToggleButton>(R.id.toggleButton_beat)
                             val smoothButton = view

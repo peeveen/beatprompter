@@ -21,9 +21,12 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     private var mMIDIProgramChangeTrigger:SongTrigger?=null
     private var mMIDISongSelectTrigger:SongTrigger?=null
     private var mMixedMode:Boolean=false
+    private var mLines=0
 
     override fun parseLine(line: TextFileLine<SongFile>)
     {
+        ++mLines
+
         val titleTag=line.mTags.filterIsInstance<TitleTag>().firstOrNull()
         val artistTag=line.mTags.filterIsInstance<ArtistTag>().firstOrNull()
         val keyTag=line.mTags.filterIsInstance<KeyTag>().firstOrNull()
@@ -86,7 +89,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
                 else
                     mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor,mTitle!!,mArtist!!,key,mBPM,mDuration,mAudioFiles,mImageFiles,mMIDIProgramChangeTrigger,mMIDISongSelectTrigger,mMixedMode)
+        return SongFile(mCachedCloudFileDescriptor,mLines,mTitle!!,mArtist!!,key,mBPM,mDuration,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER)
     }
 
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag

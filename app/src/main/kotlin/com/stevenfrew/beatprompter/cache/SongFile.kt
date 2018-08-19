@@ -2,156 +2,16 @@ package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.midi.*
-import java.util.*
 
 @CacheXmlTag("song")
-class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,val mTitle:String,val mArtist:String,val mKey:String,val mBPM:Double,val mDuration:Long,val mAudioFiles:List<String>,val mImageFiles:List<String>,val mMIDIProgramChangeTrigger:SongTrigger?,val mMIDISongSelectTrigger:SongTrigger?,val mMixedMode:Boolean) : CachedCloudFile(cachedCloudFileDescriptor) {
+class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, val mProgramChangeTrigger:SongTrigger, val mSongSelectTrigger:SongTrigger) : CachedCloudFile(cachedCloudFileDescriptor) {
+    val mSortableArtist=sortableString(mArtist)
+    val mSortableTitle=sortableString(mTitle)
+    val mIsSmoothScrollable=mDuration>0
+    val mIsBeatScrollable=mBPM>0.0
 
-    private var mTimePerLine: Long = 0
-    private var mTimePerBar: Long = 0
-    var mLines = 0
-
-    val sortableArtist
-        get()= sortableString(mArtist)
-
-    val sortableTitle
-        get()= sortableString(mTitle)
-
-    private var mSongSelectTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
-    private var mProgramChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
-
-    var mTags = HashSet<String>()
-
-    val isSmoothScrollable: Boolean
-        get() = mTimePerLine > 0
-
-    val isBeatScrollable: Boolean
-        get() = mBPM > 0.0
-
-/*    @Throws(InvalidBeatPrompterFileException::class)
-    constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
-        parseSongFileInfo()
-    }
-
-    @Throws(IOException::class)
-    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String) : super(file, id, name, lastModified, subfolder) {
-        parseSongFileInfo()
-    }
-
-    constructor(element: Element) : super(element) {
-        mTitle = element.getAttribute(SONG_FILE_TITLE_ATTRIBUTE_NAME)
-        mArtist = element.getAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME)
-        val bpmString = element.getAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME)
-        val lineString = element.getAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME)
-        var mixedModeString: String? = element.getAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME)
-        val keyString = element.getAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME)
-        if (keyString != null)
-            mKey = keyString
-        if (mixedModeString == null)
-            mixedModeString = "false"
-        mLines = Integer.parseInt(lineString)
-        mBPM = bpmString.toDouble()
-        val timePerLineString = element.getAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME)
-        mMixedMode = mixedModeString.toBoolean()
-        mTimePerLine = timePerLineString.toLong()
-        var timePerBarString: String? = element.getAttribute(SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME)
-        if (timePerBarString == null || timePerBarString.isEmpty())
-            timePerBarString = "0"
-        mTimePerBar = timePerBarString.toLong()
-        val tagNodes = element.getElementsByTagName(TAG_ELEMENT_TAG_NAME)
-        mTags = HashSet()
-        for (f in 0 until tagNodes.length)
-            mTags.add(tagNodes.item(f).textContent)
-        val audioNodes = element.getElementsByTagName(AUDIO_FILE_ELEMENT_TAG_NAME)
-        mAudioFiles = ArrayList()
-        for (f in 0 until audioNodes.length)
-            mAudioFiles.add(audioNodes.item(f).textContent)
-        val imageNodes = element.getElementsByTagName(IMAGE_FILE_ELEMENT_TAG_NAME)
-        mImageFiles = ArrayList()
-        for (f in 0 until imageNodes.length)
-            mImageFiles.add(imageNodes.item(f).textContent)
-        val pcTriggerNodes = element.getElementsByTagName(PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME)
-        mProgramChangeTrigger = SongTrigger.DEAD_TRIGGER
-        for (f in 0 until pcTriggerNodes.length)
-            mProgramChangeTrigger = SongTrigger.readFromXMLElement(pcTriggerNodes.item(f) as Element)
-        val ssTriggerNodes = element.getElementsByTagName(SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME)
-        mSongSelectTrigger = SongTrigger.DEAD_TRIGGER
-        for (f in 0 until ssTriggerNodes.length)
-            mSongSelectTrigger = SongTrigger.readFromXMLElement(ssTriggerNodes.item(f) as Element)
-    }
-
-    @Throws(InvalidBeatPrompterFileException::class)
-    private fun parseSongFileInfo() {
-        var br: BufferedReader? = null
-        try {
-            val (timePerLine, timePerBar) = getTimePerLineAndBar(null)
-            var title:String?=null
-            mTimePerLine = timePerLine
-            mTimePerBar = timePerBar
-            val parsingState= SongParsingState(ScrollingMode.Beat,this)
-            br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
-            var line: String?
-            var lineNumber = 0
-            do {
-                line = br.readLine()
-                if(line!=null)
-                {
-                    val fileLine= SongFileLine(line, ++lineNumber,parsingState)
-                    if(title==null)
-                        title = fileLine.getTitle()
-                    val artist = fileLine.getArtist()
-                    val key = fileLine.getKey()
-                    val firstChord = fileLine.getFirstChord()
-                    if ((mKey.isBlank()) && firstChord != null && firstChord.isNotEmpty())
-                        mKey = firstChord
-                    val msst = fileLine.getMIDISongSelectTrigger()
-                    val mpct = fileLine.getMIDIProgramChangeTrigger()
-                    if (msst != null)
-                        mSongSelectTrigger = msst
-                    if (mpct != null)
-                        mProgramChangeTrigger = mpct
-                    if (key != null)
-                        mKey = key
-                    if (artist != null)
-                        mArtist = artist
-                    val bpm = fileLine.getBPM()
-                    if (bpm != null && mBPM == 0.0) {
-                        try {
-                            mBPM = bpm.toDouble()
-                        } catch (e: Exception) {
-                            Log.e(BeatPrompterApplication.TAG, "Failed to parse BPM value from song file.", e)
-                        }
-
-                    }
-
-                    // TODO: better implementation of this.
-                    //mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
-                    mMixedMode=false
-
-                    val tags = fileLine.getTags()
-                    mTags.addAll(tags)
-                    val audios = fileLine.getAudioFiles()
-                    mAudioFiles.addAll(audios.map{it.mName})
-                    val images = fileLine.getImageFiles()
-                    mImageFiles.addAll(images.map{it.mName})
-                }
-            } while(line!=null)
-            mLines = lineNumber
-            mTitle=title
-            if (mArtist == null)
-                mArtist = ""
-        } catch (ioe: IOException) {
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.file_io_read_error), ioe)
-        } finally {
-            try {
-                br?.close()
-            } catch (ioe: IOException) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to close song file.", ioe)
-            }
-        }
-    }
-
-        @Throws(IOException::class)
+/*
+      @Throws(IOException::class)
     fun getTimePerLineAndBar(chosenTrack: AudioFile?): SmoothScrollingTimings {
         val br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
         try {

@@ -34,21 +34,21 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
         val showBeatIcons = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue).toBoolean())
         val showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue).toBoolean())
         val showMusicIcon = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue).toBoolean())
-        if (song.mAudioFiles.size == 0 || !showMusicIcon) {
+        if (song.mAudioFiles.isEmpty() || !showMusicIcon) {
             notesIcon.visibility = View.GONE
             //            RelativeLayout.LayoutParams docIconLayoutParams=(RelativeLayout.LayoutParams)docIcon.getLayoutParams();
             //            docIconLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             //            docIcon.setLayoutParams(docIconLayoutParams);
         } else
             notesIcon.visibility = View.VISIBLE
-        if (!song.isSmoothScrollable || !showBeatIcons) {
+        if (!song.mIsSmoothScrollable || !showBeatIcons) {
             docIcon.visibility = View.GONE
             //            RelativeLayout.LayoutParams beatIconLayoutParams=(RelativeLayout.LayoutParams)beatIcon.getLayoutParams();
             //            beatIconLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             //            beatIcon.setLayoutParams(beatIconLayoutParams);
         } else
             docIcon.visibility = View.VISIBLE
-        if (!song.isBeatScrollable || !showBeatIcons) {
+        if (!song.mIsBeatScrollable || !showBeatIcons) {
             beatIcon.visibility = View.GONE
         } else
             beatIcon.visibility = View.VISIBLE

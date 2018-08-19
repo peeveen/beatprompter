@@ -26,11 +26,11 @@ internal class Playlist {
     }
 
     fun sortByTitle() {
-        buildSongList(songFiles.sortedBy{it.sortableTitle})
+        buildSongList(songFiles.sortedBy{it.mSortableTitle})
     }
 
     fun sortByArtist() {
-        buildSongList(songFiles.sortedBy{it.sortableArtist})
+        buildSongList(songFiles.sortedBy{it.mSortableArtist})
     }
 
     fun sortByKey() {
