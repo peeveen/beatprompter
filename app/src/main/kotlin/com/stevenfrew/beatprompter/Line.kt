@@ -15,7 +15,6 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,val mB
     internal var mSongPixelPosition: Int = 0
     var mLineEvent: LineEvent=LineEvent(lineTime,this,lineDuration) // the LineEvent that will display this line.
     internal var mGraphics = ArrayList<LineGraphic>() // pointer to the allocated graphic, if one exists
-    internal var mLineMeasurements: LineMeasurements
     var mYStartScrollTime: Long = 0
     var mYStopScrollTime: Long = 0
 
@@ -45,44 +44,6 @@ abstract class Line internal constructor(lineTime: Long,lineDuration:Long,val mB
     }
 
     abstract fun doMeasurements(paint: Paint, songDisplaySettings: SongDisplaySettings, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements
-
-    internal fun getTimeFromPixel(pixelPosition: Int): Long {
-        if (pixelPosition == 0)
-            return 0
-        if (pixelPosition >= mSongPixelPosition && pixelPosition < mSongPixelPosition + mLineMeasurements.mPixelsToTimes.size)
-            return mLineMeasurements.mPixelsToTimes[pixelPosition - mSongPixelPosition]
-        else if (pixelPosition < mSongPixelPosition && mPrevLine != null)
-            return mPrevLine!!.getTimeFromPixel(pixelPosition)
-        else if (pixelPosition >= mSongPixelPosition + mLineMeasurements.mPixelsToTimes.size && mNextLine != null)
-            return mNextLine!!.getTimeFromPixel(pixelPosition)
-        return mLineMeasurements.mPixelsToTimes[mLineMeasurements.mPixelsToTimes.size - 1]
-    }
-
-    internal fun getPixelFromTime(time: Long): Int {
-        if (time == 0L)
-            return 0
-        var lineEndTime = Long.MAX_VALUE
-        if (mNextLine != null)
-            lineEndTime = mNextLine!!.mLineEvent.mEventTime
-
-        if (time >= mLineEvent.mEventTime && time < lineEndTime)
-            return calculatePixelFromTime(time)
-        else if (time < mLineEvent.mEventTime && mPrevLine != null)
-            return mPrevLine!!.getPixelFromTime(time)
-        else if (time >= lineEndTime && mNextLine != null)
-            return mNextLine!!.getPixelFromTime(time)
-        return mSongPixelPosition + mLineMeasurements.mPixelsToTimes.size
-    }
-
-    private fun calculatePixelFromTime(time: Long): Int {
-        var last = mSongPixelPosition
-        for (n in mLineMeasurements.mPixelsToTimes) {
-            if (n > time)
-                return last
-            last++
-        }
-        return last
-    }
 
     internal fun setGraphic(graphic: LineGraphic) {
         mGraphics.add(graphic)
