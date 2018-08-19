@@ -4,7 +4,6 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
 ) {
     var mPrevEvent: BaseEvent? = null
     var mNextEvent: BaseEvent? = null
-    var mPrevColorEvent: ColorEvent? = null
     var mPrevTrackEvent: TrackEvent? = null
     //ScrollEvent mPrevScrollEvent;
     var mPrevBeatEvent: BeatEvent? = null
@@ -42,13 +41,11 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
     fun add(event: BaseEvent) {
         mNextEvent = event
         event.mPrevEvent = this
-        event.mPrevColorEvent = mPrevColorEvent
         event.mPrevBeatEvent = mPrevBeatEvent
         event.mPrevTrackEvent = mPrevTrackEvent
         event.mPrevLineEvent = mPrevLineEvent
         //event.mPrevScrollEvent=mPrevScrollEvent;
         when (event) {
-            is ColorEvent -> event.mPrevColorEvent = event
             is BeatEvent -> event.mPrevBeatEvent = event
             is TrackEvent -> event.mPrevTrackEvent = event
             is LineEvent -> event.mPrevLineEvent = event
@@ -66,15 +63,6 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
         if (mTempNextEvent != null)
             mTempNextEvent.mPrevEvent = event
         event.mPrevEvent = this
-        if (event is ColorEvent) {
-            event.mPrevColorEvent = event
-            var currentEvent = event.mNextEvent
-            while (currentEvent != null && currentEvent !is ColorEvent) {
-                currentEvent.mPrevColorEvent = event
-                currentEvent = currentEvent.mNextEvent
-            }
-        } else
-            event.mPrevColorEvent = mPrevColorEvent
 
         /*if(event instanceof ScrollEvent)
         {
@@ -172,8 +160,6 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
             if (eventBefore != null) {
                 if (mNextEvent !is TrackEvent)
                     mNextEvent!!.mPrevTrackEvent = eventBefore.mPrevTrackEvent
-                if (mNextEvent !is ColorEvent)
-                    mNextEvent!!.mPrevColorEvent = eventBefore.mPrevColorEvent
                 if (mNextEvent !is LineEvent)
                     mNextEvent!!.mPrevLineEvent = eventBefore.mPrevLineEvent
                 if (mNextEvent !is BeatEvent)
@@ -181,8 +167,6 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
             } else {
                 if (mNextEvent !is TrackEvent)
                     mNextEvent!!.mPrevTrackEvent = null
-                if (mNextEvent !is ColorEvent)
-                    mNextEvent!!.mPrevColorEvent = null
                 if (mNextEvent !is LineEvent)
                     mNextEvent!!.mPrevLineEvent = null
                 if (mNextEvent !is BeatEvent)

@@ -5,9 +5,8 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
-import com.stevenfrew.beatprompter.event.ColorEvent
 
-class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, lastColor: ColorEvent, beatInfo:BeatInfo) : Line(lineTime,lineDuration, lastColor, beatInfo) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, beatInfo:BeatInfo) : Line(lineTime,lineDuration,beatInfo) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -21,6 +20,16 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
     private val mPixelSplits = mutableListOf<Boolean>()
     private var mLineDescenderOffset: Int = 0
     private var mChordDescenderOffset: Int = 0
+    private val mLyricColor:Int
+    private val mChordColor:Int
+    private val mAnnotationColor:Int
+
+    init {
+        val sharedPrefs=BeatPrompterApplication.preferences
+        mLyricColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default))))
+        mChordColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default))))
+        mAnnotationColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default))))
+    }
 
     private val totalXSplits: Int
         get() {
@@ -92,8 +101,8 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
         for (section in sections) {
             if (!cancelEvent.isCancelled)
                 break
-            section.setTextFontSizeAndMeasure(paint, 100, font, mColorEvent.mLyricColor)
-            section.setChordFontSizeAndMeasure(paint, 100, font, mColorEvent.mLyricColor)
+            section.setTextFontSizeAndMeasure(paint, 100, font)
+            section.setChordFontSizeAndMeasure(paint, 100, font)
             if (section.mChordWidth > section.mTextWidth)
                 longestBits.append(section.mChordText)
             else
@@ -118,8 +127,8 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 if (cancelEvent.isCancelled)
                     break
                 textExists = textExists or (section.mLineText!!.isNotEmpty())
-                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(textFontSize).toInt(), font, mColorEvent.mLyricColor)
-                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(chordFontSize).toInt(), font, mColorEvent.mChordColor)
+                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(textFontSize).toInt(), font)
+                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(chordFontSize).toInt(), font)
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false
                 else if (textWidth > 0 && textWidth > chordWidth)
@@ -160,8 +169,8 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             for (section in sections) {
                 if (cancelEvent.isCancelled)
                     break
-                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(proposedLargerTextFontSize).toInt(), font, mColorEvent.mLyricColor)
-                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(proposedLargerChordFontSize).toInt(), font, mColorEvent.mChordColor)
+                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(proposedLargerTextFontSize).toInt(), font)
+                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(proposedLargerChordFontSize).toInt(), font)
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false
                 else if (textWidth > 0 && textWidth > chordWidth)
@@ -193,8 +202,8 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
         for (section in sections) {
             if (cancelEvent.isCancelled)
                 break
-            section.setTextFontSizeAndMeasure(paint, mLineTextSize, font, mColorEvent.mLyricColor)
-            section.setChordFontSizeAndMeasure(paint, mChordTextSize, font, mColorEvent.mChordColor)
+            section.setTextFontSizeAndMeasure(paint, mLineTextSize, font)
+            section.setChordFontSizeAndMeasure(paint, mChordTextSize, font)
             mLineDescenderOffset = Math.max(mLineDescenderOffset, section.mLineSS!!.mDescenderOffset)
             mChordDescenderOffset = Math.max(mChordDescenderOffset, section.mChordSS!!.mDescenderOffset)
             mLyricHeight = Math.max(mLyricHeight, section.mTextHeight - section.mLineSS!!.mDescenderOffset)
@@ -434,7 +443,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                     val width = section.width
                     if (currentX + width > 0) {
                         if (chordsDrawn && (section.mChordDrawLine == f || section.mChordDrawLine == -1) && currentX < xSplit && section.mChordText!!.trim { it <= ' ' }.isNotEmpty()) {
-                            paint.color = if (section.mTrueChord) mColorEvent.mChordColor else mColorEvent.mAnnotationColor
+                            paint.color = if (section.mTrueChord) mChordColor else mAnnotationColor
                             paint.textSize = mChordTextSize * Utils.FONT_SCALING
                             paint.flags = Paint.ANTI_ALIAS_FLAG
                             c.drawText(section.mChordText!!, currentX.toFloat(), mChordHeight.toFloat(), paint)
@@ -443,7 +452,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                         if (xSplit != Integer.MAX_VALUE)
                             c.clipRect(0, 0, xSplit, thisLineHeight)
                         if (section.mLineText!!.trim { it <= ' ' }.isNotEmpty()) {
-                            paint.color = mColorEvent.mLyricColor
+                            paint.color = mLyricColor
                             paint.textSize = mLineTextSize * Utils.FONT_SCALING
                             paint.flags = Paint.ANTI_ALIAS_FLAG
                             c.drawText(section.mLineText!!, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)

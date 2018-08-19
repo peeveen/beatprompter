@@ -23,8 +23,8 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
     val height: Int
         get() = mTextHeight + mChordHeight
 
-    fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
-        mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face, color)
+    fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
+        mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face)
         mTextHeight = if (mLineText!!.trim().isEmpty())
             0
         else
@@ -33,12 +33,12 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
         return mTextWidth
     }
 
-    fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface, color: Int): Int {
-        mChordSS = ScreenString.create(mChordText!!, paint, fontSize.toFloat(), face, color)
+    fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
+        mChordSS = ScreenString.create(mChordText!!, paint, fontSize.toFloat(), face)
         val trimChord = mChordText!!.trim()
         val trimChordSS: ScreenString
         trimChordSS = if (trimChord.length < mChordText!!.length)
-            ScreenString.create(trimChord, paint, fontSize.toFloat(), face, color)
+            ScreenString.create(trimChord, paint, fontSize.toFloat(), face)
         else
             mChordSS!!
         mChordHeight = if (mChordText!!.trim().isEmpty())

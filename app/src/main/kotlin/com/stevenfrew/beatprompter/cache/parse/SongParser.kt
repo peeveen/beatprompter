@@ -16,7 +16,6 @@ import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.songload.CancelEvent
 
 class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEvent, val mSongLoadHander: Handler, val mRegistered:Boolean):SongFileParser<Song>(mSongFile) {
-    private val mIgnoreColorInfo:Boolean
     private val mCountInPref:Int
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
@@ -24,13 +23,6 @@ class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEv
     private val mTriggerContext: TriggerOutputContext
     private var mBeatInfo:BeatInfo=BeatInfo()
 
-    private var mBackgroundColor:Int
-    private var mPulseColor:Int
-    private var mBeatCounterColor:Int
-    private var mScrollMarkerColor:Int
-    private var mLyricColor:Int
-    private var mChordColor:Int
-    private var mAnnotationColor:Int
     private var mSendMidiClock:Boolean=false
     private var mCurrentHighlightColor:Int
     private var mSongTime:Long=0
@@ -39,18 +31,10 @@ class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEv
     init
     {
         val sharedPrefs=BeatPrompterApplication.preferences
-        mIgnoreColorInfo = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue).toBoolean())
         mSendMidiClock = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
         mCountInPref = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
         mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
-        mBackgroundColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
-        mPulseColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_default)))
         mCurrentHighlightColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default)))
-        mBeatCounterColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)))
-        mScrollMarkerColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_default)))
-        mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
-        mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
-        mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
         mCustomCommentsUser = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue))?:""
         mShowChords = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
         mTriggerContext = TriggerOutputContext.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue))!!)

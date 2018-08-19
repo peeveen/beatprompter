@@ -4,12 +4,10 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.songload.CancelEvent
-import com.stevenfrew.beatprompter.event.ColorEvent
 import com.stevenfrew.beatprompter.event.LineEvent
 import java.util.ArrayList
 
-abstract class Line internal constructor(lineTime: Long,lineDuration:Long,internal var mColorEvent: ColorEvent // style event that occurred immediately before this line will be shown.
-                                         ,val mBeatInfo:BeatInfo) {
+abstract class Line internal constructor(lineTime: Long,lineDuration:Long,val mBeatInfo:BeatInfo) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     internal var mSongPixelPosition: Int = 0

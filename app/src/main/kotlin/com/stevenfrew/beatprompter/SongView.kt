@@ -108,6 +108,32 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default))))
         mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_default))))
         mPulse = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue).toBoolean())
+
+        mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
+        val backgroundColor = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+        val pulseColor=
+                if (mPulse)
+                    sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+                else
+                    backgroundColor
+        val bgR = Color.red(backgroundColor)
+        val bgG = Color.green(backgroundColor)
+        val bgB = Color.blue(backgroundColor)
+        val pR = Color.red(pulseColor)
+        val pG = Color.green(pulseColor)
+        val pB = Color.blue(pulseColor)
+        val rDiff = pR - bgR
+        val gDiff = pG - bgG
+        val bDiff = pB - bgB
+        for (f in 0..100) {
+            val sineLookup = Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]
+            val red = pR - (sineLookup * rDiff.toDouble()).toInt()
+            val green = pG - (sineLookup * gDiff.toDouble()).toInt()
+            val blue = pB - (sineLookup * bDiff.toDouble()).toInt()
+            val color = Color.rgb(red, green, blue)
+            mBackgroundColorLookup[f] = color
+        }
+        mSongTitleContrastBackground = Utils.makeContrastingColour(mBackgroundColorLookup[100])
     }
 
     // Constructor
@@ -147,8 +173,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (mSong!!.mScrollingMode === ScrollingMode.Smooth)
                 mPulse = false
             mInitialized = true
-            // First event will ALWAYS be a style event.
-            processColorEvent(mSong!!.mFirstEvent as ColorEvent)
 
             if (mSong!!.mChosenBackingTrack != null)
                 if (mSong!!.mChosenBackingTrack!!.mFile.exists()) {
@@ -217,9 +241,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 var event: BaseEvent?
                 do {
                     event = mSong!!.getNextEvent(timePassed)
-                    if (event is ColorEvent)
-                        processColorEvent(event)
-                    else if (event is CommentEvent)
+                    if (event is CommentEvent)
                         processCommentEvent(event, time)
                     else if (event is BeatEvent)
                         processBeatEvent(event, true)
@@ -678,32 +700,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mLastCommentEvent = event
     }
 
-    private fun processColorEvent(event: ColorEvent?) {
-        mBeatCounterColor = event!!.mBeatCounterColor
-        mScrollMarkerColor = event.mScrollMarkerColor
-        mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
-        val backgroundColor = event.mBackgroundColor
-        val pulseColor = if (mPulse) event.mPulseColor else event.mBackgroundColor
-        val bgR = Color.red(backgroundColor)
-        val bgG = Color.green(backgroundColor)
-        val bgB = Color.blue(backgroundColor)
-        val pR = Color.red(pulseColor)
-        val pG = Color.green(pulseColor)
-        val pB = Color.blue(pulseColor)
-        val rDiff = pR - bgR
-        val gDiff = pG - bgG
-        val bDiff = pB - bgB
-        for (f in 0..100) {
-            val sineLookup = Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]
-            val red = pR - (sineLookup * rDiff.toDouble()).toInt()
-            val green = pG - (sineLookup * gDiff.toDouble()).toInt()
-            val blue = pB - (sineLookup * bDiff.toDouble()).toInt()
-            val color = Color.rgb(red, green, blue)
-            mBackgroundColorLookup[f] = color
-        }
-        mSongTitleContrastBackground = Utils.makeContrastingColour(mBackgroundColorLookup[100])
-    }
-
     private fun processBeatEvent(event: BeatEvent?, allowClick: Boolean) {
         if (event == null)
             return
@@ -811,7 +807,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (broadcast)
                 BluetoothManager.broadcastMessageToClients(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
-            processColorEvent(mSong!!.mCurrentEvent!!.mPrevColorEvent)
             if (mSong!!.mScrollingMode !== ScrollingMode.Manual) {
                 val prevBeatEvent = mSong!!.mCurrentEvent!!.mPrevBeatEvent
                 val nextBeatEvent = mSong!!.mCurrentEvent!!.nextBeatEvent
