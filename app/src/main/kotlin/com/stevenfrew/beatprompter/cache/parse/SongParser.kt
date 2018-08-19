@@ -122,6 +122,9 @@ class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEv
         }
 
         val lineBeatInfo= BeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
+
+        // TODO: when creating image line, expect exception from bad images.
+        //         errors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mImageFile.mName))
     }
 
     override fun getResult(): Song {

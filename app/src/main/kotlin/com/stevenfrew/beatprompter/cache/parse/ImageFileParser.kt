@@ -11,11 +11,12 @@ class ImageFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDesc
     override fun parse(): ImageFile {
         val options = BitmapFactory.Options()
         try {
-            BitmapFactory.decodeFile(mCachedCloudFileDescriptor.mFile.absolutePath, options)
+            val bitmap=BitmapFactory.decodeFile(mCachedCloudFileDescriptor.mFile.absolutePath, options)
                     ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mCachedCloudFileDescriptor.mName)
+            return ImageFile(mCachedCloudFileDescriptor,bitmap.width,bitmap.height)
         } catch (e: Exception) {
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mCachedCloudFileDescriptor.mName)
+            // Not bothered about what the exception is. File is obviously shite.
         }
-        return ImageFile(mCachedCloudFileDescriptor)
+        throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mCachedCloudFileDescriptor.mName)
     }
 }

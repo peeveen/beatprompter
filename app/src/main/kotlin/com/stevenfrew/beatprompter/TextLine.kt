@@ -5,8 +5,9 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
+import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, beatInfo:BeatInfo) : Line(lineTime,lineDuration,beatInfo) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, beatInfo:BeatInfo,private val mText: String, private val mLineTags: Collection<Tag>) : Line(lineTime,lineDuration,beatInfo) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -87,13 +88,13 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
     }
 
     // TODO: Fix this, for god's sake!
-    override fun doMeasurements(paint: Paint, minimumFontSize: Float, maximumFontSize: Float, screenWidth: Int, screenHeight: Int, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements? {
+    override fun doMeasurements(paint: Paint, songDisplaySettings: SongDisplaySettings, font: Typeface, highlightColour: Int, defaultHighlightColour: Int, errors: MutableList<FileParseError>, scrollMode: ScrollingMode, cancelEvent: CancelEvent): LineMeasurements {
         var vHighlightColour = highlightColour
         mFont = font
         val sections = calculateSections(cancelEvent)
 
         if (cancelEvent.isCancelled)
-            return null
+            throw SongLoadCancelledException()
 
         // we have the sections, now fit 'em
         // Start with an arbitrary size
@@ -109,9 +110,9 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 longestBits.append(section.mLineText)
         }
         if (cancelEvent.isCancelled)
-            return null
+            throw SongLoadCancelledException()
 
-        val maxLongestFontSize = ScreenString.getBestFontSize(longestBits.toString(), paint, minimumFontSize, maximumFontSize, screenWidth, -1, font).toDouble()
+        val maxLongestFontSize=ScreenString.getBestFontSize(longestBits.toString(), paint, songDisplaySettings.mMinFontSize,songDisplaySettings.mMaxFontSize,-1, font).toDouble()
         var textFontSize = maxLongestFontSize
         var chordFontSize = maxLongestFontSize
         var allTextSmallerThanChords: Boolean
@@ -137,28 +138,28 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             }
             if (cancelEvent.isCancelled)
                 break
-            if (width >= screenWidth) {
-                if (textFontSize >= minimumFontSize + 2 && chordFontSize >= minimumFontSize + 2) {
+            if (width >= mScreenSize.width()) {
+                if (textFontSize >= songDisplaySettings.mMinFontSize + 2 && chordFontSize >= songDisplaySettings.mMinFontSize + 2) {
                     textFontSize -= 2.0
                     chordFontSize -= 2.0
-                } else if (textFontSize >= minimumFontSize + 1 && chordFontSize >= minimumFontSize + 1) {
+                } else if (textFontSize >= songDisplaySettings.mMinFontSize + 1 && chordFontSize >= songDisplaySettings.mMinFontSize + 1) {
                     textFontSize -= 1.0
                     chordFontSize -= 1.0
-                } else if (textFontSize > minimumFontSize && chordFontSize > minimumFontSize) {
-                    chordFontSize = minimumFontSize.toDouble()
+                } else if (textFontSize > songDisplaySettings.mMinFontSize && chordFontSize > songDisplaySettings.mMinFontSize) {
+                    chordFontSize = songDisplaySettings.mMinFontSize.toDouble()
                     textFontSize = chordFontSize
                 }
             }
-        } while (!cancelEvent.isCancelled && width >= screenWidth && textFontSize > minimumFontSize && chordFontSize > minimumFontSize)
+        } while (!cancelEvent.isCancelled && width >= mScreenSize.width() && textFontSize > songDisplaySettings.mMinFontSize && chordFontSize > songDisplaySettings.mMinFontSize)
         if (cancelEvent.isCancelled)
-            return null
+            throw SongLoadCancelledException()
 
         do {
             var proposedLargerTextFontSize = textFontSize
             var proposedLargerChordFontSize = chordFontSize
-            if (allTextSmallerThanChords && textExists && textFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerTextFontSize <= maximumFontSize - 2)
+            if (allTextSmallerThanChords && textExists && textFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerTextFontSize <= songDisplaySettings.mMaxFontSize - 2)
                 proposedLargerTextFontSize += 2.0
-            else if (allChordsSmallerThanText && chordFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerChordFontSize <= maximumFontSize - 2)
+            else if (allChordsSmallerThanText && chordFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerChordFontSize <= songDisplaySettings.mMaxFontSize - 2)
                 proposedLargerChordFontSize += 2.0
             else
             // Nothing we can do. Increasing any size will make things bigger than the screen.
@@ -182,13 +183,13 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             // If the text still isn't wider than the screen,
             // or it IS wider than the screen, but hasn't got any wider,
             // accept the new sizes.
-            if (width < screenWidth || width == width) {
+            if (width < mScreenSize.width() || width == width) {
                 textFontSize = proposedLargerTextFontSize
                 chordFontSize = proposedLargerChordFontSize
             }
-        } while (!cancelEvent.isCancelled && width < screenWidth || width == width)
+        } while (!cancelEvent.isCancelled && width < mScreenSize.width() || width == width)
         if (cancelEvent.isCancelled)
-            return null
+            throw SongLoadCancelledException()
 
         mLineTextSize = Math.floor(textFontSize).toInt()
         mChordTextSize = Math.floor(chordFontSize).toInt()
@@ -213,10 +214,10 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
             vHighlightColour = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), font, vHighlightColour)
         }
         if (cancelEvent.isCancelled)
-            return null
+            throw SongLoadCancelledException()
 
         // Word wrappin' time!
-        if (width > screenWidth) {
+        if (width > mScreenSize.width()) {
             var bothersomeSection: LineSection?
             do {
                 // Start from the first section again, but work from off the lefthand edge
@@ -243,18 +244,18 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                     if (startX <= 0 && startX + sec.mChordTrimWidth > 0 && lastSplitWasPixelSplit)
                         chordsDrawn = chordsDrawn or sec.hasChord()
                     totalWidth += sec.width
-                    if (startX >= 0 && totalWidth < screenWidth) {
+                    if (startX >= 0 && totalWidth < mScreenSize.width()) {
                         // this whole section fits onscreen, no problem.
                         chordsDrawn = chordsDrawn or sec.hasChord()
                         textDrawn = textDrawn or sec.hasText()
-                    } else if (totalWidth >= screenWidth) {
+                    } else if (totalWidth >= mScreenSize.width()) {
                         bothersomeSection = sec
                         break
                     }
                 }
                 if (bothersomeSection != null) {
-                    val previousSplit = if (mXSplits.size > 0) mXSplits[mXSplits.size - 1] else screenWidth
-                    val leftoverSpaceOnPreviousLine = screenWidth - previousSplit
+                    val previousSplit = if (mXSplits.size > 0) mXSplits[mXSplits.size - 1] else mScreenSize.width()
+                    val leftoverSpaceOnPreviousLine = mScreenSize.width() - previousSplit
                     val widthWithoutBothersomeSection = totalWidth - bothersomeSection.width
                     var xSplit = 0
                     var lineWidth = 0
@@ -273,7 +274,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                             var tryThisWithWhitespaceWidth = tryThisWidth
                             if (tryThisWithWhitespace.length > tryThis.length)
                                 tryThisWithWhitespaceWidth = ScreenString.getStringWidth(paint, tryThisWithWhitespace, font, mLineTextSize.toFloat())
-                            if (tryThisWidth >= bothersomeSection.mChordTrimWidth || tryThisWidth < bothersomeSection.mChordTrimWidth && bothersomeSection.mChordTrimWidth + widthWithoutBothersomeSection < screenWidth) {
+                            if (tryThisWidth >= bothersomeSection.mChordTrimWidth || tryThisWidth < bothersomeSection.mChordTrimWidth && bothersomeSection.mChordTrimWidth + widthWithoutBothersomeSection < mScreenSize.width()) {
                                 val possibleSplitPoint = widthWithoutBothersomeSection + tryThisWidth
                                 val possibleSplitPointWithWhitespace = widthWithoutBothersomeSection + tryThisWithWhitespaceWidth
                                 if (possibleSplitPoint <= 0) {
@@ -281,7 +282,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                     // Let's split on letter.
                                     splitOnLetter = true
                                     break
-                                } else if (possibleSplitPoint < screenWidth) {
+                                } else if (possibleSplitPoint < mScreenSize.width()) {
                                     // We have a winner!
                                     if (bothersomeSection.mChordDrawLine == -1)
                                         bothersomeSection.mChordDrawLine = mXSplits.size
@@ -289,7 +290,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                     textDrawn = textDrawn or sectionTextOnscreen
                                     xSplit = possibleSplitPointWithWhitespace
                                     lineWidth = xSplit
-                                    if (tryThisWidth < bothersomeSection.mChordTrimWidth && bothersomeSection.mChordTrimWidth + widthWithoutBothersomeSection < screenWidth)
+                                    if (tryThisWidth < bothersomeSection.mChordTrimWidth && bothersomeSection.mChordTrimWidth + widthWithoutBothersomeSection < mScreenSize.width())
                                         lineWidth = bothersomeSection.mChordTrimWidth + widthWithoutBothersomeSection
                                     break
                                 }
@@ -302,7 +303,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                     // No? Have to split to pixel
                                     chordsDrawn = chordsDrawn or sectionChordOnscreen
                                     textDrawn = textDrawn or sectionTextOnscreen
-                                    xSplit = screenWidth
+                                    xSplit = mScreenSize.width()
                                     lineWidth = xSplit
                                     pixelSplit = true
                                 }
@@ -345,10 +346,10 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                             pixelSplit = true
                                             textDrawn = textDrawn or sectionTextOnscreen
                                             chordsDrawn = chordsDrawn or sectionChordOnscreen
-                                            xSplit = screenWidth
+                                            xSplit = mScreenSize.width()
                                             lineWidth = xSplit
                                             break
-                                        } else if (possibleSplitPoint < screenWidth) {
+                                        } else if (possibleSplitPoint < mScreenSize.width()) {
                                             // We have a winner!
                                             textDrawn = textDrawn or sectionTextOnscreen
                                             chordsDrawn = chordsDrawn or sectionChordOnscreen
@@ -363,7 +364,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                         // so we can't split on that. Just going to have to split to the pixel.
                                         chordsDrawn = chordsDrawn or sectionChordOnscreen
                                         textDrawn = textDrawn or sectionTextOnscreen
-                                        xSplit = screenWidth
+                                        xSplit = mScreenSize.width()
                                         lineWidth = xSplit
                                         pixelSplit = true
                                         break
@@ -374,7 +375,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                                 // There is no text to split. Just going to have to split to the pixel.
                                 chordsDrawn = chordsDrawn or sectionChordOnscreen
                                 textDrawn = textDrawn or sectionTextOnscreen
-                                xSplit = screenWidth
+                                xSplit = mScreenSize.width()
                                 lineWidth = xSplit
                                 pixelSplit = true
                             }
@@ -394,7 +395,7 @@ class TextLine internal constructor(lineTime: Long, lineDuration:Long, private v
                 mChordsDrawn.add(chordsDrawn)
             } while (!cancelEvent.isCancelled && bothersomeSection != null)
             if (cancelEvent.isCancelled)
-                return null
+                throw SongLoadCancelledException()
         }
 
         val lines = mXSplits.size + 1

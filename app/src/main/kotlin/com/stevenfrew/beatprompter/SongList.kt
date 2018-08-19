@@ -9,6 +9,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Message
@@ -238,7 +239,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val display = windowManager.defaultDisplay
         val size = Point()
         display.getSize(size)
-        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize, maximumFontSize, size.x, size.y)
+        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y))
     }
 
     private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {

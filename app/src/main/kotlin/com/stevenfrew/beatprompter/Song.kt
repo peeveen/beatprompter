@@ -4,7 +4,6 @@ import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.BaseEvent
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.CommentEvent
@@ -60,37 +59,9 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         mCurrentLine = newCurrentLineEvent?.mLine ?: mFirstLine
     }
 
-    fun doMeasurements(paint: Paint, cancelEvent: CancelEvent, handler: Handler, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    fun doMeasurements(paint: Paint, cancelEvent: CancelEvent, handler: Handler, songDisplaySettings:SongDisplaySettings) {
         val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         val notBoldFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-
-        val sourceScreenWidth = sourceSettings.mScreenWidth
-        val sourceScreenHeight = sourceSettings.mScreenHeight
-        val sourceRatio = sourceScreenWidth.toDouble() / sourceScreenHeight.toDouble()
-
-        var nativeScreenWidth = nativeSettings.mScreenWidth
-        var nativeScreenHeight = nativeSettings.mScreenHeight
-        val screenWillRotate = nativeSettings.mOrientation != sourceSettings.mOrientation
-        if (screenWillRotate) {
-            val temp = nativeScreenHeight
-
-            nativeScreenHeight = nativeScreenWidth
-            nativeScreenWidth = temp
-        }
-        val nativeRatio = nativeScreenWidth.toDouble() / nativeScreenHeight.toDouble()
-        val minRatio = Math.min(nativeRatio, sourceRatio)
-        val maxRatio = Math.max(nativeRatio, sourceRatio)
-        val ratioMultiplier = minRatio / maxRatio
-
-        var minimumFontSize = sourceSettings.mMinFontSize.toFloat()
-        var maximumFontSize = sourceSettings.mMaxFontSize.toFloat()
-        minimumFontSize *= ratioMultiplier.toFloat()
-        maximumFontSize *= ratioMultiplier.toFloat()
-
-        if (minimumFontSize > maximumFontSize) {
-            mParseErrors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
-            maximumFontSize = minimumFontSize
-        }
 
         val sharedPref = BeatPrompterApplication.preferences
 
@@ -102,15 +73,15 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         mBeatCounterHeight = 0
         // Top 5% of screen is used for beat counter
         if (mScrollingMode !== ScrollingMode.Manual)
-            mBeatCounterHeight = (nativeScreenHeight / 20.0).toInt()
-        mBeatCounterRect = Rect(0, 0, nativeScreenWidth, mBeatCounterHeight)
+            mBeatCounterHeight = (songDisplaySettings.mScreenSize.height() / 20.0).toInt()
+        mBeatCounterRect = Rect(0, 0, songDisplaySettings.mScreenSize.width(), mBeatCounterHeight)
 
-        val maxSongTitleWidth = nativeScreenWidth * 0.9f
+        val maxSongTitleWidth = songDisplaySettings.mScreenSize.width() * 0.9f
         val maxSongTitleHeight = mBeatCounterHeight * 0.9f
         val vMargin = (mBeatCounterHeight - maxSongTitleHeight) / 2.0f
         mSongTitleHeader = ScreenString.create(mTitle, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
         val extraMargin = (maxSongTitleHeight - mSongTitleHeader!!.mHeight) / 2.0f
-        val x = ((nativeScreenWidth - mSongTitleHeader!!.mWidth) / 2.0).toFloat()
+        val x = ((songDisplaySettings.mScreenSize.width() - mSongTitleHeader!!.mWidth) / 2.0).toFloat()
         val y = mBeatCounterHeight - (extraMargin + mSongTitleHeader!!.mDescenderOffset.toFloat() + vMargin)
         mSongTitleHeaderLocation = PointF(x, y)
         var line = mFirstLine
@@ -126,10 +97,8 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         var lineCounter = 0
         handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, lineCount).sendToTarget()
         while (line != null && !cancelEvent.isCancelled) {
-            highlightColour = line.measure(paint, minimumFontSize, maximumFontSize, nativeScreenWidth, nativeScreenHeight, notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight, mScrollingMode, cancelEvent)
-            var thisLineHeight = 0
-            if (line.mLineMeasurements != null)
-                thisLineHeight = line.mLineMeasurements!!.mLineHeight
+            highlightColour = line.measure(paint, songDisplaySettings,notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight, mScrollingMode, cancelEvent)
+            val thisLineHeight = line.mLineMeasurements.mLineHeight
             if (thisLineHeight > mMaxLineHeight)
                 mMaxLineHeight = thisLineHeight
             if (thisLineHeight > 0)
@@ -143,7 +112,7 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
 
         mSmoothScrollOffset = 0
         if (mScrollingMode === ScrollingMode.Smooth)
-            mSmoothScrollOffset = Math.min(mMaxLineHeight, (nativeScreenHeight / 3.0).toInt())
+            mSmoothScrollOffset = Math.min(mMaxLineHeight, (songDisplaySettings.mScreenSize.height() / 3.0).toInt())
         else if (mScrollingMode === ScrollingMode.Beat)
             mSongHeight -= lastNonZeroLineHeight
 
@@ -152,7 +121,7 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         while (event != null) {
             if (event is CommentEvent) {
                 val ce = event as CommentEvent?
-                ce!!.doMeasurements(nativeScreenWidth, nativeScreenHeight, paint, notBoldFont)
+                ce!!.doMeasurements(songDisplaySettings.mScreenSize, paint, notBoldFont)
             }
             event = event.mNextEvent
         }
@@ -162,21 +131,21 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         // no more than 10%, also 10% for the "press go" message.
         // The rest of the space is allocated for the comments and error messages,
         // each line no more than 10% of the screen height.
-        var availableScreenHeight = nativeScreenHeight
+        var availableScreenHeight = songDisplaySettings.mScreenSize.height()
         if (mNextSong != null && mNextSong!!.isNotEmpty()) {
             // OK, we have a next song title to display.
             // This should take up no more than 15% of the screen.
             // But that includes a border, so use 13 percent for the text.
-            val eightPercent = (nativeScreenHeight * 0.13).toInt()
+            val eightPercent = (songDisplaySettings.mScreenSize.height() * 0.13).toInt()
             val fullString = ">>> $mNextSong >>>"
-            mNextSongString = ScreenString.create(fullString, paint, nativeScreenWidth, eightPercent, Color.BLACK, boldFont, true)
-            availableScreenHeight -= (nativeScreenHeight * 0.15f).toInt()
+            mNextSongString = ScreenString.create(fullString, paint, songDisplaySettings.mScreenSize.width(), eightPercent, Color.BLACK, boldFont, true)
+            availableScreenHeight -= (songDisplaySettings.mScreenSize.height() * 0.15f).toInt()
         }
         val tenPercent = (availableScreenHeight / 10.0).toInt()
         val twentyPercent = (availableScreenHeight / 5.0).toInt()
-        mStartScreenStrings.add(ScreenString.create(mTitle, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
+        mStartScreenStrings.add(ScreenString.create(mTitle, paint, songDisplaySettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
         if (mArtist.isNotEmpty())
-            mStartScreenStrings.add(ScreenString.create(mArtist, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
+            mStartScreenStrings.add(ScreenString.create(mArtist, paint, songDisplaySettings.mScreenSize.width(), tenPercent, Color.YELLOW, boldFont, true))
         val commentLines = mutableListOf<String>()
         for (c in mInitialComments)
             commentLines.add(c.mText)
@@ -192,29 +161,29 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         if (showKey)
             ++messages
         if (messages > 0) {
-            val remainingScreenSpace = nativeScreenHeight - twentyPercent * 2
+            val remainingScreenSpace = songDisplaySettings.mScreenSize.height() - twentyPercent * 2
             var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
             spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
             var errorCounter = 0
             for (error in mParseErrors) {
                 if (cancelEvent.isCancelled)
                     break
-                mStartScreenStrings.add(ScreenString.create(error.errorMessage, paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false))
+                mStartScreenStrings.add(ScreenString.create(error.errorMessage, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.RED, notBoldFont, false))
                 ++errorCounter
                 --errors
                 if (errorCounter == 5 && errors > 0) {
-                    mStartScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errors), paint, nativeScreenWidth, spacePerMessageLine, Color.RED, notBoldFont, false))
+                    mStartScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errors), paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.RED, notBoldFont, false))
                     break
                 }
             }
             for (nonBlankComment in nonBlankCommentLines) {
                 if (cancelEvent.isCancelled)
                     break
-                mStartScreenStrings.add(ScreenString.create(nonBlankComment, paint, nativeScreenWidth, spacePerMessageLine, Color.WHITE, notBoldFont, false))
+                mStartScreenStrings.add(ScreenString.create(nonBlankComment, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.WHITE, notBoldFont, false))
             }
             if (showKey) {
                 val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mKey
-                mStartScreenStrings.add(ScreenString.create(keyString, paint, nativeScreenWidth, spacePerMessageLine, Color.CYAN, notBoldFont, false))
+                mStartScreenStrings.add(ScreenString.create(keyString, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, notBoldFont, false))
             }
             if (showBPM) {
                 var rounded = BeatPrompterApplication.getResourceString(R.string.showBPMYesRoundedValue).equals(showBPMString, ignoreCase = true)
@@ -225,13 +194,13 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
                     Math.round(mBPM).toInt()
                 else
                     mBPM
-                mStartScreenStrings.add(ScreenString.create(bpmString, paint, nativeScreenWidth, spacePerMessageLine, Color.CYAN, notBoldFont, false))
+                mStartScreenStrings.add(ScreenString.create(bpmString, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, notBoldFont, false))
             }
         }
         if (cancelEvent.isCancelled)
             return
         if (mScrollingMode !== ScrollingMode.Manual)
-            mStartScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), paint, nativeScreenWidth, tenPercent, Color.GREEN, boldFont, true))
+            mStartScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), paint, songDisplaySettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         mTotalStartScreenTextHeight = 0
         for (ss in mStartScreenStrings)
             mTotalStartScreenTextHeight += ss.mHeight
@@ -259,7 +228,7 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         }*/
 
         // Allocate graphics objects.
-        val maxGraphicsRequired = getMaximumGraphicsRequired(nativeScreenHeight)
+        val maxGraphicsRequired = getMaximumGraphicsRequired(songDisplaySettings.mScreenSize.height())
         val lineGraphics = CircularGraphicsList()
         for (f in 0 until maxGraphicsRequired)
             lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
@@ -279,7 +248,7 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
 
         // In smooth scrolling mode, the last screenful of text should never leave the screen.
         if (mScrollingMode === ScrollingMode.Smooth) {
-            var total = nativeScreenHeight - mSmoothScrollOffset - mBeatCounterHeight
+            var total = songDisplaySettings.mScreenSize.height() - mSmoothScrollOffset - mBeatCounterHeight
             var prevLastLine: Line? = null
             line = mLastLine
 
@@ -316,10 +285,10 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         while (line != null) {
             //if(!line.hasOwnGraphics())
             run {
-                for (lh in line!!.mLineMeasurements!!.mGraphicHeights) {
+                for (lh in line!!.mLineMeasurements.mGraphicHeights) {
                     if (lineCount % modulus == index) {
                         maxHeight = Math.max(maxHeight, lh)
-                        maxWidth = Math.max(maxWidth, line!!.mLineMeasurements!!.mLineWidth)
+                        maxWidth = Math.max(maxWidth, line!!.mLineMeasurements.mLineWidth)
                     }
                     ++lineCount
                 }
@@ -344,9 +313,9 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
                     // scrolled offscreen, but not quite.
                     var lineHeight = 1
                     if (lineCounter > 0)
-                        lineHeight = thisLine!!.mLineMeasurements!!.mLineHeight
+                        lineHeight = thisLine!!.mLineMeasurements.mLineHeight
                     heightCounter += lineHeight
-                    lineCounter += thisLine!!.mLineMeasurements!!.mLines
+                    lineCounter += thisLine!!.mLineMeasurements.mLines
                 }
                 thisLine = thisLine.mNextLine
             }

@@ -13,10 +13,13 @@ class AudioFileParser constructor(cachedCloudFileDescriptor:CachedCloudFileDescr
             // Try to read the length of the track. If it fails, it's not an audio file.
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(mCachedCloudFileDescriptor.mFile.absolutePath)
+            val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            if (data != null)
+                return AudioFile(mCachedCloudFileDescriptor,data.toInt())
         } catch (e: Exception) {
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.notAnAudioFile, mCachedCloudFileDescriptor.mName))
+            // Not bothered about what the exception is ... file is obviously shite.
         }
-        return AudioFile(mCachedCloudFileDescriptor)
+        throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.notAnAudioFile, mCachedCloudFileDescriptor.mName))
     }
 }
