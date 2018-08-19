@@ -106,33 +106,6 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
 
     @Throws(IOException::class)
     fun parse(loadingSongFile: SongLoadInfo, cancelEvent: CancelEvent, songLoadHandler: Handler, registered: Boolean): Song {
-    // loadingSongFile.source/native
-        val sourceScreenSize=sourceSettings.mScreenSize
-        val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
-
-        val screenWillRotate = nativeSettings.mOrientation != sourceSettings.mOrientation
-        val nativeScreenSize = if(screenWillRotate)
-            Rect(0,0,nativeSettings.mScreenSize.height(),nativeSettings.mScreenSize.width())
-        else
-            nativeSettings.mScreenSize
-
-        val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
-        val minRatio = Math.min(nativeRatio, sourceRatio)
-        val maxRatio = Math.max(nativeRatio, sourceRatio)
-        val ratioMultiplier = minRatio / maxRatio
-
-        var minimumFontSize = sourceSettings.mMinFontSize.toFloat()
-        var maximumFontSize = sourceSettings.mMaxFontSize.toFloat()
-        minimumFontSize *= ratioMultiplier.toFloat()
-        maximumFontSize *= ratioMultiplier.toFloat()
-
-        if (minimumFontSize > maximumFontSize) {
-            mParseErrors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
-            maximumFontSize = minimumFontSize
-        }
-
-
-
         val parsingState= SongParsingState(loadingSongFile.scrollMode,this)
         val initialMIDIMessages = mutableListOf<OutgoingMessage>()
         var stopAddingStartupItems = false

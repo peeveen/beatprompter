@@ -5,4 +5,4 @@ import com.stevenfrew.beatprompter.ScrollingMode
 import com.stevenfrew.beatprompter.SongDisplaySettings
 import com.stevenfrew.beatprompter.cache.AudioFile
 
-data class SongLoadInfo(var songFile: SongFile, var track: AudioFile?, var scrollMode: ScrollingMode, var nextSong: String, var startedByBandLeader: Boolean, var startedByMIDITrigger: Boolean, var nativeDisplaySettings: SongDisplaySettings, var sourceDisplaySettings: SongDisplaySettings)
+data class SongLoadInfo(var mSongFile: SongFile, var mTrack: AudioFile?, var mScrollMode: ScrollingMode, var mNextSong: String, var mStartedByBandLeader: Boolean, var mStartedByMIDITrigger: Boolean, var mNativeDisplaySettings: SongDisplaySettings, var mSourceDisplaySettings: SongDisplaySettings)

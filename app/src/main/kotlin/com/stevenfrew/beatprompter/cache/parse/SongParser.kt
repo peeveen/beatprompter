@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Handler
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.SongFile
@@ -12,16 +13,22 @@ import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.event.PauseEvent
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.Message
+import com.stevenfrew.beatprompter.midi.OutgoingMessage
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.songload.CancelEvent
+import com.stevenfrew.beatprompter.songload.SongLoadInfo
 
-class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEvent, val mSongLoadHander: Handler, val mRegistered:Boolean):SongFileParser<Song>(mSongFile) {
+class SongParser constructor(val mSongLoadInfo: SongLoadInfo, val mCancelEvent: CancelEvent, val mSongLoadHander: Handler, val mRegistered:Boolean):SongFileParser<Song>(mSongFile) {
     private val mCountInPref:Int
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
     private val mTriggerContext: TriggerOutputContext
     private var mBeatInfo:BeatInfo=BeatInfo()
+    private val mNativeDeviceSettings:SongDisplaySettings
+    private var mCurrentScrollMode=mSongLoadInfo.mScrollMode
+    private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
+    private var mStopAddingStartupItems = false
 
     private var mSendMidiClock:Boolean=false
     private var mCurrentHighlightColor:Int
@@ -40,6 +47,27 @@ class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEv
         mTriggerContext = TriggerOutputContext.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue))!!)
         val defaultMIDIOutputChannelPrefValue = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
         mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
+
+        val sourceScreenSize=mSongLoadInfo.mSourceDisplaySettings.mScreenSize
+        val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
+        val screenWillRotate = mSongLoadInfo.mNativeDisplaySettings.mOrientation != mSongLoadInfo.mSourceDisplaySettings.mOrientation
+        val nativeScreenSize = if(screenWillRotate)
+            Rect(0,0,mSongLoadInfo.mNativeDisplaySettings.mScreenSize.height(),mSongLoadInfo.mNativeDisplaySettings.mScreenSize.width())
+        else
+            mSongLoadInfo.mNativeDisplaySettings.mScreenSize
+        val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
+        val minRatio = Math.min(nativeRatio, sourceRatio)
+        val maxRatio = Math.max(nativeRatio, sourceRatio)
+        val ratioMultiplier = minRatio / maxRatio
+        var minimumFontSize = mSongLoadInfo.mSourceDisplaySettings.mMinFontSize
+        var maximumFontSize = mSongLoadInfo.mSourceDisplaySettings.mMaxFontSize
+        minimumFontSize *= ratioMultiplier.toFloat()
+        maximumFontSize *= ratioMultiplier.toFloat()
+        if (minimumFontSize > maximumFontSize) {
+            mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
+            maximumFontSize = minimumFontSize
+        }
+        mNativeDeviceSettings= SongDisplaySettings(mSongLoadInfo.mSourceDisplaySettings.mOrientation,minimumFontSize,maximumFontSize,nativeScreenSize)
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
