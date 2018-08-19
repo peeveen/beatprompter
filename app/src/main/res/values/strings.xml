@@ -17,6 +17,11 @@
     <string name="connect_to_leader_string">Connect to leader</string>
     <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
     <string name="clear_cache_string">Clear cache</string>
+    <string name="tag_used_multiple_times_in_file">The single-use tag {%1$s} has been used multiple times in this file.</string>
+    <string name="tag_used_multiple_times_in_line">The tag {%1$s} has been used multiple times in this line.</string>
+    <string name="starting_tag_found_after_starting_tag">The tag {%1$s} has been used multiple times in succession without an intervening ending tag.</string>
+    <string name="ending_tag_found_before_starting_tag">The tag {%1$s} has been found before a corresponding starting tag.</string>
+    <string name="tag_has_blank_value">The tag {%1$s} has been found with no specified value.</string>
     <string name="no_set_name_defined">No set name defined in set list file.</string>
     <string name="sort_songs">Sort ...</string>
     <string name="settings">Settings ...</string>

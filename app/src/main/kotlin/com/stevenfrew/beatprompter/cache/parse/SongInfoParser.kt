@@ -1,27 +1,26 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.LineBeatInfo
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ScrollingMode
-import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
-import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
+import com.stevenfrew.beatprompter.midi.SongTrigger
 
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,currentAudioFiles:List<AudioFile>,currentImageFiles:List<ImageFile>):SongFileParser<SongFile>(cachedCloudFileDescriptor,currentAudioFiles,currentImageFiles) {
-    var mTitle:String?=null
-    var mArtist:String?=null
-    var mKey:String?=null
-    var mFirstChord:String?=null
-    var mMIDIProgramChangeTrigger:String?=null
-    var mMIDISongSelectTrigger:String?=null
-    var mBPM:Double?=null
-    var mMixedMode:Boolean=false
-    val mAudioFiles=mutableListOf<AudioFile>()
-    val mImageFiles=mutableListOf<ImageFile>()
+class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor) {
+    private var mTitle:String?=null
+    private var mArtist:String?=null
+    private var mKey:String?=null
+    private var mFirstChord:String?=null
+    private var mBPM:Double=0.0
+    private var mDuration:Long=0L
+    private val mAudioFiles=mutableListOf<String>()
+    private val mImageFiles=mutableListOf<String>()
+    private val mTags=mutableListOf<String>()
+    private var mMIDIProgramChangeTrigger:SongTrigger?=null
+    private var mMIDISongSelectTrigger:SongTrigger?=null
+    private var mMixedMode:Boolean=false
 
     override fun parseLine(line: TextFileLine<SongFile>)
     {
@@ -33,60 +32,81 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         val midiProgramChangeTriggerTag=line.mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
         val bpmTag=line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
         val beatStartTag=line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
-        val trackTag=line.mTags.filterIsInstance<TrackTag>().firstOrNull()
-        val imageFileTag=line.mTags.filterIsInstance<ImageTag>().firstOrNull()
+        val beatStopTag=line.mTags.filterIsInstance<BeatStopTag>().firstOrNull()
+        val timeTag=line.mTags.filterIsInstance<TimeTag>().firstOrNull()
+        val audioTags=line.mTags.filterIsInstance<AudioTag>()
+        val imageTags=line.mTags.filterIsInstance<ImageTag>()
+        val tagTags=line.mTags.filterIsInstance<TagTag>()
 
         if(titleTag!=null)
-            if(!mTitle.isNullOrBlank())
-                mErrors.add(FileParseError(titleTag,BeatPrompterApplication.getResourceString(R.string.title_defined_twice)))
-            else
-                mTitle=titleTag.mTitle
+            mTitle=titleTag.mTitle
 
         if(artistTag!=null)
-            if(!mArtist.isNullOrBlank())
-                mErrors.add(FileParseError(titleTag,BeatPrompterApplication.getResourceString(R.string.artist_defined_twice)))
-            else
-                mArtist=artistTag.mArtist
+            mArtist=artistTag.mArtist
 
-        val artist = fileLine.getArtist()
-        val key = fileLine.getKey()
-        val firstChord = fileLine.getFirstChord()
-        if ((mKey.isBlank()) && firstChord != null && firstChord.isNotEmpty())
-            mKey = firstChord
-        val msst = fileLine.getMIDISongSelectTrigger()
-        val mpct = fileLine.getMIDIProgramChangeTrigger()
-        if (msst != null)
-            mSongSelectTrigger = msst
-        if (mpct != null)
-            mProgramChangeTrigger = mpct
-        if (key != null)
-            mKey = key
-        if (artist != null)
-            mArtist = artist
-        val bpm = fileLine.getBPM()
-        if (bpm != null && mBPM == 0.0) {
-            try {
-                mBPM = bpm.toDouble()
-            } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to parse BPM value from song file.", e)
-            }
+        if(keyTag!=null)
+            mKey=keyTag.mKey
 
-        }
+        if(chordTag!=null)
+            if(mFirstChord!=null)
+                if(chordTag.isValidChord())
+                    mFirstChord=chordTag.mName
 
-        // TODO: better implementation of this.
-        //mMixedMode = mMixedMode or fileLine.containsToken("beatstart")
-        mMixedMode=false
+        if(midiSongSelectTriggerTag!=null)
+            mMIDISongSelectTrigger=midiSongSelectTriggerTag.mTrigger
 
-        val tags = fileLine.getTags()
-        mTags.addAll(tags)
-        val audios = fileLine.getAudioFiles()
-        mAudioFiles.addAll(audios.map{it.mName})
-        val images = fileLine.getImageFiles()
-        mImageFiles.addAll(images.map{it.mName})
+        if(midiProgramChangeTriggerTag!=null)
+            mMIDIProgramChangeTrigger=midiProgramChangeTriggerTag.mTrigger
+
+        if(bpmTag!=null)
+            mBPM=bpmTag.mBPM
+
+        if(timeTag!=null)
+            mDuration=timeTag.mDuration
+
+        if(beatStartTag!=null || beatStopTag!=null)
+            mMixedMode=true
+
+        mAudioFiles.addAll(audioTags.map{it.mFilename })
+        mImageFiles.addAll(imageTags.map{it.mFilename })
+        mTags.addAll(tagTags.map{it.mTag })
     }
 
     override fun getResult(): SongFile {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return SongFile(mCachedCloudFileDescriptor,"",listOf(),listOf())
+        if (mTitle.isNullOrBlank())
+            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mCachedCloudFileDescriptor.mName))
+        if(mArtist.isNullOrBlank())
+            mArtist=""
+        val key=
+                if (mKey.isNullOrBlank())
+                    if(!mFirstChord.isNullOrBlank())
+                        mFirstChord!!
+                    else
+                        ""
+                else
+                    mKey!!
+
+        return SongFile(mCachedCloudFileDescriptor,mTitle!!,mArtist!!,key,mBPM,mDuration,mAudioFiles,mImageFiles,mMIDIProgramChangeTrigger,mMIDISongSelectTrigger,mMixedMode)
+    }
+
+    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
+    {
+        when(name)
+        {
+            "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
+            "beatstart"->return BeatStartTag(name, lineNumber, position)
+            "beatstop"->return BeatStopTag(name, lineNumber, position)
+            "time" -> return TimeTag(name, lineNumber, position, value)
+            "image"->return ImageTag(name, lineNumber, position, value)
+            "track", "audio", "musicpath"->return AudioTag(name, lineNumber, position, value)
+            "midi_song_select_trigger"->return MIDISongSelectTriggerTag(name, lineNumber, position, value)
+            "midi_program_change_trigger"->return MIDIProgramChangeTriggerTag(name, lineNumber, position, value)
+            "title", "t" ->return TitleTag(name, lineNumber, position, value)
+            "artist", "a", "subtitle", "st"->return ArtistTag(name, lineNumber, position, value)
+            "key"->return KeyTag(name, lineNumber, position, value)
+            "tag"->return TagTag(name, lineNumber, position, value)
+            // Don't care about any other tags in this context, treat them as all irrelevant ChordPro tags
+            else->return ChordProTag(name,lineNumber,position)
+        }
     }
 }

@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.stevenfrew.beatprompter"
         minSdkVersion 24
-        // Enabling multidex support.fewfwef
+        // Enabling multidex support.
         multiDexEnabled true
         targetSdkVersion 28
         versionCode 500
@@ -96,6 +96,7 @@ dependencies {
     implementation ('com.microsoft.services.msa:msa-auth:0.8+')
     implementation('com.microsoft.aad:adal:1.1+')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     //testImplementation 'junit:junit:4.12'
 }
 repositories {

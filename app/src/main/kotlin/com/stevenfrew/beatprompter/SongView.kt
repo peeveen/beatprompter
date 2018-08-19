@@ -120,7 +120,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue))!!)
         val metronomePref = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
 
-        if (song.mSongFile.mBPM != 0.0) {
+        if (song.mBPM != 0.0) {
             var metronomeOn = metronomePref==MetronomeContext.On
             val metronomeOnWhenNoBackingTrack = metronomePref==MetronomeContext.OnWhenNoTrack
             val metronomeCount = metronomePref==MetronomeContext.DuringCountIn
@@ -182,7 +182,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 }
             if (mSong!!.mScrollingMode === ScrollingMode.Manual) {
                 if (mMetronomeBeats > 0) {
-                    mMetronomeTask = MetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
+                    mMetronomeTask = MetronomeTask(mSong!!.mBPM, mMetronomeBeats)
                     mMetronomeThread = Thread(mMetronomeTask)
                     // Infinite metronome? Might as well start it now.
                     if (mMetronomeBeats == Long.MAX_VALUE)

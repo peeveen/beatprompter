@@ -11,7 +11,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructio
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
 import com.stevenfrew.beatprompter.midi.*
-import org.w3c.dom.Element
 import java.util.ArrayList
 
 class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor) {
@@ -72,7 +71,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
         }
     }
 
-    fun finishCurrentAlias() {
+    private fun finishCurrentAlias() {
         if (mCurrentAliasName != null && mCurrentAliasComponents.isNotEmpty())
             mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
     }

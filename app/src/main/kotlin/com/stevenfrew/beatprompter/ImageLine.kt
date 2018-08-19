@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
-class ImageLine internal constructor(lineTime: Long,lineDuration:Long,private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, lastColor: ColorEvent, lineBeatInfo:LineBeatInfo) : Line(lineTime,lineDuration, lastColor, lineBeatInfo) {
+class ImageLine internal constructor(lineTime: Long, lineDuration:Long, private val mImageFile: ImageFile, private val mScalingMode: ImageScalingMode, lastColor: ColorEvent, beatInfo:BeatInfo) : Line(lineTime,lineDuration, lastColor, beatInfo) {
     private var mSourceRect: Rect = Rect()
     private var mDestRect: Rect = Rect()
     private var mBitmap: Bitmap? = null

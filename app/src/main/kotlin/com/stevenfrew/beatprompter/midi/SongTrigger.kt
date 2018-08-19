@@ -1,9 +1,5 @@
 package com.stevenfrew.beatprompter.midi
 
-import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-
 class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
 
     private val mBankSelectMSB=bankSelectMSB
@@ -15,28 +11,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
     companion object {
-        private const val MSB_ATTRIBUTE_NAME = "bankSelectMSB"
-        private const val LSB_ATTRIBUTE_NAME = "bankSelectLSB"
-        private const val TRIGGER_INDEX_ATTRIBUTE_NAME = "triggerIndex"
-        private const val CHANNEL_ATTRIBUTE_NAME = "channel"
-        private const val TRIGGER_TYPE_ATTRIBUTE_NAME = "triggerType"
         val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), TriggerType.SongSelect)
-
-        fun readFromXMLElement(element: Element): SongTrigger {
-            val msbString = element.getAttribute(MSB_ATTRIBUTE_NAME)
-            val lsbString = element.getAttribute(LSB_ATTRIBUTE_NAME)
-            val triggerIndexString = element.getAttribute(TRIGGER_INDEX_ATTRIBUTE_NAME)
-            val channelString = element.getAttribute(CHANNEL_ATTRIBUTE_NAME)
-            val triggerTypeString = element.getAttribute(TRIGGER_TYPE_ATTRIBUTE_NAME)
-
-            val msbValue = MIDITag.parseValue(msbString)
-            val lsbValue = MIDITag.parseValue(lsbString)
-            val triggerIndexValue = MIDITag.parseValue(triggerIndexString)
-            val channelValue = MIDITag.parseChannelValue(channelString)
-            val triggerType = TriggerType.valueOf(triggerTypeString)
-
-            return SongTrigger(msbValue, lsbValue, triggerIndexValue, channelValue,triggerType)
-        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -49,16 +24,6 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
                             return mst.mChannel.matches(mChannel)
         }
         return false
-    }
-
-    fun writeToXML(doc: Document, parent: Element, tag: String) {
-        val triggerElement = doc.createElement(tag)
-        triggerElement.setAttribute(MSB_ATTRIBUTE_NAME, mBankSelectMSB.toString())
-        triggerElement.setAttribute(LSB_ATTRIBUTE_NAME, mBankSelectLSB.toString())
-        triggerElement.setAttribute(TRIGGER_INDEX_ATTRIBUTE_NAME, mTriggerIndex.toString())
-        triggerElement.setAttribute(CHANNEL_ATTRIBUTE_NAME, mChannel.toString())
-        triggerElement.setAttribute(TRIGGER_TYPE_ATTRIBUTE_NAME, mType.toString())
-        parent.appendChild(triggerElement)
     }
 
     fun isSendable(): Boolean {

@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.event.ColorEvent
 
-class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, lastColor: ColorEvent,lineBeatInfo:LineBeatInfo) : Line(lineTime,lineDuration, lastColor, lineBeatInfo) {
+class TextLine internal constructor(lineTime: Long, lineDuration:Long, private val mText: String, private val mLineTags: Collection<Tag>, lastColor: ColorEvent, beatInfo:BeatInfo) : Line(lineTime,lineDuration, lastColor, beatInfo) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0

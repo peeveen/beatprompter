@@ -4,6 +4,7 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Song
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.cache.parse.SongParser
 import java.io.IOException
 
 
@@ -45,7 +46,7 @@ class SongLoaderTask : Task(true) {
             val vSongLoadHandler = songLoadHandler
             val cancelEvent = cancelEvent
             try {
-                val loadedSong = sli.songFile.parse(sli, cancelEvent!!, vSongLoadHandler!!, mRegistered)
+                val loadedSong = SongParser(sli.songFile,cancelEvent!!, vSongLoadHandler!!, mRegistered).parse()
                 if (cancelEvent.isCancelled)
                     vSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
                 else {

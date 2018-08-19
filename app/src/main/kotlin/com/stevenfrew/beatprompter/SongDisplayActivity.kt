@@ -279,7 +279,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 // This should never happen, but we'll check just to be sure.
 
                 // Trying to interrupt a song with itself is pointless!
-                if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
+                if (loadedSong.mID == songToInterruptWith.mID)
                     return SongInterruptResult.NoSongToInterrupt
 
                 return if (mSongDisplayInstance.canYieldToExternalTrigger()) {

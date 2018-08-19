@@ -1,33 +1,15 @@
 package com.stevenfrew.beatprompter.cache
 
-import android.graphics.Color
-import android.graphics.Paint
-import android.media.MediaMetadataRetriever
-import android.os.Handler
-import android.util.Log
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.cache.parse.tag.song.*
-import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
-import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
-import com.stevenfrew.beatprompter.songload.CancelEvent
-import com.stevenfrew.beatprompter.songload.SongLoadInfo
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import java.io.*
 import java.util.*
 
-class SongFile : CachedCloudFile {
+@CacheXmlTag("song")
+class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,val mTitle:String,val mArtist:String,val mKey:String,val mBPM:Double,val mDuration:Long,val mAudioFiles:List<String>,val mImageFiles:List<String>,val mMIDIProgramChangeTrigger:SongTrigger?,val mMIDISongSelectTrigger:SongTrigger?,val mMixedMode:Boolean) : CachedCloudFile(cachedCloudFileDescriptor) {
 
-    lateinit var mTitle: String
     private var mTimePerLine: Long = 0
     private var mTimePerBar: Long = 0
-    var mBPM = 0.0
-    var mKey: String = ""
     var mLines = 0
-    var mMixedMode = false
-    var mArtist: String? = null
 
     val sortableArtist
         get()= sortableString(mArtist)
@@ -39,16 +21,14 @@ class SongFile : CachedCloudFile {
     private var mProgramChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
 
     var mTags = HashSet<String>()
-    var mAudioFiles = ArrayList<String>()
-    var mImageFiles = ArrayList<String>()
 
     val isSmoothScrollable: Boolean
         get() = mTimePerLine > 0
 
     val isBeatScrollable: Boolean
-        get() = mBPM > 0
+        get() = mBPM > 0.0
 
-    @Throws(InvalidBeatPrompterFileException::class)
+/*    @Throws(InvalidBeatPrompterFileException::class)
     constructor(result: SuccessfulCloudDownloadResult) : super(result.mDownloadedFile, result.mCloudFileInfo) {
         parseSongFileInfo()
     }
@@ -157,8 +137,6 @@ class SongFile : CachedCloudFile {
                 }
             } while(line!=null)
             mLines = lineNumber
-            if (title == null || title.isEmpty())
-                throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mName))
             mTitle=title
             if (mArtist == null)
                 mArtist = ""
@@ -173,42 +151,7 @@ class SongFile : CachedCloudFile {
         }
     }
 
-    override fun writeToXML(d: Document, element: Element) {
-        val songElement = d.createElement(SONGFILE_ELEMENT_TAG_NAME)
-        super.writeToXML(songElement)
-        songElement.setAttribute(SONG_FILE_TITLE_ATTRIBUTE_NAME, mTitle)
-        songElement.setAttribute(SONG_FILE_ARTIST_ATTRIBUTE_NAME, mArtist)
-        songElement.setAttribute(SONG_FILE_LINECOUNT_ATTRIBUTE_NAME, Integer.toString(mLines))
-        songElement.setAttribute(SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME, mMixedMode.toString())
-        songElement.setAttribute(SONG_FILE_BPM_ATTRIBUTE_NAME, mBPM.toString())
-        songElement.setAttribute(SONG_FILE_KEY_ATTRIBUTE_NAME, mKey)
-        songElement.setAttribute(SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME, mTimePerLine.toString())
-        songElement.setAttribute(SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME, mTimePerBar.toString())
-        for (tag in mTags) {
-            val tagElement = d.createElement(TAG_ELEMENT_TAG_NAME)
-            tagElement.textContent = tag
-            songElement.appendChild(tagElement)
-        }
-        for (audioFile in mAudioFiles) {
-            val audioFileElement = d.createElement(AUDIO_FILE_ELEMENT_TAG_NAME)
-            audioFileElement.textContent = audioFile
-            songElement.appendChild(audioFileElement)
-        }
-        for (imageFile in mImageFiles) {
-            val imageFileElement = d.createElement(IMAGE_FILE_ELEMENT_TAG_NAME)
-            imageFileElement.textContent = imageFile
-            songElement.appendChild(imageFileElement)
-        }
-        mProgramChangeTrigger.writeToXML(d, songElement, PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME)
-        mSongSelectTrigger.writeToXML(d, songElement, SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME)
-        element.appendChild(songElement)
-    }
-
-    fun matchesTrigger(trigger: SongTrigger): Boolean {
-        return mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
-    }
-
-    @Throws(IOException::class)
+        @Throws(IOException::class)
     fun getTimePerLineAndBar(chosenTrack: AudioFile?): SmoothScrollingTimings {
         val br = BufferedReader(InputStreamReader(FileInputStream(mFile)))
         try {
@@ -244,7 +187,7 @@ class SongFile : CachedCloudFile {
                                 else
                                     lineImage=it.mImageFile
                             }
-                            else if(it is TrackTag) {
+                            else if(it is AudioTag) {
                                 if (songMilli == 0 && (chosenTrack == null || it.mAudioFile == chosenTrack)) {
                                     try {
                                         val mmr = MediaMetadataRetriever()
@@ -401,7 +344,7 @@ class SongFile : CachedCloudFile {
                                 imageScalingMode=it.mImageScalingMode
                             }
                         }
-                        else if(it is TrackTag)
+                        else if(it is AudioTag)
                         {
                             chosenAudioFile = it.mAudioFile
                             chosenAudioVolume = it.mVolume
@@ -743,92 +686,14 @@ class SongFile : CachedCloudFile {
             }
         }
     }
+    */
+
+    fun matchesTrigger(trigger: SongTrigger): Boolean {
+        return mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
+    }
 
     companion object {
-        private const val DEMO_LINE_COUNT = 15
-        // Every beatstart/beatstop block has events that are offset by this amount (one year).
-        // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
-        private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
-
-        private fun offsetMIDIEvents(firstEvent: BaseEvent?, errors: MutableList<FileParseError>) {
-            var event = firstEvent
-            while (event != null) {
-                if (event is MIDIEvent) {
-                    val midiEvent = event
-                    if (midiEvent.mOffset.mAmount != 0) {
-                        // OK, this event needs moved.
-                        var newTime: Long = -1
-                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-                            newTime = midiEvent.mEventTime + offset
-                        } else {
-                            // Offset by beat count.
-                            var beatCount = midiEvent.mOffset.mAmount
-                            var currentEvent: BaseEvent = midiEvent
-                            while (beatCount != 0) {
-                                val beatEvent: BeatEvent = (if (beatCount > 0)
-                                    currentEvent.nextBeatEvent
-                                else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
-                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
-                                else
-                                    currentEvent.mPrevBeatEvent) ?: break
-                                if (beatEvent.mEventTime != midiEvent.mEventTime) {
-                                    beatCount -= beatCount / Math.abs(beatCount)
-                                    newTime = beatEvent.mEventTime
-                                }
-                                currentEvent = beatEvent
-                            }
-                        }
-                        if (newTime < 0) {
-                            errors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
-                            newTime = 0
-                        }
-                        val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
-                        midiEvent.insertEvent(newMIDIEvent)
-                        event = midiEvent.mPrevEvent
-                        midiEvent.remove()
-                    }
-                }
-                event = event!!.mNextEvent
-            }
-        }
-
-        private fun generatePause(pauseTime: Long, lastEvent: BaseEvent?, currentTime: Long): Long {
-            var vLastEvent = lastEvent
-            var vCurrentTime = currentTime
-            // pauseTime is in milliseconds.
-            // We don't want to generate thousands of events, so let's say every 1/10th of a second.
-            val deciSeconds = Math.ceil(pauseTime.toDouble() / 100.0).toInt()
-            val remainder = Utils.milliToNano(pauseTime) - Utils.milliToNano(deciSeconds * 100)
-            val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
-            vCurrentTime += remainder
-            for (f in 0 until deciSeconds) {
-                val pauseEvent = PauseEvent(vCurrentTime, deciSeconds, f)
-                vLastEvent!!.insertEvent(pauseEvent)
-                vLastEvent = vLastEvent.lastEvent
-                vCurrentTime += oneDeciSecondInNanoseconds
-            }
-            return vCurrentTime
-        }
-
         private var thePrefix=BeatPrompterApplication.getResourceString(R.string.lowerCaseThe)+" "
-
-        private const val SONG_FILE_TITLE_ATTRIBUTE_NAME = "title"
-        private const val SONG_FILE_ARTIST_ATTRIBUTE_NAME = "artist"
-        private const val SONG_FILE_LINECOUNT_ATTRIBUTE_NAME = "lines"
-        private const val SONG_FILE_MIXED_MODE_ATTRIBUTE_NAME = "mixedMode"
-        private const val SONG_FILE_BPM_ATTRIBUTE_NAME = "bpm"
-        private const val SONG_FILE_KEY_ATTRIBUTE_NAME = "key"
-        private const val SONG_FILE_TIME_PER_LINE_ATTRIBUTE_NAME = "timePerLine"
-        private const val SONG_FILE_TIME_PER_BAR_ATTRIBUTE_NAME = "timePerBar"
-        private const val TAG_ELEMENT_TAG_NAME = "tag"
-
-        const val SONGFILE_ELEMENT_TAG_NAME = "song"
-        private const val AUDIO_FILE_ELEMENT_TAG_NAME = "audio"
-        private const val IMAGE_FILE_ELEMENT_TAG_NAME = "image"
-
-        private const val PROGRAM_CHANGE_TRIGGER_ELEMENT_TAG_NAME = "programChangeTrigger"
-        private const val SONG_SELECT_TRIGGER_ELEMENT_TAG_NAME = "songSelectTrigger"
 
         fun sortableString(inStr:String?):String
         {

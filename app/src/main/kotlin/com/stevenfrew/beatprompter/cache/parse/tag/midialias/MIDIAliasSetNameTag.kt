@@ -1,7 +1,9 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.midialias
 
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
+import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 
-class MIDIAliasSetNameTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): MIDITag(name,lineNumber,position) {
+@OncePerFile
+class MIDIAliasSetNameTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): MIDITag(name,lineNumber,position,value) {
     val mAliasSetName=value
 }

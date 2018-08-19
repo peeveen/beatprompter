@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
-open class ColorTag protected constructor(name:String,lineNumber:Int,position:Int,value:String): Tag(name,lineNumber,position) {
+open class ColorTag protected constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     val mColor:Int = parseColourValue(value)
 }

@@ -1,12 +1,63 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import android.graphics.Color
+import android.os.Handler
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
-import com.stevenfrew.beatprompter.cache.ImageFile
+import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
+import com.stevenfrew.beatprompter.event.BaseEvent
+import com.stevenfrew.beatprompter.event.BeatEvent
+import com.stevenfrew.beatprompter.event.MIDIEvent
+import com.stevenfrew.beatprompter.event.PauseEvent
+import com.stevenfrew.beatprompter.midi.EventOffsetType
+import com.stevenfrew.beatprompter.midi.Message
+import com.stevenfrew.beatprompter.midi.TriggerOutputContext
+import com.stevenfrew.beatprompter.songload.CancelEvent
 
-class SongParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, currentAudioFiles:List<AudioFile>, currentImageFiles:List<ImageFile>):SongFileParser<Song>(cachedCloudFileDescriptor,currentAudioFiles,currentImageFiles) {
+class SongParser constructor(val mSongFile: SongFile, val mCancelEvent: CancelEvent, val mSongLoadHander: Handler, val mRegistered:Boolean):SongFileParser<Song>(mSongFile) {
+    private val mIgnoreColorInfo:Boolean
+    private val mCountInPref:Int
+    private val mMetronomeContext:MetronomeContext
+    private val mCustomCommentsUser:String
+    private val mShowChords:Boolean
+    private val mTriggerContext: TriggerOutputContext
+    private var mBeatInfo:BeatInfo=BeatInfo()
+
+    private var mBackgroundColor:Int
+    private var mPulseColor:Int
+    private var mBeatCounterColor:Int
+    private var mScrollMarkerColor:Int
+    private var mLyricColor:Int
+    private var mChordColor:Int
+    private var mAnnotationColor:Int
+    private var mSendMidiClock:Boolean=false
+    private var mCurrentHighlightColor:Int
+    private var mSongTime:Long=0
+    private var mDefaultMIDIOutputChannel:Byte
+
+    init
+    {
+        val sharedPrefs=BeatPrompterApplication.preferences
+        mIgnoreColorInfo = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_key), BeatPrompterApplication.getResourceString(R.string.pref_ignoreColorInfo_defaultValue).toBoolean())
+        mSendMidiClock = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
+        mCountInPref = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
+        mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
+        mBackgroundColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+        mPulseColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_pulseColor_default)))
+        mCurrentHighlightColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default)))
+        mBeatCounterColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)))
+        mScrollMarkerColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_default)))
+        mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
+        mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
+        mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
+        mCustomCommentsUser = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue))?:""
+        mShowChords = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
+        mTriggerContext = TriggerOutputContext.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue))!!)
+        val defaultMIDIOutputChannelPrefValue = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
+        mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
+    }
+
     override fun parseLine(line: TextFileLine<Song>) {
         // Bars can be defined by commas ....
         var commaBars:Int?=null
@@ -79,19 +130,115 @@ class SongParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescripto
         if(scrollBeatInThisLine>beatsPerBarInThisLine)
             scrollBeatInThisLine=beatsPerBarInThisLine
 
-        mBeatInfo= LineBeatInfo(barsPerLineTag?.mBPL?:mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
+        mBeatInfo= BeatInfo(barsPerLineTag?.mBPL?:mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
 
         if ((beatsPerBarInThisLine!=0)&&(scrollBeatOffset < -beatsPerBarInThisLine || scrollBeatOffset >= beatsPerBarInThisLine)) {
             mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
             scrollBeatOffset = 0
         }
 
-        thisline.mBeatInfo= LineBeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
+        val lineBeatInfo= BeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,modeOnThisLine)
     }
 
     override fun getResult(): Song {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return Song(mDownloadedFile,mCloudFile,"",listOf(),listOf())
+        throw NotImplementedError("£")
+        //return Song(mCachedCloudFileDescriptor.mID,mSongFile.mTitle,mSongFile.mArtist,mSongFile.mKey,mSongFile.mBPM,null,100,listOf(),)
+    }
+
+    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
+    {
+        when(name)
+        {
+            "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
+            "b","bars"->return BarsTag(name, lineNumber, position, value)
+            "bpb", "beatsperbar"->return BeatsPerBarTag(name, lineNumber, position, value)
+            "bpl", "barsperline"->return BarsPerLineTag(name, lineNumber, position, value)
+            "scrollbeat", "sb"->return ScrollBeatTag(name, lineNumber, position, value)
+            "beatstart"->return BeatStartTag(name, lineNumber, position)
+            "beatstop"->return BeatStopTag(name, lineNumber, position)
+
+            "image"->return ImageTag(name, lineNumber, position, value)
+            "pause"->return PauseTag(name, lineNumber, position, value)
+            "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
+            "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
+            "count","countin"->return CountTag(name,lineNumber,position,value)
+
+            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mCurrentHighlightColor)
+            "eoh"->return EndOfHighlightTag(name, lineNumber, position)
+
+            // Unused ChordPro tags
+            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return ChordProTag(name,lineNumber,position)
+
+            else->return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
+        }
+    }
+
+    companion object {
+        private const val DEMO_LINE_COUNT = 15
+        // Every beatstart/beatstop block has events that are offset by this amount (one year).
+        // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
+        private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
+
+        private fun offsetMIDIEvents(firstEvent: BaseEvent?, errors: MutableList<FileParseError>) {
+            var event = firstEvent
+            while (event != null) {
+                if (event is MIDIEvent) {
+                    val midiEvent = event
+                    if (midiEvent.mOffset.mAmount != 0) {
+                        // OK, this event needs moved.
+                        var newTime: Long = -1
+                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+                            newTime = midiEvent.mEventTime + offset
+                        } else {
+                            // Offset by beat count.
+                            var beatCount = midiEvent.mOffset.mAmount
+                            var currentEvent: BaseEvent = midiEvent
+                            while (beatCount != 0) {
+                                val beatEvent: BeatEvent = (if (beatCount > 0)
+                                    currentEvent.nextBeatEvent
+                                else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
+                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
+                                else
+                                    currentEvent.mPrevBeatEvent) ?: break
+                                if (beatEvent.mEventTime != midiEvent.mEventTime) {
+                                    beatCount -= beatCount / Math.abs(beatCount)
+                                    newTime = beatEvent.mEventTime
+                                }
+                                currentEvent = beatEvent
+                            }
+                        }
+                        if (newTime < 0) {
+                            errors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                            newTime = 0
+                        }
+                        val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
+                        midiEvent.insertEvent(newMIDIEvent)
+                        event = midiEvent.mPrevEvent
+                        midiEvent.remove()
+                    }
+                }
+                event = event!!.mNextEvent
+            }
+        }
+
+        private fun generatePause(pauseTime: Long, lastEvent: BaseEvent?, currentTime: Long): Long {
+            var vLastEvent = lastEvent
+            var vCurrentTime = currentTime
+            // pauseTime is in milliseconds.
+            // We don't want to generate thousands of events, so let's say every 1/10th of a second.
+            val deciSeconds = Math.ceil(pauseTime.toDouble() / 100.0).toInt()
+            val remainder = Utils.milliToNano(pauseTime) - Utils.milliToNano(deciSeconds * 100)
+            val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
+            vCurrentTime += remainder
+            for (f in 0 until deciSeconds) {
+                val pauseEvent = PauseEvent(vCurrentTime, deciSeconds, f)
+                vLastEvent!!.insertEvent(pauseEvent)
+                vLastEvent = vLastEvent.lastEvent
+                vCurrentTime += oneDeciSecondInNanoseconds
+            }
+            return vCurrentTime
+        }
     }
 }
 

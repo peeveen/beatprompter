@@ -3,14 +3,14 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.ImageScalingMode
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
-import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
+import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import java.io.File
 
-class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String,sourceFile:File,tempImageFileCollection: List<ImageFile>): Tag(name,lineNumber,position) {
-    val mImageFile:ImageFile
+@OncePerLine
+class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
+    val mFilename:String
     val mImageScalingMode:ImageScalingMode
 
     init {
@@ -27,8 +27,8 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
             }
         }
-        val image = File(imageName).name
-        val imageFile: File
+        mFilename = File(imageName).name
+/*        val imageFile: File
         val mappedImage = SongList.mCachedCloudFiles.getMappedImageFile(image, tempImageFileCollection)
         if (mappedImage == null)
             throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
@@ -37,7 +37,7 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
             if (!imageFile.exists())
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
         }
-        mImageFile = mappedImage
+        mImageFile = mappedImage*/
         mImageScalingMode=imageScalingMode
     }
 }

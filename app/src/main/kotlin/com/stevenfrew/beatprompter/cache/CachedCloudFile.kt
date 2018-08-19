@@ -1,25 +1,18 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.io.File
-import java.util.*
 
-abstract class CachedCloudFile : CachedCloudFileDescriptor {
-    internal constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(file,id,name,lastModified,subfolder)
+abstract class CachedCloudFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : CachedCloudFileDescriptor(cachedCloudFileDescriptor.mFile, cachedCloudFileDescriptor.mID, cachedCloudFileDescriptor.mName, cachedCloudFileDescriptor.mLastModified, cachedCloudFileDescriptor.mSubfolder) {
 
-    internal constructor(file: File, cloudFileInfo: CloudFileInfo) : this(file,cloudFileInfo.mID, cloudFileInfo.mName, cloudFileInfo.mLastModified, cloudFileInfo.mSubfolder)
-
-    internal constructor(result: SuccessfulCloudDownloadResult) : this(result.mDownloadedFile, result.mCloudFileInfo)
-
-    internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : this(cachedCloudFileDescriptor.mFile,cachedCloudFileDescriptor)
-
-    internal constructor(element: Element) : super(element)
-
-    abstract fun writeToXML(d: Document, element: Element)
+    fun writeToXML(d: Document, element: Element)
+    {
+        val newElement = d.createElement(this::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
+        super.writeToXML(newElement)
+        element.appendChild(newElement)
+    }
 
     companion object {
 
@@ -34,12 +27,12 @@ abstract class CachedCloudFile : CachedCloudFileDescriptor {
                         MIDIAliasFileParser(result.cachedCloudFileDescriptor).parse()
                     } catch (ibpfe2: InvalidBeatPrompterFileException) {
                         try {
-                            SongInfoParser(result.cachedCloudFileDescriptor,listOf(),listOf()).parse()
+                            SongInfoParser(result.cachedCloudFileDescriptor).parse()
                         } catch (ibpfe3: InvalidBeatPrompterFileException) {
                             try {
                                 SetListFileParser(result.cachedCloudFileDescriptor).parse()
                             } catch (ibpfe4: InvalidBeatPrompterFileException) {
-                                IrrelevantFile(result)
+                                IrrelevantFile(result.cachedCloudFileDescriptor)
                             }
                         }
                     }

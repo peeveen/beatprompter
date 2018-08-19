@@ -120,7 +120,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
         if (mSelectedFilter is MIDIAliasFilesFilter) {
             val maf = mCachedCloudFiles.midiAliasFiles[position]
-            if (maf.mErrors.size > 0)
+            if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
         } else {
             // Don't allow another song to be started from the song list (by clicking)
@@ -167,7 +167,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        var track:AudioFile?=if (selectedSong.mAudioFiles.size > 0) mCachedCloudFiles.getMappedAudioFile(selectedSong.mAudioFiles[0]) else null
+        var track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty()) mCachedCloudFiles.getMappedAudioFile(selectedSong.mAudioFiles[0]) else null
         var beatScroll = selectedSong.isBeatScrollable
         var smoothScroll = selectedSong.isSmoothScrollable
         val sharedPrefs = BeatPrompterApplication.preferences
@@ -442,7 +442,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun onMIDIAliasListLongClick(position: Int) {
         val maf = removeDefaultAliasFile(mCachedCloudFiles.midiAliasFiles)[position]
-        val showErrors = maf.mErrors.size > 0
+        val showErrors = maf.mErrors.isNotEmpty()
 
         var arrayID = R.array.midi_alias_options_array
         if (showErrors)

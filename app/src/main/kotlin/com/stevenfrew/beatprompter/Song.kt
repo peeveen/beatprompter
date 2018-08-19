@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.event.CommentEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?,
+class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,val mBPM:Double, internal var mChosenBackingTrack: AudioFile?,
            internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment>, firstEvent: BaseEvent,
            firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode,
            internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?,
@@ -96,7 +96,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
 
         val defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))))
         var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue).toBoolean())
-        showKey = showKey and mSongFile.mKey.isNotBlank()
+        showKey = showKey and mKey.isNotBlank()
         val showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))
 
         mBeatCounterHeight = 0
@@ -108,7 +108,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         val maxSongTitleWidth = nativeScreenWidth * 0.9f
         val maxSongTitleHeight = mBeatCounterHeight * 0.9f
         val vMargin = (mBeatCounterHeight - maxSongTitleHeight) / 2.0f
-        mSongTitleHeader = ScreenString.create(mSongFile.mTitle, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
+        mSongTitleHeader = ScreenString.create(mTitle, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
         val extraMargin = (maxSongTitleHeight - mSongTitleHeader!!.mHeight) / 2.0f
         val x = ((nativeScreenWidth - mSongTitleHeader!!.mWidth) / 2.0).toFloat()
         val y = mBeatCounterHeight - (extraMargin + mSongTitleHeader!!.mDescenderOffset.toFloat() + vMargin)
@@ -174,9 +174,9 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
         }
         val tenPercent = (availableScreenHeight / 10.0).toInt()
         val twentyPercent = (availableScreenHeight / 5.0).toInt()
-        mStartScreenStrings.add(ScreenString.create(mSongFile.mTitle, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
-        if (mSongFile.mArtist != null && mSongFile.mArtist!!.isNotEmpty())
-            mStartScreenStrings.add(ScreenString.create(mSongFile.mArtist!!, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
+        mStartScreenStrings.add(ScreenString.create(mTitle, paint, nativeScreenWidth, twentyPercent, Color.YELLOW, boldFont, true))
+        if (mArtist.isNotEmpty())
+            mStartScreenStrings.add(ScreenString.create(mArtist, paint, nativeScreenWidth, tenPercent, Color.YELLOW, boldFont, true))
         val commentLines = mutableListOf<String>()
         for (c in mInitialComments)
             commentLines.add(c.mText)
@@ -186,7 +186,7 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
                 nonBlankCommentLines.add(commentLine.trim())
         var errors = mParseErrors.size
         var messages = Math.min(errors, 6) + nonBlankCommentLines.size
-        val showBPM = !BeatPrompterApplication.getResourceString(R.string.showBPMNo).equals(showBPMString!!, ignoreCase = true) && mSongFile.mBPM != 0.0
+        val showBPM = !BeatPrompterApplication.getResourceString(R.string.showBPMNo).equals(showBPMString!!, ignoreCase = true) && mBPM != 0.0
         if (showBPM)
             ++messages
         if (showKey)
@@ -213,18 +213,18 @@ class Song(var mSongFile: SongFile, internal var mChosenBackingTrack: AudioFile?
                 mStartScreenStrings.add(ScreenString.create(nonBlankComment, paint, nativeScreenWidth, spacePerMessageLine, Color.WHITE, notBoldFont, false))
             }
             if (showKey) {
-                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongFile.mKey
+                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mKey
                 mStartScreenStrings.add(ScreenString.create(keyString, paint, nativeScreenWidth, spacePerMessageLine, Color.CYAN, notBoldFont, false))
             }
             if (showBPM) {
                 var rounded = BeatPrompterApplication.getResourceString(R.string.showBPMYesRoundedValue).equals(showBPMString, ignoreCase = true)
-                if (mSongFile.mBPM == mSongFile.mBPM.toInt().toDouble())
+                if (mBPM == mBPM.toInt().toDouble())
                     rounded = true
                 var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
-                    Math.round(mSongFile.mBPM).toInt()
+                    Math.round(mBPM).toInt()
                 else
-                    mSongFile.mBPM
+                    mBPM
                 mStartScreenStrings.add(ScreenString.create(bpmString, paint, nativeScreenWidth, spacePerMessageLine, Color.CYAN, notBoldFont, false))
             }
         }

@@ -18,7 +18,7 @@ open class CachedCloudFileDescriptor:CloudFileInfo {
         mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
     }
 
-    override fun writeToXML(element: Element) {
+    final override fun writeToXML(element: Element) {
         super.writeToXML(element)
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, mFile.absolutePath)
     }

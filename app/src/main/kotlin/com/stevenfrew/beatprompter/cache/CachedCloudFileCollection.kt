@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.midi.Alias
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import kotlin.reflect.full.findAnnotation
 
 class CachedCloudFileCollection {
     private var mFiles = mutableListOf<CachedCloudFile>()
@@ -39,20 +40,20 @@ class CachedCloudFileCollection {
             ccf.writeToXML(d, root)
     }
 
-    private fun <TCachedCloudFileType:CachedCloudFile>addToCollection(xmlDoc:Document,tagName:String,parser: (element: Element) -> TCachedCloudFileType)
+    private fun <TCachedCloudFileType:CachedCloudFile>addToCollection(xmlDoc:Document,tagName:String,parser: (cachedCloudFileDescriptor: CachedCloudFileDescriptor) -> TCachedCloudFileType)
     {
         val elements = xmlDoc.getElementsByTagName(tagName)
         for (f in 0 until elements.length) {
             val element = elements.item(f) as Element
             try {
-                add(parser(element))
+                add(parser(CachedCloudFileDescriptor(element)))
             } catch (ibpfe: InvalidBeatPrompterFileException) {
                 // This should never happen. If we could write out the file info, then it was valid.
                 // So it must still be valid when we come to read it in. Unless some dastardly devious sort
                 // has meddled with files outside of the app ...
                 Log.d(BeatPrompterApplication.TAG, "Failed to parse file.")
                 // File has become irrelevant
-                add(IrrelevantFile(element))
+                add(IrrelevantFile(CachedCloudFileDescriptor(element)))
             }
         }
     }
@@ -60,12 +61,12 @@ class CachedCloudFileCollection {
     fun readFromXML(xmlDoc: Document) {
         clear()
 
-        addToCollection(xmlDoc,AudioFile.AUDIOFILE_ELEMENT_TAG_NAME) { element:Element -> AudioFileParser(CachedCloudFileDescriptor(element)).parse()}
-        addToCollection(xmlDoc,ImageFile.IMAGEFILE_ELEMENT_TAG_NAME) { element:Element -> ImageFileParser(CachedCloudFileDescriptor(element)).parse()}
-        addToCollection(xmlDoc,SongFile.SONGFILE_ELEMENT_TAG_NAME) { element:Element -> SongInfoParser(CachedCloudFileDescriptor(element),audioFiles,imageFiles).parse()}
-        addToCollection(xmlDoc,SetListFile.SETLISTFILE_ELEMENT_TAG_NAME) { element:Element -> SetListFileParser(CachedCloudFileDescriptor(element)).parse()}
-        addToCollection(xmlDoc,MIDIAliasFile.MIDIALIASFILE_ELEMENT_TAG_NAME) { element:Element -> MIDIAliasFileParser(CachedCloudFileDescriptor(element)).parse()}
-        addToCollection(xmlDoc,IrrelevantFile.IRRELEVANTFILE_ELEMENT_TAG_NAME) { element:Element -> IrrelevantFile(element)}
+        addToCollection(xmlDoc,AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> AudioFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> ImageFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SongInfoParser(descriptor).parse()}
+        addToCollection(xmlDoc,SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SetListFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> MIDIAliasFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> IrrelevantFile(descriptor)}
     }
 
     fun add(cachedFile: CachedCloudFile) {
@@ -101,16 +102,14 @@ class CachedCloudFileCollection {
         mFiles.clear()
     }
 
-    fun getMappedAudioFile(inStr: String, tempAudioFileCollection: List<AudioFile> = mutableListOf()): AudioFile? {
+    fun getMappedAudioFile(inStr: String): AudioFile? {
         val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return audioFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
-        tempAudioFileCollection.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+        return audioFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
     }
 
-    fun getMappedImageFile(inStr: String, tempImageFileCollection: List<ImageFile> = mutableListOf()): ImageFile? {
+    fun getMappedImageFile(inStr: String): ImageFile? {
         val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return imageFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}?:
-        tempImageFileCollection.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+        return imageFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {

@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.midi.*
 import java.util.ArrayList
 import kotlin.experimental.and
 
-open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int): Tag(name,lineNumber,position) {
+open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     @Throws(MalformedTagException::class)
     fun parseMIDIEvent(value:String, time: Long, aliases: List<Alias>, defaultChannel: Byte): MIDIEvent {
         var tagValue = value.trim()
