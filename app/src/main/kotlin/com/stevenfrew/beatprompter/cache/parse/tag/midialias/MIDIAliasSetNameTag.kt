@@ -4,6 +4,4 @@ import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 
 @OncePerFile
-class MIDIAliasSetNameTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): MIDITag(name,lineNumber,position,value) {
-    val mAliasSetName=value
-}
+class MIDIAliasSetNameTag internal constructor(name:String, lineNumber:Int, position:Int, val mAliasSetName:String): MIDITag(name,lineNumber,position,mAliasSetName)
