@@ -21,7 +21,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
-    private val mEvents=mutableListOf<BaseEvent>()
+    private val mEvents=mutableListOf<BaseEvent>(StartEvent())
     private val mLines=mutableListOf<Pair<Line,BeatInfo>>()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
@@ -451,9 +451,18 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val y = mBeatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
         val songTitleHeaderLocation = PointF(x, y)
 
-        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,mEvents,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,nextSongString,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        val firstEvent=buildEventList()
+        offsetMIDIEvents(firstEvent)
+        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,nextSongString,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+    }
 
-        //return Song(mCachedCloudFileDescriptor.mID,mSongFile.mTitle,mSongFile.mArtist,mSongFile.mKey,mSongFile.mBPM,null,100,listOf(),)
+    private fun buildEventList():BaseEvent
+    {
+        val firstEvent=mEvents.removeAt(0)
+        mEvents.forEach {
+            firstEvent.add(it)
+        }
+        return firstEvent
     }
 
     private fun getBiggestLineSize(index: Int, modulus: Int): Rect {
@@ -634,54 +643,54 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
+    private fun offsetMIDIEvents(firstEvent: BaseEvent) {
+        var event:BaseEvent? = firstEvent
+        while (event != null) {
+            if (event is MIDIEvent) {
+                val midiEvent = event
+                if (midiEvent.mOffset.mAmount != 0) {
+                    // OK, this event needs moved.
+                    var newTime: Long = -1
+                    if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                        val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+                        newTime = midiEvent.mEventTime + offset
+                    } else {
+                        // Offset by beat count.
+                        var beatCount = midiEvent.mOffset.mAmount
+                        var currentEvent: BaseEvent = midiEvent
+                        while (beatCount != 0) {
+                            val beatEvent: BeatEvent = (if (beatCount > 0)
+                                currentEvent.nextBeatEvent
+                            else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
+                                currentEvent.mPrevEvent!!.mPrevBeatEvent
+                            else
+                                currentEvent.mPrevBeatEvent) ?: break
+                            if (beatEvent.mEventTime != midiEvent.mEventTime) {
+                                beatCount -= beatCount / Math.abs(beatCount)
+                                newTime = beatEvent.mEventTime
+                            }
+                            currentEvent = beatEvent
+                        }
+                    }
+                    if (newTime < 0) {
+                        mErrors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                        newTime = 0
+                    }
+                    val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
+                    midiEvent.insertEvent(newMIDIEvent)
+                    event = midiEvent.mPrevEvent
+                    midiEvent.remove()
+                }
+            }
+            event = event!!.mNextEvent
+        }
+    }
+
     companion object {
         private const val DEMO_LINE_COUNT = 15
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
-
-        private fun offsetMIDIEvents(firstEvent: BaseEvent?, errors: MutableList<FileParseError>) {
-            var event = firstEvent
-            while (event != null) {
-                if (event is MIDIEvent) {
-                    val midiEvent = event
-                    if (midiEvent.mOffset.mAmount != 0) {
-                        // OK, this event needs moved.
-                        var newTime: Long = -1
-                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-                            newTime = midiEvent.mEventTime + offset
-                        } else {
-                            // Offset by beat count.
-                            var beatCount = midiEvent.mOffset.mAmount
-                            var currentEvent: BaseEvent = midiEvent
-                            while (beatCount != 0) {
-                                val beatEvent: BeatEvent = (if (beatCount > 0)
-                                    currentEvent.nextBeatEvent
-                                else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
-                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
-                                else
-                                    currentEvent.mPrevBeatEvent) ?: break
-                                if (beatEvent.mEventTime != midiEvent.mEventTime) {
-                                    beatCount -= beatCount / Math.abs(beatCount)
-                                    newTime = beatEvent.mEventTime
-                                }
-                                currentEvent = beatEvent
-                            }
-                        }
-                        if (newTime < 0) {
-                            errors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
-                            newTime = 0
-                        }
-                        val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
-                        midiEvent.insertEvent(newMIDIEvent)
-                        event = midiEvent.mPrevEvent
-                        midiEvent.remove()
-                    }
-                }
-                event = event!!.mNextEvent
-            }
-        }
     }
 }
 

@@ -5,25 +5,8 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
     var mPrevEvent: BaseEvent? = null
     var mNextEvent: BaseEvent? = null
     var mPrevAudioEvent: AudioEvent? = null
-    //ScrollEvent mPrevScrollEvent;
     var mPrevBeatEvent: BeatEvent? = null
     var mPrevLineEvent: LineEvent? = null
-
-    val lastEvent: BaseEvent
-        get() {
-            var e: BaseEvent? = this
-            while (e!!.mNextEvent != null)
-                e = e.mNextEvent
-            return e
-        }
-
-    val firstBeatEvent: BeatEvent?
-        get() {
-            var event: BaseEvent? = this
-            while (event != null && event !is BeatEvent)
-                event = event.mNextEvent
-            return if (event != null) event as BeatEvent? else null
-        }
 
     val nextBeatEvent: BeatEvent?
         get() {
@@ -56,26 +39,13 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
         //     event.mPrevScrollEvent=(ScrollEvent)event;
     }
 
-    fun insertAfter(event: BaseEvent) {
+    private fun insertAfter(event: BaseEvent) {
         val mTempNextEvent = mNextEvent
         mNextEvent = event
         event.mNextEvent = mTempNextEvent
         if (mTempNextEvent != null)
             mTempNextEvent.mPrevEvent = event
         event.mPrevEvent = this
-
-        /*if(event instanceof ScrollEvent)
-        {
-            event.mPrevScrollEvent = (ScrollEvent) event;
-            BaseEvent currentEvent=event.mNextEvent;
-            while((currentEvent!=null)&&(!(currentEvent instanceof ScrollEvent)))
-            {
-                currentEvent.mPrevScrollEvent=(ScrollEvent)event;
-                currentEvent=currentEvent.mNextEvent;
-            }
-        }
-        else
-            event.mPrevScrollEvent=mPrevScrollEvent;*/
 
         if (event is BeatEvent) {
             event.mPrevBeatEvent = event
@@ -108,28 +78,22 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
             event.mPrevLineEvent = mPrevLineEvent
     }
 
-    fun offsetLaterEvents(amount: Long) {
-        var event = this.mNextEvent
-        while (event != null) {
-            event.offset(amount)
-            event = event.mNextEvent
-        }
-    }
-
     protected open fun offset(amount: Long) {
         mEventTime += amount
     }
 
-    fun findEventOnOrBefore(time: Long): BaseEvent? {
+    fun findEventOnOrBefore(time: Long): BaseEvent {
         var lastCheckedEvent = this
-        var e: BaseEvent? = this
-        while (e != null) {
+        var e: BaseEvent = this
+        while (true) {
             when {
                 e.mEventTime > time -> {
                     if (lastCheckedEvent.mEventTime < time)
                         return lastCheckedEvent
                     lastCheckedEvent = e
-                    e = e.mPrevEvent
+                    if (e.mPrevEvent == null)
+                        return e
+                    e = e.mPrevEvent!!
                 }
                 e.mEventTime < time -> {
                     if (lastCheckedEvent.mEventTime > time)
@@ -137,17 +101,16 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
                     lastCheckedEvent = e
                     if (e.mNextEvent == null)
                         return e
-                    e = e.mNextEvent
+                    e = e.mNextEvent!!
                 }
                 e.mEventTime == time -> return e
             }
         }
-        return null
     }
 
     fun insertEvent(event: BaseEvent) {
         val eventBefore = findEventOnOrBefore(event.mEventTime)
-        eventBefore!!.insertAfter(event)
+        eventBefore.insertAfter(event)
     }
 
     fun remove() {

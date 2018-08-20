@@ -7,33 +7,30 @@ import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
 class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
-           private val mEvents:List<BaseEvent>, private val mLines:List<Line>,
+           firstEvent:BaseEvent, private val mLines:List<Line>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mTotalStartScreenTextHeight:Int,
            val mStartedByBandLeader:Boolean, val mNextSong:String, val mNextSongString:ScreenString?,
            val mSmoothScrollOffset:Int, val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString,val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line? = mLines.firstOrNull()
     internal var mLastLine: Line? = mLines.lastOrNull()
-    private var mFirstEvent: BaseEvent=mEvents.first() // First event in the event chain.
-    internal var mCurrentEvent: BaseEvent? = mEvents.firstOrNull() // Last event that executed.
-    private var mNextEvent: BaseEvent? = mCurrentEvent?.mNextEvent // Upcoming event.
+    internal var mCurrentEvent=firstEvent // Last event that executed.
+    private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
 
     internal fun setProgress(nano: Long) {
-        var e = mCurrentEvent
-        if (e == null)
-            e = mFirstEvent
+        val e = mCurrentEvent
         val newCurrentEvent = e.findEventOnOrBefore(nano)
         mCurrentEvent = newCurrentEvent
-        mNextEvent = mCurrentEvent!!.mNextEvent
-        val newCurrentLineEvent = newCurrentEvent!!.mPrevLineEvent
+        mNextEvent = mCurrentEvent.mNextEvent
+        val newCurrentLineEvent = newCurrentEvent.mPrevLineEvent
         mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.firstOrNull()
     }
 
     internal fun getNextEvent(time: Long): BaseEvent? {
         if (mNextEvent != null && mNextEvent!!.mEventTime <= time) {
-            mCurrentEvent = mNextEvent
+            mCurrentEvent = mNextEvent!!
             mNextEvent = mNextEvent!!.mNextEvent
             return mCurrentEvent
         }
