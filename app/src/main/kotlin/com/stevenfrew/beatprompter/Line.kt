@@ -1,23 +1,14 @@
 package com.stevenfrew.beatprompter
 
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.Typeface
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.songload.CancelEvent
-import com.stevenfrew.beatprompter.event.LineEvent
-import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
-import java.util.ArrayList
-
 abstract class Line internal constructor(val mLineTime:Long,val mLineDuration:Long,val mScrollMode:ScrollingMode,val mDisplaySettings:SongDisplaySettings,val mSongPixelPosition:Int) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements:LineMeasurements
-    internal var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
+    protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
     var mYStartScrollTime: Long = 0
     var mYStopScrollTime: Long = 0
 
-    internal abstract fun renderGraphics(allocate: Boolean)
+    internal abstract fun renderGraphics()
 
     internal fun getTimeFromPixel(pixelPosition: Int): Long {
         if (pixelPosition == 0)
@@ -38,7 +29,7 @@ abstract class Line internal constructor(val mLineTime:Long,val mLineDuration:Lo
         if (mNextLine != null)
             lineEndTime = mNextLine!!.mLineTime
 
-        if (time >= mLineTime && time < lineEndTime)
+        if (time in mLineTime..(lineEndTime - 1))
             return calculatePixelFromTime(time)
         else if (time < mLineTime && mPrevLine != null)
             return mPrevLine!!.getPixelFromTime(time)
@@ -57,12 +48,13 @@ abstract class Line internal constructor(val mLineTime:Long,val mLineDuration:Lo
         return last
     }
 
-    internal fun renderGraphics() {
-        renderGraphics(true)
+    internal fun allocateGraphic(graphic: LineGraphic) {
+        mGraphics.add(graphic)
     }
 
-    internal fun setGraphic(graphic: LineGraphic) {
-        mGraphics.add(graphic)
+    internal fun getGraphics():List<LineGraphic> {
+        renderGraphics()
+        return mGraphics
     }
 
     internal open fun recycleGraphics() {

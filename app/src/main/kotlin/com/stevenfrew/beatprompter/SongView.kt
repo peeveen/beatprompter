@@ -305,7 +305,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         startOnscreen = currentY >= mSong!!.mBeatCounterRect.height()
                         endOnscreen = currentY + currentLine.mMeasurements.mLineHeight <= mScreenHeight
                     }
-                    val graphics = currentLine.mGraphics
+                    val graphics = currentLine.getGraphics()
                     val lineTop = currentY
                     for ((lineCounter, graphic) in graphics.withIndex()) {
                         if (!graphic.mBitmap.isRecycled)
@@ -332,7 +332,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 if (prevLine != null && startY > 0) {
                     mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
                     currentY = startY - prevLine.mMeasurements.mLineHeight
-                    val graphics = prevLine.mGraphics
+                    val graphics = prevLine.getGraphics()
                     for ((lineCounter, graphic) in graphics.withIndex()) {
                         canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += prevLine.mMeasurements.mGraphicHeights[lineCounter]
@@ -547,29 +547,29 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun showSongTitle(canvas: Canvas) {
-        if (mSong == null || mSong!!.mSongTitleHeader == null)
+        if (mSong == null)
             return
 
         with(mPaint)
         {
-            textSize = mSong!!.mSongTitleHeader!!.mFontSize * Utils.FONT_SCALING
-            typeface = mSong!!.mSongTitleHeader!!.mFace
+            textSize = mSong!!.mSongTitleHeader.mFontSize * Utils.FONT_SCALING
+            typeface = mSong!!.mSongTitleHeader.mFace
             flags = Paint.ANTI_ALIAS_FLAG
             color = mSongTitleContrastBackground
         }
 
-        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
+        canvas.drawText(mSong!!.mSongTitleHeader.mText, mSong!!.mSongTitleHeaderLocation.x, mSong!!.mSongTitleHeaderLocation.y, mPaint)
 
         canvas.save()
         canvas.clipRect(mBeatCountRect)
         mPaint.color = mSongTitleContrastBeatCounter
-        canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
+        canvas.drawText(mSong!!.mSongTitleHeader.mText, mSong!!.mSongTitleHeaderLocation.x, mSong!!.mSongTitleHeaderLocation.y, mPaint)
         canvas.restore()
 
         if (mScrollIndicatorRect != null) {
             canvas.save()
             canvas.clipRect(mScrollIndicatorRect!!)
-            canvas.drawText(mSong!!.mSongTitleHeader!!.mText, mSong!!.mSongTitleHeaderLocation!!.x, mSong!!.mSongTitleHeaderLocation!!.y, mPaint)
+            canvas.drawText(mSong!!.mSongTitleHeader.mText, mSong!!.mSongTitleHeaderLocation.x, mSong!!.mSongTitleHeaderLocation.y, mPaint)
             canvas.restore()
         }
 

@@ -298,6 +298,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
                 if(lineObj!=null)
                 {
+                    val previousLine=mLines.lastOrNull()?.first
+                    if(previousLine!=null)
+                    {
+                        previousLine.mNextLine=lineObj
+                        lineObj.mPrevLine=previousLine
+                    }
+
                     mLines.add(Pair(lineObj,currentLineBeatInfo))
                     val lineEvent=LineEvent(mSongTime,totalLineTime,lineObj)
                     mEvents.add(lineEvent)
@@ -412,7 +419,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mLines.forEach {
             var graphic: LineGraphic = lineGraphics.first()
             for (f in 0 until it.first.mMeasurements.mLines) {
-                it.first.setGraphic(graphic)
+                it.first.allocateGraphic(graphic)
                 graphic = graphic.mNextGraphic
             }
         }

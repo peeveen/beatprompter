@@ -20,7 +20,6 @@ class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySet
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
     internal var mSongHeight = 0
-    private var mMaxLineHeight = 0
 
     internal fun setProgress(nano: Long) {
         var e = mCurrentEvent

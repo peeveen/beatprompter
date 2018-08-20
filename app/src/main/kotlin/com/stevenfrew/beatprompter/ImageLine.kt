@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
-import com.stevenfrew.beatprompter.songload.CancelEvent
 
 class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingMode:ImageScalingMode,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,currentHighlightColor:Int?,pixelPosition:Int) : Line(lineTime,lineDuration,scrollMode,displaySettings,pixelPosition) {
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
@@ -15,11 +14,11 @@ class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingM
         mMeasurements=LineMeasurements(1, destRect.width(), destRect.height(), intArrayOf(destRect.height()), currentHighlightColor, lineTime,lineDuration, mNextLine, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
     }
 
-    override fun renderGraphics(allocate: Boolean)  {
+    override fun renderGraphics()  {
         val destRect=getDestinationRect(mMeasurements.mScreenSize)
         for (f in 0 until mMeasurements.mLines) {
             val graphic = mGraphics[f]
-            if (graphic.mLastDrawnLine !== this && allocate) {
+            if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
                 val c = Canvas(graphic.mBitmap)
                 c.drawBitmap(mBitmap, mSourceRect, destRect, paint)

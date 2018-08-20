@@ -28,9 +28,9 @@ class TextLine internal constructor(private val mText: String, private val mTags
     init {
         val paint=Paint()
         val sharedPrefs=BeatPrompterApplication.preferences
-        mLyricColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default))))
-        mChordColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default))))
-        mAnnotationColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default))))
+        mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
+        mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
+        mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
         // TODO: Fix this, for god's sake!
         val sections = calculateSections(cancelEvent)
 
@@ -419,10 +419,10 @@ class TextLine internal constructor(private val mText: String, private val mTags
         return Math.max(vTotalLineWidth-totalXSplits, mLineWidths.max()?:0)
     }
 
-    override fun renderGraphics(allocate: Boolean) {
+    override fun renderGraphics() {
         for (f in 0 until mMeasurements.mLines) {
             val graphic = mGraphics[f]
-            if (graphic.mLastDrawnLine !== this && allocate) {
+            if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
                 val chordsDrawn = if (mChordsDrawn.size > f) mChordsDrawn[f] else true
                 val thisLineHeight = mMeasurements.mGraphicHeights[f]
