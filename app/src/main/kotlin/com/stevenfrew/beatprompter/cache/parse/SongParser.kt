@@ -282,7 +282,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     val imageFile = SongList.mCachedCloudFiles.getMappedImageFile(imageTag.mFilename)
                     if (imageFile != null)
                         try {
-                            lineObj = ImageLine(imageFile, imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mCurrentHighlightColor,mSongHeight)
+                            lineObj = ImageLine(imageFile, imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight)
                         }
                         catch(e:Exception)
                         {
@@ -308,7 +308,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
                     mSongHeight+=lineObj.mMeasurements.mLineHeight
                     mLines.add(Pair(lineObj,currentLineBeatInfo))
-                    val lineEvent=LineEvent(mSongTime,totalLineTime,lineObj)
+                    val lineEvent=LineEvent(mSongTime,lineObj)
                     mEvents.add(lineEvent)
 
                     // Generate beat events ...
