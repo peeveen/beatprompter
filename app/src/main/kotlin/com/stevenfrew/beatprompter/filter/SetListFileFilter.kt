@@ -5,20 +5,45 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.SetListEntry
 
 open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<SongFile>) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSetListEntries, songs)) {
-    var mMissingSongs=getMissingSongList(mSetListFile.mSetListEntries, mSongs)
-    var mWarned= mMissingSongs.size == 0
+    var mMissingSetListEntries=getMissingSetListEntries(mSetListFile.mSetListEntries, mSongs)
+    var mWarned= mMissingSetListEntries.isEmpty()
 
     companion object {
         private fun getSongList(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SongFile> {
-            return songFiles.filter{ song -> setListEntries.map{normalizeTitle(it)}.contains(normalizeTitle(song.mTitle))}.toMutableList()
+            val copiedSongList=songFiles.toMutableList()
+            val copiedSetListEntries=setListEntries.toMutableList()
+            val fullMatches=getMatches(copiedSetListEntries,copiedSongList,SetListMatch.TitleAndArtistMatch)
+            copiedSetListEntries.removeAll(fullMatches.map{it.first})
+            val fullyMatchedSongs=fullMatches.map{it.second}
+            copiedSongList.removeAll(fullyMatchedSongs)
+            val partialMatches=getMatches(copiedSetListEntries,copiedSongList,SetListMatch.TitleMatch)
+            val partiallyMatchedSongs=partialMatches.map{it.second}
+            return listOf(fullyMatchedSongs,partiallyMatchedSongs).flatMap { it }.toMutableList()
         }
 
-        private fun getMissingSongList(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<String> {
-            return songFiles.filter{ song ->!setListEntries.map{normalizeTitle(it)}.contains(normalizeTitle(song.mTitle))}.map{it.mTitle}.toMutableList()
+        private fun getMissingSetListEntries(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SetListEntry> {
+            val copiedSongList=songFiles.toMutableList()
+            val copiedSetListEntries=setListEntries.toMutableList()
+            val fullMatches=getMatches(copiedSetListEntries,copiedSongList,SetListMatch.TitleAndArtistMatch)
+            copiedSetListEntries.removeAll(fullMatches.map{it.first})
+            val fullyMatchedSongs=fullMatches.map{it.second}
+            copiedSongList.removeAll(fullyMatchedSongs)
+            val partialMatches=getMatches(copiedSetListEntries,copiedSongList,SetListMatch.TitleMatch)
+            copiedSetListEntries.removeAll(partialMatches.map{it.first})
+            val partiallyMatchedSongs=partialMatches.map{it.second}
+            copiedSongList.removeAll(partiallyMatchedSongs)
+            return copiedSetListEntries
         }
 
-        private fun normalizeTitle(setListEntry: String): String {
-            return setListEntry.replace('’', '\'').replace("\uFEFF", "").toLowerCase()
+        private fun getMatches(setListEntries:List<SetListEntry>,songFiles:List<SongFile>,desiredMatchType:SetListMatch):List<Pair<SetListEntry,SongFile>>
+        {
+            return setListEntries.mapNotNull { entry ->
+                val fullMatch = songFiles.firstOrNull { song: SongFile -> entry.matches(song) == desiredMatchType }
+                if (fullMatch != null)
+                    Pair(entry, fullMatch)
+                else
+                    null
+            }
         }
     }
 }

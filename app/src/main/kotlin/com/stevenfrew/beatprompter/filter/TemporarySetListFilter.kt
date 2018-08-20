@@ -13,7 +13,7 @@ class TemporarySetListFilter(setListFile: SetListFile, songs: MutableList<SongFi
     }
 
     fun clear() {
-        mMissingSongs.clear()
+        mMissingSetListEntries.clear()
         mSongs.clear()
     }
 

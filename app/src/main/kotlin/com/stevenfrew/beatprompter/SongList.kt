@@ -29,6 +29,7 @@ import com.stevenfrew.beatprompter.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.SetListEntry
 import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
@@ -272,7 +273,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         mTemporarySetListFilter!!.addSong(song)
         try {
             initialiseTemporarySetListFile(false)
-            Utils.appendToTextFile(mTemporarySetListFile!!, song.mTitle)
+            Utils.appendToTextFile(mTemporarySetListFile!!, SetListEntry(song).toString())
         } catch (ioe: IOException) {
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }
@@ -993,13 +994,13 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private fun showSetListMissingSongs() {
         if (mSelectedFilter is SetListFileFilter) {
             val slf = mSelectedFilter as SetListFileFilter?
-            val missing = slf!!.mMissingSongs
+            val missing = slf!!.mMissingSetListEntries
             if (missing.size > 0 && !slf.mWarned) {
                 slf.mWarned = true
                 val message = StringBuilder(getString(R.string.missing_songs_message, missing.size))
                 message.append("\n\n")
                 for (f in 0 until Math.min(missing.size, 3)) {
-                    message.append(missing[f])
+                    message.append(missing[f].toString())
                     message.append("\n")
                 }
                 val alertDialog = AlertDialog.Builder(this).create()

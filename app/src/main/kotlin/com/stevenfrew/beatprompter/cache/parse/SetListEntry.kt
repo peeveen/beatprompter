@@ -7,6 +7,9 @@ class SetListEntry(line: String) {
     private val mTitle:String
     private val mArtist:String
 
+    constructor(songFile:SongFile):this(songFile.mTitle,songFile.mArtist)
+    constructor(title:String,artist:String):this(title+ SET_LIST_ENTRY_DELIMITER+artist)
+
     init {
         val bits=line.split(SET_LIST_ENTRY_DELIMITER)
         if(bits.size>1) {
@@ -32,5 +35,9 @@ class SetListEntry(line: String) {
         }
         else
             return SetListMatch.NoMatch
+    }
+
+    override fun toString():String{
+        return mTitle+ SET_LIST_ENTRY_DELIMITER+mArtist
     }
 }
