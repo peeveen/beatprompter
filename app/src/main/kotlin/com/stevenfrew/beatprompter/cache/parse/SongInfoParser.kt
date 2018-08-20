@@ -89,7 +89,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
                 else
                     mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor,mLines,mTitle!!,mArtist!!,key,mBPM,mDuration,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER)
+        return SongFile(mCachedCloudFileDescriptor,mLines,mTitle!!,mArtist!!,key,mBPM,mDuration,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mErrors)
     }
 
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag

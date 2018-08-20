@@ -77,8 +77,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         val song = SongLoaderTask.currentSong?:return
 
         mStartedByBandLeader = song.mStartedByBandLeader
-        sendMidiClock = sendMidiClock or song.mSendMidiClock
-        val orientation = song.mOrientation
+        sendMidiClock = sendMidiClock or song.mSendMIDIClock
+        val orientation = song.mDisplaySettings.mOrientation
         mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         else
@@ -279,7 +279,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 // This should never happen, but we'll check just to be sure.
 
                 // Trying to interrupt a song with itself is pointless!
-                if (loadedSong.mID == songToInterruptWith.mID)
+                if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
                     return SongInterruptResult.NoSongToInterrupt
 
                 return if (mSongDisplayInstance.canYieldToExternalTrigger()) {

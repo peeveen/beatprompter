@@ -46,7 +46,7 @@ class SongLoaderTask : Task(true) {
             val vSongLoadHandler = songLoadHandler
             val cancelEvent = cancelEvent
             try {
-                val loadedSong = SongParser(sli.songFile,cancelEvent!!, vSongLoadHandler!!, mRegistered).parse()
+                val loadedSong = SongParser(sli,cancelEvent!!, vSongLoadHandler!!, mRegistered).parse()
                 if (cancelEvent.isCancelled)
                     vSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
                 else {
@@ -62,9 +62,7 @@ class SongLoaderTask : Task(true) {
             try {
                 // Nothing to do, wait a bit
                 Thread.sleep(250)
-            } catch (ignored: InterruptedException) {
-            }
-
+            } catch (ignored: InterruptedException) { }
     }
 
     fun loadSong(sli: SongLoadInfo, handler: Handler, vCancelEvent: CancelEvent, registered: Boolean) {

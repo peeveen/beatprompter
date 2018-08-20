@@ -1,10 +1,11 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.*
 
 @CacheXmlTag("song")
-class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, val mProgramChangeTrigger:SongTrigger, val mSongSelectTrigger:SongTrigger) : CachedCloudFile(cachedCloudFileDescriptor) {
+class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, val mProgramChangeTrigger:SongTrigger, val mSongSelectTrigger:SongTrigger, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
     val mSortableArtist=sortableString(mArtist)
     val mSortableTitle=sortableString(mTitle)
     val mIsSmoothScrollable=mDuration>0
@@ -154,10 +155,8 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
             var beatsToAdjust = 0
             val rolloverBeats = mutableListOf<BeatEvent>()
             var pauseTime: Long
-            var lastBeatBlock: BeatBlock? = null
             // COMMENT
             val comments = mutableListOf<Comment>()
-            val beatBlocks = mutableListOf<BeatBlock>()
             var lineImage: ImageFile? = null
 
             var metronomeOn = metronomeContext === com.stevenfrew.beatprompter.MetronomeContext.On
@@ -483,12 +482,12 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
                     firstEvent!!.insertAfter(baseBeatEvent)
                 }
             }
-            var trackEvent: TrackEvent? = null
+            var trackEvent: AudioEvent? = null
             if (chosenAudioFile != null) {
                 trackOffset = Utils.milliToNano(trackOffset.toInt()) // milli to nano
                 trackOffset += countTime
                 val eventBefore = firstEvent!!.findEventOnOrBefore(trackOffset)
-                trackEvent = TrackEvent(if (trackOffset < 0) 0 else trackOffset)
+                trackEvent = AudioEvent(if (trackOffset < 0) 0 else trackOffset)
                 eventBefore!!.insertAfter(trackEvent)
                 if (trackOffset < 0)
                     trackEvent.offsetLaterEvents(Math.abs(trackOffset))

@@ -21,11 +21,13 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
                 val lineTags=mutableSetOf<KClass<out Tag>>()
                 val livePairings=mutableSetOf<Pair<KClass<out Tag>,KClass<out Tag>>>()
                 textLine.mTags.forEach{tag->
+                    // TODO: reject tags that fail validation rules
                     val tagClass=tag::class
                     val isOncePerFile=tagClass.findAnnotation<OncePerFile>()!=null
                     val isOncePerLine=tagClass.findAnnotation<OncePerLine>()!=null
                     val startedByAnnotation=tagClass.findAnnotation<StartedBy>()
                     val endedByAnnotation=tagClass.findAnnotation<EndedBy>()
+                    val lineExclusiveTags=tagClass.annotations.filterIsInstance<LineExclusive>()
                     val alreadyUsedInFile=fileTags.contains(tagClass)
                     val alreadyUsedInLine=lineTags.contains(tagClass)
                     fileTags.add(tagClass)
@@ -52,6 +54,12 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
                             mErrors.add(FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.starting_tag_found_after_starting_tag,tag.mName)))
                         else
                             livePairings.add(pairing)
+                    }
+                    lineExclusiveTags.forEach{
+                        if(lineTags.contains(it.mCantShareWith))
+                            mErrors.add(FileParseError(tag,BeatPrompterApplication.getResourceString(R.string.tag_cant_share_line_with,
+                                    tag.mName,
+                                    it.mCantShareWith.findAnnotation<NormalizedName>()!!.mTagName)))
                     }
                 }
                 parseLine(textLine)

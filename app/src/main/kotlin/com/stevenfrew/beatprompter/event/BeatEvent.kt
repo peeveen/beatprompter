@@ -1,6 +1,11 @@
 package com.stevenfrew.beatprompter.event
 
-class BeatEvent(eventTime: Long, var mBPM: Double, var mBPB: Int, var mBPL: Int, var mBeat: Int, var mClick: Boolean, var mWillScrollOnBeat: Int) : BaseEvent(eventTime) {
+import com.stevenfrew.beatprompter.BeatInfo
+
+class BeatEvent(eventTime: Long, beatInfo: BeatInfo, var mBeat: Int, var mClick: Boolean, var mWillScrollOnBeat: Int) : BaseEvent(eventTime) {
+    val mBPM=beatInfo.mBPM
+    var mBPB=beatInfo.mBPB
+    val mBPL=beatInfo.mBPL
     init {
         mPrevBeatEvent = this
     }

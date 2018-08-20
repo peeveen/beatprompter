@@ -52,7 +52,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
         super.onProgressUpdate(*values)
         if (values.size > 1) {
             mProgressDialog!!.apply {
-                setMessage(mProgressTitle + mSongLoadInfo.songFile.mTitle)
+                setMessage(mProgressTitle + mSongLoadInfo.mSongFile.mTitle)
                 max = values[1]!!
                 progress = values[0]!!
             }
@@ -79,8 +79,8 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
         super.onPreExecute()
         mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
             setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-            setMessage(mSongLoadInfo.songFile.mTitle)
-            max = mSongLoadInfo.songFile.mLines
+            setMessage(mSongLoadInfo.mSongFile.mTitle)
+            max = mSongLoadInfo.mSongFile.mLines
             isIndeterminate = false
             setCancelable(false)
             setButton(DialogInterface.BUTTON_NEGATIVE, Resources.getSystem().getString(android.R.string.cancel)) { dialog, _ ->
@@ -98,22 +98,21 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
     private fun loadSong() {
         // If the song-display activity is currently active, then try to interrupt
         // the current song with this one. If not possible, don't bother.
-        val interruptResult = SongDisplayActivity.interruptCurrentSong(this, mSongLoadInfo.songFile)
+        val interruptResult = SongDisplayActivity.interruptCurrentSong(this, mSongLoadInfo.mSongFile)
         // A result of CannotInterrupt means that the current song refuses to stop. In which case, we can't load.
         // A result of CanInterrupt means that the current song has been instructed to end and, once it has, it will load the new one.
         // A result of NoSongToInterrupt, however, means full steam ahead.
         if (interruptResult === SongInterruptResult.NoSongToInterrupt) {
 
             // Create a bluetooth song-selection message to broadcast to other listeners.
-            val csm = ChooseSongMessage(mSongLoadInfo.songFile.mTitle,
-                    mSongLoadInfo.track?.mName?:"",
-                    mSongLoadInfo.nativeDisplaySettings.mOrientation,
-                    mSongLoadInfo.scrollMode === ScrollingMode.Beat,
-                    mSongLoadInfo.scrollMode === ScrollingMode.Smooth,
-                    mSongLoadInfo.nativeDisplaySettings.mMinFontSize,
-                    mSongLoadInfo.nativeDisplaySettings.mMaxFontSize,
-                    mSongLoadInfo.nativeDisplaySettings.mScreenWidth,
-                    mSongLoadInfo.nativeDisplaySettings.mScreenHeight)
+            val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
+                    mSongLoadInfo.mTrack?.mName?:"",
+                    mSongLoadInfo.mNativeDisplaySettings.mOrientation,
+                    mSongLoadInfo.mScrollMode === ScrollingMode.Beat,
+                    mSongLoadInfo.mScrollMode === ScrollingMode.Smooth,
+                    mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
+                    mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
+                    mSongLoadInfo.mNativeDisplaySettings.mScreenSize)
             BluetoothManager.broadcastMessageToClients(csm)
 
             // Kick off the loading of the new song.

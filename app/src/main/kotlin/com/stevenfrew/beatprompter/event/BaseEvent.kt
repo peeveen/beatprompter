@@ -4,7 +4,7 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
 ) {
     var mPrevEvent: BaseEvent? = null
     var mNextEvent: BaseEvent? = null
-    var mPrevTrackEvent: TrackEvent? = null
+    var mPrevAudioEvent: AudioEvent? = null
     //ScrollEvent mPrevScrollEvent;
     var mPrevBeatEvent: BeatEvent? = null
     var mPrevLineEvent: LineEvent? = null
@@ -42,12 +42,12 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
         mNextEvent = event
         event.mPrevEvent = this
         event.mPrevBeatEvent = mPrevBeatEvent
-        event.mPrevTrackEvent = mPrevTrackEvent
+        event.mPrevAudioEvent = mPrevAudioEvent
         event.mPrevLineEvent = mPrevLineEvent
         //event.mPrevScrollEvent=mPrevScrollEvent;
         when (event) {
             is BeatEvent -> event.mPrevBeatEvent = event
-            is TrackEvent -> event.mPrevTrackEvent = event
+            is AudioEvent -> event.mPrevAudioEvent = event
             is LineEvent -> event.mPrevLineEvent = event
             //if(event instanceof ScrollEvent)
             //     event.mPrevScrollEvent=(ScrollEvent)event;
@@ -87,15 +87,15 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
         } else
             event.mPrevBeatEvent = mPrevBeatEvent
 
-        if (event is TrackEvent) {
-            event.mPrevTrackEvent = event
+        if (event is AudioEvent) {
+            event.mPrevAudioEvent = event
             var currentEvent = event.mNextEvent
-            while (currentEvent != null && currentEvent !is TrackEvent) {
-                currentEvent.mPrevTrackEvent = event
+            while (currentEvent != null && currentEvent !is AudioEvent) {
+                currentEvent.mPrevAudioEvent = event
                 currentEvent = currentEvent.mNextEvent
             }
         } else
-            event.mPrevTrackEvent = mPrevTrackEvent
+            event.mPrevAudioEvent = mPrevAudioEvent
 
         if (event is LineEvent) {
             event.mPrevLineEvent = event
@@ -158,15 +158,15 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
         if (mNextEvent != null) {
             mNextEvent!!.mPrevEvent = eventBefore
             if (eventBefore != null) {
-                if (mNextEvent !is TrackEvent)
-                    mNextEvent!!.mPrevTrackEvent = eventBefore.mPrevTrackEvent
+                if (mNextEvent !is AudioEvent)
+                    mNextEvent!!.mPrevAudioEvent = eventBefore.mPrevAudioEvent
                 if (mNextEvent !is LineEvent)
                     mNextEvent!!.mPrevLineEvent = eventBefore.mPrevLineEvent
                 if (mNextEvent !is BeatEvent)
                     mNextEvent!!.mPrevBeatEvent = eventBefore.mPrevBeatEvent
             } else {
-                if (mNextEvent !is TrackEvent)
-                    mNextEvent!!.mPrevTrackEvent = null
+                if (mNextEvent !is AudioEvent)
+                    mNextEvent!!.mPrevAudioEvent = null
                 if (mNextEvent !is LineEvent)
                     mNextEvent!!.mPrevLineEvent = null
                 if (mNextEvent !is BeatEvent)

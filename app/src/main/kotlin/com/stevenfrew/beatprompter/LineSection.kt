@@ -50,9 +50,9 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
         return mChordWidth
     }
 
-    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int): Int {
+    fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int?): Int? {
         var lookingForEnd = currentHighlightColour != 0
-        var highlightColour = if (lookingForEnd) currentHighlightColour else 0
+        var highlightColour = if (lookingForEnd) currentHighlightColour else null
         var startX = 0
         var startPosition = 0
         val highlightTags=mTags.filter{it is StartOfHighlightTag || it is EndOfHighlightTag}
@@ -66,13 +66,13 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
             } else if (it is EndOfHighlightTag && lookingForEnd) {
                 val strHighlightText = mLineText!!.substring(startPosition, it.position - mSectionPosition)
                 val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
-                mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour))
-                highlightColour = 0
+                mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour!!))
+                highlightColour = null
                 lookingForEnd = false
             }
         }
         if (lookingForEnd)
-            mHighlightingRectangles.add(ColorRect(startX, mChordHeight, Math.max(mTextWidth, mChordWidth), mChordHeight + mTextHeight, highlightColour))
+            mHighlightingRectangles.add(ColorRect(startX, mChordHeight, Math.max(mTextWidth, mChordWidth), mChordHeight + mTextHeight, highlightColour!!))
         return highlightColour
     }
 

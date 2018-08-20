@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter
 
-import com.stevenfrew.beatprompter.event.LineEvent
+import android.graphics.Rect
 
-class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, internal var mHighlightColour: Int, lineEvent: LineEvent, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode) {
+class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, internal var mHighlightColor: Int?, lineTime:Long,lineDuration: Long, nextLine: Line?, yStartScrollTime: Long, scrollMode: ScrollingMode, val mScreenSize: Rect) {
     internal var mPixelsToTimes: LongArray
     internal var mJumpScrollIntervals = IntArray(101)
 
@@ -11,8 +11,8 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
             mJumpScrollIntervals[f] = Math.min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
 
         mPixelsToTimes = LongArray(Math.max(1, mLineHeight))
-        val lineStartTime = lineEvent.mEventTime
-        val lineEndTime = lineEvent.mEventTime + if (scrollMode == ScrollingMode.Smooth || nextLine != null) lineEvent.mDuration else 0
+        val lineStartTime = lineTime
+        val lineEndTime = lineStartTime + if (scrollMode == ScrollingMode.Smooth || nextLine != null) lineDuration else 0
         val timeDiff = lineEndTime - yStartScrollTime
         mPixelsToTimes[0] = lineStartTime
         for (f in 1 until mLineHeight) {

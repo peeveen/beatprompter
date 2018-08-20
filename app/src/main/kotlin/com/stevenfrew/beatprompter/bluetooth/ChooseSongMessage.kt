@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.bluetooth
 
+import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.ByteArrayInputStream
@@ -7,7 +8,7 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-class ChooseSongMessage constructor(title: String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Int, maxFontSize: Int, screenWidth: Int, screenHeight: Int): BluetoothMessage() {
+class ChooseSongMessage constructor(title: String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect): BluetoothMessage() {
 
     var mTitle=title
     var mTrack=track
@@ -16,8 +17,8 @@ class ChooseSongMessage constructor(title: String, track: String, orientation: I
     var mOrientation=orientation
     var mMinFontSize=minFontSize
     var mMaxFontSize=maxFontSize
-    var mScreenWidth=screenWidth
-    var mScreenHeight=screenHeight
+    var mScreenWidth=screenSize.width()
+    var mScreenHeight=screenSize.height()
 
     override val bytes: ByteArray
         get() {
@@ -29,8 +30,8 @@ class ChooseSongMessage constructor(title: String, track: String, orientation: I
                     writeBoolean(mBeatScroll)
                     writeBoolean(mSmoothScroll)
                     writeInt(mOrientation)
-                    writeInt(mMinFontSize)
-                    writeInt(mMaxFontSize)
+                    writeFloat(mMinFontSize)
+                    writeFloat(mMaxFontSize)
                     writeInt(mScreenWidth)
                     writeInt(mScreenHeight)
                     flush()
@@ -55,14 +56,14 @@ class ChooseSongMessage constructor(title: String, track: String, orientation: I
                             val beatScroll = readBoolean()
                             val smoothScroll = readBoolean()
                             val orientation = readInt()
-                            val minFontSize = readInt()
-                            val maxFontSize = readInt()
+                            val minFontSize = readFloat()
+                            val maxFontSize = readFloat()
                             val screenWidth = readInt()
                             val screenHeight = readInt()
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return IncomingBluetoothMessage(ChooseSongMessage(title,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenWidth,screenHeight),messageLength)
+                            return IncomingBluetoothMessage(ChooseSongMessage(title,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,Rect(0,0,screenWidth,screenHeight)),messageLength)
                         }
                     }
                 }

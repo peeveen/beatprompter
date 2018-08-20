@@ -4,11 +4,13 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.ImageScalingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
+import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import java.io.File
 
 @OncePerLine
+@NormalizedName("image")
 class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     val mFilename:String
     val mImageScalingMode:ImageScalingMode

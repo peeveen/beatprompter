@@ -1,52 +1,26 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.*
-import android.os.Handler
-import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.BaseEvent
-import com.stevenfrew.beatprompter.songload.CancelEvent
-import com.stevenfrew.beatprompter.event.CommentEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,val mBPM:Double, internal var mChosenBackingTrack: AudioFile?,
-           internal var mChosenBackingTrackVolume: Int, private val mInitialComments: List<Comment>, firstEvent: BaseEvent,
-           firstLine: Line, private val mParseErrors: MutableList<FileParseError>, internal var mScrollingMode: ScrollingMode,
-           internal var mSendMidiClock: Boolean, internal var mStartedByBandLeader: Boolean, internal var mNextSong: String?,
-           internal var mOrientation: Int, internal var mInitialMIDIMessages: List<OutgoingMessage>,
-           private val mBeatBlocks: List<BeatBlock>, internal var mInitialBPB: Int, var mCountIn: Int) {
-    private var mFirstLine: Line? = null // First line to show.
-    internal var mCurrentLine: Line? = null
-    internal var mLastLine: Line? = null
-    internal var mSongTitleHeaderLocation: PointF?=null
-    internal var mSongTitleHeader: ScreenString?=null
-    internal var mFirstEvent: BaseEvent // First event in the event chain.
-    internal var mCurrentEvent: BaseEvent? = null // Last event that executed.
-    private var mNextEvent: BaseEvent? = null // Upcoming event.
+class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings,
+           val mEvents:List<BaseEvent>, val mLines:List<Line>,
+           val mInitialMIDIMessages:List<OutgoingMessage>, val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
+           val mStartScreenStrings:List<ScreenString>, val mTotalStartScreenTextHeight:Int,
+           val mStartedByBandLeader:Boolean, val mNextSong:String, val mNextSongString:ScreenString?,
+           val mSmoothScrollOffset:Int, val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString,val mSongTitleHeaderLocation:PointF) {
+    internal var mCurrentLine: Line? = mLines.firstOrNull()
+    internal var mLastLine: Line? = mLines.lastOrNull()
+    private var mFirstEvent: BaseEvent=mEvents.first() // First event in the event chain.
+    internal var mCurrentEvent: BaseEvent? = mEvents.firstOrNull() // Last event that executed.
+    private var mNextEvent: BaseEvent? = mCurrentEvent?.mNextEvent // Upcoming event.
     var mCancelled = false
-    private val mNumberOfMIDIBeatBlocks: Int
-    internal var mBeatCounterRect: Rect=Rect()
-    internal var mBeatCounterHeight: Int = 0
-    internal var mSmoothScrollOffset: Int = 0
+    private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
     internal var mSongHeight = 0
     private var mMaxLineHeight = 0
-    internal var mStartScreenStrings = mutableListOf<ScreenString>()
-    internal var mNextSongString: ScreenString? = null
-    internal var mTotalStartScreenTextHeight: Int = 0
-
-    init {
-        mCurrentEvent = firstEvent
-        mFirstEvent = mCurrentEvent!!
-        mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-        mNextEvent = mFirstEvent
-        mFirstLine = firstLine
-        mCurrentLine = mFirstLine
-        mLastLine = mFirstLine
-        if (mLastLine != null)
-            while (mLastLine!!.mNextLine != null)
-                mLastLine = mLastLine!!.mNextLine
-    }
 
     internal fun setProgress(nano: Long) {
         var e = mCurrentEvent
@@ -56,216 +30,7 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         mCurrentEvent = newCurrentEvent
         mNextEvent = mCurrentEvent!!.mNextEvent
         val newCurrentLineEvent = newCurrentEvent!!.mPrevLineEvent
-        mCurrentLine = newCurrentLineEvent?.mLine ?: mFirstLine
-    }
-
-    fun doMeasurements(paint: Paint, cancelEvent: CancelEvent, handler: Handler, songDisplaySettings:SongDisplaySettings) {
-        val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        val notBoldFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-
-        val sharedPref = BeatPrompterApplication.preferences
-
-        val defaultHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))))
-        var showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue).toBoolean())
-        showKey = showKey and mKey.isNotBlank()
-        val showBPMString = sharedPref.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))
-
-        mBeatCounterHeight = 0
-        // Top 5% of screen is used for beat counter
-        if (mScrollingMode !== ScrollingMode.Manual)
-            mBeatCounterHeight = (songDisplaySettings.mScreenSize.height() / 20.0).toInt()
-        mBeatCounterRect = Rect(0, 0, songDisplaySettings.mScreenSize.width(), mBeatCounterHeight)
-
-        val maxSongTitleWidth = songDisplaySettings.mScreenSize.width() * 0.9f
-        val maxSongTitleHeight = mBeatCounterHeight * 0.9f
-        val vMargin = (mBeatCounterHeight - maxSongTitleHeight) / 2.0f
-        mSongTitleHeader = ScreenString.create(mTitle, paint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), notBoldFont, false)
-        val extraMargin = (maxSongTitleHeight - mSongTitleHeader!!.mHeight) / 2.0f
-        val x = ((songDisplaySettings.mScreenSize.width() - mSongTitleHeader!!.mWidth) / 2.0).toFloat()
-        val y = mBeatCounterHeight - (extraMargin + mSongTitleHeader!!.mDescenderOffset.toFloat() + vMargin)
-        mSongTitleHeaderLocation = PointF(x, y)
-        var line = mFirstLine
-        var lineCount = 0
-        while (line != null) {
-            ++lineCount
-            line = line.mNextLine
-        }
-        line = mFirstLine
-        var highlightColour = 0
-        mSongHeight = 0
-        var lastNonZeroLineHeight = 0
-        var lineCounter = 0
-        handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, lineCount).sendToTarget()
-        while (line != null && !cancelEvent.isCancelled) {
-            highlightColour = line.measure(paint, songDisplaySettings,notBoldFont, highlightColour, defaultHighlightColour, mParseErrors, mSongHeight, mScrollingMode, cancelEvent)
-            val thisLineHeight = line.mLineMeasurements.mLineHeight
-            if (thisLineHeight > mMaxLineHeight)
-                mMaxLineHeight = thisLineHeight
-            if (thisLineHeight > 0)
-                lastNonZeroLineHeight = thisLineHeight
-            mSongHeight += thisLineHeight
-            line = line.mNextLine
-            handler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, ++lineCounter, lineCount).sendToTarget()
-        }
-        if (cancelEvent.isCancelled)
-            return
-
-        mSmoothScrollOffset = 0
-        if (mScrollingMode === ScrollingMode.Smooth)
-            mSmoothScrollOffset = Math.min(mMaxLineHeight, (songDisplaySettings.mScreenSize.height() / 3.0).toInt())
-        else if (mScrollingMode === ScrollingMode.Beat)
-            mSongHeight -= lastNonZeroLineHeight
-
-        // Measure the popup comments.
-        var event: BaseEvent? = mFirstEvent
-        while (event != null) {
-            if (event is CommentEvent) {
-                val ce = event as CommentEvent?
-                ce!!.doMeasurements(songDisplaySettings.mScreenSize, paint, notBoldFont)
-            }
-            event = event.mNextEvent
-        }
-
-        // As for the start screen display (title/artist/comments/"press go"),
-        // the title should take up no more than 20% of the height, the artist
-        // no more than 10%, also 10% for the "press go" message.
-        // The rest of the space is allocated for the comments and error messages,
-        // each line no more than 10% of the screen height.
-        var availableScreenHeight = songDisplaySettings.mScreenSize.height()
-        if (mNextSong != null && mNextSong!!.isNotEmpty()) {
-            // OK, we have a next song title to display.
-            // This should take up no more than 15% of the screen.
-            // But that includes a border, so use 13 percent for the text.
-            val eightPercent = (songDisplaySettings.mScreenSize.height() * 0.13).toInt()
-            val fullString = ">>> $mNextSong >>>"
-            mNextSongString = ScreenString.create(fullString, paint, songDisplaySettings.mScreenSize.width(), eightPercent, Color.BLACK, boldFont, true)
-            availableScreenHeight -= (songDisplaySettings.mScreenSize.height() * 0.15f).toInt()
-        }
-        val tenPercent = (availableScreenHeight / 10.0).toInt()
-        val twentyPercent = (availableScreenHeight / 5.0).toInt()
-        mStartScreenStrings.add(ScreenString.create(mTitle, paint, songDisplaySettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
-        if (mArtist.isNotEmpty())
-            mStartScreenStrings.add(ScreenString.create(mArtist, paint, songDisplaySettings.mScreenSize.width(), tenPercent, Color.YELLOW, boldFont, true))
-        val commentLines = mutableListOf<String>()
-        for (c in mInitialComments)
-            commentLines.add(c.mText)
-        val nonBlankCommentLines = mutableListOf<String>()
-        for (commentLine in commentLines)
-            if (commentLine.trim().isNotEmpty())
-                nonBlankCommentLines.add(commentLine.trim())
-        var errors = mParseErrors.size
-        var messages = Math.min(errors, 6) + nonBlankCommentLines.size
-        val showBPM = !BeatPrompterApplication.getResourceString(R.string.showBPMNo).equals(showBPMString!!, ignoreCase = true) && mBPM != 0.0
-        if (showBPM)
-            ++messages
-        if (showKey)
-            ++messages
-        if (messages > 0) {
-            val remainingScreenSpace = songDisplaySettings.mScreenSize.height() - twentyPercent * 2
-            var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
-            spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
-            var errorCounter = 0
-            for (error in mParseErrors) {
-                if (cancelEvent.isCancelled)
-                    break
-                mStartScreenStrings.add(ScreenString.create(error.errorMessage, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.RED, notBoldFont, false))
-                ++errorCounter
-                --errors
-                if (errorCounter == 5 && errors > 0) {
-                    mStartScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errors), paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.RED, notBoldFont, false))
-                    break
-                }
-            }
-            for (nonBlankComment in nonBlankCommentLines) {
-                if (cancelEvent.isCancelled)
-                    break
-                mStartScreenStrings.add(ScreenString.create(nonBlankComment, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.WHITE, notBoldFont, false))
-            }
-            if (showKey) {
-                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mKey
-                mStartScreenStrings.add(ScreenString.create(keyString, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, notBoldFont, false))
-            }
-            if (showBPM) {
-                var rounded = BeatPrompterApplication.getResourceString(R.string.showBPMYesRoundedValue).equals(showBPMString, ignoreCase = true)
-                if (mBPM == mBPM.toInt().toDouble())
-                    rounded = true
-                var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
-                bpmString += if (rounded)
-                    Math.round(mBPM).toInt()
-                else
-                    mBPM
-                mStartScreenStrings.add(ScreenString.create(bpmString, paint, songDisplaySettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, notBoldFont, false))
-            }
-        }
-        if (cancelEvent.isCancelled)
-            return
-        if (mScrollingMode !== ScrollingMode.Manual)
-            mStartScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), paint, songDisplaySettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
-        mTotalStartScreenTextHeight = 0
-        for (ss in mStartScreenStrings)
-            mTotalStartScreenTextHeight += ss.mHeight
-
-        /*        if((mScrollingMode==ScrollingMode.Smooth)&&(mFirstLine!=null))
-        {
-            // Prevent Y scroll of all final lines that fit onscreen.
-            int totalHeight=0;
-            Line lastLine=mFirstLine.getLastLine();
-            boolean onLastLine=true;
-            while(lastLine!=null)
-            {
-                if(totalHeight+lastLine.mActualLineHeight>availableScreenHeight)
-                    break;
-                totalHeight+=lastLine.mActualLineHeight;
-                lastLine.mLineEvent.remove();
-                lastLine.mYStartScrollTime=lastLine.mYStopScrollTime=Long.MAX_VALUE;
-                if(!onLastLine)
-                    mSongHeight-=lastLine.mActualLineHeight;
-                lastLine=lastLine.mPrevLine;
-                onLastLine=false;
-            }
-            // BUT! Add height of tallest line to compensate for scrollmode line offset
-            mSongHeight+=mMaxLineHeight;
-        }*/
-
-        // Allocate graphics objects.
-        val maxGraphicsRequired = getMaximumGraphicsRequired(songDisplaySettings.mScreenSize.height())
-        val lineGraphics = CircularGraphicsList()
-        for (f in 0 until maxGraphicsRequired)
-            lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
-
-        line = mFirstLine
-        if (line != null) {
-            var graphic: LineGraphic = lineGraphics[0]
-            while (line != null) {
-                //                if(!line.hasOwnGraphics())
-                for (f in 0 until line.mLineMeasurements!!.mLines) {
-                    line.setGraphic(graphic)
-                    graphic = graphic.mNextGraphic
-                }
-                line = line.mNextLine
-            }
-        }
-
-        // In smooth scrolling mode, the last screenful of text should never leave the screen.
-        if (mScrollingMode === ScrollingMode.Smooth) {
-            var total = songDisplaySettings.mScreenSize.height() - mSmoothScrollOffset - mBeatCounterHeight
-            var prevLastLine: Line? = null
-            line = mLastLine
-
-            while (line != null) {
-                total -= line.mLineMeasurements!!.mLineHeight
-                if (total <= 0) {
-                    if (prevLastLine != null)
-                        prevLastLine.mYStopScrollTime = Long.MAX_VALUE
-                    break
-                }
-                line.mLineEvent.remove()
-                // TODO: POTENTIAL BREAKING CHANGE!!! line.mLineEvent = null
-                //                line.mLineEvent.mEventTime=Long.MAX_VALUE;
-                prevLastLine = line
-                line = line.mPrevLine
-            }
-        }
+        mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.firstOrNull()
     }
 
     internal fun getNextEvent(time: Long): BaseEvent? {
@@ -277,72 +42,24 @@ class Song(val mID:String,val mTitle:String,val mArtist:String,val mKey:String,v
         return null
     }
 
-    private fun getBiggestLineSize(index: Int, modulus: Int): Rect {
-        var line = mFirstLine
-        var maxHeight = 0
-        var maxWidth = 0
-        var lineCount = 0
-        while (line != null) {
-            //if(!line.hasOwnGraphics())
-            run {
-                for (lh in line!!.mLineMeasurements.mGraphicHeights) {
-                    if (lineCount % modulus == index) {
-                        maxHeight = Math.max(maxHeight, lh)
-                        maxWidth = Math.max(maxWidth, line!!.mLineMeasurements.mLineWidth)
-                    }
-                    ++lineCount
-                }
-            }
-            line = line.mNextLine
-        }
-        return Rect(0, 0, maxWidth - 1, maxHeight - 1)
-    }
-
-    private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
-        var line = mFirstLine
-        var maxLines = 0
-        while (line != null) {
-            var thisLine = line
-            var heightCounter = 0
-            var lineCounter = 0
-            while (thisLine != null && heightCounter < screenHeight) {
-                //                if(!thisLine.hasOwnGraphics())
-                run {
-                    // Assume height of first line to be 1 pixel
-                    // This is the state of affairs when the top line is almost
-                    // scrolled offscreen, but not quite.
-                    var lineHeight = 1
-                    if (lineCounter > 0)
-                        lineHeight = thisLine!!.mLineMeasurements.mLineHeight
-                    heightCounter += lineHeight
-                    lineCounter += thisLine!!.mLineMeasurements.mLines
-                }
-                thisLine = thisLine.mNextLine
-            }
-
-            maxLines = Math.max(maxLines, lineCounter)
-            line = line.mNextLine
-        }
-        return maxLines
-    }
-
     internal fun getTimeFromPixel(pixel: Int): Long {
         if (pixel == 0)
             return 0
-        return if (mCurrentLine != null) mCurrentLine!!.getTimeFromPixel(pixel) else mFirstLine!!.getTimeFromPixel(pixel)
+        return if (mCurrentLine != null)
+                mCurrentLine!!.getTimeFromPixel(pixel)
+            else
+                mLines.firstOrNull()?.getTimeFromPixel(pixel)?:0
     }
 
     internal fun getPixelFromTime(time: Long): Int {
         if (time == 0L)
             return 0
-        return if (mCurrentLine != null) mCurrentLine!!.getPixelFromTime(time) else mFirstLine!!.getPixelFromTime(time)
+        return if (mCurrentLine != null) mCurrentLine!!.getPixelFromTime(time) else mLines.firstOrNull()?.getPixelFromTime(time)?:0
     }
 
     internal fun recycleGraphics() {
-        var line = mFirstLine
-        while (line != null) {
-            line.recycleGraphics()
-            line = line.mNextLine
+        mLines.forEach{
+            it.recycleGraphics()
         }
     }
 

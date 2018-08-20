@@ -14,6 +14,7 @@
     <string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
     <string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
     <string name="unexpected_tag_in_setlist_file">Set list files should only contain one {set} tag, and no other tags.</string>
+    <string name="tag_cant_share_line_with">A {%1$s} tag was found on the same line as a {%2$s} tag. This is not allowed.</string>
     <string name="connect_to_leader_string">Connect to leader</string>
     <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
     <string name="clear_cache_string">Clear cache</string>
@@ -448,7 +449,7 @@
 
     <string name="pref_metronome_key" translatable="false">pref_metronome</string>
     <string name="pref_metronome_title">Metronome click</string>
-    <string name="pref_metronome_defaultValue" translatable="false">count</string>
+    <string name="pref_metronome_defaultValue" translatable="false">DuringCountIn</string>
     <string name="pref_metronome_summary">Creates a clicking sound in time with the beat. Only applicable to beat-scrolling songs.</string>
     <string name="pref_metronome_dialogTitle">Metronome Click</string>
     <string name="metronomeOn">On</string>
@@ -462,15 +463,15 @@
 
     <string name="pref_showSongBPM_key" translatable="false">pref_showSongBPM</string>
     <string name="pref_showSongBPM_title">Show song BPM on title screen</string>
-    <string name="pref_showSongBPM_defaultValue" translatable="false">no</string>
+    <string name="pref_showSongBPM_defaultValue" translatable="false">No</string>
     <string name="pref_showSongBPM_summary">Should the initial BPM of the song be shown on the song title screen?</string>
     <string name="pref_showSongBPM_dialogTitle">Show Song BPM</string>
     <string name="showBPMYes">Yes</string>
     <string name="showBPMYesRounded">Yes, rounded to integer</string>
     <string name="showBPMNo">No</string>
-    <string name="showBPMYesValue" translatable="false">yes</string>
-    <string name="showBPMYesRoundedValue" translatable="false">rounded</string>
-    <string name="showBPMNoValue" translatable="false">no</string>
+    <string name="showBPMYesValue" translatable="false">Yes</string>
+    <string name="showBPMYesRoundedValue" translatable="false">Rounded</string>
+    <string name="showBPMNoValue" translatable="false">No</string>
 
     <string name="bpmPrefix" translatable="false">BPM</string>
     <string name="keyPrefix">Key</string>
@@ -583,6 +584,7 @@
     <string name="use_internal_storage">Use Internal Storage</string>
     <string name="crap_audio_file_warning">Could not load audio file. Is it missing or corrupt?</string>
     <string name="missing_audio_file_warning">Could not find audio file.</string>
+    <string name="missing_image_file_warning">*Could not find image file*</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
