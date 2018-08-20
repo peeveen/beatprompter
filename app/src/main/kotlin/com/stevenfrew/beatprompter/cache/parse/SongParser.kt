@@ -352,7 +352,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val tenPercent = (availableScreenHeight / 10.0).toInt()
         val twentyPercent = (availableScreenHeight / 5.0).toInt()
         val startScreenStrings= mutableListOf<ScreenString>()
-        startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mArtist, mPaint, mNativeDeviceSettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
+        startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mTitle, mPaint, mNativeDeviceSettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
         if (mSongLoadInfo.mSongFile.mArtist.isNotBlank())
             startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mArtist, mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.YELLOW, boldFont, true))
         val commentLines = mutableListOf<String>()
@@ -510,8 +510,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mCurrentHighlightColor?:mDefaultHighlightColor)
             "eoh"->return EndOfHighlightTag(name, lineNumber, position)
 
+            // BeatPrompter tags that are not required here ...
+            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "track", "audio", "musicpath", "time",
             // Unused ChordPro tags
-            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return ChordProTag(name,lineNumber,position)
+            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
 
             else->return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
         }

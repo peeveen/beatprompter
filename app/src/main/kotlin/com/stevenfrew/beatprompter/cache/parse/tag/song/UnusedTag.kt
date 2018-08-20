@@ -2,4 +2,4 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
-class ChordProTag internal constructor(name:String,lineNumber:Int,position:Int): Tag(name,lineNumber,position)
+class UnusedTag internal constructor(name:String, lineNumber:Int, position:Int): Tag(name,lineNumber,position)

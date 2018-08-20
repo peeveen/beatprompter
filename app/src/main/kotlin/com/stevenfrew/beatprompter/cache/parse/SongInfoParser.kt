@@ -109,7 +109,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
             "key"->return KeyTag(name, lineNumber, position, value)
             "tag"->return TagTag(name, lineNumber, position, value)
             // Don't care about any other tags in this context, treat them as all irrelevant ChordPro tags
-            else->return ChordProTag(name,lineNumber,position)
+            else->return UnusedTag(name,lineNumber,position)
         }
     }
 }
