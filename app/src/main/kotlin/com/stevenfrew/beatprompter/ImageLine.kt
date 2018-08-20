@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
 
-class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingMode:ImageScalingMode,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,currentHighlightColor:Int?,pixelPosition:Int) : Line(lineTime,lineDuration,scrollMode,displaySettings,pixelPosition) {
+class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingMode:ImageScalingMode,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,pixelPosition:Int) : Line(lineTime,lineDuration,scrollMode,pixelPosition) {
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     override val mMeasurements:LineMeasurements
@@ -11,7 +11,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingM
     init
     {
         val destRect=getDestinationRect(displaySettings.mScreenSize)
-        mMeasurements=LineMeasurements(1, destRect.width(), destRect.height(), intArrayOf(destRect.height()), currentHighlightColor, lineTime,lineDuration, mNextLine, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
+        mMeasurements=LineMeasurements(1, destRect.width(), destRect.height(), intArrayOf(destRect.height()), lineTime,lineDuration, mNextLine, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
     }
 
     override fun renderGraphics()  {

@@ -196,10 +196,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val commentTags=tags.filterIsInstance<CommentTag>()
         commentTags.forEach {
             val comment = Comment(it.mComment,it.mAudience,mNativeDeviceSettings.mScreenSize,mPaint,mFont)
-            if (mStopAddingStartupItems)
-                mEvents.add(CommentEvent(mSongTime, comment))
-            else
-                mStartScreenComments.add(comment)
+            if(comment.isIntendedFor(mCustomCommentsUser))
+                if (mStopAddingStartupItems)
+                    mEvents.add(CommentEvent(mSongTime, comment))
+                else
+                    mStartScreenComments.add(comment)
         }
 
         val pauseTag=tags.filterIsInstance<PauseTag>().firstOrNull()

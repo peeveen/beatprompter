@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter
 
 import android.graphics.Color
 import java.io.*
-import java.util.regex.Pattern
 
 object Utils {
     internal var mSineLookup = DoubleArray(91)
