@@ -132,10 +132,6 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
                     mSongLoadTask.mCancelled = true
                     mSongLoadTask.mTaskEndSemaphore.release()
                 }
-                EventHandler.SONG_LOAD_LINE_READ -> {
-                    mSongLoadTask.mProgressTitle = BeatPrompterApplication.getResourceString(R.string.loadingSong)
-                    mSongLoadTask.publishProgress(msg.arg1, msg.arg2)
-                }
                 EventHandler.SONG_LOAD_LINE_PROCESSED -> {
                     mSongLoadTask.mProgressTitle = BeatPrompterApplication.getResourceString(R.string.processingSong)
                     mSongLoadTask.publishProgress(msg.arg1, msg.arg2)

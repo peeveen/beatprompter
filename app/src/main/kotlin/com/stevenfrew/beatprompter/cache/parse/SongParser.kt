@@ -90,10 +90,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 else
                     0
         mBeatCounterRect = Rect(0, 0, nativeScreenSize.width(), mBeatCounterHeight)
-
-        val lineCount = mLines.size
-
-        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, lineCount).sendToTarget()
+        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
@@ -325,8 +322,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 generatePauseEvents(pauseTag.mDuration)
         }
 
-        // TODO: when creating image line, expect exception from bad images.
-        //         errors.add(FileParseError(null, BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mImageFile.mName))
+        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, line.mLineNumber, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
 
     override fun getResult(): Song {
@@ -394,7 +390,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
             if (mShowBPM!=ShowBPM.No) {
-                var rounded = mShowBPM==ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
+                val rounded = mShowBPM==ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
                 var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
                     Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
@@ -469,11 +465,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
         var maxLines = 0
-        for(start in 0..mLines.size)
+        for(start in 0 until mLines.size)
         {
             var heightCounter = 0
             var lineCounter = 0
-            for(f in start..mLines.size)
+            for(f in start until mLines.size)
             {
                 if(heightCounter<screenHeight)
                 {

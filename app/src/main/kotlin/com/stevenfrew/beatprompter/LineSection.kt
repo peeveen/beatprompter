@@ -51,7 +51,7 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
     }
 
     fun calculateHighlightedSections(paint: Paint, textSize: Float, face: Typeface, currentHighlightColour: Int?): Int? {
-        var lookingForEnd = currentHighlightColour != 0
+        var lookingForEnd = currentHighlightColour != null
         var highlightColour = if (lookingForEnd) currentHighlightColour else null
         var startX = 0
         var startPosition = 0
