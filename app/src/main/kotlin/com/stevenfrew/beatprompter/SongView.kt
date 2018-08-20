@@ -809,14 +809,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 BluetoothManager.broadcastMessageToClients(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
             if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
-                val prevBeatEvent = mSong!!.mCurrentEvent!!.mPrevBeatEvent
-                val nextBeatEvent = mSong!!.mCurrentEvent!!.nextBeatEvent
+                val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
+                val nextBeatEvent = mSong!!.mCurrentEvent.nextBeatEvent
                 if (prevBeatEvent != null)
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null)
             }
             mSongStartTime = System.nanoTime() - nano
             if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
-                val trackEvent = mSong!!.mCurrentEvent!!.mPrevAudioEvent
+                val trackEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
                 if (trackEvent != null) {
                     val nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime)
                     seekTrack(nTime)

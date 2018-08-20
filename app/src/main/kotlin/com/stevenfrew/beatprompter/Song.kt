@@ -9,8 +9,8 @@ import com.stevenfrew.beatprompter.midi.OutgoingMessage
 class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
            firstEvent:BaseEvent, private val mLines:List<Line>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
-           val mStartScreenStrings:List<ScreenString>, val mTotalStartScreenTextHeight:Int,
-           val mStartedByBandLeader:Boolean, val mNextSong:String, val mNextSongString:ScreenString?,
+           val mStartScreenStrings:List<ScreenString>, val mNextSongString:ScreenString?, val mTotalStartScreenTextHeight:Int,
+           val mStartedByBandLeader:Boolean, val mNextSong:String,
            val mSmoothScrollOffset:Int, val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString,val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line? = mLines.firstOrNull()
     internal var mLastLine: Line? = mLines.lastOrNull()

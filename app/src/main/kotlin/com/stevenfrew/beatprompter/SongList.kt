@@ -257,7 +257,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             mTemporarySetListFilter!!.clear()
         for (slf in mCachedCloudFiles.setListFiles)
             if (slf.mFile == mTemporarySetListFile)
-                slf.mSongTitles.clear()
+                slf.mSetListEntries.clear()
         initialiseTemporarySetListFile(true)
         buildFilterList()
         try {

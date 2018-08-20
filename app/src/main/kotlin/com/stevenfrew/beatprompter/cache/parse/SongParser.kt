@@ -47,6 +47,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     init
     {
+        // All songFile info parsing errors count as our errors too.
         mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
 
         val sharedPrefs=BeatPrompterApplication.preferences
@@ -62,34 +63,17 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mShowKey = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue).toBoolean()) && mSongLoadInfo.mSongFile.mKey.isNotBlank()
         mShowBPM = if(mSongLoadInfo.mSongFile.mBPM>0.0) ShowBPM.getShowBPMPreference(sharedPrefs) else ShowBPM.No
 
-        val sourceScreenSize=mSongLoadInfo.mSourceDisplaySettings.mScreenSize
-        val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
-        val screenWillRotate = mSongLoadInfo.mNativeDisplaySettings.mOrientation != mSongLoadInfo.mSourceDisplaySettings.mOrientation
-        val nativeScreenSize = if(screenWillRotate)
-            Rect(0,0,mSongLoadInfo.mNativeDisplaySettings.mScreenSize.height(),mSongLoadInfo.mNativeDisplaySettings.mScreenSize.width())
-        else
-            mSongLoadInfo.mNativeDisplaySettings.mScreenSize
-        val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
-        val minRatio = Math.min(nativeRatio, sourceRatio)
-        val maxRatio = Math.max(nativeRatio, sourceRatio)
-        val ratioMultiplier = minRatio / maxRatio
-        var minimumFontSize = mSongLoadInfo.mSourceDisplaySettings.mMinFontSize
-        var maximumFontSize = mSongLoadInfo.mSourceDisplaySettings.mMaxFontSize
-        minimumFontSize *= ratioMultiplier.toFloat()
-        maximumFontSize *= ratioMultiplier.toFloat()
-        if (minimumFontSize > maximumFontSize) {
-            mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
-            maximumFontSize = minimumFontSize
-        }
-        mNativeDeviceSettings= SongDisplaySettings(mSongLoadInfo.mSourceDisplaySettings.mOrientation,minimumFontSize,maximumFontSize,nativeScreenSize)
-
+        // Figure out the screen size
+        mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
         mBeatCounterHeight =
                 // Top 5% of screen is used for beat counter
                 if (mSongLoadInfo.mScrollMode !== ScrollingMode.Manual)
-                    (nativeScreenSize.height() / 20.0).toInt()
+                    (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
                 else
                     0
-        mBeatCounterRect = Rect(0, 0, nativeScreenSize.width(), mBeatCounterHeight)
+        mBeatCounterRect = Rect(0, 0, mNativeDeviceSettings.mScreenSize.width(), mBeatCounterHeight)
+
+        // Start the progress message dialog
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
 
@@ -341,76 +325,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         else if (mSongLoadInfo.mScrollMode === ScrollingMode.Beat)
             mSongHeight -= mLines.reversed().map{it.first.mMeasurements.mLineHeight}.firstOrNull{it!=0}?:0
 
-        // As for the start screen display (title/artist/comments/"press go"),
-        // the title should take up no more than 20% of the height, the artist
-        // no more than 10%, also 10% for the "press go" message.
-        // The rest of the space is allocated for the comments and error messages,
-        // each line no more than 10% of the screen height.
-        var availableScreenHeight = mNativeDeviceSettings.mScreenSize.height()
-        var nextSongString:ScreenString?=null
-        val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        if (mSongLoadInfo.mNextSong.isNotBlank()) {
-            // OK, we have a next song title to display.
-            // This should take up no more than 15% of the screen.
-            // But that includes a border, so use 13 percent for the text.
-            val eightPercent = (mNativeDeviceSettings.mScreenSize.height() * 0.13).toInt()
-            val fullString = ">>> $mSongLoadInfo.mNextSong >>>"
-            nextSongString = ScreenString.create(fullString, mPaint, mNativeDeviceSettings.mScreenSize.width(), eightPercent, Color.BLACK, boldFont, true)
-            availableScreenHeight -= (mNativeDeviceSettings.mScreenSize.height() * 0.15f).toInt()
-        }
-        val tenPercent = (availableScreenHeight / 10.0).toInt()
-        val twentyPercent = (availableScreenHeight / 5.0).toInt()
-        val startScreenStrings= mutableListOf<ScreenString>()
-        startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mTitle, mPaint, mNativeDeviceSettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
-        if (mSongLoadInfo.mSongFile.mArtist.isNotBlank())
-            startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mArtist, mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.YELLOW, boldFont, true))
-        val commentLines = mutableListOf<String>()
-        for (c in mStartScreenComments)
-            commentLines.add(c.mText)
-        val nonBlankCommentLines = mutableListOf<String>()
-        for (commentLine in commentLines)
-            if (commentLine.trim().isNotEmpty())
-                nonBlankCommentLines.add(commentLine.trim())
-        var errorCount = mErrors.size
-        var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
-        val showBPM = mShowBPM!=ShowBPM.No
-        if (showBPM)
-            ++messages
-        if (mShowKey)
-            ++messages
-        if (messages > 0) {
-            val remainingScreenSpace = mNativeDeviceSettings.mScreenSize.height() - twentyPercent * 2
-            var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
-            spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
-            var errorCounter = 0
-            for (error in mErrors) {
-                startScreenStrings.add(ScreenString.create(error.errorMessage, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
-                ++errorCounter
-                --errorCount
-                if (errorCounter == 5 && errorCount > 0) {
-                    startScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errorCount), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
-                    break
-                }
-            }
-            for (nonBlankComment in nonBlankCommentLines)
-                startScreenStrings.add(ScreenString.create(nonBlankComment, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.WHITE, mFont, false))
-            if (mShowKey) {
-                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
-                startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
-            }
-            if (mShowBPM!=ShowBPM.No) {
-                val rounded = mShowBPM==ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
-                var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
-                bpmString += if (rounded)
-                    Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
-                else
-                    mSongLoadInfo.mSongFile.mBPM
-                startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
-            }
-        }
-        if (mSongLoadInfo.mScrollMode !== ScrollingMode.Manual)
-            startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
-        val totalStartScreenTextHeight = startScreenStrings.sumBy { it.mHeight }
+        val startScreenStrings=createStartScreenStrings()
+        val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
 
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
@@ -453,7 +369,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val firstEvent=buildEventList()
         offsetMIDIEvents(firstEvent)
-        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,nextSongString,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
     }
 
     private fun buildEventList():BaseEvent
@@ -505,7 +421,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
         return maxLines
     }
-
 
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
     {
@@ -686,6 +601,107 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
+    /**
+     * Based on the difference in screen size/resolution/orientation, we will alter the min/max font size of our native settings.
+     */
+    private fun translateSourceDeviceSettingsToNative(sourceSettings:SongDisplaySettings,nativeSettings:SongDisplaySettings):SongDisplaySettings
+    {
+        val sourceScreenSize=sourceSettings.mScreenSize
+        val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
+        val screenWillRotate = nativeSettings.mOrientation != sourceSettings.mOrientation
+        val nativeScreenSize = if(screenWillRotate)
+            Rect(0,0,nativeSettings.mScreenSize.height(),nativeSettings.mScreenSize.width())
+        else
+            nativeSettings.mScreenSize
+        val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
+        val minRatio = Math.min(nativeRatio, sourceRatio)
+        val maxRatio = Math.max(nativeRatio, sourceRatio)
+        val ratioMultiplier = minRatio / maxRatio
+        var minimumFontSize = sourceSettings.mMinFontSize
+        var maximumFontSize = sourceSettings.mMaxFontSize
+        minimumFontSize *= ratioMultiplier.toFloat()
+        maximumFontSize *= ratioMultiplier.toFloat()
+        if (minimumFontSize > maximumFontSize) {
+            mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
+            maximumFontSize = minimumFontSize
+        }
+        return SongDisplaySettings(sourceSettings.mOrientation,minimumFontSize,maximumFontSize,nativeScreenSize)
+    }
+
+    private fun createStartScreenStrings():Pair<List<ScreenString>,ScreenString?>
+    {
+        // As for the start screen display (title/artist/comments/"press go"),
+        // the title should take up no more than 20% of the height, the artist
+        // no more than 10%, also 10% for the "press go" message.
+        // The rest of the space is allocated for the comments and error messages,
+        // each line no more than 10% of the screen height.
+        val startScreenStrings= mutableListOf<ScreenString>()
+        var availableScreenHeight = mNativeDeviceSettings.mScreenSize.height()
+        var nextSongString:ScreenString?=null
+        val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        if (mSongLoadInfo.mNextSong.isNotBlank()) {
+            // OK, we have a next song title to display.
+            // This should take up no more than 15% of the screen.
+            // But that includes a border, so use 13 percent for the text.
+            val eightPercent = (mNativeDeviceSettings.mScreenSize.height() * 0.13).toInt()
+            val fullString = ">>> $mSongLoadInfo.mNextSong >>>"
+            nextSongString=ScreenString.create(fullString, mPaint, mNativeDeviceSettings.mScreenSize.width(), eightPercent, Color.BLACK, boldFont, true)
+            availableScreenHeight -= (mNativeDeviceSettings.mScreenSize.height() * 0.15f).toInt()
+        }
+        val tenPercent = (availableScreenHeight / 10.0).toInt()
+        val twentyPercent = (availableScreenHeight / 5.0).toInt()
+        startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mTitle, mPaint, mNativeDeviceSettings.mScreenSize.width(), twentyPercent, Color.YELLOW, boldFont, true))
+        if (mSongLoadInfo.mSongFile.mArtist.isNotBlank())
+            startScreenStrings.add(ScreenString.create(mSongLoadInfo.mSongFile.mArtist, mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.YELLOW, boldFont, true))
+        val commentLines = mutableListOf<String>()
+        for (c in mStartScreenComments)
+            commentLines.add(c.mText)
+        val nonBlankCommentLines = mutableListOf<String>()
+        for (commentLine in commentLines)
+            if (commentLine.trim().isNotEmpty())
+                nonBlankCommentLines.add(commentLine.trim())
+        var errorCount = mErrors.size
+        var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
+        val showBPM = mShowBPM!=ShowBPM.No
+        if (showBPM)
+            ++messages
+        if (mShowKey)
+            ++messages
+        if (messages > 0) {
+            val remainingScreenSpace = mNativeDeviceSettings.mScreenSize.height() - twentyPercent * 2
+            var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
+            spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
+            var errorCounter = 0
+            for (error in mErrors) {
+                startScreenStrings.add(ScreenString.create(error.errorMessage, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
+                ++errorCounter
+                --errorCount
+                if (errorCounter == 5 && errorCount > 0) {
+                    startScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errorCount), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
+                    break
+                }
+            }
+            for (nonBlankComment in nonBlankCommentLines)
+                startScreenStrings.add(ScreenString.create(nonBlankComment, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.WHITE, mFont, false))
+            if (mShowKey) {
+                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
+                startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
+            }
+            if (mShowBPM!=ShowBPM.No) {
+                val rounded = mShowBPM==ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
+                var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
+                bpmString += if (rounded)
+                    Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
+                else
+                    mSongLoadInfo.mSongFile.mBPM
+                startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
+            }
+        }
+        if (mSongLoadInfo.mScrollMode !== ScrollingMode.Manual)
+            startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
+        return Pair(startScreenStrings,nextSongString)
+    }
+
     companion object {
         private const val DEMO_LINE_COUNT = 15
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
@@ -693,4 +709,3 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
     }
 }
-

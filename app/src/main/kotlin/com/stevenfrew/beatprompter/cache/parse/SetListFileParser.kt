@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
 class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor) {
 
     private var mSetName:String=""
-    private val mSongs=mutableListOf<String>()
+    private val mSetListEntries=mutableListOf<SetListEntry>()
 
     override fun parseLine(line: TextFileLine<SetListFile>) {
         val setNameTag=line.mTags.filterIsInstance<SetNameTag>().firstOrNull()
@@ -22,13 +22,13 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
                 mSetName = setNameTag.mSetName
         }
         else if(!line.mTaglessLine.isEmpty())
-            mSongs.add(line.mTaglessLine)
+            mSetListEntries.add(SetListEntry(line.mTaglessLine))
     }
 
     override fun getResult(): SetListFile {
         if(mSetName.isBlank())
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.no_set_name_defined))
-        return SetListFile(mCachedCloudFileDescriptor,mSetName,mSongs,mErrors)
+        return SetListFile(mCachedCloudFileDescriptor,mSetName,mSetListEntries,mErrors)
     }
 
     override fun parseTag(text: String, lineNumber: Int, position: Int): Tag {
