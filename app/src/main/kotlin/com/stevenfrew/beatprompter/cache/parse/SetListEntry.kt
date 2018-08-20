@@ -22,7 +22,7 @@ class SetListEntry(line: String) {
         }
     }
     companion object {
-        private const val SET_LIST_ENTRY_DELIMITER="____"
+        private const val SET_LIST_ENTRY_DELIMITER="_<<-title__artist->>_"
     }
 
     fun matches(songFile: SongFile): SetListMatch

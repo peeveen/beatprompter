@@ -644,7 +644,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // This should take up no more than 15% of the screen.
             // But that includes a border, so use 13 percent for the text.
             val eightPercent = (mNativeDeviceSettings.mScreenSize.height() * 0.13).toInt()
-            val fullString = ">>> $mSongLoadInfo.mNextSong >>>"
+            val nextSong=mSongLoadInfo.mNextSong
+            val fullString = ">>> $nextSong >>>"
             nextSongString=ScreenString.create(fullString, mPaint, mNativeDeviceSettings.mScreenSize.width(), eightPercent, Color.BLACK, boldFont, true)
             availableScreenHeight -= (mNativeDeviceSettings.mScreenSize.height() * 0.15f).toInt()
         }
