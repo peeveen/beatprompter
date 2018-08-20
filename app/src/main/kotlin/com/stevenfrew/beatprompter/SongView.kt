@@ -268,79 +268,80 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         var yScrollOffset = 0
         val color = mBackgroundColorLookup[(beatPercent * 100.0).toInt()]
         canvas.drawColor(color, PorterDuff.Mode.SRC)
-        if (currentLine != null) {
-            var scrollPercentage = 0.0
-            // If a scroll event in underway, move currentY up
-            if (mStartState !== PlayState.Playing || mSong!!.mScrollMode === ScrollingMode.Manual) {
-                yScrollOffset = mSongPixelPosition - currentLine.mSongPixelPosition
-                if (mSong!!.mScrollMode === ScrollingMode.Smooth)
-                    scrollPercentage = yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
-            } else {
-                if (!scrolling && mSong!!.mScrollMode !== ScrollingMode.Manual) {
-                    if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
-                        scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
-                    else if (currentLine.mYStopScrollTime <= timePassed)
-                        scrollPercentage = 1.0
+        if (mStartState !== PlayState.AtTitleScreen)
+            if (currentLine != null) {
+                var scrollPercentage = 0.0
+                // If a scroll event in underway, move currentY up
+                if (mStartState !== PlayState.Playing || mSong!!.mScrollMode === ScrollingMode.Manual) {
+                    yScrollOffset = mSongPixelPosition - currentLine.mSongPixelPosition
                     if (mSong!!.mScrollMode === ScrollingMode.Smooth)
-                        yScrollOffset = (currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt()
-                    else if (mSong!!.mScrollMode === ScrollingMode.Beat)
-                        yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
+                        scrollPercentage = yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
+                } else {
+                    if (!scrolling && mSong!!.mScrollMode !== ScrollingMode.Manual) {
+                        if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
+                            scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
+                        else if (currentLine.mYStopScrollTime <= timePassed)
+                            scrollPercentage = 1.0
+                        if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+                            yScrollOffset = (currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt()
+                        else if (mSong!!.mScrollMode === ScrollingMode.Beat)
+                            yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
+                    }
                 }
-            }
-            currentY -= yScrollOffset
-            if (mStartState === PlayState.Playing)
-                mSongPixelPosition = currentLine.mSongPixelPosition + yScrollOffset
-            if (mSong!!.mScrollMode === ScrollingMode.Smooth)
-                currentY += mSong!!.mSmoothScrollOffset
+                currentY -= yScrollOffset
+                if (mStartState === PlayState.Playing)
+                    mSongPixelPosition = currentLine.mSongPixelPosition + yScrollOffset
+                if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+                    currentY += mSong!!.mSmoothScrollOffset
 
-            val startY = currentY
-            var firstLineOnscreen: Line? = null
-            var startOnscreen = false
-            var endOnscreen = false
-            var highlight = mHighlightCurrentLine
-            while (currentLine != null && currentY < mScreenHeight) {
-                if (currentY > mSong!!.mBeatCounterRect.height() - currentLine.mMeasurements.mLineHeight) {
-                    if (firstLineOnscreen == null) {
-                        firstLineOnscreen = currentLine
-                        startOnscreen = currentY >= mSong!!.mBeatCounterRect.height()
-                        endOnscreen = currentY + currentLine.mMeasurements.mLineHeight <= mScreenHeight
-                    }
-                    val graphics = currentLine.getGraphics()
-                    val lineTop = currentY
-                    for ((lineCounter, graphic) in graphics.withIndex()) {
-                        if (!graphic.mBitmap.isRecycled)
+                val startY = currentY
+                var firstLineOnscreen: Line? = null
+                var startOnscreen = false
+                var endOnscreen = false
+                var highlight = mHighlightCurrentLine
+                while (currentLine != null && currentY < mScreenHeight) {
+                    if (currentY > mSong!!.mBeatCounterRect.height() - currentLine.mMeasurements.mLineHeight) {
+                        if (firstLineOnscreen == null) {
+                            firstLineOnscreen = currentLine
+                            startOnscreen = currentY >= mSong!!.mBeatCounterRect.height()
+                            endOnscreen = currentY + currentLine.mMeasurements.mLineHeight <= mScreenHeight
+                        }
+                        val graphics = currentLine.getGraphics()
+                        val lineTop = currentY
+                        for ((lineCounter, graphic) in graphics.withIndex()) {
+                            if (!graphic.mBitmap.isRecycled)
+                                canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
+                            currentY += currentLine.mMeasurements.mGraphicHeights[lineCounter]
+                        }
+                        if (highlight) {
+                            mPaint.color = mDefaultCurrentLineHighlightColour
+                            canvas.drawRect(0f, lineTop.toFloat(), mScreenWidth.toFloat(), (lineTop + currentLine.mMeasurements.mLineHeight).toFloat(), mPaint)
+                            mPaint.alpha = 255
+                        }
+                    } else
+                        currentY += currentLine.mMeasurements.mLineHeight
+                    currentLine = currentLine.mNextLine
+                    highlight = false
+                }
+                // Calculate pageup/pagedown/lineup/linedown lines
+                if (mSong!!.mScrollMode === ScrollingMode.Manual)
+                    calculateManualScrollingPositions(firstLineOnscreen, currentLine, currentY, startOnscreen, endOnscreen)
+
+                if (mSong!!.mScrollMode === ScrollingMode.Smooth) {
+                    // If we've drawn the end of the last line, stop smooth scrolling.
+                    val prevLine = mSong!!.mCurrentLine!!.mPrevLine
+                    if (prevLine != null && startY > 0) {
+                        mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
+                        currentY = startY - prevLine.mMeasurements.mLineHeight
+                        val graphics = prevLine.getGraphics()
+                        for ((lineCounter, graphic) in graphics.withIndex()) {
                             canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
-                        currentY += currentLine.mMeasurements.mGraphicHeights[lineCounter]
-                    }
-                    if (highlight) {
-                        mPaint.color = mDefaultCurrentLineHighlightColour
-                        canvas.drawRect(0f, lineTop.toFloat(), mScreenWidth.toFloat(), (lineTop + currentLine.mMeasurements.mLineHeight).toFloat(), mPaint)
+                            currentY += prevLine.mMeasurements.mGraphicHeights[lineCounter]
+                        }
                         mPaint.alpha = 255
                     }
-                } else
-                    currentY += currentLine.mMeasurements.mLineHeight
-                currentLine = currentLine.mNextLine
-                highlight = false
-            }
-            // Calculate pageup/pagedown/lineup/linedown lines
-            if (mSong!!.mScrollMode === ScrollingMode.Manual)
-                calculateManualScrollingPositions(firstLineOnscreen, currentLine, currentY, startOnscreen, endOnscreen)
-
-            if (mSong!!.mScrollMode === ScrollingMode.Smooth) {
-                // If we've drawn the end of the last line, stop smooth scrolling.
-                val prevLine = mSong!!.mCurrentLine!!.mPrevLine
-                if (prevLine != null && startY > 0) {
-                    mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
-                    currentY = startY - prevLine.mMeasurements.mLineHeight
-                    val graphics = prevLine.getGraphics()
-                    for ((lineCounter, graphic) in graphics.withIndex()) {
-                        canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
-                        currentY += prevLine.mMeasurements.mGraphicHeights[lineCounter]
-                    }
-                    mPaint.alpha = 255
                 }
             }
-        }
         mPaint.color = mBackgroundColorLookup[100]
         canvas.drawRect(0f, 0f, mScreenWidth.toFloat(), mSong!!.mBeatCounterRect.height().toFloat(), mPaint)
         mPaint.color = mScrollMarkerColor

@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.event.BaseEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings,
+class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
            val mEvents:List<BaseEvent>, val mLines:List<Line>,
            val mInitialMIDIMessages:List<OutgoingMessage>, val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mTotalStartScreenTextHeight:Int,
@@ -19,7 +19,6 @@ class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySet
     private var mNextEvent: BaseEvent? = mCurrentEvent?.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    internal var mSongHeight = 0
 
     internal fun setProgress(nano: Long) {
         var e = mCurrentEvent

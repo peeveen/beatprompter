@@ -305,6 +305,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         lineObj.mPrevLine=previousLine
                     }
 
+                    mSongHeight+=lineObj.mMeasurements.mLineHeight
                     mLines.add(Pair(lineObj,currentLineBeatInfo))
                     val lineEvent=LineEvent(mSongTime,totalLineTime,lineObj)
                     mEvents.add(lineEvent)
@@ -416,8 +417,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         for (f in 0 until maxGraphicsRequired)
             lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
 
+        var graphic: LineGraphic = lineGraphics.first()
         mLines.forEach {
-            var graphic: LineGraphic = lineGraphics.first()
             for (f in 0 until it.first.mMeasurements.mLines) {
                 it.first.allocateGraphic(graphic)
                 graphic = graphic.mNextGraphic
@@ -449,7 +450,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val y = mBeatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
         val songTitleHeaderLocation = PointF(x, y)
 
-        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mEvents,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,nextSongString,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,mEvents,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,nextSongString,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
 
         //return Song(mCachedCloudFileDescriptor.mID,mSongFile.mTitle,mSongFile.mArtist,mSongFile.mKey,mSongFile.mBPM,null,100,listOf(),)
     }
