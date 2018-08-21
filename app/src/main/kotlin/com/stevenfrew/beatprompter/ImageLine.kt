@@ -3,25 +3,24 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
 
-class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingMode:ImageScalingMode,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,pixelPosition:Int) : Line(lineTime,lineDuration,scrollMode,pixelPosition) {
-    private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
+class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,pixelPosition:Int) : Line(lineTime,lineDuration,scrollMode,pixelPosition) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
+    private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
+    private val mDestinationRect=getDestinationRect(mBitmap,displaySettings.mScreenSize,scalingMode)
     override val mMeasurements:LineMeasurements
 
     init
     {
-        val destRect=getDestinationRect(displaySettings.mScreenSize)
-        mMeasurements=LineMeasurements(1, destRect.width(), destRect.height(), intArrayOf(destRect.height()), lineTime,lineDuration, mNextLine, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
+        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, mNextLine, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
     }
 
     override fun renderGraphics()  {
-        val destRect=getDestinationRect(mMeasurements.mScreenSize)
         for (f in 0 until mMeasurements.mLines) {
             val graphic = mGraphics[f]
             if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
                 val c = Canvas(graphic.mBitmap)
-                c.drawBitmap(mBitmap, mSourceRect, destRect, paint)
+                c.drawBitmap(mBitmap, mSourceRect, mDestinationRect, paint)
                 graphic.mLastDrawnLine = this
             }
         }
@@ -31,18 +30,20 @@ class ImageLine internal constructor(mImageFile:ImageFile, private val mScalingM
         mBitmap.recycle()
     }
 
-    private fun getDestinationRect(screenSize:Rect):Rect
-    {
-        val imageHeight = mBitmap.height
-        val imageWidth = mBitmap.width
-        var scaledImageHeight = imageHeight
-        var scaledImageWidth = imageWidth
+    companion object {
+        private fun getDestinationRect(bitmap:Bitmap,screenSize:Rect,scalingMode:ImageScalingMode):Rect
+        {
+            val imageHeight = bitmap.height
+            val imageWidth = bitmap.width
+            var scaledImageHeight = imageHeight
+            var scaledImageWidth = imageWidth
 
-        if (imageWidth > screenSize.width() || mScalingMode === ImageScalingMode.Stretch) {
-            scaledImageHeight = (imageHeight * (screenSize.width().toDouble() / imageWidth.toDouble())).toInt()
-            scaledImageWidth = screenSize.width()
+            if (imageWidth > screenSize.width() || scalingMode === ImageScalingMode.Stretch) {
+                scaledImageHeight = (imageHeight * (screenSize.width().toDouble() / imageWidth.toDouble())).toInt()
+                scaledImageWidth = screenSize.width()
+            }
+
+            return Rect(0, 0, scaledImageWidth, scaledImageHeight)
         }
-
-        return Rect(0, 0, scaledImageWidth, scaledImageHeight)
     }
 }

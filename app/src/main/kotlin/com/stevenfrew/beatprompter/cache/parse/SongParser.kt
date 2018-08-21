@@ -78,7 +78,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
-        // TODO: Deep clone of tags
+        // TODO: Deep clone of tags, get rid of retreatFrom
         val chordTags=line.mTags.filterIsInstance<ChordTag>()
         val nonChordTags=line.mTags.filter { it !is ChordTag }
         val chordsFound = mShowChords && !chordTags.isEmpty()

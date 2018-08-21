@@ -27,7 +27,7 @@ class SetListEntry(line: String) {
 
     fun matches(songFile: SongFile): SetListMatch
     {
-        if(songFile.mTitle==mTitle)
+        if(songFile.mNormalizedArtist==mTitle)
         {
             if(songFile.mArtist==mArtist)
                 return SetListMatch.TitleAndArtistMatch

@@ -277,7 +277,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                         ?: return SongInterruptResult.NoSongToInterrupt
 
                 // This should never happen, but we'll check just to be sure.
-
                 // Trying to interrupt a song with itself is pointless!
                 if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
                     return SongInterruptResult.NoSongToInterrupt

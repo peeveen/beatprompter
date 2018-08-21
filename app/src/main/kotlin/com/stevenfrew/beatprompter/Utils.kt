@@ -158,4 +158,12 @@ object Utils {
         // Hex values for this app are two-chars long, max.
         return strippedString.matches(Regex("[0-9a-f]{1,2}"))
     }
+
+    /**
+     * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
+     * Also remove any stupid BOF character
+     */
+    fun normalizeString(strIn: String): String {
+        return strIn.replace('’', '\'').replace("\uFEFF", "").toLowerCase()
+    }
 }

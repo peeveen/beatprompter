@@ -5,11 +5,11 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.*
 
 @CacheXmlTag("song")
-class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, duration:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, private val mProgramChangeTrigger:SongTrigger, private val mSongSelectTrigger:SongTrigger, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
+class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, title:String, artist:String, val mKey:String, val mBPM:Double, duration:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, private val mProgramChangeTrigger:SongTrigger, private val mSongSelectTrigger:SongTrigger, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
+    val mArtist=Utils.normalizeString(artist)
+    val mTitle=Utils.normalizeString(title)
     val mSortableArtist=sortableString(mArtist)
     val mSortableTitle=sortableString(mTitle)
-    val mNormalizedArtist=normalizeString(mArtist)
-    val mNormalizedTitle=normalizeString(mTitle)
     val mIsSmoothScrollable=duration>0
     val mIsBeatScrollable=mBPM>0.0
 
@@ -113,11 +113,6 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
 
     companion object {
         private var thePrefix=BeatPrompterApplication.getResourceString(R.string.lowerCaseThe)+" "
-
-
-        private fun normalizeString(strIn: String): String {
-            return strIn.replace('’', '\'').replace("\uFEFF", "").toLowerCase()
-        }
 
         fun sortableString(inStr:String?):String
         {

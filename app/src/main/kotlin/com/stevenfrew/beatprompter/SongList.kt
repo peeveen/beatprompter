@@ -197,7 +197,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun getSongDisplaySettings(scrollMode: ScrollingMode): SongDisplaySettings {
         val sharedPref = BeatPrompterApplication.preferences
-        val onlyUseBeatFontSizes = sharedPref.getBoolean(getString(R.string.pref_alwaysUseBeatFontPrefs_key), getString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
+        val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
         val fontSizeMin = Integer.parseInt(getString(R.string.fontSizeMin))
         var minimumFontSizeBeat = sharedPref.getInt(getString(R.string.pref_minFontSize_key), Integer.parseInt(getString(R.string.pref_minFontSize_default)))
