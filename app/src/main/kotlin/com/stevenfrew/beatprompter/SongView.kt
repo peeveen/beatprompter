@@ -54,6 +54,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private val mBackgroundColorLookup = IntArray(101)
     private val mCommentTextColor: Int
+    private val mBeatCounterColor:Int
     private val mDefaultCurrentLineHighlightColour: Int
     private val mShowScrollIndicator: Boolean
     private val mShowSongTitle:Boolean
@@ -69,7 +70,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mScrollIndicatorRect: Rect? = null
     private var mGestureDetector: GestureDetectorCompat? = null
     private var mScreenAction = ScreenAction.Scroll
-    private var mBeatCounterColor = Color.WHITE
     private var mScrollMarkerColor = Color.BLACK
     private var mTrackMediaPlayer: MediaPlayer= MediaPlayer()
     private var mSilenceMediaPlayer: MediaPlayer= MediaPlayer.create(context, R.raw.silence)
@@ -103,7 +103,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         commentDisplayTimeSeconds += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset))
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
 
-        mCommentTextColor = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default))))
+        mBeatCounterColor = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)))
+        mCommentTextColor = sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default)))
         mDefaultCurrentLineHighlightColour = Utils.makeHighlightColour(sharedPref.getInt(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_default))))
         mPulse = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue).toBoolean())
 

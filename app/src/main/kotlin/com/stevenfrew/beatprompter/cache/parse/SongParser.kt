@@ -175,7 +175,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if(!mSendMidiClock)
             mSendMidiClock=tags.any{it is SendMIDIClockTag}
 
-        mCountIn=tags.filterIsInstance<CountTag>().firstOrNull()?.mCount?:mCountIn
+        if(!mStopAddingStartupItems)
+            mCountIn=tags.filterIsInstance<CountTag>().firstOrNull()?.mCount?:mCountIn
 
         val commentTags=tags.filterIsInstance<CommentTag>()
         commentTags.forEach {
@@ -215,7 +216,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if (createLine || pauseTag!=null) {
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
-            generateCountInEvents(mCountIn,currentLineBeatInfo,mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+            if(mCountIn>0) {
+                generateCountInEvents(mCountIn, currentLineBeatInfo, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+                mCountIn=0
+            }
 
             if(audioTag!=null)
                 mEvents.add(AudioEvent(mSongTime,audioTag.mFilename,audioTag.mVolume))
@@ -375,8 +379,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private fun buildEventList():BaseEvent
     {
         val firstEvent=mEvents.removeAt(0)
+        var nextEvent=firstEvent
         mEvents.forEach {
-            firstEvent.add(it)
+            nextEvent.add(it)
+            nextEvent=it
         }
         return firstEvent
     }
