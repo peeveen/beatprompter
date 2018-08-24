@@ -1,12 +1,11 @@
 package com.stevenfrew.beatprompter
 
-abstract class Line internal constructor(val mLineTime:Long,val mLineDuration:Long,val mScrollMode:ScrollingMode,val mSongPixelPosition:Int) {
+abstract class Line internal constructor(val mLineTime:Long,val mLineDuration:Long,val mScrollMode:ScrollingMode,val mSongPixelPosition:Int,val mYStartScrollTime:Long,val mYStopScrollTime:Long) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements:LineMeasurements
+    internal var mManualScrollPositions:ManualScrollPositions?=null
     protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
-    var mYStartScrollTime: Long = 0
-    var mYStopScrollTime: Long = 0
 
     internal abstract fun renderGraphics()
 

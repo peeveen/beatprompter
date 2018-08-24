@@ -12,6 +12,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import android.widget.OverScroller
 import com.stevenfrew.beatprompter.bluetooth.*
 import com.stevenfrew.beatprompter.event.*
@@ -40,11 +41,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private  var mMetronomeThread: Thread? = null
 
     private var mSong: Song? = null
-
-    private var mPageDownPixel = 0
-    private var mPageUpPixel = 0
-    private var mLineDownPixel = 0
-    private var mLineUpPixel = 0
 
     private var mSongStartTime: Long = 0
     private var mStartState = PlayState.AtTitleScreen
@@ -325,8 +321,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     highlight = false
                 }
                 // Calculate pageup/pagedown/lineup/linedown lines
-                if (mSong!!.mScrollMode === ScrollingMode.Manual)
-                    calculateManualScrollingPositions(firstLineOnscreen, currentLine, currentY, startOnscreen, endOnscreen)
+//                if (mSong!!.mScrollMode === ScrollingMode.Manual)
+//                    calculateManualScrollingPositions(firstLineOnscreen, currentLine, currentY, startOnscreen, endOnscreen)
 
                 if (mSong!!.mScrollMode === ScrollingMode.Smooth) {
                     // If we've drawn the end of the last line, stop smooth scrolling.
@@ -432,7 +428,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 
-    private fun calculateManualScrollingPositions(firstLineOnscreen: Line?, currentLine: Line?, currentY: Int, startOnscreen: Boolean, endOnscreen: Boolean) {
+/*    private fun calculateManualScrollingPositions(firstLineOnscreen: Line?, currentLine: Line?, currentY: Int, startOnscreen: Boolean, endOnscreen: Boolean) {
         var vCurrentLine = currentLine
         // If the end of the current line is on-screen, the linedown pixel position should be the start of the next line.
         // Otherwise, it should be 80% of the screen further down than it currently is.
@@ -515,7 +511,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mLineDownPixel = Math.min(mSongScrollEndPixel, mLineDownPixel)
         mPageUpPixel = Math.max(0, mPageUpPixel)
         mLineUpPixel = Math.min(0, mLineUpPixel)
-    }
+    }*/
 
     // Called back when the view is first created or its size changes.
     public override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
@@ -1008,7 +1004,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
             return
-        mTargetPixelPosition = if (down) mPageDownPixel else mPageUpPixel
+        mTargetPixelPosition = if (down) mSong!!.mCurrentLine?.mManualScrollPositions?.mPageDown?:mSongScrollEndPixel else mSong!!.mCurrentLine?.mManualScrollPositions?.mPageUp?:0
     }
 
     private fun changeLine(down: Boolean) {
@@ -1016,7 +1012,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
             return
-        mTargetPixelPosition = if (down) mLineDownPixel else mLineUpPixel
+        mTargetPixelPosition = if (down) mSong!!.mCurrentLine?.mManualScrollPositions?.mLineDown?:mSongScrollEndPixel else mSong!!.mCurrentLine?.mManualScrollPositions?.mLineUp?:0
     }
 
     private fun clearScrollTarget() {

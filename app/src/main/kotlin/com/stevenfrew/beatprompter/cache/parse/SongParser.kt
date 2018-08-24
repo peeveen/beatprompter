@@ -28,7 +28,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mPaint= Paint()
     private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     private val mBeatCounterRect:Rect
-    private val mBeatCounterHeight:Int
     private val mDefaultHighlightColor:Int
 
     private var mSongHeight=0
@@ -65,13 +64,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Figure out the screen size
         mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
-        mBeatCounterHeight =
+        val beatCounterHeight =
                 // Top 5% of screen is used for beat counter
                 if (mSongLoadInfo.mScrollMode !== ScrollingMode.Manual)
                     (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
                 else
                     0
-        mBeatCounterRect = Rect(0, 0, mNativeDeviceSettings.mScreenSize.width(), mBeatCounterHeight)
+        mBeatCounterRect = Rect(0, 0, mNativeDeviceSettings.mScreenSize.width(), beatCounterHeight)
 
         // Start the progress message dialog
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
@@ -265,12 +264,20 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     else -> beatsForThisLine * nanosecondsPerBeat
                 }
 
+                val startScrollTime=
+                        when(mCurrentScrollMode)
+                        {
+                            ScrollingMode.Smooth->mSongTime
+                            else->mSongTime + (beatsForThisLine-1*nanosecondsPerBeat)
+                        }
+                val stopScrollTime=mSongTime+totalLineTime
+
                 var lineObj: Line?=null
                 if (imageTag != null) {
                     val imageFile = SongList.mCachedCloudFiles.getMappedImageFile(imageTag.mFilename)
                     if (imageFile != null)
                         try {
-                            lineObj = ImageLine(imageFile, imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight)
+                            lineObj = ImageLine(imageFile, imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -283,7 +290,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null)
-                    lineObj = TextLine(workLine, tags,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mCurrentHighlightColor,mSongHeight,mCancelEvent)
+                    lineObj = TextLine(workLine, tags,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mCurrentHighlightColor,mSongHeight,startScrollTime,stopScrollTime,mCancelEvent)
 
                 if(lineObj!=null)
                 {
@@ -302,18 +309,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     // Generate beat events ...
 
                     // if a pause is specified on a line, it replaces the actual beats for that line.
-                    if (pauseTag!=null) {
+                    if (pauseTag!=null)
                         generatePauseEvents(pauseTag.mDuration)
-                        // Line still has to scroll somewhere!
-                        lineObj.mYStartScrollTime = mSongTime - nanosecondsPerBeat
-                        lineObj.mYStopScrollTime = mSongTime
-                    } else if (currentLineBeatInfo.mBPM > 0.0 && currentLineBeatInfo.mScrollingMode == ScrollingMode.Beat) {
-                        generateBeatEvents(currentLineBeatInfo,nanosecondsPerBeat,beatsForThisLine,metronomeOn,lineObj)
-                    } else {
-                        lineEvent.mLine.mYStartScrollTime = mSongTime
+                    else if (currentLineBeatInfo.mBPM > 0.0 && currentLineBeatInfo.mScrollingMode == ScrollingMode.Beat)
+                        generateBeatEvents(currentLineBeatInfo,nanosecondsPerBeat,beatsForThisLine,metronomeOn)
+                    else
                         mSongTime += totalLineTime
-                        lineEvent.mLine.mYStopScrollTime = mSongTime
-                    }
                 }
             } else if (pauseTag!=null)
                 generatePauseEvents(pauseTag.mDuration)
@@ -332,6 +333,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val startScreenStrings=createStartScreenStrings()
         val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
 
+        // Each line has a number of manual scroll positions. We can set them now.
+        setManualScrollPositions()
+
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
         val lineGraphics = CircularGraphicsList()
@@ -347,8 +351,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
 
         // In smooth scrolling mode, the last screenful of text should never leave the screen.
+        // TODO: Implement this better, at SongView level
+        val beatCounterHeight=mBeatCounterRect.height()
+/*
         if (mSongLoadInfo.mScrollMode === ScrollingMode.Smooth) {
-            var total = mNativeDeviceSettings.mScreenSize.height() - smoothScrollOffset - mBeatCounterHeight
+            var total = mNativeDeviceSettings.mScreenSize.height() - smoothScrollOffset - beatCounterHeight
             var nextLineEvent:LineEvent?=null
             for(endLineEvent in mEvents.filterIsInstance<LineEvent>().reversed()) {
                 total -= endLineEvent.mLine.mMeasurements.mLineHeight
@@ -360,15 +367,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 mEvents.remove(endLineEvent)
                 nextLineEvent=endLineEvent
             }
-        }
+        }*/
 
         val maxSongTitleWidth = mNativeDeviceSettings.mScreenSize.width() * 0.9f
-        val maxSongTitleHeight = mBeatCounterHeight * 0.9f
-        val vMargin = (mBeatCounterHeight - maxSongTitleHeight) / 2.0f
+        val maxSongTitleHeight = beatCounterHeight * 0.9f
+        val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
         val songTitleHeader = ScreenString.create(mSongLoadInfo.mSongFile.mTitle, mPaint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), mFont, false)
         val extraMargin = (maxSongTitleHeight - songTitleHeader.mHeight) / 2.0f
         val x = ((mNativeDeviceSettings.mScreenSize.width() - songTitleHeader.mWidth) / 2.0).toFloat()
-        val y = mBeatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
+        val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
         val songTitleHeaderLocation = PointF(x, y)
 
         val firstEvent=buildEventList()
@@ -428,6 +435,47 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return maxLines
     }
 
+    private fun setManualScrollPositions() {
+        val usableScreenHeight=mNativeDeviceSettings.mScreenSize.height()-mBeatCounterRect.height()
+        val maxScrollPosition=Math.max(mSongHeight-usableScreenHeight,0)
+
+        for(lineWeAreSettingTheValuesFor in mLines)
+        {
+            var previousLine=lineWeAreSettingTheValuesFor.first.mPrevLine
+            var nextLine=lineWeAreSettingTheValuesFor.first.mNextLine
+            var previousLinePosition=previousLine?.mSongPixelPosition?:0
+            var nextLinePosition=nextLine?.mSongPixelPosition?:maxScrollPosition
+            val lineUp=previousLinePosition
+            val lineDown=Math.min(nextLinePosition,maxScrollPosition)
+
+            var pageUp=lineWeAreSettingTheValuesFor.first.mSongPixelPosition
+            val pageUpLimit=Math.max(pageUp-usableScreenHeight,0)
+            if(pageUpLimit>0) {
+                while (previousLinePosition >= pageUpLimit) {
+                    pageUp = previousLinePosition
+                    previousLine=previousLine?.mPrevLine
+                    previousLinePosition=previousLine?.mSongPixelPosition?:-1
+                }
+            }
+            else
+                pageUp=0
+
+            var pageDown=lineWeAreSettingTheValuesFor.first.mSongPixelPosition
+            val pageDownLimit=Math.min(pageDown+usableScreenHeight,maxScrollPosition)
+            if(pageDownLimit<maxScrollPosition) {
+                while (nextLinePosition <= pageDownLimit) {
+                    pageDown = nextLinePosition
+                    nextLine=nextLine?.mNextLine
+                    nextLinePosition=nextLine?.mSongPixelPosition?:maxScrollPosition+1
+                }
+            }
+            else
+                pageDown=maxScrollPosition
+
+            lineWeAreSettingTheValuesFor.first.mManualScrollPositions=ManualScrollPositions(lineUp,lineDown,pageUp,pageDown)
+        }
+    }
+
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
     {
         when(name)
@@ -458,11 +506,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun generateBeatEvents(currentLineBeatInfo:BeatInfo,nanosecondsPerBeat:Long,beatsForThisLine:Int,click:Boolean,lineObj:Line)
+    private fun generateBeatEvents(currentLineBeatInfo:BeatInfo,nanosecondsPerBeat:Long,beatsForThisLine:Int,click:Boolean)
     {
-        if (currentLineBeatInfo.mScrollingMode == ScrollingMode.Smooth)
-            lineObj.mYStartScrollTime = mSongTime
-        var finished = false
         var beatThatWeWillScrollOn = 0
         val rolloverBeatCount = mRolloverBeats.size
         val beatsToAdjustCount = mBeatsToAdjust
@@ -474,7 +519,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mBeatsToAdjust = 0
 
         var currentBarBeat = 0
-        while (!finished && currentBarBeat < beatsForThisLine) {
+        while (currentBarBeat < beatsForThisLine) {
             val beatsRemaining = beatsForThisLine - currentBarBeat
             beatThatWeWillScrollOn = if (beatsRemaining > currentLineBeatInfo.mBPB)
                 -1
@@ -500,13 +545,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 mBeatBlocks.add(mLastBeatBlock!!)
             }
 
-            if (currentBarBeat == beatsForThisLine - 1) {
-                if (currentLineBeatInfo.mScrollingMode == ScrollingMode.Beat) {
-                    lineObj.mYStartScrollTime = mSongTime
-                    lineObj.mYStopScrollTime = mSongTime + nanosecondsPerBeat
-                }
-                finished = true
-            }
             mSongTime += beatTimeLength
             mCurrentBeat++
             if (mCurrentBeat == (if (rolloverBPB > 0) rolloverBPB else currentLineBeatInfo.mBPB))
@@ -531,8 +569,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     rolloverCurrentBeat = 0
             }
         }
-        if (currentLineBeatInfo.mScrollingMode == ScrollingMode.Smooth)
-            lineObj.mYStopScrollTime = mSongTime + nanosecondsPerBeat
     }
 
     private fun generatePauseEvents(pauseTime: Long) {

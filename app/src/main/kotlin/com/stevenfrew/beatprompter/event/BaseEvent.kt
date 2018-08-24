@@ -78,10 +78,6 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
             event.mPrevLineEvent = mPrevLineEvent
     }
 
-    protected open fun offset(amount: Long) {
-        mEventTime += amount
-    }
-
     fun findEventOnOrBefore(time: Long): BaseEvent {
         var lastCheckedEvent = this
         var e: BaseEvent = this

@@ -9,9 +9,4 @@ class LineEvent constructor(eventTime:Long,line:Line) : BaseEvent(eventTime) {
         mPrevLineEvent = this
     }
 
-    override fun offset(amount: Long) {
-        super.offset(amount)
-        mLine.mYStartScrollTime += amount
-        mLine.mYStopScrollTime += amount
-    }
 }
