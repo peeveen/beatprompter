@@ -28,9 +28,9 @@ class SetListEntry(line: String) {
 
     fun matches(songFile: SongFile): SetListMatch
     {
-        if(songFile.mTitle.equals(mTitle,true))
+        if(songFile.mNormalizedTitle.equals(mTitle,true))
         {
-            if(songFile.mArtist.equals(mArtist,true))
+            if(songFile.mNormalizedArtist.equals(mArtist,true))
                 return SetListMatch.TitleAndArtistMatch
             return SetListMatch.TitleMatch
         }

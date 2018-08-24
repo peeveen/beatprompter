@@ -744,9 +744,13 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processTrackEvent(): Boolean {
-        Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
-        mTrackMediaPlayer.start()
-        return true
+        // TODO: deal with audio events
+        if(false) {
+            Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
+            mTrackMediaPlayer.start()
+            return true
+        }
+        return false
     }
 
     private fun processEndEvent(): Boolean {
