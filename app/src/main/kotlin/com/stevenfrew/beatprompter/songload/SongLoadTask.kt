@@ -20,7 +20,7 @@ import java.util.concurrent.Semaphore
  * external event (MIDI, Bluetooth, double-tap) triggers the loading of a song either while a song is
  * currently active, or while a song is already being loaded.
  */
-class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
+class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: LineScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
 
     private var mCancelled = false
     private val mTaskEndSemaphore = Semaphore(0)
@@ -108,8 +108,8 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
             val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
                     mSongLoadInfo.mTrack?.mName?:"",
                     mSongLoadInfo.mNativeDisplaySettings.mOrientation,
-                    mSongLoadInfo.mScrollMode === ScrollingMode.Beat,
-                    mSongLoadInfo.mScrollMode === ScrollingMode.Smooth,
+                    mSongLoadInfo.mSongScrollMode === SongScrollingMode.Beat,
+                    mSongLoadInfo.mSongScrollMode === SongScrollingMode.Smooth,
                     mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mScreenSize)

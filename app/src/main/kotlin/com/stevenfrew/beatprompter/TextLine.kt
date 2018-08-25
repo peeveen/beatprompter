@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode:ScrollingMode, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, lineScrollMode:LineScrollingMode, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,lineScrollMode,pixelPosition,startScrollTime,stopScrollTime) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -359,7 +359,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, mYStartScrollTime, scrollMode,displaySettings.mScreenSize)
+        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, mYStartScrollTime, lineScrollMode)
     }
 
     private val totalXSplits: Int

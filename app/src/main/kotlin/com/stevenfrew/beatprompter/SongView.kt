@@ -183,7 +183,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
         mSendMidiClock = song.mSendMIDIClock || sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
         mBeatCountRect = Rect(0, 0, song.mBeatCounterRect.width(), song.mBeatCounterRect.height())
-        mHighlightCurrentLine = song.mScrollMode === ScrollingMode.Beat && sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
+        mHighlightCurrentLine = song.mScrollMode === SongScrollingMode.Beat && sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
         mSong=song
     }
 
@@ -191,12 +191,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mSong == null)
             return
         if (!mInitialized) {
-            if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+            if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
                 mPulse = false
             mInitialized = true
             // TODO: FIX
 /*
-            if (mSong!!.mScrollMode === ScrollingMode.Manual) {
+            if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
                 if (mMetronomeBeats > 0) {
                     mMetronomeTask = MetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
                     mMetronomeThread = Thread(mMetronomeTask)
@@ -229,7 +229,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 val beatTime = (beatTimePassed % mNanosecondsPerBeat).toDouble()
                 beatPercent = beatTime / mNanosecondsPerBeat
             }
-            if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
+            if (mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                 var event: BaseEvent?
                 do {
                     event = mSong!!.getNextEvent(timePassed)
@@ -264,26 +264,26 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (currentLine != null) {
                 var scrollPercentage = 0.0
                 // If a scroll event in underway, move currentY up
-                if (mStartState !== PlayState.Playing || mSong!!.mScrollMode === ScrollingMode.Manual) {
+                if (mStartState !== PlayState.Playing || mSong!!.mScrollMode === SongScrollingMode.Manual) {
                     yScrollOffset = mSongPixelPosition - currentLine.mSongPixelPosition
-                    if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+                    if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
                         scrollPercentage = yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
                 } else {
-                    if (!scrolling && mSong!!.mScrollMode !== ScrollingMode.Manual) {
+                    if (!scrolling && mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                         if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
                             scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
                         else if (currentLine.mYStopScrollTime <= timePassed)
                             scrollPercentage = 1.0
-                        if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+                        if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
                             yScrollOffset = (currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt()
-                        else if (mSong!!.mScrollMode === ScrollingMode.Beat)
+                        else if (mSong!!.mScrollMode === SongScrollingMode.Beat)
                             yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
                     }
                 }
                 currentY -= yScrollOffset
                 if (mStartState === PlayState.Playing)
                     mSongPixelPosition = currentLine.mSongPixelPosition + yScrollOffset
-                if (mSong!!.mScrollMode === ScrollingMode.Smooth)
+                if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
                     currentY += mSong!!.mSmoothScrollOffset
 
                 val startY = currentY
@@ -311,7 +311,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     highlight = false
                 }
 
-                if (mSong!!.mScrollMode === ScrollingMode.Smooth) {
+                if (mSong!!.mScrollMode === SongScrollingMode.Smooth) {
                     // If we've drawn the end of the last line, stop smooth scrolling.
                     val prevLine = mSong!!.mCurrentLine!!.mPrevLine
                     if (prevLine != null && startY > 0) {
@@ -329,7 +329,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mPaint.color = mBackgroundColorLookup[100]
         canvas.drawRect(0f, 0f, mScreenWidth.toFloat(), mSong!!.mBeatCounterRect.height().toFloat(), mPaint)
         mPaint.color = mScrollMarkerColor
-        if (mSong!!.mScrollMode === ScrollingMode.Beat && mShowScrollIndicator && mScrollIndicatorRect != null)
+        if (mSong!!.mScrollMode === SongScrollingMode.Beat && mShowScrollIndicator && mScrollIndicatorRect != null)
             canvas.drawRect(mScrollIndicatorRect!!, mPaint)
         mPaint.color = mBeatCounterColor
         canvas.drawRect(mBeatCountRect, mPaint)
@@ -355,9 +355,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun calculateScrolling(): Boolean {
         var scrolling = false
-        if ((mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
+        if ((mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === SongScrollingMode.Manual) && mScroller.computeScrollOffset()) {
             mSongPixelPosition = mScroller.currY
-            //if (mSong.mScrollingMode != ScrollingMode.Manual)
+            //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
             run {
                 val songTime = mSong!!.mCurrentLine!!.getTimeFromPixel(mSongPixelPosition)
                 setSongTime(songTime, mStartState === PlayState.Paused, true, false)
@@ -603,7 +603,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             val oldPlayState = mStartState
             mStartState = PlayState.increase(mStartState)
             if (mStartState === PlayState.Playing) {
-                if (mSong!!.mScrollMode=== ScrollingMode.Manual) {
+                if (mSong!!.mScrollMode=== SongScrollingMode.Manual) {
                     // Start the count in.
                     if (mMetronomeThread != null) {
                         if (!mMetronomeThread!!.isAlive) {
@@ -638,7 +638,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     else if (e.y > mScreenHeight * 0.5)
                         changeVolume(-5)
                 }
-            } else if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
+            } else if (mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                 if (mScreenAction == ScreenAction.Scroll)
                     pause(midiInitiated)
             }
@@ -711,7 +711,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             null
         mBeatCountRect = Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
         mLastBeatTime = mSongStartTime + event.mEventTime
-        if (event.mClick && mStartState === PlayState.Playing && mSong!!.mScrollMode !== ScrollingMode.Manual && allowClick)
+        if (event.mClick && mStartState === PlayState.Playing && mSong!!.mScrollMode !== SongScrollingMode.Manual && allowClick)
             mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
         if (mSongDisplayActivity != null/*&&(!event.mCount)*/)
             mSongDisplayActivity!!.onSongBeat(event.mBPM)
@@ -737,7 +737,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processAudioEvent(event:AudioEvent): Boolean {
-        // TODO: deal with audio events
         val mediaPlayer= mMediaPlayers.get(event.mAudioFile) ?: return false
         Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
         mediaPlayer.start()
@@ -746,7 +745,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun processEndEvent(): Boolean {
         // End the song in beat mode, or if we're using a track in any other mode.
-        val end = mSong!!.mScrollMode === ScrollingMode.Beat
+        val end = mSong!!.mScrollMode === SongScrollingMode.Beat
         if (end)
             endSong(false)
         return end
@@ -798,21 +797,21 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         // No time context in Manual mode.
         if (setPixelPosition)
             mSongPixelPosition = mSong!!.getPixelFromTime(nano)
-        //        if(mSong.mScrollingMode!=ScrollingMode.Manual)
+        //        if(mSong.mSongScrollingMode!=SongScrollingMode.Manual)
         run {
             if (mStartState !== PlayState.Playing)
                 mPauseTime = nano
             if (broadcast)
                 BluetoothManager.broadcastMessageToClients(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
-            if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
+            if (mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                 val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
                 val nextBeatEvent = mSong!!.mCurrentEvent.nextBeatEvent
                 if (prevBeatEvent != null)
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null)
             }
             mSongStartTime = System.nanoTime() - nano
-            if (mSong!!.mScrollMode !== ScrollingMode.Manual) {
+            if (mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                 val trackEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
                 if (trackEvent != null) {
                     val nTime = Utils.nanoToMilli(nano - trackEvent.mEventTime)
@@ -834,12 +833,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     override fun onDown(e: MotionEvent): Boolean {
-        if (mSong!!.mScrollMode === ScrollingMode.Manual)
+        if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             if (mMetronomeThread != null)
                 if (mStartState === PlayState.Playing)
                     mMetronomeThread!!.interrupt()
         // Abort any active scroll animations and invalidate.
-        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === ScrollingMode.Manual)
+        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === SongScrollingMode.Manual)
             clearScrollTarget()
         mScroller.forceFinished(true)
         return true
@@ -859,13 +858,13 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return false
         if (mSong == null)
             return false
-        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === ScrollingMode.Manual) {
+        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === SongScrollingMode.Manual) {
             clearScrollTarget()
             mSongPixelPosition += distanceY.toInt()
             mSongPixelPosition = Math.max(0, mSongPixelPosition)
             mSongPixelPosition = Math.min(mSongScrollEndPixel, mSongPixelPosition)
             pauseOnScrollStart()
-            //            if(mSong.mScrollingMode!=ScrollingMode.Manual)
+            //            if(mSong.mSongScrollingMode!=SongScrollingMode.Manual)
             setSongTime(mSong!!.mCurrentLine!!.getTimeFromPixel(mSongPixelPosition), true, true, false)
         } else if (mScreenAction == ScreenAction.Volume) {
             mCurrentVolume += (distanceY / 10.0).toInt()
@@ -875,7 +874,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     fun pauseOnScrollStart() {
-        if (mSong!!.mScrollMode === ScrollingMode.Manual)
+        if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             return
         if (mScreenAction != ScreenAction.Scroll)
             return
@@ -909,7 +908,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return false
         if (mSong == null)
             return false
-        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === ScrollingMode.Manual) {
+        if (mScreenAction == ScreenAction.Scroll || mSong!!.mScrollMode === SongScrollingMode.Manual) {
             clearScrollTarget()
             pauseOnScrollStart()
             mScroller.fling(0, mSongPixelPosition, 0, (-velocityY).toInt(), 0, 0, 0, mSongScrollEndPixel)
@@ -935,9 +934,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onPageDownKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeThePageDown()
-        } else if (mSong!!.mScrollMode === ScrollingMode.Manual) {
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
             changeThePageDown()
         } else
             changeVolume(+5)
@@ -945,9 +944,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onPageUpKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changePage(false)
-        } else if (mSong!!.mScrollMode === ScrollingMode.Manual)
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             changePage(false)
         else
             changeVolume(-5)
@@ -965,9 +964,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onLineDownKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeTheLineDown()
-        } else if (mSong!!.mScrollMode === ScrollingMode.Manual) {
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
             changeTheLineDown()
         } else
             changeVolume(+5)
@@ -975,9 +974,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onLineUpKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeLine(false)
-        } else if (mSong!!.mScrollMode === ScrollingMode.Manual)
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             changeLine(false)
         else
             changeVolume(-5)
@@ -985,7 +984,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onLeftKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeVolume(-5)
         } else
             changeVolume(-5)
@@ -993,7 +992,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     fun onRightKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong!!.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeVolume(+5)
         } else
             changeVolume(+5)
@@ -1041,8 +1040,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return when (mExternalTriggerSafetyCatch) {
             TriggerSafetyCatch.Always -> true
             TriggerSafetyCatch.WhenAtTitleScreen -> mStartState === PlayState.AtTitleScreen
-            TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong!!.mScrollMode === ScrollingMode.Manual
-            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine == null || mSong!!.mCurrentLine!!.mNextLine == null || mSong!!.mScrollMode === ScrollingMode.Manual
+            TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong!!.mScrollMode === SongScrollingMode.Manual
+            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine == null || mSong!!.mCurrentLine!!.mNextLine == null || mSong!!.mScrollMode === SongScrollingMode.Manual
             TriggerSafetyCatch.Never -> false
             else -> false
         }
@@ -1093,10 +1092,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
         private fun calculateScrollEnd(song:Song,screenHeight:Int):Int {
             var songDisplayEndPixel = song.mSongHeight
-            if (song.mScrollMode !== ScrollingMode.Beat)
+            if (song.mScrollMode !== SongScrollingMode.Beat)
                 songDisplayEndPixel -= screenHeight
             var songScrollEndPixel = Math.max(0, songDisplayEndPixel)
-            if (song.mScrollMode === ScrollingMode.Smooth) {
+            if (song.mScrollMode === SongScrollingMode.Smooth) {
                 songScrollEndPixel += song.mSmoothScrollOffset
                 songScrollEndPixel += song.mBeatCounterRect.height()
             }

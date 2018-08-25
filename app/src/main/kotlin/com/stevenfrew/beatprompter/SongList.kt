@@ -179,7 +179,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             beatScroll = smoothScroll
             track = null
         }
-        val scrollingMode = if (beatScroll) ScrollingMode.Beat else if (smoothScroll) ScrollingMode.Smooth else ScrollingMode.Manual
+        val scrollingMode = if (beatScroll) LineScrollingMode.Beat else if (smoothScroll) LineScrollingMode.Smooth else LineScrollingMode.Manual
         val sds = getSongDisplaySettings(scrollingMode)
         playSong(node, selectedSong, track, scrollingMode, startedByMidiTrigger, sds, sds)
     }
@@ -195,7 +195,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return playNextSong
     }
 
-    private fun getSongDisplaySettings(scrollMode: ScrollingMode): SongDisplaySettings {
+    private fun getSongDisplaySettings(songScrollMode: LineScrollingMode): SongDisplaySettings {
         val sharedPref = BeatPrompterApplication.preferences
         val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
@@ -223,11 +223,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val minimumFontSize: Int
         val maximumFontSize: Int
         when {
-            scrollMode === ScrollingMode.Beat -> {
+            songScrollMode === SongScrollingMode.Beat -> {
                 minimumFontSize = minimumFontSizeBeat
                 maximumFontSize = maximumFontSizeBeat
             }
-            scrollMode === ScrollingMode.Smooth -> {
+            songScrollMode === SongScrollingMode.Smooth -> {
                 minimumFontSize = minimumFontSizeSmooth
                 maximumFontSize = maximumFontSizeSmooth
             }
@@ -243,7 +243,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y))
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: LineScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
@@ -423,7 +423,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                     .setPositiveButton(R.string.play) { _, _ ->
                                         // sign in the user ...
                                         var selectedTrackName = audioSpinner.selectedItem as String?
-                                        val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
+                                        val mode = if (beatButton.isChecked) LineScrollingMode.Beat else if (smoothButton.isChecked) LineScrollingMode.Smooth else LineScrollingMode.Manual
                                         if (audioSpinner.selectedItemPosition == 0)
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
@@ -1048,11 +1048,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
             val beat = btm.mBeatScroll
             val smooth = btm.mSmoothScroll
-            val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
+            val scrollingMode = if (beat) LineScrollingMode.Beat else if (smooth) LineScrollingMode.Smooth else LineScrollingMode.Manual
 
             val sharedPrefs = BeatPrompterApplication.preferences
             val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)
-            val mimicDisplay = scrollingMode === ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
+            val mimicDisplay = scrollingMode === SongScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
 
             // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
             // Also, beat and smooth scrolling should never mimic.

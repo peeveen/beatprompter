@@ -23,7 +23,7 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
             var pauseTime: Long = 0
             var realLineCount = 0
             var realBarCount = 0
-            val parsingState=SongParsingState(ScrollingMode.Beat,this)
+            val parsingState=SongParsingState(SongScrollingMode.Beat,this)
             var totalPauseTime: Long = 0//defaultPausePref*1000;
             var line: String?
             var lineImage: ImageFile? = null

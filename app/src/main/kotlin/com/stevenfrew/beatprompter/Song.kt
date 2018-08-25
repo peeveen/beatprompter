@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.event.BaseEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(val mSongFile:SongFile, val mScrollMode:ScrollingMode, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
+class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
            firstEvent:BaseEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mNextSongString:ScreenString?, val mTotalStartScreenTextHeight:Int,
@@ -18,6 +18,19 @@ class Song(val mSongFile:SongFile, val mScrollMode:ScrollingMode, val mDisplaySe
     private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
+    val mScrollMode:SongScrollingMode
+
+    init {
+        val containsBeatLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Beat}.any()
+        val containsSmoothLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Smooth}.any()
+        val containsManualLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Manual}.any()
+        mScrollMode = when {
+            arrayOf(containsBeatLines,containsSmoothLines,containsManualLines).count{it==true}>1 -> SongScrollingMode.Mixed
+            containsBeatLines -> SongScrollingMode.Beat
+            containsSmoothLines -> SongScrollingMode.Smooth
+            else -> SongScrollingMode.Manual
+        }
+    }
 
     internal fun setProgress(nano: Long) {
         val e = mCurrentEvent

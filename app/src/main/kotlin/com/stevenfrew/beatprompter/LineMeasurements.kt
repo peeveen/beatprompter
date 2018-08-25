@@ -1,8 +1,6 @@
 package com.stevenfrew.beatprompter
 
-import android.graphics.Rect
-
-class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long,lineDuration: Long, yStartScrollTime: Long, scrollMode: ScrollingMode, val mScreenSize: Rect) {
+class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long, lineDuration: Long, yStartScrollTime: Long, lineScrollMode: LineScrollingMode) {
     internal var mPixelsToTimes: LongArray
     internal var mJumpScrollIntervals = IntArray(101)
 
@@ -17,7 +15,7 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
         mPixelsToTimes[0] = lineTime
         for (f in 1 until mLineHeight) {
             val linePercentage = f.toDouble() / mLineHeight.toDouble()
-            if (scrollMode == ScrollingMode.Beat) {
+            if (lineScrollMode == LineScrollingMode.Beat) {
                 val sineLookup = (90.0 * linePercentage).toInt()
                 val sineTimeDiff = (timeDiff * Utils.mSineLookup[sineLookup]).toLong()
                 mPixelsToTimes[f] = yStartScrollTime + sineTimeDiff
