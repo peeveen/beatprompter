@@ -275,7 +275,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         when(mCurrentScrollMode)
                         {
                             ScrollingMode.Smooth->mSongTime
-                            else->mSongTime + (beatsForThisLine-1*nanosecondsPerBeat)
+                            else->mSongTime + ((beatsForThisLine-1)*nanosecondsPerBeat)
                         }
                 val stopScrollTime=mSongTime+totalLineTime
 
