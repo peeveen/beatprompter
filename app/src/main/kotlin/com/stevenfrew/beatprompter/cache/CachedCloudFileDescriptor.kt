@@ -7,6 +7,7 @@ import java.util.*
 
 open class CachedCloudFileDescriptor:CloudFileInfo {
     val mFile: File
+
     constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(id,name,lastModified,subfolder)
     {
         mFile=file

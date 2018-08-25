@@ -1,3 +1,5 @@
 package com.stevenfrew.beatprompter.event
 
-class AudioEvent(eventTime: Long,audioFilename:String,audioVolume:Int) : BaseEvent(eventTime)
+import com.stevenfrew.beatprompter.cache.AudioFile
+
+class AudioEvent(eventTime: Long, val mAudioFile: AudioFile, val mVolume:Int) : BaseEvent(eventTime)

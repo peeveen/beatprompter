@@ -169,7 +169,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        var track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty()) mCachedCloudFiles.getMappedAudioFile(selectedSong.mAudioFiles[0]) else null
+        var track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty()) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         var beatScroll = selectedSong.mIsBeatScrollable
         var smoothScroll = selectedSong.mIsSmoothScrollable
         val sharedPrefs = BeatPrompterApplication.preferences
@@ -427,7 +427,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                         if (audioSpinner.selectedItemPosition == 0)
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
-                                        val track=if(selectedTrackName!=null)mCachedCloudFiles.getMappedAudioFile(selectedTrackName) else null
+                                        val track=if(selectedTrackName!=null)mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
                                         playSong(selectedNode, selectedSong, track, mode, false, sds, sds)
                                     }
                                     .setNegativeButton(R.string.cancel) { _, _ -> }
@@ -1061,7 +1061,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
             for (sf in mCachedCloudFiles.songFiles)
                 if (sf.mTitle == title) {
-                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFile(track), scrollingMode, "", true,
+                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(track).firstOrNull(), scrollingMode, "", true,
                             false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
                     SongDisplayActivity.interruptCurrentSong(loadTask, sf)
                     break

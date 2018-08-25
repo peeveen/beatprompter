@@ -29,6 +29,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     private val mBeatCounterRect:Rect
     private val mDefaultHighlightColor:Int
+    private val mAudioTags=mutableListOf<AudioTag>()
 
     private var mSongHeight=0
     private var mMIDIBeatCounter:Int=0
@@ -198,6 +199,18 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             }
         }
 
+        val audioTagsThisLine=tags.filterIsInstance<AudioTag>()
+        // If there are multiple {audio} tags on a line, and we've actually reached song content, add an error.
+        // You should only be allowed to define multiple {audio} tags in the pre-song section.
+        if(mStopAddingStartupItems) {
+            if (audioTagsThisLine.size > 1) {
+                mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.multiple_audio_tags_on_song_line)))
+                mAudioTags.add(audioTagsThisLine.first())
+            }
+        }
+        else
+            mAudioTags.addAll(audioTagsThisLine)
+
         val createLine= (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
         if (createLine || pauseTag!=null) {
@@ -208,27 +221,34 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 mCountIn=0
             }
 
-            // If there are multiple {audio} tags on a line, and we've actually reached song content, add an error.
-            // You should only be allowed to define multiple {audio} tags in the pre-song section.
-            var audioTags=tags.filterIsInstance<AudioTag>()
-            if(mStopAddingStartupItems)
-                if(audioTags.size>1)
-                {
-                    mErrors.add(FileParseError(line.mLineNumber,BeatPrompterApplication.getResourceString(R.string.multiple_audio_tags_on_song_line)))
-                    audioTags=listOf(audioTags.first())
-                }
             val audioTag=
-                    if(mStopAddingStartupItems || mSongLoadInfo.mTrack==null)
-                        audioTags.firstOrNull()
+                    if(mStopAddingStartupItems)
+                        audioTagsThisLine.firstOrNull()
+                    else if(mSongLoadInfo.mTrack==null)
+                        mAudioTags.firstOrNull()
                     else {
-                        val matchedAudioTag= audioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack!!.mName }
+                        val matchedAudioTag= mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack!!.mNormalizedName }
                         if(matchedAudioTag==null)
                             mErrors.add(FileParseError(line.mLineNumber,BeatPrompterApplication.getResourceString(R.string.missing_audio_file_warning)))
                         matchedAudioTag
                     }
+            mAudioTags.clear()
 
-            if(audioTag!=null)
-                mEvents.add(AudioEvent(mSongTime,audioTag.mFilename,audioTag.mVolume))
+            if(audioTag!=null) {
+                // Make sure file exists.
+                val mappedTracks = SongList.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
+                if(mappedTracks.isEmpty())
+                    mErrors.add(FileParseError(audioTag,BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
+                else if(mappedTracks.size>1)
+                    mErrors.add(FileParseError(audioTag,BeatPrompterApplication.getResourceString(R.string.multipleFilenameMatches, audioTag.mFilename)))
+                else {
+                    val audioFile = mappedTracks.first()
+                    if (!audioFile.mFile.exists())
+                        mErrors.add(FileParseError(audioTag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
+                    else
+                        mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume))
+                }
+            }
 
             // Any comments or MIDI events from here will be part of the song,
             // rather than startup events.
@@ -281,10 +301,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
                 var lineObj: Line?=null
                 if (imageTag != null) {
-                    val imageFile = SongList.mCachedCloudFiles.getMappedImageFile(imageTag.mFilename)
-                    if (imageFile != null)
+                    val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
+                    if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFile, imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -344,6 +364,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Each line has a number of manual scroll positions. We can set them now.
         setManualScrollPositions()
 
+        // Get all required audio info ...
+        val audioEvents=mEvents.filterIsInstance<AudioEvent>()
+
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
         val lineGraphics = CircularGraphicsList()
@@ -388,7 +411,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val firstEvent=buildEventList()
         offsetMIDIEvents(firstEvent)
-        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        return Song(mSongLoadInfo.mSongFile,mSongLoadInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
     }
 
     private fun buildEventList():BaseEvent
@@ -505,8 +528,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
             "eoh"->return EndOfHighlightTag(name, lineNumber, position)
 
+            "track", "audio", "musicpath"->return AudioTag(name,lineNumber,position,value)
+
             // BeatPrompter tags that are not required here ...
-            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "track", "audio", "musicpath", "time",
+            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "time",
             // Unused ChordPro tags
             "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
 

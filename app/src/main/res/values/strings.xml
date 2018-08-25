@@ -14,6 +14,7 @@
     <string name="multiple_audio_tags_on_song_line">You can only use multiple {audio} tags on a line before the first line of a song.</string>
     <string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
     <string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
+    <string name="multipleFilenameMatches">There are multiple files in the cache that match the filename '{%1$s}'.</string>
     <string name="unexpected_tag_in_setlist_file">Set list files should only contain one {set} tag, and no other tags.</string>
     <string name="tag_cant_share_line_with">A {%1$s} tag was found on the same line as a {%2$s} tag. This is not allowed.</string>
     <string name="connect_to_leader_string">Connect to leader</string>

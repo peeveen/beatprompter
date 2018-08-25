@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
@@ -30,16 +31,7 @@ class AudioTag internal constructor(name:String, lineNumber:Int, position:Int, v
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
             }
         }
-        mFilename = File(trackName).name
-        // If audioFileCollection is specified, then we are trying to actually load a song to play, not just for information.
-/*        if(audioFileCollection!=null) {
-            val mappedTrack = SongList.mCachedCloudFiles.getMappedAudioFile(track, audioFileCollection)
-                    ?: throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
-            val trackFile = File(sourceFile.parent, mappedTrack.mFile.name)
-            if (!trackFile.exists())
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, track))
-            mAudioFile = mappedTrack
-        }*/
+        mFilename = Utils.normalizeString(File(trackName).name)
         mVolume=volume
     }
 }

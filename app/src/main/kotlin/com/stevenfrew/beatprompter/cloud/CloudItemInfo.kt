@@ -1,8 +1,15 @@
 package com.stevenfrew.beatprompter.cloud
 
+import com.stevenfrew.beatprompter.Utils
+
 abstract class CloudItemInfo internal constructor(// Unique ID of the item in the cloud storage.
-        var mID: String, // Display name.
-        var mName: String):Comparable<CloudItemInfo> {
+        val mID: String, // Display name.
+        val mName: String):Comparable<CloudItemInfo> {
+    val mNormalizedName:String
+
+    init {
+        mNormalizedName= Utils.normalizeString(mName)
+    }
 
     override operator fun compareTo(other: CloudItemInfo): Int {
         val thisIsFolder = this is CloudFolderInfo

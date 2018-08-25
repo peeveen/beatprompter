@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.midi.Alias
@@ -102,14 +103,12 @@ class CachedCloudFileCollection {
         mFiles.clear()
     }
 
-    fun getMappedAudioFile(inStr: String): AudioFile? {
-        val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return audioFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+    fun getMappedAudioFiles(inStr: String): List<AudioFile> {
+        return audioFiles.filter{it.mNormalizedName.equals(Utils.normalizeString(inStr),ignoreCase=true)}
     }
 
-    fun getMappedImageFile(inStr: String): ImageFile? {
-        val apostropheDoubleCheck=inStr.replace('’', '\'')
-        return imageFiles.firstOrNull{it.mName.equals(inStr,ignoreCase=true) || it.mName.equals(apostropheDoubleCheck,ignoreCase=true)}
+    fun getMappedImageFiles(inStr: String): List<ImageFile> {
+        return imageFiles.filter{it.mNormalizedName.equals(Utils.normalizeString(inStr),ignoreCase=true)}
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {
@@ -117,8 +116,8 @@ class CachedCloudFileCollection {
         if (fileToRefresh != null) {
             filesToRefresh.add(fileToRefresh)
             if (fileToRefresh is SongFile && includeDependencies) {
-                filesToRefresh.addAll(fileToRefresh.mAudioFiles.mapNotNull {getMappedAudioFile(it)})
-                filesToRefresh.addAll(fileToRefresh.mImageFiles.mapNotNull {getMappedImageFile(it)})
+                filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap {getMappedAudioFiles(it)})
+                filesToRefresh.addAll(fileToRefresh.mImageFiles.flatMap {getMappedImageFiles(it)})
             }
         }
         return filesToRefresh
