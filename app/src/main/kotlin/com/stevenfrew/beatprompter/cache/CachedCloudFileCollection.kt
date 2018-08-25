@@ -67,7 +67,7 @@ class CachedCloudFileCollection {
         addToCollection(xmlDoc,SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SongInfoParser(descriptor).parse()}
         addToCollection(xmlDoc,SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SetListFileParser(descriptor).parse()}
         addToCollection(xmlDoc,MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> MIDIAliasFileParser(descriptor).parse()}
-        addToCollection(xmlDoc,AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> IrrelevantFile(descriptor)}
+        addToCollection(xmlDoc,IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> IrrelevantFile(descriptor)}
     }
 
     fun add(cachedFile: CachedCloudFile) {
