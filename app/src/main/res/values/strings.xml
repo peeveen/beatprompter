@@ -11,6 +11,7 @@
     <string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
     <string name="set_name_defined_multiple_times">Set name has already been defined.</string>
     <string name="midi_alias_has_no_components">A MIDI alias has been defined with only a name.</string>
+    <string name="multiple_audio_tags_on_song_line">You can only use multiple {audio} tags on a line before the first line of a song.</string>
     <string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
     <string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
     <string name="unexpected_tag_in_setlist_file">Set list files should only contain one {set} tag, and no other tags.</string>

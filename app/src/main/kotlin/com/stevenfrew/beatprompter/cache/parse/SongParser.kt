@@ -160,16 +160,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val metronomeOn = mMetronomeContext === MetronomeContext.On || (mMetronomeContext === MetronomeContext.OnWhenNoTrack && mSongLoadInfo.mTrack!=null)
 
         var imageTag=tags.filterIsInstance<ImageTag>().firstOrNull()
-        val audioTags=tags.filterIsInstance<AudioTag>()
-        val audioTag=
-                if(mSongLoadInfo.mTrack==null)
-                    audioTags.firstOrNull()
-                else {
-                    val matchedAudioFile= audioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack!!.mName }
-                    if(matchedAudioFile==null)
-                        mErrors.add(FileParseError(line.mLineNumber,BeatPrompterApplication.getResourceString(R.string.missing_audio_file_warning)))
-                    matchedAudioFile
-                }
 
         if(!mSendMidiClock)
             mSendMidiClock=tags.any{it is SendMIDIClockTag}
@@ -211,6 +201,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val createLine= (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
 
+
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
         if (createLine || pauseTag!=null) {
             // We definitely have a line!
@@ -219,6 +210,25 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 generateCountInEvents(mCountIn, currentLineBeatInfo, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
                 mCountIn=0
             }
+
+            // If there are multiple {audio} tags on a line, and we've actually reached song content, add an error.
+            // You should only be allowed to define multiple {audio} tags in the pre-song section.
+            var audioTags=tags.filterIsInstance<AudioTag>()
+            if(mStopAddingStartupItems)
+                if(audioTags.size>1)
+                {
+                    mErrors.add(FileParseError(line.mLineNumber,BeatPrompterApplication.getResourceString(R.string.multiple_audio_tags_on_song_line)))
+                    audioTags=listOf(audioTags.first())
+                }
+            val audioTag=
+                    if(mStopAddingStartupItems || mSongLoadInfo.mTrack==null)
+                        audioTags.firstOrNull()
+                    else {
+                        val matchedAudioTag= audioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack!!.mName }
+                        if(matchedAudioTag==null)
+                            mErrors.add(FileParseError(line.mLineNumber,BeatPrompterApplication.getResourceString(R.string.missing_audio_file_warning)))
+                        matchedAudioTag
+                    }
 
             if(audioTag!=null)
                 mEvents.add(AudioEvent(mSongTime,audioTag.mFilename,audioTag.mVolume))
@@ -289,8 +299,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         mErrors.add(FileParseError(imageTag, workLine))
                     }
                 }
-                if(imageTag==null)
-                    lineObj = TextLine(workLine, tags,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mCurrentHighlightColor,mSongHeight,startScrollTime,stopScrollTime,mCancelEvent)
+                if(imageTag==null) {
+                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentScrollMode, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mCancelEvent)
+                }
 
                 if(lineObj!=null)
                 {
@@ -494,7 +505,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
             "count","countin"->return CountTag(name,lineNumber,position,value)
 
-            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mCurrentHighlightColor?:mDefaultHighlightColor)
+            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
             "eoh"->return EndOfHighlightTag(name, lineNumber, position)
 
             // BeatPrompter tags that are not required here ...
@@ -502,7 +513,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // Unused ChordPro tags
             "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
 
-            else->return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
+            else->{
+                if(COMMENT_AUDIENCE_STARTERS.any{name.startsWith(it)})
+                    return CommentTag(name,lineNumber,position,value)
+                return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
+            }
         }
     }
 
@@ -750,5 +765,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Every beatstart/beatstop block has events that are offset by this amount (one year).
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
+        private val COMMENT_AUDIENCE_STARTERS=listOf("comment@", "c@", "comment_box@", "cb@", "comment_italic@", "ci@")
     }
 }

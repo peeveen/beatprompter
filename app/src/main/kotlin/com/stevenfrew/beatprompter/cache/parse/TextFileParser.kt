@@ -13,13 +13,13 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
     {
         var lineNumber=0
         val fileTags=mutableSetOf<KClass<out Tag>>()
+        val livePairings=mutableSetOf<Pair<KClass<out Tag>,KClass<out Tag>>>()
         mCachedCloudFileDescriptor.mFile.forEachLine { strLine ->
             ++lineNumber
             val txt=strLine.trim()
             if(!txt.startsWith('#')) {
                 val textLine=TextFileLine(txt,lineNumber,this)
                 val lineTags=mutableSetOf<KClass<out Tag>>()
-                val livePairings=mutableSetOf<Pair<KClass<out Tag>,KClass<out Tag>>>()
                 textLine.mTags.forEach{tag->
                     // TODO: reject tags that fail validation rules
                     val tagClass=tag::class

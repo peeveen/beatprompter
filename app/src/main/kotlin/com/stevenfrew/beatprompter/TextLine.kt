@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.CancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,currentHighlightColor:Int?,pixelPosition:Int,startScrollTime:Long,stopScrollTime:Long,cancelEvent:CancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,startingHighlightColor:Int?,pixelPosition:Int,startScrollTime:Long,stopScrollTime:Long,cancelEvent:CancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -23,6 +23,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
     private val mLyricColor:Int
     private val mChordColor:Int
     private val mAnnotationColor:Int
+    var mTrailingHighlightColor:Int?=null
     override val mMeasurements:LineMeasurements
 
     init {
@@ -141,7 +142,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         var actualLineWidth = 0
         mChordHeight = 0
         mLyricHeight = mChordHeight
-        var highlightColor=currentHighlightColor
+        var highlightColor=startingHighlightColor
         for (section in sections) {
             if (cancelEvent.isCancelled)
                 throw SongLoadCancelledException()
@@ -155,6 +156,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth += Math.max(section.mLineSS!!.mWidth, section.mChordSS!!.mWidth)
             highlightColor = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), mFont, highlightColor)
         }
+        mTrailingHighlightColor=highlightColor
         if (cancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
