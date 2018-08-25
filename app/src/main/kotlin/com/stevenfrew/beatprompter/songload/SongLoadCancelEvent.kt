@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.songload
 
-class CancelEvent {
+class SongLoadCancelEvent {
     var isCancelled = false
         private set
 

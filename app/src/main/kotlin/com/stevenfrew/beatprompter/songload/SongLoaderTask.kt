@@ -9,7 +9,7 @@ import java.io.IOException
 
 
 class SongLoaderTask : Task(true) {
-    private var mCancelEvent: CancelEvent? = null
+    private var mSongLoadCancelEvent: SongLoadCancelEvent? = null
     private var mSongLoadInfo: SongLoadInfo? = null
     private var mSongLoadHandler: Handler? = null
     private var mRegistered: Boolean = false
@@ -31,12 +31,12 @@ class SongLoaderTask : Task(true) {
             mSongLoadInfo = null
             return result
         }
-    private var cancelEvent: CancelEvent?
+    private var songLoadCancelEvent: SongLoadCancelEvent?
         get() = synchronized(mCancelEventSync) {
-            return mCancelEvent
+            return mSongLoadCancelEvent
         }
         set(cancelEvent) = synchronized(mCancelEventSync) {
-            mCancelEvent = cancelEvent
+            mSongLoadCancelEvent = cancelEvent
         }
 
     override fun doWork() {
@@ -44,7 +44,7 @@ class SongLoaderTask : Task(true) {
         if (sli != null) {
             System.gc()
             val vSongLoadHandler = songLoadHandler
-            val cancelEvent = cancelEvent
+            val cancelEvent = songLoadCancelEvent
             try {
                 val loadedSong = SongParser(sli,cancelEvent!!, vSongLoadHandler!!, mRegistered).parse()
                 if (cancelEvent.isCancelled)
@@ -65,12 +65,12 @@ class SongLoaderTask : Task(true) {
             } catch (ignored: InterruptedException) { }
     }
 
-    fun loadSong(sli: SongLoadInfo, handler: Handler, vCancelEvent: CancelEvent, registered: Boolean) {
+    fun loadSong(sli: SongLoadInfo, handler: Handler, vSongLoadCancelEvent: SongLoadCancelEvent, registered: Boolean) {
         songLoadHandler = handler
         synchronized(mLoadingSongFileSync) {
-            val existingCancelEvent = cancelEvent
+            val existingCancelEvent = songLoadCancelEvent
             existingCancelEvent?.set()
-            cancelEvent = vCancelEvent
+            songLoadCancelEvent = vSongLoadCancelEvent
             mRegistered = registered
             mSongLoadInfo = sli
         }

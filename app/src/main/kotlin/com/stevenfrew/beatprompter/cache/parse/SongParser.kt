@@ -7,10 +7,10 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
-import com.stevenfrew.beatprompter.songload.CancelEvent
+import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mCancelEvent: CancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile) {
+class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile) {
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
@@ -40,7 +40,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private var mBeatInfo:BeatInfo=BeatInfo()
     private var mCountIn:Int
     private var mSendMidiClock:Boolean=false
-    private var mCurrentHighlightColor:Int?=null
     private var mSongTime:Long=0
     private var mDefaultMIDIOutputChannel:Byte
 
@@ -200,8 +199,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
 
         val createLine= (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
-
-
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
         if (createLine || pauseTag!=null) {
             // We definitely have a line!
@@ -300,7 +297,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentScrollMode, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mCancelEvent)
+                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentScrollMode, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)

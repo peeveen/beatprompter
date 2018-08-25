@@ -3,10 +3,10 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
-import com.stevenfrew.beatprompter.songload.CancelEvent
+import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>,lineTime:Long,lineDuration:Long,scrollMode:ScrollingMode,displaySettings:SongDisplaySettings,startingHighlightColor:Int?,pixelPosition:Int,startScrollTime:Long,stopScrollTime:Long,cancelEvent:CancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode:ScrollingMode, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -33,16 +33,16 @@ class TextLine internal constructor(private val mText: String, private val mTags
         mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
         mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
         // TODO: Fix this, for god's sake!
-        val sections = calculateSections(cancelEvent)
+        val sections = calculateSections(songLoadCancelEvent)
 
-        if (cancelEvent.isCancelled)
+        if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
         // we have the sections, now fit 'em
         // Start with an arbitrary size
         val longestBits = StringBuilder()
         for (section in sections) {
-            if (cancelEvent.isCancelled)
+            if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, 100, mFont)
             section.setChordFontSizeAndMeasure(paint, 100, mFont)
@@ -51,7 +51,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             else
                 longestBits.append(section.mLineText)
         }
-        if (cancelEvent.isCancelled)
+        if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
         val maxLongestFontSize=ScreenString.getBestFontSize(longestBits.toString(), paint, displaySettings.mMinFontSize,displaySettings.mMaxFontSize,displaySettings.mScreenSize.width(),-1, mFont).toDouble()
@@ -67,7 +67,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             textExists = false
             width = 0
             for (section in sections) {
-                if (cancelEvent.isCancelled)
+                if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
                 textExists = textExists or (section.mLineText!!.isNotEmpty())
                 val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(textFontSize).toInt(), mFont)
@@ -78,7 +78,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     allTextSmallerThanChords = false
                 width += Math.max(textWidth, chordWidth)
             }
-            if (cancelEvent.isCancelled)
+            if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             if (width >= displaySettings.mScreenSize.width()) {
                 if (textFontSize >= displaySettings.mMinFontSize + 2 && chordFontSize >= displaySettings.mMinFontSize + 2) {
@@ -92,8 +92,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     textFontSize = chordFontSize
                 }
             }
-        } while (!cancelEvent.isCancelled && width >= displaySettings.mScreenSize.width() && textFontSize > displaySettings.mMinFontSize && chordFontSize > displaySettings.mMinFontSize)
-        if (cancelEvent.isCancelled)
+        } while (!songLoadCancelEvent.isCancelled && width >= displaySettings.mScreenSize.width() && textFontSize > displaySettings.mMinFontSize && chordFontSize > displaySettings.mMinFontSize)
+        if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
         do {
@@ -110,7 +110,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             allChordsSmallerThanText = true
             width = 0
             for (section in sections) {
-                if (cancelEvent.isCancelled)
+                if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
                 val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(proposedLargerTextFontSize).toInt(), mFont)
                 val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(proposedLargerChordFontSize).toInt(), mFont)
@@ -120,7 +120,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     allTextSmallerThanChords = false
                 width += Math.max(textWidth, chordWidth)
             }
-            if (cancelEvent.isCancelled)
+            if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             // If the text still isn't wider than the screen,
             // or it IS wider than the screen, but hasn't got any wider,
@@ -129,8 +129,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 textFontSize = proposedLargerTextFontSize
                 chordFontSize = proposedLargerChordFontSize
             }
-        } while (!cancelEvent.isCancelled && width < displaySettings.mScreenSize.width() || width == width)
-        if (cancelEvent.isCancelled)
+        } while (!songLoadCancelEvent.isCancelled && width < displaySettings.mScreenSize.width() || width == width)
+        if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
         mLineTextSize = Math.floor(textFontSize).toInt()
@@ -144,7 +144,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         mLyricHeight = mChordHeight
         var highlightColor=startingHighlightColor
         for (section in sections) {
-            if (cancelEvent.isCancelled)
+            if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, mLineTextSize, mFont)
             section.setChordFontSizeAndMeasure(paint, mChordTextSize, mFont)
@@ -157,7 +157,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             highlightColor = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), mFont, highlightColor)
         }
         mTrailingHighlightColor=highlightColor
-        if (cancelEvent.isCancelled)
+        if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
         // Word wrappin' time!
@@ -178,7 +178,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 if (mPixelSplits.size > 0)
                     lastSplitWasPixelSplit = mPixelSplits[mPixelSplits.size - 1]
                 for (sec in sections) {
-                    if (cancelEvent.isCancelled)
+                    if (songLoadCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
                     if (totalWidth > 0 && firstOnscreenSection == null)
                         firstOnscreenSection = sec
@@ -211,7 +211,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     var splitOnLetter = wordCount <= 1
                     if (!splitOnLetter) {
                         var f = wordCount - 1
-                        while (f >= 1 && !cancelEvent.isCancelled) {
+                        while (f >= 1 && !songLoadCancelEvent.isCancelled) {
                             val tryThisWithWhitespace = Utils.stitchBits(bits, f)
                             val tryThis = tryThisWithWhitespace.trim { it <= ' ' }
                             val tryThisWidth = ScreenString.getStringWidth(paint, tryThis, mFont, mLineTextSize.toFloat())
@@ -279,7 +279,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                             bits = Utils.splitIntoLetters(bothersomeSection.mLineText!!)
                             if (bits.size > 1) {
                                 var f = bits.size - 1
-                                while (f >= 1 && !cancelEvent.isCancelled) {
+                                while (f >= 1 && !songLoadCancelEvent.isCancelled) {
                                     val tryThis = Utils.stitchBits(bits, f)
                                     val tryThisWidth = ScreenString.getStringWidth(paint, tryThis, mFont, mLineTextSize.toFloat())
                                     if (tryThisWidth >= bothersomeSection.mChordTrimWidth) {
@@ -337,8 +337,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 mTextDrawn.add(textDrawn)
                 mPixelSplits.add(pixelSplit)
                 mChordsDrawn.add(chordsDrawn)
-            } while (!cancelEvent.isCancelled && bothersomeSection != null)
-            if (cancelEvent.isCancelled)
+            } while (!songLoadCancelEvent.isCancelled && bothersomeSection != null)
+            if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
         }
 
@@ -367,7 +367,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             return mXSplits.sum()
         }
 
-    private fun calculateSections(cancelEvent:CancelEvent):LineSectionList
+    private fun calculateSections(songLoadCancelEvent:SongLoadCancelEvent):LineSectionList
     {
         val sections= LineSectionList()
         var chordPositionStart = 0
@@ -376,7 +376,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             val nonChordTags = mTags.filter { it !is ChordTag }
             val chordTags = mTags.filterIsInstance<ChordTag>()
 
-            while (chordTagIndex < chordTags.size && !cancelEvent.isCancelled) {
+            while (chordTagIndex < chordTags.size && !songLoadCancelEvent.isCancelled) {
                 var chordPositionEnd = mText.length
                 if (chordTagIndex < chordTags.size - 1)
                     chordPositionEnd = chordTags[chordTagIndex + 1].position

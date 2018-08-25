@@ -12,7 +12,6 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
 import android.widget.OverScroller
 import com.stevenfrew.beatprompter.bluetooth.*
 import com.stevenfrew.beatprompter.event.*
@@ -293,16 +292,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
                 val startY = currentY
                 var firstLineOnscreen: Line? = null
-                var startOnscreen = false
-                var endOnscreen = false
                 var highlight = mHighlightCurrentLine
                 while (currentLine != null && currentY < mScreenHeight) {
                     if (currentY > mSong!!.mBeatCounterRect.height() - currentLine.mMeasurements.mLineHeight) {
-                        if (firstLineOnscreen == null) {
+                        if (firstLineOnscreen == null)
                             firstLineOnscreen = currentLine
-                            startOnscreen = currentY >= mSong!!.mBeatCounterRect.height()
-                            endOnscreen = currentY + currentLine.mMeasurements.mLineHeight <= mScreenHeight
-                        }
                         val graphics = currentLine.getGraphics()
                         val lineTop = currentY
                         for ((lineCounter, graphic) in graphics.withIndex()) {
@@ -320,9 +314,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     currentLine = currentLine.mNextLine
                     highlight = false
                 }
-                // Calculate pageup/pagedown/lineup/linedown lines
-//                if (mSong!!.mScrollMode === ScrollingMode.Manual)
-//                    calculateManualScrollingPositions(firstLineOnscreen, currentLine, currentY, startOnscreen, endOnscreen)
 
                 if (mSong!!.mScrollMode === ScrollingMode.Smooth) {
                     // If we've drawn the end of the last line, stop smooth scrolling.

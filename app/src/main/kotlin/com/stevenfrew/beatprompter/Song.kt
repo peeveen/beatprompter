@@ -13,7 +13,6 @@ class Song(val mSongFile:SongFile,val mScrollMode:ScrollingMode, val mDisplaySet
            val mStartedByBandLeader:Boolean, val mNextSong:String,
            val mSmoothScrollOffset:Int, val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString,val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line? = mLines.firstOrNull()
-    internal var mLastLine: Line? = mLines.lastOrNull()
     internal var mCurrentEvent=firstEvent // Last event that executed.
     private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false

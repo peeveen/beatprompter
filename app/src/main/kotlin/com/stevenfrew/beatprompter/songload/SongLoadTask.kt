@@ -25,7 +25,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
     private var mCancelled = false
     private val mTaskEndSemaphore = Semaphore(0)
     private var mProgressTitle = ""
-    private val mCancelEvent = CancelEvent()
+    private val mCancelEvent = SongLoadCancelEvent()
     private val mSongLoadInfo: SongLoadInfo = SongLoadInfo(selectedSong, track, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings)
     private var mProgressDialog: ProgressDialog? = null
     private val mSongLoadTaskEventHandler: SongLoadTaskEventHandler
