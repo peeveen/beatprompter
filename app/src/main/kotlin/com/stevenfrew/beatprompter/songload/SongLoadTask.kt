@@ -108,8 +108,8 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: LineSc
             val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
                     mSongLoadInfo.mTrack?.mName?:"",
                     mSongLoadInfo.mNativeDisplaySettings.mOrientation,
-                    mSongLoadInfo.mSongScrollMode === SongScrollingMode.Beat,
-                    mSongLoadInfo.mSongScrollMode === SongScrollingMode.Smooth,
+                    mSongLoadInfo.mSongScrollMode === LineScrollingMode.Beat,
+                    mSongLoadInfo.mSongScrollMode === LineScrollingMode.Smooth,
                     mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mScreenSize)

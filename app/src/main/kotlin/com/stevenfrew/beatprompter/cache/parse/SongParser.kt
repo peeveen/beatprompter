@@ -66,7 +66,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
         val beatCounterHeight =
                 // Top 5% of screen is used for beat counter
-                if (mSongLoadInfo.mSongScrollMode !== SongScrollingMode.Manual)
+                if (mSongLoadInfo.mSongScrollMode !== LineScrollingMode.Manual)
                     (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
                 else
                     0
@@ -353,9 +353,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     override fun getResult(): Song {
         var smoothScrollOffset=0
-        if (mSongLoadInfo.mSongScrollMode === SongScrollingMode.Smooth)
+        if (mSongLoadInfo.mSongScrollMode === LineScrollingMode.Smooth)
             smoothScrollOffset = Math.min(mLines.map{it.first.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
-        else if (mSongLoadInfo.mSongScrollMode === SongScrollingMode.Beat)
+        else if (mSongLoadInfo.mSongScrollMode === LineScrollingMode.Beat)
             mSongHeight -= mLines.reversed().map{it.first.mMeasurements.mLineHeight}.firstOrNull{it!=0}?:0
 
         val startScreenStrings=createStartScreenStrings()
@@ -779,7 +779,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
         }
-        if (mSongLoadInfo.mSongScrollMode !== SongScrollingMode.Manual)
+        if (mSongLoadInfo.mSongScrollMode !== LineScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
     }
