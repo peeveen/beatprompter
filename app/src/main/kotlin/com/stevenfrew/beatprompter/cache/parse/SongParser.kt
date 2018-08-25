@@ -525,9 +525,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val beatsToAdjustCount = mBeatsToAdjust
         // We have N beats to adjust.
         // For the previous N beatevents, set the BPB to the new BPB.
-        mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach{
-            it.mBPB=currentLineBeatInfo.mBPB
-        }
+        if(mBeatsToAdjust>0)
+            mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach{
+                it.mBPB=currentLineBeatInfo.mBPB
+            }
         mBeatsToAdjust = 0
 
         var currentBarBeat = 0
