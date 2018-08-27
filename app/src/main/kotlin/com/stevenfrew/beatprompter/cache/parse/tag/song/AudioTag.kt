@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.normalize
 import java.io.File
 
 @NormalizedName("audio")
@@ -31,7 +32,7 @@ class AudioTag internal constructor(name:String, lineNumber:Int, position:Int, v
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
             }
         }
-        mFilename = Utils.normalizeString(File(trackName).name)
+        mFilename = File(trackName).name.normalize()
         mVolume=volume
     }
 }

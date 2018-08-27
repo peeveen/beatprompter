@@ -276,7 +276,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                         // but the first one is enormous.
                         if (firstOnscreenSection == null) {
                             // This section starts BEFORE the left margin, so we have to split on a letter.
-                            bits = Utils.splitIntoLetters(bothersomeSection.mLineText!!)
+                            bits = bothersomeSection.mLineText!!.characters()
                             if (bits.size > 1) {
                                 var f = bits.size - 1
                                 while (f >= 1 && !songLoadCancelEvent.isCancelled) {

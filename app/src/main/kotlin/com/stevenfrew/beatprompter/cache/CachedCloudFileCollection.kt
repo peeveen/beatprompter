@@ -2,10 +2,10 @@ package com.stevenfrew.beatprompter.cache
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.midi.Alias
+import com.stevenfrew.beatprompter.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import kotlin.reflect.full.findAnnotation
@@ -104,11 +104,11 @@ class CachedCloudFileCollection {
     }
 
     fun getMappedAudioFiles(inStr: String): List<AudioFile> {
-        return audioFiles.filter{it.mNormalizedName.equals(Utils.normalizeString(inStr),ignoreCase=true)}
+        return audioFiles.filter{it.mNormalizedName.equals(inStr.normalize(),ignoreCase=true)}
     }
 
     fun getMappedImageFiles(inStr: String): List<ImageFile> {
-        return imageFiles.filter{it.mNormalizedName.equals(Utils.normalizeString(inStr),ignoreCase=true)}
+        return imageFiles.filter{it.mNormalizedName.equals(inStr.normalize(),ignoreCase=true)}
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {

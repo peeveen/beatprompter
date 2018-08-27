@@ -276,19 +276,20 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 val loadedSong = SongLoaderTask.currentSong
                         ?: return SongInterruptResult.NoSongToInterrupt
 
-                // This should never happen, but we'll check just to be sure.
+                // The first one should never happen, but we'll check just to be sure.
                 // Trying to interrupt a song with itself is pointless!
-                if (loadedSong.mSongFile.mID == songToInterruptWith.mID)
-                    return SongInterruptResult.NoSongToInterrupt
-
-                return if (mSongDisplayInstance.canYieldToExternalTrigger()) {
-                    loadedSong.mCancelled = true
-                    SongLoadTask.mSongLoadTaskOnResume = loadTask
-                    EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
-                    SongInterruptResult.CanInterrupt
-                } else {
-                    SongLoadTask.mSongLoadTaskOnResume = null
-                    SongInterruptResult.CannotInterrupt
+                return when {
+                    loadedSong.mSongFile.mID == songToInterruptWith.mID -> SongInterruptResult.NoSongToInterrupt
+                    mSongDisplayInstance.canYieldToExternalTrigger() -> {
+                        loadedSong.mCancelled = true
+                        SongLoadTask.mSongLoadTaskOnResume = loadTask
+                        EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
+                        SongInterruptResult.CanInterrupt
+                    }
+                    else -> {
+                        SongLoadTask.mSongLoadTaskOnResume = null
+                        SongInterruptResult.CannotInterrupt
+                    }
                 }
             }
             return SongInterruptResult.NoSongToInterrupt

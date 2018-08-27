@@ -74,9 +74,8 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val
     internal fun getMIDIBeatTime(beat: Int): Long {
         for (f in 0 until mNumberOfMIDIBeatBlocks) {
             val (blockStartTime, midiBeatCount, nanoPerBeat) = mBeatBlocks[f]
-            if (midiBeatCount <= beat && (f + 1 == mNumberOfMIDIBeatBlocks || mBeatBlocks[f + 1].midiBeatCount > beat)) {
+            if (midiBeatCount <= beat && (f + 1 == mNumberOfMIDIBeatBlocks || mBeatBlocks[f + 1].midiBeatCount > beat))
                 return (blockStartTime + nanoPerBeat * (beat - midiBeatCount)).toLong()
-            }
         }
         return 0
     }

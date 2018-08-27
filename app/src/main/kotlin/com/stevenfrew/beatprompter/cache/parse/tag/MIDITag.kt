@@ -4,6 +4,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.event.MIDIEvent
+import com.stevenfrew.beatprompter.looksLikeHex
 import com.stevenfrew.beatprompter.midi.*
 import java.util.ArrayList
 import kotlin.experimental.and
@@ -192,7 +193,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_underscores_in_midi_value))
                     strVal = strVal.replace('_', '0')
                     try {
-                        if (Utils.looksLikeHex(strVal)) {
+                        if (strVal.looksLikeHex()) {
                             val channelValue = Utils.parseHexByte(strVal)
                             if (channelValue and 0x0F != 0.toByte())
                                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
@@ -205,7 +206,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                     }
 
                 }
-                Utils.looksLikeHex(strVal) -> try {
+                strVal.looksLikeHex() -> try {
                     return CommandValue(Utils.parseHexByte(strVal))
                 } catch (nfe: NumberFormatException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))

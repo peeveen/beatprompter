@@ -83,5 +83,4 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
     fun hasText(): Boolean {
         return mLineText != null && mLineText!!.trim().isNotEmpty()
     }
-
 }

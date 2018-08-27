@@ -14,9 +14,9 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
             return 0
         if (pixelPosition >= mSongPixelPosition && pixelPosition < mSongPixelPosition + mMeasurements.mPixelsToTimes.size)
             return mMeasurements.mPixelsToTimes[pixelPosition - mSongPixelPosition]
-        else if (pixelPosition < mSongPixelPosition && mPrevLine != null)
+        if (pixelPosition < mSongPixelPosition && mPrevLine != null)
             return mPrevLine!!.getTimeFromPixel(pixelPosition)
-        else if (pixelPosition >= mSongPixelPosition + mMeasurements.mPixelsToTimes.size && mNextLine != null)
+        if (pixelPosition >= mSongPixelPosition + mMeasurements.mPixelsToTimes.size && mNextLine != null)
             return mNextLine!!.getTimeFromPixel(pixelPosition)
         return mMeasurements.mPixelsToTimes[mMeasurements.mPixelsToTimes.size - 1]
     }
@@ -30,9 +30,9 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
 
         if (time in mLineTime..(lineEndTime - 1))
             return calculatePixelFromTime(time)
-        else if (time < mLineTime && mPrevLine != null)
+        if (time < mLineTime && mPrevLine != null)
             return mPrevLine!!.getPixelFromTime(time)
-        else if (time >= lineEndTime && mNextLine != null)
+        if (time >= lineEndTime && mNextLine != null)
             return mNextLine!!.getPixelFromTime(time)
         return mSongPixelPosition + mMeasurements.mPixelsToTimes.size
     }

@@ -43,7 +43,10 @@ internal class Playlist {
 
     private fun buildSongList(songs: List<SongFile>) {
         mItems.clear()
-        for (sf in songs)
-            mItems.add(PlaylistNode(sf,mItems.lastOrNull()))
+        for (sf in songs) {
+            val node=PlaylistNode(sf)
+            mItems.lastOrNull()?.mNextNode=node
+            mItems.add(node)
+        }
     }
 }

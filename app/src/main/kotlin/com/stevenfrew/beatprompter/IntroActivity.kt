@@ -25,13 +25,14 @@ class IntroActivity : AppIntro() {
         // Just set a title, description, background and image. AppIntro will do the rest.
         val backgroundColor = Color.parseColor("#CCCCCC")
 
-        for(page in pageInfo)
+        pageInfo.forEach {
             addSlide(AppIntroFragment.newInstance(SliderPage().apply {
-                title = BeatPrompterApplication.getResourceString(page.caption)
-                description = BeatPrompterApplication.getResourceString(page.description)
-                imageDrawable = page.image
+                title = BeatPrompterApplication.getResourceString(it.caption)
+                description = BeatPrompterApplication.getResourceString(it.description)
+                imageDrawable = it.image
                 bgColor = backgroundColor
             }))
+        }
 
         // OPTIONAL METHODS
         // Override bar/separator color.

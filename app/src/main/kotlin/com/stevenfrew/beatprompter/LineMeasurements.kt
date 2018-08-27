@@ -15,14 +15,12 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
         mPixelsToTimes[0] = lineTime
         for (f in 1 until mLineHeight) {
             val linePercentage = f.toDouble() / mLineHeight.toDouble()
-            if (lineScrollMode == LineScrollingMode.Beat) {
-                val sineLookup = (90.0 * linePercentage).toInt()
-                val sineTimeDiff = (timeDiff * Utils.mSineLookup[sineLookup]).toLong()
-                mPixelsToTimes[f] = yStartScrollTime + sineTimeDiff
-            } else {
-                val pixelTimeDiff = (linePercentage * timeDiff.toDouble()).toLong()
-                mPixelsToTimes[f] = yStartScrollTime + pixelTimeDiff
-            }
+            val diff=
+                if (lineScrollMode == LineScrollingMode.Beat)
+                    (timeDiff * Utils.mSineLookup[(90.0 * linePercentage).toInt()]).toLong()
+                else
+                    (linePercentage * timeDiff.toDouble()).toLong()
+            mPixelsToTimes[f] = yStartScrollTime + diff
         }
     }
 }

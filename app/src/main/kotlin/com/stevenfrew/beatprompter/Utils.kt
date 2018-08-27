@@ -85,10 +85,6 @@ object Utils {
         return strIn.split(Regex("(?<=[ -])|(?=[ -])"))
     }
 
-    fun splitIntoLetters(str: String): List<String> {
-        return str.toCharArray().map{it.toString()}
-    }
-
     fun parseDuration(str: String, trackLengthAllowed: Boolean): Long {
         if (str.equals("track", ignoreCase = true) && trackLengthAllowed)
             return Utils.TRACK_AUDIO_LENGTH_VALUE
@@ -129,17 +125,8 @@ object Utils {
         FileWriter(file.absolutePath, true).use { fw -> BufferedWriter(fw).use { bw -> PrintWriter(bw).use { out -> out.println(str) } } }
     }
 
-    private fun stripHexSignifiers(strIn: String): String {
-        val str = strIn.toLowerCase()
-        if (str.startsWith("0x"))
-            return str.substringAfter("0x")
-        else if (str.endsWith("h"))
-            return str.substring(0, str.length - 1)
-        return str
-    }
-
     fun parseHexByte(str: String): Byte {
-        return parseByte(stripHexSignifiers(str), 16)
+        return parseByte(str.stripHexSignifiers(), 16)
     }
 
     fun parseByte(str: String): Byte {
@@ -149,21 +136,5 @@ object Utils {
     private fun parseByte(str: String, radix: Int): Byte {
         val byteVal = str.toInt(radix)
         return (byteVal and 0x000000FF).toByte()
-    }
-
-    fun looksLikeHex(strIn: String?): Boolean {
-        if(strIn==null)
-            return false
-        val strippedString= stripHexSignifiers(strIn.toLowerCase())
-        // Hex values for this app are two-chars long, max.
-        return strippedString.matches(Regex("[0-9a-f]{1,2}"))
-    }
-
-    /**
-     * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
-     * Also remove any stupid BOF character
-     */
-    fun normalizeString(strIn: String): String {
-        return strIn.replace('’', '\'').replace("\uFEFF", "").toLowerCase()
     }
 }

@@ -25,10 +25,9 @@ class Comment internal constructor(var mText: String, audience: List<String>, sc
         mTextDrawLocation = PointF(textX, textY)
     }
 
-    fun isIntendedFor(audience: String?): Boolean {
-        return (commentAudience.isEmpty()) ||
-                (audience == null) ||
-                (audience.isBlank()) ||
-                audience.toLowerCase().split(",".toRegex()).dropWhile { it.trim().isEmpty() }.intersect(commentAudience).any()
+    fun isIntendedFor(audience: String): Boolean {
+        return commentAudience.isEmpty() ||
+                audience.isBlank() ||
+                audience.toLowerCase().splitAndTrim(",").intersect(commentAudience).any()
     }
 }

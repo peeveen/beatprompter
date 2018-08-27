@@ -1,15 +1,15 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.filter.SetListMatch
+import com.stevenfrew.beatprompter.normalize
 
 class SetListEntry(line: String) {
     private val mTitle:String
     private val mArtist:String
 
     constructor(songFile:SongFile):this(songFile.mTitle,songFile.mArtist)
-    constructor(title:String,artist:String):this(Utils.normalizeString(title)+ SET_LIST_ENTRY_DELIMITER+Utils.normalizeString(artist))
+    constructor(title:String,artist:String):this(title.normalize()+ SET_LIST_ENTRY_DELIMITER+artist.normalize())
 
     init {
         val bits=line.split(SET_LIST_ENTRY_DELIMITER)
