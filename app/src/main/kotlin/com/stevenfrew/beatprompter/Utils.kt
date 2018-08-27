@@ -93,7 +93,7 @@ object Utils {
             return Math.floor(totalsecs * 1000.0).toLong()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
-            val bits=str.split(":")
+            val bits=str.splitAndTrim(":")
             if (bits.size==2)
             {
                 val mins = bits[0].toInt()

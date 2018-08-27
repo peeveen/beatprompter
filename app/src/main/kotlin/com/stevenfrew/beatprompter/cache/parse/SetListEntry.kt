@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.filter.SetListMatch
 import com.stevenfrew.beatprompter.normalize
+import com.stevenfrew.beatprompter.splitAndTrim
 
 class SetListEntry(line: String) {
     private val mTitle:String
@@ -12,13 +13,13 @@ class SetListEntry(line: String) {
     constructor(title:String,artist:String):this(title.normalize()+ SET_LIST_ENTRY_DELIMITER+artist.normalize())
 
     init {
-        val bits=line.split(SET_LIST_ENTRY_DELIMITER)
+        val bits=line.splitAndTrim(SET_LIST_ENTRY_DELIMITER)
         if(bits.size>1) {
-            mTitle = bits[0].trim()
-            mArtist = bits[1].trim()
+            mTitle = bits[0]
+            mArtist = bits[1]
         }
         else {
-            mTitle = line.trim()
+            mTitle = line
             mArtist=""
         }
     }

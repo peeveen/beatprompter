@@ -125,7 +125,7 @@ object MIDIController:SharedPreferences.OnSharedPreferenceChangeListener {
     private fun attemptUsbMidiConnection() {
         val list = mUsbManager!!.deviceList
         if (list != null && list.size > 0) {
-            val devObjs = list.values.toTypedArray()
+            val devObjs = list.values
             for (devObj in devObjs) {
                 val dev = devObj as UsbDevice
                 if (getDeviceMidiInterface(dev) != null) {

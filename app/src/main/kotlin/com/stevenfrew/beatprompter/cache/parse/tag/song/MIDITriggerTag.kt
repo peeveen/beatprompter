@@ -5,14 +5,13 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.splitAndTrim
 
 open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,position:Int,triggerDescriptor:String,type: TriggerType): MIDITag(name,lineNumber,position,triggerDescriptor) {
     val mTrigger:SongTrigger
 
     init {
-        val bits = triggerDescriptor.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        for (f in bits.indices)
-            bits[f] = bits[f].trim()
+        val bits = triggerDescriptor.splitAndTrim(",")
         var msb: Value = WildcardValue()
         var lsb: Value = WildcardValue()
         var channel: Value = WildcardValue()

@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
+import com.stevenfrew.beatprompter.splitAndTrim
 
 class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor) {
 
@@ -33,11 +34,11 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
 
     override fun parseTag(text: String, lineNumber: Int, position: Int): Tag {
         val txt=text.trim('{','}')
-        val bits=txt.split(':')
+        val bits=txt.splitAndTrim(":")
         if(bits.size==2)
         {
-            val tagName=bits[0].trim()
-            val tagValue=bits[1].trim()
+            val tagName=bits[0]
+            val tagValue=bits[1]
             when(tagName)
             {
                 "set"->return SetNameTag(tagName,lineNumber,position,tagValue)

@@ -11,6 +11,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructio
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
 import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.splitAndTrim
 import java.util.ArrayList
 
 class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor) {
@@ -82,7 +83,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
         val instructions=tag.mInstructions
         val name=tag.mName
         val componentArgs = ArrayList<Value>()
-        val paramBits = instructions.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val paramBits = instructions.splitAndTrim(",")
         for ((paramCounter, paramBit) in paramBits.withIndex()) {
             val aliasValue = MIDITag.parseValue(paramBit, paramCounter, paramBits.size)
             componentArgs.add(aliasValue)
@@ -105,10 +106,10 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
 
     override fun parseTag(text: String, lineNumber: Int, position: Int): Tag {
         val txt=text.trim('{','}')
-        val bits=txt.split(':')
+        val bits=txt.splitAndTrim(":")
         return if(bits.size==2) {
-            val tagName=bits[0].trim()
-            val tagValue=bits[1].trim()
+            val tagName=bits[0]
+            val tagValue=bits[1]
             when(tagName) {
                 "midi_aliases"-> MIDIAliasSetNameTag(tagName,lineNumber,position,tagValue)
                 "midi_alias"-> MIDIAliasNameTag(tagName,lineNumber,position,tagValue)

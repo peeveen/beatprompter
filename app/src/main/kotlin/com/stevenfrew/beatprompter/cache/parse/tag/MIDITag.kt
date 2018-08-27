@@ -1,10 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse.tag
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.event.MIDIEvent
-import com.stevenfrew.beatprompter.looksLikeHex
 import com.stevenfrew.beatprompter.midi.*
 import java.util.ArrayList
 import kotlin.experimental.and
@@ -18,25 +15,25 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
         if (tagValue.isEmpty()) {
             // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
             if (name.contains(";")) {
-                val bits = name.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val bits = name.splitAndTrim(";")
                 if (bits.size > 2)
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
                 if (bits.size > 1) {
-                    eventOffset = parseMIDIEventOffset(bits[1].trim())
-                    name = bits[0].trim()
+                    eventOffset = parseMIDIEventOffset(bits[1])
+                    name = bits[0]
                 }
             }
         } else {
-            val firstSplitBits = tagValue.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val firstSplitBits = tagValue.splitAndTrim(";")
             if (firstSplitBits.size > 1) {
                 if (firstSplitBits.size > 2)
                     throw MalformedTagException( BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
-                tagValue = firstSplitBits[0].trim()
-                eventOffset = parseMIDIEventOffset(firstSplitBits[1].trim())
+                tagValue = firstSplitBits[0]
+                eventOffset = parseMIDIEventOffset(firstSplitBits[1])
             }
         }
-        val bits = if (tagValue.isEmpty()) arrayOf() else tagValue.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        var paramBytes = bits.map { bit -> parseValue(bit.trim()) }
+        val bits = if (tagValue.isEmpty()) listOf() else tagValue.splitAndTrim(",")
+        var paramBytes = bits.map { bit -> parseValue(bit) }
         var lastParamIsChannel = false
         var channel = defaultChannel
         for (f in paramBytes.indices)
@@ -112,14 +109,14 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             if (bracketEnd != -1) {
                 val contents = line.substring(bracketStart + 1, bracketEnd - bracketStart).trim().toLowerCase()
                 if (contents.isNotEmpty()) {
-                    val bits = contents.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    val bits = contents.splitAndTrim(":")
                     val componentArgs = ArrayList<Value>()
-                    val tagName = bits[0].trim()
+                    val tagName = bits[0]
                     if (bits.size > 2)
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_message_contains_more_than_two_parts))
                     else if (bits.size > 1) {
-                        val params = bits[1].trim()
-                        val paramBits = params.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                        val params = bits[1]
+                        val paramBits = params.splitAndTrim(",")
                         for ((paramCounter, paramBit) in paramBits.withIndex()) {
                             val aliasValue = parseValue(paramBit, paramCounter, paramBits.size)
                             componentArgs.add(aliasValue)
