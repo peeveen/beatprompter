@@ -105,7 +105,8 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: LineSc
         if (interruptResult === SongInterruptResult.NoSongToInterrupt) {
 
             // Create a bluetooth song-selection message to broadcast to other listeners.
-            val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mTitle,
+            val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mNormalizedTitle,
+                    mSongLoadInfo.mSongFile.mNormalizedArtist,
                     mSongLoadInfo.mTrack?.mName?:"",
                     mSongLoadInfo.mNativeDisplaySettings.mOrientation,
                     mSongLoadInfo.mSongScrollMode === LineScrollingMode.Beat,

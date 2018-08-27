@@ -28,6 +28,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScal
 
     override fun recycleGraphics() {
         mBitmap.recycle()
+        super.recycleGraphics()
     }
 
     companion object {

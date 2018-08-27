@@ -218,10 +218,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(sensorEvent: SensorEvent) {
         if (mScrollOnProximity)
-            if (mSongView != null) {
-                val eventTime = sensorEvent.timestamp
-                activateOtherPageDown(eventTime)
-            }
+            if (mSongView != null)
+                activateOtherPageDown(sensorEvent.timestamp)
     }
 
     private fun activateOtherPageDown(eventTime: Long) {

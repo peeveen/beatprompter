@@ -38,13 +38,8 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
     }
 
     private fun calculatePixelFromTime(time: Long): Int {
-        var last = mSongPixelPosition
-        for (n in mMeasurements.mPixelsToTimes) {
-            if (n > time)
-                return last
-            last++
-        }
-        return last
+        // TODO: binary search would be faster
+        return mSongPixelPosition+(mMeasurements.mPixelsToTimes.withIndex().lastOrNull{it.value<time}?.index?:0)
     }
 
     internal fun allocateGraphic(graphic: LineGraphic) {

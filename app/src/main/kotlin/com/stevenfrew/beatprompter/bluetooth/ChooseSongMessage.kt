@@ -8,32 +8,22 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-class ChooseSongMessage constructor(title: String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect): BluetoothMessage() {
-
-    var mTitle=title
-    var mTrack=track
-    var mBeatScroll=beatScroll
-    var mSmoothScroll=smoothScroll
-    var mOrientation=orientation
-    var mMinFontSize=minFontSize
-    var mMaxFontSize=maxFontSize
-    var mScreenWidth=screenSize.width()
-    var mScreenHeight=screenSize.height()
-
+class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalizedArtist:String, val mTrack: String, val mOrientation: Int, val mBeatScroll: Boolean, val mSmoothScroll: Boolean, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect): BluetoothMessage() {
     override val bytes: ByteArray
         get() {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
                 ObjectOutputStream(this).apply {
-                    writeObject(mTitle)
+                    writeObject(mNormalizedTitle)
+                    writeObject(mNormalizedArtist)
                     writeObject(mTrack)
                     writeBoolean(mBeatScroll)
                     writeBoolean(mSmoothScroll)
                     writeInt(mOrientation)
                     writeFloat(mMinFontSize)
                     writeFloat(mMaxFontSize)
-                    writeInt(mScreenWidth)
-                    writeInt(mScreenHeight)
+                    writeInt(mScreenSize.width())
+                    writeInt(mScreenSize.height())
                     flush()
                     close()
                 }
@@ -52,6 +42,7 @@ class ChooseSongMessage constructor(title: String, track: String, orientation: I
                         val availableStart = available()
                         ObjectInputStream(this).apply {
                             val title = readObject() as String
+                            val artist = readObject() as String
                             val track = readObject() as String
                             val beatScroll = readBoolean()
                             val smoothScroll = readBoolean()
@@ -63,7 +54,7 @@ class ChooseSongMessage constructor(title: String, track: String, orientation: I
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return IncomingBluetoothMessage(ChooseSongMessage(title,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,Rect(0,0,screenWidth,screenHeight)),messageLength)
+                            return IncomingBluetoothMessage(ChooseSongMessage(title,artist,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,Rect(0,0,screenWidth,screenHeight)),messageLength)
                         }
                     }
                 }

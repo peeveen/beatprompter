@@ -660,7 +660,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                     try {
                         val jo = JSONObject(purchaseData)
                         val sku = jo.getString("productId")
-                        mFullVersionUnlocked = mFullVersionUnlocked or sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
+                        mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
                         Toast.makeText(this@SongList, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
                         Log.e(BeatPrompterApplication.TAG, "JSON exception during purchase.")
@@ -1043,9 +1043,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     fun processBluetoothMessage(btm: BluetoothMessage) {
         if (btm is ChooseSongMessage) {
-            val title = btm.mTitle
-            val track = btm.mTrack
-
             val beat = btm.mBeatScroll
             val smooth = btm.mSmoothScroll
             val scrollingMode = if (beat) LineScrollingMode.Beat else if (smooth) LineScrollingMode.Smooth else LineScrollingMode.Manual
@@ -1060,8 +1057,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             val sourceSettings = if (mimicDisplay) SongDisplaySettings(btm) else nativeSettings
 
             for (sf in mCachedCloudFiles.songFiles)
-                if (sf.mTitle == title) {
-                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(track).firstOrNull(), scrollingMode, "", true,
+                if (sf.mNormalizedTitle == btm.mNormalizedTitle && sf.mNormalizedArtist==btm.mNormalizedArtist) {
+                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(btm.mTrack).firstOrNull(), scrollingMode, "", true,
                             false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
                     SongDisplayActivity.interruptCurrentSong(loadTask, sf)
                     break

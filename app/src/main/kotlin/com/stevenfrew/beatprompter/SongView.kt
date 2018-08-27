@@ -936,9 +936,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mStartState !== PlayState.Playing) {
             if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeThePageDown()
-        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             changeThePageDown()
-        } else
+        else
             changeVolume(+5)
     }
 
@@ -953,12 +953,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun changeTheLineDown() {
-        if (mSongPixelPosition == mSongScrollEndPixel) {
+        if (mSongPixelPosition == mSongScrollEndPixel)
             if (++mEndSongByPedalCounter == SONG_END_PEDAL_PRESSES)
                 endSong(false)
             else
                 mLastTempMessageTime = System.nanoTime()
-        } else
+        else
             changeLine(true)
     }
 
@@ -966,9 +966,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mStartState !== PlayState.Playing) {
             if (!startToggle(null, false) && mSong!!.mScrollMode === SongScrollingMode.Manual)
                 changeTheLineDown()
-        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
+        } else if (mSong!!.mScrollMode === SongScrollingMode.Manual)
             changeTheLineDown()
-        } else
+        else
             changeVolume(+5)
     }
 
