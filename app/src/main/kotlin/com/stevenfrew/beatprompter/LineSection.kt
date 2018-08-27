@@ -7,7 +7,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 
 class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
-    var mNextSection: LineSection? = null
     var mTextWidth = 0
     var mChordWidth = 0
     var mChordTrimWidth = 0

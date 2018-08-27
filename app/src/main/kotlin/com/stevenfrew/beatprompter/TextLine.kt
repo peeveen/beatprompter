@@ -11,7 +11,6 @@ class TextLine internal constructor(private val mText: String, private val mTags
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
     private var mLyricHeight: Int = 0
-    private var mFirstLineSection: LineSection? = null
     private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     private val mXSplits = mutableListOf<Int>()
     private val mLineWidths = mutableListOf<Int>()
@@ -23,6 +22,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
     private val mLyricColor:Int
     private val mChordColor:Int
     private val mAnnotationColor:Int
+    private val mSections:List<LineSection>
     var mTrailingHighlightColor:Int?=null
     override val mMeasurements:LineMeasurements
 
@@ -33,7 +33,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
         mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
         // TODO: Fix this, for god's sake!
-        val sections = calculateSections(songLoadCancelEvent)
+        mSections = calculateSections(songLoadCancelEvent)
 
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
@@ -41,7 +41,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         // we have the sections, now fit 'em
         // Start with an arbitrary size
         val longestBits = StringBuilder()
-        for (section in sections) {
+        for (section in mSections) {
             if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, 100, mFont)
@@ -66,7 +66,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             allChordsSmallerThanText = true
             textExists = false
             width = 0
-            for (section in sections) {
+            for (section in mSections) {
                 if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
                 textExists = textExists or (section.mLineText!!.isNotEmpty())
@@ -109,7 +109,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             allTextSmallerThanChords = true
             allChordsSmallerThanText = true
             width = 0
-            for (section in sections) {
+            for (section in mSections) {
                 if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
                 val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(proposedLargerTextFontSize).toInt(), mFont)
@@ -143,7 +143,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         mChordHeight = 0
         mLyricHeight = mChordHeight
         var highlightColor=startingHighlightColor
-        for (section in sections) {
+        for (section in mSections) {
             if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, mLineTextSize, mFont)
@@ -177,7 +177,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 var lastSplitWasPixelSplit = false
                 if (mPixelSplits.size > 0)
                     lastSplitWasPixelSplit = mPixelSplits[mPixelSplits.size - 1]
-                for (sec in sections) {
+                for (sec in mSections) {
                     if (songLoadCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
                     if (totalWidth > 0 && firstOnscreenSection == null)
@@ -367,9 +367,9 @@ class TextLine internal constructor(private val mText: String, private val mTags
             return mXSplits.sum()
         }
 
-    private fun calculateSections(songLoadCancelEvent:SongLoadCancelEvent):LineSectionList
+    private fun calculateSections(songLoadCancelEvent:SongLoadCancelEvent):List<LineSection>
     {
-        val sections= LineSectionList()
+        val sections=mutableListOf<LineSection>()
         var chordPositionStart = 0
         var chordTagIndex = -1
         run {
@@ -412,7 +412,6 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 }
                 chordTagIndex++
             }
-            mFirstLineSection=sections.firstOrNull()
             return sections
         }
     }
@@ -438,33 +437,33 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 paint.typeface = mFont
                 c.drawColor(0x0000ffff, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > f) mXSplits[f] else Integer.MAX_VALUE
-                var section = mFirstLineSection
-                while (section != null && currentX < xSplit) {
-                    val width = section.width
-                    if (currentX + width > 0) {
-                        if (chordsDrawn && (section.mChordDrawLine == f || section.mChordDrawLine == -1) && currentX < xSplit && section.mChordText!!.trim { it <= ' ' }.isNotEmpty()) {
-                            paint.color = if (section.mTrueChord) mChordColor else mAnnotationColor
-                            paint.textSize = mChordTextSize * Utils.FONT_SCALING
-                            paint.flags = Paint.ANTI_ALIAS_FLAG
-                            c.drawText(section.mChordText!!, currentX.toFloat(), mChordHeight.toFloat(), paint)
+                mSections.forEach {
+                    while (currentX < xSplit) {
+                        val width = it.width
+                        if (currentX + width > 0) {
+                            if (chordsDrawn && (it.mChordDrawLine == f || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText!!.trim().isNotEmpty()) {
+                                paint.color = if (it.mTrueChord) mChordColor else mAnnotationColor
+                                paint.textSize = mChordTextSize * Utils.FONT_SCALING
+                                paint.flags = Paint.ANTI_ALIAS_FLAG
+                                c.drawText(it.mChordText!!, currentX.toFloat(), mChordHeight.toFloat(), paint)
+                            }
+                            c.save()
+                            if (xSplit != Integer.MAX_VALUE)
+                                c.clipRect(0, 0, xSplit, thisLineHeight)
+                            if (it.mLineText!!.trim().isNotEmpty()) {
+                                paint.color = mLyricColor
+                                paint.textSize = mLineTextSize * Utils.FONT_SCALING
+                                paint.flags = Paint.ANTI_ALIAS_FLAG
+                                c.drawText(it.mLineText!!, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
+                            }
+                            for ((left, _, right, _, color) in it.mHighlightingRectangles) {
+                                paint.color = color
+                                c.drawRect(Rect(left + currentX, if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0, right + currentX, (if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight + mLineDescenderOffset), paint)
+                            }
+                            c.restore()
                         }
-                        c.save()
-                        if (xSplit != Integer.MAX_VALUE)
-                            c.clipRect(0, 0, xSplit, thisLineHeight)
-                        if (section.mLineText!!.trim().isNotEmpty()) {
-                            paint.color = mLyricColor
-                            paint.textSize = mLineTextSize * Utils.FONT_SCALING
-                            paint.flags = Paint.ANTI_ALIAS_FLAG
-                            c.drawText(section.mLineText!!, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
-                        }
-                        for ((left, _, right, _, color) in section.mHighlightingRectangles) {
-                            paint.color = color
-                            c.drawRect(Rect(left + currentX, if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0, right + currentX, (if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight + mLineDescenderOffset), paint)
-                        }
-                        c.restore()
+                        currentX += width
                     }
-                    section = section.mNextSection
-                    currentX += width
                 }
                 graphic.mLastDrawnLine = this
             }
