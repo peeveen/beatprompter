@@ -12,8 +12,8 @@ class ImageFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDesc
         val options = BitmapFactory.Options()
         try {
             val bitmap=BitmapFactory.decodeFile(mCachedCloudFileDescriptor.mFile.absolutePath, options)
-                    ?: throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mCachedCloudFileDescriptor.mName)
-            return ImageFile(mCachedCloudFileDescriptor,bitmap.width,bitmap.height)
+            if(bitmap!=null)
+                return ImageFile(mCachedCloudFileDescriptor,bitmap.width,bitmap.height)
         } catch (e: Exception) {
             // Not bothered about what the exception is. File is obviously shite.
         }
