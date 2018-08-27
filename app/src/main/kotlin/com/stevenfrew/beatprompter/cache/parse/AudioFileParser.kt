@@ -14,7 +14,6 @@ class AudioFileParser constructor(cachedCloudFileDescriptor:CachedCloudFileDescr
             val mmr = MediaMetadataRetriever()
             mmr.setDataSource(mCachedCloudFileDescriptor.mFile.absolutePath)
             val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             if (data != null)
                 return AudioFile(mCachedCloudFileDescriptor,data.toInt())
         } catch (e: Exception) {
