@@ -27,7 +27,7 @@ class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>) : ArrayAdapt
         val titleView = rowView.findViewById<TextView>(R.id.alias_file_name)
         val errorIcon = rowView.findViewById<ImageView>(R.id.erroricon)
         val maf = values[position]
-        if (maf.mErrors.size == 0)
+        if (maf.mErrors.isEmpty())
             errorIcon.visibility = View.GONE
         titleView.text = maf.mAliasSet.name
         return rowView

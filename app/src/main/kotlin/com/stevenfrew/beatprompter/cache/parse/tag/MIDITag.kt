@@ -33,25 +33,25 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             }
         }
         val bits = if (tagValue.isEmpty()) listOf() else tagValue.splitAndTrim(",")
-        var paramBytes = bits.map { bit -> parseValue(bit) }
+        var paramValues = bits.map { bit -> parseValue(bit) }
         var lastParamIsChannel = false
         var channel = defaultChannel
-        for (f in paramBytes.indices)
-            if (paramBytes[f] is ChannelValue)
-                if (f == paramBytes.size - 1)
+        for (f in paramValues.indices)
+            if (paramValues[f] is ChannelValue)
+                if (f == paramValues.size - 1)
                     lastParamIsChannel = true
                 else
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
         try {
             if (lastParamIsChannel) {
-                val lastParam = paramBytes[paramBytes.size - 1] as ChannelValue
+                val lastParam = paramValues[paramValues.size - 1] as ChannelValue
                 channel = lastParam.resolve()
-                val paramBytesWithoutChannel = paramBytes.subList(0, paramBytes.size - 1)
-                paramBytes = paramBytesWithoutChannel
+                val paramBytesWithoutChannel = paramValues.subList(0, paramValues.size - 1)
+                paramValues = paramBytesWithoutChannel
             }
-            val resolvedBytes = ByteArray(paramBytes.size)
-            for (f in paramBytes.indices)
-                resolvedBytes[f] = paramBytes[f].resolve()
+            val resolvedBytes = ByteArray(paramValues.size)
+            for (f in paramValues.indices)
+                resolvedBytes[f] = paramValues[f].resolve()
             for (alias in aliases)
                 if (alias.mName.equals(name, ignoreCase = true)) {
                     return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset)
@@ -122,7 +122,6 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                             componentArgs.add(aliasValue)
                         }
                     }
-
                     return if (tagName.equals("midi_send", ignoreCase = true))
                         SimpleAliasComponent(componentArgs)
                     else
@@ -139,16 +138,6 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
         @Throws(MalformedTagException::class)
         fun parseValue(strVal: String): Value {
             return parseValue(strVal, 0, 1)
-        }
-
-        @Throws(MalformedTagException::class)
-        fun parseChannelValue(channelValStr: String): Value {
-            var strVal = channelValStr
-            if (!strVal.isEmpty())
-                if (!strVal.startsWith("*"))
-                    if (!strVal.startsWith("#"))
-                        strVal = "#$strVal"
-            return parseValue(strVal,0,1)
         }
 
         @Throws(MalformedTagException::class)

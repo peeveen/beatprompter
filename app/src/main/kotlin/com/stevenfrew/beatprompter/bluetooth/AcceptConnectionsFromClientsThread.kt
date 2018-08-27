@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
-import android.bluetooth.BluetoothSocket
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.IOException
