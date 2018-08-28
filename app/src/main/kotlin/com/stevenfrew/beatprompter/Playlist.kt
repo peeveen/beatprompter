@@ -10,7 +10,7 @@ internal class Playlist {
             return mItems.map{it.mSongFile}
         }
 
-    val nodesAsArray: List<PlaylistNode>
+    val nodes: List<PlaylistNode>
         get() = mItems
 
     constructor() {

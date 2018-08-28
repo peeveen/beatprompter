@@ -62,7 +62,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private var mSortingPreference = SortingPreference.Title
     private var mPlaylist = Playlist()
     private var mNowPlayingNode: PlaylistNode? = null
-    private var mFilters = mutableListOf<Filter>()
+    private var mFilters = listOf<Filter>()
     private var mTemporarySetListFilter: TemporarySetListFilter? = null
     private var mListAdapter: BaseAdapter? = null
 
@@ -77,8 +77,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             mIAPService = null
         }
 
-        override fun onServiceConnected(name: ComponentName,
-                                        service: IBinder) {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
             mIAPService = IInAppBillingService.Stub.asInterface(service)
             fullVersionUnlocked()
         }
@@ -92,7 +91,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             } catch (ignored: Exception) {
                 SortingPreference.Title
             }
-
         }
         set(pref) {
             BeatPrompterApplication.preferences.edit().putString("pref_sorting", pref.name).apply()
@@ -124,15 +122,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             val maf = mCachedCloudFiles.midiAliasFiles[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
-        } else {
+        } else if (!SongLoadTask.songCurrentlyLoading())
             // Don't allow another song to be started from the song list (by clicking)
             // if one is already loading. The only circumstances this is allowed is via
             // MIDI triggers.
-            if (!SongLoadTask.songCurrentlyLoading()) {
-                val selectedNode = mPlaylist.getNodeAt(position)
-                playPlaylistNode(selectedNode, false)
-            }
-        }
+            playPlaylistNode(mPlaylist.getNodeAt(position), false)
     }
 
     internal fun startSongActivity() {
@@ -150,7 +144,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
-        for (node in mPlaylist.nodesAsArray)
+        for (node in mPlaylist.nodes)
             if (node.mSongFile.matchesTrigger(mst)) {
                 playPlaylistNode(node, true)
                 return
@@ -158,9 +152,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         // Otherwise, it might be a song that is not currently onscreen.
         // Still play it though!
         for (sf in mCachedCloudFiles.songFiles)
-            if (sf.matchesTrigger(mst)) {
+            if (sf.matchesTrigger(mst))
                 playSongFile(sf, null, true)
-            }
     }
 
     private fun playPlaylistNode(node: PlaylistNode?, startedByMidiTrigger: Boolean) {
@@ -169,16 +162,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        var track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty()) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
-        var beatScroll = selectedSong.mIsBeatScrollable
-        var smoothScroll = selectedSong.mIsSmoothScrollable
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val manualMode = sharedPrefs.getBoolean(getString(R.string.pref_manualMode_key), false)
-        if (manualMode) {
-            smoothScroll = false
-            beatScroll = smoothScroll
-            track = null
-        }
+        val manualMode = BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_manualMode_key), false)
+        val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
+        val beatScroll = selectedSong.mIsBeatScrollable && !manualMode
+        val smoothScroll = selectedSong.mIsSmoothScrollable && !manualMode
         val scrollingMode = if (beatScroll) LineScrollingMode.Beat else if (smoothScroll) LineScrollingMode.Smooth else LineScrollingMode.Manual
         val sds = getSongDisplaySettings(scrollingMode)
         playSong(node, selectedSong, track, scrollingMode, startedByMidiTrigger, sds, sds)
@@ -266,7 +253,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (ioe: Exception) {
             Log.e(BeatPrompterApplication.TAG, ioe.message)
         }
-
     }
 
     private fun addToTemporarySet(song: SongFile) {
@@ -277,7 +263,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (ioe: IOException) {
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }
-
     }
 
     private fun initialiseTemporarySetListFile(deleteExisting: Boolean) {
@@ -290,7 +275,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (ioe: IOException) {
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }
-
     }
 
     private fun onSongListLongClick(position: Int) {
@@ -300,31 +284,30 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val trackNames = mutableListOf<String>()
         trackNames.add(getString(R.string.no_audio))
         trackNames.addAll(selectedSong.mAudioFiles)
-        var addAllowed = false
-        if (mTemporarySetListFilter != null) {
-            if (mSelectedFilter !== mTemporarySetListFilter)
-                if (!mTemporarySetListFilter!!.containsSong(selectedSong))
-                    addAllowed = true
-        } else
-            addAllowed = true
+        val addAllowed=
+            if (mTemporarySetListFilter != null)
+                if (mSelectedFilter !== mTemporarySetListFilter)
+                    !mTemporarySetListFilter!!.containsSong(selectedSong)
+                else
+                    false
+            else
+                true
         val includeRefreshSet = selectedSet != null && mSelectedFilter !== mTemporarySetListFilter
         val includeClearSet = mSelectedFilter === mTemporarySetListFilter
         val activity = this
 
         val arrayID: Int
-        arrayID = if (includeRefreshSet) {
+        arrayID = if (includeRefreshSet)
             if (addAllowed)
                 R.array.song_options_array_with_refresh_and_add
             else
                 R.array.song_options_array_with_refresh
-        } else if (includeClearSet) {
+        else if (includeClearSet)
             R.array.song_options_array_with_clear
-        } else {
-            if (addAllowed)
-                R.array.song_options_array_with_add
-            else
-                R.array.song_options_array
-        }
+        else if (addAllowed)
+            R.array.song_options_array_with_add
+        else
+            R.array.song_options_array
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.song_options)
@@ -445,10 +428,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private fun onMIDIAliasListLongClick(position: Int) {
         val maf = removeDefaultAliasFile(mCachedCloudFiles.midiAliasFiles)[position]
         val showErrors = maf.mErrors.isNotEmpty()
-
-        var arrayID = R.array.midi_alias_options_array
-        if (showErrors)
-            arrayID = R.array.midi_alias_options_array_with_show_errors
+        val arrayID = if(showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.midi_alias_list_options)
@@ -498,11 +478,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         initialiseLocalStorage()
 
         if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.GET_ACCOUNTS),
                     MY_PERMISSIONS_REQUEST_GET_ACCOUNTS)
-        }
 
         EventHandler.setSongListEventHandler(mSongListEventHandler!!)
 
@@ -542,7 +521,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (e: Exception) {
             Log.e(BeatPrompterApplication.TAG, e.message)
         }
-
     }
 
     private fun initialiseLocalStorage() {
@@ -650,13 +628,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            GOOGLE_PLAY_TRANSACTION_FINISHED -> {
-                //int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
-                val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
-                //String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
-
-                if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK)
+            when (requestCode) {
+                GOOGLE_PLAY_TRANSACTION_FINISHED -> {
+                    val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
                     try {
                         val jo = JSONObject(purchaseData)
                         val sku = jo.getString("productId")
@@ -666,12 +641,9 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                         Log.e(BeatPrompterApplication.TAG, "JSON exception during purchase.")
                         Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
-
                 }
+                PLAY_SONG_REQUEST_CODE -> startNextSong()
             }
-            PLAY_SONG_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK)
-                startNextSong()
-        }
     }
 
     private fun startNextSong() {
@@ -693,33 +665,23 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private fun performCloudSync(fileToUpdate: CachedCloudFile?, dependenciesToo: Boolean) {
         val cs = CloudStorage.getInstance(cloud, this)
         val cloudPath = cloudPath
-        if (cloudPath == null || cloudPath.isEmpty())
+        if (cloudPath.isNullOrBlank())
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
         else {
             mPerformingCloudSync = true
-            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubfolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
+            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath!!, includeSubfolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
             cdt.execute()
         }
     }
 
     private fun sortSongList() {
-        if (mSelectedFilter.mCanSort) {
+        if (mSelectedFilter.mCanSort)
             when (mSortingPreference) {
-                SortingPreference.Date -> {
-                    sortSongsByDateModified()
-                    return
-                }
-                SortingPreference.Artist -> {
-                    sortSongsByArtist()
-                    return
-                }
-                SortingPreference.Title -> {
-                    sortSongsByTitle()
-                    return
-                }
+                SortingPreference.Date -> sortSongsByDateModified()
+                SortingPreference.Artist -> sortSongsByArtist()
+                SortingPreference.Title -> sortSongsByTitle()
                 SortingPreference.Key -> sortSongsByKey()
             }
-        }
     }
 
     private fun sortSongsByTitle() {
@@ -742,7 +704,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         mListAdapter = if (mSelectedFilter is MIDIAliasFilesFilter)
             MIDIAliasListAdapter(removeDefaultAliasFile(mCachedCloudFiles.midiAliasFiles))
         else
-            SongListAdapter(mPlaylist.nodesAsArray)
+            SongListAdapter(mPlaylist.nodes)
 
         val listView = findViewById<ListView>(R.id.listView)
         listView.onItemClickListener = this
@@ -782,83 +744,64 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun buildFilterList() {
         Log.d(BeatPrompterApplication.TAG, "Building taglist ...")
-        mFilters = mutableListOf()
-        val mOldSelectedFilter = mSelectedFilter
-        mSelectedFilter = AllSongsFilter(mCachedCloudFiles.songFiles.toMutableList())
+        val filterWorkList = mutableListOf<Filter>()
+
         val tagDicts = HashMap<String, MutableList<SongFile>>()
         val folderDicts = HashMap<String, MutableList<SongFile>>()
         for (song in mCachedCloudFiles.songFiles) {
-            for (tag in song.mTags) {
-                val songs = tagDicts.getOrPut(tag) {mutableListOf()}
-                songs.add(song)
-            }
-            if (song.mSubfolder != null && song.mSubfolder!!.isNotEmpty()) {
-                val songs = folderDicts.getOrPut(song.mSubfolder!!) {mutableListOf()}
-                songs.add(song)
-            }
+            song.mTags.forEach{ tagDicts.getOrPut(it) {mutableListOf()}.add(song) }
+            if (!song.mSubfolder.isNullOrBlank())
+                folderDicts.getOrPut(song.mSubfolder!!) {mutableListOf()}.add(song)
         }
 
-        for (key in tagDicts.keys) {
-            val songs = tagDicts[key]
-            val tf = TagFilter(key, songs!!)
-            if (tf == mOldSelectedFilter)
-                mSelectedFilter = tf
-            mFilters.add(tf)
+        tagDicts.forEach{
+            filterWorkList.add(TagFilter(it.key, it.value))
         }
 
-        for (key in folderDicts.keys) {
-            val songs = folderDicts[key]
-            val ff = FolderFilter(key, songs!!)
-            if (ff == mOldSelectedFilter)
-                mSelectedFilter = ff
-            mFilters.add(ff)
+        folderDicts.forEach {
+            filterWorkList.add(FolderFilter(it.key, it.value))
         }
 
-        for (slf in mCachedCloudFiles.setListFiles) {
-            val filter: SetListFileFilter
-            if (slf.mFile == mTemporarySetListFile) {
-                mTemporarySetListFilter = TemporarySetListFilter(slf, mCachedCloudFiles.songFiles.toMutableList())
-                filter = mTemporarySetListFilter!!
-            } else
-                filter = SetListFileFilter(slf, mCachedCloudFiles.songFiles.toMutableList())
-            mFilters.add(filter)
-        }
-
-        mFilters.sortBy{it.mName.toLowerCase()}
+        filterWorkList.addAll(mCachedCloudFiles.setListFiles.mapNotNull {
+            if (it.mFile != mTemporarySetListFile)
+                SetListFileFilter(it, mCachedCloudFiles.songFiles.toMutableList())
+            null
+        })
 
         val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.toMutableList())
-        mFilters.add(0, allSongsFilter)
 
-        if (!mCachedCloudFiles.midiAliasFiles.isEmpty()) {
-            val filter = MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
-            mFilters.add(filter)
-        }
+        val tempSetListFile= mCachedCloudFiles.setListFiles.firstOrNull {it.mFile== mTemporarySetListFile}
+
+        filterWorkList.sortBy{it.mName.toLowerCase()}
+        if(tempSetListFile!=null)
+            filterWorkList.add(0,TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList()))
+        filterWorkList.add(0,allSongsFilter)
+        if(mCachedCloudFiles.midiAliasFiles.isNotEmpty())
+            filterWorkList.add(MIDIAliasFilesFilter(getString(R.string.midi_alias_files)))
+        mFilters=filterWorkList
 
         mSelectedFilter = allSongsFilter
-
         applyFileFilter(mSelectedFilter)
 
         invalidateOptionsMenu()
     }
 
     fun fullVersionUnlocked(): Boolean {
-        if (mFullVersionUnlocked)
-            return true
-        try {
-            if (mIAPService != null) {
-                val ownedItems = mIAPService!!.getPurchases(3, packageName, "inapp", null)
-                val response = ownedItems.getInt("RESPONSE_CODE")
-                if (response == 0) {
-                    val ownedSkus = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
-                    if (ownedSkus != null)
-                        for (sku in ownedSkus)
-                            mFullVersionUnlocked = mFullVersionUnlocked or sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
+        if (!mFullVersionUnlocked)
+            try {
+                if (mIAPService != null) {
+                    val ownedItems = mIAPService!!.getPurchases(3, packageName, "inapp", null)
+                    val response = ownedItems.getInt("RESPONSE_CODE")
+                    if (response == 0) {
+                        val ownedSkus = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
+                        if (ownedSkus != null)
+                            for (sku in ownedSkus)
+                                mFullVersionUnlocked = mFullVersionUnlocked or sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(BeatPrompterApplication.TAG, "Failed to check for purchased version.", e)
             }
-        } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, "Failed to check for purchased version.", e)
-        }
-
         return mFullVersionUnlocked
     }
 
@@ -892,62 +835,38 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return true
     }
 
+    private fun showSortDialog()
+    {
+        if (mSelectedFilter.mCanSort) {
+            val adb = AlertDialog.Builder(this)
+            val items = arrayOf<CharSequence>(getString(R.string.byTitle), getString(R.string.byArtist), getString(R.string.byDate), getString(R.string.byKey))
+            adb.setItems(items) { d, n ->
+                d.dismiss()
+                when (n) {
+                    0 -> sortingPreference = SortingPreference.Title
+                    1 -> sortingPreference = SortingPreference.Artist
+                    2 -> sortingPreference = SortingPreference.Date
+                    3 -> sortingPreference = SortingPreference.Key
+                }
+                buildList()
+            }
+            adb.setTitle(getString(R.string.sortSongs))
+            val ad = adb.create()
+            ad.setCanceledOnTouchOutside(true)
+            ad.show()
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.synchronize -> {
-                performFullCloudSync()
-                return true
-            }
-            R.id.sort_songs -> {
-                if (mSelectedFilter.mCanSort) {
-                    val adb = AlertDialog.Builder(this)
-                    val items = arrayOf<CharSequence>(getString(R.string.byTitle), getString(R.string.byArtist), getString(R.string.byDate), getString(R.string.byKey))
-                    adb.setItems(items) { d, n ->
-                        when (n) {
-                            0 -> {
-                                d.dismiss()
-                                sortingPreference = SortingPreference.Title
-                                buildList()
-                            }
-                            1 -> {
-                                d.dismiss()
-                                sortingPreference = SortingPreference.Artist
-                                buildList()
-                            }
-                            2 -> {
-                                d.dismiss()
-                                sortingPreference = SortingPreference.Date
-                                buildList()
-                            }
-                            3 -> {
-                                d.dismiss()
-                                sortingPreference = SortingPreference.Key
-                                buildList()
-                            }
-                        }
-                    }
-                    adb.setTitle(getString(R.string.sortSongs))
-                    val ad = adb.create()
-                    ad.setCanceledOnTouchOutside(true)
-                    ad.show()
-                }
-                return true
-            }
-            R.id.settings -> {
-                val i = Intent(applicationContext, SettingsActivity::class.java)
-                startActivity(i)
-                return true
-            }
-            R.id.buy_full_version -> {
-                buyFullVersion()
-                return true
-            }
-            R.id.about -> {
-                showAboutDialog()
-                return true
-            }
+            R.id.synchronize -> performFullCloudSync()
+            R.id.sort_songs -> showSortDialog()
+            R.id.settings -> startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            R.id.buy_full_version -> buyFullVersion()
+            R.id.about -> showAboutDialog()
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -973,7 +892,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (e: Exception) {
             Log.e(BeatPrompterApplication.TAG, "Failed to buy full version.", e)
         }
-
     }
 
     override fun onNothingSelected(parent: AdapterView<*>) {
@@ -993,8 +911,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun showSetListMissingSongs() {
         if (mSelectedFilter is SetListFileFilter) {
-            val slf = mSelectedFilter as SetListFileFilter?
-            val missing = slf!!.mMissingSetListEntries
+            val slf = mSelectedFilter as SetListFileFilter
+            val missing = slf.mMissingSetListEntries
             if (missing.size > 0 && !slf.mWarned) {
                 slf.mWarned = true
                 val message = StringBuilder(getString(R.string.missing_songs_message, missing.size))
@@ -1116,7 +1034,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         } catch (ioe: Exception) {
             Log.e(BeatPrompterApplication.TAG, ioe.message)
         }
-
     }
 
     class SongListEventHandler internal constructor(private val mSongList: SongList) : EventHandler() {
@@ -1170,25 +1087,28 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         private var mBeatPrompterDataFolder: File?=null
         var mBeatPrompterSongFilesFolder: File?=null
 
+        var mSongEndedNaturally = false
+
         private var mFullVersionUnlocked = true
+
         private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
         private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
         private const val TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt"
         private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
-        var mSongEndedNaturally = false
+
         lateinit var mSongListInstance: SongList
 
         private const val PLAY_SONG_REQUEST_CODE = 3
         private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4
         private const val MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 4
 
+        private const val FULL_VERSION_SKU_NAME = "full_version"
+
         // Fake cloud items for temporary set list and default midi aliases
         var mTemporarySetListFile: File?=null
         var mDefaultMidiAliasesFile: File?=null
 
         var mSongListEventHandler: SongListEventHandler?=null
-
-        private const val FULL_VERSION_SKU_NAME = "full_version"
 
         private fun removeDefaultAliasFile(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
             val nonDefaults = mutableListOf<MIDIAliasFile>()
@@ -1200,17 +1120,14 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         val cloud: CloudType
             get() {
-                var cloud = CloudType.Demo
                 val sharedPrefs = BeatPrompterApplication.preferences
                 val cloudPref = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_cloudStorageSystem_key), null)
-                if (cloudPref != null) {
-                    when (cloudPref) {
-                        BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> cloud = CloudType.GoogleDrive
-                        BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> cloud = CloudType.Dropbox
-                        BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> cloud = CloudType.OneDrive
-                    }
+                return when (cloudPref) {
+                    BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> CloudType.GoogleDrive
+                    BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> CloudType.Dropbox
+                    BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> CloudType.OneDrive
+                    else -> CloudType.Demo
                 }
-                return cloud
             }
 
         @Throws(IOException::class)
