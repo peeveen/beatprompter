@@ -438,7 +438,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 c.drawColor(0x0000ffff, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > f) mXSplits[f] else Integer.MAX_VALUE
                 mSections.forEach {
-                    while (currentX < xSplit) {
+                    if (currentX < xSplit) {
                         val width = it.width
                         if (currentX + width > 0) {
                             if (chordsDrawn && (it.mChordDrawLine == f || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText!!.trim().isNotEmpty()) {
