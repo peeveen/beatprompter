@@ -63,7 +63,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private var mPlaylist = Playlist()
     private var mNowPlayingNode: PlaylistNode? = null
     private var mFilters = listOf<Filter>()
-    private var mTemporarySetListFilter: TemporarySetListFilter? = null
     private var mListAdapter: BaseAdapter? = null
 
     private var mPerformingCloudSync = false
@@ -83,8 +82,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         }
     }
 
-    private// for old shite legacy values.
-    var sortingPreference: SortingPreference
+    private var sortingPreference: SortingPreference
         get() {
             return try {
                 SortingPreference.valueOf(BeatPrompterApplication.preferences.getString("pref_sorting", SortingPreference.Title.name)!!)
@@ -99,22 +97,13 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         }
 
     private val isFirstRun: Boolean
-        get() {
-            val sharedPrefs = BeatPrompterApplication.preferences
-            return sharedPrefs.getBoolean(getString(R.string.pref_firstRun_key), true)
-        }
+        get() { return BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_firstRun_key), true) }
 
     private val cloudPath: String?
-        get() {
-            val sharedPrefs = BeatPrompterApplication.preferences
-            return sharedPrefs.getString(getString(R.string.pref_cloudPath_key), null)
-        }
+        get() { return BeatPrompterApplication.preferences.getString(getString(R.string.pref_cloudPath_key), null) }
 
     private val includeSubfolders: Boolean
-        get() {
-            val sharedPrefs = BeatPrompterApplication.preferences
-            return sharedPrefs.getBoolean(getString(R.string.pref_includeSubfolders_key), false)
-        }
+        get() { return BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_includeSubfolders_key), false) }
 
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -241,8 +230,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun clearTemporarySetList() {
-        if (mTemporarySetListFilter != null)
-            mTemporarySetListFilter!!.clear()
+        mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
         for (slf in mCachedCloudFiles.setListFiles)
             if (slf.mFile == mTemporarySetListFile)
                 slf.mSetListEntries.clear()
@@ -256,7 +244,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun addToTemporarySet(song: SongFile) {
-        mTemporarySetListFilter!!.addSong(song)
+        mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
         try {
             initialiseTemporarySetListFile(false)
             Utils.appendToTextFile(mTemporarySetListFile!!, SetListEntry(song).toString())
@@ -284,16 +272,18 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val trackNames = mutableListOf<String>()
         trackNames.add(getString(R.string.no_audio))
         trackNames.addAll(selectedSong.mAudioFiles)
+        val tempSetListFilter=mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()
+
         val addAllowed=
-            if (mTemporarySetListFilter != null)
-                if (mSelectedFilter !== mTemporarySetListFilter)
-                    !mTemporarySetListFilter!!.containsSong(selectedSong)
+            if (tempSetListFilter != null)
+                if (mSelectedFilter !== tempSetListFilter)
+                    !tempSetListFilter.containsSong(selectedSong)
                 else
                     false
             else
                 true
-        val includeRefreshSet = selectedSet != null && mSelectedFilter !== mTemporarySetListFilter
-        val includeClearSet = mSelectedFilter === mTemporarySetListFilter
+        val includeRefreshSet = selectedSet != null && mSelectedFilter !== tempSetListFilter
+        val includeClearSet = mSelectedFilter === tempSetListFilter
         val activity = this
 
         val arrayID: Int
@@ -774,7 +764,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         filterWorkList.sortBy{it.mName.toLowerCase()}
         if(tempSetListFile!=null)
-            filterWorkList.add(0,TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList()))
+            filterWorkList.add(0, TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList()))
         filterWorkList.add(0,allSongsFilter)
         if(mCachedCloudFiles.midiAliasFiles.isNotEmpty())
             filterWorkList.add(MIDIAliasFilesFilter(getString(R.string.midi_alias_files)))
