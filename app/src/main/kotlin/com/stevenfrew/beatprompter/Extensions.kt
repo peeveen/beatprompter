@@ -5,7 +5,7 @@ fun String.splitAndTrim(separator:String):List<String> {
     return bits.mapNotNull()
     {
         val trimmed=it.trim()
-        if(!trimmed.isEmpty())
+        if(trimmed.isEmpty())
             null
         else
             trimmed
