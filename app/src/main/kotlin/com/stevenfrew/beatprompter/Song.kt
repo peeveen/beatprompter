@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.*
+import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.AudioEvent
 import com.stevenfrew.beatprompter.event.BaseEvent
@@ -19,6 +20,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
     val mScrollMode:SongScrollingMode
+    internal val mBackingTrack: AudioFile?
 
     init {
         val containsBeatLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Beat}.any()
@@ -30,6 +32,8 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val
             containsSmoothLines -> SongScrollingMode.Smooth
             else -> SongScrollingMode.Manual
         }
+
+        mBackingTrack=findBackingTrack(firstEvent)
     }
 
     internal fun setProgress(nano: Long) {
@@ -78,5 +82,20 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val
                 return (blockStartTime + nanoPerBeat * (beat - midiBeatCount)).toLong()
         }
         return 0
+    }
+
+    companion object {
+        private fun findBackingTrack(firstEvent:BaseEvent):AudioFile?
+        {
+            // Find the backing track (if any)
+            var thisEvent:BaseEvent?=firstEvent
+            while(thisEvent!=null)
+            {
+                if(thisEvent is AudioEvent && thisEvent.mBackingTrack)
+                    return thisEvent.mAudioFile
+                thisEvent=thisEvent.mNextEvent
+            }
+            return null
+        }
     }
 }

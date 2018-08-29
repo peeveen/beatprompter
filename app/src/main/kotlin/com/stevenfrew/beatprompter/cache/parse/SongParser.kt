@@ -157,7 +157,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mBeatInfo= BeatInfo(barsPerLineTag?.mBPL?:mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,mCurrentScrollMode)
         val currentLineBeatInfo= BeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,mCurrentScrollMode)
 
-        val metronomeOn = mMetronomeContext === MetronomeContext.On || (mMetronomeContext === MetronomeContext.OnWhenNoTrack && mSongLoadInfo.mTrack!=null)
+        // Generate clicking beats if the metronome is on.
+        // The "on when no track" logic will be performed during song playback.
+        val metronomeOn = mMetronomeContext === MetronomeContext.On || mMetronomeContext === MetronomeContext.OnWhenNoTrack
 
         var imageTag=tags.filterIsInstance<ImageTag>().firstOrNull()
 
@@ -246,7 +248,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     if (!audioFile.mFile.exists())
                         mErrors.add(FileParseError(audioTag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
                     else
-                        mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume))
+                        mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume, !mStopAddingStartupItems))
                 }
             }
 
