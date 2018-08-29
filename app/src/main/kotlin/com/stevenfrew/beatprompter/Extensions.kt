@@ -40,3 +40,14 @@ fun String.stripHexSignifiers(): String {
 fun String.characters(): List<String> {
     return toCharArray().map{it.toString()}
 }
+
+fun List<Any?>.flattenAll():List<Any?> {
+    val output=mutableListOf<Any?>()
+    forEach{ e ->
+        when(e) {
+            !is List<Any?> -> output.add(e)
+            else -> output.addAll(e.flattenAll())
+        }
+    }
+    return output
+}

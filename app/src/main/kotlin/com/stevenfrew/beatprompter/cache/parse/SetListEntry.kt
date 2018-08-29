@@ -39,7 +39,12 @@ class SetListEntry(line: String) {
             return SetListMatch.NoMatch
     }
 
+    fun toDisplayString():String
+    {
+        return if(mArtist.isBlank()) mTitle else "$mArtist - $mTitle"
+    }
+
     override fun toString():String{
-        return mTitle+ SET_LIST_ENTRY_DELIMITER+mArtist
+        return mTitle+SET_LIST_ENTRY_DELIMITER+mArtist
     }
 }

@@ -653,6 +653,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     private fun performCloudSync(fileToUpdate: CachedCloudFile?, dependenciesToo: Boolean) {
+        if(fileToUpdate==null)
+            clearTemporarySetList()
         val cs = CloudStorage.getInstance(cloud, this)
         val cloudPath = cloudPath
         if (cloudPath.isNullOrBlank())
@@ -734,45 +736,55 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun buildFilterList() {
         Log.d(BeatPrompterApplication.TAG, "Building taglist ...")
-        val filterWorkList = mutableListOf<Filter>()
+        val tagAndFolderFilters = mutableListOf<Filter>()
 
-        val tagDicts = HashMap<String, MutableList<SongFile>>()
-        val folderDicts = HashMap<String, MutableList<SongFile>>()
+        // Create filters from song tags and sub-folders. Many songs can share the same
+        // tag/subfolder, so a bit of clever collection management is required here.
+        val tagDictionaries = HashMap<String, MutableList<SongFile>>()
+        val folderDictionaries = HashMap<String, MutableList<SongFile>>()
         for (song in mCachedCloudFiles.songFiles) {
-            song.mTags.forEach{ tagDicts.getOrPut(it) {mutableListOf()}.add(song) }
+            song.mTags.forEach{ tagDictionaries.getOrPut(it) {mutableListOf()}.add(song) }
             if (!song.mSubfolder.isNullOrBlank())
-                folderDicts.getOrPut(song.mSubfolder!!) {mutableListOf()}.add(song)
+                folderDictionaries.getOrPut(song.mSubfolder!!) {mutableListOf()}.add(song)
         }
-
-        tagDicts.forEach{
-            filterWorkList.add(TagFilter(it.key, it.value))
+        tagDictionaries.forEach{
+            tagAndFolderFilters.add(TagFilter(it.key, it.value))
         }
-
-        folderDicts.forEach {
-            filterWorkList.add(FolderFilter(it.key, it.value))
+        folderDictionaries.forEach {
+            tagAndFolderFilters.add(FolderFilter(it.key, it.value))
         }
-
-        filterWorkList.addAll(mCachedCloudFiles.setListFiles.mapNotNull {
+        tagAndFolderFilters.addAll(mCachedCloudFiles.setListFiles.mapNotNull {
             if (it.mFile != mTemporarySetListFile)
                 SetListFileFilter(it, mCachedCloudFiles.songFiles.toMutableList())
             null
         })
+        tagAndFolderFilters.sortBy{it.mName.toLowerCase()}
 
+        // Now create the basic "all songs" filter, dead easy ...
         val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.toMutableList())
 
+        // Depending on whether we have a temporary set list file, we can create a temporary
+        // set list filter ...
         val tempSetListFile= mCachedCloudFiles.setListFiles.firstOrNull {it.mFile== mTemporarySetListFile}
+        val tempSetListFilter=
+            if(tempSetListFile!=null)
+                TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList())
+            else
+                null
 
-        filterWorkList.sortBy{it.mName.toLowerCase()}
-        if(tempSetListFile!=null)
-            filterWorkList.add(0, TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList()))
-        filterWorkList.add(0,allSongsFilter)
-        if(mCachedCloudFiles.midiAliasFiles.isNotEmpty())
-            filterWorkList.add(MIDIAliasFilesFilter(getString(R.string.midi_alias_files)))
-        mFilters=filterWorkList
+        // Same thing for MIDI alias files ... if there aren't any, don't bother creating a filter.
+        val midiAliasFilesFilter=
+            if(mCachedCloudFiles.midiAliasFiles.isNotEmpty())
+                MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
+            else
+                null
 
+        // Now bundle them altogether into one list.
+        mFilters=listOf(allSongsFilter,tempSetListFilter,tagAndFolderFilters,midiAliasFilesFilter).flattenAll().filterIsInstance<Filter>()
+
+        // The default selected filter should be "all songs".
         mSelectedFilter = allSongsFilter
         applyFileFilter(mSelectedFilter)
-
         invalidateOptionsMenu()
     }
 
@@ -902,13 +914,13 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private fun showSetListMissingSongs() {
         if (mSelectedFilter is SetListFileFilter) {
             val slf = mSelectedFilter as SetListFileFilter
-            val missing = slf.mMissingSetListEntries
-            if (missing.size > 0 && !slf.mWarned) {
+            val missing = slf.mMissingSetListEntries.take(3)
+            if (missing.isNotEmpty() && !slf.mWarned) {
                 slf.mWarned = true
                 val message = StringBuilder(getString(R.string.missing_songs_message, missing.size))
                 message.append("\n\n")
-                for (f in 0 until Math.min(missing.size, 3)) {
-                    message.append(missing[f].toString())
+                missing.forEach {
+                    message.append(it.toDisplayString())
                     message.append("\n")
                 }
                 val alertDialog = AlertDialog.Builder(this).create()

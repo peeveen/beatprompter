@@ -6,7 +6,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 
-class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+class LineSection constructor(val mLineText: String, val mChordText: String, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+    private val mTrimmedChord=mChordText.trim()
     var mTextWidth = 0
     var mChordWidth = 0
     var mChordTrimWidth = 0
@@ -23,8 +24,8 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
         get() = mTextHeight + mChordHeight
 
     fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-        mLineSS = ScreenString.create(mLineText!!, paint, fontSize.toFloat(), face)
-        mTextHeight = if (mLineText!!.trim().isEmpty())
+        mLineSS = ScreenString.create(mLineText, paint, fontSize.toFloat(), face)
+        mTextHeight = if (mLineText.isBlank())
             0
         else
             mLineSS!!.mHeight
@@ -33,14 +34,12 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
     }
 
     fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-        mChordSS = ScreenString.create(mChordText!!, paint, fontSize.toFloat(), face)
-        val trimChord = mChordText!!.trim()
-        val trimChordSS: ScreenString
-        trimChordSS = if (trimChord.length < mChordText!!.length)
-            ScreenString.create(trimChord, paint, fontSize.toFloat(), face)
+        mChordSS = ScreenString.create(mChordText, paint, fontSize.toFloat(), face)
+        val trimChordSS: ScreenString = if (mTrimmedChord.length < mChordText.length)
+            ScreenString.create(mTrimmedChord, paint, fontSize.toFloat(), face)
         else
             mChordSS!!
-        mChordHeight = if (mChordText!!.trim().isEmpty())
+        mChordHeight = if (mTrimmedChord.isEmpty())
             0
         else
             mChordSS!!.mHeight
@@ -57,13 +56,13 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
         val highlightTags=mTags.filter{it is StartOfHighlightTag || it is EndOfHighlightTag}
         highlightTags.forEach{
             if (it is StartOfHighlightTag && !lookingForEnd) {
-                val strHighlightText = mLineText!!.substring(0, it.position - mSectionPosition)
+                val strHighlightText = mLineText.substring(0, it.position - mSectionPosition)
                 startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 startPosition = it.position - mSectionPosition
                 highlightColour=it.mColor
                 lookingForEnd = true
             } else if (it is EndOfHighlightTag && lookingForEnd) {
-                val strHighlightText = mLineText!!.substring(startPosition, it.position - mSectionPosition)
+                val strHighlightText = mLineText.substring(startPosition, it.position - mSectionPosition)
                 val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour!!))
                 highlightColour = null
@@ -76,10 +75,11 @@ class LineSection(var mLineText: String?, var mChordText: String?, val mTrueChor
     }
 
     fun hasChord(): Boolean {
-        return mChordText != null && mChordText!!.trim().isNotEmpty()
+        return mChordText.isNotBlank()
     }
 
     fun hasText(): Boolean {
-        return mLineText != null && mLineText!!.trim().isNotEmpty()
+        // Even a space can be valid as a section.
+        return mLineText.isNotEmpty()
     }
 }
