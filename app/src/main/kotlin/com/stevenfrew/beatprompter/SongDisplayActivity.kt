@@ -54,11 +54,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         mSongDisplayInstance = this
 
-        //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        // Instantiate the gesture detector with the
-        // application context and an implementation of
-        // GestureDetector.OnGestureListener
-
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
         val readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false)
