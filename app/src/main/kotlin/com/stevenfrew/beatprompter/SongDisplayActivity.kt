@@ -34,13 +34,14 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     private var mLastOtherPageDownEvent: Long = 0
     private var mAnyOtherKeyPageDown = false
+
     private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
-    private lateinit var mMidiClockOutTask: ClockSignalGeneratorTask
-    private lateinit var mMidiClockOutTaskThread:Thread
+    private val mMidiClockOutTask= ClockSignalGeneratorTask()
+    private val mMidiClockOutTaskThread=Thread(mMidiClockOutTask)
 
-    private var mMidiStartStopInTask = StartStopInTask()
-    private var mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
+    private val mMidiStartStopInTask = StartStopInTask()
+    private val mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -51,7 +52,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val i = intent
         mSongDisplayInstance = this
 
         //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
@@ -59,14 +59,11 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // application context and an implementation of
         // GestureDetector.OnGestureListener
 
-        mMidiClockOutTask = ClockSignalGeneratorTask(i.getBooleanExtra("registered", false))
-        mMidiClockOutTaskThread=Thread(mMidiClockOutTask)
-
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
         val readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false)
         mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
-        // TODO: some sort of normal keyboard support.
+        // NICETOHAVE: some sort of normal keyboard support.
         mAnyOtherKeyPageDown = false//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
         setContentView(R.layout.activity_song_display)

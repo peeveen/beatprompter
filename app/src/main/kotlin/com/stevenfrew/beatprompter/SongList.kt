@@ -120,7 +120,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     internal fun startSongActivity() {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
-        i.putExtra("registered", fullVersionUnlocked())
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
