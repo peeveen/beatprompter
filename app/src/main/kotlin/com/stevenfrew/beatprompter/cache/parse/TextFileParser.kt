@@ -21,7 +21,6 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
                 val textLine=TextFileLine(txt,lineNumber,this)
                 val lineTags=mutableSetOf<KClass<out Tag>>()
                 textLine.mTags.forEach{tag->
-                    // TODO: reject tags that fail validation rules
                     val tagClass=tag::class
                     val isOncePerFile=tagClass.findAnnotation<OncePerFile>()!=null
                     val isOncePerLine=tagClass.findAnnotation<OncePerLine>()!=null
