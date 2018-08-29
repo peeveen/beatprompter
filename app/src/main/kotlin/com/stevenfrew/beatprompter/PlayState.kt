@@ -10,8 +10,8 @@ enum class PlayState constructor(private val mValue: Int) {
     }
 
     companion object {
-        fun fromValue(`val`: Int): PlayState {
-            return when (`val`) {
+        fun fromValue(state: Int): PlayState {
+            return when (state) {
                 0 -> AtTitleScreen
                 1 -> Paused
                 else -> Playing
