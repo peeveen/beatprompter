@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
 
-class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, scrollMode:LineScrollingMode, displaySettings:SongDisplaySettings, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long) : Line(lineTime,lineDuration,scrollMode,pixelPosition,startScrollTime,stopScrollTime) {
+class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, beatInfo:BeatInfo, displaySettings:SongDisplaySettings, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long) : Line(lineTime,lineDuration,beatInfo,pixelPosition,startScrollTime,stopScrollTime) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
     private val mDestinationRect=getDestinationRect(mBitmap,displaySettings.mScreenSize,scalingMode)
@@ -11,7 +11,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScal
 
     init
     {
-        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, startScrollTime, scrollMode)
+        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, startScrollTime, beatInfo.mScrollMode)
     }
 
     override fun renderGraphics()  {

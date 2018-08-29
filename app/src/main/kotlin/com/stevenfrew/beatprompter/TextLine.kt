@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, lineScrollMode:LineScrollingMode, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,lineScrollMode,pixelPosition,startScrollTime,stopScrollTime) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, beatInfo:BeatInfo, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, startScrollTime:Long, stopScrollTime:Long, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,beatInfo,pixelPosition,startScrollTime,stopScrollTime) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -69,7 +69,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             for (section in mSections) {
                 if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
-                textExists = textExists or (section.mLineText!!.isNotEmpty())
+                textExists = textExists or (section.mLineText.isNotEmpty())
                 val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(textFontSize).toInt(), mFont)
                 val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(chordFontSize).toInt(), mFont)
                 if (chordWidth > textWidth)
@@ -206,7 +206,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     val sectionChordOnscreen = bothersomeSection.hasChord() && (widthWithoutBothersomeSection >= 0 || widthWithoutBothersomeSection + bothersomeSection.mChordTrimWidth > leftoverSpaceOnPreviousLine)
                     val sectionTextOnscreen = bothersomeSection.hasText() && (widthWithoutBothersomeSection >= 0 || widthWithoutBothersomeSection + bothersomeSection.mTextWidth > 0)
                     // Find the last word that fits onscreen.
-                    var bits = Utils.splitText(bothersomeSection.mLineText!!)
+                    var bits = Utils.splitText(bothersomeSection.mLineText)
                     val wordCount = Utils.countWords(bits)
                     var splitOnLetter = wordCount <= 1
                     if (!splitOnLetter) {
@@ -276,7 +276,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                         // but the first one is enormous.
                         if (firstOnscreenSection == null) {
                             // This section starts BEFORE the left margin, so we have to split on a letter.
-                            bits = bothersomeSection.mLineText!!.characters()
+                            bits = bothersomeSection.mLineText.characters()
                             if (bits.size > 1) {
                                 var f = bits.size - 1
                                 while (f >= 1 && !songLoadCancelEvent.isCancelled) {
@@ -359,7 +359,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, mYStartScrollTime, lineScrollMode)
+        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, mYStartScrollTime, beatInfo.mScrollMode)
     }
 
     private val totalXSplits: Int
@@ -441,20 +441,20 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     if (currentX < xSplit) {
                         val width = it.width
                         if (currentX + width > 0) {
-                            if (chordsDrawn && (it.mChordDrawLine == f || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText!!.trim().isNotEmpty()) {
+                            if (chordsDrawn && (it.mChordDrawLine == f || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText.trim().isNotEmpty()) {
                                 paint.color = if (it.mTrueChord) mChordColor else mAnnotationColor
                                 paint.textSize = mChordTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                c.drawText(it.mChordText!!, currentX.toFloat(), mChordHeight.toFloat(), paint)
+                                c.drawText(it.mChordText, currentX.toFloat(), mChordHeight.toFloat(), paint)
                             }
                             c.save()
                             if (xSplit != Integer.MAX_VALUE)
                                 c.clipRect(0, 0, xSplit, thisLineHeight)
-                            if (it.mLineText!!.trim().isNotEmpty()) {
+                            if (it.mLineText.trim().isNotEmpty()) {
                                 paint.color = mLyricColor
                                 paint.textSize = mLineTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                c.drawText(it.mLineText!!, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
+                                c.drawText(it.mLineText, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
                             }
                             for ((left, _, right, _, color) in it.mHighlightingRectangles) {
                                 paint.color = color

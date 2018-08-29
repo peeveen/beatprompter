@@ -23,11 +23,11 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val
     internal val mBackingTrack: AudioFile?
 
     init {
-        val containsBeatLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Beat}.any()
-        val containsSmoothLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Smooth}.any()
-        val containsManualLines=mLines.filter{it.mLineScrollMode==LineScrollingMode.Manual}.any()
+        val containsBeatLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Beat}.any()
+        val containsSmoothLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Smooth}.any()
+        val containsManualLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Manual}.any()
         mScrollMode = when {
-            arrayOf(containsBeatLines,containsSmoothLines,containsManualLines).count{it==true}>1 -> SongScrollingMode.Mixed
+            listOf(containsBeatLines,containsSmoothLines,containsManualLines).count{it}>1 -> SongScrollingMode.Mixed
             containsBeatLines -> SongScrollingMode.Beat
             containsSmoothLines -> SongScrollingMode.Smooth
             else -> SongScrollingMode.Manual

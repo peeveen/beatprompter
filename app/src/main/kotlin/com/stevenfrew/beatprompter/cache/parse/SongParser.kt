@@ -306,7 +306,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentScrollMode,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,currentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -319,7 +319,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentScrollMode, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, currentLineBeatInfo, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)
