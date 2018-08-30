@@ -75,7 +75,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Start the progress message dialog
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
 
-        val lengthOfBackingTrack=mSongLoadInfo.mTrack?.mDurationMilliseconds?:0L
+        val lengthOfBackingTrack=mSongLoadInfo.mTrack?.mDuration?:0L
         val songTime=if(mSongLoadInfo.mSongFile.mDuration==Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
         mSmoothScrollTimings=
             if(songTime>0L) {
@@ -351,10 +351,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     {
         val firstEvent=mEvents.removeAt(0)
         var nextEvent=firstEvent
+        val audioEndTimes=mutableListOf(mSongTime)
         mEvents.forEach {
+            if(it is AudioEvent)
+                audioEndTimes.add(it.mAudioFile.mDuration+it.mEventTime)
             nextEvent.add(it)
             nextEvent=it
         }
+
+        nextEvent.add(EndEvent(audioEndTimes.max()!!))
         return firstEvent
     }
 

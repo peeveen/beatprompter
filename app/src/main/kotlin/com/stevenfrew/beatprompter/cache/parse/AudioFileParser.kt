@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.media.MediaMetadataRetriever
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 
@@ -15,7 +16,7 @@ class AudioFileParser constructor(cachedCloudFileDescriptor:CachedCloudFileDescr
             mmr.setDataSource(mCachedCloudFileDescriptor.mFile.absolutePath)
             val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             if (data != null)
-                return AudioFile(mCachedCloudFileDescriptor,data.toLong())
+                return AudioFile(mCachedCloudFileDescriptor, Utils.milliToNano(data.toLong()))
         } catch (e: Exception) {
             // Not bothered about what the exception is ... file is obviously shite.
         }

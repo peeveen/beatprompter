@@ -669,7 +669,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processEndEvent(): Boolean {
-        // End the song in beat mode, or if we're using a track in any other mode.
+        // Only end the song in beat mode.
         val end = mSong!!.mScrollMode === SongScrollingMode.Beat
         if (end)
             endSong(false)
