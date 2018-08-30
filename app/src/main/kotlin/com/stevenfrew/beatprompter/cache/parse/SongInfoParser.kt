@@ -85,10 +85,10 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
             mArtist=""
         val key=
                 if (mKey.isNullOrBlank())
-                    if(!mFirstChord.isNullOrBlank())
-                        mFirstChord!!
-                    else
+                    if(mFirstChord.isNullOrBlank())
                         ""
+                    else
+                        mFirstChord!!
                 else
                     mKey!!
 
@@ -99,6 +99,9 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     {
         when(name)
         {
+            "b","bars"->return BarsTag(name, lineNumber, position, value)
+            "," -> return BarMarkerTag(lineNumber,position)
+
             "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
             "beatstart"->return BeatStartTag(name, lineNumber, position)
             "beatstop"->return BeatStopTag(name, lineNumber, position)
