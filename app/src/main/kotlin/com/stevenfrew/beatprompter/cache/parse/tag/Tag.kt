@@ -54,8 +54,7 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
             } catch (nfe: NumberFormatException) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.durationValueUnreadable, value))
             }
-
-            return durVal
+            return Utils.milliToNano(durVal)
         }
 
         @Throws(MalformedTagException::class)

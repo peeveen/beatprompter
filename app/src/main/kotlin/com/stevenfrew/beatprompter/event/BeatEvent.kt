@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter.event
 
-import com.stevenfrew.beatprompter.BeatInfo
+import com.stevenfrew.beatprompter.LineBeatInfo
 
-class BeatEvent(eventTime: Long, beatInfo: BeatInfo, var mBeat: Int, var mClick: Boolean, var mWillScrollOnBeat: Int) : BaseEvent(eventTime) {
+class BeatEvent(eventTime: Long, beatInfo: LineBeatInfo, var mBeat: Int, var mClick: Boolean, var mWillScrollOnBeat: Int) : BaseEvent(eventTime) {
     val mBPM=beatInfo.mBPM
     var mBPB=beatInfo.mBPB
     init {

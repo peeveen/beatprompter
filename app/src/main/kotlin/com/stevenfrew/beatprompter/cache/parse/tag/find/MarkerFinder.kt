@@ -2,6 +2,10 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
 
 object MarkerFinder: TagFinder {
     override fun findTag(text: String): FoundTag? {
+
+        // TODO: dynamic BPB changing
+
+
         val markerPos=
             if(text.startsWith(','))
                 0

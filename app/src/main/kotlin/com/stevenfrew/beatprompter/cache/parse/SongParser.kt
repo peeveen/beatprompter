@@ -9,8 +9,9 @@ import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
+import com.stevenfrew.beatprompter.songload.SongLoadMode
 
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile) {
+class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.mSongLoadMode.toSongScrollMode()) {
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
@@ -22,7 +23,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
     private val mEvents=mutableListOf<BaseEvent>(StartEvent())
-    private val mLines=mutableListOf<Pair<Line,BeatInfo>>()
+    private val mLines=mutableListOf<Line>()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
     private val mPaint= Paint()
@@ -30,6 +31,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mBeatCounterRect:Rect
     private val mDefaultHighlightColor:Int
     private val mAudioTags=mutableListOf<AudioTag>()
+    private val mSmoothScrollTimings:SmoothScrollingTimings?
 
     private var mSongHeight=0
     private var mMIDIBeatCounter:Int=0
@@ -37,8 +39,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private var mBeatsToAdjust:Int=0
     private var mCurrentBeat:Int=0
     private var mDisplayLineCounter:Int=0
-    private var mCurrentScrollMode=mSongLoadInfo.mSongScrollMode
-    private var mBeatInfo:BeatInfo=BeatInfo()
     private var mCountIn:Int
     private var mSendMidiClock:Boolean=false
     private var mSongTime:Long=0
@@ -66,7 +66,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
         val beatCounterHeight =
                 // Top 5% of screen is used for beat counter
-                if (mSongLoadInfo.mSongScrollMode !== LineScrollingMode.Manual)
+                if (mSongLoadInfo.mSongLoadMode !== SongLoadMode.Manual)
                     (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
                 else
                     0
@@ -74,9 +74,24 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Start the progress message dialog
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
+
+        val lengthOfBackingTrack=mSongLoadInfo.mTrack?.mDurationMilliseconds?:0L
+        val songTime=if(mSongLoadInfo.mSongFile.mDuration==Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
+        mSmoothScrollTimings=
+            if(songTime>0L) {
+                val linesInTheSong=mSongLoadInfo.mSongFile.mLines
+                val barsInTheSong=mSongLoadInfo.mSongFile.mBars
+                val timePerLine=(songTime.toDouble()/linesInTheSong).toLong()
+                val timePerBar=(songTime.toDouble()/barsInTheSong).toLong()
+                SmoothScrollingTimings(timePerLine, timePerBar, lengthOfBackingTrack)
+            }
+            else
+                null
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
+        super.parseLine(line)
+
         val chordTags=line.mTags.filterIsInstance<ChordTag>()
         val nonChordTags=line.mTags.filter { it !is ChordTag }
         val chordsFound = mShowChords && !chordTags.isEmpty()
@@ -84,62 +99,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val tags=if(mShowChords)line.mTags.toList() else nonChordTags
 
         var workLine=line.mTaglessLine
-        val commaBars=line.mTags.filterIsInstance<BarMarkerTag>().size
-        val scrollBeatModifiers=line.mTags.filterIsInstance<ScrollBeatModifierTag>()
-
-        var scrollBeatOffset=scrollBeatModifiers.sumBy{it.mModifier}
-
-        // TODO: dynamic BPB changing
-
-        // ... or by a tag (which overrides commas)
-        val barsTag=tags.filterIsInstance<BarsTag>().firstOrNull()
-        val barsPerLineTag=tags.filterIsInstance<BarsPerLineTag>().firstOrNull()
-        val beatsPerBarTag=tags.filterIsInstance<BeatsPerBarTag>().firstOrNull()
-        val beatsPerMinuteTag=tags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
-        val scrollBeatTag=tags.filterIsInstance<ScrollBeatTag>().firstOrNull()
-
-        val beatStartTags=tags.filterIsInstance<BeatStartTag>().toMutableList()
-        val beatStopTags=tags.filterIsInstance<BeatStopTag>().toMutableList()
-        val beatModeTags=listOf(beatStartTags,beatStopTags).flatMap { it }.toMutableList()
-
-        val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?:commaBars?:mBeatInfo.mBPL
-        val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:mBeatInfo.mBPB
-        val beatsPerMinuteInThisLine=beatsPerMinuteTag?.mBPM?:mBeatInfo.mBPM
-        var scrollBeatInThisLine=scrollBeatTag?.mScrollBeat?:mBeatInfo.mScrollBeat
-
-        val previousBeatsPerBar=mBeatInfo.mBPB
-        val previousScrollBeat=mBeatInfo.mScrollBeat
-        // If the beats-per-bar have changed, and there is no indication of what the new scrollbeat should be,
-        // set the new scrollbeat to have the same "difference" as before. For example, if the old BPB was 4,
-        // and the scrollbeat was 3 (one less than BPB), a new BPB of 6 should have a scrollbeat of 5 (one
-        // less than BPB)
-        if((beatsPerBarInThisLine!=previousBeatsPerBar)&&(scrollBeatTag==null))
-        {
-            val prevScrollBeatDiff = previousBeatsPerBar - previousScrollBeat
-            if(beatsPerBarInThisLine-prevScrollBeatDiff>0)
-                scrollBeatInThisLine=beatsPerBarInThisLine-prevScrollBeatDiff
-        }
-        if(scrollBeatInThisLine>beatsPerBarInThisLine)
-            scrollBeatInThisLine=beatsPerBarInThisLine
-
-        // Multiple beatstart or beatstop tags on the same line are nonsensical
-        if(beatModeTags.size==1)
-            if(beatStartTags.isNotEmpty())
-                if(beatsPerMinuteInThisLine==0.0)
-                    mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
-                else
-                    mCurrentScrollMode= LineScrollingMode.Beat
-            else
-                mCurrentScrollMode = LineScrollingMode.Manual
-
-
-        if ((beatsPerBarInThisLine!=0)&&(scrollBeatOffset < -beatsPerBarInThisLine || scrollBeatOffset >= beatsPerBarInThisLine)) {
-            mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
-            scrollBeatOffset = 0
-        }
-
-        mBeatInfo= BeatInfo(barsPerLineTag?.mBPL?:mBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,mCurrentScrollMode)
-        val currentLineBeatInfo= BeatInfo(barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,mCurrentScrollMode)
 
         // Generate clicking beats if the metronome is on.
         // The "on when no track" logic will be performed during song playback.
@@ -203,7 +162,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
             if(mCountIn>0) {
-                generateCountInEvents(mCountIn, currentLineBeatInfo, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+                generateCountInEvents(mCountIn, mCurrentLineBeatInfo, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
                 mCountIn=0
             }
 
@@ -253,35 +212,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     imageTag = null
                 }
 
-                val lastBeatInfo= if(mLines.isEmpty())currentLineBeatInfo else mLines.last().second
-                val lastScrollBeatOffset = lastBeatInfo.mScrollBeatOffset
-                val lastBPB = lastBeatInfo.mBPB
-                val lastScrollBeat = lastBeatInfo.mScrollBeat
-                val scrollBeatDifference =currentLineBeatInfo.mScrollBeat - currentLineBeatInfo.mBPB - (lastScrollBeat - lastBPB)
-
-                var beatsForThisLine = currentLineBeatInfo.mBPB * currentLineBeatInfo.mBPL
-                beatsForThisLine += currentLineBeatInfo.mScrollBeatOffset
-                beatsForThisLine += scrollBeatDifference
-                beatsForThisLine -= lastScrollBeatOffset
-
-                val nanosecondsPerBeat = if (currentLineBeatInfo.mBPM > 0.0)
-                    Utils.nanosecondsPerBeat(currentLineBeatInfo.mBPM)
+                val nanosecondsPerBeat = if (mCurrentLineBeatInfo.mBPM > 0.0)
+                    Utils.nanosecondsPerBeat(mCurrentLineBeatInfo.mBPM)
                 else
                     0
 
-                // TODO: CALCULATE TIME PER BAR FOR SMOOTH MODE
-                val timePerBar=0L
                 val totalLineTime = when {
-                    pauseTag !=null -> Utils.milliToNano(pauseTag.mDuration)
-                    currentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth -> timePerBar * currentLineBeatInfo.mBPL
-                    else -> beatsForThisLine * nanosecondsPerBeat
+                    pauseTag !=null -> pauseTag.mDuration
+                    mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
+                    else -> mCurrentLineBeatInfo.mBeats * nanosecondsPerBeat
                 }
 
                 val startScrollTime=
-                        when(mCurrentScrollMode)
+                        when(mCurrentLineBeatInfo.mScrollMode)
                         {
-                            SongScrollingMode.Smooth->mSongTime
-                            else->mSongTime + ((beatsForThisLine-1)*nanosecondsPerBeat)
+                            LineScrollingMode.Smooth->mSongTime
+                            else->mSongTime + ((mCurrentLineBeatInfo.mBeats-1)*nanosecondsPerBeat)
                         }
                 val stopScrollTime=mSongTime+totalLineTime
 
@@ -290,7 +236,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,currentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -303,12 +249,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, currentLineBeatInfo, mNativeDeviceSettings, mLines.map{it.first}.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)
                 {
-                    val previousLine=mLines.lastOrNull()?.first
+                    val previousLine=mLines.lastOrNull()
                     if(previousLine!=null)
                     {
                         previousLine.mNextLine=lineObj
@@ -316,7 +262,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
 
                     mSongHeight+=lineObj.mMeasurements.mLineHeight
-                    mLines.add(Pair(lineObj,currentLineBeatInfo))
+                    mLines.add(lineObj)
                     val lineEvent=LineEvent(mSongTime,lineObj)
                     mEvents.add(lineEvent)
 
@@ -325,8 +271,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     // if a pause is specified on a line, it replaces the actual beats for that line.
                     if (pauseTag!=null)
                         generatePauseEvents(pauseTag.mDuration)
-                    else if (currentLineBeatInfo.mBPM > 0.0 && currentLineBeatInfo.mScrollMode == LineScrollingMode.Beat)
-                        generateBeatEvents(currentLineBeatInfo,nanosecondsPerBeat,beatsForThisLine,metronomeOn)
+                    else if (mCurrentLineBeatInfo.mBPM > 0.0 && mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Beat)
+                        generateBeatEvents(nanosecondsPerBeat,metronomeOn)
                     else
                         mSongTime += totalLineTime
                 }
@@ -339,10 +285,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     override fun getResult(): Song {
         var smoothScrollOffset=0
-        if (mSongLoadInfo.mSongScrollMode === LineScrollingMode.Smooth)
-            smoothScrollOffset = Math.min(mLines.map{it.first.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
-        else if (mSongLoadInfo.mSongScrollMode === LineScrollingMode.Beat)
-            mSongHeight -= mLines.reversed().map{it.first.mMeasurements.mLineHeight}.firstOrNull{it!=0}?:0
+        if (mSongLoadInfo.mSongLoadMode === SongLoadMode.Smooth)
+            smoothScrollOffset = Math.min(mLines.map{it.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
+        else if (mSongLoadInfo.mSongLoadMode === SongLoadMode.Beat)
+            mSongHeight -= mLines.reversed().map{it.mMeasurements.mLineHeight}.firstOrNull{it!=0}?:0
 
         val startScreenStrings=createStartScreenStrings()
         val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
@@ -361,8 +307,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         var graphic: LineGraphic = lineGraphics.first()
         mLines.forEach {
-            for (f in 0 until it.first.mMeasurements.mLines) {
-                it.first.allocateGraphic(graphic)
+            for (f in 0 until it.mMeasurements.mLines) {
+                it.allocateGraphic(graphic)
                 graphic = graphic.mNextGraphic
             }
         }
@@ -398,7 +344,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val firstEvent=buildEventList()
         offsetMIDIEvents(firstEvent)
 
-        return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,mSongHeight,firstEvent,mLines.map{it.first},audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,mSongHeight,firstEvent,mLines,audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
     }
 
     private fun buildEventList():BaseEvent
@@ -417,10 +363,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         var maxWidth = 0
         var lineCount = 0
         mLines.forEach{
-            for (lh in it.first.mMeasurements.mGraphicHeights) {
+            for (lh in it.mMeasurements.mGraphicHeights) {
                 if (lineCount % modulus == index) {
                     maxHeight = Math.max(maxHeight, lh)
-                    maxWidth = Math.max(maxWidth, it.first.mMeasurements.mLineWidth)
+                    maxWidth = Math.max(maxWidth, it.mMeasurements.mLineWidth)
                 }
                 ++lineCount
             }
@@ -443,9 +389,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     // scrolled offscreen, but not quite.
                     var lineHeight = 1
                     if (lineCounter > 0)
-                        lineHeight = mLines[f].first.mMeasurements.mLineHeight
+                        lineHeight = mLines[f].mMeasurements.mLineHeight
                     heightCounter += lineHeight
-                    lineCounter += mLines[f].first.mMeasurements.mLines
+                    lineCounter += mLines[f].mMeasurements.mLines
                 }
             }
             maxLines = Math.max(maxLines, lineCounter)
@@ -459,14 +405,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         for(lineWeAreSettingTheValuesFor in mLines)
         {
-            var previousLine=lineWeAreSettingTheValuesFor.first.mPrevLine
-            var nextLine=lineWeAreSettingTheValuesFor.first.mNextLine
+            var previousLine=lineWeAreSettingTheValuesFor.mPrevLine
+            var nextLine=lineWeAreSettingTheValuesFor.mNextLine
             var previousLinePosition=previousLine?.mSongPixelPosition?:0
             var nextLinePosition=nextLine?.mSongPixelPosition?:maxScrollPosition
             val lineUp=previousLinePosition
             val lineDown=Math.min(nextLinePosition,maxScrollPosition)
 
-            var pageUp=lineWeAreSettingTheValuesFor.first.mSongPixelPosition
+            var pageUp=lineWeAreSettingTheValuesFor.mSongPixelPosition
             val pageUpLimit=Math.max(pageUp-usableScreenHeight,0)
             if(pageUpLimit>0) {
                 while (previousLinePosition >= pageUpLimit) {
@@ -478,7 +424,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             else
                 pageUp=0
 
-            var pageDown=lineWeAreSettingTheValuesFor.first.mSongPixelPosition
+            var pageDown=lineWeAreSettingTheValuesFor.mSongPixelPosition
             val pageDownLimit=Math.min(pageDown+usableScreenHeight,maxScrollPosition)
             if(pageDownLimit<maxScrollPosition) {
                 while (nextLinePosition <= pageDownLimit) {
@@ -490,11 +436,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             else
                 pageDown=maxScrollPosition
 
-            lineWeAreSettingTheValuesFor.first.mManualScrollPositions=ManualScrollPositions(lineUp,lineDown,pageUp,pageDown)
+            lineWeAreSettingTheValuesFor.mManualScrollPositions=ManualScrollPositions(lineUp,lineDown,pageUp,pageDown)
         }
     }
 
-    private fun generateBeatEvents(currentLineBeatInfo:BeatInfo,nanosecondsPerBeat:Long,beatsForThisLine:Int,click:Boolean)
+    private fun generateBeatEvents(nanosecondsPerBeat:Long, click:Boolean)
     {
         var beatThatWeWillScrollOn = 0
         val rolloverBeatCount = mRolloverBeats.size
@@ -503,22 +449,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // For the previous N beatevents, set the BPB to the new BPB.
         if(mBeatsToAdjust>0)
             mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach{
-                it.mBPB=currentLineBeatInfo.mBPB
+                it.mBPB=mCurrentLineBeatInfo.mBPB
             }
         mBeatsToAdjust = 0
 
         var currentBarBeat = 0
-        while (currentBarBeat < beatsForThisLine) {
-            val beatsRemaining = beatsForThisLine - currentBarBeat
-            beatThatWeWillScrollOn = if (beatsRemaining > currentLineBeatInfo.mBPB)
+        while (currentBarBeat < mCurrentLineBeatInfo.mBeats) {
+            val beatsRemaining = mCurrentLineBeatInfo.mBeats - currentBarBeat
+            beatThatWeWillScrollOn = if (beatsRemaining > mCurrentLineBeatInfo.mBPB)
                 -1
             else
-                (mCurrentBeat + (beatsRemaining - 1)) % currentLineBeatInfo.mBPB
+                (mCurrentBeat + (beatsRemaining - 1)) % mCurrentLineBeatInfo.mBPB
             val beatEvent: BeatEvent
             var rolloverBPB = 0
             var rolloverBeatLength: Long = 0
             if (mRolloverBeats.isEmpty())
-                beatEvent = BeatEvent(mSongTime, currentLineBeatInfo, mCurrentBeat, click, beatThatWeWillScrollOn)
+                beatEvent = BeatEvent(mSongTime, mCurrentLineBeatInfo, mCurrentBeat, click, beatThatWeWillScrollOn)
             else {
                 beatEvent = mRolloverBeats.removeAt(0)
                 beatEvent.mWillScrollOnBeat = beatThatWeWillScrollOn
@@ -536,25 +482,25 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
             mSongTime += beatTimeLength
             mCurrentBeat++
-            if (mCurrentBeat == (if (rolloverBPB > 0) rolloverBPB else currentLineBeatInfo.mBPB))
+            if (mCurrentBeat == (if (rolloverBPB > 0) rolloverBPB else mCurrentLineBeatInfo.mBPB))
                 mCurrentBeat = 0
             ++currentBarBeat
         }
 
-        val beatsThisLine =beatsForThisLine-rolloverBeatCount+beatsToAdjustCount
-        val simpleBeatsThisLine=currentLineBeatInfo.mBPB * currentLineBeatInfo.mBPL
+        val beatsThisLine =mCurrentLineBeatInfo.mBeats-rolloverBeatCount+beatsToAdjustCount
+        val simpleBeatsThisLine=mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL
         if (beatsThisLine > simpleBeatsThisLine) {
             // We need to store some information so that the next line can adjust the rollover beats.
-            mBeatsToAdjust = beatsForThisLine - simpleBeatsThisLine
+            mBeatsToAdjust = mCurrentLineBeatInfo.mBeats - simpleBeatsThisLine
         } else if (beatsThisLine < simpleBeatsThisLine) {
             // We need to generate a few beats to store for the next line to use.
             mRolloverBeats.clear()
             var rolloverCurrentBeat = mCurrentBeat
             var rolloverCurrentTime = mSongTime
             for (f in beatsThisLine until simpleBeatsThisLine) {
-                mRolloverBeats.add(BeatEvent(rolloverCurrentTime, currentLineBeatInfo, rolloverCurrentBeat++, click, beatThatWeWillScrollOn))
+                mRolloverBeats.add(BeatEvent(rolloverCurrentTime, mCurrentLineBeatInfo, rolloverCurrentBeat++, click, beatThatWeWillScrollOn))
                 rolloverCurrentTime += nanosecondsPerBeat
-                if (rolloverCurrentBeat == currentLineBeatInfo.mBPB)
+                if (rolloverCurrentBeat == mCurrentLineBeatInfo.mBPB)
                     rolloverCurrentBeat = 0
             }
         }
@@ -574,7 +520,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun generateCountInEvents(countBars:Int,currentLineBeatInfo: BeatInfo,click:Boolean) {
+    private fun generateCountInEvents(countBars:Int, currentLineBeatInfo: LineBeatInfo, click:Boolean) {
         if (countBars > 0) {
             if (currentLineBeatInfo.mBPM > 0.0) {
                 val countbpm = currentLineBeatInfo.mBPM
@@ -729,7 +675,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
         }
-        if (mSongLoadInfo.mSongScrollMode !== LineScrollingMode.Manual)
+        if (mSongLoadInfo.mSongLoadMode !== LineScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
     }
@@ -738,17 +684,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     {
         when(name)
         {
-            "b","bars"->return BarsTag(name, lineNumber, position, value)
-            "," -> return BarMarkerTag(lineNumber,position)
-
-            "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
-            "bpb", "beatsperbar"->return BeatsPerBarTag(name, lineNumber, position, value)
-            "bpl", "barsperline"->return BarsPerLineTag(name, lineNumber, position, value)
-            ">","<" -> return ScrollBeatModifierTag(name, lineNumber,position)
-            "scrollbeat", "sb"->return ScrollBeatTag(name, lineNumber, position, value)
-            "beatstart"->return BeatStartTag(name, lineNumber, position)
-            "beatstop"->return BeatStopTag(name, lineNumber, position)
-
             "image"->return ImageTag(name, lineNumber, position, value)
             "pause"->return PauseTag(name, lineNumber, position, value)
             "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
@@ -758,11 +693,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
             "eoh"->return EndOfHighlightTag(name, lineNumber, position)
 
-            "track", "audio", "musicpath"->return AudioTag(name,lineNumber,position,value)
-
             // BeatPrompter tags that are not required here ...
             "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "time",
-                // Unused ChordPro tags
+            // Unused ChordPro tags
             "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
 
             else->{

@@ -39,6 +39,7 @@ import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
 import com.stevenfrew.beatprompter.pref.SettingsActivity
 import com.stevenfrew.beatprompter.pref.SortingPreference
+import com.stevenfrew.beatprompter.songload.SongLoadMode
 import com.stevenfrew.beatprompter.songload.SongLoadTask
 import com.stevenfrew.beatprompter.ui.FilterListAdapter
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter
@@ -154,7 +155,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val beatScroll = selectedSong.mIsBeatScrollable && !manualMode
         val smoothScroll = selectedSong.mIsSmoothScrollable && !manualMode
-        val scrollingMode = if (beatScroll) LineScrollingMode.Beat else if (smoothScroll) LineScrollingMode.Smooth else LineScrollingMode.Manual
+        val scrollingMode = if (beatScroll) SongLoadMode.Beat else if (smoothScroll) SongLoadMode.Smooth else SongLoadMode.Manual
         val sds = getSongDisplaySettings(scrollingMode)
         playSong(node, selectedSong, track, scrollingMode, startedByMidiTrigger, sds, sds)
     }
@@ -170,7 +171,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return playNextSong
     }
 
-    private fun getSongDisplaySettings(songScrollMode: LineScrollingMode): SongDisplaySettings {
+    private fun getSongDisplaySettings(songScrollMode: SongLoadMode): SongDisplaySettings {
         val sharedPref = BeatPrompterApplication.preferences
         val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
@@ -198,11 +199,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val minimumFontSize: Int
         val maximumFontSize: Int
         when {
-            songScrollMode === SongScrollingMode.Beat -> {
+            songScrollMode === SongLoadMode.Beat -> {
                 minimumFontSize = minimumFontSizeBeat
                 maximumFontSize = maximumFontSizeBeat
             }
-            songScrollMode === SongScrollingMode.Smooth -> {
+            songScrollMode === SongLoadMode.Smooth -> {
                 minimumFontSize = minimumFontSizeSmooth
                 maximumFontSize = maximumFontSizeSmooth
             }
@@ -218,7 +219,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y))
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: LineScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: SongLoadMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
@@ -395,7 +396,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                     .setPositiveButton(R.string.play) { _, _ ->
                                         // sign in the user ...
                                         var selectedTrackName = audioSpinner.selectedItem as String?
-                                        val mode = if (beatButton.isChecked) LineScrollingMode.Beat else if (smoothButton.isChecked) LineScrollingMode.Smooth else LineScrollingMode.Manual
+                                        val mode = if (beatButton.isChecked) SongLoadMode.Beat else if (smoothButton.isChecked) SongLoadMode.Smooth else SongLoadMode.Manual
                                         if (audioSpinner.selectedItemPosition == 0)
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
@@ -964,7 +965,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         if (btm is ChooseSongMessage) {
             val beat = btm.mBeatScroll
             val smooth = btm.mSmoothScroll
-            val scrollingMode = if (beat) LineScrollingMode.Beat else if (smooth) LineScrollingMode.Smooth else LineScrollingMode.Manual
+            val scrollingMode = if (beat) SongLoadMode.Beat else if (smooth) SongLoadMode.Smooth else SongLoadMode.Manual
 
             val sharedPrefs = BeatPrompterApplication.preferences
             val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)

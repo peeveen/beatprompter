@@ -85,20 +85,23 @@ object Utils {
         return strIn.split(Regex("(?<=[ -])|(?=[ -])"))
     }
 
+    /**
+     * Returns milliseconds value
+     */
     fun parseDuration(str: String, trackLengthAllowed: Boolean): Long {
         if (str.equals("track", ignoreCase = true) && trackLengthAllowed)
             return Utils.TRACK_AUDIO_LENGTH_VALUE
         try {
-            val totalsecs = str.toDouble()
-            return Math.floor(totalsecs * 1000.0).toLong()
+            val totalSecs = str.toDouble()
+            return Math.floor(totalSecs * 1000.0).toLong()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
             val bits=str.splitAndTrim(":")
             if (bits.size==2)
             {
-                val mins = bits[0].toInt()
+                val minutes = bits[0].toInt()
                 val secs = bits[1].toInt()
-                return (secs + mins * 60) * 1000L
+                return (secs + (minutes * 60)) * 1000L
             }
             throw nfe
         }
