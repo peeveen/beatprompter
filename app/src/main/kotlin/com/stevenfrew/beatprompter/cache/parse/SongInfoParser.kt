@@ -73,8 +73,10 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         if(beatStartTag!=null || beatStopTag!=null)
             mMixedMode=true
 
-        mBars += mCurrentLineBeatInfo.mBPL
-        mBeats+=mCurrentLineBeatInfo.mBeats
+        if(!line.mTaglessLine.isBlank() || imageTags.isNotEmpty() || chordTag!=null) {
+            mBars += mCurrentLineBeatInfo.mBPL
+            mBeats += mCurrentLineBeatInfo.mBeats
+        }
 
         mAudioFiles.addAll(audioTags.map{it.mFilename })
         mImageFiles.addAll(imageTags.map{it.mFilename })

@@ -122,12 +122,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     mStartScreenComments.add(comment)
         }
 
-        val pauseTag=tags.filterIsInstance<PauseTag>().firstOrNull()
-        if(pauseTag!=null)
-        {
-            // TODO: generate pause here
-        }
-
         val midiEventTags=tags.filterIsInstance<MIDIEventTag>()
         midiEventTags.forEach {
             if (mDisplayLineCounter < DEMO_LINE_COUNT || mRegistered)
@@ -158,6 +152,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val createLine= (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
+
+        val pauseTag=tags.filterIsInstance<PauseTag>().firstOrNull()
         if (createLine || pauseTag!=null) {
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
@@ -313,25 +309,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             }
         }
 
-        // In smooth scrolling mode, the last screenful of text should never leave the screen.
-        // TODO: Implement this better, at SongView level
         val beatCounterHeight=mBeatCounterRect.height()
-/*
-        if (mSongLoadInfo.mScrollMode === SongScrollingMode.Smooth) {
-            var total = mNativeDeviceSettings.mScreenSize.height() - smoothScrollOffset - beatCounterHeight
-            var nextLineEvent:LineEvent?=null
-            for(endLineEvent in mEvents.filterIsInstance<LineEvent>().reversed()) {
-                total -= endLineEvent.mLine.mMeasurements.mLineHeight
-                if (total <= 0) {
-                    if (nextLineEvent != null)
-                        nextLineEvent.mLine.mYStopScrollTime = Long.MAX_VALUE
-                    break
-                }
-                mEvents.remove(endLineEvent)
-                nextLineEvent=endLineEvent
-            }
-        }*/
-
         val maxSongTitleWidth = mNativeDeviceSettings.mScreenSize.width() * 0.9f
         val maxSongTitleHeight = beatCounterHeight * 0.9f
         val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
@@ -341,10 +319,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
         val songTitleHeaderLocation = PointF(x, y)
 
+        val lineEvents=mEvents.filterIsInstance<LineEvent>()
         val firstEvent=buildEventList()
         offsetMIDIEvents(firstEvent)
 
-        return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,mSongHeight,firstEvent,mLines,audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
+        return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,mSongHeight,firstEvent,mLines,lineEvents,audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
     }
 
     private fun buildEventList():BaseEvent

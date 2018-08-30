@@ -274,14 +274,16 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         scrollPercentage = yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
                 } else {
                     if (!scrolling && mSong!!.mScrollMode !== SongScrollingMode.Manual) {
-                        if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
-                            scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
-                        else if (currentLine.mYStopScrollTime <= timePassed)
-                            scrollPercentage = 1.0
-                        if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
-                            yScrollOffset = (currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt()
-                        else if (mSong!!.mScrollMode === SongScrollingMode.Beat)
-                            yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
+                        if(!mSong!!.mNoScrollLines.contains(currentLine)) {
+                            if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
+                                scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
+                            else if (currentLine.mYStopScrollTime <= timePassed)
+                                scrollPercentage = 1.0
+                            if (mSong!!.mScrollMode === SongScrollingMode.Smooth)
+                                yScrollOffset = (currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt()
+                            else if (mSong!!.mScrollMode === SongScrollingMode.Beat)
+                                yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
+                        }
                     }
                 }
                 currentY -= yScrollOffset
@@ -1011,6 +1013,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (song.mScrollMode === SongScrollingMode.Smooth) {
                 songScrollEndPixel += song.mSmoothScrollOffset
                 songScrollEndPixel += song.mBeatCounterRect.height()
+                songScrollEndPixel+=song.mSmoothScrollEndOffset
             }
             return songScrollEndPixel
         }
