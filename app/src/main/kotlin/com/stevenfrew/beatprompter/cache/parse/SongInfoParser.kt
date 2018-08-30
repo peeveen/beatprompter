@@ -53,9 +53,8 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
             mKey=keyTag.mKey
 
         if(chordTag!=null)
-            if(mFirstChord!=null)
-                if(chordTag.isValidChord())
-                    mFirstChord=chordTag.mName
+            if(mFirstChord==null && chordTag.isValidChord())
+                mFirstChord=chordTag.mName
 
         if(midiSongSelectTriggerTag!=null)
             mMIDISongSelectTrigger=midiSongSelectTriggerTag.mTrigger

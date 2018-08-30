@@ -37,7 +37,6 @@ abstract class Task(private var mRunning: Boolean) : Runnable {
                 } catch (ie: InterruptedException) {
                     Log.d(TASKTAG, "Thread sleep (while paused) was interrupted.", ie)
                 }
-
             }
         }
         Log.d(TASKTAG, "Task ended.")
@@ -84,7 +83,6 @@ abstract class Task(private var mRunning: Boolean) : Runnable {
                     } catch (ie: InterruptedException) {
                         Log.d(TASKTAG, "Task interrupted while waiting for join.", ie)
                     }
-
                 }
             }
         }
