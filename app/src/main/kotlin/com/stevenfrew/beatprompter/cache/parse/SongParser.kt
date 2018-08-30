@@ -77,7 +77,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
-        // TODO: Deep clone of tags, get rid of retreatFrom
         val chordTags=line.mTags.filterIsInstance<ChordTag>()
         val nonChordTags=line.mTags.filter { it !is ChordTag }
         val chordsFound = mShowChords && !chordTags.isEmpty()
@@ -86,18 +85,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         var workLine=line.mTaglessLine
         val commaBars=line.mTags.filterIsInstance<BarMarkerTag>().size
-        workLine=workLine.substring(commaBars)
-        repeat(commaBars){tags.forEach{tag-> tag.retreatFrom(0)}}
+        val scrollBeatModifiers=line.mTags.filterIsInstance<ScrollBeatModifierTag>()
 
-        var scrollBeatOffset=0
-        while (workLine.endsWith(">") || workLine.endsWith("<")) {
-            if (workLine.endsWith(">"))
-                scrollBeatOffset++
-            else if (workLine.endsWith("<"))
-                scrollBeatOffset--
-            workLine = workLine.substring(0, workLine.length - 1)
-            tags.forEach{it.retreatFrom(workLine.length)}
-        }
+        var scrollBeatOffset=scrollBeatModifiers.sumBy{it.mModifier}
 
         // TODO: dynamic BPB changing
 
