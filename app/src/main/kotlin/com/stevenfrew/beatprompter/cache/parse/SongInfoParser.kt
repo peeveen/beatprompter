@@ -14,6 +14,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     private var mKey:String?=null
     private var mFirstChord:String?=null
     private var mBPM:Double=0.0
+    private var mBars:Int=0
     private var mDuration:Long=0L
     private val mAudioFiles=mutableListOf<String>()
     private val mImageFiles=mutableListOf<String>()
@@ -36,6 +37,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         val bpmTag=line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
         val beatStartTag=line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
         val beatStopTag=line.mTags.filterIsInstance<BeatStopTag>().firstOrNull()
+        val barsTag=line.mTags.filterIsInstance<BarsTag>().firstOrNull()
         val timeTag=line.mTags.filterIsInstance<TimeTag>().firstOrNull()
         val audioTags=line.mTags.filterIsInstance<AudioTag>()
         val imageTags=line.mTags.filterIsInstance<ImageTag>()
@@ -69,6 +71,11 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
 
         if(beatStartTag!=null || beatStopTag!=null)
             mMixedMode=true
+
+        mBars += if(barsTag!=null)
+            barsTag.mBars
+        else
+            mTags.filterIsInstance<BarMarkerTag>().size
 
         mAudioFiles.addAll(audioTags.map{it.mFilename })
         mImageFiles.addAll(imageTags.map{it.mFilename })

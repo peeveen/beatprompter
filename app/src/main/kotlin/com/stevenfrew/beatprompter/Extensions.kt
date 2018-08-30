@@ -13,11 +13,18 @@ fun String.splitAndTrim(separator:String):List<String> {
 }
 
 /**
+ * Remove stupid BOF character
+ */
+fun String.removeControlCharacters():String
+{
+    return replace("\uFEFF", "")
+}
+
+/**
  * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
- * Also remove any stupid BOF character
  */
 fun String.normalize(): String {
-    return replace('’', '\'').replace("\uFEFF", "").toLowerCase()
+    return replace('’', '\'').removeControlCharacters().toLowerCase()
 }
 
 fun String?.looksLikeHex(): Boolean {

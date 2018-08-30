@@ -6,10 +6,12 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
 import com.stevenfrew.beatprompter.splitAndTrim
 
-class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor) {
+class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor, DirectiveFinder) {
 
     private var mSetName:String=""
     private val mSetListEntries=mutableListOf<SetListEntry>()
@@ -32,8 +34,8 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
         return SetListFile(mCachedCloudFileDescriptor,mSetName,mSetListEntries,mErrors)
     }
 
-    override fun parseTag(text: String, lineNumber: Int, position: Int): Tag {
-        val txt=text.trim('{','}')
+    override fun parseTag(foundTag: FoundTag, lineNumber: Int): Tag {
+        val txt=foundTag.mText
         val bits=txt.splitAndTrim(":")
         if(bits.size==2)
         {
@@ -41,7 +43,7 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
             val tagValue=bits[1]
             when(tagName)
             {
-                "set"->return SetNameTag(tagName,lineNumber,position,tagValue)
+                "set"->return SetNameTag(tagName,lineNumber,foundTag.mStart,tagValue)
                 else->throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unexpected_tag_in_setlist_file))
             }
         }

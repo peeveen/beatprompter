@@ -7,6 +7,6 @@ open class ValueTag internal constructor(name:String,lineNumber:Int,position:Int
 {
     init {
         if(value.isBlank())
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.tag_has_blank_value))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.tag_has_blank_value,name))
     }
 }

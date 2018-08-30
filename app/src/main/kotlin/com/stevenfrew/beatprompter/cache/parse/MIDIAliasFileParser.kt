@@ -7,6 +7,8 @@ import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
@@ -14,7 +16,7 @@ import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.splitAndTrim
 import java.util.ArrayList
 
-class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor) {
+class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, DirectiveFinder) {
 
     private var mAliasSetName:String?=null
     private var mCurrentAliasName:String?=null
@@ -104,16 +106,16 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, mCachedCloudFileDescriptor.mName))
     }
 
-    override fun parseTag(text: String, lineNumber: Int, position: Int): Tag {
-        val txt=text.trim('{','}')
+    override fun parseTag(foundTag: FoundTag, lineNumber: Int): Tag {
+        val txt=foundTag.mText
         val bits=txt.splitAndTrim(":")
         return if(bits.size==2) {
             val tagName=bits[0]
             val tagValue=bits[1]
             when(tagName) {
-                "midi_aliases"-> MIDIAliasSetNameTag(tagName,lineNumber,position,tagValue)
-                "midi_alias"-> MIDIAliasNameTag(tagName,lineNumber,position,tagValue)
-                else-> MIDIAliasInstructionTag(tagName,lineNumber,position,tagValue)
+                "midi_aliases"-> MIDIAliasSetNameTag(tagName,lineNumber,foundTag.mStart,tagValue)
+                "midi_alias"-> MIDIAliasNameTag(tagName,lineNumber,foundTag.mStart,tagValue)
+                else-> MIDIAliasInstructionTag(tagName,lineNumber,foundTag.mStart,tagValue)
             }
         } else
             throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts))

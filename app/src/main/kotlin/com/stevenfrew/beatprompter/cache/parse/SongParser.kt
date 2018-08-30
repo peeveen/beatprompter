@@ -84,16 +84,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val chordsFoundButNotShowingThem=!mShowChords && chordsFound
         val tags=if(mShowChords)line.mTags.toList() else nonChordTags
 
-        // Bars can be defined by commas ....
-        var commaBars:Int?=null
         var workLine=line.mTaglessLine
-        while (workLine.startsWith(",")) {
-            if(commaBars==null)
-                commaBars=0
-            workLine = workLine.substring(1)
-            tags.forEach{it.retreatFrom(0)}
-            commaBars++
-        }
+        val commaBars=line.mTags.filterIsInstance<BarMarkerTag>().size
+        workLine=workLine.substring(commaBars)
+        repeat(commaBars){tags.forEach{tag-> tag.retreatFrom(0)}}
 
         var scrollBeatOffset=0
         while (workLine.endsWith(">") || workLine.endsWith("<")) {
@@ -510,42 +504,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
-    {
-        when(name)
-        {
-            "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
-            "b","bars"->return BarsTag(name, lineNumber, position, value)
-            "bpb", "beatsperbar"->return BeatsPerBarTag(name, lineNumber, position, value)
-            "bpl", "barsperline"->return BarsPerLineTag(name, lineNumber, position, value)
-            "scrollbeat", "sb"->return ScrollBeatTag(name, lineNumber, position, value)
-            "beatstart"->return BeatStartTag(name, lineNumber, position)
-            "beatstop"->return BeatStopTag(name, lineNumber, position)
-
-            "image"->return ImageTag(name, lineNumber, position, value)
-            "pause"->return PauseTag(name, lineNumber, position, value)
-            "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
-            "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
-            "count","countin"->return CountTag(name,lineNumber,position,value)
-
-            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
-            "eoh"->return EndOfHighlightTag(name, lineNumber, position)
-
-            "track", "audio", "musicpath"->return AudioTag(name,lineNumber,position,value)
-
-            // BeatPrompter tags that are not required here ...
-            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "time",
-            // Unused ChordPro tags
-            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
-
-            else->{
-                if(COMMENT_AUDIENCE_STARTERS.any{name.startsWith(it)})
-                    return CommentTag(name,lineNumber,position,value)
-                return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
-            }
-        }
-    }
-
     private fun generateBeatEvents(currentLineBeatInfo:BeatInfo,nanosecondsPerBeat:Long,beatsForThisLine:Int,click:Boolean)
     {
         var beatThatWeWillScrollOn = 0
@@ -784,6 +742,45 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if (mSongLoadInfo.mSongScrollMode !== LineScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
+    }
+
+    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
+    {
+        when(name)
+        {
+            "b","bars"->return BarsTag(name, lineNumber, position, value)
+            "," -> return BarMarkerTag(lineNumber,position)
+
+            "bpm", "metronome", "beatsperminute"->return BeatsPerMinuteTag(name, lineNumber, position, value)
+            "bpb", "beatsperbar"->return BeatsPerBarTag(name, lineNumber, position, value)
+            "bpl", "barsperline"->return BarsPerLineTag(name, lineNumber, position, value)
+            ">","<" -> return ScrollBeatModifierTag(name, lineNumber,position)
+            "scrollbeat", "sb"->return ScrollBeatTag(name, lineNumber, position, value)
+            "beatstart"->return BeatStartTag(name, lineNumber, position)
+            "beatstop"->return BeatStopTag(name, lineNumber, position)
+
+            "image"->return ImageTag(name, lineNumber, position, value)
+            "pause"->return PauseTag(name, lineNumber, position, value)
+            "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
+            "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
+            "count","countin"->return CountTag(name,lineNumber,position,value)
+
+            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
+            "eoh"->return EndOfHighlightTag(name, lineNumber, position)
+
+            "track", "audio", "musicpath"->return AudioTag(name,lineNumber,position,value)
+
+            // BeatPrompter tags that are not required here ...
+            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "time",
+                // Unused ChordPro tags
+            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
+
+            else->{
+                if(COMMENT_AUDIENCE_STARTERS.any{name.startsWith(it)})
+                    return CommentTag(name,lineNumber,position,value)
+                return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
+            }
+        }
     }
 
     companion object {
