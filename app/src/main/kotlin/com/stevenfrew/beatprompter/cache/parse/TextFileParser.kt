@@ -6,7 +6,6 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
-import com.stevenfrew.beatprompter.normalize
 import com.stevenfrew.beatprompter.removeControlCharacters
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation

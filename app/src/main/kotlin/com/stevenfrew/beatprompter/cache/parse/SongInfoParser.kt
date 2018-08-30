@@ -72,10 +72,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         if(beatStartTag!=null || beatStopTag!=null)
             mMixedMode=true
 
-        mBars += if(barsTag!=null)
-            barsTag.mBars
-        else
-            mTags.filterIsInstance<BarMarkerTag>().size
+        mBars += barsTag?.mBars ?: mTags.filterIsInstance<BarMarkerTag>().size
 
         mAudioFiles.addAll(audioTags.map{it.mFilename })
         mImageFiles.addAll(imageTags.map{it.mFilename })
