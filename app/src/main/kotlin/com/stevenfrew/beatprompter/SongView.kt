@@ -728,9 +728,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (mSong!!.mScrollMode !== SongScrollingMode.Manual) {
                 val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
                 val nextBeatEvent = mSong!!.mCurrentEvent.nextBeatEvent
-                Log.d("bp","nano="+nano)
-                Log.d("bp", "prevBeatEvent TIME="+prevBeatEvent!!.mEventTime)
-                Log.d("bp", "prevBeatEvent BEAT="+prevBeatEvent.mBeat)
                 if (prevBeatEvent != null)
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null)
             }
