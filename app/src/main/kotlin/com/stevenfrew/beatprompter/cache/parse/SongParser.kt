@@ -205,12 +205,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             if (workLine.isBlank() && (!chordsFound || chordsFoundButNotShowingThem))
                 workLine = "▼"
 
-            // Generate pause events if required
-            val pauseEvents=
-                if(pauseTag!=null)
-                    generatePauseEvents(mSongTime,pauseTag.mDuration)
-                else
-                    null
+            // Generate pause events if required (may return null)
+            val pauseEvents=generatePauseEvents(mSongTime,pauseTag)
 
             if (createLine)
             {
@@ -247,6 +243,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         }
                         catch(e:Exception)
                         {
+                            // Bitmap loading could cause error here.
                             mErrors.add(FileParseError(imageTag,BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)))
                         }
                     else {
@@ -255,34 +252,31 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         mErrors.add(FileParseError(imageTag, workLine))
                     }
                 }
-                if(imageTag==null) {
+                if(imageTag==null)
                     lineObj = TextLine(workLine, tags, lineStartTime, lineDuration, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startAndStopScrollTimes, mSongLoadCancelEvent)
-                }
 
                 if(lineObj!=null)
                 {
-                    mSongHeight+=lineObj.mMeasurements.mLineHeight
                     mLines.add(lineObj)
-                    val lineEvent=LineEvent(lineObj.mLineTime,lineObj)
-                    mEvents.add(lineEvent)
+                    mEvents.add(LineEvent(lineObj.mLineTime,lineObj))
 
-                    // If a pause is specified on a line, then discard any beats.
-                    if (pauseEvents!=null && pauseTag!=null) {
-                        mEvents.addAll(pauseEvents)
-                        mSongTime += pauseTag.mDuration
+                    mSongHeight+=lineObj.mMeasurements.mLineHeight
+
+                    // If a pause is going to be generated, then we don't need beats.
+                    if (pauseEvents==null) {
+                        // Otherwise, add any generated beats
+                        if (beatEvents != null) {
+                            mEvents.addAll(beatEvents.second)
+                            mSongTime = beatEvents.first
+                        }
+                        // Otherwise, forget it, just bump up the song time
+                        else
+                            mSongTime += lineDuration
                     }
-                    // Otherwise, add any generated beats
-                    else if(beatEvents!=null) {
-                        mEvents.addAll(beatEvents.second)
-                        mSongTime=beatEvents.first
-                    }
-                    // Otherwise, forget it, just bump up the song time
-                    else
-                        mSongTime += lineDuration
                 }
             }
-            // This is the case where the line is blank, but we want to generate a pause
-            else if (pauseEvents!=null && pauseTag!=null) {
+            // Now add the pause events to the song (if required).
+            if (pauseEvents!=null && pauseTag!=null) {
                 mEvents.addAll(pauseEvents)
                 mSongTime+=pauseTag.mDuration
             }
@@ -495,13 +489,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return Pair(eventTime,beatEvents)
     }
 
-    private fun generatePauseEvents(startTime:Long, pauseTimeNano: Long):List<PauseEvent> {
+    private fun generatePauseEvents(startTime:Long, pauseTag: PauseTag?):List<PauseEvent>? {
+        if(pauseTag==null)
+            return null
         // pauseTime is in milliseconds.
         // We don't want to generate thousands of events, so let's say every 1/10th of a second.
         var eventTime=startTime
         val pauseEvents= mutableListOf<PauseEvent>()
-        val deciSeconds = Math.ceil(Utils.nanoToMilli(pauseTimeNano).toDouble() / 100.0).toInt()
-        val remainder = pauseTimeNano - Utils.milliToNano(deciSeconds * 100)
+        val deciSeconds = Math.ceil(Utils.nanoToMilli(pauseTag.mDuration).toDouble() / 100.0).toInt()
+        val remainder = pauseTag.mDuration - Utils.milliToNano(deciSeconds * 100)
         val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
         eventTime += remainder
         for (f in 0 until deciSeconds) {
