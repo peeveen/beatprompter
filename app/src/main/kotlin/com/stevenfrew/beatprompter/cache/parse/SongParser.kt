@@ -5,6 +5,9 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
+import com.stevenfrew.beatprompter.collections.CircularGraphicsList
+import com.stevenfrew.beatprompter.collections.EventList
+import com.stevenfrew.beatprompter.collections.LineList
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
@@ -22,8 +25,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
-    private val mEvents=mutableListOf<BaseEvent>(StartEvent())
-    private val mLines=mutableListOf<Line>()
+    private val mEvents= EventList()
+    private val mLines= LineList()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
     private val mPaint= Paint()
@@ -225,46 +228,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 // to include any count-in
                 val addToPause=if(mLines.isEmpty()) mSongTime else 0L
 
-                // Generate beat events and pause events if required
-                val beatEvents=
-                    if(mCurrentLineBeatInfo.mScrollMode!==LineScrollingMode.Smooth)
-                        generateBeatEvents(mSongTime,metronomeOn)
-                    else
-                        null
+                // Generate beat events (may return null in smooth mode)
+                val beatEvents=generateBeatEvents(mSongTime,metronomeOn)
 
-                val lineDuration = when {
-                    pauseTag !=null -> pauseTag.mDuration+addToPause
-                    mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
-                    else -> beatEvents!!.first-lineStartTime
-                }
+                // Calculate how long this line will last for
+                val lineDuration=calculateLineDuration(pauseTag,addToPause,lineStartTime,beatEvents)
 
-                val startScrollTime=
-                        when(mCurrentLineBeatInfo.mScrollMode)
-                        {
-                            LineScrollingMode.Smooth->mSongTime
-                            else->
-                                if(pauseTag!=null)
-                                    lineStartTime+addToPause+(pauseTag.mDuration*0.95).toLong()
-                                else
-                                    beatEvents!!.second.lastOrNull()?.mEventTime?:mSongTime
-                        }
-                val stopScrollTime=
-                        when(mCurrentLineBeatInfo.mScrollMode)
-                        {
-                            LineScrollingMode.Smooth->mSongTime+lineDuration
-                            else->
-                                if(pauseTag!=null)
-                                    lineStartTime+addToPause+pauseTag.mDuration
-                                else
-                                    beatEvents!!.first
-                        }
+                // Calculate the start and stop scroll times for this line
+                val startAndStopScrollTimes=calculateStartAndStopScrollTimes(pauseTag,lineStartTime+addToPause,lineDuration,beatEvents)
 
+                // Create the line
                 var lineObj: Line?=null
                 if (imageTag != null) {
                     val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineStartTime,lineDuration,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineStartTime,lineDuration,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startAndStopScrollTimes)
                         }
                         catch(e:Exception)
                         {
@@ -277,41 +256,33 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, lineStartTime, lineDuration, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine, tags, lineStartTime, lineDuration, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startAndStopScrollTimes, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)
                 {
-                    val previousLine=mLines.lastOrNull()
-                    if(previousLine!=null)
-                    {
-                        previousLine.mNextLine=lineObj
-                        lineObj.mPrevLine=previousLine
-                    }
-
                     mSongHeight+=lineObj.mMeasurements.mLineHeight
                     mLines.add(lineObj)
                     val lineEvent=LineEvent(lineObj.mLineTime,lineObj)
-                    // First line event should be inserted at the start of the list immediately
-                    // after the StartEvent
-                    if(lineObj.mLineTime==0L)
-                        mEvents.add(1,lineEvent)
-                    else
-                        mEvents.add(lineEvent)
+                    mEvents.add(lineEvent)
 
-                    // if a pause is specified on a line, it replaces the actual beats for that line.
+                    // If a pause is specified on a line, then discard any beats.
                     if (pauseEvents!=null && pauseTag!=null) {
                         mEvents.addAll(pauseEvents)
                         mSongTime += pauseTag.mDuration
                     }
+                    // Otherwise, add any generated beats
                     else if(beatEvents!=null) {
                         mEvents.addAll(beatEvents.second)
                         mSongTime=beatEvents.first
                     }
+                    // Otherwise, forget it, just bump up the song time
                     else
                         mSongTime += lineDuration
                 }
-            } else if (pauseEvents!=null && pauseTag!=null) {
+            }
+            // This is the case where the line is blank, but we want to generate a pause
+            else if (pauseEvents!=null && pauseTag!=null) {
                 mEvents.addAll(pauseEvents)
                 mSongTime+=pauseTag.mDuration
             }
@@ -364,26 +335,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val songTitleHeaderLocation = PointF(x, y)
 
         val lineEvents=mEvents.filterIsInstance<LineEvent>()
-        val firstEvent=buildEventList()
+        val firstEvent=mEvents.buildEventChain(mSongTime)
         offsetMIDIEvents(firstEvent)
 
         return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,mSongHeight,firstEvent,mLines,lineEvents,audioEvents,mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,smoothScrollOffset,mBeatCounterRect,songTitleHeader,songTitleHeaderLocation)
-    }
-
-    private fun buildEventList():BaseEvent
-    {
-        val firstEvent=mEvents.removeAt(0)
-        var nextEvent=firstEvent
-        val audioEndTimes=mutableListOf(mSongTime)
-        mEvents.forEach {
-            if(it is AudioEvent)
-                audioEndTimes.add(it.mAudioFile.mDuration+it.mEventTime)
-            nextEvent.add(it)
-            nextEvent=it
-        }
-
-        nextEvent.add(EndEvent(audioEndTimes.max()!!))
-        return firstEvent
     }
 
     private fun getBiggestLineSize(index: Int, modulus: Int): Rect {
@@ -468,8 +423,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun generateBeatEvents(startTime:Long,click:Boolean):Pair<Long,List<BeatEvent>>
+    private fun generateBeatEvents(startTime:Long,click:Boolean):Pair<Long,List<BeatEvent>>?
     {
+        if(mCurrentLineBeatInfo.mScrollMode===LineScrollingMode.Smooth)
+            return null
         var eventTime=startTime
         val beatEvents= mutableListOf<BeatEvent>()
         var beatThatWeWillScrollOn = 0
@@ -742,6 +699,57 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     return CommentTag(name,lineNumber,position,value)
                 return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
             }
+        }
+    }
+
+    private fun calculateStartAndStopScrollTimes(pauseTag:PauseTag?,lineStartTime:Long,lineDuration:Long,currentBeatEvents:Pair<Long,List<BeatEvent>>?):Pair<Long,Long>
+    {
+        // Calculate when this line should start scrolling
+        val startScrollTime=
+                when(mCurrentLineBeatInfo.mScrollMode)
+                {
+                    // Smooth mode? Start scrolling instantly.
+                    LineScrollingMode.Smooth->mSongTime
+                    else->
+                        // Pause line? Start scrolling after 95% of the pause has elapsed.
+                        if(pauseTag!=null)
+                            lineStartTime+(pauseTag.mDuration*0.95).toLong()
+                        // Beat line? Start scrolling on the last beat.
+                        else
+                            currentBeatEvents!!.second.lastOrNull()?.mEventTime?:mSongTime
+                    // (Manual mode ignores these scroll values)
+                }
+        // Calculate when the line should stop scrolling
+        val stopScrollTime=
+                when(mCurrentLineBeatInfo.mScrollMode)
+                {
+                    // Smooth mode? It should stop scrolling once the allocated time has elapsed.
+                    LineScrollingMode.Smooth->mSongTime+lineDuration
+                    else->
+                        // Pause line? It should stop scrolling when the pause has ran out
+                        if(pauseTag!=null)
+                            lineStartTime+pauseTag.mDuration
+                        // Beat line? It should stop scrolling after the final beat
+                        else
+                            currentBeatEvents!!.first
+                    // (Manual mode ignores these values)
+                }
+
+        return Pair(startScrollTime,stopScrollTime)
+    }
+
+    private fun calculateLineDuration(pauseTag:PauseTag?,addToPause:Long,lineStartTime:Long,currentBeatEvents:Pair<Long,List<BeatEvent>>?):Long
+    {
+        // Calculate how long this line will last for.
+        return when {
+            // Pause line? Lasts as long as the pause!
+            pauseTag !=null -> pauseTag.mDuration+addToPause
+            // Smooth line? We've counted the bars, so do the sums.
+            mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
+            // Beat line? The result of generateBeatEvents will contain the time
+            // that the beats end, so subtract the start time from that to get our duration.
+            else -> currentBeatEvents!!.first-lineStartTime
+            // (Manual mode ignores these scroll values)
         }
     }
 
