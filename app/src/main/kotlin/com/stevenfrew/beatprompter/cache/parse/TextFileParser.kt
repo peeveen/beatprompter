@@ -18,6 +18,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
         val fileTags = mutableSetOf<KClass<out Tag>>()
         val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
         mCachedCloudFileDescriptor.mFile.forEachLine { strLine ->
+            // TODO: solve double blank line issue
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
             if (!txt.startsWith('#')) {

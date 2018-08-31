@@ -58,5 +58,4 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         result = 31 * result + mType.hashCode()
         return result
     }
-
 }

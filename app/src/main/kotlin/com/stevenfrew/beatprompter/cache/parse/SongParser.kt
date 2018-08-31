@@ -634,7 +634,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         for (commentLine in commentLines)
             if (commentLine.trim().isNotEmpty())
                 nonBlankCommentLines.add(commentLine.trim())
-        var errorCount = mErrors.size
+        val uniqueErrors= mErrors.distinct()
+        var errorCount = uniqueErrors.size
         var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
         val showBPM = mShowBPM!=ShowBPM.No
         if (showBPM)
@@ -646,8 +647,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
             spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
             var errorCounter = 0
-            for (error in mErrors) {
-                startScreenStrings.add(ScreenString.create(error.errorMessage, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
+            for (error in uniqueErrors) {
+                startScreenStrings.add(ScreenString.create(error.toString(), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
                 ++errorCounter
                 --errorCount
                 if (errorCounter == 5 && errorCount > 0) {

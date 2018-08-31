@@ -31,7 +31,7 @@ open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, parser:Text
                 tagCollection.add(tag)
             }
             catch(mte:MalformedTagException) {
-                parser.addError(FileParseError(mLineNumber,mte.message))
+                parser.addError(FileParseError(mLineNumber,mte.message!!))
             }
             currentLine=lineWithoutTag.trim()
         }

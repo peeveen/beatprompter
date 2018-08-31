@@ -442,7 +442,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val tv = view.findViewById<TextView>(R.id.errors)
         val str = StringBuilder()
         for (fpe in errors)
-            str.append(fpe.errorMessage).append("\n")
+            str.append(fpe.toString()).append("\n")
         tv.text = str.toString().trim()
         val customAD = builder.create()
         customAD.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
