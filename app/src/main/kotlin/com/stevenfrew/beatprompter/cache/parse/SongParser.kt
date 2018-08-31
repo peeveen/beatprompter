@@ -162,8 +162,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // So now is when we want to create the count-in (if any)
             if(mCountIn>0) {
                 val countInEvents=generateCountInEvents(mCountIn, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
-                mEvents.addAll(countInEvents.second)
-                mSongTime=countInEvents.first
+                mEvents.addAll(countInEvents.mEvents)
+                mSongTime=countInEvents.mBlockEndTime
                 mCountIn=0
             }
 
@@ -266,8 +266,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     if (pauseEvents==null) {
                         // Otherwise, add any generated beats
                         if (beatEvents != null) {
-                            mEvents.addAll(beatEvents.second)
-                            mSongTime = beatEvents.first
+                            mEvents.addAll(beatEvents.mEvents)
+                            mSongTime = beatEvents.mBlockEndTime
                         }
                         // Otherwise, forget it, just bump up the song time
                         else
@@ -417,7 +417,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun generateBeatEvents(startTime:Long,click:Boolean):Pair<Long,List<BeatEvent>>?
+    private fun generateBeatEvents(startTime:Long,click:Boolean):EventBlock?
     {
         if(mCurrentLineBeatInfo.mScrollMode===LineScrollingMode.Smooth)
             return null
@@ -486,7 +486,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     rolloverCurrentBeat = 0
             }
         }
-        return Pair(eventTime,beatEvents)
+        return EventBlock(beatEvents,eventTime)
     }
 
     private fun generatePauseEvents(startTime:Long, pauseTag: PauseTag?):List<PauseEvent>? {
@@ -508,7 +508,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return pauseEvents
     }
 
-    private fun generateCountInEvents(countBars:Int, click:Boolean):Pair<Long,List<BeatEvent>> {
+    private fun generateCountInEvents(countBars:Int, click:Boolean):EventBlock {
         val countInEvents= mutableListOf<BeatEvent>()
         var startTime=0L
         if (countBars > 0) {
@@ -523,7 +523,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
             }
         }
-        return Pair(startTime,countInEvents)
+        return EventBlock(countInEvents,startTime)
     }
 
     private fun offsetMIDIEvents(firstEvent: BaseEvent) {
@@ -698,7 +698,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun calculateStartAndStopScrollTimes(pauseTag:PauseTag?,lineStartTime:Long,lineDuration:Long,currentBeatEvents:Pair<Long,List<BeatEvent>>?):Pair<Long,Long>
+    private fun calculateStartAndStopScrollTimes(pauseTag:PauseTag?,lineStartTime:Long,lineDuration:Long,currentBeatEvents:EventBlock?):Pair<Long,Long>
     {
         // Calculate when this line should start scrolling
         val startScrollTime=
@@ -712,7 +712,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             lineStartTime+(pauseTag.mDuration*0.95).toLong()
                         // Beat line? Start scrolling on the last beat.
                         else
-                            currentBeatEvents!!.second.lastOrNull()?.mEventTime?:mSongTime
+                            currentBeatEvents!!.mEvents.lastOrNull()?.mEventTime?:mSongTime
                     // (Manual mode ignores these scroll values)
                 }
         // Calculate when the line should stop scrolling
@@ -727,14 +727,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             lineStartTime+pauseTag.mDuration
                         // Beat line? It should stop scrolling after the final beat
                         else
-                            currentBeatEvents!!.first
+                            currentBeatEvents!!.mBlockEndTime
                     // (Manual mode ignores these values)
                 }
 
         return Pair(startScrollTime,stopScrollTime)
     }
 
-    private fun calculateLineDuration(pauseTag:PauseTag?,addToPause:Long,lineStartTime:Long,currentBeatEvents:Pair<Long,List<BeatEvent>>?):Long
+    private fun calculateLineDuration(pauseTag:PauseTag?,addToPause:Long,lineStartTime:Long,currentBeatEvents:EventBlock?):Long
     {
         // Calculate how long this line will last for.
         return when {
@@ -744,7 +744,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
             // Beat line? The result of generateBeatEvents will contain the time
             // that the beats end, so subtract the start time from that to get our duration.
-            else -> currentBeatEvents!!.first-lineStartTime
+            else -> currentBeatEvents!!.mBlockEndTime-lineStartTime
             // (Manual mode ignores these scroll values)
         }
     }
