@@ -229,7 +229,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 val totalLineTime = when {
                     pauseTag !=null -> pauseTag.mDuration
                     mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
-                    else -> mSongTime-lineTime
+                    else -> beatEvents!!.first-lineTime
                 }
 
                 val startScrollTime=
