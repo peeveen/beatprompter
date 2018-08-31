@@ -772,9 +772,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             else
                 null
 
-        // Same thing for MIDI alias files ... if there aren't any, don't bother creating a filter.
+        // Same thing for MIDI alias files ... there's always at least ONE (default aliases), but
+        // if there aren't any more, don't bother creating a filter.
         val midiAliasFilesFilter=
-            if(mCachedCloudFiles.midiAliasFiles.isNotEmpty())
+            if(mCachedCloudFiles.midiAliasFiles.size>1)
                 MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
             else
                 null
