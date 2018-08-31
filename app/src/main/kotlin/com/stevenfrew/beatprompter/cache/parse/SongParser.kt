@@ -158,7 +158,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
             if(mCountIn>0) {
-                generateCountInEvents(mCountIn, mCurrentLineBeatInfo, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+                val countInEvents=generateCountInEvents(mCountIn, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+                mEvents.addAll(countInEvents.second)
+                mSongTime=countInEvents.first
                 mCountIn=0
             }
 
@@ -202,10 +204,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
             // Generate pause events if required
             val pauseEvents=
-                    if(pauseTag!=null)
-                        generatePauseEvents(mSongTime,pauseTag.mDuration)
-                    else
-                        null
+                if(pauseTag!=null)
+                    generatePauseEvents(mSongTime,pauseTag.mDuration)
+                else
+                    null
 
             if (createLine)
             {
@@ -217,7 +219,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
                 // First line should always have a time of zero, so that if the user scrolls
                 // back to the start of the song, it still picks up any count-in beat events.
-                val lineTime=if(mLines.isEmpty()) 0L else mSongTime
+                val lineStartTime=if(mLines.isEmpty()) 0L else mSongTime
+
+                // If the first line is a pause event, we need to adjust the total line time accordingly
+                // to include any count-in
+                val addToPause=if(mLines.isEmpty()) mSongTime else 0L
 
                 // Generate beat events and pause events if required
                 val beatEvents=
@@ -226,23 +232,31 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     else
                         null
 
-                val totalLineTime = when {
-                    pauseTag !=null -> pauseTag.mDuration
+                val lineDuration = when {
+                    pauseTag !=null -> pauseTag.mDuration+addToPause
                     mCurrentLineBeatInfo.mScrollMode == LineScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
-                    else -> beatEvents!!.first-lineTime
+                    else -> beatEvents!!.first-lineStartTime
                 }
 
                 val startScrollTime=
                         when(mCurrentLineBeatInfo.mScrollMode)
                         {
                             LineScrollingMode.Smooth->mSongTime
-                            else-> beatEvents!!.second.lastOrNull()?.mEventTime?:mSongTime
+                            else->
+                                if(pauseTag!=null)
+                                    lineStartTime+addToPause+(pauseTag.mDuration*0.95).toLong()
+                                else
+                                    beatEvents!!.second.lastOrNull()?.mEventTime?:mSongTime
                         }
                 val stopScrollTime=
                         when(mCurrentLineBeatInfo.mScrollMode)
                         {
-                            LineScrollingMode.Smooth->mSongTime+totalLineTime
-                            else-> beatEvents!!.first
+                            LineScrollingMode.Smooth->mSongTime+lineDuration
+                            else->
+                                if(pauseTag!=null)
+                                    lineStartTime+addToPause+pauseTag.mDuration
+                                else
+                                    beatEvents!!.first
                         }
 
                 var lineObj: Line?=null
@@ -250,7 +264,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineTime,totalLineTime,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineStartTime,lineDuration,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -263,7 +277,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, lineTime, totalLineTime, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine, tags, lineStartTime, lineDuration, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)
@@ -295,7 +309,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         mSongTime=beatEvents.first
                     }
                     else
-                        mSongTime += totalLineTime
+                        mSongTime += lineDuration
                 }
             } else if (pauseEvents!=null && pauseTag!=null) {
                 mEvents.addAll(pauseEvents)
@@ -524,13 +538,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return Pair(eventTime,beatEvents)
     }
 
-    private fun generatePauseEvents(startTime:Long, pauseTime: Long):List<PauseEvent> {
+    private fun generatePauseEvents(startTime:Long, pauseTimeNano: Long):List<PauseEvent> {
         // pauseTime is in milliseconds.
         // We don't want to generate thousands of events, so let's say every 1/10th of a second.
         var eventTime=startTime
         val pauseEvents= mutableListOf<PauseEvent>()
-        val deciSeconds = Math.ceil(pauseTime.toDouble() / 100.0).toInt()
-        val remainder = Utils.milliToNano(pauseTime) - Utils.milliToNano(deciSeconds * 100)
+        val deciSeconds = Math.ceil(Utils.nanoToMilli(pauseTimeNano).toDouble() / 100.0).toInt()
+        val remainder = pauseTimeNano - Utils.milliToNano(deciSeconds * 100)
         val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
         eventTime += remainder
         for (f in 0 until deciSeconds) {
@@ -541,19 +555,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return pauseEvents
     }
 
-    private fun generateCountInEvents(countBars:Int, currentLineBeatInfo: LineBeatInfo, click:Boolean) {
+    private fun generateCountInEvents(countBars:Int, click:Boolean):Pair<Long,List<BeatEvent>> {
+        val countInEvents= mutableListOf<BeatEvent>()
+        var startTime=0L
         if (countBars > 0) {
-            if (currentLineBeatInfo.mBPM > 0.0) {
-                val countbpm = currentLineBeatInfo.mBPM
-                val countbpb = currentLineBeatInfo.mBPB
+            if (mCurrentLineBeatInfo.mBPM > 0.0) {
+                val countbpm = mCurrentLineBeatInfo.mBPM
+                val countbpb = mCurrentLineBeatInfo.mBPB
                 val nanoPerBeat = Utils.nanosecondsPerBeat(countbpm)
                 for (f in 0 until countBars)
                     for (g in 0 until countbpb) {
-                        mEvents.add(BeatEvent(mSongTime, currentLineBeatInfo, g, click, if (f == countBars - 1) countbpb - 1 else -1))
-                        mSongTime += nanoPerBeat
+                        countInEvents.add(BeatEvent(startTime, mCurrentLineBeatInfo, g, click, if (f == countBars - 1) countbpb - 1 else -1))
+                        startTime += nanoPerBeat
                     }
             }
         }
+        return Pair(startTime,countInEvents)
     }
 
     private fun offsetMIDIEvents(firstEvent: BaseEvent) {
