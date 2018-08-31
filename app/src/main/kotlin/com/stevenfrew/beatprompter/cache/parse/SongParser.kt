@@ -219,11 +219,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     else -> mCurrentLineBeatInfo.mBeats * nanosecondsPerBeat
                 }
 
+                // First line should always have a time of zero, so that if the user scrolls
+                // back to the start of the song, it still picks up any count-in beat events.
+                val lineTime=if(mLines.isEmpty()) 0L else mSongTime
+
                 val startScrollTime=
                         when(mCurrentLineBeatInfo.mScrollMode)
                         {
-                            LineScrollingMode.Smooth->mSongTime
-                            else->mSongTime + ((mCurrentLineBeatInfo.mBeats-1)*nanosecondsPerBeat)
+                            LineScrollingMode.Smooth->lineTime
+                            else->lineTime + ((mCurrentLineBeatInfo.mBeats-1)*nanosecondsPerBeat)
                         }
                 val stopScrollTime=mSongTime+totalLineTime
 
@@ -232,7 +236,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,mSongTime,totalLineTime,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineTime,totalLineTime,mCurrentLineBeatInfo,mNativeDeviceSettings,mSongHeight,startScrollTime,stopScrollTime)
                         }
                         catch(e:Exception)
                         {
@@ -245,7 +249,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     }
                 }
                 if(imageTag==null) {
-                    lineObj = TextLine(workLine, tags, mSongTime, totalLineTime, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine, tags, lineTime, totalLineTime, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startScrollTime, stopScrollTime, mSongLoadCancelEvent)
                 }
 
                 if(lineObj!=null)
@@ -259,8 +263,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
                     mSongHeight+=lineObj.mMeasurements.mLineHeight
                     mLines.add(lineObj)
-                    val lineEvent=LineEvent(mSongTime,lineObj)
-                    mEvents.add(lineEvent)
+                    val lineEvent=LineEvent(lineObj.mLineTime,lineObj)
+                    // First line event should be inserted at the start of the list immediately
+                    // after the StartEvent
+                    if(lineObj.mLineTime==0L)
+                        mEvents.add(1,lineEvent)
+                    else
+                        mEvents.add(lineEvent)
 
                     // Generate beat events ...
 
@@ -301,11 +310,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         for (f in 0 until maxGraphicsRequired)
             lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
 
-        var graphic: LineGraphic = lineGraphics.first()
-        mLines.forEach {
-            for (f in 0 until it.mMeasurements.mLines) {
-                it.allocateGraphic(graphic)
-                graphic = graphic.mNextGraphic
+        // There may be no lines! So we have to check ...
+        if(lineGraphics.isNotEmpty()) {
+            var graphic: LineGraphic = lineGraphics.first()
+            mLines.forEach {
+                for (f in 0 until it.mMeasurements.mLines) {
+                    it.allocateGraphic(graphic)
+                    graphic = graphic.mNextGraphic
+                }
             }
         }
 
@@ -659,7 +671,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
         }
-        if (mSongLoadInfo.mSongLoadMode !== LineScrollingMode.Manual)
+        if (mSongLoadInfo.mSongLoadMode !== SongLoadMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
     }

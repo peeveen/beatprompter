@@ -666,6 +666,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun processAudioEvent(event:AudioEvent): Boolean {
         val mediaPlayer= mMediaPlayers[event.mAudioFile] ?: return false
         Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
+        mediaPlayer.seekTo(0)
         mediaPlayer.start()
         return true
     }
