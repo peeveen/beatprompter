@@ -9,7 +9,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,initialScrollMode: SongScrollingMode):TextFileParser<TResultType>(cachedCloudFileDescriptor, DirectiveFinder, ChordFinder, MarkerFinder) {
     private var mOngoingBeatInfo:SongBeatInfo=SongBeatInfo(mScrollMode=initialScrollMode)
     protected var mCurrentLineBeatInfo:LineBeatInfo=LineBeatInfo(mOngoingBeatInfo)
-    private var mLastLineBeatInfo:LineBeatInfo=mCurrentLineBeatInfo
 
     override fun parseTag(foundTag: FoundTag,lineNumber:Int):Tag
     {
@@ -49,6 +48,8 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
     abstract fun createSongTag(name:String,lineNumber:Int,position:Int,value:String):Tag
 
     override fun parseLine(line: TextFileLine<TResultType>) {
+        val lastLineBeatInfo=mCurrentLineBeatInfo
+
         val commaBars=line.mTags.filterIsInstance<BarMarkerTag>().size
         val scrollBeatModifiers=line.mTags.filterIsInstance<ScrollBeatModifierTag>()
         var scrollBeatOffset=scrollBeatModifiers.sumBy{it.mModifier}
@@ -95,18 +96,18 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
                 if(beatStartTags.isNotEmpty())
                     if(mOngoingBeatInfo.mBPM==0.0) {
                         mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
-                        mLastLineBeatInfo.mScrollMode
+                        lastLineBeatInfo.mScrollMode
                     }
                     else
                         LineScrollingMode.Beat
                 else
                     LineScrollingMode.Manual
             else
-                mLastLineBeatInfo.mScrollMode
+                lastLineBeatInfo.mScrollMode
 
-        val lastScrollBeatOffset = mLastLineBeatInfo.mScrollBeatOffset
-        val lastBPB = mLastLineBeatInfo.mBPB
-        val lastScrollBeat = mLastLineBeatInfo.mScrollBeat
+        val lastScrollBeatOffset = lastLineBeatInfo.mScrollBeatOffset
+        val lastBPB = lastLineBeatInfo.mBPB
+        val lastScrollBeat = lastLineBeatInfo.mScrollBeat
         val scrollBeatDifference =mCurrentLineBeatInfo.mScrollBeat - mCurrentLineBeatInfo.mBPB - (lastScrollBeat - lastBPB)
 
         var beatsForThisLine = beatsPerBarInThisLine * barsInThisLine
@@ -115,7 +116,6 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
         beatsForThisLine -= lastScrollBeatOffset
 
         mOngoingBeatInfo=SongBeatInfo(barsPerLineTag?.mBPL?:mOngoingBeatInfo.mBPL,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,mOngoingBeatInfo.mScrollMode)
-        mLastLineBeatInfo=mCurrentLineBeatInfo
         mCurrentLineBeatInfo= LineBeatInfo(beatsForThisLine,barsInThisLine,beatsPerBarInThisLine,beatsPerMinuteInThisLine,scrollBeatInThisLine,scrollBeatOffset,newScrollMode)
     }
 }
