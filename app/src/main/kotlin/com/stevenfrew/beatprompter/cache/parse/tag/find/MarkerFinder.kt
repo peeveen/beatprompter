@@ -12,11 +12,11 @@ object MarkerFinder: TagFinder {
             else if(text.isNotEmpty())
             {
                 // Look for the FIRST ending chevron
-                var position=text.length-1
-                while(text[position]=='<' || text[position]=='>')
+                var position = text.length - 1
+                while (position>=0 && (text[position] == '<' || text[position] == '>'))
                     --position
                 ++position
-                if(position<text.length)
+                if (position < text.length)
                     position
                 else
                     -1

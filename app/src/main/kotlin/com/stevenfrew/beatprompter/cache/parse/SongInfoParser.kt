@@ -31,56 +31,56 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         super.parseLine(line)
         ++mLines
 
-        val titleTag=line.mTags.filterIsInstance<TitleTag>().firstOrNull()
-        val artistTag=line.mTags.filterIsInstance<ArtistTag>().firstOrNull()
-        val keyTag=line.mTags.filterIsInstance<KeyTag>().firstOrNull()
-        val chordTag=line.mTags.filterIsInstance<ChordTag>().firstOrNull()
-        val midiSongSelectTriggerTag=line.mTags.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()
-        val midiProgramChangeTriggerTag=line.mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
-        val bpmTag=line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
-        val beatStartTag=line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
-        val beatStopTag=line.mTags.filterIsInstance<BeatStopTag>().firstOrNull()
-        val timeTag=line.mTags.filterIsInstance<TimeTag>().firstOrNull()
-        val audioTags=line.mTags.filterIsInstance<AudioTag>()
-        val imageTags=line.mTags.filterIsInstance<ImageTag>()
-        val tagTags=line.mTags.filterIsInstance<TagTag>()
+        val titleTag = line.mTags.filterIsInstance<TitleTag>().firstOrNull()
+        val artistTag = line.mTags.filterIsInstance<ArtistTag>().firstOrNull()
+        val keyTag = line.mTags.filterIsInstance<KeyTag>().firstOrNull()
+        val chordTag = line.mTags.filterIsInstance<ChordTag>().firstOrNull()
+        val midiSongSelectTriggerTag = line.mTags.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()
+        val midiProgramChangeTriggerTag = line.mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
+        val bpmTag = line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
+        val beatStartTag = line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
+        val beatStopTag = line.mTags.filterIsInstance<BeatStopTag>().firstOrNull()
+        val timeTag = line.mTags.filterIsInstance<TimeTag>().firstOrNull()
+        val audioTags = line.mTags.filterIsInstance<AudioTag>()
+        val imageTags = line.mTags.filterIsInstance<ImageTag>()
+        val tagTags = line.mTags.filterIsInstance<TagTag>()
 
-        if(titleTag!=null)
-            mTitle=titleTag.mTitle
+        if (titleTag != null)
+            mTitle = titleTag.mTitle
 
-        if(artistTag!=null)
-            mArtist=artistTag.mArtist
+        if (artistTag != null)
+            mArtist = artistTag.mArtist
 
-        if(keyTag!=null)
-            mKey=keyTag.mKey
+        if (keyTag != null)
+            mKey = keyTag.mKey
 
-        if(chordTag!=null)
-            if(mFirstChord==null && chordTag.isValidChord())
-                mFirstChord=chordTag.mName
+        if (chordTag != null)
+            if (mFirstChord == null && chordTag.isValidChord())
+                mFirstChord = chordTag.mName
 
-        if(midiSongSelectTriggerTag!=null)
-            mMIDISongSelectTrigger=midiSongSelectTriggerTag.mTrigger
+        if (midiSongSelectTriggerTag != null)
+            mMIDISongSelectTrigger = midiSongSelectTriggerTag.mTrigger
 
-        if(midiProgramChangeTriggerTag!=null)
-            mMIDIProgramChangeTrigger=midiProgramChangeTriggerTag.mTrigger
+        if (midiProgramChangeTriggerTag != null)
+            mMIDIProgramChangeTrigger = midiProgramChangeTriggerTag.mTrigger
 
-        if(bpmTag!=null)
-            mBPM=bpmTag.mBPM
+        if (bpmTag != null)
+            mBPM = bpmTag.mBPM
 
-        if(timeTag!=null)
-            mDuration=timeTag.mDuration
+        if (timeTag != null)
+            mDuration = timeTag.mDuration
 
-        if(beatStartTag!=null || beatStopTag!=null)
-            mMixedMode=true
+        if (beatStartTag != null || beatStopTag != null)
+            mMixedMode = true
 
-        if(!line.mTaglessLine.isBlank() || imageTags.isNotEmpty() || chordTag!=null) {
+        if (!line.mTaglessLine.isBlank() || imageTags.isNotEmpty() || chordTag != null) {
             mBars += mCurrentLineBeatInfo.mBPL
             mBeats += mCurrentLineBeatInfo.mBeats
         }
 
-        mAudioFiles.addAll(audioTags.map{it.mFilename })
-        mImageFiles.addAll(imageTags.map{it.mFilename })
-        mTags.addAll(tagTags.map{it.mTag })
+        mAudioFiles.addAll(audioTags.map { it.mFilename })
+        mImageFiles.addAll(imageTags.map { it.mFilename })
+        mTags.addAll(tagTags.map { it.mTag })
     }
 
     override fun getResult(): SongFile {
