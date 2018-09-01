@@ -11,7 +11,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
     fun parseMIDIEvent(value:String, time: Long, aliases: List<Alias>, defaultChannel: Byte): MIDIEvent {
         var tagValue = value.trim()
         var name=mName
-        var eventOffset: EventOffset = EventOffset.NoOffset
+        var eventOffset: EventOffset? = null
         if (tagValue.isEmpty()) {
             // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
             if (name.contains(";")) {

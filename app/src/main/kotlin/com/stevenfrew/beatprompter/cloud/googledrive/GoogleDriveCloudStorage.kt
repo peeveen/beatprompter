@@ -46,8 +46,8 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
         fun onAuthenticationRequired()
     }
 
-    internal inner class GoogleDriveConnectionListener(var mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        var mClient: GoogleApiClient?=null
+    internal inner class GoogleDriveConnectionListener(private var mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        private var mClient: GoogleApiClient?=null
         fun setClient(client: GoogleApiClient) {
             mClient = client
         }

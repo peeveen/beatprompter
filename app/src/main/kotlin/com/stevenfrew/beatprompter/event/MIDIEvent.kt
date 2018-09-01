@@ -5,13 +5,11 @@ import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
 class MIDIEvent : BaseEvent {
     val mMessages: List<OutgoingMessage>
-    val mOffset: EventOffset
+    val mOffset: EventOffset?
 
-    constructor(time: Long, messages: List<OutgoingMessage>) : this(time,messages, EventOffset.NoOffset)
+    constructor(time: Long, message: OutgoingMessage, offset: EventOffset?=null) : this(time,listOf(message),offset)
 
-    constructor(time: Long, message: OutgoingMessage, offset: EventOffset) : this(time,listOf(message),offset)
-
-    constructor(time: Long, messages: List<OutgoingMessage>, offset: EventOffset) : super(time) {
+    constructor(time: Long, messages: List<OutgoingMessage>, offset: EventOffset?=null) : super(time) {
         mMessages = messages
         mOffset = offset
     }

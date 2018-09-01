@@ -5,7 +5,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 class FileParseError(lineNumber: Int, private val mMessage: String) {
     private val mLineNumber = lineNumber
 
-    constructor(tag: Tag?, message: String) : this(tag?.mLineNumber ?: -1, message)
+    constructor(tag: Tag, message: String) : this(tag.mLineNumber, message)
+    constructor(message: String) : this(-1, message)
 
     override fun toString(): String {
         return (if (mLineNumber != -1) "$mLineNumber: " else "") + mMessage

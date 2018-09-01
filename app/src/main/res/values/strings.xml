@@ -14,7 +14,7 @@
     <string name="multiple_audio_tags_on_song_line">You can only use multiple {audio} tags on a line before the first line of a song.</string>
     <string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
     <string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
-    <string name="multipleFilenameMatches">There are multiple files in the cache that match the filename '{%1$s}'.</string>
+    <string name="multipleFilenameMatches">There are multiple files in the cache that match the filename \'{%1$s}\'.</string>
     <string name="unexpected_tag_in_setlist_file">Set list files should only contain one {set} tag, and no other tags.</string>
     <string name="tag_cant_share_line_with">A {%1$s} tag was found on the same line as a {%2$s} tag. This is not allowed.</string>
     <string name="connect_to_leader_string">Connect to leader</string>
@@ -26,8 +26,8 @@
     <string name="ending_tag_found_before_starting_tag">The tag {%1$s} has been found before a corresponding starting tag.</string>
     <string name="tag_has_blank_value">The tag {%1$s} has been found with no specified value.</string>
     <string name="no_set_name_defined">No set name defined in set list file.</string>
-    <string name="sort_songs">Sort ...</string>
-    <string name="settings">Settings ...</string>
+    <string name="sort_songs">Sort …</string>
+    <string name="settings">Settings …</string>
     <string name="multiple_beatstart_beatstop_same_line">Multiple beatstart or beatstop tags were found on the same line. Ignoring all but the first.</string>
     <string name="could_not_find_cloud_root_error">Could not find the root folder of the cloud storage system.</string>
     <string name="beatstart_with_no_bpm">A beatstart tag can only be used in a song with a defined BPM speed.</string>
@@ -67,7 +67,7 @@
     <string name="not_enough_parameters_supplied">Not enough parameters supplied to MIDI command.</string>
     <string name="default_alias_set_name">Default MIDI Alias Set</string>
 
-    <string name="about">About ...</string>
+    <string name="about">About …</string>
     <string name="temporary">Temporary</string>
     <string name="song_options">Song Options</string>
     <string name="song_list_options">Song List</string>
@@ -83,7 +83,7 @@
     <string name="force_refresh">Force refresh (song file only)</string>
     <string name="add_to_temporary_set">Add to temporary set list</string>
     <string name="force_refresh_with_dependencies">Force refresh (including dependencies)</string>
-    <string name="play_submenu">Play ...</string>
+    <string name="play_submenu">Play …</string>
 
     <string name="play">Play</string>
     <string name="cancel">Cancel</string>
@@ -153,7 +153,7 @@
     <string name="hasDisconnected">has disconnected</string>
     <string name="connectedToBandLeader">Connected to band leader</string>
     <string name="disconnectedFromBandLeader">Lost connection to band leader</string>
-    <string name="otherErrorCount">... and %1$d other error(s).</string>
+    <string name="otherErrorCount">… and %1$d other error(s).</string>
     <string name="fileNotFound">File "%1$s" not found!</string>
     <string name="noTitleFound">No {title} found in song file "%1$s"</string>
     <string name="notAnAudioFile">"%1$s" is not a valid audio file.</string>
@@ -169,7 +169,7 @@
     <string name="byArtist">By artist</string>
     <string name="byDate">By date</string>
     <string name="byKey">By key</string>
-    <string name="sortSongs">Sort songs ...</string>
+    <string name="sortSongs">Sort songs …</string>
     <string name="file_io_read_error">Error reading file.</string>
     <string name="intValueTooLow">Minimum value is %1$d, value found was %2$d.</string>
     <string name="intValueTooHigh">Maximum value is %1$d, value found was %2$d.</string>
@@ -184,8 +184,8 @@
     <string name="cannotFindImageFile">Cannot find image file: %1$s</string>
     <string name="badAudioVolume">Audio track volume is not a number between 0 and 100.</string>
     <string name="oneShotTagDefinedTwice">A value has already been defined for {%1$s}.</string>
-    <string name="lineTooLong">Line %1$d was longer than %2$d characters. Truncating ...</string>
-    <string name="pauseLongerThanSong">Total {pause} time exceeds designated song time.</string>
+    <string name="lineTooLong">Line %1$d was longer than %2$d characters. Truncating …</string>
+    <string name="pauseLongerThanSong">Total {pause} time exceeds designated song time. Disabling smooth scrolling mode.</string>
     <string name="scrollbeatOffTheMap">Scrollbeat offset is greater than or equal to the number of beats in the bar. Resetting to zero.</string>
     <string name="loadingSong">Loading song:\u0020</string>
     <string name="processingSong">Processing song:\u0020</string>
@@ -651,7 +651,7 @@ lyrics and [Em]chords in time with a beat.\n
     <string name="no_cloud_storage_system_set">No cloud storage system has been selected.</string>
     <string name="no_cloud_folder_currently_set">No cloud storage folder has been selected.</string>
     <string name="synchronize_string">Download files</string>
-    <string name="scanningCloudFolder">Loading ...</string>
+    <string name="scanningCloudFolder">Loading …</string>
     <string name="itemsFound">%1$d items found.</string>
     <string name="itemsFoundWithMax">%1$d/%2$d items found.</string>
 

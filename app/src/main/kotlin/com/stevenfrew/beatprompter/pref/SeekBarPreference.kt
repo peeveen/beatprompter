@@ -131,7 +131,7 @@ class SeekBarPreference
 
     // ------------------------------------------------------------------------------------------
     // Set the positive button listener and onClick action :
-    public override fun showDialog(state: Bundle) {
+    public override fun showDialog(state: Bundle?) {
 
         super.showDialog(state)
 

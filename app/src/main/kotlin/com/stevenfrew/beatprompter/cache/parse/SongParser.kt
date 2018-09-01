@@ -5,9 +5,6 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
-import com.stevenfrew.beatprompter.collections.CircularGraphicsList
-import com.stevenfrew.beatprompter.collections.EventList
-import com.stevenfrew.beatprompter.collections.LineList
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
@@ -79,7 +76,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
 
         val lengthOfBackingTrack=mSongLoadInfo.mTrack?.mDuration?:0L
-        val songTime=if(mSongLoadInfo.mSongFile.mDuration==Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
+        var songTime=if(mSongLoadInfo.mSongFile.mDuration==Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
+        if(mSongLoadInfo.mSongFile.mTotalPauses>songTime) {
+            mErrors.add(FileParseError(BeatPrompterApplication.getResourceString(R.string.pauseLongerThanSong)))
+            songTime=0
+        }
+
         mSmoothScrollTimings=
             if(songTime>0L) {
                 val linesInTheSong=mSongLoadInfo.mSongFile.mLines
@@ -135,7 +137,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 else
                 {
                     mInitialMIDIMessages.addAll(midiEvent.mMessages)
-                    if (midiEvent.mOffset != EventOffset.NoOffset)
+                    if (midiEvent.mOffset != null)
                         mErrors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
                 }
             }
@@ -247,9 +249,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             mErrors.add(FileParseError(imageTag,BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)))
                         }
                     else {
-                        imageTag = null
                         workLine = BeatPrompterApplication.getResourceString(R.string.missing_image_file_warning)
                         mErrors.add(FileParseError(imageTag, workLine))
+                        imageTag = null
                     }
                 }
                 if(imageTag==null)
@@ -531,39 +533,40 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         while (event != null) {
             if (event is MIDIEvent) {
                 val midiEvent = event
-                if (midiEvent.mOffset.mAmount != 0) {
-                    // OK, this event needs moved.
-                    var newTime: Long = -1
-                    if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-                        val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-                        newTime = midiEvent.mEventTime + offset
-                    } else {
-                        // Offset by beat count.
-                        var beatCount = midiEvent.mOffset.mAmount
-                        var currentEvent: BaseEvent = midiEvent
-                        while (beatCount != 0) {
-                            val beatEvent: BeatEvent = (if (beatCount > 0)
-                                currentEvent.nextBeatEvent
-                            else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
-                                currentEvent.mPrevEvent!!.mPrevBeatEvent
-                            else
-                                currentEvent.mPrevBeatEvent) ?: break
-                            if (beatEvent.mEventTime != midiEvent.mEventTime) {
-                                beatCount -= beatCount / Math.abs(beatCount)
-                                newTime = beatEvent.mEventTime
+                if(midiEvent.mOffset!=null)
+                    if (midiEvent.mOffset.mAmount != 0) {
+                        // OK, this event needs moved.
+                        var newTime: Long = -1
+                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+                            newTime = midiEvent.mEventTime + offset
+                        } else {
+                            // Offset by beat count.
+                            var beatCount = midiEvent.mOffset.mAmount
+                            var currentEvent: BaseEvent = midiEvent
+                            while (beatCount != 0) {
+                                val beatEvent: BeatEvent = (if (beatCount > 0)
+                                    currentEvent.nextBeatEvent
+                                else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
+                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
+                                else
+                                    currentEvent.mPrevBeatEvent) ?: break
+                                if (beatEvent.mEventTime != midiEvent.mEventTime) {
+                                    beatCount -= beatCount / Math.abs(beatCount)
+                                    newTime = beatEvent.mEventTime
+                                }
+                                currentEvent = beatEvent
                             }
-                            currentEvent = beatEvent
                         }
+                        if (newTime < 0) {
+                            mErrors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                            newTime = 0
+                        }
+                        val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
+                        midiEvent.insertEvent(newMIDIEvent)
+                        event = midiEvent.mPrevEvent
+                        midiEvent.remove()
                     }
-                    if (newTime < 0) {
-                        mErrors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
-                        newTime = 0
-                    }
-                    val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
-                    midiEvent.insertEvent(newMIDIEvent)
-                    event = midiEvent.mPrevEvent
-                    midiEvent.remove()
-                }
             }
             event = event!!.mNextEvent
         }
@@ -755,5 +758,80 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
         private val COMMENT_AUDIENCE_STARTERS=listOf("comment@", "c@", "comment_box@", "cb@", "comment_italic@", "ci@")
+    }
+
+    /**
+     * An "event block" is simply a list of events, in chronological order, and a time that marks the point
+     * at which the block ends. Note that the end time is not necessarily the same as the time of the last
+     * event. For example, a block of five beat events (where each beat last n nanoseconds) will contain
+     * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
+     * actually covers the duration of the beat.
+     */
+    data class EventBlock(val mEvents:List<BaseEvent>,val mBlockEndTime:Long)
+
+    internal class LineList:ArrayList<Line>() {
+        override fun add(element: Line):Boolean {
+            val lastOrNull=lastOrNull()
+            lastOrNull?.mNextLine=element
+            element.mPrevLine=lastOrNull
+            return super.add(element)
+        }
+    }
+
+    class EventList: ArrayList<BaseEvent>() {
+        init {
+            add(StartEvent())
+        }
+        override fun addAll(elements:Collection<BaseEvent>):Boolean
+        {
+            elements.forEach { add(it) }
+            return true
+        }
+        override fun add(element:BaseEvent):Boolean {
+            // First line event should be inserted at the start of the list immediately
+            // after the StartEvent
+            if(element is LineEvent) {
+                if (element.mLine.mLineTime == 0L) {
+                    add(1, element)
+                    return true
+                }
+            }
+            else if(element.mEventTime>lastOrNull()?.mEventTime?:0)
+                return super.add(element)
+            val index=findLastEventBefore(element.mEventTime)
+            add(index+1,element)
+            return true
+        }
+        private fun findLastEventBefore(time:Long):Int
+        {
+            if(isNotEmpty())
+                for(f in (size-1) downTo 0)
+                    if(get(f).mEventTime<=time)
+                        return f
+            return -1
+        }
+        fun buildEventChain(finalSongTime:Long):BaseEvent
+        {
+            val firstEvent=removeAt(0)
+            var nextEvent=firstEvent
+            val audioEndTimes=mutableListOf(finalSongTime)
+            forEach {
+                if(it is AudioEvent)
+                    audioEndTimes.add(it.mAudioFile.mDuration+it.mEventTime)
+                nextEvent.add(it)
+                nextEvent=it
+            }
+            nextEvent.add(EndEvent(audioEndTimes.max()!!))
+            return firstEvent
+        }
+    }
+
+    internal class CircularGraphicsList:ArrayList<LineGraphic>() {
+        override fun add(element: LineGraphic):Boolean {
+            lastOrNull()?.mNextGraphic = element
+            val result=super.add(element)
+            last().mNextGraphic = first()
+            return result
+        }
     }
 }
