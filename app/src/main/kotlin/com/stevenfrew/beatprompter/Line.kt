@@ -38,8 +38,6 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
     }
 
     private fun calculatePixelFromTime(time: Long): Int {
-        // TODO: binary search would be faster
-        //return mSongPixelPosition+(mMeasurements.mPixelsToTimes.withIndex().lastOrNull{it.value<time}?.index?:0)
         return mSongPixelPosition+mMeasurements.findClosestEarliestPixel(time)
     }
 
