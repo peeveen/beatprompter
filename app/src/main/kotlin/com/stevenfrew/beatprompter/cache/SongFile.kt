@@ -22,15 +22,15 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
 
         fun sortableString(inStr:String?):String
         {
-                val str=inStr?.toLowerCase()
-                if(str!=null)
-                {
-                    return if(str.startsWith(thePrefix))
-                        str.substring(thePrefix.length)
-                    else
-                        str
-                }
-                return ""
+            val str=inStr?.toLowerCase()
+            if(str!=null)
+            {
+                return if(str.startsWith(thePrefix))
+                    str.substring(thePrefix.length)
+                else
+                    str
+            }
+            return ""
         }
     }
 }

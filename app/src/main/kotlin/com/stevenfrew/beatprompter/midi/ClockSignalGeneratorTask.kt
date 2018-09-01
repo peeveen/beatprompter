@@ -133,6 +133,5 @@ class ClockSignalGeneratorTask : Task(false) {
         } catch (e: Exception) {
             Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI stop signal to output queue.", e)
         }
-
     }
 }

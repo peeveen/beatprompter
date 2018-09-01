@@ -9,7 +9,7 @@ import kotlin.experimental.and
 open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     @Throws(MalformedTagException::class)
     fun parseMIDIEvent(value:String, time: Long, aliases: List<Alias>, defaultChannel: Byte): MIDIEvent {
-        var tagValue = value.trim()
+        var tagValue = value
         var name=mName
         var eventOffset: EventOffset? = null
         if (tagValue.isEmpty()) {
@@ -53,9 +53,8 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             for (f in paramValues.indices)
                 resolvedBytes[f] = paramValues[f].resolve()
             for (alias in aliases)
-                if (alias.mName.equals(name, ignoreCase = true)) {
+                if (alias.mName.equals(name, ignoreCase = true))
                     return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset)
-                }
             if (name == "midi_send")
                 return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset)
             throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, name))

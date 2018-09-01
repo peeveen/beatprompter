@@ -24,10 +24,7 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
     internal fun getPixelFromTime(time: Long): Int {
         if (time == 0L)
             return 0
-        var lineEndTime = Long.MAX_VALUE
-        if (mNextLine != null)
-            lineEndTime = mNextLine!!.mLineTime
-
+        val lineEndTime = if (mNextLine == null) Long.MAX_VALUE else mNextLine!!.mLineTime
         if (time in mLineTime..(lineEndTime - 1))
             return calculatePixelFromTime(time)
         if (time < mLineTime && mPrevLine != null)

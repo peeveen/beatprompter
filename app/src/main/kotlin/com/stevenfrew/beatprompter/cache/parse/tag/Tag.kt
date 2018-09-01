@@ -4,29 +4,9 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
-import java.util.*
 
-abstract class Tag protected constructor(val mName: String, internal val mLineNumber: Int, private var mPosition: Int) {
-
-    val position:Int
-        get()=mPosition
-
-    val isColorTag:Boolean
-        get()= colorTags.contains(mName)
-
-    val isOneShotTag:Boolean
-        get()= oneShotTags.contains(mName)
-
-    fun retreatFrom(pos:Int)
-    {
-        if(mPosition>pos)
-            --mPosition
-    }
-
+abstract class Tag protected constructor(val mName: String, internal val mLineNumber: Int, val mPosition: Int) {
     companion object {
-        val colorTags: HashSet<String> = hashSetOf("backgroundcolour", "bgcolour", "backgroundcolor", "bgcolor", "pulsecolour", "beatcolour", "pulsecolor", "beatcolor", "lyriccolour", "lyricscolour", "lyriccolor", "lyricscolor", "chordcolour", "chordcolor", "commentcolour", "commentcolor", "beatcountercolour", "beatcountercolor")
-        val oneShotTags: HashSet<String> = hashSetOf("title", "t", "artist", "a", "subtitle", "st", "count", "trackoffset", "time", "midi_song_select_trigger", "midi_program_change_trigger")
-
         @Throws(MalformedTagException::class)
         fun parseIntegerValue(value:String,min: Int, max: Int): Int {
             val intVal: Int

@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.splitAndTrim
 import java.io.File
 
 @OncePerLine
@@ -16,30 +17,20 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
     val mImageScalingMode:ImageScalingMode
 
     init {
-        var imageName = value
-        val colonindex = imageName.indexOf(":")
-        var imageScalingMode = ImageScalingMode.Stretch
-        if (colonindex != -1 && colonindex < imageName.length - 1) {
-            val strScalingMode = imageName.substring(colonindex + 1)
-            imageName = imageName.substring(0, colonindex)
+        val bits=value.splitAndTrim(":")
+        mFilename = File(bits[0]).name
+        mImageScalingMode=if(bits.size>1) parseImageScalingMode(bits[1]) else ImageScalingMode.Stretch
+    }
+
+    companion object {
+        @Throws(MalformedTagException::class)
+        fun parseImageScalingMode(value:String):ImageScalingMode {
             try {
-                imageScalingMode=ImageScalingMode.valueOf(strScalingMode.toLowerCase().capitalize())
+                return ImageScalingMode.valueOf(value.toLowerCase().capitalize())
             }
             catch(e:Exception) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
             }
         }
-        mFilename = File(imageName).name
-/*        val imageFile: File
-        val mappedImage = SongList.mCachedCloudFiles.getMappedImageFile(image, tempImageFileCollection)
-        if (mappedImage == null)
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
-        else {
-            imageFile = File(sourceFile.parent, mappedImage.mFile.name)
-            if (!imageFile.exists())
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.cannotFindImageFile, image))
-        }
-        mImageFile = mappedImage*/
-        mImageScalingMode=imageScalingMode
     }
 }
