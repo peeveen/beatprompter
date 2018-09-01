@@ -396,11 +396,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     chordText = chordTag.mName
                     // Stick a couple of spaces on each chord, apart from the last one.
                     // This is so they don't appear right beside each other.
-                    if (chordTagIndex < chordTags.size - 1) {
+                    if (chordTagIndex < chordTags.size - 1)
                         chordText += "  "
-                        // TODO: POTENTIAL BREAKING CHANGE!
-                        //chordTag.mName = chordText
-                    }
                 }
                 val otherTags = mutableListOf<Tag>()
                 for (tag in nonChordTags)

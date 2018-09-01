@@ -23,4 +23,21 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
             mPixelsToTimes[f] = yStartScrollTime + diff
         }
     }
+
+    fun findClosestEarliestPixel(time:Long):Int
+    {
+        return findClosestEarliestPixel(time,0,mPixelsToTimes.size-1,0)
+    }
+    private fun findClosestEarliestPixel(time:Long,left:Int,right:Int,bestIndex:Int):Int
+    {
+        if(left>right)
+            return bestIndex
+        val currentBestVal=mPixelsToTimes[bestIndex]
+        val mid=(left+right)/2
+        val midVal=mPixelsToTimes[mid]
+        return if(midVal>time || time-midVal>time-currentBestVal)
+            findClosestEarliestPixel(time,left,mid-1, bestIndex)
+        else //if(midVal<time && time-midVal<time-currentBestVal)
+            findClosestEarliestPixel(time,mid+1,right,mid)
+    }
 }

@@ -588,13 +588,7 @@
     <string name="missing_audio_file_warning">Could not find audio file.</string>
     <string name="missing_image_file_warning">*Could not find image file*</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="title_activity_intro" translatable="false">IntroActivity</string>
-    <!--    <string name="pref_wordWrap_key">pref_wordWrap</string>
-    <string name="pref_wordWrap_default">false</string>
-    <string name="pref_wordWrap_title">Word wrap</string>
-    <string name="pref_wordWrap_summary">Long lines will be broken into several smaller lines. If not selected, long lines will scroll horizontally.</string>-->
 
     <string name="welcome_to_beatprompter">Welcome to BeatPrompter</string>
     <string name="works_best_in_landscape">Although you can use it in portrait mode, BeatPrompter works best in landscape mode.</string>

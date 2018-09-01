@@ -77,7 +77,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val lengthOfBackingTrack=mSongLoadInfo.mTrack?.mDuration?:0L
         var songTime=if(mSongLoadInfo.mSongFile.mDuration==Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
-        if(mSongLoadInfo.mSongFile.mTotalPauses>songTime) {
+        if(songTime>0 && mSongLoadInfo.mSongFile.mTotalPauses>songTime) {
             mErrors.add(FileParseError(BeatPrompterApplication.getResourceString(R.string.pauseLongerThanSong)))
             songTime=0
         }
