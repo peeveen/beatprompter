@@ -4,6 +4,7 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
+import com.stevenfrew.beatprompter.flattenAll
 import com.stevenfrew.beatprompter.midi.Alias
 import com.stevenfrew.beatprompter.normalize
 import org.w3c.dom.Document
@@ -103,12 +104,12 @@ class CachedCloudFileCollection {
         mFiles.clear()
     }
 
-    fun getMappedAudioFiles(inStr: String): List<AudioFile> {
-        return audioFiles.filter{it.mNormalizedName.equals(inStr.normalize(),ignoreCase=true)}
+    fun getMappedAudioFiles(vararg inStrs:String): List<AudioFile> {
+        return inStrs.map { audioFiles.filter{audioFile->audioFile.mNormalizedName.equals(it.normalize(),ignoreCase=true)} }.flattenAll().filterIsInstance<AudioFile>()
     }
 
-    fun getMappedImageFiles(inStr: String): List<ImageFile> {
-        return imageFiles.filter{it.mNormalizedName.equals(inStr.normalize(),ignoreCase=true)}
+    fun getMappedImageFiles(vararg inStrs:String): List<ImageFile> {
+        return inStrs.map { imageFiles.filter{imageFile->imageFile.mNormalizedName.equals(it.normalize(),ignoreCase=true)} }.flattenAll().filterIsInstance<ImageFile>()
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {

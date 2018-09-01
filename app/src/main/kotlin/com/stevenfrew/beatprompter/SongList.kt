@@ -271,7 +271,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val selectedSet = if (mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
         val trackNames = mutableListOf<String>()
         trackNames.add(getString(R.string.no_audio))
-        trackNames.addAll(selectedSong.mAudioFiles)
+        val mappedAudioFiles= mCachedCloudFiles.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
+        trackNames.addAll(mappedAudioFiles.map{it.mName})
         val tempSetListFilter=mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
         val addAllowed=
