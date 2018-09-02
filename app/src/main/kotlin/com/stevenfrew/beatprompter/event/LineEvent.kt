@@ -8,5 +8,4 @@ class LineEvent constructor(eventTime:Long,line:Line) : BaseEvent(eventTime) {
     init {
         mPrevLineEvent = this
     }
-
 }

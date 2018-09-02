@@ -25,7 +25,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
 
     internal fun setProgress(nano: Long) {
         val e = mCurrentEvent
-        val newCurrentEvent = e.findEventOnOrBefore(nano)
+        val newCurrentEvent = e.findLatestEventOnOrBefore(nano)
         mCurrentEvent = newCurrentEvent
         mNextEvent = mCurrentEvent.mNextEvent
         val newCurrentLineEvent = newCurrentEvent.mPrevLineEvent

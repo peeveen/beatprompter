@@ -835,12 +835,25 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             onPageDownKeyPressed()
     }
 
+    private fun activateBeatLine(line:Line)
+    {
+        setSongTime(line.mLineTime,true,true,true)
+    }
+
     fun onPageDownKeyPressed() {
         if (mStartState !== PlayState.Playing) {
-            if (!startToggle(null, false) && mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual)
+            if (!startToggle(null, false) && mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual) {
+                if (mSong?.mCurrentLine?.mManualScrollPositions!!.mBeatActivationLine != null)
+                    activateBeatLine(mSong?.mCurrentLine?.mManualScrollPositions!!.mBeatActivationLine!!)
+                else
+                    changeThePageDown()
+            }
+        } else if (mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual) {
+            if(mSong?.mCurrentLine?.mManualScrollPositions!!.mBeatActivationLine!=null)
+                activateBeatLine(mSong?.mCurrentLine?.mManualScrollPositions!!.mBeatActivationLine!!)
+            else
                 changeThePageDown()
-        } else if (mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual)
-            changeThePageDown()
+        }
         else
             changeVolume(+5)
     }

@@ -78,7 +78,7 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
             event.mPrevLineEvent = mPrevLineEvent
     }
 
-    fun findEventOnOrBefore(time: Long): BaseEvent {
+    fun findLatestEventOnOrBefore(time: Long): BaseEvent {
         var lastCheckedEvent = this
         var e: BaseEvent = this
         while (true) {
@@ -91,7 +91,7 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
                         return e
                     e = e.mPrevEvent!!
                 }
-                e.mEventTime < time -> {
+                else -> { // e.mEventTime<=time
                     if (lastCheckedEvent.mEventTime > time)
                         return e
                     lastCheckedEvent = e
@@ -99,13 +99,12 @@ open class BaseEvent protected constructor(var mEventTime: Long // Time at which
                         return e
                     e = e.mNextEvent!!
                 }
-                e.mEventTime == time -> return e
             }
         }
     }
 
     fun insertEvent(event: BaseEvent) {
-        val eventBefore = findEventOnOrBefore(event.mEventTime)
+        val eventBefore = findLatestEventOnOrBefore(event.mEventTime)
         eventBefore.insertAfter(event)
     }
 
