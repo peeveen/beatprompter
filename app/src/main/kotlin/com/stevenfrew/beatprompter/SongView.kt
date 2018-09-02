@@ -22,7 +22,7 @@ import java.io.FileInputStream
 
 class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
-    private var mBeatCountRect = Rect()
+    private var mCurrentBeatCountRect = Rect()
     private var mEndSongByPedalCounter = 0
     private var mMetronomeBeats: Long = 0
     private var mInitialized = false
@@ -181,7 +181,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
 
         mSendMidiClock = song.mSendMIDIClock || sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
-        mBeatCountRect = Rect(0, 0, song.mBeatCounterRect.width(), song.mBeatCounterRect.height())
+        mCurrentBeatCountRect = song.mBeatCounterRect
         mHighlightCurrentLine = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
         mSong=song
     }
@@ -330,12 +330,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 }
             }
         mPaint.color = mBackgroundColorLookup[100]
-        canvas.drawRect(0f, 0f, mSong!!.mDisplaySettings.mScreenSize.width().toFloat(), mSong!!.mBeatCounterRect.height().toFloat(), mPaint)
+        canvas.drawRect(mSong!!.mBeatCounterRect, mPaint)
         mPaint.color = mScrollMarkerColor
         if (mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Beat && mShowScrollIndicator && mScrollIndicatorRect != null)
             canvas.drawRect(mScrollIndicatorRect!!, mPaint)
         mPaint.color = mBeatCounterColor
-        canvas.drawRect(mBeatCountRect, mPaint)
+        canvas.drawRect(mCurrentBeatCountRect, mPaint)
         canvas.drawLine(0f, mSong!!.mBeatCounterRect.height().toFloat(), mSong!!.mDisplaySettings.mScreenSize.width().toFloat(), mSong!!.mBeatCounterRect.height().toFloat(), mPaint)
         if (mShowSongTitle)
             showSongTitle(canvas)
@@ -453,7 +453,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         canvas.drawText(mSong!!.mSongTitleHeader.mText, mSong!!.mSongTitleHeaderLocation.x, mSong!!.mSongTitleHeaderLocation.y, mPaint)
 
         canvas.save()
-        canvas.clipRect(mBeatCountRect)
+        canvas.clipRect(mCurrentBeatCountRect)
         mPaint.color = mSongTitleContrastBeatCounter
         canvas.drawText(mSong!!.mSongTitleHeader.mText, mSong!!.mSongTitleHeaderLocation.x, mSong!!.mSongTitleHeaderLocation.y, mPaint)
         canvas.restore()
@@ -618,7 +618,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             Rect(scrollIndicatorStart, thirdHeight.toInt(), scrollIndicatorEnd, (thirdHeight * 2.0).toInt())
         } else
             null
-        mBeatCountRect = Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
+        mCurrentBeatCountRect = Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
         mLastBeatTime = mSongStartTime + event.mEventTime
         if (event.mClick && mStartState === PlayState.Playing && mSong?.mCurrentLine?.mBeatInfo?.mScrollMode !== ScrollingMode.Manual && playClick)
             mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
@@ -635,7 +635,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         mLastBeatTime = -1
         val currentBeatCounterWidth = (mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / (event.mBeats - 1).toDouble() * event.mBeat.toDouble()).toInt()
-        mBeatCountRect = Rect(0, 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
+        mCurrentBeatCountRect = Rect(0, 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
         mScrollIndicatorRect = Rect(-1, -1, -1, -1)
     }
 
@@ -717,6 +717,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 if (prevBeatEvent != null)
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null)
             }
+            else
+                mCurrentBeatCountRect = mSong!!.mBeatCounterRect
             mSongStartTime = System.nanoTime() - nano
             if (mSong?.mCurrentLine?.mBeatInfo?.mScrollMode !== ScrollingMode.Manual) {
                 val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
