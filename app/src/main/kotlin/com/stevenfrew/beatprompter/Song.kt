@@ -5,63 +5,23 @@ import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.AudioEvent
 import com.stevenfrew.beatprompter.event.BaseEvent
-import com.stevenfrew.beatprompter.event.LineEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
-class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings, val mSongHeight:Int,
-           firstEvent:BaseEvent, private val mLines:List<Line>, lineEvents:List<LineEvent>, internal val mAudioEvents:List<AudioEvent>,
+class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
+           firstEvent:BaseEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mNextSongString:ScreenString?, val mTotalStartScreenTextHeight:Int,
            val mStartedByBandLeader:Boolean, val mNextSong:String,
-           val mSmoothScrollOffset:Int, val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString, val mSongTitleHeaderLocation:PointF) {
+           val mDisplayOffset:Int, val mHeight:Int, val mScrollEndPixel:Int, val mNoScrollLines:List<Line>,
+           val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString, val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line? = mLines.firstOrNull()
     internal var mCurrentEvent=firstEvent // Last event that executed.
     private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
-    internal val mNoScrollLines:List<Line>
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    val mScrollMode:SongScrollingMode
-    internal val mBackingTrack: AudioFile?
-    internal val mSmoothScrollEndOffset:Int
-
-    init {
-        val containsBeatLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Beat}.any()
-        val containsSmoothLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Smooth}.any()
-        val containsManualLines=mLines.filter{it.mBeatInfo.mScrollMode==LineScrollingMode.Manual}.any()
-        mScrollMode = when {
-            listOf(containsBeatLines,containsSmoothLines,containsManualLines).count{it}>1 -> SongScrollingMode.Mixed
-            containsBeatLines -> SongScrollingMode.Beat
-            containsSmoothLines -> SongScrollingMode.Smooth
-            else -> SongScrollingMode.Manual
-        }
-        val noScrollLines=mutableListOf<Line>()
-        val lastLineIsBeat=mLines.lastOrNull()?.mBeatInfo?.mScrollMode==LineScrollingMode.Beat
-        var smoothScrollEndOffset=0
-        if(lastLineIsBeat) {
-            noScrollLines.add(mLines.last())
-            lineEvents.lastOrNull()?.remove()
-        }
-        else if(containsSmoothLines)
-        {
-            var availableScreenHeight=mDisplaySettings.mScreenSize.height()-(mBeatCounterRect.height()+mSmoothScrollOffset)
-            for(lineEvent in lineEvents.reversed())
-            {
-                availableScreenHeight-=lineEvent.mLine.mMeasurements.mLineHeight
-                if(availableScreenHeight>=0) {
-                    noScrollLines.add(lineEvent.mLine)
-                    lineEvent.remove()
-                }
-                else {
-                    smoothScrollEndOffset=availableScreenHeight+lineEvent.mLine.mMeasurements.mLineHeight
-                    break
-                }
-            }
-        }
-        mSmoothScrollEndOffset=smoothScrollEndOffset
-        mNoScrollLines=noScrollLines
-        mBackingTrack=findBackingTrack(firstEvent)
-    }
+    val mSmoothMode:Boolean = mLines.filter{it.mBeatInfo.mScrollMode==ScrollingMode.Smooth}.any()
+    internal val mBackingTrack=findBackingTrack(firstEvent)
 
     internal fun setProgress(nano: Long) {
         val e = mCurrentEvent

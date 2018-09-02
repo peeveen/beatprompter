@@ -6,8 +6,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 
-abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,initialScrollMode: SongScrollingMode):TextFileParser<TResultType>(cachedCloudFileDescriptor, DirectiveFinder, ChordFinder, MarkerFinder) {
-    private var mOngoingBeatInfo:SongBeatInfo=SongBeatInfo(mScrollMode=initialScrollMode)
+abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, initialScrollMode: ScrollingMode, val mAllowModeChange:Boolean):TextFileParser<TResultType>(cachedCloudFileDescriptor, DirectiveFinder, ChordFinder, MarkerFinder) {
+    protected var mOngoingBeatInfo:SongBeatInfo=SongBeatInfo(mScrollMode=initialScrollMode)
     protected var mCurrentLineBeatInfo:LineBeatInfo=LineBeatInfo(mOngoingBeatInfo)
 
     override fun parseTag(foundTag: FoundTag,lineNumber:Int):Tag
@@ -92,16 +92,16 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
 
         // Multiple beatstart or beatstop tags on the same line are nonsensical
         val newScrollMode=
-            if(beatModeTags.size==1)
+            if(mAllowModeChange && beatModeTags.size==1)
                 if(beatStartTags.isNotEmpty())
                     if(mOngoingBeatInfo.mBPM==0.0) {
                         mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
                         lastLineBeatInfo.mScrollMode
                     }
                     else
-                        LineScrollingMode.Beat
+                        ScrollingMode.Beat
                 else
-                    LineScrollingMode.Manual
+                    ScrollingMode.Manual
             else
                 lastLineBeatInfo.mScrollMode
 

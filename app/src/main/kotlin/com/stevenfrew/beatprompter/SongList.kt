@@ -152,7 +152,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
         val manualMode = BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_manualMode_key), false)
-        val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
+        val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val beatScroll = selectedSong.mIsBeatScrollable && !manualMode
         val smoothScroll = selectedSong.mIsSmoothScrollable && !manualMode
         val scrollingMode = if (beatScroll) SongLoadMode.Beat else if (smoothScroll) SongLoadMode.Smooth else SongLoadMode.Manual
@@ -971,7 +971,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
             val sharedPrefs = BeatPrompterApplication.preferences
             val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)
-            val mimicDisplay = scrollingMode === SongScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
+            val mimicDisplay = scrollingMode === ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
 
             // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
             // Also, beat and smooth scrolling should never mimic.

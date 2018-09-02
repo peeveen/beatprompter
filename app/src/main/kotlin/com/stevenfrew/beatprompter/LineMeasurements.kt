@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter
 
-class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long, lineDuration: Long, yStartScrollTime: Long, lineScrollMode: LineScrollingMode) {
+class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long, lineDuration: Long, yStartScrollTime: Long, scrollMode: ScrollingMode) {
     internal var mPixelsToTimes: LongArray
     internal var mJumpScrollIntervals = IntArray(101)
 
@@ -16,7 +16,7 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
         for (f in 1 until mLineHeight) {
             val linePercentage = f.toDouble() / mLineHeight.toDouble()
             val diff=
-                if (lineScrollMode == LineScrollingMode.Beat)
+                if (scrollMode == ScrollingMode.Beat)
                     (timeDiff * Utils.mSineLookup[(90.0 * linePercentage).toInt()]).toLong()
                 else
                     (linePercentage * timeDiff.toDouble()).toLong()

@@ -1,16 +1,15 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.ScrollingMode
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongScrollingMode
-import com.stevenfrew.beatprompter.Utils
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
 
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor, SongScrollingMode.Beat) {
+class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat,false) {
     private var mTitle:String?=null
     private var mArtist:String?=null
     private var mKey:String?=null
@@ -103,7 +102,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
                 else
                     mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mErrors)
+        return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mErrors)
     }
 
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
