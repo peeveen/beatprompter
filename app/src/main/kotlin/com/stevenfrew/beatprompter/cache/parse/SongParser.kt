@@ -443,8 +443,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             var pageUp=lineWeAreSettingTheValuesFor.mSongPixelPosition
             val pageUpLimit=Math.max(pageUp-usableScreenHeight,0)
             if(pageUpLimit>0) {
-                while (previousLinePosition >= pageUpLimit && previousLine?.mBeatInfo?.mScrollMode==currentScrollMode) {
+                while (previousLinePosition >= pageUpLimit) {
                     pageUp = previousLinePosition
+                    if(previousLine?.mBeatInfo?.mScrollMode!=currentScrollMode)
+                        break
                     previousLine=previousLine.mPrevLine
                     previousLinePosition=previousLine?.mSongPixelPosition?:-1
                 }
@@ -455,8 +457,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             var pageDown=lineWeAreSettingTheValuesFor.mSongPixelPosition
             val pageDownLimit=Math.min(pageDown+usableScreenHeight,maxScrollPosition)
             if(pageDownLimit<maxScrollPosition) {
-                while (nextLinePosition <= pageDownLimit && nextLine?.mBeatInfo?.mScrollMode==currentScrollMode) {
+                while (nextLinePosition <= pageDownLimit) {
                     pageDown = nextLinePosition
+                    if(nextLine?.mBeatInfo?.mScrollMode!=currentScrollMode)
+                        break
                     nextLine=nextLine.mNextLine
                     nextLinePosition=nextLine?.mSongPixelPosition?:maxScrollPosition+1
                 }
