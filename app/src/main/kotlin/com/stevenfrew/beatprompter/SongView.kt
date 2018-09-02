@@ -362,7 +362,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mSongPixelPosition = mScroller.currY
             //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
             run {
-                val songTime = mSong!!.mCurrentLine!!.getTimeFromPixel(mSongPixelPosition)
+                val songTime = mSong!!.mCurrentLine?.getTimeFromPixel(mSongPixelPosition)?:0
                 setSongTime(songTime, mStartState === PlayState.Paused, true, false)
             }
             scrolling = true
@@ -766,8 +766,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mSongPixelPosition = Math.max(0, mSongPixelPosition)
             mSongPixelPosition = Math.min(mSong!!.mScrollEndPixel, mSongPixelPosition)
             pauseOnScrollStart()
-            //            if(mSong.mSongScrollingMode!=SongScrollingMode.Manual)
-            setSongTime(mSong!!.mCurrentLine!!.getTimeFromPixel(mSongPixelPosition), true, true, false)
+            setSongTime(mSong!!.mCurrentLine?.getTimeFromPixel(mSongPixelPosition)?:0, true, true, false)
         } else if (mScreenAction == ScreenAction.Volume) {
             mCurrentVolume += (distanceY / 10.0).toInt()
             onVolumeChanged()
@@ -943,7 +942,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             TriggerSafetyCatch.Always -> true
             TriggerSafetyCatch.WhenAtTitleScreen -> mStartState === PlayState.AtTitleScreen
             TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual
-            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine == null || mSong!!.mCurrentLine!!.mNextLine == null || mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual
+            TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine?.mNextLine == null || mSong?.mCurrentLine?.mBeatInfo?.mScrollMode === ScrollingMode.Manual
             TriggerSafetyCatch.Never -> false
             else -> false
         }

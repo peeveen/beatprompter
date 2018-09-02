@@ -41,14 +41,14 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
             //            docIcon.setLayoutParams(docIconLayoutParams);
         } else
             notesIcon.visibility = View.VISIBLE
-        if (!song.mIsSmoothScrollable || !showBeatIcons) {
+        if (!song.isSmoothScrollable || !showBeatIcons) {
             docIcon.visibility = View.GONE
             //            RelativeLayout.LayoutParams beatIconLayoutParams=(RelativeLayout.LayoutParams)beatIcon.getLayoutParams();
             //            beatIconLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             //            beatIcon.setLayoutParams(beatIconLayoutParams);
         } else
             docIcon.visibility = View.VISIBLE
-        if (!song.mIsBeatScrollable || !showBeatIcons) {
+        if (!song.isBeatScrollable || !showBeatIcons) {
             beatIcon.visibility = View.GONE
         } else
             beatIcon.visibility = View.VISIBLE

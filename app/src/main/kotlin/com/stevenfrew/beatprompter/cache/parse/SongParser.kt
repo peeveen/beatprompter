@@ -346,7 +346,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Now we need to figure out which lines should NOT scroll offscreen.
         val noScrollLines=mutableListOf<Line>()
         val lastLineIsBeat=mLines.lastOrNull()?.mBeatInfo?.mScrollMode==ScrollingMode.Beat
-        var smoothScrollEndOffset=0
         if(lastLineIsBeat) {
             noScrollLines.add(mLines.last())
             lineEvents.lastOrNull()?.remove()
@@ -361,10 +360,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     noScrollLines.add(lineEvent.mLine)
                     lineEvent.remove()
                 }
-                else {
-                    smoothScrollEndOffset=availableScreenHeight+lineEvent.mLine.mMeasurements.mLineHeight
+                else
                     break
-                }
             }
         }
 
