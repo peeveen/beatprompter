@@ -39,7 +39,6 @@ import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
 import com.stevenfrew.beatprompter.pref.SettingsActivity
 import com.stevenfrew.beatprompter.pref.SortingPreference
-import com.stevenfrew.beatprompter.songload.SongLoadMode
 import com.stevenfrew.beatprompter.songload.SongLoadTask
 import com.stevenfrew.beatprompter.ui.FilterListAdapter
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter
@@ -169,7 +168,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return playNextSong
     }
 
-    private fun getSongDisplaySettings(songScrollMode: SongLoadMode): SongDisplaySettings {
+    private fun getSongDisplaySettings(songScrollMode: ScrollingMode): SongDisplaySettings {
         val sharedPref = BeatPrompterApplication.preferences
         val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
@@ -197,11 +196,11 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val minimumFontSize: Int
         val maximumFontSize: Int
         when {
-            songScrollMode === SongLoadMode.Beat -> {
+            songScrollMode === ScrollingMode.Beat -> {
                 minimumFontSize = minimumFontSizeBeat
                 maximumFontSize = maximumFontSizeBeat
             }
-            songScrollMode === SongLoadMode.Smooth -> {
+            songScrollMode === ScrollingMode.Smooth -> {
                 minimumFontSize = minimumFontSizeSmooth
                 maximumFontSize = maximumFontSizeSmooth
             }
@@ -217,7 +216,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y))
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: SongLoadMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
@@ -395,7 +394,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                     .setPositiveButton(R.string.play) { _, _ ->
                                         // sign in the user ...
                                         var selectedTrackName = audioSpinner.selectedItem as String?
-                                        val mode = if (beatButton.isChecked) SongLoadMode.Beat else if (smoothButton.isChecked) SongLoadMode.Smooth else SongLoadMode.Manual
+                                        val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
                                         if (audioSpinner.selectedItemPosition == 0)
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
@@ -965,7 +964,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         if (btm is ChooseSongMessage) {
             val beat = btm.mBeatScroll
             val smooth = btm.mSmoothScroll
-            val scrollingMode = if (beat) SongLoadMode.Beat else if (smooth) SongLoadMode.Smooth else SongLoadMode.Manual
+            val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
             val sharedPrefs = BeatPrompterApplication.preferences
             val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)

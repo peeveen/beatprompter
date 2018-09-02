@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.cache
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.*
-import com.stevenfrew.beatprompter.songload.SongLoadMode
 
 @CacheXmlTag("song")
 class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mBars:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mMixedMode:Boolean, val mTotalPauses:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, private val mProgramChangeTrigger:SongTrigger, private val mSongSelectTrigger:SongTrigger, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
@@ -16,7 +15,7 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor,
     val isBeatScrollable
         get() = mBPM>0.0
     val bestScrollingMode
-        get() = if (isBeatScrollable) SongLoadMode.Beat else if (isSmoothScrollable) SongLoadMode.Smooth else SongLoadMode.Manual
+        get() = if (isBeatScrollable) ScrollingMode.Beat else if (isSmoothScrollable) ScrollingMode.Smooth else ScrollingMode.Manual
 
     fun matchesTrigger(trigger: SongTrigger): Boolean {
         return mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger

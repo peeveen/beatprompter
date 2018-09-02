@@ -9,9 +9,8 @@ import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
-import com.stevenfrew.beatprompter.songload.SongLoadMode
 
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,getInitialScrollMode(mSongLoadInfo),mSongLoadInfo.mSongFile.mMixedMode) {
+class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.initialScrollMode,mSongLoadInfo.mSongFile.mMixedMode) {
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
@@ -66,7 +65,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
         val beatCounterHeight =
                 // Top 5% of screen is used for beat counter
-                if (mSongLoadInfo.mSongLoadMode !== SongLoadMode.Manual)
+                if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
                     (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
                 else
                     0
@@ -720,7 +719,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
         }
-        if (mSongLoadInfo.mSongLoadMode !== SongLoadMode.Manual)
+        if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
     }
@@ -808,13 +807,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
         private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
         private val COMMENT_AUDIENCE_STARTERS=listOf("comment@", "c@", "comment_box@", "cb@", "comment_italic@", "ci@")
-
-        fun getInitialScrollMode(songLoadInfo:SongLoadInfo):ScrollingMode
-        {
-            if(songLoadInfo.mSongFile.mMixedMode)
-                return ScrollingMode.Manual
-            return songLoadInfo.mSongLoadMode.toLineScrollMode()
-        }
     }
 
     /**
