@@ -3,15 +3,15 @@ apply plugin: 'kotlin-android'
 apply plugin: 'project-report'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.stevenfrew.beatprompter"
-        minSdkVersion 24
+        minSdkVersion 23
         // Enabling multidex support.
         multiDexEnabled true
-        targetSdkVersion 28
+        targetSdkVersion 27
         versionCode 500
         versionName "1.30"
         resConfigs "en", "fr", "pt", "de", "es", "it"
@@ -75,10 +75,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
     implementation 'com.google.android.gms:play-services-drive:15.0.1'
     implementation 'com.google.android.gms:play-services-plus:15.0.1'
-//    implementation 'com.android.support:support-compat:27.1.1'
-//    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:appcompat-v7:28.0.0-rc01'
-    implementation 'com.android.support:design:28.0.0-rc01'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
     implementation 'com.rarepebble:colorpicker:1.6.0'
     implementation 'com.github.apl-devs:appintro:v4.2.2'
     implementation 'com.dropbox.core:dropbox-core-sdk:3.0.3'

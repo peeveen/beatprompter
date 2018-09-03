@@ -1002,7 +1002,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if(lineAmountAfterPoint<usableScreenHeight) {
                 // Scroll to the last manual mode scroll line that is even partially visible.
                 pageDownPosition = mSongPixelPosition
-                while (pageDownLine.mNextLine != null && pageDownLine.mNextLine!!.mBeatInfo.mScrollMode == ScrollingMode.Manual) {
+                while (pageDownLine.mNextLine != null &&
+                        pageDownLine.mNextLine!!.mBeatInfo.mScrollMode == ScrollingMode.Manual &&
+                        pageDownLine.mNextLine!!.mSongPixelPosition-mSongPixelPosition<usableScreenHeight) {
                     pageDownLine = pageDownLine.mNextLine!!
                     pageDownPosition = pageDownLine.mSongPixelPosition
                 }
@@ -1054,8 +1056,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun getLineHighlightColor(line:Line):Int?
     {
-        if (line == mSong!!.mCurrentLine && line.mBeatInfo.mScrollMode == ScrollingMode.Beat) {
-            if(mHighlightCurrentLine)
+        if (line == mSong!!.mCurrentLine) {
+            if(mHighlightCurrentLine && line.mBeatInfo.mScrollMode == ScrollingMode.Beat)
                 return mDefaultCurrentLineHighlightColour
         }
         else if (mHighlightPageDownLine && line == mManualScrollPositions?.mPageDownLine)
