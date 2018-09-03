@@ -1010,12 +1010,31 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 }
                 // If that happens to be the current line, and the next line is a beat mode line,
                 // then it's a jump scroll to start the beat section.
-                if (pageDownLine == currentLine)
-                    if (pageDownLine.mNextLine != null && pageDownLine.mNextLine!!.mBeatInfo.mScrollMode == ScrollingMode.Beat)
-                    {
-                        pageDownLine=pageDownLine.mNextLine!!
-                        pageDownPosition=pageDownLine.mSongPixelPosition
+                if (pageDownLine == currentLine) {
+                    if (pageDownLine.mNextLine != null && pageDownLine.mNextLine!!.mBeatInfo.mScrollMode == ScrollingMode.Beat) {
+                        pageDownLine = pageDownLine.mNextLine!!
+                        pageDownPosition = pageDownLine.mSongPixelPosition
                     }
+                }
+                else{
+                    // If the chosen line is FULLY ONSCREEN ...
+                    if(pageDownLine.isFullyOnscreen(mSongPixelPosition))
+                    {
+                        /// ... and the following line is a beat line ...
+                        if(pageDownLine.mNextLine!=null &&
+                                pageDownLine.mNextLine!!.mBeatInfo.mScrollMode==ScrollingMode.Beat)
+                        {
+                            val followingBeatLine=pageDownLine.mNextLine!!
+                            // ... and it is ALSO fully onscreen ...
+                            if(followingBeatLine.isFullyOnscreen(mSongPixelPosition))
+                            {
+                                // ... then choose it instead!
+                                pageDownLine=followingBeatLine
+                                pageDownPosition=followingBeatLine.mSongPixelPosition
+                            }
+                        }
+                    }
+                }
             }
 
             // Never scroll beyond the pre-calculated end point (though this should not have happened).

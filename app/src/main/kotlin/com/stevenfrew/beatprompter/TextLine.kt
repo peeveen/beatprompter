@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0

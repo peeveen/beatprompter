@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
 
-class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second) {
+class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
     private val mDestinationRect=getDestinationRect(mBitmap,displaySettings.mScreenSize,scalingMode)

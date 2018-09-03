@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter
 
-abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mBeatInfo:LineBeatInfo, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long) {
+abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mBeatInfo:LineBeatInfo, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long, private val mDisplaySettings:SongDisplaySettings) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements:LineMeasurements
@@ -48,5 +48,31 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
 
     internal open fun recycleGraphics() {
         mGraphics.forEach{it.recycle()}
+    }
+
+    internal fun isOnscreen(currentSongPixelPosition:Int):Boolean {
+        return currentSongPixelPosition in mSongPixelPosition-mDisplaySettings.mUsableScreenHeight..mSongPixelPosition+mMeasurements.mLineHeight
+    }
+
+    internal fun isFullyOnscreen(currentSongPixelPosition:Int):Boolean {
+        return currentSongPixelPosition in (mSongPixelPosition+mMeasurements.mLineHeight)-mDisplaySettings.mUsableScreenHeight..mSongPixelPosition
+    }
+
+    internal fun screenCoverage(currentSongPixelPosition:Int):Double {
+        // If line is off top of screen, no coverage
+        if(currentSongPixelPosition>mSongPixelPosition+mMeasurements.mLineHeight)
+            return 0.0
+        // If line is off end of screen, no coverage
+        if(currentSongPixelPosition<mSongPixelPosition-mDisplaySettings.mUsableScreenHeight)
+            return 0.0
+        // If line fills or covers screen, full coverage!
+        if(currentSongPixelPosition>=mSongPixelPosition && currentSongPixelPosition<=mSongPixelPosition+mMeasurements.mLineHeight)
+            return 1.0
+        // If line crosses top boundary, return remainder
+        val lineAmountBeforePoint=currentSongPixelPosition-mSongPixelPosition
+        if(lineAmountBeforePoint>0)
+            return (mMeasurements.mLineHeight-lineAmountBeforePoint)/mDisplaySettings.mUsableScreenHeight.toDouble()
+        // If line crosses bottom boundary, return remainder
+        val lineAmountBeforeScreenEnd=mMeasurements.mLineHeight
     }
 }

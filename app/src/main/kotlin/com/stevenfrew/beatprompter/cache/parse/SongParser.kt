@@ -20,7 +20,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mNativeDeviceSettings:SongDisplaySettings
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
-    private val mUsableScreenHeight:Int
     private val mStartScreenComments=mutableListOf<Comment>()
     private val mEvents= EventList()
     private val mLines= LineList()
@@ -28,7 +27,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mBeatBlocks = mutableListOf<BeatBlock>()
     private val mPaint= Paint()
     private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-    private val mBeatCounterRect:Rect
     private val mDefaultHighlightColor:Int
     private val mAudioTags=mutableListOf<AudioTag>()
     private val mSmoothScrollTimings:SmoothScrollingTimings?
@@ -64,14 +62,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Figure out the screen size
         mNativeDeviceSettings=translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,mSongLoadInfo.mNativeDisplaySettings)
-        val beatCounterHeight =
-                // Top 5% of screen is used for beat counter
-                if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
-                    (mNativeDeviceSettings.mScreenSize.height() / 20.0).toInt()
-                else
-                    0
-        mBeatCounterRect = Rect(0, 0, mNativeDeviceSettings.mScreenSize.width(), beatCounterHeight)
-        mUsableScreenHeight=mNativeDeviceSettings.mScreenSize.height()-mBeatCounterRect.height()
 
         // Start the progress message dialog
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
@@ -303,7 +293,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val smoothScrollOffset=
             if (smoothMode)
                 // Obviously this will only be required if the song cannot fit entirely onscreen.
-                if(mSongHeight>mUsableScreenHeight)
+                if(mSongHeight>mNativeDeviceSettings.mUsableScreenHeight)
                     Math.min(mLines.map{it.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
                 else
                     0
@@ -330,7 +320,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             }
         }
 
-        val beatCounterHeight=mBeatCounterRect.height()
+        val beatCounterHeight=mNativeDeviceSettings.mBeatCounterRect.height()
         val maxSongTitleWidth = mNativeDeviceSettings.mScreenSize.width() * 0.9f
         val maxSongTitleHeight = beatCounterHeight * 0.9f
         val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
@@ -353,7 +343,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
         else if(smoothMode)
         {
-            var availableScreenHeight=mUsableScreenHeight-smoothScrollOffset
+            var availableScreenHeight=mNativeDeviceSettings.mUsableScreenHeight-smoothScrollOffset
             for(lineEvent in lineEvents.reversed())
             {
                 availableScreenHeight-=lineEvent.mLine.mMeasurements.mLineHeight
@@ -367,14 +357,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
 
         // Calculate the last position that we can scroll to.
-        val manualDisplayEnd=Math.max(0,mSongHeight-mUsableScreenHeight)
+        val manualDisplayEnd=Math.max(0,mSongHeight-mNativeDeviceSettings.mUsableScreenHeight)
         val beatDisplayEnd=mLines.lastOrNull{it.mBeatInfo.mScrollMode===ScrollingMode.Beat}?.mSongPixelPosition
         val scrollEndPixel=
             if (smoothMode)
                 manualDisplayEnd+smoothScrollOffset//+smoothScrollEndOffset
             else
                 if(beatDisplayEnd!=null)
-                    if(beatDisplayEnd+mUsableScreenHeight>mSongHeight)
+                    if(beatDisplayEnd+mNativeDeviceSettings.mUsableScreenHeight>mSongHeight)
                         beatDisplayEnd
                     else
                         manualDisplayEnd
@@ -384,7 +374,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,firstEvent,mLines,audioEvents,
                 mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,
                 totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,
-                smoothScrollOffset,mSongHeight,scrollEndPixel,noScrollLines,mBeatCounterRect,songTitleHeader,
+                smoothScrollOffset,mSongHeight,scrollEndPixel,noScrollLines,mNativeDeviceSettings.mBeatCounterRect,songTitleHeader,
                 songTitleHeaderLocation)
     }
 
@@ -606,7 +596,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
             maximumFontSize = minimumFontSize
         }
-        return SongDisplaySettings(sourceSettings.mOrientation,minimumFontSize,maximumFontSize,nativeScreenSize)
+        return SongDisplaySettings(sourceSettings.mOrientation,minimumFontSize,maximumFontSize,nativeScreenSize,sourceSettings.mShowBeatCounter)
     }
 
     private fun createStartScreenStrings():Pair<List<ScreenString>,ScreenString?>

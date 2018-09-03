@@ -213,7 +213,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val display = windowManager.defaultDisplay
         val size = Point()
         display.getSize(size)
-        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y))
+        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y), songScrollMode!=ScrollingMode.Manual)
     }
 
     private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
