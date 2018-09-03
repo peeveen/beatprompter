@@ -234,7 +234,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         catch(e:Exception)
                         {
                             // Bitmap loading could cause error here.
-                            mErrors.add(FileParseError(imageTag,BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file)))
+                            mErrors.add(FileParseError(imageTag,e.message!!))
                         }
                     else {
                         workLine = BeatPrompterApplication.getResourceString(R.string.missing_image_file_warning)
@@ -278,7 +278,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     override fun getResult(): Song {
         // Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
         if(mLines.isEmpty())
-            mLines.add(TextLine("", listOf(), 0, 1000, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, Pair(0,1000), mSongLoadCancelEvent))
+            // TODO: Create a DummyLine class for this
+            mLines.add(TextLine(".", listOf(), 0, 1000, mCurrentLineBeatInfo, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, Pair(0,1000), mSongLoadCancelEvent))
 
         val smoothMode=mLines.filter{it.mBeatInfo.mScrollMode==ScrollingMode.Smooth}.any()
 

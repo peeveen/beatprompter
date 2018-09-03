@@ -70,9 +70,13 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
             return 1.0
         // If line crosses top boundary, return remainder
         val lineAmountBeforePoint=currentSongPixelPosition-mSongPixelPosition
-        if(lineAmountBeforePoint>0)
+        if(lineAmountBeforePoint>mMeasurements.mLineHeight)
             return (mMeasurements.mLineHeight-lineAmountBeforePoint)/mDisplaySettings.mUsableScreenHeight.toDouble()
         // If line crosses bottom boundary, return remainder
-        val lineAmountBeforeScreenEnd=mMeasurements.mLineHeight
+        val lineAmountBeforeScreenEnd=(currentSongPixelPosition+mDisplaySettings.mUsableScreenHeight)-mSongPixelPosition
+        if(lineAmountBeforeScreenEnd in 0..mMeasurements.mLineHeight)
+            return lineAmountBeforeScreenEnd/mDisplaySettings.mUsableScreenHeight.toDouble()
+        // Only other scenario is: line entirely onscreen
+        return mMeasurements.mLineHeight/mDisplaySettings.mUsableScreenHeight.toDouble()
     }
 }

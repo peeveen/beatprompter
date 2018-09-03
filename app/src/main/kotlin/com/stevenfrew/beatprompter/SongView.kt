@@ -921,7 +921,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 if (down)
                     mManualScrollPositions!!.mPageDownPosition
                 else
-                    mManualScrollPositions!!.mPageDownPosition
+                    mManualScrollPositions!!.mPageUpPosition
     }
 
     private fun changeLine(down: Boolean) {
@@ -1004,7 +1004,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 pageDownPosition = mSongPixelPosition
                 while (pageDownLine.mNextLine != null &&
                         pageDownLine.mNextLine!!.mBeatInfo.mScrollMode == ScrollingMode.Manual &&
-                        pageDownLine.mNextLine!!.mSongPixelPosition-mSongPixelPosition<usableScreenHeight) {
+                        pageDownLine.mNextLine!!.isOnscreen(mSongPixelPosition)) {
                     pageDownLine = pageDownLine.mNextLine!!
                     pageDownPosition = pageDownLine.mSongPixelPosition
                 }
@@ -1129,109 +1129,3 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 }
-
-/*
-
-
-    private fun getMaximumScrollPosition():Int
-    {
-    }
-
-private fun setManualScrollPositions() {
-    // The final scroll position is the last BEAT mode line
-    val maxScrollPosition=getMaximumScrollPosition()
-
-    for(lineWeAreSettingTheValuesFor in mLines)
-    {
-        // On page-up or page-down, we will probably be scrolling at LEAST ONE LINE.
-        val lineUpLine=lineWeAreSettingTheValuesFor.mPrevLine?:lineWeAreSettingTheValuesFor
-        val lineDownLine=lineWeAreSettingTheValuesFor.mNextLine?:lineWeAreSettingTheValuesFor
-
-        // Let's do page up first ... it's the simpler of the two.
-        // Scroll up a screenful of text (in case of an ENORMOUS LINE, start off
-        // with the line-up line).
-        var pageUpLine=lineUpLine
-        // Don't bother doing any of this for the first line.
-        if(lineUpLine!=lineWeAreSettingTheValuesFor) {
-            // First of all, there is an implicit "page break" where the scroll mode changes.
-            // So get what the current line scroll mode is ...
-            val currentScrollMode = lineUpLine.mBeatInfo.mScrollMode
-
-            // Now do the work ...
-            var totalScroll = lineUpLine.mMeasurements.mLineHeight
-            while (totalScroll < mUsableScreenHeight &&
-                    pageUpLine.mPrevLine != null &&
-                    pageUpLine.mBeatInfo.mScrollMode == currentScrollMode) {
-                pageUpLine = pageUpLine.mPrevLine!!
-                totalScroll += pageUpLine.mMeasurements.mLineHeight
-            }
-            // Special case: if we're in mixed mode, and the CURRENT line is the FIRST line in a block
-            // of MANUAL mode lines that has a preceding block of BEAT mode lines, then page-up should
-            // result in us jumping back to the START of the previous BEAT block
-            if(currentScrollMode==ScrollingMode.Beat && lineWeAreSettingTheValuesFor.mBeatInfo.mScrollMode==ScrollingMode.Manual)
-            // OK, this has happened. We now want to search for the FIRST beat mode line in this block.
-            // This might (and probably will) result in us scrolling MORE than one screenful.
-            // This is just too bad. It makes no sense whatsoever to scroll into the MIDDLE of
-            // a beat block.
-                while(pageUpLine.mPrevLine?.mBeatInfo?.mScrollMode==ScrollingMode.Beat)
-                    pageUpLine=pageUpLine.mPrevLine!!
-        }
-
-        // Now page-down ... it SEEMS simple, but there is a mad scenario to cater for later.
-        // Scroll down a screenful of text (in case of an ENORMOUS LINE, start off
-        // with the line-down line).
-        var pageDownLine = lineDownLine
-        // Don't bother doing any of this for the last line.
-        if(lineUpLine!=lineWeAreSettingTheValuesFor) {
-            // First of all, there is an implicit "page break" where the scroll mode changes.
-            // So get what the current line scroll mode is ...
-            val currentScrollMode = lineWeAreSettingTheValuesFor.mBeatInfo.mScrollMode
-
-            var totalScroll=lineWeAreSettingTheValuesFor.mMeasurements.mLineHeight
-            // The line-down might be a different mode from the current line, in which case,
-            // line-down and page-down are equivalent
-            if (lineDownLine.mBeatInfo.mScrollMode == lineWeAreSettingTheValuesFor.mBeatInfo.mScrollMode)
-                while (totalScroll < mUsableScreenHeight &&
-                        pageDownLine.mNextLine != null &&
-                        pageDownLine.mBeatInfo.mScrollMode == currentScrollMode) {
-                    pageDownLine = pageDownLine.mNextLine!!
-                    totalScroll += pageDownLine.mMeasurements.mLineHeight
-                }
-
-            // Page down is trickier, because of one particular mixed mode scenario.
-            // Imagine, if you will, that we are in currently in a MANUAL section.
-            // The LAST LINE in this manual section is the LAST LINE that is FULLY
-            // onscreen. There is a partial line onscreen below it, but that line
-            // is the first in a BEAT section. In a fully manual song, that partial
-            // line would be the one that we scroll to. BUT because we INSTANTLY
-            // scroll to BEAT mode sections, this would not give the performer time
-            // to read the line. So in this scenario, we will scroll to the line
-            // prior to it.
-            if (pageDownLine.mBeatInfo.mScrollMode != currentScrollMode)
-            // OK, the page-down line is a mode change line. Does it cross the
-            // screen boundary?
-                if (totalScroll > mUsableScreenHeight)
-                // Yes it does, so we're not going to use it. We will use
-                // the PREVIOUS line, so long as it isn't the original line
-                // (this is us catering for ENORMOUS lines again).
-                    if (pageDownLine.mPrevLine != lineWeAreSettingTheValuesFor)
-                        pageDownLine = pageDownLine.mPrevLine!!
-
-            // Final two special conditions:
-            // 1) if the line we have calculated is past the maximum scroll
-            // position, reverse back to that.
-            // 2) If the line we have calculated as the page-down line is the
-            // SAME as the current line, then we are on the last line, so just
-            // scroll to the end.
-            val pageDownLinePosition = pageDownLine.mSongPixelPosition
-            val pageDownPosition =
-                    if (pageDownLinePosition > maxScrollPosition || pageDownLine == lineWeAreSettingTheValuesFor)
-                        maxScrollPosition
-                    else
-                        pageDownLinePosition
-        }
-        lineWeAreSettingTheValuesFor.mManualScrollPositions=ManualScrollPositions(pageUpLine,pageDownLine)
-    }
-}
-
-*/

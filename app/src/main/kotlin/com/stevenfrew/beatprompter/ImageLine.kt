@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
+import com.stevenfrew.beatprompter.cache.parse.SongParserException
 
 class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
@@ -43,6 +44,9 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScal
                 scaledImageHeight = (imageHeight * (screenSize.width().toDouble() / imageWidth.toDouble())).toInt()
                 scaledImageWidth = screenSize.width()
             }
+
+            if(scaledImageHeight>8192 || scaledImageWidth>8192)
+                throw SongParserException(BeatPrompterApplication.getResourceString(R.string.image_too_large))
 
             return Rect(0, 0, scaledImageWidth, scaledImageHeight)
         }
