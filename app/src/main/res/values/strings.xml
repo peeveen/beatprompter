@@ -236,6 +236,11 @@
     <string name="pref_beatCounterColor_summary">The colour of the beat counter bar at the top of the screen.</string>
     <string name="pref_beatCounterColor_default" translatable="false">#ff008800</string>
 
+    <string name="pref_pageDownScrollHighlightColor_key" translatable="false">pref_pageDownScrollHighlightColor</string>
+    <string name="pref_pageDownScrollHighlightColor_title">Page down target line highlight colour</string>
+    <string name="pref_pageDownScrollHighlightColor_summary">Highlight color for the line that will be scrolled to when you press page down.</string>
+    <string name="pref_pageDownScrollHighlightColor_default" translatable="false">#ff00ff00</string>
+
     <string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
     <string name="pref_clearCache_title">Clear cache</string>
     <string name="pref_clearCache_summary">Deletes all downloaded files.</string>
@@ -338,6 +343,11 @@
     <string name="pref_highlightCurrentLine_title">Highlight Current Line</string>
     <string name="pref_highlightCurrentLine_summary">Highlights the current line with your chosen highlight colour.</string>
     <string name="pref_highlightCurrentLine_defaultValue" translatable="false">true</string>
+
+    <string name="pref_highlightPageDownLine_key" translatable="false">pref_highlightPageDownLine</string>
+    <string name="pref_highlightPageDownLine_title">Highlight Page Down Target Line</string>
+    <string name="pref_highlightPageDownLine_summary">Highlights the line that will be scrolled to when you press page down.</string>
+    <string name="pref_highlightPageDownLine_defaultValue" translatable="false">true</string>
 
     <string name="pref_showMusicIcon_key" translatable="false">pref_showMusicIcon</string>
     <string name="pref_showMusicIcon_title">Show music icon</string>

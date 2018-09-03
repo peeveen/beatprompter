@@ -15,7 +15,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
            val mStartedByBandLeader:Boolean, val mNextSong:String,
            val mDisplayOffset:Int, val mHeight:Int, val mScrollEndPixel:Int, val mNoScrollLines:List<Line>,
            val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString, val mSongTitleHeaderLocation:PointF) {
-    internal var mCurrentLine: Line? = mLines.firstOrNull()
+    internal var mCurrentLine: Line = mLines.first()
     internal var mCurrentEvent=firstEvent // Last event that executed.
     private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
@@ -29,7 +29,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
         mCurrentEvent = newCurrentEvent
         mNextEvent = mCurrentEvent.mNextEvent
         val newCurrentLineEvent = newCurrentEvent.mPrevLineEvent
-        mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.firstOrNull()
+        mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.first()
     }
 
     internal fun getNextEvent(time: Long): BaseEvent? {
@@ -44,16 +44,13 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
     internal fun getTimeFromPixel(pixel: Int): Long {
         if (pixel == 0)
             return 0
-        return if (mCurrentLine != null)
-                mCurrentLine!!.getTimeFromPixel(pixel)
-            else
-                mLines.firstOrNull()?.getTimeFromPixel(pixel)?:0
+        return mCurrentLine.getTimeFromPixel(pixel)
     }
 
     internal fun getPixelFromTime(time: Long): Int {
         if (time == 0L)
             return 0
-        return if (mCurrentLine != null) mCurrentLine!!.getPixelFromTime(time) else mLines.firstOrNull()?.getPixelFromTime(time)?:0
+        return mCurrentLine.getPixelFromTime(time)
     }
 
     internal fun recycleGraphics() {

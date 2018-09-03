@@ -134,6 +134,13 @@
                 app:colorpicker_showAlpha="false"
                 app:colorpicker_showHex="false"
                 />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_pageDownScrollHighlightColor_key"
+                android:title="@string/pref_pageDownScrollHighlightColor_title"
+                app:colorpicker_defaultColor="#ff00ff00"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false"
+                />
         </PreferenceScreen>
         <PreferenceScreen
             android:title="@string/fontSizes">
@@ -215,7 +222,12 @@
             android:key="@string/pref_highlightCurrentLine_key"
             android:title="@string/pref_highlightCurrentLine_title"
             android:summary="@string/pref_highlightCurrentLine_summary"
-            android:defaultValue="false" />
+            android:defaultValue="false" />s
+        <CheckBoxPreference
+            android:key="@string/pref_highlightPageDownLine_key"
+            android:title="@string/pref_highlightPageDownLine_title"
+            android:summary="@string/pref_highlightPageDownLine_summary"
+            android:defaultValue="true" />
         <com.stevenfrew.beatprompter.pref.SeekBarPreference
             android:key="@string/pref_countIn_key"
             android:defaultValue="@string/pref_countIn_default"

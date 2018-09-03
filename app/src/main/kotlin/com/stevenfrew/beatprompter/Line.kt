@@ -4,7 +4,6 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements:LineMeasurements
-    internal var mManualScrollPositions:ManualScrollPositions?=null
     protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
 
     internal abstract fun renderGraphics()
