@@ -958,7 +958,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
             return
         if(mManualScrollPositions!=null) {
-            if(mManualScrollPositions!!.mBeatJumpScrollLine!=null)
+            if(down && mManualScrollPositions!!.mBeatJumpScrollLine!=null)
                 setSongTime(mManualScrollPositions!!.mBeatJumpScrollLine!!.mLineTime,true,true,true,false)
             else
                 mTargetPixelPosition =
