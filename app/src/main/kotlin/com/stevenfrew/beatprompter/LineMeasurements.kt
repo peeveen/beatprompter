@@ -12,7 +12,6 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
             mJumpScrollIntervals[f] = Math.min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
 
         mPixelsToTimes = LongArray(Math.max(1, mLineHeight))
-        // TODO: worry about smooth duration?
         val lineEndTime = lineTime + lineDuration
         val timeDiff = lineEndTime - yStartScrollTime
         mPixelsToTimes[0] = lineTime
