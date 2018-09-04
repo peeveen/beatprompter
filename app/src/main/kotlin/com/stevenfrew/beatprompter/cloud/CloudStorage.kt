@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.cloud.demo.DemoCloudStorage
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage
 import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage
+import com.stevenfrew.beatprompter.cloud.local.LocalStorage
 import com.stevenfrew.beatprompter.cloud.onedrive.OneDriveCloudStorage
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
@@ -119,11 +120,13 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     companion object {
 
         fun getInstance(cloudType: CloudType, parentActivity: Activity): CloudStorage {
-            if (cloudType === CloudType.Dropbox)
-                return DropboxCloudStorage(parentActivity)
-            if (cloudType === CloudType.OneDrive)
-                return OneDriveCloudStorage(parentActivity)
-            return if (cloudType === CloudType.GoogleDrive) GoogleDriveCloudStorage(parentActivity) else DemoCloudStorage(parentActivity)
+            return when {
+                cloudType === CloudType.Dropbox -> DropboxCloudStorage(parentActivity)
+                cloudType === CloudType.OneDrive -> OneDriveCloudStorage(parentActivity)
+                cloudType === CloudType.GoogleDrive -> GoogleDriveCloudStorage(parentActivity)
+                cloudType === CloudType.Local -> LocalStorage(parentActivity)
+                else -> DemoCloudStorage(parentActivity)
+            }
         }
     }
 

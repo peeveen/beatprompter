@@ -471,6 +471,18 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                     arrayOf(Manifest.permission.GET_ACCOUNTS),
                     MY_PERMISSIONS_REQUEST_GET_ACCOUNTS)
 
+        if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    MY_PERMISSIONS_REQUEST_READ_STORAGE)
+
+        if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    MY_PERMISSIONS_REQUEST_WRITE_STORAGE)
+
         EventHandler.setSongListEventHandler(mSongListEventHandler!!)
 
         BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
@@ -1101,7 +1113,9 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         private const val PLAY_SONG_REQUEST_CODE = 3
         private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4
-        private const val MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 4
+        private const val MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 5
+        private const val MY_PERMISSIONS_REQUEST_READ_STORAGE = 6
+        private const val MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 7
 
         private const val FULL_VERSION_SKU_NAME = "full_version"
 
@@ -1124,6 +1138,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                 val sharedPrefs = BeatPrompterApplication.preferences
                 val cloudPref = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_cloudStorageSystem_key), null)
                 return when (cloudPref) {
+                    BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> CloudType.Local
                     BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> CloudType.GoogleDrive
                     BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> CloudType.Dropbox
                     BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> CloudType.OneDrive

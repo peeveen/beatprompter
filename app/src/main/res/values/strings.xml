@@ -6,6 +6,7 @@
     <string name="author_twitter" translatable="false">Twitter: @beatprompter</string>
     <string name="docs_url" translatable="false">www.beatprompter.co.uk</string>
     <string name="google_drive_string" translatable="false">Google Drive</string>
+    <string name="local_storage_string">Local Storage</string>
     <string name="dropbox_string" translatable="false">Dropbox</string>
     <string name="onedrive_string" translatable="false">OneDrive</string>
     <string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
@@ -523,6 +524,7 @@
     <string name="screenActionVolumeValue" translatable="false">volume</string>
     <string name="screenActionNoneValue" translatable="false">none</string>
 
+    <string name="localStorageValue" translatable="false">localstorage</string>
     <string name="googleDriveValue" translatable="false">googledrive</string>
     <string name="dropboxValue" translatable="false">dropbox</string>
     <string name="oneDriveValue" translatable="false">onedrive</string>

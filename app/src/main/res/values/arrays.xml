@@ -128,11 +128,13 @@
         <item>@string/google_drive_string</item>
         <item>@string/dropbox_string</item>
         <item>@string/onedrive_string</item>
+        <item>@string/local_storage_string</item>
     </string-array>
     <string-array name="pref_cloudStorageSystem_entryValues">
         <item>@string/googleDriveValue</item>
         <item>@string/dropboxValue</item>
         <item>@string/oneDriveValue</item>
+        <item>@string/localStorageValue</item>
     </string-array>
     <string-array name="midi_alias_options_array">
         <item>@string/force_refresh_midi_alias</item>
@@ -145,5 +147,6 @@
         <item>@drawable/ic_google_drive</item>
         <item>@drawable/ic_dropbox</item>
         <item>@drawable/ic_onedrive</item>
+        <item>@drawable/ic_device</item>
     </array>
 </resources>
