@@ -160,10 +160,10 @@
     <string name="noTitleFound">No {title} found in song file "%1$s"</string>
     <string name="notAnAudioFile">"%1$s" is not a valid audio file.</string>
     <string name="checking">Checking %1$s</string>
-    <string name="downloading">Downloading %1$s</string>
+    <string name="downloading">Synchronizing %1$s</string>
     <string name="scanningFolder">Scanning %1$s</string>
     <string name="deleting">Deleting %1$s</string>
-    <string name="downloadingFiles">Downloading Files</string>
+    <string name="downloadingFiles">Synchronizing Files</string>
     <string name="accessingCloudStorage">Accessing %1$s</string>
     <string name="chooseSyncFolder">Choose Sync Folder</string>
     <string name="lowerCaseThe">the</string>
@@ -250,7 +250,7 @@
 
     <string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
     <string name="pref_clearCache_title">Clear cache</string>
-    <string name="pref_clearCache_summary">Deletes all downloaded files.</string>
+    <string name="pref_clearCache_summary">Deletes all cached files.</string>
 
     <string name="pref_mimicBandLeaderDisplay_key" translatable="false">pref_mimicBandLeaderDisplay</string>
     <string name="pref_mimicBandLeaderDisplay_title">Mimic band leader display in manual mode</string>
@@ -266,7 +266,7 @@
 
     <string name="pref_powerwash_key" translatable="false">pref_powerwash</string>
     <string name="pref_powerwash_title">Powerwash</string>
-    <string name="pref_powerwash_summary">Deletes all downloaded files, and clears all stored cloud credentials.</string>
+    <string name="pref_powerwash_summary">Deletes all cached files, and clears all stored cloud credentials.</string>
 
     <string name="pref_scrollMarkerColor_key" translatable="false">pref_scrollMarker</string>
     <string name="pref_scrollMarkerColor_title">Scroll marker colour</string>
@@ -510,7 +510,7 @@
 
     <string name="pref_storageLocation_key" translatable="false">pref_storageLocation</string>
     <string name="pref_storageLocation_title">Storage Location</string>
-    <string name="pref_storageLocation_summary">Where should BeatPrompter store downloaded song and audio files? Changing this will clear the cache.</string>
+    <string name="pref_storageLocation_summary">Where should BeatPrompter store cached song and audio files? Changing this will clear the cache.</string>
 
     <string name="pref_screenAction_key" translatable="false">pref_screenaction</string>
     <string name="pref_screenAction_title">Controls during performance</string>
