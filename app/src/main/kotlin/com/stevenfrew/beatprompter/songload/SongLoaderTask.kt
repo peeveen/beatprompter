@@ -5,8 +5,6 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Song
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.parse.SongParser
-import java.io.IOException
-
 
 class SongLoaderTask : Task(true) {
     private var mSongLoadCancelEvent: SongLoadCancelEvent? = null

@@ -754,9 +754,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     companion object {
         private const val DEMO_LINE_COUNT = 15
-        // Every beatstart/beatstop block has events that are offset by this amount (one year).
-        // If you left the app running for a year, it would eventually progress. WHO WOULD DO SUCH A THING?
-        private val BEAT_MODE_BLOCK_TIME_CHUNK_NANOSECONDS = Utils.milliToNano(1000 * 60 * 24 * 365)
         private val COMMENT_AUDIENCE_STARTERS=listOf("comment@", "c@", "comment_box@", "cb@", "comment_italic@", "ci@")
     }
 

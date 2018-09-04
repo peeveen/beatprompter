@@ -75,14 +75,6 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
         }
     }
 
-    override fun onCancelled() {
-        super.onCancelled()
-    }
-
-    override fun onCancelled(result: Boolean?) {
-        super.onCancelled(result)
-    }
-
     override fun onPreExecute() {
         super.onPreExecute()
         mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
