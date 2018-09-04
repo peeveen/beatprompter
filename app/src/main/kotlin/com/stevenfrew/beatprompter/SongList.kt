@@ -759,7 +759,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         tagAndFolderFilters.sortBy{it.mName.toLowerCase()}
 
         // Now create the basic "all songs" filter, dead easy ...
-        val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.toMutableList())
+        val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.filter { !it.mFilterOnly }.toMutableList())
 
         // Depending on whether we have a temporary set list file, we can create a temporary
         // set list filter ...

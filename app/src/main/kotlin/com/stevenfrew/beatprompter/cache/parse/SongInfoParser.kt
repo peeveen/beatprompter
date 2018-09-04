@@ -21,6 +21,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     private var mDuration:Long=0L
     private val mAudioFiles=mutableListOf<String>()
     private val mImageFiles=mutableListOf<String>()
+    private var mFilterOnly=false
     private val mTags=mutableListOf<String>()
     private var mMIDIProgramChangeTrigger:SongTrigger?=null
     private var mMIDISongSelectTrigger:SongTrigger?=null
@@ -39,6 +40,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         val midiSongSelectTriggerTag = line.mTags.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()
         val midiProgramChangeTriggerTag = line.mTags.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
         val bpmTag = line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
+        val filterOnlyTag = line.mTags.filterIsInstance<FilterOnlyTag>().firstOrNull()
         val beatStartTag = line.mTags.filterIsInstance<BeatStartTag>().firstOrNull()
         val beatStopTag = line.mTags.filterIsInstance<BeatStopTag>().firstOrNull()
         val timeTag = line.mTags.filterIsInstance<TimeTag>().firstOrNull()
@@ -55,6 +57,9 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
 
         if (keyTag != null)
             mKey = keyTag.mKey
+
+        if (filterOnlyTag != null)
+            mFilterOnly=true
 
         if (chordTag != null)
             if (mFirstChord == null && chordTag.isValidChord())
@@ -102,7 +107,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
                 else
                     mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mErrors)
+        return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mFilterOnly,mErrors)
     }
 
     override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
@@ -118,6 +123,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
             "key"-> KeyTag(name, lineNumber, position, value)
             "pause"-> PauseTag(name, lineNumber, position, value)
             "tag"-> TagTag(name, lineNumber, position, value)
+            "filter_only"-> FilterOnlyTag(name, lineNumber, position)
             // Don't care about any other tags in this context, treat them as all irrelevant ChordPro tags
             else-> UnusedTag(name,lineNumber,position)
         }
