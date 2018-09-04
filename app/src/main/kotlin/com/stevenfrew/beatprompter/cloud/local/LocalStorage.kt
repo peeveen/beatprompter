@@ -43,7 +43,10 @@ class LocalStorage(parentActivity: Activity) : CloudStorage(parentActivity, "loc
                 val files = localFolder.listFiles()
                 if (files != null) {
                     files.filter { it.isFile }.map { CloudFileInfo(it.absolutePath, it.name, Date(it.lastModified()), localFolder.name) }.forEach { itemSource.onNext(it) }
-                    foldersToSearch.addAll(files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)})
+                    if(includeSubfolders)
+                        foldersToSearch.addAll(files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)})
+                    if(returnFolders)
+                        files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)}.forEach{itemSource.onNext(it)}
                 }
             } catch (e:Exception) {
                 itemSource.onError(e)
