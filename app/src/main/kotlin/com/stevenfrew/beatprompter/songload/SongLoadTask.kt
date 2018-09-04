@@ -75,6 +75,14 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
         }
     }
 
+    override fun onCancelled() {
+        super.onCancelled()
+    }
+
+    override fun onCancelled(result: Boolean?) {
+        super.onCancelled(result)
+    }
+
     override fun onPreExecute() {
         super.onPreExecute()
         mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
@@ -137,7 +145,10 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
                     mSongLoadTask.mProgressTitle = BeatPrompterApplication.getResourceString(R.string.processingSong)
                     mSongLoadTask.publishProgress(msg.arg1, msg.arg2)
                 }
-                EventHandler.SONG_LOAD_FAILED -> EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED, msg.obj)
+                EventHandler.SONG_LOAD_FAILED -> {
+                    mSongLoadTask.mTaskEndSemaphore.release()
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED, msg.obj)
+                }
             }
         }
     }

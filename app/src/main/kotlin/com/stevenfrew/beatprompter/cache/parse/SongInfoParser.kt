@@ -99,13 +99,13 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         if(mArtist.isNullOrBlank())
             mArtist=""
         val key=
-                if (mKey.isNullOrBlank())
-                    if(mFirstChord.isNullOrBlank())
-                        ""
-                    else
-                        mFirstChord!!
+            if (mKey.isNullOrBlank())
+                if(mFirstChord.isNullOrBlank())
+                    ""
                 else
-                    mKey!!
+                    mFirstChord!!
+            else
+                mKey!!
 
         return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mFilterOnly,mErrors)
     }

@@ -667,10 +667,11 @@ lyrics and [Em]chords in time with a beat.\n
 
     <string name="no_cloud_storage_system_set">No storage system has been selected.</string>
     <string name="no_cloud_folder_currently_set">No storage folder has been selected.</string>
-    <string name="synchronize_string">Get files …</string>
+    <string name="synchronize_string">Synchronize files …</string>
     <string name="scanningCloudFolder">Loading …</string>
     <string name="itemsFound">%1$d items found.</string>
     <string name="itemsFoundWithMax">%1$d/%2$d items found.</string>
+    <string name="no_lines_in_song_file">The selected song file has no lines.</string>
 
     <string name="cloudSyncErrorMessage">There was an error communicating with the storage service ("%1$s").\n\nNot all of the files were fetched or scanned successfully.\n\nCheck your connection and try again.</string>
     <string name="cloudSyncErrorTitle">Sync Error</string>

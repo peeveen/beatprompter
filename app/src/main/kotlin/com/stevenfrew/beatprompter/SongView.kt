@@ -872,12 +872,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun changeThePageDown() {
-        if (mSongPixelPosition == mSong!!.mScrollEndPixel) {
+        if (mSongPixelPosition == mSong!!.mScrollEndPixel)
             if (++mEndSongByPedalCounter == SONG_END_PEDAL_PRESSES)
                 endSong(false)
             else
                 mLastTempMessageTime = System.nanoTime()
-        } else
+        else
             changePage(true)
     }
 
@@ -1068,7 +1068,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     pageDownPosition=
                         when {
                             nextLineScreenCoverage> MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> defaultPageDownScrollPosition
-                            nextLineScreenCoverage >= MINIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownLine.mSongPixelPosition
+                            nextLineScreenCoverage >= MINIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> nextLine.mSongPixelPosition
                             // Okay, so it wasn't onscreen enough.
                             // Before we bail out, we need to check whether the line we've chosen is good enough.
                             // If it takes up a huge amount of the screen, then we're better off doing a default scroll.
@@ -1185,9 +1185,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
         private fun createStrobingHighlightColourArray(startColor:Int):IntArray
         {
-            val colourArray=IntArray(256)
-            for(f in 0..255)
-                colourArray[f]=Utils.makeHighlightColour(startColor,(f/2).toByte())
+            val colourArray=IntArray(512)
+            for(f in 0..255) {
+                colourArray[f] = Utils.makeHighlightColour(startColor, (f / 2).toByte())
+                colourArray[511 - f] = colourArray[f]
+            }
             return colourArray
         }
     }
