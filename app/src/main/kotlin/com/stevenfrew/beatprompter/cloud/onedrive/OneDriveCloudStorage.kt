@@ -25,7 +25,7 @@ import java.util.ArrayList
 
 class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
 
-    private val OneDriveAuthenticator = object : MSAAuthenticator() {
+    private val oneDriveAuthenticator = object : MSAAuthenticator() {
         override fun getClientId(): String {
             return ONEDRIVE_CLIENT_ID
         }
@@ -179,7 +179,7 @@ class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivi
             }
         }
 
-        val oneDriveConfig = DefaultClientConfig.createWithAuthenticator(OneDriveAuthenticator)
+        val oneDriveConfig = DefaultClientConfig.createWithAuthenticator(oneDriveAuthenticator)
         OneDriveClient.Builder()
                 .fromConfig(oneDriveConfig)
                 .loginAndBuildClient(mParentActivity, callback)

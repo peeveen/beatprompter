@@ -34,18 +34,22 @@ class LocalStorage(parentActivity: Activity) : CloudStorage(parentActivity, "loc
     }
 
     override fun readFolderContents(folder: CloudFolderInfo, listener: CloudListener, itemSource: PublishSubject<CloudItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
-        val localFolder=File(folder.mID)
-        messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, localFolder.name))
-        try {
-            val files=localFolder.listFiles()
-            if(files!=null)
-                files.map{if(it.isDirectory) CloudFolderInfo(folder,it.absolutePath,it.name,it.absolutePath) else CloudFileInfo(it.absolutePath,it.name, Date(it.lastModified()),localFolder.name)}.forEach { itemSource.onNext(it) }
-            itemSource.onComplete()
+        val foldersToSearch=mutableListOf(folder)
+        while(foldersToSearch.isNotEmpty()) {
+            val folderToSearch=foldersToSearch.removeAt(0)
+            val localFolder = File(folderToSearch.mID)
+            messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, localFolder.name))
+            try {
+                val files = localFolder.listFiles()
+                if (files != null) {
+                    files.filter { it.isFile }.map { CloudFileInfo(it.absolutePath, it.name, Date(it.lastModified()), localFolder.name) }.forEach { itemSource.onNext(it) }
+                    foldersToSearch.addAll(files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)})
+                }
+            } catch (e:Exception) {
+                itemSource.onError(e)
+                return
+            }
         }
-        catch(exception:Exception)
-        {
-            val f=3
-            val x=4
-        }
+        itemSource.onComplete()
     }
 }
