@@ -238,9 +238,14 @@
     <string name="pref_beatCounterColor_default" translatable="false">#ff008800</string>
 
     <string name="pref_pageDownScrollHighlightColor_key" translatable="false">pref_pageDownScrollHighlightColor</string>
-    <string name="pref_pageDownScrollHighlightColor_title">Page down target line highlight colour</string>
-    <string name="pref_pageDownScrollHighlightColor_summary">Highlight color for the line that will be scrolled to when you press page down.</string>
-    <string name="pref_pageDownScrollHighlightColor_default" translatable="false">#ff00ff00</string>
+    <string name="pref_pageDownScrollHighlightColor_title">Page-down position indicator colour</string>
+    <string name="pref_pageDownScrollHighlightColor_summary">Colour for the page-down scroll position indicators.</string>
+    <string name="pref_pageDownScrollHighlightColor_default" translatable="false">#ff990099</string>
+
+    <string name="pref_beatSectionStartHighlightColor_key" translatable="false">pref_beatSectionStartHighlightColor</string>
+    <string name="pref_beatSectionStartHighlightColor_title">Beat-section start highlight colour</string>
+    <string name="pref_beatSectionStartHighlightColor_summary">Highlight color for the line that is the start of a beat section.</string>
+    <string name="pref_beatSectionStartHighlightColor_default" translatable="false">#ffaaaa00</string>
 
     <string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
     <string name="pref_clearCache_title">Clear cache</string>
@@ -344,6 +349,11 @@
     <string name="pref_highlightCurrentLine_title">Highlight Current Line</string>
     <string name="pref_highlightCurrentLine_summary">Highlights the current line with your chosen highlight colour.</string>
     <string name="pref_highlightCurrentLine_defaultValue" translatable="false">true</string>
+
+    <string name="pref_highlightBeatSectionStart_key" translatable="false">pref_highlightBeatSectionStart</string>
+    <string name="pref_highlightBeatSectionStart_title">Highlight start of beat sections</string>
+    <string name="pref_highlightBeatSectionStart_summary">Highlights the start of beat sections with your chosen highlight colour.</string>
+    <string name="pref_highlightBeatSectionStart_defaultValue" translatable="false">true</string>
 
     <string name="pref_highlightPageDownLine_key" translatable="false">pref_highlightPageDownLine</string>
     <string name="pref_highlightPageDownLine_title">Highlight Page Down Target Line</string>

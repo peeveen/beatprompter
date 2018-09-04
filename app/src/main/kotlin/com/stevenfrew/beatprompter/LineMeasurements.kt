@@ -1,8 +1,11 @@
 package com.stevenfrew.beatprompter
 
+import android.graphics.Rect
+
 class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long, lineDuration: Long, yStartScrollTime: Long, scrollMode: ScrollingMode) {
     internal var mPixelsToTimes: LongArray
     internal var mJumpScrollIntervals = IntArray(101)
+    internal val mGraphicRects=mGraphicHeights.map { Rect(0,0,mLineWidth,it) }.toTypedArray()
 
     init {
         for (f in 0..100)

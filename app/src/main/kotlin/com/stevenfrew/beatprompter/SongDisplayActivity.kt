@@ -154,7 +154,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             if (btm is ToggleStartStopMessage) {
                 if (mSongView != null) {
                     if (btm.mTime >= 0)
-                        mSongView!!.setSongTime(btm.mTime, true, false, true)
+                        mSongView!!.setSongTime(btm.mTime, true, false, true,true)
                     mSongView!!.startToggle(null, false, btm.mStartState)
                 }
             } else if (btm is SetSongTimeMessage) {

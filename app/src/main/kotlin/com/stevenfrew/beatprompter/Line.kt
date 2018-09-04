@@ -50,12 +50,34 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
         mGraphics.forEach{it.recycle()}
     }
 
-    internal fun isOnscreen(currentSongPixelPosition:Int):Boolean {
+    internal fun isOnScreen(currentSongPixelPosition:Int):Boolean {
         return currentSongPixelPosition in mSongPixelPosition-mDisplaySettings.mUsableScreenHeight..mSongPixelPosition+mMeasurements.mLineHeight
     }
 
-    internal fun isFullyOnscreen(currentSongPixelPosition:Int):Boolean {
+    internal fun isFullyOnScreen(currentSongPixelPosition:Int):Boolean {
         return currentSongPixelPosition in (mSongPixelPosition+mMeasurements.mLineHeight)-mDisplaySettings.mUsableScreenHeight..mSongPixelPosition
+    }
+
+    internal fun amountOnScreen(currentSongPixelPosition:Int):Double {
+        // If line is off top of screen, no coverage
+        if(currentSongPixelPosition>mSongPixelPosition+mMeasurements.mLineHeight)
+            return 0.0
+        // If line is off end of screen, no coverage
+        if(currentSongPixelPosition<mSongPixelPosition-mDisplaySettings.mUsableScreenHeight)
+            return 0.0
+        // If line fills or covers screen, full coverage!
+        if(currentSongPixelPosition>=mSongPixelPosition && currentSongPixelPosition<=mSongPixelPosition+mMeasurements.mLineHeight)
+            return 1.0
+        // If line crosses top boundary, return remainder
+        val lineAmountBeforePoint=currentSongPixelPosition-mSongPixelPosition
+        if(lineAmountBeforePoint>mMeasurements.mLineHeight)
+            return (mMeasurements.mLineHeight-lineAmountBeforePoint)/mDisplaySettings.mUsableScreenHeight.toDouble()
+        // If line crosses bottom boundary, return remainder
+        val lineAmountBeforeScreenEnd=(currentSongPixelPosition+mDisplaySettings.mUsableScreenHeight)-mSongPixelPosition
+        if(lineAmountBeforeScreenEnd in 0..mMeasurements.mLineHeight)
+            return lineAmountBeforeScreenEnd/mMeasurements.mLineHeight.toDouble()
+        // Only other scenario is: line entirely onscreen
+        return mMeasurements.mLineHeight/mMeasurements.mLineHeight.toDouble()
     }
 
     internal fun screenCoverage(currentSongPixelPosition:Int):Double {

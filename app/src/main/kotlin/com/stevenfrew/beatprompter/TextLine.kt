@@ -213,7 +213,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                         var f = wordCount - 1
                         while (f >= 1 && !songLoadCancelEvent.isCancelled) {
                             val tryThisWithWhitespace = Utils.stitchBits(bits, f)
-                            val tryThis = tryThisWithWhitespace.trim { it <= ' ' }
+                            val tryThis = tryThisWithWhitespace.trim()
                             val tryThisWidth = ScreenString.getStringWidth(paint, tryThis, mFont, mLineTextSize.toFloat())
                             var tryThisWithWhitespaceWidth = tryThisWidth
                             if (tryThisWithWhitespace.length > tryThis.length)
