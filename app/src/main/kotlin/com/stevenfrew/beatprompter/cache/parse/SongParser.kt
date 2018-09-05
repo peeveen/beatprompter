@@ -3,13 +3,19 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 
+@ParseTags(ImageTag::class,PauseTag::class,SendMIDIClockTag::class,CommentTag::class,CountTag::class,
+        StartOfHighlightTag::class,EndOfHighlightTag::class,
+        BarMarkerTag::class,BarsTag::class,BeatsPerMinuteTag::class,BeatsPerBarTag::class,BarsPerLineTag::class,
+        ScrollBeatModifierTag::class,ScrollBeatTag::class,BeatStartTag::class,BeatStopTag::class,AudioTag::class,
+        MIDIEventTag::class,ChordTag::class)
+@IgnoreTags(LegacyTag::class,TimeTag::class,MIDISongSelectTriggerTag::class,MIDIProgramChangeTriggerTag::class,
+        TitleTag::class,ArtistTag::class,KeyTag::class,TagTag::class,FilterOnlyTag::class)
 class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.initialScrollMode,mSongLoadInfo.mixedModeActive) {
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
@@ -124,13 +130,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         midiEventTags.forEach {
             if (mDisplayLineCounter < DEMO_LINE_COUNT || mRegistered)
             {
-                val midiEvent=it.mEvent
                 if (mStopAddingStartupItems)
-                    mEvents.add(midiEvent)
+                    mEvents.add(it.toMIDIEvent(mSongTime))
                 else
                 {
-                    mInitialMIDIMessages.addAll(midiEvent.mMessages)
-                    if (midiEvent.mOffset != null)
+                    mInitialMIDIMessages.addAll(it.mMessages)
+                    if (it.mOffset != null)
                         mErrors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
                 }
             }
@@ -673,32 +678,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return Pair(startScreenStrings,nextSongString)
-    }
-
-    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
-    {
-        when(name)
-        {
-            "image"->return ImageTag(name, lineNumber, position, value)
-            "pause"->return PauseTag(name, lineNumber, position, value)
-            "send_midi_clock"->return SendMIDIClockTag(name, lineNumber, position)
-            "comment", "c", "comment_box", "cb", "comment_italic", "ci"->return CommentTag(name, lineNumber, position, value)
-            "count","countin"->return CountTag(name,lineNumber,position,value)
-
-            "soh"->return StartOfHighlightTag(name, lineNumber, position, value, mDefaultHighlightColor)
-            "eoh"->return EndOfHighlightTag(name, lineNumber, position)
-
-            // BeatPrompter tags that are not required here ...
-            "midi_song_select_trigger", "midi_program_change_trigger", "title", "t", "artist", "a", "subtitle", "st", "key", "tag", "time",
-            // Unused ChordPro tags
-            "start_of_chorus", "end_of_chorus", "start_of_tab", "end_of_tab", "soc", "eoc", "sot", "eot", "define", "textfont", "tf", "textsize", "ts", "chordfont", "cf", "chordsize", "cs", "no_grid", "ng", "grid", "g", "titles", "new_page", "np", "new_physical_page", "npp", "columns", "col", "column_break", "colb", "pagetype", "capo", "zoom-android", "zoom", "tempo", "tempo-android", "instrument", "tuning" -> return UnusedTag(name,lineNumber,position)
-
-            else->{
-                if(COMMENT_AUDIENCE_STARTERS.any{name.startsWith(it)})
-                    return CommentTag(name,lineNumber,position,value)
-                return MIDIEventTag(name, lineNumber, position, value, mSongTime, mDefaultMIDIOutputChannel)
-            }
-        }
     }
 
     private fun calculateStartAndStopScrollTimes(pauseTag:PauseTag?,lineStartTime:Long,lineDuration:Long,currentBeatEvents:EventBlock?):Pair<Long,Long>

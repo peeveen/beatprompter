@@ -5,10 +5,16 @@ import com.stevenfrew.beatprompter.ScrollingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
 
+@ParseTags(TimeTag::class,ImageTag::class,MIDISongSelectTriggerTag::class,MIDIProgramChangeTriggerTag::class,
+        TitleTag::class,ArtistTag::class,KeyTag::class,PauseTag::class,TagTag::class,FilterOnlyTag::class,
+        BarMarkerTag::class,BarsTag::class,BeatsPerMinuteTag::class,BeatsPerBarTag::class,BarsPerLineTag::class,
+        ScrollBeatModifierTag::class,ScrollBeatTag::class,BeatStartTag::class,BeatStopTag::class,AudioTag::class,
+        ChordTag::class)
+@IgnoreTags(LegacyTag::class,SendMIDIClockTag::class,CommentTag::class,CountTag::class,
+        StartOfHighlightTag::class,EndOfHighlightTag::class)
 class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat,false) {
     private var mTitle:String?=null
     private var mArtist:String?=null
@@ -108,24 +114,5 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
                 mKey!!
 
         return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mFilterOnly,mErrors)
-    }
-
-    override fun createSongTag(name:String,lineNumber:Int,position:Int,value:String): Tag
-    {
-        return when(name)
-        {
-            "time" -> TimeTag(name, lineNumber, position, value)
-            "image"-> ImageTag(name, lineNumber, position, value)
-            "midi_song_select_trigger"-> MIDISongSelectTriggerTag(name, lineNumber, position, value)
-            "midi_program_change_trigger"-> MIDIProgramChangeTriggerTag(name, lineNumber, position, value)
-            "title", "t" -> TitleTag(name, lineNumber, position, value)
-            "artist", "a", "subtitle", "st"-> ArtistTag(name, lineNumber, position, value)
-            "key"-> KeyTag(name, lineNumber, position, value)
-            "pause"-> PauseTag(name, lineNumber, position, value)
-            "tag"-> TagTag(name, lineNumber, position, value)
-            "filter_only"-> FilterOnlyTag(name, lineNumber, position)
-            // Don't care about any other tags in this context, treat them as all irrelevant ChordPro tags
-            else-> UnusedTag(name,lineNumber,position)
-        }
     }
 }

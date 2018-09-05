@@ -3,9 +3,12 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.StartedBy
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @StartedBy(StartOfHighlightTag::class)
 @TagName("eoh")
+@TagType(Type.Directive)
 /**
  * Tag that defines the end of a highlighted block of text.
  */

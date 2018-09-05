@@ -6,12 +6,14 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.removeControlCharacters
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.primaryConstructor
 
 abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor),LineParser<TFileResult> {
-
     final override fun parse():TFileResult
     {
         var lineNumber = 0
@@ -70,7 +72,34 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
 
     abstract fun getResult():TFileResult
 
-    abstract fun parseTag(foundTag: FoundTag, lineNumber:Int):Tag
+    fun parseTag(foundTag: FoundTag, lineNumber:Int):Tag?
+    {
+        val thisClass=this::class
+
+        // Should we ignore this tag?
+        val ignoreTagsAnnotations=thisClass.annotations.filterIsInstance<IgnoreTags>()
+        val matchingIgnoreTagClass=ignoreTagsAnnotations.flatMap { it.mTagClasses.toList() }.firstOrNull{tagClass->tagClass.annotations.filterIsInstance<TagName>().any{it.mNames.contains(foundTag.mName)}}
+        if(matchingIgnoreTagClass!=null)
+            // Yes we should!
+            return null
+
+        // OK, can't ignore this tag, so better parse it.
+        val parseTagsAnnotations=thisClass.annotations.filterIsInstance<ParseTags>()
+        val parseTagClasses=parseTagsAnnotations.flatMap { it.mTagClasses.toList() }.filter{it.annotations.filterIsInstance<TagType>().any{typeAnnotation->typeAnnotation.mType==foundTag.mType}}
+        var matchingTagClass=parseTagClasses.firstOrNull{tagClass->tagClass.annotations.filterIsInstance<TagName>().any{it.mNames.contains(foundTag.mName)}}
+        // Do any of the tag classes match the tag name?
+        if(matchingTagClass==null)
+            // If there is a tag class with no tag name, we use that.
+            matchingTagClass=parseTagClasses.firstOrNull{it.annotations.filterIsInstance<TagName>().isEmpty()}
+        if(matchingTagClass==null)
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unexpected_tag_in_file,foundTag.mName))
+        // Construct a tag of this class
+        // If it's a value class, pass the value to the constructor
+        return if(matchingTagClass.isSubclassOf(ValueTag::class))
+            matchingTagClass.primaryConstructor!!.call(foundTag.mName,lineNumber,foundTag.mStart,foundTag.mValue)
+        else
+            matchingTagClass.primaryConstructor!!.call(foundTag.mName,lineNumber,foundTag.mStart)
+    }
 
     fun findFirstTag(text:String): FoundTag?
     {

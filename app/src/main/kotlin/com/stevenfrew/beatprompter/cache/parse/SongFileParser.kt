@@ -2,50 +2,12 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 
 abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, initialScrollMode: ScrollingMode, private val mAllowModeChange:Boolean):TextFileParser<TResultType>(cachedCloudFileDescriptor, DirectiveFinder, ChordFinder, ShorthandFinder) {
     protected var mOngoingBeatInfo:SongBeatInfo=SongBeatInfo(mScrollMode=initialScrollMode)
     protected var mCurrentLineBeatInfo:LineBeatInfo=LineBeatInfo(mOngoingBeatInfo)
-
-    override fun parseTag(foundTag: FoundTag,lineNumber:Int):Tag
-    {
-        val txt=foundTag.mText
-        val colonIndex = txt.indexOf(":")
-        val spaceIndex = txt.indexOf(" ")
-        val realIndex=if(colonIndex==-1) spaceIndex else colonIndex
-        val name:String
-        val value:String
-        if (realIndex == -1) {
-            name = if (foundTag.mType== TagType.Chord) txt else txt.toLowerCase()
-            value = ""
-        } else {
-            name = if (foundTag.mType== TagType.Chord) txt else txt.substring(0, realIndex).toLowerCase()
-            value = txt.substring(realIndex + 1).trim()
-       }
-        if(foundTag.mType== TagType.Chord)
-            return ChordTag(name, lineNumber, foundTag.mStart)
-
-        return when(name)
-        {
-            // Beat and audio info is always relevant.
-            "b", "bars"-> BarsTag(name, lineNumber, foundTag.mStart, value)
-            "," -> BarMarkerTag(lineNumber,foundTag.mStart)
-            "bpm", "metronome", "beatsperminute"-> BeatsPerMinuteTag(name, lineNumber, foundTag.mStart, value)
-            "bpb", "beatsperbar"-> BeatsPerBarTag(name, lineNumber, foundTag.mStart, value)
-            "bpl", "barsperline"-> BarsPerLineTag(name, lineNumber, foundTag.mStart, value)
-            ">", "<" -> ScrollBeatModifierTag(name, lineNumber,foundTag.mStart)
-            "scrollbeat", "sb"-> ScrollBeatTag(name, lineNumber, foundTag.mStart, value)
-            "beatstart"-> BeatStartTag(name, lineNumber, foundTag.mStart)
-            "beatstop"-> BeatStopTag(name, lineNumber, foundTag.mStart)
-            "track", "audio", "musicpath"->return AudioTag(name,lineNumber,foundTag.mStart,value)
-            else -> createSongTag(name,lineNumber,foundTag.mStart,value)
-        }
-    }
-
-    abstract fun createSongTag(name:String,lineNumber:Int,position:Int,value:String):Tag
 
     override fun parseLine(line: TextFileLine<TResultType>) {
         val lastLineBeatInfo=mCurrentLineBeatInfo

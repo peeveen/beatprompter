@@ -2,10 +2,13 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @OncePerLine
 @TagName("scrollbeat")
+@TagType(Type.Directive)
 /**
  * Tag that defines (or redefines) the scrollbeat that should be used from this line onwards.
  */

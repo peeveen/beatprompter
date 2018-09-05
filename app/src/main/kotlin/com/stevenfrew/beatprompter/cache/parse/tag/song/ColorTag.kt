@@ -1,7 +1,9 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 /**
  * Base class for tags that define a color for some purpose.

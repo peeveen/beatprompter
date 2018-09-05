@@ -1,14 +1,17 @@
 package com.stevenfrew.beatprompter.cache.parse.tag
 
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.*
 import java.util.ArrayList
 import kotlin.experimental.and
 
 open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     @Throws(MalformedTagException::class)
-    fun parseMIDIEvent(value:String, time: Long, aliases: List<Alias>, defaultChannel: Byte): MIDIEvent {
+    fun parseMIDIEvent(value:String, aliases: List<Alias>): Pair<List<OutgoingMessage>,EventOffset?> {
+
+        val defaultChannelPref=BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
+        val defaultChannel=Message.getChannelFromBitmask(defaultChannelPref)
+
         var tagValue = value
         var name=mName
         var eventOffset: EventOffset? = null
@@ -54,9 +57,9 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
                 resolvedBytes[f] = paramValues[f].resolve()
             for (alias in aliases)
                 if (alias.mName.equals(name, ignoreCase = true))
-                    return MIDIEvent(time, alias.resolve(aliases, resolvedBytes, channel), eventOffset)
+                    return Pair(alias.resolve(aliases, resolvedBytes, channel), eventOffset)
             if (name == "midi_send")
-                return MIDIEvent(time, OutgoingMessage(resolvedBytes), eventOffset)
+                return Pair(listOf(OutgoingMessage(resolvedBytes)), eventOffset)
             throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, name))
         } catch (re: ResolutionException) {
             throw MalformedTagException(re)

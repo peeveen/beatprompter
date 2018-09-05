@@ -4,6 +4,8 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.splitAndTrim
 

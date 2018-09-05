@@ -28,7 +28,8 @@ open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, parser:Text
             val lineWithoutTag=currentLine.substring(0, tagString.mStart)+currentLine.substring(tagString.mEnd+1)
             try {
                 val tag=parser.parseTag(tagString,mLineNumber)
-                tagCollection.add(tag)
+                if(tag!=null)
+                    tagCollection.add(tag)
             }
             catch(mte:MalformedTagException) {
                 parser.addError(FileParseError(mLineNumber,mte.message!!))

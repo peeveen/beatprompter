@@ -4,12 +4,15 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.normalize
 import com.stevenfrew.beatprompter.splitAndTrim
 import java.io.File
 
 @TagName("audio","track","musicpath")
+@TagType(Type.Directive)
 /**
  * Tag that describes an accompanying audio file for a song file.
  */

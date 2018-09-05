@@ -4,13 +4,10 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SetListFile
-import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
-import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
-import com.stevenfrew.beatprompter.splitAndTrim
 
+@ParseTags(SetNameTag::class)
 class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor, DirectiveFinder) {
 
     private var mSetName:String=""
@@ -32,22 +29,5 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
         if(mSetName.isBlank())
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.no_set_name_defined))
         return SetListFile(mCachedCloudFileDescriptor,mSetName,mSetListEntries,mErrors)
-    }
-
-    override fun parseTag(foundTag: FoundTag, lineNumber: Int): Tag {
-        val txt=foundTag.mText
-        val bits=txt.splitAndTrim(":")
-        if(bits.size==2)
-        {
-            val tagName=bits[0]
-            val tagValue=bits[1]
-            when(tagName)
-            {
-                "set"->return SetNameTag(tagName,lineNumber,foundTag.mStart,tagValue)
-                else->throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unexpected_tag_in_setlist_file))
-            }
-        }
-        else
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.midi_alias_name_contains_more_than_two_parts))
     }
 }

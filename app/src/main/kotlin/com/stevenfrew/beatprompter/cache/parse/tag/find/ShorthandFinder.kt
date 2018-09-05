@@ -24,6 +24,6 @@ object ShorthandFinder: TagFinder {
             }
         if(markerPos==-1)
             return null
-        return FoundTag(markerPos, markerPos, text[markerPos].toString(), TagType.Shorthand)
+        return FoundTag(markerPos, markerPos, text[markerPos].toString(), "",Type.Shorthand)
     }
 }
