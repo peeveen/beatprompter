@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.splitAndTrim
 
 @OncePerLine
-@NormalizedName("c")
+@TagName("comment", "c", "comment_box", "cb", "comment_italic", "ci")
 /**
  * Tag that defines a comment that is to be shown on the song title screen, or during playback.
  */

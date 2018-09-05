@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
 @OncePerLine
-@NormalizedName("scrollbeat")
+@TagName("scrollbeat")
 /**
  * Tag that defines (or redefines) the scrollbeat that should be used from this line onwards.
  */

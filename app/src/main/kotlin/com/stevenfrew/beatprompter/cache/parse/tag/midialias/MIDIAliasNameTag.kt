@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.midialias
 
 import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 
 @OncePerLine
-@NormalizedName("midialias")
+@TagName("midialias")
 /**
  * Tag that defines a MIDI alias name.
  */

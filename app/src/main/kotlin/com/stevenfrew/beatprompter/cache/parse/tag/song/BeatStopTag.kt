@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.*
 @OncePerLine
 @StartedBy(BeatStartTag::class)
 @LineExclusive(BeatStartTag::class)
-@NormalizedName("beatstop")
+@TagName("beatstop")
 /**
  * Tag that means "switch to manual mode" on this line.
  */

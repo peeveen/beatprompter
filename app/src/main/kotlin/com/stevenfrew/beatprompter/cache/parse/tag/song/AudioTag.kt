@@ -3,13 +3,13 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.normalize
 import com.stevenfrew.beatprompter.splitAndTrim
 import java.io.File
 
-@NormalizedName("audio")
+@TagName("audio","track","musicpath")
 /**
  * Tag that describes an accompanying audio file for a song file.
  */

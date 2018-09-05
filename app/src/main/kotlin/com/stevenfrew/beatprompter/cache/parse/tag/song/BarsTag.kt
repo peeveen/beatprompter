@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
 @OncePerLine
-@NormalizedName("b")
+@TagName("b","bars")
 /**
  * Tag that defines how many bars the current line lasts for.
  */

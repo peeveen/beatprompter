@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.*
 @OncePerLine
 @EndedBy(BeatStopTag::class)
 @LineExclusive(BeatStopTag::class)
-@NormalizedName("beatstart")
+@TagName("beatstart")
 /**
  * Tag that means "switch to beat mode" on this line.
  */

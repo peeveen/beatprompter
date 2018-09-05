@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.cache.parse.tag.EndedBy
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 
 @EndedBy(EndOfHighlightTag::class)
-@NormalizedName("soh")
+@TagName("soh")
 /**
  * Tag that defines the start of a block of highlighted text.
  */

@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
 @OncePerFile
-@NormalizedName("count")
+@TagName("count","countin")
 /**
  * Tag that defines how many bars of "count-in" are played before the song properly starts.
  */

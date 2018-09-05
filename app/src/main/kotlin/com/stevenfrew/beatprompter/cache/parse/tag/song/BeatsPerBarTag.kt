@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
 @OncePerLine
-@NormalizedName("bpb")
+@TagName("bpb","beatsperbar")
 /**
  * Tag that defines (or redefines) how many beats there are in each bar of a song file from
  * this point onwards.

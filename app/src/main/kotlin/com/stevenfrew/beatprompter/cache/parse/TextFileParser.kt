@@ -59,7 +59,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
                         if (lineTags.contains(it.mCantShareWith))
                             mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.tag_cant_share_line_with,
                                     tag.mName,
-                                    it.mCantShareWith.findAnnotation<NormalizedName>()!!.mTagName)))
+                                    it.mCantShareWith.findAnnotation<TagName>()!!.mNames.first())))
                     }
                 }
                 parseLine(textLine)

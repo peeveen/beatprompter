@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 import com.stevenfrew.beatprompter.midi.TriggerType
 
 @OncePerFile
-@NormalizedName("midi_song_select")
+@TagName("midi_song_select")
 /**
  * Tag that defines a MIDI song select event that, if received, will cause this song to be
  * automatically started.

@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.NormalizedName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 
 @OncePerFile
-@NormalizedName("time")
+@TagName("time")
 /**
  * Tag that defines how long this song should take to scroll from top to bottom in smooth mode.
  */
