@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth
+package com.stevenfrew.beatprompter.bluetooth.message
 
 import android.graphics.Rect
 import android.util.Log
@@ -37,7 +37,7 @@ class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalize
         internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
 
         @Throws(NotEnoughBluetoothDataException::class)
-        internal fun fromBytes(bytes: ByteArray):IncomingBluetoothMessage {
+        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage {
             try {
                 ByteArrayInputStream(bytes).apply {
                     val dataRead = read(ByteArray(1))
@@ -57,7 +57,7 @@ class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalize
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return IncomingBluetoothMessage(ChooseSongMessage(title,artist,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,Rect(0,0,screenWidth,screenHeight)),messageLength)
+                            return IncomingBluetoothMessage(ChooseSongMessage(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)), messageLength)
                         }
                     }
                 }

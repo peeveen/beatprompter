@@ -11,7 +11,7 @@ import java.io.IOException
  * paired clients, and creates an output socket from each connection. Any events broadcast from this instance
  * of the app will be sent to all output sockets.
  */
-class AcceptConnectionsFromClientsThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter) : Thread() {
+class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter) : Thread() {
     private var mmServerSocket: BluetoothServerSocket? = null
     private var mStop = false
     private val mSocketNullLock = Any()

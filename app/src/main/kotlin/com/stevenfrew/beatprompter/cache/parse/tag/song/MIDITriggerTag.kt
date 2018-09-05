@@ -7,6 +7,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.splitAndTrim
 
+/**
+ * Base class for MIDI auto-start tags.
+ */
 open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,position:Int,triggerDescriptor:String,type: TriggerType): MIDITag(name,lineNumber,position,triggerDescriptor) {
     val mTrigger:SongTrigger
 

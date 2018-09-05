@@ -8,7 +8,7 @@ import android.os.Message
 import android.util.Log
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
+import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import java.util.concurrent.Semaphore
@@ -107,7 +107,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
             // Create a bluetooth song-selection message to broadcast to other listeners.
             val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mNormalizedTitle,
                     mSongLoadInfo.mSongFile.mNormalizedArtist,
-                    mSongLoadInfo.mTrack?.mName?:"",
+                    mSongLoadInfo.mTrack?.mName ?: "",
                     mSongLoadInfo.mNativeDisplaySettings.mOrientation,
                     mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
                     mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,

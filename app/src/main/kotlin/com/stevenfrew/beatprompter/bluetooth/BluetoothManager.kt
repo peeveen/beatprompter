@@ -8,6 +8,8 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.bluetooth.message.BluetoothMessage
+import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
 import java.io.IOException
 import java.util.*
 
@@ -27,7 +29,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     // Threads that watch for client/server connections, and an object to synchronize their
     // use.
     private val mBluetoothThreadsLock = Any()
-    private var mServerBluetoothThread: AcceptConnectionsFromClientsThread? = null
+    private var mServerBluetoothThread: ServerThread? = null
     private val mConnectToServerThreads = mutableListOf<ConnectToServerThread>()
 
     // Collections of input/output sockets, and an object to synchronize the access.
@@ -233,7 +235,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                 if (mode === com.stevenfrew.beatprompter.bluetooth.BluetoothMode.Server) {
                     shutDownBluetoothClient()
                     if (mServerBluetoothThread == null) {
-                        mServerBluetoothThread = AcceptConnectionsFromClientsThread(bluetoothAdapter).apply{start()}
+                        mServerBluetoothThread = ServerThread(bluetoothAdapter).apply{start()}
                     }
                 } else if (mode === com.stevenfrew.beatprompter.bluetooth.BluetoothMode.Client) {
                     shutDownBluetoothServer()

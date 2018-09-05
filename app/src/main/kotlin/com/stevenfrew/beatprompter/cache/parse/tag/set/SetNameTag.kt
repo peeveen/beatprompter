@@ -6,4 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 @OncePerFile
 @NormalizedName("set")
+/**
+ * Tag that defines the name of a setlist.
+ */
 class SetNameTag internal constructor(name:String, lineNumber:Int, position:Int, val mSetName:String): Tag(name,lineNumber,position)

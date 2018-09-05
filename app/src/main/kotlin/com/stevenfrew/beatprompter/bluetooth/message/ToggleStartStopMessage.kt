@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth
+package com.stevenfrew.beatprompter.bluetooth.message
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
@@ -6,6 +6,9 @@ import com.stevenfrew.beatprompter.PlayState
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
+/**
+ * Bluetooth message that instructs the receiver to change the current play mode.
+ */
 class ToggleStartStopMessage(startState: PlayState, time: Long) : BluetoothMessage() {
 
     var mStartState: PlayState = startState
@@ -34,7 +37,7 @@ class ToggleStartStopMessage(startState: PlayState, time: Long) : BluetoothMessa
         internal const val TOGGLE_START_STOP_MESSAGE_ID: Byte = 1
 
         @Throws(NotEnoughBluetoothDataException::class)
-        internal fun fromBytes(bytes: ByteArray):IncomingBluetoothMessage {
+        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage {
             ByteArrayInputStream(bytes).apply{
                 try {
                     var bytesRead = read(ByteArray(1))

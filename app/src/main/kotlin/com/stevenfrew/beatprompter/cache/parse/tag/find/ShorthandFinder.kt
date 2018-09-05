@@ -1,6 +1,9 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.find
 
-object MarkerFinder: TagFinder {
+/**
+ * Finds shorthand tags, e.g. bar counts and scrollbeat offsets.
+ */
+object ShorthandFinder: TagFinder {
     override fun findTag(text: String): FoundTag? {
         // TODO: dynamic BPB changing with + and _ chars?
         val markerPos=
@@ -21,6 +24,6 @@ object MarkerFinder: TagFinder {
             }
         if(markerPos==-1)
             return null
-        return FoundTag(markerPos, markerPos, text[markerPos].toString(), TagType.Marker)
+        return FoundTag(markerPos, markerPos, text[markerPos].toString(), TagType.Shorthand)
     }
 }

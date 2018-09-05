@@ -6,4 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 
 @OncePerLine
 @NormalizedName("midialias")
+/**
+ * Tag that defines a MIDI alias name.
+ */
 class MIDIAliasNameTag internal constructor(name:String, lineNumber:Int, position:Int, val mAliasName:String): MIDITag(name,lineNumber,position,mAliasName)

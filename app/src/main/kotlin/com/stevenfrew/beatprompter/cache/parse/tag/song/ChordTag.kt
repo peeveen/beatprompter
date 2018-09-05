@@ -3,6 +3,9 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import java.util.regex.Pattern
 
+/**
+ * Tag that defines a chord to be displayed at this point.
+ */
 class ChordTag constructor(chordText:String,lineNumber:Int,position:Int): Tag(chordText,lineNumber,position) {
     fun isValidChord():Boolean {
         return chordPattern.matcher(mName.trim()).matches()

@@ -24,9 +24,9 @@ import android.view.ViewGroup
 import android.widget.*
 import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.bluetooth.BluetoothMessage
+import com.stevenfrew.beatprompter.bluetooth.message.BluetoothMessage
 import com.stevenfrew.beatprompter.bluetooth.BluetoothMode
-import com.stevenfrew.beatprompter.bluetooth.ChooseSongMessage
+import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.SetListEntry

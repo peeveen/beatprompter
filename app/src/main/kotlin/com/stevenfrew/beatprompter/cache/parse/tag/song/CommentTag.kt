@@ -7,6 +7,9 @@ import com.stevenfrew.beatprompter.splitAndTrim
 
 @OncePerLine
 @NormalizedName("c")
+/**
+ * Tag that defines a comment that is to be shown on the song title screen, or during playback.
+ */
 class CommentTag internal constructor(name:String,lineNumber:Int,position:Int,val mComment:String): ValueTag(name,lineNumber,position,mComment) {
     val mAudience:List<String> = if(mName.contains('@'))
         mName.substringAfter('@').splitAndTrim("@")

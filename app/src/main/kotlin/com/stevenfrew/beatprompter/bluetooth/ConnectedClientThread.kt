@@ -2,10 +2,17 @@ package com.stevenfrew.beatprompter.bluetooth
 
 import android.bluetooth.BluetoothSocket
 import android.util.Log
+import com.stevenfrew.beatprompter.bluetooth.message.BluetoothMessage
+import com.stevenfrew.beatprompter.bluetooth.message.NotEnoughBluetoothDataException
+import com.stevenfrew.beatprompter.bluetooth.message.UnknownBluetoothMessageException
 import java.io.IOException
 import java.io.InputStream
 
-internal class ConnectedClientThread(private val mmSocket: BluetoothSocket) : Thread() {
+/**
+ * Thread for band members. Watches the provided Bluetooth socket for incoming commands from the
+ * band leader.
+ */
+internal class ConnectedClientThread constructor(private val mmSocket: BluetoothSocket) : Thread() {
     // "The input stream will be returned even if the socket is not yet connected, but operations on
     // that stream will throw IOException until the associated socket is connected."
     private val mmInStream: InputStream=mmSocket.inputStream
@@ -44,15 +51,6 @@ internal class ConnectedClientThread(private val mmSocket: BluetoothSocket) : Th
             } catch (e: IOException) {
                 Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to read or route the received Bluetooth message.", e)
             }
-        }
-    }
-
-    /* Call this from the main activity to shutdown the connection */
-    fun cancel() {
-        try {
-            mmSocket.close()
-        } catch (e: IOException) {
-            Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to close the Bluetooth input socket.", e)
         }
     }
 }

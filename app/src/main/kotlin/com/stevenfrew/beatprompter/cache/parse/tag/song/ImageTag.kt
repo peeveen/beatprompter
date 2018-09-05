@@ -12,6 +12,9 @@ import java.io.File
 
 @OncePerLine
 @NormalizedName("image")
+/**
+ * Tag that defines an image to use for the current line instead of text.
+ */
 class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     val mFilename:String
     val mImageScalingMode:ImageScalingMode

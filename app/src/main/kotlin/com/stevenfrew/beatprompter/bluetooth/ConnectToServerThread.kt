@@ -5,6 +5,9 @@ import android.bluetooth.BluetoothSocket
 import android.util.Log
 import java.io.IOException
 
+/**
+ * A thread that continuously attempts to connect to a band leader.
+ */
 internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thread() {
     private var mmSocket: BluetoothSocket? = null
     private var mStop = false
@@ -49,6 +52,9 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
         }
     }
 
+    /**
+     * Got a connection, so add it to the pile of maintained connections.
+     */
     private fun startConnectionThread(socket:BluetoothSocket)
     {
         socket.connect()
@@ -58,13 +64,18 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
         connectedClientThread.start()
     }
 
-    /** Will cancel an in-progress connection, and close the socket  */
-    fun stopTrying() {
+    /**
+     *  Will cancel an in-progress connection, and close the socket
+     */
+    internal fun stopTrying() {
         mStop = true
         closeSocket()
     }
 
-    fun closeSocket() {
+    /**
+     * Closes the watching socket.
+     */
+    internal fun closeSocket() {
         synchronized(mSocketNullLock) {
             try {
                 mmSocket?.close()

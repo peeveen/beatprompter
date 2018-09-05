@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.find
 
+/**
+ * Base class for tag finders that find tags that are enclosed in delimiters.
+ */
 open class EnclosedTagFinder(private val mStartChar:Char,private val mEndChar:Char,private val mTagType:TagType): TagFinder {
     override fun findTag(text: String): FoundTag? {
         val directiveStart = text.indexOf(mStartChar)

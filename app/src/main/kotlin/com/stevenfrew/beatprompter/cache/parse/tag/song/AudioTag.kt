@@ -10,6 +10,9 @@ import com.stevenfrew.beatprompter.splitAndTrim
 import java.io.File
 
 @NormalizedName("audio")
+/**
+ * Tag that describes an accompanying audio file for a song file.
+ */
 class AudioTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
     val mFilename: String
     val mVolume:Int

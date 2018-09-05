@@ -15,6 +15,10 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import com.stevenfrew.beatprompter.bluetooth.*
+import com.stevenfrew.beatprompter.bluetooth.message.PauseOnScrollStartMessage
+import com.stevenfrew.beatprompter.bluetooth.message.QuitSongMessage
+import com.stevenfrew.beatprompter.bluetooth.message.SetSongTimeMessage
+import com.stevenfrew.beatprompter.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.MIDIController

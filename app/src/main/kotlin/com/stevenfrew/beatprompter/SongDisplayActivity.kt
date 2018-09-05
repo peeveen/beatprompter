@@ -14,7 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
-import com.stevenfrew.beatprompter.bluetooth.*
+import com.stevenfrew.beatprompter.bluetooth.message.*
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.midi.MIDIController
