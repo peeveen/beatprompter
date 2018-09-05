@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.splitAndTrim
 /**
  * Finds directive tags, i.e. those that are inside curly brackets.
  */
-object DirectiveFinder: EnclosedTagFinder('{','}', Type.Directive, true)
+object DirectiveFinder: EnclosedTagFinder('{','}', Type.Directive, false,true)
 {
     // We made this dumb decision to format the comment tag this way.
     // We're stuck with it. Let's reparse it for the new file parsing system.

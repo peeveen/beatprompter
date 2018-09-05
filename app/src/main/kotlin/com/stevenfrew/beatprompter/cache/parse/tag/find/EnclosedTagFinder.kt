@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
 /**
  * Base class for tag finders that find tags that are enclosed in delimiters.
  */
-open class EnclosedTagFinder(private val mStartChar:Char, private val mEndChar:Char, private val mTagType:Type, private val mValued:Boolean): TagFinder {
+open class EnclosedTagFinder(private val mStartChar:Char, private val mEndChar:Char, private val mTagType:Type, private val mRetainCase:Boolean, private val mValued:Boolean): TagFinder {
     override fun findTag(text: String): FoundTag? {
         val directiveStart = text.indexOf(mStartChar)
         if(directiveStart!=-1)
@@ -30,7 +30,7 @@ open class EnclosedTagFinder(private val mStartChar:Char, private val mEndChar:C
                     name = enclosedText
                     value=""
                 }
-                return FoundTag(directiveStart, directiveEnd, name.toLowerCase(), value, mTagType)
+                return FoundTag(directiveStart, directiveEnd, if(mRetainCase) name else name.toLowerCase(), value, mTagType)
             }
         }
         return null
