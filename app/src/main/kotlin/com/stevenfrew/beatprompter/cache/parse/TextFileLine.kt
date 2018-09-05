@@ -4,7 +4,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 
-open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, parser:TextFileParser<TFileType>) {
+open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, tagParseHelper:TagParsingHelper<TFileType>, parser:TextFileParser<TFileType>) {
     private val mLine:String
     val mTaglessLine:String
 
@@ -27,7 +27,7 @@ open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, parser:Text
             val tagString=parser.findFirstTag(currentLine) ?: break
             val lineWithoutTag=currentLine.substring(0, tagString.mStart)+currentLine.substring(tagString.mEnd+1)
             try {
-                val tag=parser.parseTag(tagString,mLineNumber)
+                val tag=parser.parseTag(tagString,mLineNumber,tagParseHelper)
                 if(tag!=null)
                     tagCollection.add(tag)
             }

@@ -15,6 +15,7 @@ import kotlin.reflect.full.primaryConstructor
 abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags:Boolean, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor),LineParser<TFileResult> {
     final override fun parse():TFileResult
     {
+        val tagParseHelper=TagParsingHelper(this)
         var lineNumber = 0
         val fileTags = mutableSetOf<KClass<out Tag>>()
         val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
@@ -23,7 +24,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
             if (!txt.startsWith('#')) {
-                val textLine = TextFileLine(txt, lineNumber, this)
+                val textLine = TextFileLine(txt, lineNumber, tagParseHelper,this)
                 val lineTags = mutableSetOf<KClass<out Tag>>()
                 textLine.mTags.forEach { tag ->
                     val tagClass = tag::class
@@ -71,37 +72,27 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
 
     abstract fun getResult():TFileResult
 
-    fun parseTag(foundTag: FoundTag, lineNumber:Int):Tag?
+    fun parseTag(foundTag: FoundTag, lineNumber:Int,parseHelper:TagParsingHelper<TFileResult>):Tag?
     {
-        val thisClass=this::class
-
         // Should we ignore this tag?
-        val ignoreTagsAnnotations=thisClass.annotations.filterIsInstance<IgnoreTags>()
-        val matchingIgnoreTagClass=ignoreTagsAnnotations.flatMap { it.mTagClasses.toList() }.firstOrNull{tagClass->tagClass.annotations.filterIsInstance<TagName>().any{it.mNames.contains(foundTag.mName)}}
-        if(matchingIgnoreTagClass==null) {
-            // OK, can't ignore this tag, so better parse it.
-            val parseTagsAnnotations = thisClass.annotations.filterIsInstance<ParseTags>()
-            val parseTagClasses = parseTagsAnnotations.flatMap { it.mTagClasses.toList() }.filter { it.annotations.filterIsInstance<TagType>().any { typeAnnotation -> typeAnnotation.mType == foundTag.mType } }
-            var matchingTagClass = parseTagClasses.firstOrNull { tagClass -> tagClass.annotations.filterIsInstance<TagName>().any { it.mNames.contains(foundTag.mName) } }
-            // Do any of the tag classes match the tag name?
-            if (matchingTagClass == null)
-            // If there is a tag class with no tag name, we use that.
-                matchingTagClass = parseTagClasses.firstOrNull { it.annotations.filterIsInstance<TagName>().isEmpty() }
-            if (matchingTagClass != null) {
+        if(!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {
+            // Nope, better parse it!
+            val tagClass = parseHelper.mNameToClassMap[Pair(foundTag.mType, foundTag.mName)]
+                    ?: parseHelper.mNoNameToClassMap[foundTag.mType]
+            if (tagClass != null) {
                 // We found a match!
                 // Construct a tag of this class
                 try {
-                    val constructor=matchingTagClass.primaryConstructor
-                    if(constructor!=null)
-                        return if (constructor.parameters.size==4)
-                            matchingTagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
+                    val constructor = tagClass.primaryConstructor
+                    if (constructor != null)
+                        return if (constructor.parameters.size == 4)
+                            tagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
                         else
-                            matchingTagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart)
+                            tagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart)
                 } catch (ite: InvocationTargetException) {
                     throw ite.targetException
                 }
-            }
-            else if (mReportUnexpectedTags)
+            } else if (mReportUnexpectedTags)
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unexpected_tag_in_file, foundTag.mName))
         }
         return null
