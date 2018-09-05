@@ -35,7 +35,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     private val mDefaultHighlightColor:Int
     private val mAudioTags=mutableListOf<AudioTag>()
-    private val mSmoothScrollTimings:SmoothScrollingTimings?
+    private val mTimePerBar:Long
 
     private var mSongHeight=0
     private var mMIDIBeatCounter:Int=0
@@ -81,16 +81,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             songTime=0
         }
 
-        mSmoothScrollTimings=
-            if(songTime>0L) {
-                val linesInTheSong=mSongLoadInfo.mSongFile.mLines
-                val barsInTheSong=mSongLoadInfo.mSongFile.mBars
-                val timePerLine=(songTime.toDouble()/linesInTheSong).toLong()
-                val timePerBar=(songTime.toDouble()/barsInTheSong).toLong()
-                SmoothScrollingTimings(timePerLine, timePerBar, lengthOfBackingTrack)
-            }
-            else
-                null
+        mTimePerBar= if(songTime>0L) (songTime.toDouble() / mSongLoadInfo.mSongFile.mBars).toLong() else 0
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
@@ -102,7 +93,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val chordsFoundButNotShowingThem=!mShowChords && chordsFound
         val tags=if(mShowChords)line.mTags.toList() else nonChordTags
 
-        var workLine=line.mTaglessLine
+        var workLine=line.mLineWithNoTags
 
         // Generate clicking beats if the metronome is on.
         // The "on when no track" logic will be performed during song playback.
@@ -723,7 +714,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             // Pause line? Lasts as long as the pause!
             pauseTag !=null -> pauseTag.mDuration+addToPause
             // Smooth line? We've counted the bars, so do the sums.
-            mCurrentLineBeatInfo.mScrollMode == ScrollingMode.Smooth && mSmoothScrollTimings!=null -> mSmoothScrollTimings.mTimePerBar * mCurrentLineBeatInfo.mBPL
+            mCurrentLineBeatInfo.mScrollMode == ScrollingMode.Smooth && mTimePerBar>0 -> mTimePerBar * mCurrentLineBeatInfo.mBPL
             // Beat line? The result of generateBeatEvents will contain the time
             // that the beats end, so subtract the start time from that to get our duration.
             else -> currentBeatEvents!!.mBlockEndTime-lineStartTime

@@ -21,8 +21,8 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
             else
                 mSetName = setNameTag.mSetName
         }
-        else if(!line.mTaglessLine.isEmpty())
-            mSetListEntries.add(SetListEntry(line.mTaglessLine))
+        else if(!line.mLineWithNoTags.isEmpty())
+            mSetListEntries.add(SetListEntry(line.mLineWithNoTags))
     }
 
     override fun getResult(): SetListFile {

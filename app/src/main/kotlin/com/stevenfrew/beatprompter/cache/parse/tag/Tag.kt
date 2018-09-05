@@ -4,6 +4,9 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.looksLikeHex
+import com.stevenfrew.beatprompter.midi.*
+import kotlin.experimental.and
 
 abstract class Tag protected constructor(val mName: String, internal val mLineNumber: Int, val mPosition: Int) {
     companion object {
@@ -61,6 +64,71 @@ abstract class Tag protected constructor(val mName: String, internal val mLineNu
                     Color.parseColor("#$value")
                 } catch (iae2: IllegalArgumentException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.colorValueUnreadable, value))
+                }
+            }
+        }
+
+        @Throws(MalformedTagException::class)
+        fun parseMIDIValue(valueStr: String, argIndex: Int, argCount: Int): Value {
+            var strVal = valueStr
+            strVal = strVal.trim()
+            if (strVal.isEmpty())
+                return NoValue()
+            when {
+                strVal == "*" -> return WildcardValue()
+                strVal.startsWith("?") -> {
+                    strVal = strVal.substring(1)
+                    try {
+                        val referencedArgIndex = Integer.parseInt(strVal)
+                        if (referencedArgIndex < 0)
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
+                        else
+                            return ArgumentValue(referencedArgIndex)
+                    } catch (nfe: NumberFormatException) {
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
+                    }
+
+                }
+                strVal.startsWith("#") -> {
+                    if (argIndex < argCount - 1)
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+                    try {
+                        val channel = Utils.parseByte(strVal.substring(1))
+                        if (channel < 1 || channel > 16)
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
+                        return ChannelValue(channel)
+                    } catch (nfe: NumberFormatException) {
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                    }
+
+                }
+                strVal.contains("_") -> {
+                    if (strVal.indexOf("_") != strVal.lastIndexOf("_"))
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_underscores_in_midi_value))
+                    strVal = strVal.replace('_', '0')
+                    try {
+                        if (strVal.looksLikeHex()) {
+                            val channelValue = Utils.parseHexByte(strVal)
+                            if (channelValue and 0x0F != 0.toByte())
+                                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
+                            else
+                                return ChanneledCommandValue(channelValue)
+                        } else
+                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.underscore_in_decimal_value))
+                    } catch (nfe: NumberFormatException) {
+                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                    }
+
+                }
+                strVal.looksLikeHex() -> try {
+                    return CommandValue(Utils.parseHexByte(strVal))
+                } catch (nfe: NumberFormatException) {
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+                }
+                else -> try {
+                    return CommandValue(Utils.parseByte(strVal))
+                } catch (nfe: NumberFormatException) {
+                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                 }
             }
         }

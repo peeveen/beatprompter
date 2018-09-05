@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.*
 
 open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, tagParseHelper:TagParsingHelper<TFileType>, parser:TextFileParser<TFileType>) {
     private val mLine:String
-    val mTaglessLine:String
+    val mLineWithNoTags:String
 
     val mTags:List<Tag>
     val isEmpty:Boolean
@@ -37,7 +37,7 @@ open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, tagParseHel
             currentLine=lineWithoutTag.trim()
         }
 
-        mTaglessLine=currentLine.trim()
+        mLineWithNoTags=currentLine.trim()
         mTags=tagCollection
     }
 

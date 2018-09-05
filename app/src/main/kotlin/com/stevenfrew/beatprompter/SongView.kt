@@ -1164,6 +1164,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     data class ManualScrollPositions constructor(val mPageUpPosition:Int, val mPageDownPosition:Int, val mBeatJumpScrollLine:Line?)
 
+    enum class TriggerSafetyCatch {
+        Never, Always, WhenAtTitleScreen, WhenAtTitleScreenOrPaused, WhenAtTitleScreenOrPausedOrLastLine
+    }
+
     companion object {
         private const val SONG_END_PEDAL_PRESSES = 3
         private val SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS = Utils.milliToNano(2000)

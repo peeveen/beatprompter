@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.midialias
 
-import com.stevenfrew.beatprompter.cache.parse.tag.MIDITag
+import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
@@ -8,4 +8,4 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that contains MIDI alias instructions.
  */
-class MIDIAliasInstructionTag internal constructor(name:String,lineNumber:Int,position:Int,val mInstructions:String): MIDITag(name,lineNumber,position)
+class MIDIAliasInstructionTag internal constructor(name:String,lineNumber:Int,position:Int,val mInstructions:String): Tag(name,lineNumber,position)

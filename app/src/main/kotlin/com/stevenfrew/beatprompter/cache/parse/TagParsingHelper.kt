@@ -6,6 +6,10 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import kotlin.reflect.KClass
 
+/**
+ * Collects all tag parsing metadata into one place (well, three places).
+ * We could do all this work each time we reach a tag, but this saves a lot of processing.
+ */
 class TagParsingHelper<FileResultType> constructor(parser:TextFileParser<FileResultType>)
 {
     val mNameToClassMap:Map<Pair<Type,String>, KClass<out Tag>>

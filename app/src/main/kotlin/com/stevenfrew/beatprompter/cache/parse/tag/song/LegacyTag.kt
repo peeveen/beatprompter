@@ -9,5 +9,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 @TagType(Type.Directive)
 /**
  * Tags that aren't used by BeatPrompter, but might exist in files used by other similar apps.
+ * Also tags that BeatPrompter once supported, but doesn't anymore.
  */
 class LegacyTag internal constructor(name:String, lineNumber:Int, position:Int): Tag(name,lineNumber,position)
