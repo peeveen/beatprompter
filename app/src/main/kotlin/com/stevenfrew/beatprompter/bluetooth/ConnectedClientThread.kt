@@ -30,11 +30,11 @@ internal class ConnectedClientThread(private val mmSocket: BluetoothSocket) : Th
                             bufferContentsLength -= messageLength
                             System.arraycopy(buffer, messageLength, buffer, 0, bufferContentsLength)
                             BluetoothManager.routeBluetoothMessage(btm.receivedMessage)
-                        } catch (nebde: NotEnoughBluetoothDataException) {
+                        } catch (exception: NotEnoughBluetoothDataException) {
                             // Read again!
                             Log.d(BluetoothManager.BLUETOOTH_TAG, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
                             break
-                        } catch (ubme: UnknownBluetoothMessageException) {
+                        } catch (exception: UnknownBluetoothMessageException) {
                             Log.d(BluetoothManager.BLUETOOTH_TAG, "Unknown Bluetooth message received.")
                             bufferContentsLength=0 // Get rid of the bad data (possibly more, but by this stage, we're probably lost)
                             break

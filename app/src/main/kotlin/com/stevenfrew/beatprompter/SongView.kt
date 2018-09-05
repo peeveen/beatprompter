@@ -124,10 +124,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
         val backgroundColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
         val pulseColor=
-                if (mPulse)
-                    sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
-                else
-                    backgroundColor
+            if (mPulse)
+                sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+            else
+                backgroundColor
         val bgR = Color.red(backgroundColor)
         val bgG = Color.green(backgroundColor)
         val bgB = Color.blue(backgroundColor)
@@ -314,7 +314,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val lineTop = currentY
                     for ((lineCounter, graphic) in graphics.withIndex()) {
                         if (!graphic.mBitmap.isRecycled) {
-                            val sourceRect = currentLine.mMeasurements.mGraphicRects[lineCounter]
+                            val sourceRect = currentLine.mMeasurements.mGraphicRectangles[lineCounter]
                             mDestinationGraphicRect.set(sourceRect)
                             mDestinationGraphicRect.offset(0, currentY)
                             canvas.drawBitmap(graphic.mBitmap, sourceRect,mDestinationGraphicRect,mPaint)
@@ -991,17 +991,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun calculateManualScrollPositions()
     {
         val currentLine=mSong!!.mCurrentLine
+        // Don't bother doing this if we aren't in manual mode, or if we're already at the end
+        // of the song.
         if(currentLine.mBeatInfo.mScrollMode==ScrollingMode.Manual && mSongPixelPosition<mSong!!.mScrollEndPixel) {
-            // First of all, figure out how much of this line is before/after the
-            // current "playing point" (first line of display)
-            val usableScreenHeight=mSong!!.mDisplaySettings.mScreenSize.height()-mSong!!.mBeatCounterRect.height()
+            val usableScreenHeight=mSong!!.mDisplaySettings.mUsableScreenHeight
 
-            // Special case scenario: the current line is an extremely tall image that takes up several
-            // screens. In this scenario, paging up and down might result in us ending up on the same line
-            // that we started on. However, we would NOT want to move the "full" usable-screen-height
-            // distance each time, as there may be pertinent info on that image that we would first display
-            // one part of, then the other part, but never both at once. So our fallback "scroll distance" will
-            // be 90% of the usable screen height.
+            // We don't always want to scroll bang onto a line. If the candidate line is really big
+            // and starts too far up/down the page, then we will perform a "default scroll", which is
+            // just a basic percentage of the screen size.
             val defaultScrollAmount=(usableScreenHeight*DEFAULT_PAGE_SCROLL_AMOUNT).toInt()
 
             // Okay, let's work out the page-up point first (that's a bit simpler).
@@ -1026,23 +1023,20 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             // And take the greater of the two.
             val pageUpPosition=Math.max(defaultPageUpScrollPosition,manualModeBlockStartPosition)
 
-            // Now for page-down.
-            // Again, cater for massive images.
+            // Now for page-down. Bit trickier.
+            // Again, we might be using the "default scroll" amount.
             val defaultPageDownScrollPosition=mSongPixelPosition+defaultScrollAmount
 
-            // We want to scroll to the last manual mode scroll line from this block
-            // that is currently even-partially-visible onscreen
-            // HOWEVER, if we find that is the current line, then we will allow
-            // a jump-scroll to the first line of the following beat-section (if there is one).
-
-            // If the current line is huge, and takes up the whole screen, just do a simple
-            // default scroll.
+            // We're going to traverse downwards from the current line. Initialise some vars.
             var pageDownLine = currentLine
             var beatJumpScrollLine:Line?=null
             var pageDownPosition=defaultPageDownScrollPosition
 
+            // Keep going while there are still lines to check.
             while (pageDownLine.mNextLine != null) {
                 val nextLine=pageDownLine.mNextLine!!
+
+                // Escape clause 1: beat line!
                 if (nextLine.mBeatInfo.mScrollMode == ScrollingMode.Beat) {
                     // Whoa, we've found a beat line! End of the road.
                     // If it is onscreen enough, we will use it.
@@ -1053,34 +1047,40 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                             null
                     pageDownPosition=
                         when {
+                            // If we found a beat scroll line, we'll be scrolling to that.
                             beatJumpScrollLine!=null -> beatJumpScrollLine.mSongPixelPosition
-                            // Otherwise we will use the last manual line, unless that line is HUGE, in which
-                            // case we will do a default scroll.
-                            pageDownLine.screenCoverage(mSongPixelPosition)>MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> defaultPageDownScrollPosition
-                            else -> pageDownLine.mSongPixelPosition
+                            // Otherwise we will use the last manual line, unless that line is HUGE ...
+                            pageDownLine.screenCoverage(mSongPixelPosition)<=MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownLine.mSongPixelPosition
+                            // ...in which case, we will just do a default scroll.
+                            else -> defaultPageDownScrollPosition
                         }
                     break
                 }
+                // Escape clause 2: we've found a manual line that ISN'T fully onscreen.
                 if (!nextLine.isFullyOnScreen(mSongPixelPosition)) {
+                    // Figure out how much of the screen this line covers.
                     val nextLineScreenCoverage=nextLine.screenCoverage(mSongPixelPosition)
-                    // Okay, the next line is not fully onscreen. We'll be stopping here.
-                    // If it takes up only a tiny bit of screen, we'll prefer the earlier line.
                     pageDownPosition=
                         when {
+                            // If it takes up an enormous amount of screen, we'll just do a default scroll.
                             nextLineScreenCoverage> MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> defaultPageDownScrollPosition
+                            // If it takes up a reasonable amount of screen, we'll use it.
                             nextLineScreenCoverage >= MINIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> nextLine.mSongPixelPosition
-                            // Okay, so it wasn't onscreen enough.
-                            // Before we bail out, we need to check whether the line we've chosen is good enough.
-                            // If it takes up a huge amount of the screen, then we're better off doing a default scroll.
-                            pageDownLine.screenCoverage(mSongPixelPosition)> MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> defaultPageDownScrollPosition
-                            else -> pageDownPosition
+                            // Last possibility: it wasn't onscreen enough, so probably isn't very readable.
+                            // We've still got the previous line "in the bank", so we'll use that unless THAT
+                            // line takes up a huge amount of the screen ...
+                            pageDownLine.screenCoverage(mSongPixelPosition)<= MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownPosition
+                            // ...in which case, we will just do a default scroll.
+                            else -> defaultPageDownScrollPosition
                         }
                     break
                 }
+                // Move to the next line.
                 pageDownLine = nextLine
                 pageDownPosition = pageDownLine.mSongPixelPosition
             }
 
+            // Phew! Got there in the end.
             // Never scroll beyond the pre-calculated end point (though this should never happen).
             pageDownPosition=Math.min(mSong!!.mScrollEndPixel,pageDownPosition)
 
