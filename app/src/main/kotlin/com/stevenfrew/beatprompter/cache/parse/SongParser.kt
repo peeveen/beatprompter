@@ -16,7 +16,7 @@ import com.stevenfrew.beatprompter.songload.SongLoadInfo
         MIDIEventTag::class,ChordTag::class)
 @IgnoreTags(LegacyTag::class,TimeTag::class,MIDISongSelectTriggerTag::class,MIDIProgramChangeTriggerTag::class,
         TitleTag::class,ArtistTag::class,KeyTag::class,TagTag::class,FilterOnlyTag::class)
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.initialScrollMode,mSongLoadInfo.mixedModeActive) {
+class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.initialScrollMode,mSongLoadInfo.mixedModeActive,true) {
     private val mMetronomeContext:MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
@@ -564,7 +564,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             }
                         }
                         if (newTime < 0) {
-                            mErrors.add(FileParseError(midiEvent.mOffset.mSourceTag, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                            mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
                             newTime = 0
                         }
                         val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
@@ -733,7 +733,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     companion object {
         private const val DEMO_LINE_COUNT = 15
-        private val COMMENT_AUDIENCE_STARTERS=listOf("comment@", "c@", "comment_box@", "cb@", "comment_italic@", "ci@")
     }
 
     /**

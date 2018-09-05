@@ -15,7 +15,7 @@ import com.stevenfrew.beatprompter.splitAndTrim
 import java.util.ArrayList
 
 @ParseTags(MIDIAliasSetNameTag::class,MIDIAliasNameTag::class,MIDIAliasInstructionTag::class)
-class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, DirectiveFinder) {
+class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
 
     private var mAliasSetName:String?=null
     private var mCurrentAliasName:String?=null

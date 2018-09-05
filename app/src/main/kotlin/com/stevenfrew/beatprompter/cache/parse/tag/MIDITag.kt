@@ -5,25 +5,25 @@ import com.stevenfrew.beatprompter.midi.*
 import java.util.ArrayList
 import kotlin.experimental.and
 
-open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
+open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int): Tag(name,lineNumber,position) {
     @Throws(MalformedTagException::class)
-    fun parseMIDIEvent(value:String, aliases: List<Alias>): Pair<List<OutgoingMessage>,EventOffset?> {
+    fun parseMIDIEvent(name:String,value:String, aliases: List<Alias>): Pair<List<OutgoingMessage>,EventOffset?> {
 
         val defaultChannelPref=BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
         val defaultChannel=Message.getChannelFromBitmask(defaultChannelPref)
 
+        var tagName=name
         var tagValue = value
-        var name=mName
         var eventOffset: EventOffset? = null
         if (tagValue.isEmpty()) {
             // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
-            if (name.contains(";")) {
-                val bits = name.splitAndTrim(";")
+            if (tagName.contains(";")) {
+                val bits = tagName.splitAndTrim(";")
                 if (bits.size > 2)
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
                 if (bits.size > 1) {
                     eventOffset = parseMIDIEventOffset(bits[1])
-                    name = bits[0]
+                    tagName = bits[0]
                 }
             }
         } else {
@@ -56,13 +56,13 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             for (f in paramValues.indices)
                 resolvedBytes[f] = paramValues[f].resolve()
             for (alias in aliases)
-                if (alias.mName.equals(name, ignoreCase = true))
+                if (alias.mName.equals(tagName, ignoreCase = true))
                     return Pair(alias.resolve(aliases, resolvedBytes, channel), eventOffset)
-            if (name == "midi_send")
+            if (tagName == "midi_send")
                 return Pair(listOf(OutgoingMessage(resolvedBytes)), eventOffset)
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, name))
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, tagName))
         } catch (re: ResolutionException) {
-            throw MalformedTagException(re)
+            throw MalformedTagException(re.message!!)
         }
     }
 
@@ -100,7 +100,7 @@ open class MIDITag protected constructor(name:String,lineNumber:Int,position:Int
             else if (Math.abs(amount) > 10000 && offsetType == EventOffsetType.Milliseconds)
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
         }
-        return EventOffset(amount,offsetType,this)
+        return EventOffset(amount,offsetType,mLineNumber)
     }
 
     @Throws(MalformedTagException::class)

@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
-@TagName("<>")
+@TagName("<",">")
 @TagType(Type.Shorthand)
 /**
  * Shorthand tag that can increase/reduce the current scrollbeat.

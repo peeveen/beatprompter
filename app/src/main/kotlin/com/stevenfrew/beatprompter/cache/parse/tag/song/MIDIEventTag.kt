@@ -12,11 +12,11 @@ import com.stevenfrew.beatprompter.midi.OutgoingMessage
 /**
  * Tag that defines a MIDI event to be output to any connected devices.
  */
-class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): MIDITag(name,lineNumber,position,value) {
+class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): MIDITag(name,lineNumber,position) {
     val mMessages:List<OutgoingMessage>
     val mOffset: EventOffset?
     init {
-        val parsedEvent=parseMIDIEvent(value,SongList.mCachedCloudFiles.midiAliases)
+        val parsedEvent=parseMIDIEvent(name,value,SongList.mCachedCloudFiles.midiAliases)
         mMessages=parsedEvent.first
         mOffset=parsedEvent.second
     }
