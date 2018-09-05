@@ -1,9 +1,15 @@
 package com.stevenfrew.beatprompter.bluetooth
 
+/**
+ * Base class for sent/received Bluetooth messages.
+ */
 abstract class BluetoothMessage {
     abstract val bytes: ByteArray
 
     companion object {
+        /**
+         * Constructs the message object from the received bytes.
+         */
         @Throws(NotEnoughBluetoothDataException::class,UnknownBluetoothMessageException::class)
         internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage {
             if (bytes.isNotEmpty())
@@ -17,6 +23,7 @@ abstract class BluetoothMessage {
             throw UnknownBluetoothMessageException()
         }
 
+        // Size of a "long", in bytes.
         internal const val LONG_BUFFER_SIZE = 8
     }
 }

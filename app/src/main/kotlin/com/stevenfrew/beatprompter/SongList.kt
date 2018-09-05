@@ -483,10 +483,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     MY_PERMISSIONS_REQUEST_WRITE_STORAGE)
 
-        EventHandler.setSongListEventHandler(mSongListEventHandler!!)
-
         BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
-        //SharedPreferences sharedPrefs =getPreferences(Context.MODE_PRIVATE);
 
         val serviceIntent = Intent("com.android.vending.billing.InAppBillingService.BIND")
         serviceIntent.setPackage("com.android.vending")
@@ -508,7 +505,8 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         initialiseList()
 
-        BluetoothManager.startBluetooth()
+        // Now ready to receive events.
+        EventHandler.setSongListEventHandler(mSongListEventHandler!!)
     }
 
     private fun initialiseList() {

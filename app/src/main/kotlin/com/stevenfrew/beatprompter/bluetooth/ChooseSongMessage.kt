@@ -8,6 +8,9 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
+/**
+ * Message that is sent/received when a song is chosen.
+ */
 class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalizedArtist:String, val mTrack: String, val mOrientation: Int, val mBeatScroll: Boolean, val mSmoothScroll: Boolean, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect): BluetoothMessage() {
     override val bytes: ByteArray
         get() {

@@ -6,6 +6,11 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.IOException
 
+/**
+ * This class is a thread that runs when the app is in BlueToothServer mode. It listens for connections from
+ * paired clients, and creates an output socket from each connection. Any events broadcast from this instance
+ * of the app will be sent to all output sockets.
+ */
 class AcceptConnectionsFromClientsThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter) : Thread() {
     private var mmServerSocket: BluetoothServerSocket? = null
     private var mStop = false
