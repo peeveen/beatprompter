@@ -15,6 +15,7 @@ class TagParsingHelper<FileResultType> constructor(parser:TextFileParser<FileRes
     val mNameToClassMap:Map<Pair<Type,String>, KClass<out Tag>>
     val mNoNameToClassMap:Map<Type,KClass<out Tag>>
     val mIgnoreTagNames:List<String>
+
     init {
         val parseClasses=parser::class.annotations.filterIsInstance<ParseTags>().flatMap{it.mTagClasses.toList()}
         val unnamedAndNamedParseClasses=parseClasses.partition { it.annotations.filterIsInstance<TagName>().isEmpty() }
