@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import kotlin.reflect.KClass
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Collects all tag parsing metadata into one place (well, three places).
@@ -21,8 +22,8 @@ class TagParsingHelper<FileResultType> constructor(parser:TextFileParser<FileRes
         val unnamedAndNamedParseClasses=parseClasses.partition { it.annotations.filterIsInstance<TagName>().isEmpty() }
         val unnamedParseClasses=unnamedAndNamedParseClasses.first
         val namedParseClasses=unnamedAndNamedParseClasses.second
-        mNameToClassMap=namedParseClasses.flatMap{tagClass-> tagClass.annotations.filterIsInstance<TagName>().flatMap{it.mNames.map{ tagName->Pair(Pair(tagClass.annotations.filterIsInstance<TagType>().first().mType,tagName),tagClass)}}}.toMap()
-        mNoNameToClassMap=unnamedParseClasses.map{tagClass-> Pair(tagClass.annotations.filterIsInstance<TagType>().first().mType,tagClass)}.toMap()
+        mNameToClassMap=namedParseClasses.flatMap{tagClass-> tagClass.annotations.filterIsInstance<TagName>().flatMap{it.mNames.map{ tagName->Pair(Pair(tagClass.findAnnotation<TagType>()!!.mType,tagName),tagClass)}}}.toMap()
+        mNoNameToClassMap=unnamedParseClasses.map{tagClass-> Pair(tagClass.findAnnotation<TagType>()!!.mType,tagClass)}.toMap()
         mIgnoreTagNames=parser::class.annotations.filterIsInstance<IgnoreTags>().flatMap{ignoreAnnotation->ignoreAnnotation.mTagClasses.flatMap{tagClass->tagClass.annotations.filterIsInstance<TagName>().flatMap{it.mNames.toList()}}}
     }
 }

@@ -513,7 +513,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         try {
             mSortingPreference = sortingPreference
             readDatabase()
-            buildFilterList()
             sortSongList()
             buildList()
         } catch (e: Exception) {
