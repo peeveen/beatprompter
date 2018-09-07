@@ -4,6 +4,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.TagUtility
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.splitAndTrim
 
@@ -28,18 +29,18 @@ open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,posit
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_two_or_three_values))
 
         if (bits.size > 3) {
-            val value = Tag.parseMIDIValue(bits[3], 3, bits.size)
+            val value = TagUtility.parseMIDIValue(bits[3], 3, bits.size)
             if (value is ChannelValue)
                 channel = value
         }
 
         if (bits.size > 2)
-            lsb = Tag.parseMIDIValue(bits[2], 2, bits.size)
+            lsb = TagUtility.parseMIDIValue(bits[2], 2, bits.size)
 
         if (bits.size > 1)
-            msb = Tag.parseMIDIValue(bits[1], 1, bits.size)
+            msb = TagUtility.parseMIDIValue(bits[1], 1, bits.size)
 
-        val index = Tag.parseMIDIValue(bits[0], 0, bits.size)
+        val index = TagUtility.parseMIDIValue(bits[0], 0, bits.size)
 
         mTrigger=SongTrigger(msb, lsb, index, channel, type)
     }

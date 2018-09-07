@@ -6,6 +6,8 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.pref.MetronomeContext
+import com.stevenfrew.beatprompter.pref.ShowBPM
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 import kotlin.math.absoluteValue
@@ -17,12 +19,15 @@ import kotlin.math.absoluteValue
         MIDIEventTag::class,ChordTag::class)
 @IgnoreTags(LegacyTag::class,TimeTag::class,MIDISongSelectTriggerTag::class,MIDIProgramChangeTriggerTag::class,
         TitleTag::class,ArtistTag::class,KeyTag::class,TagTag::class,FilterOnlyTag::class)
+/**
+ * Song file parser. This returns the full information for playing the song.
+ */
 class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered:Boolean):SongFileParser<Song>(mSongLoadInfo.mSongFile,mSongLoadInfo.initialScrollMode,mSongLoadInfo.mixedModeActive,true) {
-    private val mMetronomeContext:MetronomeContext
+    private val mMetronomeContext: MetronomeContext
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
     private val mShowKey:Boolean
-    private val mShowBPM:ShowBPM
+    private val mShowBPM: ShowBPM
     private val mTriggerContext: TriggerOutputContext
     private val mNativeDeviceSettings:SongDisplaySettings
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
@@ -646,7 +651,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val uniqueErrors= mErrors.distinct()
         var errorCount = uniqueErrors.size
         var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
-        val showBPM = mShowBPM!=ShowBPM.No
+        val showBPM = mShowBPM!= ShowBPM.No
         if (showBPM)
             ++messages
         if (mShowKey)
@@ -671,8 +676,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
                 startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
-            if (mShowBPM!=ShowBPM.No) {
-                val rounded = mShowBPM==ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
+            if (mShowBPM!= ShowBPM.No) {
+                val rounded = mShowBPM== ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
                 var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
                     Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()

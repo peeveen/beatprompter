@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
+import com.stevenfrew.beatprompter.cache.parse.tag.TagUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.*
@@ -127,7 +128,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
 
         @Throws(MalformedTagException::class)
         fun parseValue(strVal: String): Value {
-            return parseMIDIValue(strVal, 0, 1)
+            return TagUtility.parseMIDIValue(strVal, 0, 1)
         }
     }
 }

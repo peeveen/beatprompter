@@ -1,9 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.cache.parse.tag.TagName
-import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
-import com.stevenfrew.beatprompter.cache.parse.tag.TagType
-import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @OncePerLine
@@ -14,6 +11,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
  * this point onwards.
  */
 class BeatsPerBarTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
-    val mBPB:Int = parseIntegerValue(value, 1,32)
+    val mBPB:Int = TagUtility.parseIntegerValue(value, 1,32)
 }
 

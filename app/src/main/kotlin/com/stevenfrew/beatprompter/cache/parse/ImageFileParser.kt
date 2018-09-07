@@ -6,6 +6,9 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.ImageFile
 
+/**
+ * "Parser" for image files. Basically validates that the file is actually an image.
+ */
 class ImageFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):FileParser<ImageFile>(cachedCloudFileDescriptor) {
 
     override fun parse(): ImageFile {

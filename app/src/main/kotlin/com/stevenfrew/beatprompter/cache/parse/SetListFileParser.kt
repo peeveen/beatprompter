@@ -8,6 +8,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
 
 @ParseTags(SetNameTag::class)
+/**
+ * Parser for set list files.
+ */
 class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor, true, DirectiveFinder) {
 
     private var mSetName:String=""

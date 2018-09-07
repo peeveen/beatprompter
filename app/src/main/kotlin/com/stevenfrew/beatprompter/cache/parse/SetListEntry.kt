@@ -5,6 +5,9 @@ import com.stevenfrew.beatprompter.filter.SetListMatch
 import com.stevenfrew.beatprompter.normalize
 import com.stevenfrew.beatprompter.splitAndTrim
 
+/**
+ * Represents one entry from a set list file.
+ */
 class SetListEntry(line: String) {
     private val mTitle:String
     private val mArtist:String

@@ -4,6 +4,9 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 
+/**
+ * Represents a line from a parsed text file.
+ */
 open class TextFileLine<TFileType>(line:String, val mLineNumber:Int, tagParseHelper:TagParsingHelper<TFileType>, parser:TextFileParser<TFileType>) {
     private val mLine:String
     val mLineWithNoTags:String

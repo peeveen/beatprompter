@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
+import com.stevenfrew.beatprompter.cache.parse.tag.TagUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
@@ -52,8 +53,8 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
                 mCurrentAliasName = aliasNameTag.mAliasName
             else {
                 if (mCurrentAliasComponents.isNotEmpty()) {
-                    mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents.toList()))
-                    mCurrentAliasComponents.clear()
+                    mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
+                    mCurrentAliasComponents= mutableListOf()
                     mCurrentAliasName = aliasNameTag.mAliasName
                 } else
                     mErrors.add(FileParseError(aliasNameTag, BeatPrompterApplication.getResourceString(R.string.midi_alias_has_no_components)))
@@ -75,7 +76,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
 
     private fun finishCurrentAlias() {
         if (mCurrentAliasName != null && mCurrentAliasComponents.isNotEmpty())
-            mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents.toList()))
+            mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
     }
 
     @Throws(MalformedTagException::class)
@@ -86,7 +87,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
         val componentArgs = ArrayList<Value>()
         val paramBits = instructions.splitAndTrim(",")
         for ((paramCounter, paramBit) in paramBits.withIndex()) {
-            val aliasValue = Tag.parseMIDIValue(paramBit, paramCounter, paramBits.size)
+            val aliasValue = TagUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
             componentArgs.add(aliasValue)
         }
         return if (name.equals("midi_send", ignoreCase = true))

@@ -12,7 +12,10 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 
-abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags:Boolean, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor),LineParser<TFileResult> {
+/**
+ * Base class for text file parsers.
+ */
+abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags:Boolean, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor) {
     final override fun parse():TFileResult
     {
 //        val tagParseHelper=TagParsingHelper(this)
@@ -72,6 +75,8 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
     }
 
     abstract fun getResult():TFileResult
+
+    abstract fun parseLine(line:TextFileLine<TFileResult>)
 
     fun parseTag(foundTag: FoundTag, lineNumber:Int,parseHelper:TagParsingHelper<TFileResult>):Tag?
     {

@@ -22,6 +22,7 @@ import com.stevenfrew.beatprompter.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.MIDIController
+import com.stevenfrew.beatprompter.pref.MetronomeContext
 import java.io.FileInputStream
 
 class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
@@ -39,7 +40,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mLastBeatTime: Long = 0
     private val mPaint=Paint()
     private val mScroller: OverScroller
-    private val mMetronomePref:MetronomeContext
+    private val mMetronomePref: MetronomeContext
 
     private var mManualMetronomeTask: ManualMetronomeTask? = null
     private var mManualMetronomeThread: Thread? = null
@@ -656,7 +657,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun processBeatEvent(event: BeatEvent?, allowClick: Boolean) {
         if (event == null)
             return
-        val playClick=allowClick && (mMetronomePref!==MetronomeContext.OnWhenNoTrack || !isTrackPlaying())
+        val playClick=allowClick && (mMetronomePref!== MetronomeContext.OnWhenNoTrack || !isTrackPlaying())
         mNanosecondsPerBeat = Utils.nanosecondsPerBeat(event.mBPM)
         val beatWidth = mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / event.mBPB.toDouble()
         val currentBeatCounterWidth = (beatWidth * (event.mBeat + 1).toDouble()).toInt()

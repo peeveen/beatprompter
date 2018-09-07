@@ -15,6 +15,9 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
         ChordTag::class)
 @IgnoreTags(LegacyTag::class,SendMIDIClockTag::class,CommentTag::class,CountTag::class,
         StartOfHighlightTag::class,EndOfHighlightTag::class)
+/**
+ * Song file parser. This returns ENOUGH information to display the songs in the song list.
+ */
 class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat,false,false) {
     private var mTitle:String?=null
     private var mArtist:String?=null
