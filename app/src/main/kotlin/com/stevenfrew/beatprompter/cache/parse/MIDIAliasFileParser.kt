@@ -52,7 +52,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
                 mCurrentAliasName = aliasNameTag.mAliasName
             else {
                 if (mCurrentAliasComponents.isNotEmpty()) {
-                    mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
+                    mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents.toList()))
                     mCurrentAliasComponents.clear()
                     mCurrentAliasName = aliasNameTag.mAliasName
                 } else
@@ -75,11 +75,11 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
 
     private fun finishCurrentAlias() {
         if (mCurrentAliasName != null && mCurrentAliasComponents.isNotEmpty())
-            mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
+            mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents.toList()))
     }
 
     @Throws(MalformedTagException::class)
-    fun createAliasComponent(tag: MIDIAliasInstructionTag): AliasComponent
+    private fun createAliasComponent(tag: MIDIAliasInstructionTag): AliasComponent
     {
         val instructions=tag.mInstructions
         val name=tag.mName
@@ -96,7 +96,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
     }
 
     @Throws(InvalidBeatPrompterFileException::class)
-    fun getAliasSet(): AliasSet
+    private fun getAliasSet(): AliasSet
     {
         finishCurrentAlias()
         if(mAliasSetName!=null)
