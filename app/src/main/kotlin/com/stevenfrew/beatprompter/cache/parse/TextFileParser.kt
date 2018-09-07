@@ -19,7 +19,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
     final override fun parse():TFileResult
     {
 //        val tagParseHelper=TagParsingHelper(this)
-        val tagParseHelper=TagParsingHelperCollection.getTagParsingHelper(this)
+        val tagParseHelper= TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0
         val fileTags = mutableSetOf<KClass<out Tag>>()
         val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
@@ -78,7 +78,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
 
     abstract fun parseLine(line:TextFileLine<TFileResult>)
 
-    fun parseTag(foundTag: FoundTag, lineNumber:Int,parseHelper:TagParsingHelper<TFileResult>):Tag?
+    fun parseTag(foundTag: FoundTag, lineNumber:Int,parseHelper: TagParsingHelper<TFileResult>):Tag?
     {
         // Should we ignore this tag?
         if(!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {

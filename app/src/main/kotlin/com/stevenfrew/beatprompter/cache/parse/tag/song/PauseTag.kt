@@ -10,5 +10,5 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
  * Tag that defines a pause that should occur at this point in the song.
  */
 class PauseTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
-    val mDuration:Long = TagUtility.parseDurationValue(value, 1000L, 60 * 60 * 1000L, false)
+    val mDuration:Long = TagParsingUtility.parseDurationValue(value, 1000L, 60 * 60 * 1000L, false)
 }

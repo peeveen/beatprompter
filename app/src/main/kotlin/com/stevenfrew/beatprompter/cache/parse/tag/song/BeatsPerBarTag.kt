@@ -11,6 +11,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
  * this point onwards.
  */
 class BeatsPerBarTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
-    val mBPB:Int = TagUtility.parseIntegerValue(value, 1,32)
+    val mBPB:Int = TagParsingUtility.parseIntegerValue(value, 1,32)
 }
 

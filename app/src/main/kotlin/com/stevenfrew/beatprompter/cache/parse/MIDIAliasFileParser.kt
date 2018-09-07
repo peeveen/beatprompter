@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.TagUtility
+import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
@@ -86,7 +86,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
         val componentArgs = ArrayList<Value>()
         val paramBits = instructions.splitAndTrim(",")
         for ((paramCounter, paramBit) in paramBits.withIndex()) {
-            val aliasValue = TagUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
+            val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
             componentArgs.add(aliasValue)
         }
         return if (name.equals("midi_send", ignoreCase = true))

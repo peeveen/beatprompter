@@ -12,6 +12,3 @@ comes with a demo song preloaded, and if you want to try it out further, there a
 download in the "Demo Songs" section below.
 BeatPrompter can also drive external MIDI devices, outputting custom MIDI messages at specific moments during
 a song.
-
-TODO: Test MIDI and BlueTooth thoroughly since refactor
-TODO: Test more files with wrong syntax

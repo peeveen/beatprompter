@@ -10,5 +10,5 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
  * Tag that defines how long this song should take to scroll from top to bottom in smooth mode.
  */
 class TimeTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
-    val mDuration:Long = TagUtility.parseDurationValue(value, 1000L, 60 * 60 * 1000L, true)
+    val mDuration:Long = TagParsingUtility.parseDurationValue(value, 1000L, 60 * 60 * 1000L, true)
 }

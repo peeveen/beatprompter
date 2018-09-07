@@ -4,14 +4,23 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.cache.parse.TextFileParser
 import com.stevenfrew.beatprompter.looksLikeHex
 import com.stevenfrew.beatprompter.midi.*
 import kotlin.experimental.and
+import kotlin.reflect.KClass
 
 /**
- * Utility class for tags. Contains loads of parsing and validation functions.
+ * Singleton map of parser-type to TagParsingHelper. Saves a lot of annotation processing.
+ * Should only construct one TagParsingHelper per file type, instead of one per file.
  */
-object TagUtility {
+object TagParsingUtility {
+    private val mHelperMap=mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
+    fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T>
+    {
+        return mHelperMap.getOrPut(parser::class) { TagParsingHelper(parser) as TagParsingHelper<Any> } as TagParsingHelper<T>
+    }
+
     @Throws(MalformedTagException::class)
     fun parseIntegerValue(value:String,min: Int, max: Int): Int {
         val intVal: Int
