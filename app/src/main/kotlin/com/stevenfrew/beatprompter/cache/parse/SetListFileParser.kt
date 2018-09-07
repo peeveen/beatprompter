@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.SetListEntry
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
@@ -12,7 +13,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
  * Parser for set list files.
  */
 class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):TextFileParser<SetListFile>(cachedCloudFileDescriptor, true, DirectiveFinder) {
-
     private var mSetName:String=""
     private val mSetListEntries=mutableListOf<SetListEntry>()
 
