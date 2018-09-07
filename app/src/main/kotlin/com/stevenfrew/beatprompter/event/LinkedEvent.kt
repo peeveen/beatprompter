@@ -1,5 +1,10 @@
 package com.stevenfrew.beatprompter.event
 
+/**
+ * During song parsing, the other events are finally encapsulated in LinkedEvent objects,
+ * creating a linked-list style of collection. This allows us to easily find the previous
+ * beat event, etc.
+ */
 class LinkedEvent constructor(val mEvent:BaseEvent,private val mPrevEvent:LinkedEvent?){
     var mNextEvent:LinkedEvent?=null
     var mNextBeatEvent:BeatEvent?=null

@@ -33,7 +33,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
-    private val mEvents=mutableListOf<BaseEvent>(StartEvent())
+    private val mEvents=mutableListOf<BaseEvent>()
     private val mLines= LineList()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
@@ -751,15 +751,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 e1.mEventTime < e2.mEventTime -> -1
                 else ->
                 {
-                    // There will only be one start event. Can't be both
-                    if(e1 is StartEvent)
-                        -1
-                    else if(e2 is StartEvent)
-                        1
-                    // MIDI events are next-most important. We want to
+                    // MIDI events are most important. We want to
                     // these first at any given time for maximum MIDI
                     // responsiveness
-                    else if(e1 is MIDIEvent && e2 is MIDIEvent)
+                    if(e1 is MIDIEvent && e2 is MIDIEvent)
                         0
                     else if(e1 is MIDIEvent)
                         -1
@@ -789,20 +784,32 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         })
     }
 
+    /**
+     * Constructs a linked-list of events from the unlinked event list.
+     * Also caps it with an EndEvent.
+     */
     private fun buildLinkedEventList():LinkedEvent
     {
+        // To generate the EndEvent, we need to know the time that the
+        // song ends. This could be the time of the final generated event,
+        // but there might still be an audio file playing, so find out
+        // when the last track ends ...
+        val lastAudioEndTime=mEvents.filterIsInstance<AudioEvent>().map{it.mAudioFile.mDuration+it.mEventTime}.max()
+        mEvents.add(EndEvent(Math.max(lastAudioEndTime?:0L,mSongTime)))
+
+        // Now build the linked list.
         var prevEvent:LinkedEvent?=null
         val linkedEvents=mEvents.map{
             val newEvent=LinkedEvent(it,prevEvent)
             prevEvent=newEvent
             newEvent
         }
-        linkedEvents.last().cascadeSetNextEvents()
-        return linkedEvents.first()
-    }
 
-    companion object {
-        private const val DEMO_LINE_COUNT = 15
+        // Since we can't see the future, we now have to traverse the list backwards
+        // setting the mNext... fields.
+        linkedEvents.last().cascadeSetNextEvents()
+
+        return linkedEvents.first()
     }
 
     /**
@@ -823,54 +830,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-/*    class EventList: ArrayList<BaseEvent>() {
-        init {
-            add(StartEvent())
-        }
-        override fun addAll(elements:Collection<BaseEvent>):Boolean
-        {
-            elements.forEach { add(it) }
-            return true
-        }
-        override fun add(element:BaseEvent):Boolean {
-            // First line event should be inserted at the start of the list immediately
-            // after the StartEvent
-            if(element is LineEvent) {
-                if (element.mLine.mLineTime == 0L) {
-                    add(1, element)
-                    return true
-                }
-            }
-            else if(element.mEventTime>lastOrNull()?.mEventTime?:0)
-                return super.add(element)
-            val index=findLastEventBefore(element.mEventTime)
-            add(index+1,element)
-            return true
-        }
-        private fun findLastEventBefore(time:Long):Int
-        {
-            if(isNotEmpty())
-                for(f in (size-1) downTo 0)
-                    if(get(f).mEventTime<=time)
-                        return f
-            return -1
-        }
-        fun buildEventChain(finalSongTime:Long):BaseEvent
-        {
-            val firstEvent=removeAt(0)
-            var nextEvent=firstEvent
-            val audioEndTimes=mutableListOf(finalSongTime)
-            forEach {
-                if(it is AudioEvent)
-                    audioEndTimes.add(it.mAudioFile.mDuration+it.mEventTime)
-                nextEvent.add(it)
-                nextEvent=it
-            }
-            nextEvent.add(EndEvent(audioEndTimes.max()!!))
-            return firstEvent
-        }
-    }
-*/
     internal class CircularGraphicsList:ArrayList<LineGraphic>() {
         override fun add(element: LineGraphic):Boolean {
             lastOrNull()?.mNextGraphic = element
@@ -878,5 +837,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             last().mNextGraphic = first()
             return result
         }
+    }
+
+    companion object {
+        private const val DEMO_LINE_COUNT = 15
     }
 }
