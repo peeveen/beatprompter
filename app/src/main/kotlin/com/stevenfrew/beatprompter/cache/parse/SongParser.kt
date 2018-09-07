@@ -33,7 +33,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
-    private val mEvents=mutableListOf<BaseEvent>()
+    private val mEvents=mutableListOf<BaseEvent>(StartEvent())
     private val mLines= LineList()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
