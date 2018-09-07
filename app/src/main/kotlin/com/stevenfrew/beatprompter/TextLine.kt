@@ -377,16 +377,21 @@ class TextLine internal constructor(private val mText: String, private val mTags
             val chordTags = mTags.filterIsInstance<ChordTag>()
 
             while (chordTagIndex < chordTags.size && !songLoadCancelEvent.isCancelled) {
-                var chordPositionEnd = mText.length
-                if (chordTagIndex < chordTags.size - 1)
-                    chordPositionEnd = chordTags[chordTagIndex + 1].mPosition
+                // If we're at the last chord, capture all tags from here to the end.
+                val isLastChord=chordTagIndex == chordTags.size - 1
+                val chordPositionEnd =
+                    if (!isLastChord)
+                        Math.min(chordTags[chordTagIndex + 1].mPosition,mText.length)
+                    else
+                        mText.length
+                val tagPositionEnd=if(!isLastChord)
+                    chordPositionEnd
+                else
+                    Int.MAX_VALUE
                 // mText could have been "..." which would be turned into ""
                 if (chordTagIndex != -1)
                     chordPositionStart = chordTags[chordTagIndex].mPosition
-                if (chordPositionEnd > mText.length)
-                    chordPositionEnd = mText.length
-                if (chordPositionStart > mText.length)
-                    chordPositionStart = mText.length
+                chordPositionStart =Math.min( mText.length,chordPositionStart)
                 val linePart = mText.substring(chordPositionStart, chordPositionEnd)
                 var chordText = ""
                 var trueChord = false
@@ -396,12 +401,12 @@ class TextLine internal constructor(private val mText: String, private val mTags
                     chordText = chordTag.mName
                     // Stick a couple of spaces on each chord, apart from the last one.
                     // This is so they don't appear right beside each other.
-                    if (chordTagIndex < chordTags.size - 1)
+                    if (!isLastChord)
                         chordText += "  "
                 }
                 val otherTags = mutableListOf<Tag>()
                 for (tag in nonChordTags)
-                    if (tag.mPosition in chordPositionStart..chordPositionEnd)
+                    if (tag.mPosition in chordPositionStart..tagPositionEnd)
                         otherTags.add(tag)
                 if (linePart.isNotEmpty() || chordText.isNotEmpty()) {
                     val section = LineSection(linePart, chordText, trueChord, chordPositionStart, otherTags)

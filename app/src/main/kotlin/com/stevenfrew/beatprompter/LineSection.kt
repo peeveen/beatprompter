@@ -55,14 +55,15 @@ class LineSection constructor(val mLineText: String, val mChordText: String, val
         var startPosition = 0
         val highlightTags=mTags.filter{it is StartOfHighlightTag || it is EndOfHighlightTag}
         highlightTags.forEach{
+            val length=Math.min(it.mPosition - mSectionPosition,mLineText.length)
             if (it is StartOfHighlightTag && !lookingForEnd) {
-                val strHighlightText = mLineText.substring(0, it.mPosition - mSectionPosition)
+                val strHighlightText = mLineText.substring(0, length)
                 startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 startPosition = it.mPosition - mSectionPosition
                 highlightColour=it.mColor
                 lookingForEnd = true
             } else if (it is EndOfHighlightTag && lookingForEnd) {
-                val strHighlightText = mLineText.substring(startPosition, it.mPosition - mSectionPosition)
+                val strHighlightText = mLineText.substring(startPosition, length)
                 val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 mHighlightingRectangles.add(ColorRect(startX, mChordHeight, startX + sectionWidth, mChordHeight + mTextHeight, highlightColour!!))
                 highlightColour = null
