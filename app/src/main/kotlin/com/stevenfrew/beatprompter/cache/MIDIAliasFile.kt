@@ -4,4 +4,7 @@ import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.midi.*
 
 @CacheXmlTag("midialiases")
+/**
+ * A MIDI alias file in our cache.
+ */
 class MIDIAliasFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mAliasSet: AliasSet, errors: List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors)

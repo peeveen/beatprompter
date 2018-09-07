@@ -11,6 +11,9 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import kotlin.reflect.full.findAnnotation
 
+/**
+ * The file cache.
+ */
 class CachedCloudFileCollection {
     private var mFiles = mutableListOf<CachedCloudFile>()
 

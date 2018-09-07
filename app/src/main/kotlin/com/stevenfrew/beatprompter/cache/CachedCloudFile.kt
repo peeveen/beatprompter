@@ -5,6 +5,9 @@ import com.stevenfrew.beatprompter.cloud.SuccessfulCloudDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
+/**
+ * Base class for cached files.
+ */
 abstract class CachedCloudFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : CachedCloudFileDescriptor(cachedCloudFileDescriptor.mFile, cachedCloudFileDescriptor.mID, cachedCloudFileDescriptor.mName, cachedCloudFileDescriptor.mLastModified, cachedCloudFileDescriptor.mSubfolder) {
 
     fun writeToXML(d: Document, element: Element)

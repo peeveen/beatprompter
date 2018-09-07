@@ -5,7 +5,6 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
-import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag

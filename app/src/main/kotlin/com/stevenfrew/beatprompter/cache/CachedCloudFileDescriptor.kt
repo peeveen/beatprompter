@@ -5,6 +5,10 @@ import org.w3c.dom.Element
 import java.io.File
 import java.util.*
 
+/**
+ * A description of a cached cloud file. Basically a file on the filesystem, and relevant info about
+ * it's source.
+ */
 open class CachedCloudFileDescriptor:CloudFileInfo {
     val mFile: File
 
