@@ -31,8 +31,25 @@ fun String?.looksLikeHex(): Boolean {
     if(this==null)
         return false
     val strippedString=stripHexSignifiers()
+    // If there was no signifier, then if it only contains
+    // numbers, it's probably decimal.
+    if(strippedString.length==length)
+        if(looksLikeDecimal())
+            return false
     // Hex values for this app are two-chars long, max.
     return strippedString.matches(Regex("[0-9a-f]{1,2}"))
+}
+
+fun String?.looksLikeDecimal(): Boolean {
+    if(this==null)
+        return false
+    return try {
+        toInt()
+        true
+    } catch(e:Exception) {
+        // Wasn't decimal
+        false
+    }
 }
 
 fun String.stripHexSignifiers(): String {

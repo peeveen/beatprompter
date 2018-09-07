@@ -1,11 +1,8 @@
 package com.stevenfrew.beatprompter.cache.parse.tag
 
 import android.graphics.Color
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.TextFileParser
-import com.stevenfrew.beatprompter.looksLikeHex
 import com.stevenfrew.beatprompter.midi.*
 import kotlin.experimental.and
 import kotlin.reflect.KClass
@@ -108,7 +105,8 @@ object TagParsingUtility {
                     val channel = Utils.parseByte(strVal.substring(1))
                     if (channel < 1 || channel > 16)
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
-                    return ChannelValue(channel)
+                    // Channel is 1-based in text, but 0-based in code.
+                    return ChannelValue((channel-1).toByte())
                 } catch (nfe: NumberFormatException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                 }
@@ -137,11 +135,12 @@ object TagParsingUtility {
             } catch (nfe: NumberFormatException) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
             }
-            else -> try {
+            strVal.looksLikeDecimal() -> try {
                 return CommandValue(Utils.parseByte(strVal))
             } catch (nfe: NumberFormatException) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
             }
+            else->throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
         }
     }
 }
