@@ -648,7 +648,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         for (commentLine in commentLines)
             if (commentLine.trim().isNotEmpty())
                 nonBlankCommentLines.add(commentLine.trim())
-        val uniqueErrors= mErrors.distinct()
+        val uniqueErrors= mErrors.distinct().sortedBy{it.mLineNumber }
         var errorCount = uniqueErrors.size
         var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
         val showBPM = mShowBPM!= ShowBPM.No

@@ -177,8 +177,8 @@
     <string name="intValueTooHigh">Maximum value is %1$d, value found was %2$d.</string>
     <string name="intValueUnreadable">Could not parse "%1$s" as an integer value.</string>
     <string name="durationValueUnreadable">Could not parse "%1$s" as a duration value (use mm:ss or just seconds).</string>
-    <string name="doubleValueTooLow">Minimum value is %1$f, value found was %2$f.</string>
-    <string name="doubleValueTooHigh">Maximum value is %1$f, value found was %2$f.</string>
+    <string name="doubleValueTooLow">Minimum value is %1$d, value found was %2$.2f.</string>
+    <string name="doubleValueTooHigh">Maximum value is %1$d, value found was %2$.2f.</string>
     <string name="doubleValueUnreadable">Could not parse "%1$s" as a numeric value.</string>
     <string name="colorValueUnreadable">Could not parse "%1$s" as a color.</string>
     <string name="fontSizesAllMessedUp">The minimum font size preference is larger than the maximum font size. Using minimum for all.</string>

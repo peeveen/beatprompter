@@ -27,7 +27,8 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
             // TODO: solve double blank line issue
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
-            if (!txt.startsWith('#')) {
+            // Ignore empty lines and comments
+            if(!txt.isEmpty() && !txt.startsWith('#')) {
                 val textLine = TextFileLine(txt, lineNumber, tagParseHelper,this)
                 val lineTags = mutableSetOf<KClass<out Tag>>()
                 textLine.mTags.forEach { tag ->

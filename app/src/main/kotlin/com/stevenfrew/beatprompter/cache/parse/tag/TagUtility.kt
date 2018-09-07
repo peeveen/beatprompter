@@ -43,7 +43,7 @@ object TagUtility {
     }
 
     @Throws(MalformedTagException::class)
-    fun parseDoubleValue(value:String,min: Double, max: Double): Double {
+    fun parseDoubleValue(value:String,min: Int, max: Int): Double {
         val doubleVal: Double
         try {
             doubleVal = value.toDouble()

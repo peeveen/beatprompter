@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
  * A description of a parsing error that can be shown to the user.
  */
 class FileParseError(lineNumber: Int, private val mMessage: String) {
-    private val mLineNumber = lineNumber
+    val mLineNumber = lineNumber
 
     constructor(tag: Tag, message: String) : this(tag.mLineNumber, message)
     constructor(message: String) : this(-1, message)
