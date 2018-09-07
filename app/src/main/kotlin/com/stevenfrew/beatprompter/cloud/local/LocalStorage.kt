@@ -17,7 +17,6 @@ class LocalStorage(parentActivity: Activity) : CloudStorage(parentActivity, "loc
     override val directorySeparator: String
         get() = "/"
 
-    // Nobody will ever see this. Any icon will do.
     override val cloudIconResourceId: Int
         get() = R.drawable.ic_device
 
