@@ -76,7 +76,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mScrollIndicatorRect: Rect? = null
     private var mGestureDetector: GestureDetectorCompat? = null
     private var mScreenAction = ScreenAction.Scroll
-    private var mScrollMarkerColor = Color.BLACK
+    private val mScrollMarkerColor:Int
     private var mSongDisplayActivity: SongDisplayActivity? = null
     private val mExternalTriggerSafetyCatch: TriggerSafetyCatch
     private val mSendMidiClockPreference:Boolean
@@ -116,6 +116,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
         mBeatCounterColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)))
         mCommentTextColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default)))
+        mScrollMarkerColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_default)))
         val mHighlightBeatSectionStartColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatSectionStartHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatSectionStartHighlightColor_default)))
         mBeatSectionStartHighlightColors=createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
@@ -249,24 +250,27 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 beatPercent = beatTime / mNanosecondsPerBeat
             }
             if (mSong!!.mCurrentLine.mBeatInfo.mScrollMode !== ScrollingMode.Manual) {
-                var event: BaseEvent?
+                var event: LinkedEvent?
                 do {
                     event = mSong!!.getNextEvent(timePassed)
-                    if (event is CommentEvent)
-                        processCommentEvent(event, time)
-                    else if (event is BeatEvent)
-                        processBeatEvent(event, true)
-                    else if (event is MIDIEvent)
-                        processMIDIEvent(event)
-                    else if (event is PauseEvent)
-                        processPauseEvent(event)
-                    else if (event is LineEvent)
-                        processLineEvent(event)
-                    else if (event is AudioEvent)
-                        processAudioEvent(event)
-                    else if (event is EndEvent)
-                        if (processEndEvent())
-                            return
+                    if(event!=null) {
+                        val innerEvent=event.mEvent
+                        if (innerEvent is CommentEvent)
+                            processCommentEvent(innerEvent, time)
+                        else if (innerEvent is BeatEvent)
+                            processBeatEvent(innerEvent, true)
+                        else if (innerEvent is MIDIEvent)
+                            processMIDIEvent(innerEvent)
+                        else if (innerEvent is PauseEvent)
+                            processPauseEvent(innerEvent)
+                        else if (innerEvent is LineEvent)
+                            processLineEvent(innerEvent)
+                        else if (innerEvent is AudioEvent)
+                            processAudioEvent(innerEvent)
+                        else if (innerEvent is EndEvent)
+                            if (processEndEvent())
+                                return
+                    }
                 } while(event!=null)
             }
             showTempMessage = time - mLastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
@@ -757,7 +761,6 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         // No time context in Manual mode.
         if (setPixelPosition)
             mSongPixelPosition = mSong!!.getPixelFromTime(nano)
-        //        if(mSong.mSongScrollingMode!=SongScrollingMode.Manual)
         run {
             if (mStartState !== PlayState.Playing)
                 mPauseTime = nano
@@ -766,9 +769,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mSong!!.setProgress(nano)
             if (mSong!!.mCurrentLine.mBeatInfo.mScrollMode !== ScrollingMode.Manual) {
                 val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
-                val nextBeatEvent = mSong!!.mCurrentEvent.nextBeatEvent
-                if (prevBeatEvent != null)
+                if (prevBeatEvent != null) {
+                    val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null)
+                }
             }
             else
                 mCurrentBeatCountRect = mSong!!.mBeatCounterRect

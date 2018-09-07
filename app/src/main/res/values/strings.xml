@@ -357,8 +357,8 @@
     <string name="pref_highlightBeatSectionStart_defaultValue" translatable="false">true</string>
 
     <string name="pref_highlightPageDownLine_key" translatable="false">pref_highlightPageDownLine</string>
-    <string name="pref_highlightPageDownLine_title">Highlight Page Down Target Line</string>
-    <string name="pref_highlightPageDownLine_summary">Highlights the line that will be scrolled to when you press page down.</string>
+    <string name="pref_highlightPageDownLine_title">Show page down scroll position markers</string>
+    <string name="pref_highlightPageDownLine_summary">Shows the position that the display will be scrolled to when you press page-down.</string>
     <string name="pref_highlightPageDownLine_defaultValue" translatable="false">true</string>
 
     <string name="pref_showMusicIcon_key" translatable="false">pref_showMusicIcon</string>

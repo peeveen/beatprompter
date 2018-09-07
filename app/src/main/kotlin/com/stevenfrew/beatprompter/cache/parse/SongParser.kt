@@ -8,6 +8,7 @@ import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
+import kotlin.math.absoluteValue
 
 @ParseTags(ImageTag::class,PauseTag::class,SendMIDIClockTag::class,CommentTag::class,CountTag::class,
         StartOfHighlightTag::class,EndOfHighlightTag::class,
@@ -27,7 +28,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
     private val mStartScreenComments=mutableListOf<Comment>()
-    private val mEvents= EventList()
+    private val mEvents=mutableListOf<BaseEvent>()
     private val mLines= LineList()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
     private val mBeatBlocks = mutableListOf<BeatBlock>()
@@ -326,31 +327,37 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
         val songTitleHeaderLocation = PointF(x, y)
 
-        val lineEvents=mEvents.filterIsInstance<LineEvent>()
-        val firstEvent=mEvents.buildEventChain(mSongTime)
-        offsetMIDIEvents(firstEvent)
+        // First of all, offset any MIDI events that have an offset.
+        offsetMIDIEvents()
+
+        // OK, now sort all events by time, and type within time
+        sortEvents()
 
         // Now we need to figure out which lines should NOT scroll offscreen.
         val noScrollLines=mutableListOf<Line>()
         val lastLineIsBeat=mLines.lastOrNull()?.mBeatInfo?.mScrollMode==ScrollingMode.Beat
         if(lastLineIsBeat) {
             noScrollLines.add(mLines.last())
-            lineEvents.lastOrNull()?.remove()
+            mEvents.removeAt(mEvents.indexOfLast { it is LineEvent })
         }
         else if(smoothMode)
         {
             var availableScreenHeight=mNativeDeviceSettings.mUsableScreenHeight-smoothScrollOffset
+            val lineEvents=mEvents.filterIsInstance<LineEvent>()
             for(lineEvent in lineEvents.reversed())
             {
                 availableScreenHeight-=lineEvent.mLine.mMeasurements.mLineHeight
                 if(availableScreenHeight>=0) {
                     noScrollLines.add(lineEvent.mLine)
-                    lineEvent.remove()
+                    mEvents.remove(lineEvent)
                 }
                 else
                     break
             }
         }
+
+        // Now build the final event list.
+        val firstEvent=buildLinkedEventList()
 
         // Calculate the last position that we can scroll to.
         val manualDisplayEnd=Math.max(0,mSongHeight-mNativeDeviceSettings.mUsableScreenHeight)
@@ -524,48 +531,56 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         return EventBlock(countInEvents,startTime)
     }
 
-    private fun offsetMIDIEvents(firstEvent: BaseEvent) {
-        var event:BaseEvent? = firstEvent
-        while (event != null) {
-            if (event is MIDIEvent) {
-                val midiEvent = event
-                if(midiEvent.mOffset!=null)
-                    if (midiEvent.mOffset.mAmount != 0) {
-                        // OK, this event needs moved.
-                        var newTime: Long = -1
-                        if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-                            val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-                            newTime = midiEvent.mEventTime + offset
-                        } else {
-                            // Offset by beat count.
-                            var beatCount = midiEvent.mOffset.mAmount
-                            var currentEvent: BaseEvent = midiEvent
-                            while (beatCount != 0) {
-                                val beatEvent: BeatEvent = (if (beatCount > 0)
-                                    currentEvent.nextBeatEvent
-                                else if (currentEvent is BeatEvent && currentEvent.mPrevEvent != null)
-                                    currentEvent.mPrevEvent!!.mPrevBeatEvent
-                                else
-                                    currentEvent.mPrevBeatEvent) ?: break
-                                if (beatEvent.mEventTime != midiEvent.mEventTime) {
-                                    beatCount -= beatCount / Math.abs(beatCount)
-                                    newTime = beatEvent.mEventTime
-                                }
-                                currentEvent = beatEvent
-                            }
-                        }
-                        if (newTime < 0) {
-                            mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
-                            newTime = 0
-                        }
-                        val newMIDIEvent = MIDIEvent(newTime, midiEvent.mMessages)
-                        midiEvent.insertEvent(newMIDIEvent)
-                        event = midiEvent.mPrevEvent
-                        midiEvent.remove()
-                    }
-            }
-            event = event!!.mNextEvent
+    /**
+     * Each MIDIEvent might have an offset. Process that here.
+     */
+    private fun offsetMIDIEvents()
+    {
+        val beatEvents=mEvents.filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }
+        mEvents.map{
+            if(it is MIDIEvent)
+                offsetMIDIEvent(it,beatEvents)
+            else
+                it
         }
+    }
+
+    /**
+     * Each MIDIEvent might have an offset. Process that here.
+     */
+    private fun offsetMIDIEvent(midiEvent:MIDIEvent,beatEvents:List<BeatEvent>):MIDIEvent {
+        if(midiEvent.mOffset!=null)
+            if (midiEvent.mOffset.mAmount != 0) {
+                // OK, this event needs moved.
+                var newTime: Long = -1
+                if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                    val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+                    newTime = midiEvent.mEventTime + offset
+                } else {
+                    // Offset by beat count.
+                    val beatCount = midiEvent.mOffset.mAmount
+                    val beatsBeforeOrAfterThisMIDIEvent=beatEvents.filter{
+                        if(beatCount>=0)
+                            it.mEventTime>midiEvent.mEventTime
+                        else
+                            it.mEventTime<midiEvent.mEventTime
+                    }
+                    val beatsInOrder=
+                        if(beatCount<0)
+                            beatsBeforeOrAfterThisMIDIEvent.reversed()
+                        else
+                            beatsBeforeOrAfterThisMIDIEvent
+                    val beatWeWant=beatsInOrder.take(beatCount.absoluteValue).lastOrNull()
+                    if(beatWeWant!=null)
+                        newTime=beatWeWant.mEventTime
+                }
+                if (newTime < 0) {
+                    mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                    newTime = 0
+                }
+                return MIDIEvent(newTime, midiEvent.mMessages)
+            }
+        return midiEvent
     }
 
     /**
@@ -722,6 +737,65 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
+    private fun sortEvents()
+    {
+        // Sort all events by time, and by type within that.
+        mEvents.sortWith(Comparator { e1, e2 ->
+            when {
+                e1.mEventTime > e2.mEventTime -> 1
+                e1.mEventTime < e2.mEventTime -> -1
+                else ->
+                {
+                    // There will only be one start event. Can't be both
+                    if(e1 is StartEvent)
+                        -1
+                    else if(e2 is StartEvent)
+                        1
+                    // MIDI events are next-most important. We want to
+                    // these first at any given time for maximum MIDI
+                    // responsiveness
+                    else if(e1 is MIDIEvent && e2 is MIDIEvent)
+                        0
+                    else if(e1 is MIDIEvent)
+                        -1
+                    else if(e2 is MIDIEvent)
+                        1
+                    // AudioEvents are next-most important. We want to process
+                    // these first at any given time for maximum audio
+                    // responsiveness
+                    else if(e1 is AudioEvent && e2 is AudioEvent)
+                        0
+                    else if(e1 is AudioEvent)
+                        -1
+                    else if(e2 is AudioEvent)
+                        1
+                    // Now LineEvents for maximum visual responsiveness
+                    else if(e1 is LineEvent && e2 is LineEvent)
+                        0
+                    else if(e1 is LineEvent)
+                        -1
+                    else if(e2 is LineEvent)
+                        1
+                    // Remaining order doesn't really matter
+                    else
+                        0
+                }
+            }
+        })
+    }
+
+    private fun buildLinkedEventList():LinkedEvent
+    {
+        var prevEvent:LinkedEvent?=null
+        val linkedEvents=mEvents.map{
+            val newEvent=LinkedEvent(it,prevEvent)
+            prevEvent=newEvent
+            newEvent
+        }
+        linkedEvents.last().cascadeSetNextEvents()
+        return linkedEvents.first()
+    }
+
     companion object {
         private const val DEMO_LINE_COUNT = 15
     }
@@ -744,7 +818,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    class EventList: ArrayList<BaseEvent>() {
+/*    class EventList: ArrayList<BaseEvent>() {
         init {
             add(StartEvent())
         }
@@ -791,7 +865,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             return firstEvent
         }
     }
-
+*/
     internal class CircularGraphicsList:ArrayList<LineGraphic>() {
         override fun add(element: LineGraphic):Boolean {
             lastOrNull()?.mNextGraphic = element

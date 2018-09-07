@@ -4,12 +4,12 @@ import android.graphics.*
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.AudioEvent
-import com.stevenfrew.beatprompter.event.BaseEvent
+import com.stevenfrew.beatprompter.event.LinkedEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.OutgoingMessage
 
 class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
-           firstEvent:BaseEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
+           firstEvent: LinkedEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mNextSongString:ScreenString?, val mTotalStartScreenTextHeight:Int,
            val mStartedByBandLeader:Boolean, val mNextSong:String,
@@ -17,7 +17,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
            val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString, val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line = mLines.first()
     internal var mCurrentEvent=firstEvent // Last event that executed.
-    private var mNextEvent: BaseEvent? = firstEvent.mNextEvent // Upcoming event.
+    private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
     val mSmoothMode:Boolean = mLines.filter{it.mBeatInfo.mScrollMode==ScrollingMode.Smooth}.any()
@@ -32,8 +32,8 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
         mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.first()
     }
 
-    internal fun getNextEvent(time: Long): BaseEvent? {
-        if (mNextEvent != null && mNextEvent!!.mEventTime <= time) {
+    internal fun getNextEvent(time: Long): LinkedEvent? {
+        if (mNextEvent != null && mNextEvent!!.time <= time) {
             mCurrentEvent = mNextEvent!!
             mNextEvent = mNextEvent!!.mNextEvent
             return mCurrentEvent
@@ -69,14 +69,15 @@ class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
     }
 
     companion object {
-        private fun findBackingTrack(firstEvent:BaseEvent):AudioFile?
+        private fun findBackingTrack(firstEvent:LinkedEvent):AudioFile?
         {
             // Find the backing track (if any)
-            var thisEvent:BaseEvent?=firstEvent
+            var thisEvent:LinkedEvent?=firstEvent
             while(thisEvent!=null)
             {
-                if(thisEvent is AudioEvent && thisEvent.mBackingTrack)
-                    return thisEvent.mAudioFile
+                val innerEvent=thisEvent.mEvent
+                if(innerEvent is AudioEvent && innerEvent.mBackingTrack)
+                    return innerEvent.mAudioFile
                 thisEvent=thisEvent.mNextEvent
             }
             return null
