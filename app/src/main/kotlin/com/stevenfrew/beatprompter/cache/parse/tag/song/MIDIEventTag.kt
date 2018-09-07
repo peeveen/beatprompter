@@ -58,8 +58,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
                     eventOffset = parseMIDIEventOffset(firstSplitBits[1],lineNumber)
                 }
             }
-            val bits = if (tagValue.isEmpty()) listOf() else tagValue.splitAndTrim(",")
-            var paramValues = bits.map { bit -> parseValue(bit) }
+            var paramValues = tagValue.splitAndTrim(",").filter{!it.isBlank()}.map { bit -> parseValue(bit) }
             var lastParamIsChannel = false
             var channel = defaultChannel
             for (f in paramValues.indices)
@@ -72,8 +71,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
                 if (lastParamIsChannel) {
                     val lastParam = paramValues[paramValues.size - 1] as ChannelValue
                     channel = lastParam.resolve()
-                    val paramBytesWithoutChannel = paramValues.subList(0, paramValues.size - 1)
-                    paramValues = paramBytesWithoutChannel
+                    paramValues = paramValues.dropLast(1)
                 }
                 val resolvedBytes = ByteArray(paramValues.size)
                 for (f in paramValues.indices)

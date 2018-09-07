@@ -15,6 +15,6 @@ class ChanneledCommandValue internal constructor(value: Byte) : ByteValue(value)
 
     override fun toString(): String {
         val strHex = Integer.toHexString(mValue.toInt())
-        return "0x" + strHex.substring(0, 1) + "_"
+        return "0x" + strHex.takeLast(2).take(1) + "_"
     }
 }

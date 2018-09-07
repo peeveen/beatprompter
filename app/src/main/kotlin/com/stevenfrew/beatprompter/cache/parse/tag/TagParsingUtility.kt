@@ -91,10 +91,11 @@ object TagParsingUtility {
                 strVal = strVal.substring(1)
                 try {
                     val referencedArgIndex = Integer.parseInt(strVal)
-                    if (referencedArgIndex < 0)
+                    // Arguments are one-based in the alias files.
+                    if (referencedArgIndex <= 0)
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                     else
-                        return ArgumentValue(referencedArgIndex)
+                        return ArgumentValue(referencedArgIndex-1)
                 } catch (nfe: NumberFormatException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                 }

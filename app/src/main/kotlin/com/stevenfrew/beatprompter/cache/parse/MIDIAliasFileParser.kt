@@ -12,7 +12,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
 import com.stevenfrew.beatprompter.midi.*
 import com.stevenfrew.beatprompter.splitAndTrim
-import java.util.ArrayList
 
 @ParseTags(MIDIAliasSetNameTag::class,MIDIAliasNameTag::class,MIDIAliasInstructionTag::class)
 class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
@@ -83,16 +82,26 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
     {
         val instructions=tag.mInstructions
         val name=tag.mName
-        val componentArgs = ArrayList<Value>()
+        val componentArgs = mutableListOf<Value>()
         val paramBits = instructions.splitAndTrim(",")
         for ((paramCounter, paramBit) in paramBits.withIndex()) {
             val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
             componentArgs.add(aliasValue)
         }
+        val channelArgs=componentArgs.filterIsInstance<ChannelValue>()
+        var channelArg:ChannelValue?=null
+        if(channelArgs.size>1)
+            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_channel_args))
+        else if(channelArgs.size==1) {
+            channelArg=channelArgs.first()
+            if (componentArgs.last() != channelArg)
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+            componentArgs.remove(channelArg)
+        }
         return if (name.equals("midi_send", ignoreCase = true))
-            SimpleAliasComponent(componentArgs)
+            SimpleAliasComponent(componentArgs,channelArg)
         else
-            RecursiveAliasComponent(name, componentArgs)
+            RecursiveAliasComponent(name, componentArgs,channelArg)
     }
 
     @Throws(InvalidBeatPrompterFileException::class)
