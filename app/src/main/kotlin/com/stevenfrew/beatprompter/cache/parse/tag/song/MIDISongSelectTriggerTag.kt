@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.midi.TriggerType
 
 @OncePerFile
-@TagName("midi_song_select")
+@TagName("midi_song_select_trigger")
 @TagType(Type.Directive)
 /**
  * Tag that defines a MIDI song select event that, if received, will cause this song to be
