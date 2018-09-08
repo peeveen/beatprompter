@@ -333,17 +333,17 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val songTitleHeaderLocation = PointF(x, y)
 
         // First of all, offset any MIDI events that have an offset.
-        offsetMIDIEvents()
+        val offsetEventList=offsetMIDIEvents()
 
         // OK, now sort all events by time, and type within time
-        sortEvents()
+        val sortedEventList=sortEvents(offsetEventList).toMutableList()
 
         // Now we need to figure out which lines should NOT scroll offscreen.
         val noScrollLines=mutableListOf<Line>()
         val lastLineIsBeat=mLines.lastOrNull()?.mBeatInfo?.mScrollMode==ScrollingMode.Beat
         if(lastLineIsBeat) {
             noScrollLines.add(mLines.last())
-            mEvents.removeAt(mEvents.indexOfLast { it is LineEvent })
+            sortedEventList.removeAt(mEvents.indexOfLast { it is LineEvent })
         }
         else if(smoothMode)
         {
@@ -354,36 +354,46 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 availableScreenHeight-=lineEvent.mLine.mMeasurements.mLineHeight
                 if(availableScreenHeight>=0) {
                     noScrollLines.add(lineEvent.mLine)
-                    mEvents.remove(lineEvent)
+                    sortedEventList.remove(lineEvent)
                 }
                 else
                     break
             }
         }
 
+        // To generate the EndEvent, we need to know the time that the
+        // song ends. This could be the time of the final generated event,
+        // but there might still be an audio file playing, so find out
+        // when the last track ends ...
+        val lastAudioEndTime=sortedEventList.filterIsInstance<AudioEvent>().map{it.mAudioFile.mDuration+it.mEventTime}.max()
+        sortedEventList.add(EndEvent(Math.max(lastAudioEndTime?:0L,mSongTime)))
+
         // Now build the final event list.
-        val firstEvent=buildLinkedEventList()
+        val firstEvent=buildLinkedEventList(sortedEventList)
 
         // Calculate the last position that we can scroll to.
-        val manualDisplayEnd=Math.max(0,mSongHeight-mNativeDeviceSettings.mUsableScreenHeight)
-        val beatDisplayEnd=mLines.lastOrNull{it.mBeatInfo.mScrollMode===ScrollingMode.Beat}?.mSongPixelPosition
-        val scrollEndPixel=
-            if (smoothMode)
-                manualDisplayEnd+smoothScrollOffset//+smoothScrollEndOffset
-            else
-                if(beatDisplayEnd!=null)
-                    if(beatDisplayEnd+mNativeDeviceSettings.mUsableScreenHeight>mSongHeight)
-                        beatDisplayEnd
-                    else
-                        manualDisplayEnd
-                else
-                    manualDisplayEnd
+        val scrollEndPixel=calculateScrollEndPixel(smoothMode,smoothScrollOffset)
 
         return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,firstEvent,mLines,audioEvents,
                 mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,
                 totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,
                 smoothScrollOffset,mSongHeight,scrollEndPixel,noScrollLines,mNativeDeviceSettings.mBeatCounterRect,songTitleHeader,
                 songTitleHeaderLocation)
+    }
+
+    private fun calculateScrollEndPixel(smoothMode:Boolean, smoothScrollOffset:Int):Int
+    {
+        val manualDisplayEnd=Math.max(0,mSongHeight-mNativeDeviceSettings.mUsableScreenHeight)
+        val beatDisplayEnd=mLines.lastOrNull{it.mBeatInfo.mScrollMode===ScrollingMode.Beat}?.mSongPixelPosition
+        return if (smoothMode)
+                manualDisplayEnd+smoothScrollOffset//+smoothScrollEndOffset
+            else if(beatDisplayEnd!=null)
+                if (beatDisplayEnd + mNativeDeviceSettings.mUsableScreenHeight > mSongHeight)
+                    beatDisplayEnd
+                else
+                    manualDisplayEnd
+            else
+                manualDisplayEnd
     }
 
     private fun getBiggestLineSize(index: Int, modulus: Int): Rect {
@@ -539,10 +549,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     /**
      * Each MIDIEvent might have an offset. Process that here.
      */
-    private fun offsetMIDIEvents()
+    private fun offsetMIDIEvents():List<BaseEvent>
     {
         val beatEvents=mEvents.filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }
-        mEvents.map{
+        return mEvents.map{
             if(it is MIDIEvent)
                 offsetMIDIEvent(it,beatEvents)
             else
@@ -742,10 +752,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
     }
 
-    private fun sortEvents()
+    private fun sortEvents(eventList:List<BaseEvent>):List<BaseEvent>
     {
         // Sort all events by time, and by type within that.
-        mEvents.sortWith(Comparator { e1, e2 ->
+        return eventList.sortedWith(Comparator { e1, e2 ->
             when {
                 e1.mEventTime > e2.mEventTime -> 1
                 e1.mEventTime < e2.mEventTime -> -1
@@ -786,20 +796,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     /**
      * Constructs a linked-list of events from the unlinked event list.
-     * Also caps it with an EndEvent.
      */
-    private fun buildLinkedEventList():LinkedEvent
+    private fun buildLinkedEventList(eventList:List<BaseEvent>):LinkedEvent
     {
-        // To generate the EndEvent, we need to know the time that the
-        // song ends. This could be the time of the final generated event,
-        // but there might still be an audio file playing, so find out
-        // when the last track ends ...
-        val lastAudioEndTime=mEvents.filterIsInstance<AudioEvent>().map{it.mAudioFile.mDuration+it.mEventTime}.max()
-        mEvents.add(EndEvent(Math.max(lastAudioEndTime?:0L,mSongTime)))
-
         // Now build the linked list.
         var prevEvent:LinkedEvent?=null
-        val linkedEvents=mEvents.map{
+        val linkedEvents=eventList.map{
             val newEvent=LinkedEvent(it,prevEvent)
             prevEvent=newEvent
             newEvent
