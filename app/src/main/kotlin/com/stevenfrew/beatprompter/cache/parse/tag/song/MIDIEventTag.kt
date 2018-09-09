@@ -9,7 +9,14 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.event.MIDIEvent
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.midi.alias.Alias
+import com.stevenfrew.beatprompter.midi.alias.ChannelValue
+import com.stevenfrew.beatprompter.midi.alias.ResolutionException
+import com.stevenfrew.beatprompter.midi.alias.Value
+import com.stevenfrew.beatprompter.comm.midi.message.Message
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.midi.EventOffset
+import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.splitAndTrim
 
 @TagType(Type.Directive)
@@ -30,7 +37,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
     }
     companion object {
         @Throws(MalformedTagException::class)
-        fun parseMIDIEvent(name:String,value:String, lineNumber:Int,aliases: List<Alias>): Pair<List<OutgoingMessage>,EventOffset?> {
+        fun parseMIDIEvent(name:String,value:String, lineNumber:Int,aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset?> {
 
             val defaultChannelPref= BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
             val defaultChannel= Message.getChannelFromBitmask(defaultChannelPref)
@@ -88,7 +95,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
         }
 
         @Throws(MalformedTagException::class)
-        fun parseMIDIEventOffset(offsetString:String,lineNumber:Int):EventOffset
+        fun parseMIDIEventOffset(offsetString:String,lineNumber:Int): EventOffset
         {
             var amount=0
             var offsetType: EventOffsetType = EventOffsetType.Milliseconds
@@ -121,7 +128,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
                 else if (Math.abs(amount) > 10000 && offsetType == EventOffsetType.Milliseconds)
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.max_midi_offset_exceeded))
             }
-            return EventOffset(amount,offsetType,lineNumber)
+            return EventOffset(amount, offsetType, lineNumber)
         }
 
         @Throws(MalformedTagException::class)

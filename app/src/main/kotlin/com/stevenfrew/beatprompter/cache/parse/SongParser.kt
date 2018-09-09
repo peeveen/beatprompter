@@ -5,7 +5,11 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.comm.midi.message.Message
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.midi.BeatBlock
+import com.stevenfrew.beatprompter.midi.EventOffsetType
+import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.pref.MetronomeContext
 import com.stevenfrew.beatprompter.pref.ShowBPM
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent

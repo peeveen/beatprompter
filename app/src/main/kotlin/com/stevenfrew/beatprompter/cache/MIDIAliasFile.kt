@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 
 @CacheXmlTag("midialiases")
 /**

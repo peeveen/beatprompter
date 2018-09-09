@@ -17,6 +17,7 @@
         android:maxSdkVersion="18" />
 
     <uses-feature android:name="android.hardware.usb.host" />
+    <uses-feature android:name="android.software.midi" android:required="false"/>
 
     <application
         android:name=".BeatPrompterApplication"

@@ -1,5 +1,12 @@
 package com.stevenfrew.beatprompter.midi
 
+import com.stevenfrew.beatprompter.midi.alias.*
+import com.stevenfrew.beatprompter.comm.midi.message.*
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.ControlChangeMessage
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.ProgramChangeMessage
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.SongSelectMessage
+
 class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
 
     private val mBankSelectMSB=bankSelectMSB
@@ -35,7 +42,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     @Throws(ResolutionException::class)
     fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
         val outputMessages = mutableListOf<OutgoingMessage>()
-        if (mType==TriggerType.SongSelect)
+        if (mType== TriggerType.SongSelect)
             outputMessages.add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
         else {
             val channel = if (mChannel is WildcardValue)

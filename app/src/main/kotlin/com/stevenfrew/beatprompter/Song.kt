@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.event.AudioEvent
 import com.stevenfrew.beatprompter.event.LinkedEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
-import com.stevenfrew.beatprompter.midi.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
 
 class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
            firstEvent: LinkedEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,

@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MIDIAliasSetNameTag
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.midi.alias.*
 import com.stevenfrew.beatprompter.splitAndTrim
 
 @ParseTags(MIDIAliasSetNameTag::class,MIDIAliasNameTag::class,MIDIAliasInstructionTag::class)
@@ -89,7 +89,7 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
             componentArgs.add(aliasValue)
         }
         val channelArgs=componentArgs.filterIsInstance<ChannelValue>()
-        var channelArg:ChannelValue?=null
+        var channelArg: ChannelValue?=null
         if(channelArgs.size>1)
             throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_channel_args))
         else if(channelArgs.size==1) {
@@ -99,9 +99,9 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
             componentArgs.remove(channelArg)
         }
         return if (name.equals("midi_send", ignoreCase = true))
-            SimpleAliasComponent(componentArgs,channelArg)
+            SimpleAliasComponent(componentArgs, channelArg)
         else
-            RecursiveAliasComponent(name, componentArgs,channelArg)
+            RecursiveAliasComponent(name, componentArgs, channelArg)
     }
 
     @Throws(InvalidBeatPrompterFileException::class)

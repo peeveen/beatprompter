@@ -2,13 +2,13 @@ package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.midi.SongTrigger
 
 @CacheXmlTag("song")
 /**
  * A song file in the cache.
  */
-class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mBars:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mMixedMode:Boolean, val mTotalPauses:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>,val mTags:Set<String>, private val mProgramChangeTrigger:SongTrigger, private val mSongSelectTrigger:SongTrigger, val mFilterOnly:Boolean, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
+class SongFile constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mLines:Int, val mBars:Int, val mTitle:String, val mArtist:String, val mKey:String, val mBPM:Double, val mDuration:Long, val mMixedMode:Boolean, val mTotalPauses:Long, val mAudioFiles:List<String>, val mImageFiles:List<String>, val mTags:Set<String>, private val mProgramChangeTrigger: SongTrigger, private val mSongSelectTrigger: SongTrigger, val mFilterOnly:Boolean, errors:List<FileParseError>) : CachedCloudTextFile(cachedCloudFileDescriptor,errors) {
     val mNormalizedArtist=mArtist.normalize()
     val mNormalizedTitle=mTitle.normalize()
     val mSortableArtist=sortableString(mArtist)

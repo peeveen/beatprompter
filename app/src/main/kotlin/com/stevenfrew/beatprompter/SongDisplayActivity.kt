@@ -16,9 +16,8 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import com.stevenfrew.beatprompter.bluetooth.message.*
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.midi.ClockSignalGeneratorTask
-import com.stevenfrew.beatprompter.midi.MIDIController
-import com.stevenfrew.beatprompter.midi.StartStopInTask
+import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
+import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.songload.SongLoadTask
 import com.stevenfrew.beatprompter.songload.SongLoaderTask
 
@@ -40,9 +39,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private val mMidiClockOutTask= ClockSignalGeneratorTask()
     private val mMidiClockOutTaskThread=Thread(mMidiClockOutTask)
 
-    private val mMidiStartStopInTask = StartStopInTask()
-    private val mMidiStartStopInTaskThread = Thread(mMidiStartStopInTask)
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         // Any config change, go back to the song list.
@@ -56,7 +52,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
-        val readMidi = sharedPref.getBoolean(getString(R.string.pref_readMidi_key), false)
         mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
         // NICETOHAVE: some sort of normal keyboard support.
         mAnyOtherKeyPageDown = false//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
@@ -88,8 +83,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         if (sendMidiClock)
             mMidiClockOutTaskThread.start()
-        if (readMidi)
-            mMidiStartStopInTaskThread.start()
 
         try {
             mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -111,7 +104,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         mSongDisplayActive = false
         super.onPause()
-        Task.pauseTask(mMidiStartStopInTask, mMidiStartStopInTaskThread)
         Task.pauseTask(mMidiClockOutTask, mMidiClockOutTaskThread)
         if (mSongView != null)
             mSongView!!.stop(false)
@@ -124,7 +116,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         super.onDestroy()
 
         Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
-        Task.stopTask(mMidiStartStopInTask, mMidiStartStopInTaskThread)
 
         if (mSongView != null) {
             mSongView!!.stop(true)
@@ -142,7 +133,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         mSongDisplayActive = true
         super.onResume()
         requestedOrientation = mOrientation
-        Task.resumeTask(mMidiStartStopInTask)
         Task.resumeTask(mMidiClockOutTask)
         requestedOrientation = mOrientation
         if (mSensorManager != null && mProximitySensor != null)
@@ -258,7 +248,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     }
 
     companion object {
-        private var mSongDisplayActive = false
+        var mSongDisplayActive = false
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(loadTask: SongLoadTask, songToInterruptWith: SongFile): SongInterruptResult {

@@ -9,7 +9,7 @@ import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
 import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
-import com.stevenfrew.beatprompter.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
 import com.stevenfrew.beatprompter.songload.SongLoaderTask
 

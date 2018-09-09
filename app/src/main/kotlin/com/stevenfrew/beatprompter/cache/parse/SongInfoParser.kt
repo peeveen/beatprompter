@@ -32,8 +32,8 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     private val mImageFiles=mutableListOf<String>()
     private var mFilterOnly=false
     private val mTags=mutableListOf<String>()
-    private var mMIDIProgramChangeTrigger:SongTrigger?=null
-    private var mMIDISongSelectTrigger:SongTrigger?=null
+    private var mMIDIProgramChangeTrigger: SongTrigger?=null
+    private var mMIDISongSelectTrigger: SongTrigger?=null
     private var mMixedMode:Boolean=false
     private var mLines=0
 

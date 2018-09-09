@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag
 import android.graphics.Color
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.TextFileParser
-import com.stevenfrew.beatprompter.midi.*
+import com.stevenfrew.beatprompter.midi.alias.*
 import kotlin.experimental.and
 import kotlin.reflect.KClass
 
@@ -92,7 +92,7 @@ object TagParsingUtility {
                     if (referencedArgIndex <= 0)
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                     else
-                        return ArgumentValue(referencedArgIndex-1)
+                        return ArgumentValue(referencedArgIndex - 1)
                 } catch (nfe: NumberFormatException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
                 }
@@ -106,7 +106,7 @@ object TagParsingUtility {
                     if (channel < 1 || channel > 16)
                         throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
                     // Channel is 1-based in text, but 0-based in code.
-                    return ChannelValue((channel-1).toByte())
+                    return ChannelValue((channel - 1).toByte())
                 } catch (nfe: NumberFormatException) {
                     throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
                 }

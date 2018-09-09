@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.cloud.CloudFileInfo
 import com.stevenfrew.beatprompter.flattenAll
-import com.stevenfrew.beatprompter.midi.Alias
+import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element

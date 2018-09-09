@@ -32,7 +32,7 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
-import com.stevenfrew.beatprompter.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
@@ -55,7 +55,6 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
 class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
-    private var mSongListActive = false
     private var mMenu: Menu? = null
     private var mSelectedFilter: Filter=AllSongsFilter(mutableListOf())
     private var mSortingPreference = SortingPreference.Title
@@ -591,9 +590,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     }
 
     override fun onResume() {
-        mSongListActive = true
         super.onResume()
-        MIDIController.resumeDisplayInTask()
 
         updateBluetoothIcon()
 
@@ -615,12 +612,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         editor.putString(getString(R.string.pref_cloudPath_key), "/")
         editor.apply()
         performFullCloudSync()
-    }
-
-    override fun onPause() {
-        mSongListActive = false
-        MIDIController.pauseDisplayInTask()
-        super.onPause()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -21,7 +21,7 @@ import com.stevenfrew.beatprompter.bluetooth.message.SetSongTimeMessage
 import com.stevenfrew.beatprompter.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.event.*
-import com.stevenfrew.beatprompter.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.pref.MetronomeContext
 import java.io.FileInputStream
 

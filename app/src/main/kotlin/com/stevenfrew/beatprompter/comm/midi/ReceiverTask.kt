@@ -1,0 +1,49 @@
+package com.stevenfrew.beatprompter.comm.midi
+
+import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.comm.SenderBase
+import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import kotlinx.coroutines.experimental.launch
+import java.io.IOException
+
+class ReceiverTask : Task(false) {
+    override fun doWork() {
+        while (!shouldStop) {
+            val receivers=getReceivers()
+            if(receivers.isNotEmpty())
+                receivers.forEach {
+                    launch {
+                        try {
+                            MIDIController.mMIDIInQueue.addAll(it.receive())
+                        } catch (ioException: IOException) {
+                            // Problem with the I/O. This receiver is now dead to us.
+                            mReceivers.remove(it)
+                        }
+                    }
+                }
+            else
+                Thread.sleep(250)
+        }
+    }
+
+    companion object {
+        private val mReceivers=mutableListOf<Receiver>()
+        private val mReceiversLock=Any()
+
+        fun addReceiver(receiver: Receiver)
+        {
+            synchronized(mReceiversLock)
+            {
+                mReceivers.add(receiver)
+            }
+        }
+
+        fun getReceivers():List<Receiver>
+        {
+            synchronized(mReceiversLock)
+            {
+                return mReceivers.toList()
+            }
+        }
+    }
+}
