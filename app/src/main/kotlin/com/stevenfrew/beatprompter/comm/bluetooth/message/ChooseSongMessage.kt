@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -11,25 +12,25 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val bytes:ByteArray,val mNormalizedTitle: String, val mNormalizedArtist:String, val mTrack: String, val mOrientation: Int, val mBeatScroll: Boolean, val mSmoothScroll: Boolean, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect): Message(bytes) {
-    constructor(normalizedTitle: String, normalizedArtist:String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect):this(asBytes(normalizedTitle,normalizedArtist,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenSize),normalizedTitle,normalizedTitle,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenSize)
+class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo:SongChoiceInfo): OutgoingMessage(bytes) {
+    constructor(choiceInfo:SongChoiceInfo):this(asBytes(choiceInfo),choiceInfo)
     companion object {
         internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
 
-        private fun asBytes(normalizedTitle: String, normalizedArtist:String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect): ByteArray {
+        private fun asBytes(choiceInfo:SongChoiceInfo): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
                 ObjectOutputStream(this).apply {
-                    writeObject(normalizedTitle)
-                    writeObject(normalizedArtist)
-                    writeObject(track)
-                    writeBoolean(beatScroll)
-                    writeBoolean(smoothScroll)
-                    writeInt(orientation)
-                    writeFloat(minFontSize)
-                    writeFloat(maxFontSize)
-                    writeInt(screenSize.width())
-                    writeInt(screenSize.height())
+                    writeObject(choiceInfo.mNormalizedTitle)
+                    writeObject(choiceInfo.mNormalizedArtist)
+                    writeObject(choiceInfo.mTrack)
+                    writeBoolean(choiceInfo.mBeatScroll)
+                    writeBoolean(choiceInfo.mSmoothScroll)
+                    writeInt(choiceInfo.mOrientation)
+                    writeFloat(choiceInfo.mMinFontSize)
+                    writeFloat(choiceInfo.mMaxFontSize)
+                    writeInt(choiceInfo.mScreenSize.width())
+                    writeInt(choiceInfo.mScreenSize.height())
                     flush()
                     close()
                 }
@@ -37,7 +38,7 @@ class ChooseSongMessage constructor(val bytes:ByteArray,val mNormalizedTitle: St
         }
 
         @Throws(NotEnoughDataException::class)
-        internal fun fromBytes(bytes: ByteArray): IncomingMessage {
+        internal fun fromBytes(bytes: ByteArray): ChooseSongMessage {
             try {
                 ByteArrayInputStream(bytes).apply {
                     val dataRead = read(ByteArray(1))
@@ -57,7 +58,7 @@ class ChooseSongMessage constructor(val bytes:ByteArray,val mNormalizedTitle: St
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return IncomingMessage(ChooseSongMessage(bytes.copyOfRange(0,messageLength),title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)), messageLength)
+                            return ChooseSongMessage(bytes.copyOfRange(0,messageLength),SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)))
                         }
                     }
                 }

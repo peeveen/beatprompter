@@ -15,11 +15,8 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import com.stevenfrew.beatprompter.comm.bluetooth.*
-import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
-import com.stevenfrew.beatprompter.comm.bluetooth.message.QuitSongMessage
-import com.stevenfrew.beatprompter.comm.bluetooth.message.SetSongTimeMessage
-import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.pref.MetronomeContext
@@ -536,7 +533,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
     }
 
-    fun startToggle(e: MotionEvent?, midiInitiated: Boolean, playState: PlayState) {
+    private fun startToggle(e: MotionEvent?, midiInitiated: Boolean, playState: PlayState) {
         mStartState = playState
         startToggle(e, midiInitiated)
     }
@@ -585,10 +582,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         time = mPauseTime
                         setSongTime(time, false, false, true,true)
                     }
-                    BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(oldPlayState, time))
+                    BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(StartStopToggleInfo(oldPlayState, time)))
                 }
             } else
-                BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(oldPlayState, 0))
+                BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(StartStopToggleInfo(oldPlayState, 0)))
         } else {
             if (mScreenAction == ScreenAction.Volume) {
                 if (e != null) {
@@ -618,7 +615,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         val nanoTime = System.nanoTime()
         mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
-        BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(mStartState, mPauseTime))
+        BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(StartStopToggleInfo(mStartState, mPauseTime)))
         mStartState = PlayState.reduce(mStartState)
         mMediaPlayers.values.forEach{
             if(it.isPlaying)
@@ -743,11 +740,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return super.onTouchEvent(event)
     }
 
-    fun setSongTime(sstm: SetSongTimeMessage) {
-        if (mSong != null) {
-            Log.d(BeatPrompterApplication.TAG, "Setting time=" + sstm.mTime)
-            setSongTime(sstm.mTime, true, false, true,true)
-        }
+    fun processBluetoothToggleStartStopMessage(startStopInfo: StartStopToggleInfo)
+    {
+        if (startStopInfo.mTime >= 0)
+            setSongTime(startStopInfo.mTime, true, false, true,true)
+        startToggle(null, false, startStopInfo.mStartState)
     }
 
     private fun seekTrack(audioFile:AudioFile,time: Int):MediaPlayer {

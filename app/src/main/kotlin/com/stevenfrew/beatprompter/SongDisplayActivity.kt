@@ -139,25 +139,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             mSensorManager!!.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
     }
 
-    fun processBluetoothMessage(btm: com.stevenfrew.beatprompter.comm.bluetooth.message.Message) {
-        if (mStartedByBandLeader) {
-            if (btm is ToggleStartStopMessage) {
-                if (mSongView != null) {
-                    if (btm.mTime >= 0)
-                        mSongView!!.setSongTime(btm.mTime, true, false, true,true)
-                    mSongView!!.startToggle(null, false, btm.mStartState)
-                }
-            } else if (btm is SetSongTimeMessage) {
-                if (mSongView != null)
-                    mSongView!!.setSongTime(btm)
-            } else if (btm is PauseOnScrollStartMessage) {
-                if (mSongView != null)
-                    mSongView!!.pauseOnScrollStart()
-            } else if (btm is QuitSongMessage)
-                finish()
-        }
-    }
-
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_PAGE_DOWN -> {
@@ -229,7 +210,10 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         override fun handleMessage(msg: Message) {
             if(mSongDisplayActive)
                 when (msg.what) {
-                    EventHandler.BLUETOOTH_MESSAGE_RECEIVED -> mActivity.processBluetoothMessage(msg.obj as com.stevenfrew.beatprompter.comm.bluetooth.message.Message)
+                    EventHandler.BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
+                    EventHandler.BLUETOOTH_QUIT_SONG -> mActivity.finish()
+                    EventHandler.BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true,true)
+                    EventHandler.BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as StartStopToggleInfo)
                     EventHandler.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")
                     EventHandler.MIDI_START_SONG -> mSongView?.startSong(true, true)

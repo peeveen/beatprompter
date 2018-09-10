@@ -11,6 +11,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.comm.bluetooth.message.SongChoiceInfo
 import java.util.concurrent.Semaphore
 
 /**
@@ -105,7 +106,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
         if (interruptResult === SongInterruptResult.NoSongToInterrupt) {
 
             // Create a bluetooth song-selection message to broadcast to other listeners.
-            val csm = ChooseSongMessage(mSongLoadInfo.mSongFile.mNormalizedTitle,
+            val csm = ChooseSongMessage(SongChoiceInfo(mSongLoadInfo.mSongFile.mNormalizedTitle,
                     mSongLoadInfo.mSongFile.mNormalizedArtist,
                     mSongLoadInfo.mTrack?.mName ?: "",
                     mSongLoadInfo.mNativeDisplaySettings.mOrientation,
@@ -113,7 +114,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
                     mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
                     mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
-                    mSongLoadInfo.mNativeDisplaySettings.mScreenSize)
+                    mSongLoadInfo.mNativeDisplaySettings.mScreenSize))
             BluetoothManager.mBluetoothOutQueue.add(csm)
 
             // Kick off the loading of the new song.

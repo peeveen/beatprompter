@@ -25,10 +25,10 @@ import android.widget.*
 import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
-import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
+import com.stevenfrew.beatprompter.comm.bluetooth.message.SongChoiceInfo
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
@@ -958,29 +958,27 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             Toast.makeText(this, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show()
     }
 
-    fun processBluetoothMessage(btm: com.stevenfrew.beatprompter.comm.bluetooth.message.Message) {
-        if (btm is ChooseSongMessage) {
-            val beat = btm.mBeatScroll
-            val smooth = btm.mSmoothScroll
-            val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
+    fun processBluetoothChooseSongMessage(choiceInfo:SongChoiceInfo) {
+        val beat = choiceInfo.mBeatScroll
+        val smooth = choiceInfo.mSmoothScroll
+        val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
-            val sharedPrefs = BeatPrompterApplication.preferences
-            val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)
-            val mimicDisplay = scrollingMode === ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
+        val sharedPrefs = BeatPrompterApplication.preferences
+        val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)
+        val mimicDisplay = scrollingMode === ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
 
-            // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
-            // Also, beat and smooth scrolling should never mimic.
-            val nativeSettings = getSongDisplaySettings(scrollingMode)
-            val sourceSettings = if (mimicDisplay) SongDisplaySettings(btm) else nativeSettings
+        // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
+        // Also, beat and smooth scrolling should never mimic.
+        val nativeSettings = getSongDisplaySettings(scrollingMode)
+        val sourceSettings = if (mimicDisplay) SongDisplaySettings(choiceInfo) else nativeSettings
 
-            for (sf in mCachedCloudFiles.songFiles)
-                if (sf.mNormalizedTitle == btm.mNormalizedTitle && sf.mNormalizedArtist==btm.mNormalizedArtist) {
-                    val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(btm.mTrack).firstOrNull(), scrollingMode, "", true,
-                            false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
-                    SongDisplayActivity.interruptCurrentSong(loadTask, sf)
-                    break
-                }
-        }
+        for (sf in mCachedCloudFiles.songFiles)
+            if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist==choiceInfo.mNormalizedArtist) {
+                val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull(), scrollingMode, "", true,
+                        false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
+                SongDisplayActivity.interruptCurrentSong(loadTask, sf)
+                break
+            }
     }
 
     private fun showFirstRunMessages() {
@@ -1038,7 +1036,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     class SongListEventHandler internal constructor(private val mSongList: SongList) : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                BLUETOOTH_MESSAGE_RECEIVED -> mSongList.processBluetoothMessage(msg.obj as com.stevenfrew.beatprompter.comm.bluetooth.message.Message)
+                EventHandler.BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
                 CLIENT_CONNECTED -> {
                     Toast.makeText(mSongList, msg.obj.toString() + " " + BeatPrompterApplication.getResourceString(R.string.hasConnected), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()

@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.Rect
-import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
+import com.stevenfrew.beatprompter.comm.bluetooth.message.SongChoiceInfo
 
 class SongDisplaySettings internal constructor(var mOrientation: Int, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect, val mShowBeatCounter:Boolean) {
-    internal constructor(csm: ChooseSongMessage) : this(csm.mOrientation, csm.mMinFontSize, csm.mMaxFontSize, csm.mScreenSize,csm.mBeatScroll||csm.mSmoothScroll)
+    internal constructor(choiceInfo: SongChoiceInfo) : this(choiceInfo.mOrientation, choiceInfo.mMinFontSize, choiceInfo.mMaxFontSize, choiceInfo.mScreenSize,choiceInfo.mBeatScroll||choiceInfo.mSmoothScroll)
 
     private val mBeatCounterHeight=
         // Top 5% of screen is used for beat counter

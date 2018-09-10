@@ -10,7 +10,6 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.comm.bluetooth.message.Message
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -213,17 +212,6 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     internal fun setServerConnection(socket: BluetoothSocket) {
         EventHandler.sendEventToSongList(EventHandler.SERVER_CONNECTED, socket.remoteDevice.name)
         mReceiverTask.addReceiver(Receiver(socket))
-    }
-
-    /**
-     * Sends the received Bluetooth message to the relevant destination.
-     */
-    fun routeBluetoothMessage(btm: Message) {
-        // The only event that the SongList cares about is ChooseSong
-        if (btm is ChooseSongMessage)
-            EventHandler.sendEventToSongList(EventHandler.BLUETOOTH_MESSAGE_RECEIVED, btm)
-        else
-            EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_MESSAGE_RECEIVED, btm)
     }
 
     /**

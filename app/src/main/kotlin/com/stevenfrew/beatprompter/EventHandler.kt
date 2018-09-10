@@ -7,7 +7,7 @@ abstract class EventHandler : Handler() {
     companion object {
         private const val HANDLER_MESSAGE_BASE_ID = 1834739585
 
-        const val BLUETOOTH_MESSAGE_RECEIVED = HANDLER_MESSAGE_BASE_ID
+        const val BLUETOOTH_CHOOSE_SONG = HANDLER_MESSAGE_BASE_ID
         const val CLIENT_CONNECTED = HANDLER_MESSAGE_BASE_ID + 1
         const val SERVER_CONNECTED = HANDLER_MESSAGE_BASE_ID + 2
         const val MIDI_START_SONG = HANDLER_MESSAGE_BASE_ID + 3
@@ -29,6 +29,10 @@ abstract class EventHandler : Handler() {
         const val CACHE_UPDATED = HANDLER_MESSAGE_BASE_ID + 19
         const val SET_CLOUD_PATH = HANDLER_MESSAGE_BASE_ID + 20
         const val CLEAR_CACHE = HANDLER_MESSAGE_BASE_ID + 21
+        const val BLUETOOTH_PAUSE_ON_SCROLL_START = HANDLER_MESSAGE_BASE_ID + 22
+        const val BLUETOOTH_QUIT_SONG = HANDLER_MESSAGE_BASE_ID + 23
+        const val BLUETOOTH_SET_SONG_TIME = HANDLER_MESSAGE_BASE_ID + 24
+        const val BLUETOOTH_TOGGLE_START_STOP = HANDLER_MESSAGE_BASE_ID + 25
 
         private val mSongListEventHandlerLock = Any()
         private val mSongDisplayEventHandlerLock = Any()

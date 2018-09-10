@@ -2,13 +2,15 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 /**
  * Bluetooth message that instructs the receiver to change the current song position.
  */
-class SetSongTimeMessage(time: Long) : Message(asBytes(time)) {
+class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
 
     var mTime: Long = time
 
@@ -19,9 +21,9 @@ class SetSongTimeMessage(time: Long) : Message(asBytes(time)) {
         {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(SET_SONG_TIME_MESSAGE_ID))
-                val longBytes = ByteArray(LONG_BUFFER_SIZE)
+                val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
                 var time = t
-                for (f in 0 until LONG_BUFFER_SIZE) {
+                for (f in 0 until Utils.LONG_BUFFER_SIZE) {
                     longBytes[f] = (time and 0x00000000000000FFL).toByte()
                     time = time shr 8
                 }
@@ -31,21 +33,21 @@ class SetSongTimeMessage(time: Long) : Message(asBytes(time)) {
             }
 
         @Throws(NotEnoughDataException::class)
-        internal fun fromBytes(bytes: ByteArray): IncomingMessage
+        internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage
         {
             ByteArrayInputStream(bytes).apply {
                 try {
                     var bytesRead = read(ByteArray(1))
                     if (bytesRead == 1) {
                         var time:Long = 0
-                        val longBytes = ByteArray(LONG_BUFFER_SIZE)
+                        val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
                         bytesRead = read(longBytes)
-                        if (bytesRead == LONG_BUFFER_SIZE) {
-                            for (f in LONG_BUFFER_SIZE - 1 downTo 0) {
+                        if (bytesRead == Utils.LONG_BUFFER_SIZE) {
+                            for (f in Utils.LONG_BUFFER_SIZE - 1 downTo 0) {
                                 time = time shl 8
                                 time = time or (longBytes[f].toLong() and 0x00000000000000FFL)
                             }
-                            return IncomingMessage(SetSongTimeMessage(time), 1 + LONG_BUFFER_SIZE)
+                            return SetSongTimeMessage(time)
                         }
                     }
                 } catch (e: Exception) {
