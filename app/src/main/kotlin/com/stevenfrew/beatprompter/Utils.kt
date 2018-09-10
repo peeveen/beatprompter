@@ -6,6 +6,9 @@ import java.io.*
 object Utils {
     internal var mSineLookup = DoubleArray(91)
 
+    // Size of a "long", in bytes.
+    internal const val LONG_BUFFER_SIZE = 8
+
     // Set by onCreate() in SongList.java
     internal var MAXIMUM_FONT_SIZE: Int = 0
     internal var MINIMUM_FONT_SIZE: Int = 0

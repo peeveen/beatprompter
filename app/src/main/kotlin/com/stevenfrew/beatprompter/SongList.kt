@@ -23,10 +23,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.android.vending.billing.IInAppBillingService
-import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.bluetooth.message.BluetoothMessage
-import com.stevenfrew.beatprompter.bluetooth.BluetoothMode
-import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
@@ -959,7 +958,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             Toast.makeText(this, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show()
     }
 
-    fun processBluetoothMessage(btm: BluetoothMessage) {
+    fun processBluetoothMessage(btm: com.stevenfrew.beatprompter.comm.bluetooth.message.Message) {
         if (btm is ChooseSongMessage) {
             val beat = btm.mBeatScroll
             val smooth = btm.mSmoothScroll
@@ -1039,7 +1038,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     class SongListEventHandler internal constructor(private val mSongList: SongList) : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                BLUETOOTH_MESSAGE_RECEIVED -> mSongList.processBluetoothMessage(msg.obj as BluetoothMessage)
+                BLUETOOTH_MESSAGE_RECEIVED -> mSongList.processBluetoothMessage(msg.obj as com.stevenfrew.beatprompter.comm.bluetooth.message.Message)
                 CLIENT_CONNECTED -> {
                     Toast.makeText(mSongList, msg.obj.toString() + " " + BeatPrompterApplication.getResourceString(R.string.hasConnected), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
@@ -1066,8 +1065,6 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                     ad.show()
                 }
                 SONG_LOAD_FAILED -> Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
-                MIDI_LSB_BANK_SELECT -> MIDIController.mMidiBankLSBs[msg.arg1] = msg.arg2.toByte()
-                MIDI_MSB_BANK_SELECT -> MIDIController.mMidiBankMSBs[msg.arg1] = msg.arg2.toByte()
                 MIDI_PROGRAM_CHANGE -> mSongList.startSongViaMidiProgramChange(MIDIController.mMidiBankMSBs[msg.arg1], MIDIController.mMidiBankLSBs[msg.arg1], msg.arg2.toByte(), msg.arg1.toByte())
                 MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
                 SONG_LOAD_COMPLETED -> mSongList.startSongActivity()

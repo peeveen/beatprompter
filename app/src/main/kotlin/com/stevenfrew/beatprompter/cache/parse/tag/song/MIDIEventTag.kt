@@ -14,7 +14,7 @@ import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException
 import com.stevenfrew.beatprompter.midi.alias.Value
 import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.splitAndTrim

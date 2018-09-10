@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.comm
 
-open class Message(val mBytes:ByteArray) {
+open class OutgoingMessage(val mBytes:ByteArray) {
     val length:Int
         get() = mBytes.size
 

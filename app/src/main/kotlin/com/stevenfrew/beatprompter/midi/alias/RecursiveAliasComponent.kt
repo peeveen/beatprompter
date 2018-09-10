@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.midi.alias
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 
 class RecursiveAliasComponent(private val mReferencedAliasName: String, private val mArguments: List<Value>, private val mChannelValue: ChannelValue?) : AliasComponent {
 

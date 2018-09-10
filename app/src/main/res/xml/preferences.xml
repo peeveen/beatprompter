@@ -318,11 +318,6 @@
             android:title="@string/pref_sendMidi_title"
             android:summary="@string/pref_sendMidi_summary"
             android:defaultValue="false" />
-        <CheckBoxPreference
-            android:key="@string/pref_readMidi_key"
-            android:title="@string/pref_readMidi_title"
-            android:summary="@string/pref_readMidi_summary"
-            android:defaultValue="false" />
         <ListPreference
             android:key="@string/pref_sendMidiTriggerOnStart_key"
             android:title="@string/pref_sendMidiTriggerOnStart_title"

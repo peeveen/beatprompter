@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.midi.alias
 
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 
 interface AliasComponent {
     @Throws(ResolutionException::class)

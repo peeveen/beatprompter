@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth.message
+package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.graphics.Rect
 import android.util.Log
@@ -9,35 +9,35 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 /**
- * Message that is sent/received when a song is chosen.
+ * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalizedArtist:String, val mTrack: String, val mOrientation: Int, val mBeatScroll: Boolean, val mSmoothScroll: Boolean, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect): BluetoothMessage() {
-    override val bytes: ByteArray
-        get() {
+class ChooseSongMessage constructor(val bytes:ByteArray,val mNormalizedTitle: String, val mNormalizedArtist:String, val mTrack: String, val mOrientation: Int, val mBeatScroll: Boolean, val mSmoothScroll: Boolean, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect): Message(bytes) {
+    constructor(normalizedTitle: String, normalizedArtist:String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect):this(asBytes(normalizedTitle,normalizedArtist,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenSize),normalizedTitle,normalizedTitle,track,orientation,beatScroll,smoothScroll,minFontSize,maxFontSize,screenSize)
+    companion object {
+        internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
+
+        private fun asBytes(normalizedTitle: String, normalizedArtist:String, track: String, orientation: Int, beatScroll: Boolean, smoothScroll: Boolean, minFontSize: Float, maxFontSize: Float, screenSize: Rect): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
                 ObjectOutputStream(this).apply {
-                    writeObject(mNormalizedTitle)
-                    writeObject(mNormalizedArtist)
-                    writeObject(mTrack)
-                    writeBoolean(mBeatScroll)
-                    writeBoolean(mSmoothScroll)
-                    writeInt(mOrientation)
-                    writeFloat(mMinFontSize)
-                    writeFloat(mMaxFontSize)
-                    writeInt(mScreenSize.width())
-                    writeInt(mScreenSize.height())
+                    writeObject(normalizedTitle)
+                    writeObject(normalizedArtist)
+                    writeObject(track)
+                    writeBoolean(beatScroll)
+                    writeBoolean(smoothScroll)
+                    writeInt(orientation)
+                    writeFloat(minFontSize)
+                    writeFloat(maxFontSize)
+                    writeInt(screenSize.width())
+                    writeInt(screenSize.height())
                     flush()
                     close()
                 }
             }.toByteArray()
         }
 
-    companion object {
-        internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
-
-        @Throws(NotEnoughBluetoothDataException::class)
-        internal fun fromBytes(bytes: ByteArray): IncomingBluetoothMessage {
+        @Throws(NotEnoughDataException::class)
+        internal fun fromBytes(bytes: ByteArray): IncomingMessage {
             try {
                 ByteArrayInputStream(bytes).apply {
                     val dataRead = read(ByteArray(1))
@@ -57,14 +57,14 @@ class ChooseSongMessage constructor(val mNormalizedTitle: String, val mNormalize
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return IncomingBluetoothMessage(ChooseSongMessage(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)), messageLength)
+                            return IncomingMessage(ChooseSongMessage(bytes.copyOfRange(0,messageLength),title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)), messageLength)
                         }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(BeatPrompterApplication.TAG, "Couldn't read ChooseSongMessage data, assuming not enough data", e)
             }
-            throw NotEnoughBluetoothDataException()
+            throw NotEnoughDataException()
         }
     }
 }

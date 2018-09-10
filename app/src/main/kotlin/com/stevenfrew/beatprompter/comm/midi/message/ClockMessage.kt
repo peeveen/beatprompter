@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.comm.midi.message.outgoing
+package com.stevenfrew.beatprompter.comm.midi.message
 
 internal class ClockMessage : OutgoingMessage(MIDI_CLOCK_SIGNAL_BYTES, true) {
     companion object {

@@ -5,9 +5,9 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.SongList
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.Utils
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.ClockMessage
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.StartMessage
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.StopMessage
+import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
+import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
+import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 
 class ClockSignalGeneratorTask : Task(false) {
     private val mRegistered= SongList.mSongListInstance.fullVersionUnlocked()

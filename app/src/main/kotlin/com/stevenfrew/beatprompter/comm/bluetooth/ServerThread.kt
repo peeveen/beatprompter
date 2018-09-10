@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth
+package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket

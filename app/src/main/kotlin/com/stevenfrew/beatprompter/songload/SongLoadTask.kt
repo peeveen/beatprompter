@@ -7,8 +7,8 @@ import android.os.AsyncTask
 import android.os.Message
 import android.util.Log
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import java.util.concurrent.Semaphore
@@ -114,7 +114,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
                     mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mScreenSize)
-            BluetoothManager.broadcastMessageToClients(csm)
+            BluetoothManager.mBluetoothOutQueue.add(csm)
 
             // Kick off the loading of the new song.
             BeatPrompterApplication.loadSong(mSongLoadInfo, mSongLoadTaskEventHandler, mCancelEvent, mRegistered)

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.comm
 
-interface Sender<TMessageType> where TMessageType:Message {
-    suspend fun send(messages:List<TMessageType>)
+interface Sender {
+    suspend fun send(messages:List<OutgoingMessage>)
     fun close()
 }

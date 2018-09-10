@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.Rect
-import com.stevenfrew.beatprompter.bluetooth.message.ChooseSongMessage
+import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 
 class SongDisplaySettings internal constructor(var mOrientation: Int, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect, val mShowBeatCounter:Boolean) {
     internal constructor(csm: ChooseSongMessage) : this(csm.mOrientation, csm.mMinFontSize, csm.mMaxFontSize, csm.mScreenSize,csm.mBeatScroll||csm.mSmoothScroll)

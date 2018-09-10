@@ -1,9 +1,9 @@
 package com.stevenfrew.beatprompter.comm
 
-abstract class SenderBase<TMessageType> constructor(private val mBufferSize:Int=OUT_BUFFER_SIZE): Sender<TMessageType> where TMessageType:Message {
+abstract class SenderBase constructor(private val mBufferSize:Int=OUT_BUFFER_SIZE): Sender {
     private val mOutBuffer=ByteArray(mBufferSize)
 
-    override suspend fun send(messages: List<TMessageType>) {
+    override suspend fun send(messages: List<OutgoingMessage>) {
         var messagesCopy=messages
         while(messagesCopy.isNotEmpty())
         {

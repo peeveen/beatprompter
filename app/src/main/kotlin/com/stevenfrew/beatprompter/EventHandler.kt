@@ -16,8 +16,8 @@ abstract class EventHandler : Handler() {
         const val END_SONG = HANDLER_MESSAGE_BASE_ID + 6
         const val CLOUD_SYNC_ERROR = HANDLER_MESSAGE_BASE_ID + 7
         const val FOLDER_CONTENTS_FETCHING = HANDLER_MESSAGE_BASE_ID + 8
-        const val MIDI_MSB_BANK_SELECT = HANDLER_MESSAGE_BASE_ID + 9
-        const val MIDI_LSB_BANK_SELECT = HANDLER_MESSAGE_BASE_ID + 10
+        const val FOLDER_CONTENTS_FETCHED = HANDLER_MESSAGE_BASE_ID + 9
+        const val CLIENT_DISCONNECTED = HANDLER_MESSAGE_BASE_ID + 10
         const val MIDI_SONG_SELECT = HANDLER_MESSAGE_BASE_ID + 11
         const val MIDI_PROGRAM_CHANGE = HANDLER_MESSAGE_BASE_ID + 12
         const val SONG_LOAD_CANCELLED = HANDLER_MESSAGE_BASE_ID + 13
@@ -29,8 +29,6 @@ abstract class EventHandler : Handler() {
         const val CACHE_UPDATED = HANDLER_MESSAGE_BASE_ID + 19
         const val SET_CLOUD_PATH = HANDLER_MESSAGE_BASE_ID + 20
         const val CLEAR_CACHE = HANDLER_MESSAGE_BASE_ID + 21
-        const val FOLDER_CONTENTS_FETCHED = HANDLER_MESSAGE_BASE_ID + 22
-        const val CLIENT_DISCONNECTED = HANDLER_MESSAGE_BASE_ID + 23
 
         private val mSongListEventHandlerLock = Any()
         private val mSongDisplayEventHandlerLock = Any()

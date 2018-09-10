@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext

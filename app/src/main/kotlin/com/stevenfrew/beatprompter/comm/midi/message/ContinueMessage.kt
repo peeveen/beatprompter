@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.comm.midi.message.outgoing
+package com.stevenfrew.beatprompter.comm.midi.message
 
 internal class ContinueMessage : OutgoingMessage(MIDI_CONTINUE_SIGNAL_BYTES, true) {
     companion object {

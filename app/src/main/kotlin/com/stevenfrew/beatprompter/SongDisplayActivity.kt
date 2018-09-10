@@ -14,7 +14,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
-import com.stevenfrew.beatprompter.bluetooth.message.*
+import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
@@ -139,7 +139,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             mSensorManager!!.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
     }
 
-    fun processBluetoothMessage(btm: BluetoothMessage) {
+    fun processBluetoothMessage(btm: com.stevenfrew.beatprompter.comm.bluetooth.message.Message) {
         if (mStartedByBandLeader) {
             if (btm is ToggleStartStopMessage) {
                 if (mSongView != null) {
@@ -227,28 +227,27 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     class SongDisplayEventHandler internal constructor(private val mActivity: SongDisplayActivity, private val mSongView: SongView?) : EventHandler() {
         override fun handleMessage(msg: Message) {
-            when (msg.what) {
-                EventHandler.BLUETOOTH_MESSAGE_RECEIVED -> mActivity.processBluetoothMessage(msg.obj as BluetoothMessage)
-                EventHandler.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
-                        ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")
-                EventHandler.MIDI_START_SONG -> mSongView?.startSong(true, true)
-                        ?: Log.d(BeatPrompterApplication.TAG, "MIDI start signal received by SongDisplay before view was created.")
-                EventHandler.MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
-                        ?: Log.d(BeatPrompterApplication.TAG, "MIDI continue signal received by SongDisplay before view was created.")
-                EventHandler.MIDI_STOP_SONG -> mSongView?.stopSong(true)
-                        ?: Log.d(BeatPrompterApplication.TAG, "MIDI stop signal received by SongDisplay before view was created.")
-                EventHandler.END_SONG -> {
-                    mActivity.setResult(Activity.RESULT_OK)
-                    mActivity.finish()
+            if(mSongDisplayActive)
+                when (msg.what) {
+                    EventHandler.BLUETOOTH_MESSAGE_RECEIVED -> mActivity.processBluetoothMessage(msg.obj as com.stevenfrew.beatprompter.comm.bluetooth.message.Message)
+                    EventHandler.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
+                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")
+                    EventHandler.MIDI_START_SONG -> mSongView?.startSong(true, true)
+                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI start signal received by SongDisplay before view was created.")
+                    EventHandler.MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
+                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI continue signal received by SongDisplay before view was created.")
+                    EventHandler.MIDI_STOP_SONG -> mSongView?.stopSong(true)
+                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI stop signal received by SongDisplay before view was created.")
+                    EventHandler.END_SONG -> {
+                        mActivity.setResult(Activity.RESULT_OK)
+                        mActivity.finish()
+                    }
                 }
-                EventHandler.MIDI_LSB_BANK_SELECT -> MIDIController.mMidiBankLSBs[msg.arg1] = msg.arg2.toByte()
-                EventHandler.MIDI_MSB_BANK_SELECT -> MIDIController.mMidiBankMSBs[msg.arg1] = msg.arg1.toByte()
-            }
         }
     }
 
     companion object {
-        var mSongDisplayActive = false
+        private var mSongDisplayActive = false
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(loadTask: SongLoadTask, songToInterruptWith: SongFile): SongInterruptResult {

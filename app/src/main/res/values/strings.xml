@@ -308,10 +308,6 @@
     <string name="pref_sendMidi_title">Send MIDI clock signals</string>
     <string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals via a USB On-The-Go connection.</string>
 
-    <string name="pref_readMidi_key" translatable="false">pref_readMidi</string>
-    <string name="pref_readMidi_title">Start/stop/continue on MIDI signals.</string>
-    <string name="pref_readMidi_summary">Start, stop and continue the song when relevant MIDI signals are received via USB On-The-Go.</string>
-
     <string name="pref_highlightColor_key" translatable="false">pref_highlightColor</string>
     <string name="pref_highlightColor_title">Highlight colour</string>
     <string name="pref_highlightColor_summary">Highlight colour to apply to highlighted lyric text.</string>

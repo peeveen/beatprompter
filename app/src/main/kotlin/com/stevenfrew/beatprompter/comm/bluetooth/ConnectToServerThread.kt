@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth
+package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
@@ -12,10 +12,6 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
     private var mmSocket: BluetoothSocket? = null
     private var mStop = false
     private val mSocketNullLock = Any()
-
-    fun isForDevice(device: BluetoothDevice): Boolean {
-        return mDevice.address == device.address
-    }
 
     override fun run() {
         while (!mStop) {
@@ -60,8 +56,6 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
         socket.connect()
         // Do work to manage the connection (in a separate thread)
         BluetoothManager.setServerConnection(socket)
-        val connectedClientThread = ConnectedClientThread(socket)
-        connectedClientThread.start()
     }
 
     /**
@@ -75,7 +69,7 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
     /**
      * Closes the watching socket.
      */
-    internal fun closeSocket() {
+    private fun closeSocket() {
         synchronized(mSocketNullLock) {
             try {
                 mmSocket?.close()

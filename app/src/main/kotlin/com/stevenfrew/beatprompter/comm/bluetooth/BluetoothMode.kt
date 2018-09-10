@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.bluetooth
+package com.stevenfrew.beatprompter.comm.bluetooth
 
 enum class BluetoothMode {
     // Not listening

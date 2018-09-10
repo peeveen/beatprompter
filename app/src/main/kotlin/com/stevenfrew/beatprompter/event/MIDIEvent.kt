@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.event
 
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.midi.EventOffset
 
 /**

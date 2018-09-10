@@ -3,18 +3,17 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.content.SharedPreferences
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.incoming.*
 import kotlin.experimental.and
 
-abstract class Receiver: ReceiverBase<IncomingMessage>() {
+abstract class Receiver: ReceiverBase() {
     private var mInSysEx: Boolean = false
 
-    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Pair<List<IncomingMessage>, Int> {
+    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int):Int {
         var f = dataStart
-        val parsedMessages= mutableListOf<IncomingMessage>()
         while (f < dataEnd) {
             val messageByte = buffer[f]
             // All interesting MIDI signals have the top bit set.
@@ -27,21 +26,21 @@ abstract class Receiver: ReceiverBase<IncomingMessage>() {
                 } else {
                     // These are single byte messages.
                     if (messageByte == Message.MIDI_START_BYTE)
-                        parsedMessages.add(StartMessage())
+                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_START_SONG)
                     else if (messageByte == Message.MIDI_CONTINUE_BYTE)
-                        parsedMessages.add(ContinueMessage())
+                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_CONTINUE_SONG)
                     else if (messageByte == Message.MIDI_STOP_BYTE)
-                        parsedMessages.add(StopMessage())
+                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
                     else if (messageByte == Message.MIDI_SONG_POSITION_POINTER_BYTE)
                     // This message requires two additional bytes.
                         if(f < dataEnd - 2)
-                            parsedMessages.add(SongPositionPointerMessage(byteArrayOf(buffer[++f], buffer[++f])))
+                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++f], buffer[++f]),0)
                         else
                         // Not enough data left.
                             break
                     else if (messageByte == Message.MIDI_SONG_SELECT_BYTE)
                         if (f < dataEnd - 1)
-                            parsedMessages.add(SongSelectMessage(buffer[++f]))
+                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SONG_SELECT, buffer[++f].toInt(),0)
                         else
                         // Not enough data left.
                             break
@@ -56,16 +55,25 @@ abstract class Receiver: ReceiverBase<IncomingMessage>() {
                             val channel = (messageByte and 0x0F)
                             if (channelsToListenTo and (1 shl channel.toInt()) != 0) {
                                 if (messageByteWithoutChannel == Message.MIDI_PROGRAM_CHANGE_BYTE)
+                                    // This message requires one additional byte.
                                     if (f < dataEnd - 1)
-                                        parsedMessages.add(ProgramChangeMessage(buffer[++f],channel))
+                                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_PROGRAM_CHANGE, channel.toInt(), buffer[++f].toInt())
                                     else
                                         break
-                                else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE)
-                                // This message requires two additional bytes.
-                                    if(f<dataEnd-2)
-                                        parsedMessages.add(ControlChangeMessage(buffer[++f], buffer[++f],channel))
+                                else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {
+                                    // The only control change value we care about are bank selects.
+                                    // Control change messages have two additional bytes.
+                                    if (f < dataEnd - 2) {
+                                        val controller=buffer[++f]
+                                        val bankValue=buffer[++f]
+                                        if(controller==Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
+                                            MIDIController.mMidiBankMSBs[channel.toInt()] = bankValue
+                                        else if(controller==Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
+                                            MIDIController.mMidiBankLSBs[channel.toInt()] = bankValue
+                                    }
                                     else
                                         break
+                                }
                             }
                         }
                     }
@@ -77,7 +85,7 @@ abstract class Receiver: ReceiverBase<IncomingMessage>() {
         // We want to move back one so that that byte becomes part of the next parsing operation.
         if(f!=dataEnd)
             --f
-        return Pair(parsedMessages,f-dataStart)
+        return f-dataStart
     }
 
     companion object:SharedPreferences.OnSharedPreferenceChangeListener {
@@ -107,10 +115,18 @@ abstract class Receiver: ReceiverBase<IncomingMessage>() {
             }
         }
 
-        fun setIncomingChannels() {
+        private fun setIncomingChannels() {
             synchronized(mIncomingChannelsLock) {
                 mIncomingChannels = getIncomingChannelsPrefValue()
             }
+        }
+
+        private fun calculateMidiBeat(byte1:Byte,byte2:Byte):Int
+        {
+            var firstHalf = byte2.toInt()
+            firstHalf = firstHalf shl 7
+            val secondHalf = byte1.toInt()
+            return firstHalf or secondHalf
         }
     }
 }

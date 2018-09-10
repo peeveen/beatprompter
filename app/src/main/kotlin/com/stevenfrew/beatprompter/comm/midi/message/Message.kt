@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter.comm.midi.message
 
-import com.stevenfrew.beatprompter.comm.Message
+import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class Message constructor(bytes:ByteArray):Message(bytes)
+open class Message constructor(bytes:ByteArray):OutgoingMessage(bytes)
 {
     companion object {
         internal const val MIDI_SYSEX_START_BYTE = 0xf0.toByte()

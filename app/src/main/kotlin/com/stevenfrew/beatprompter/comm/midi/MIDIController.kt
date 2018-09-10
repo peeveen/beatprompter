@@ -13,8 +13,9 @@ import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
-import com.stevenfrew.beatprompter.comm.midi.message.incoming.IncomingMessage
-import com.stevenfrew.beatprompter.comm.midi.message.outgoing.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.ReceiverTask
+import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.OutgoingMessage
 
 object MIDIController:MidiManager.OnDeviceOpenedListener {
     private var mMidiUsbRegistered = false
@@ -25,15 +26,13 @@ object MIDIController:MidiManager.OnDeviceOpenedListener {
 
     const val MIDI_TAG = "midi"
     private const val MIDI_QUEUE_SIZE = 1024
-    var mMIDIInQueue = ArrayBlockingQueue<IncomingMessage>(MIDI_QUEUE_SIZE)
-    var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
     var mMidiBankMSBs = ByteArray(16)
     var mMidiBankLSBs = ByteArray(16)
 
-    private val mDispatcherTask = DispatcherTask()
-    private val mSenderTask=SenderTask()
-    private val mReceiverTask=ReceiverTask()
-    private val mDispatcherTaskThread = Thread(mDispatcherTask)
+    var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
+    private val mSenderTask= SenderTask(mMIDIOutQueue)
+    private val mReceiverTask= ReceiverTask()
+
     private val mSenderTaskThread=Thread(mSenderTask)
     private val mReceiverTaskThread=Thread(mReceiverTask)
 
@@ -59,9 +58,9 @@ object MIDIController:MidiManager.OnDeviceOpenedListener {
         try {
             openedDevice?.info?.ports?.forEach {
                 if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
-                    ReceiverTask.addReceiver(NativeReceiver(openedDevice.openOutputPort(it.portNumber)))
+                    mReceiverTask.addReceiver(NativeReceiver(openedDevice.openOutputPort(it.portNumber)))
                 else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
-                    SenderTask.addSender(NativeSender(openedDevice.openInputPort(it.portNumber)))
+                    mSenderTask.addSender(NativeSender(openedDevice.openInputPort(it.portNumber)))
             }
         }
         catch(ioException:Exception)
@@ -90,9 +89,9 @@ object MIDIController:MidiManager.OnDeviceOpenedListener {
                                         for (f in 0 until endpointCount) {
                                             val endPoint = midiInterface.getEndpoint(f)
                                             if (endPoint.direction == UsbConstants.USB_DIR_OUT)
-                                                SenderTask.addSender(UsbSender(conn,endPoint))
+                                                mSenderTask.addSender(UsbSender(conn,endPoint))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
-                                                ReceiverTask.addReceiver(UsbReceiver(conn,endPoint))
+                                                mReceiverTask.addReceiver(UsbReceiver(conn,endPoint))
                                         }
                                     }
                                 }
@@ -155,8 +154,6 @@ object MIDIController:MidiManager.OnDeviceOpenedListener {
         Task.resumeTask(mSenderTask)
         mReceiverTaskThread.start()
         Task.resumeTask(mReceiverTask)
-        mDispatcherTaskThread.start()
-        Task.resumeTask(mDispatcherTask)
 
         mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
         mUsbManager = application.getSystemService(Context.USB_SERVICE) as UsbManager
@@ -181,6 +178,5 @@ object MIDIController:MidiManager.OnDeviceOpenedListener {
 
         Task.stopTask(mSenderTask, mSenderTaskThread)
         Task.stopTask(mReceiverTask, mReceiverTaskThread)
-        Task.stopTask(mDispatcherTask, mDispatcherTaskThread)
     }
 }
