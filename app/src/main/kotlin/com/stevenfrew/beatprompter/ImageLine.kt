@@ -3,8 +3,10 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
+import com.stevenfrew.beatprompter.graphics.ImageScalingMode
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
 
-class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScalingMode, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
+class ImageLine internal constructor(mImageFile:ImageFile, scalingMode: ImageScalingMode, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: SongDisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
     private val mDestinationRect=getDestinationRect(mBitmap,displaySettings.mScreenSize,scalingMode)
@@ -12,7 +14,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScal
 
     init
     {
-        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, scrollTimes.first, beatInfo.mScrollMode)
+        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, scrollTimes.first, scrollMode)
     }
 
     override fun renderGraphics()  {
@@ -33,7 +35,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode:ImageScal
     }
 
     companion object {
-        private fun getDestinationRect(bitmap:Bitmap,screenSize:Rect,scalingMode:ImageScalingMode):Rect
+        private fun getDestinationRect(bitmap:Bitmap,screenSize:Rect,scalingMode: ImageScalingMode):Rect
         {
             val imageHeight = bitmap.height
             val imageWidth = bitmap.width

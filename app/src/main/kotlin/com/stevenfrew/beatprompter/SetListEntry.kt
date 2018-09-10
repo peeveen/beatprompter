@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.filter.SetListMatch
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 /**
  * Represents one entry from a set list file.
@@ -33,7 +34,7 @@ class SetListEntry private constructor(private val mNormalizedTitle:String,priva
     }
 
     companion object {
-        private const val SET_LIST_ENTRY_DELIMITER="_<<-title__artist->>_"
+        private const val SET_LIST_ENTRY_DELIMITER="==="
 
         private fun getTitleAndArtistFromSetListLine(setListFileLine:String):Pair<String,String>
         {

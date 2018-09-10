@@ -28,19 +28,22 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
-import com.stevenfrew.beatprompter.comm.bluetooth.message.SongChoiceInfo
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
 import com.stevenfrew.beatprompter.pref.SettingsActivity
 import com.stevenfrew.beatprompter.pref.SortingPreference
+import com.stevenfrew.beatprompter.songload.SongChoiceInfo
 import com.stevenfrew.beatprompter.songload.SongLoadTask
 import com.stevenfrew.beatprompter.ui.FilterListAdapter
 import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter
 import com.stevenfrew.beatprompter.ui.SongListAdapter
+import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.flattenAll
 import org.json.JSONException
 import org.json.JSONObject
 import org.xml.sax.SAXException
@@ -210,7 +213,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val display = windowManager.defaultDisplay
         val size = Point()
         display.getSize(size)
-        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0,0,size.x, size.y), songScrollMode!=ScrollingMode.Manual)
+        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0, 0, size.x, size.y), songScrollMode != ScrollingMode.Manual)
     }
 
     private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
@@ -958,7 +961,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             Toast.makeText(this, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show()
     }
 
-    fun processBluetoothChooseSongMessage(choiceInfo:SongChoiceInfo) {
+    fun processBluetoothChooseSongMessage(choiceInfo: SongChoiceInfo) {
         val beat = choiceInfo.mBeatScroll
         val smooth = choiceInfo.mSmoothScroll
         val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual

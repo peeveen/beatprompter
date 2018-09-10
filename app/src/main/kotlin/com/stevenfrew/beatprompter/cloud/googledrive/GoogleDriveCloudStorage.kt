@@ -20,7 +20,7 @@ import com.google.api.services.drive.DriveScopes
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.SongList
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.cloud.*
 import io.reactivex.subjects.PublishSubject
 import java.io.File

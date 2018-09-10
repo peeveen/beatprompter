@@ -9,7 +9,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.util.Utils
 import java.util.*
 
 class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {

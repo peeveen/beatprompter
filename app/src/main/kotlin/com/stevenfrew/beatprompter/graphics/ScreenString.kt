@@ -1,9 +1,10 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.graphics
 
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
+import com.stevenfrew.beatprompter.util.Utils
 
 class ScreenString private constructor(internal var mText: String, internal var mFontSize: Float, internal var mColor: Int, width: Int, height: Int, internal var mFace: Typeface, var mDescenderOffset: Int) {
     val mWidth = Math.max(0, width)

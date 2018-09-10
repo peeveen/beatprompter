@@ -5,6 +5,8 @@ import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
+import com.stevenfrew.beatprompter.graphics.ColorRect
+import com.stevenfrew.beatprompter.graphics.ScreenString
 
 class LineSection constructor(val mLineText: String, val mChordText: String, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
     private val mTrimmedChord=mChordText.trim()

@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.SongTrigger
+import com.stevenfrew.beatprompter.util.normalize
 
 @CacheXmlTag("song")
 /**

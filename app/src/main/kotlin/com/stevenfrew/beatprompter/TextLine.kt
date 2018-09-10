@@ -3,10 +3,14 @@ package com.stevenfrew.beatprompter
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
+import com.stevenfrew.beatprompter.graphics.ScreenString
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
+import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.characters
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, beatInfo:LineBeatInfo, displaySettings:SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,beatInfo,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -54,7 +58,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
-        val maxLongestFontSize=ScreenString.getBestFontSize(longestBits.toString(), paint, displaySettings.mMinFontSize,displaySettings.mMaxFontSize,displaySettings.mScreenSize.width(),-1, mFont).toDouble()
+        val maxLongestFontSize= ScreenString.getBestFontSize(longestBits.toString(), paint, displaySettings.mMinFontSize,displaySettings.mMaxFontSize,displaySettings.mScreenSize.width(),-1, mFont).toDouble()
         var textFontSize = maxLongestFontSize
         var chordFontSize = maxLongestFontSize
         var allTextSmallerThanChords: Boolean
@@ -359,7 +363,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, scrollTimes.first, beatInfo.mScrollMode)
+        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, scrollTimes.first, scrollMode)
     }
 
     private val totalXSplits: Int

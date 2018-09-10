@@ -15,7 +15,7 @@ import com.onedrive.sdk.extensions.OneDriveClient
 import com.onedrive.sdk.http.OneDriveServiceException
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.cloud.*
 import io.reactivex.subjects.PublishSubject
 import java.io.File

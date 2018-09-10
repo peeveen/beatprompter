@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.ImageScalingMode
+import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.io.File
 
 @OncePerLine
@@ -16,7 +16,7 @@ import java.io.File
  */
 class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,value:String): ValueTag(name,lineNumber,position,value) {
     val mFilename:String
-    val mImageScalingMode:ImageScalingMode
+    val mImageScalingMode: ImageScalingMode
 
     init {
         val bits=value.splitAndTrim(":")
@@ -26,7 +26,7 @@ class ImageTag internal constructor(name:String,lineNumber:Int,position:Int,valu
 
     companion object {
         @Throws(MalformedTagException::class)
-        fun parseImageScalingMode(value:String):ImageScalingMode {
+        fun parseImageScalingMode(value:String): ImageScalingMode {
             try {
                 return ImageScalingMode.valueOf(value.toLowerCase().capitalize())
             }

@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.util
 
 import android.graphics.Color
 import java.io.*
@@ -93,7 +93,7 @@ object Utils {
      */
     fun parseDuration(str: String, trackLengthAllowed: Boolean): Long {
         if (str.equals("track", ignoreCase = true) && trackLengthAllowed)
-            return Utils.TRACK_AUDIO_LENGTH_VALUE
+            return TRACK_AUDIO_LENGTH_VALUE
         try {
             val totalSecs = str.toDouble()
             return Math.floor(totalSecs * 1000.0).toLong()

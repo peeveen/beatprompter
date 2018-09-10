@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.comm.bluetooth.message.SongChoiceInfo
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
 import java.util.concurrent.Semaphore
 
 /**

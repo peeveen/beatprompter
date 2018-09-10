@@ -7,8 +7,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
-import com.stevenfrew.beatprompter.normalize
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.normalize
+import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.io.File
 
 @TagName("audio","track","musicpath")

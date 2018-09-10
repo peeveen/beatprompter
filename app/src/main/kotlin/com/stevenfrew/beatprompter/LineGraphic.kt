@@ -11,5 +11,4 @@ class LineGraphic(size: Rect) {
     fun recycle() {
         mBitmap.recycle()
     }
-
 }

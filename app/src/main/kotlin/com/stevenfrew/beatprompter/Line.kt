@@ -1,6 +1,8 @@
 package com.stevenfrew.beatprompter
 
-abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mBeatInfo:LineBeatInfo, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long, private val mDisplaySettings:SongDisplaySettings) {
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+
+abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mScrollMode: ScrollingMode, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long, private val mDisplaySettings: SongDisplaySettings) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements:LineMeasurements

@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @OncePerLine
 @TagName("comment", "c", "comment_box", "cb", "comment_italic", "ci")

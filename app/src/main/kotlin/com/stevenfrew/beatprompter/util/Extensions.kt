@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.util
 
 fun String.splitAndTrim(separator:String):List<String> {
     val bits=split(separator)

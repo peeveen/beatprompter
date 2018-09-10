@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.midi.alias.Value
 import com.stevenfrew.beatprompter.midi.alias.WildcardValue
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 /**
  * Base class for MIDI auto-start tags.

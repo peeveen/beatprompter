@@ -17,7 +17,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.EventOffsetType
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @TagType(Type.Directive)
 /**

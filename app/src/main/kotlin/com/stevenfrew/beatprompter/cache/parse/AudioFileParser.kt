@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.media.MediaMetadataRetriever
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 

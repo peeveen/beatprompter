@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.songload.SongChoiceInfo
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -12,12 +13,12 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo:SongChoiceInfo): OutgoingMessage(bytes) {
-    constructor(choiceInfo:SongChoiceInfo):this(asBytes(choiceInfo),choiceInfo)
+class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo: SongChoiceInfo): OutgoingMessage(bytes) {
+    constructor(choiceInfo: SongChoiceInfo):this(asBytes(choiceInfo),choiceInfo)
     companion object {
         internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
 
-        private fun asBytes(choiceInfo:SongChoiceInfo): ByteArray {
+        private fun asBytes(choiceInfo: SongChoiceInfo): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
                 ObjectOutputStream(this).apply {
@@ -58,7 +59,7 @@ class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo:SongChoi
                             val availableEnd = available()
                             val messageLength = 1 + (availableStart - availableEnd)
                             close()
-                            return ChooseSongMessage(bytes.copyOfRange(0,messageLength),SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)))
+                            return ChooseSongMessage(bytes.copyOfRange(0,messageLength), SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)))
                         }
                     }
                 }

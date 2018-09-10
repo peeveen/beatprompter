@@ -4,6 +4,9 @@ import android.graphics.Color
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.parse.TextFileParser
 import com.stevenfrew.beatprompter.midi.alias.*
+import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.looksLikeDecimal
+import com.stevenfrew.beatprompter.util.looksLikeHex
 import kotlin.experimental.and
 import kotlin.reflect.KClass
 

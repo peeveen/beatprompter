@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cloud
 
-import com.stevenfrew.beatprompter.normalize
+import com.stevenfrew.beatprompter.util.normalize
 
 abstract class CloudItemInfo internal constructor(// Unique ID of the item in the cloud storage.
         val mID: String, // Display name.

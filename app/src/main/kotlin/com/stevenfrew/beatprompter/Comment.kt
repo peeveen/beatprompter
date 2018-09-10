@@ -1,6 +1,8 @@
 package com.stevenfrew.beatprompter
 
 import android.graphics.*
+import com.stevenfrew.beatprompter.graphics.ScreenString
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 class Comment internal constructor(var mText: String, audience: List<String>, screenSize: Rect, paint: Paint, font: Typeface) {
     private val commentAudience = audience

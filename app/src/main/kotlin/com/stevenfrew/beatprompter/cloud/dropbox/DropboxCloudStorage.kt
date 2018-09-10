@@ -12,7 +12,7 @@ import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.ListFolderResult
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Utils
+import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.cloud.*
 import io.reactivex.subjects.PublishSubject
 import org.apache.commons.io.FilenameUtils

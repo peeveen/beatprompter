@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.songload
 
 enum class SongInterruptResult {
     NoSongToInterrupt,

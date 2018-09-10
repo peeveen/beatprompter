@@ -7,20 +7,22 @@ import com.stevenfrew.beatprompter.event.AudioEvent
 import com.stevenfrew.beatprompter.event.LinkedEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.graphics.ScreenString
+import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
 
-class Song(val mSongFile:SongFile, val mDisplaySettings:SongDisplaySettings,
+class Song(val mSongFile:SongFile, val mDisplaySettings: SongDisplaySettings,
            firstEvent: LinkedEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
-           val mStartScreenStrings:List<ScreenString>, val mNextSongString:ScreenString?, val mTotalStartScreenTextHeight:Int,
+           val mStartScreenStrings:List<ScreenString>, val mNextSongString: ScreenString?, val mTotalStartScreenTextHeight:Int,
            val mStartedByBandLeader:Boolean, val mNextSong:String,
            val mDisplayOffset:Int, val mHeight:Int, val mScrollEndPixel:Int, val mNoScrollLines:List<Line>,
-           val mBeatCounterRect:Rect, val mSongTitleHeader:ScreenString, val mSongTitleHeaderLocation:PointF) {
+           val mBeatCounterRect:Rect, val mSongTitleHeader: ScreenString, val mSongTitleHeaderLocation:PointF) {
     internal var mCurrentLine: Line = mLines.first()
     internal var mCurrentEvent=firstEvent // Last event that executed.
     private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    val mSmoothMode:Boolean = mLines.filter{it.mBeatInfo.mScrollMode==ScrollingMode.Smooth}.any()
+    val mSmoothMode:Boolean = mLines.filter{it.mScrollMode==ScrollingMode.Smooth}.any()
     internal val mBackingTrack=findBackingTrack(firstEvent)
 
     internal fun setProgress(nano: Long) {

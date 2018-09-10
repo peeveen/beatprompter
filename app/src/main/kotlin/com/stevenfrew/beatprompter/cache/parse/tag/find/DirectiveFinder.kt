@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
 
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
-import com.stevenfrew.beatprompter.splitAndTrim
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
 /**
  * Finds directive tags, i.e. those that are inside curly brackets.
