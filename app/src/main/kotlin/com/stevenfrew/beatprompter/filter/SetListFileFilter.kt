@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.filter
 
 import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.SetListEntry
+import com.stevenfrew.beatprompter.set.SetListEntry
 
 open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<SongFile>) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSetListEntries, songs)) {
     var mMissingSetListEntries=getMissingSetListEntries(mSetListFile.mSetListEntries, mSongs)

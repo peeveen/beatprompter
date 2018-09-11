@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.set
 
 import com.stevenfrew.beatprompter.cache.SongFile
 
@@ -44,7 +44,7 @@ internal class Playlist {
     private fun buildSongList(songs: List<SongFile>) {
         mItems.clear()
         songs.forEach {
-            val node=PlaylistNode(it)
+            val node= PlaylistNode(it)
             mItems.lastOrNull()?.mNextNode=node
             mItems.add(node)
         }

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.SetListEntry
+import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.cache.parse.*
 
 @CacheXmlTag("set")

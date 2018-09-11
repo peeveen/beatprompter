@@ -31,12 +31,15 @@ import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.filter.*
 import com.stevenfrew.beatprompter.filter.Filter
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.pref.FontSizePreference
 import com.stevenfrew.beatprompter.pref.SettingsActivity
 import com.stevenfrew.beatprompter.pref.SortingPreference
+import com.stevenfrew.beatprompter.set.Playlist
+import com.stevenfrew.beatprompter.set.PlaylistNode
+import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.songload.SongChoiceInfo
 import com.stevenfrew.beatprompter.songload.SongLoadTask
 import com.stevenfrew.beatprompter.ui.FilterListAdapter
@@ -168,7 +171,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         return playNextSong
     }
 
-    private fun getSongDisplaySettings(songScrollMode: ScrollingMode): SongDisplaySettings {
+    private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
         val sharedPref = BeatPrompterApplication.preferences
         val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
@@ -213,10 +216,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         val display = windowManager.defaultDisplay
         val size = Point()
         display.getSize(size)
-        return SongDisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0, 0, size.x, size.y), songScrollMode != ScrollingMode.Manual)
+        return DisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0, 0, size.x, size.y), songScrollMode != ScrollingMode.Manual)
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
@@ -973,7 +976,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
         // Also, beat and smooth scrolling should never mimic.
         val nativeSettings = getSongDisplaySettings(scrollingMode)
-        val sourceSettings = if (mimicDisplay) SongDisplaySettings(choiceInfo) else nativeSettings
+        val sourceSettings = if (mimicDisplay) DisplaySettings(choiceInfo) else nativeSettings
 
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist==choiceInfo.mNormalizedArtist) {

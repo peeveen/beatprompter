@@ -7,10 +7,12 @@ import com.stevenfrew.beatprompter.event.AudioEvent
 import com.stevenfrew.beatprompter.event.LinkedEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
-import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.util.splitAndTrim
 
-class Song(val mSongFile:SongFile, val mDisplaySettings: SongDisplaySettings,
+class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
            firstEvent: LinkedEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
            val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
            val mStartScreenStrings:List<ScreenString>, val mNextSongString: ScreenString?, val mTotalStartScreenTextHeight:Int,
@@ -68,6 +70,22 @@ class Song(val mSongFile:SongFile, val mDisplaySettings: SongDisplaySettings,
                 return (blockStartTime + nanoPerBeat * (beat - midiBeatCount)).toLong()
         }
         return 0
+    }
+
+    class Comment internal constructor(var mText: String, audience: List<String>, screenSize: Rect, paint: Paint, font: Typeface) {
+        private val commentAudience = audience
+        private val mCommentGraphic= ScreenComment(mText,screenSize,paint,font)
+
+        fun isIntendedFor(audience: String): Boolean {
+            return commentAudience.isEmpty() ||
+                    audience.isBlank() ||
+                    audience.toLowerCase().splitAndTrim(",").intersect(commentAudience).any()
+        }
+
+        fun draw(canvas:Canvas,paint:Paint,textColor:Int)
+        {
+            mCommentGraphic.draw(canvas,paint,textColor)
+        }
     }
 
     companion object {

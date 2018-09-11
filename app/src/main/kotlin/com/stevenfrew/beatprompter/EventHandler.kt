@@ -94,52 +94,10 @@ abstract class EventHandler : Handler() {
             }
         }
 
-        fun sendEventToSettings(event: Int, arg: Any) {
-            synchronized(mSettingsEventHandlerLock) {
-                if (mSettingsEventHandler != null)
-                    mSettingsEventHandler!!.obtainMessage(event, arg).sendToTarget()
-            }
-        }
-
-        fun sendEventToSongList(event: Int, arg1: Int, arg2: Int) {
-            synchronized(mSongListEventHandlerLock) {
-                if (mSongListEventHandler != null)
-                    mSongListEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
-            }
-        }
-
         fun sendEventToSongDisplay(event: Int, arg1: Int, arg2: Int) {
             synchronized(mSongDisplayEventHandlerLock) {
                 if (mSongDisplayEventHandler != null)
                     mSongDisplayEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
-            }
-        }
-
-        fun sendEventToSettings(event: Int, arg1: Int, arg2: Int) {
-            synchronized(mSettingsEventHandlerLock) {
-                if (mSettingsEventHandler != null)
-                    mSettingsEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
-            }
-        }
-
-        fun sendEventToSongList(event: Int, arg1: Int, arg2: Int, arg3: Any) {
-            synchronized(mSongListEventHandlerLock) {
-                if (mSongListEventHandler != null)
-                    mSongListEventHandler!!.obtainMessage(event, arg1, arg2, arg3).sendToTarget()
-            }
-        }
-
-        fun sendEventToSongDisplay(event: Int, arg1: Int, arg2: Int, arg3: Any) {
-            synchronized(mSongDisplayEventHandlerLock) {
-                if (mSongDisplayEventHandler != null)
-                    mSongDisplayEventHandler!!.obtainMessage(event, arg1, arg2, arg3).sendToTarget()
-            }
-        }
-
-        fun sendEventToSettings(event: Int, arg1: Int, arg2: Int, arg3: Any) {
-            synchronized(mSettingsEventHandlerLock) {
-                if (mSettingsEventHandler != null)
-                    mSettingsEventHandler!!.obtainMessage(event, arg1, arg2, arg3).sendToTarget()
             }
         }
     }

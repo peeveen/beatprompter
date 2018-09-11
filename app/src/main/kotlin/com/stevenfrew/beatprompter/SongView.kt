@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.SoundPool
 import android.support.v4.view.GestureDetectorCompat
@@ -83,7 +83,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private var mManualScrollPositions:ManualScrollPositions?=null
 
-    private val mClickSoundPool: SoundPool= SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
+    // This is an old deprecated constructor for compatibility.
+    // The newer one:
+    // SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
+    private val mClickSoundPool: SoundPool= SoundPool(16, AudioManager.STREAM_MUSIC, 0)
     private val mClickAudioID=mClickSoundPool.load(this.context, R.raw.click, 0)
 
     internal enum class ScreenAction {
@@ -518,20 +521,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun showComment(canvas: Canvas) {
-        if (mLastCommentEvent != null) {
-            with(mPaint)
-            {
-                textSize = mLastCommentEvent!!.mComment.mScreenString!!.mFontSize * Utils.FONT_SCALING
-                flags = Paint.ANTI_ALIAS_FLAG
-                color = Color.BLACK
-            }
-            canvas.drawRect(mLastCommentEvent!!.mComment.mPopupRect!!, mPaint)
-            mPaint.color = Color.WHITE
-            canvas.drawRect(mLastCommentEvent!!.mComment.mPopupRect!!.left + 1, mLastCommentEvent!!.mComment.mPopupRect!!.top + 1, mLastCommentEvent!!.mComment.mPopupRect!!.right - 1, mLastCommentEvent!!.mComment.mPopupRect!!.bottom - 1, mPaint)
-            mPaint.color = mCommentTextColor
-            mPaint.alpha = 255
-            canvas.drawText(mLastCommentEvent!!.mComment.mText, mLastCommentEvent!!.mComment.mTextDrawLocation!!.x, mLastCommentEvent!!.mComment.mTextDrawLocation!!.y, mPaint)
-        }
+        if (mLastCommentEvent != null)
+            mLastCommentEvent!!.mComment.draw(canvas,mPaint,mCommentTextColor)
     }
 
     private fun startToggle(e: MotionEvent?, midiInitiated: Boolean, playState: PlayState) {

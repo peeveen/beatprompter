@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.set
 
 import com.stevenfrew.beatprompter.cache.SongFile
 

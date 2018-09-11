@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.event.*
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.graphics.ScreenString
-import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
@@ -36,10 +36,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mShowKey:Boolean
     private val mShowBPM: ShowBPM
     private val mTriggerContext: TriggerOutputContext
-    private val mNativeDeviceSettings: SongDisplaySettings
+    private val mNativeDeviceSettings: DisplaySettings
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
     private var mStopAddingStartupItems = false
-    private val mStartScreenComments=mutableListOf<Comment>()
+    private val mStartScreenComments=mutableListOf<Song.Comment>()
     private val mEvents=mutableListOf<BaseEvent>()
     private val mLines= LineList()
     private val mRolloverBeats=mutableListOf<BeatEvent>()
@@ -122,7 +122,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         val commentTags=tags.filterIsInstance<CommentTag>()
         commentTags.forEach {
-            val comment = Comment(it.mComment,it.mAudience,mNativeDeviceSettings.mScreenSize,mPaint,mFont)
+            val comment = Song.Comment(it.mComment,it.mAudience,mNativeDeviceSettings.mScreenSize,mPaint,mFont)
             if(comment.isIntendedFor(mCustomCommentsUser))
                 if (mStopAddingStartupItems)
                     mEvents.add(CommentEvent(mSongTime, comment))
@@ -608,7 +608,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     /**
      * Based on the difference in screen size/resolution/orientation, we will alter the min/max font size of our native settings.
      */
-    private fun translateSourceDeviceSettingsToNative(sourceSettings: SongDisplaySettings, nativeSettings: SongDisplaySettings): SongDisplaySettings
+    private fun translateSourceDeviceSettingsToNative(sourceSettings: DisplaySettings, nativeSettings: DisplaySettings): DisplaySettings
     {
         val sourceScreenSize=sourceSettings.mScreenSize
         val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
@@ -629,7 +629,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
             maximumFontSize = minimumFontSize
         }
-        return SongDisplaySettings(sourceSettings.mOrientation, minimumFontSize, maximumFontSize, nativeScreenSize, sourceSettings.mShowBeatCounter)
+        return DisplaySettings(sourceSettings.mOrientation, minimumFontSize, maximumFontSize, nativeScreenSize, sourceSettings.mShowBeatCounter)
     }
 
     private fun createStartScreenStrings():Pair<List<ScreenString>, ScreenString?>

@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import java.util.concurrent.Semaphore
 
 /**
@@ -21,7 +21,7 @@ import java.util.concurrent.Semaphore
  * external event (MIDI, Bluetooth, double-tap) triggers the loading of a song either while a song is
  * currently active, or while a song is already being loaded.
  */
-class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: SongDisplaySettings, sourceSettings: SongDisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
+class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
 
     private var mCancelled = false
     private val mTaskEndSemaphore = Semaphore(0)

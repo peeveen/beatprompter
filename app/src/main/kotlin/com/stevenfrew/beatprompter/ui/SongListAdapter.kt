@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.PlaylistNode
+import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.R
 
 class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<PlaylistNode>(BeatPrompterApplication.context, -1, values) {

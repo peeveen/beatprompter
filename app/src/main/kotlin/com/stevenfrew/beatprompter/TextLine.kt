@@ -4,13 +4,13 @@ import android.graphics.*
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.ScreenString
-import com.stevenfrew.beatprompter.graphics.SongDisplaySettings
+import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.characters
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: SongDisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: DisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
