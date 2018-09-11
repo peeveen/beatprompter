@@ -26,10 +26,9 @@ class NativeReceiver(private val mPort: MidiOutputPort,name:String):Receiver(nam
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         synchronized(mInnerBufferLock)
         {
-            val amountOfDataToReturn=Math.min(maximumAmount,mInnerBufferPosition)
-            System.arraycopy(mInnerBuffer,0,buffer,offset,amountOfDataToReturn)
-            mInnerBufferPosition-=amountOfDataToReturn
-            return amountOfDataToReturn
+            return Math.min(maximumAmount,mInnerBufferPosition).also{
+                System.arraycopy(mInnerBuffer,0,buffer,offset,it)
+                mInnerBufferPosition-=it}
         }
     }
 
