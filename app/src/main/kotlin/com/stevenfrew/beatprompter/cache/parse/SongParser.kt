@@ -19,8 +19,8 @@ import com.stevenfrew.beatprompter.song.line.ImageLine
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.song.line.TextLine
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
-import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
-import com.stevenfrew.beatprompter.songload.SongLoadInfo
+import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
+import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.absoluteValue

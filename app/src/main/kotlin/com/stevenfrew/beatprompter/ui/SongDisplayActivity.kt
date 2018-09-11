@@ -22,9 +22,9 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.songload.SongInterruptResult
-import com.stevenfrew.beatprompter.songload.SongLoadTask
-import com.stevenfrew.beatprompter.songload.SongLoaderTask
+import com.stevenfrew.beatprompter.song.load.SongInterruptResult
+import com.stevenfrew.beatprompter.song.load.SongLoadTask
+import com.stevenfrew.beatprompter.song.load.SongLoaderTask
 
 class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mSongView: SongView? = null

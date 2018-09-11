@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.songload
+package com.stevenfrew.beatprompter.song.load
 
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.cache.SongFile

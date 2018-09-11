@@ -8,8 +8,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
-import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
+import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
+import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.characters
 

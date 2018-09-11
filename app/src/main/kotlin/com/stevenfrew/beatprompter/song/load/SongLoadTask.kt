@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.songload
+package com.stevenfrew.beatprompter.song.load
 
 import android.app.ProgressDialog
 import android.content.DialogInterface

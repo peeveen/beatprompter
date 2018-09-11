@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.songload.SongChoiceInfo
+import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

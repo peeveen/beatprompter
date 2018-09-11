@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.songload
+package com.stevenfrew.beatprompter.song.load
 
 import android.os.Handler
 import com.stevenfrew.beatprompter.EventHandler

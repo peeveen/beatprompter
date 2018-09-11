@@ -8,10 +8,10 @@ import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
+import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.songload.SongLoadInfo
-import com.stevenfrew.beatprompter.songload.SongLoaderTask
+import com.stevenfrew.beatprompter.song.load.SongLoadInfo
+import com.stevenfrew.beatprompter.song.load.SongLoaderTask
 
 class BeatPrompterApplication : Application() {
     private val mSongLoaderTaskThread = Thread(mSongLoaderTask)

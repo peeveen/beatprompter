@@ -44,8 +44,8 @@ import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
-import com.stevenfrew.beatprompter.songload.SongChoiceInfo
-import com.stevenfrew.beatprompter.songload.SongLoadTask
+import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
+import com.stevenfrew.beatprompter.song.load.SongLoadTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
 import org.json.JSONException
