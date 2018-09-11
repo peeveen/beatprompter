@@ -41,20 +41,20 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
 
     @Throws(ResolutionException::class)
     fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
-        val outputMessages = mutableListOf<OutgoingMessage>()
-        if (mType== TriggerType.SongSelect)
-            outputMessages.add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
-        else {
-            val channel = if (mChannel is WildcardValue)
-                defaultOutputChannel
-            else
-                mChannel.resolve()
+        return mutableListOf<OutgoingMessage>().apply {
+            if (mType == TriggerType.SongSelect)
+                add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
+            else {
+                val channel = if (mChannel is WildcardValue)
+                    defaultOutputChannel
+                else
+                    mChannel.resolve()
 
-            outputMessages.add(ControlChangeMessage(Message.MIDI_MSB_BANK_SELECT_CONTROLLER, mBankSelectMSB.resolve(), channel))
-            outputMessages.add(ControlChangeMessage(Message.MIDI_LSB_BANK_SELECT_CONTROLLER, mBankSelectLSB.resolve(), channel))
-            outputMessages.add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
+                add(ControlChangeMessage(Message.MIDI_MSB_BANK_SELECT_CONTROLLER, mBankSelectMSB.resolve(), channel))
+                add(ControlChangeMessage(Message.MIDI_LSB_BANK_SELECT_CONTROLLER, mBankSelectLSB.resolve(), channel))
+                add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
+            }
         }
-        return outputMessages
     }
 
     override fun hashCode(): Int {
