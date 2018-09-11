@@ -8,24 +8,23 @@ import java.util.concurrent.ArrayBlockingQueue
 class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Task(false) {
     override fun doWork() {
         while (!shouldStop) {
-            val senders= getSenders()
-            val messages= mOutQueue.toList()
+            // This will block if the queue is empty
+            val firstMessage=mOutQueue.take()
+            val otherMessages=mOutQueue.toList()
             mOutQueue.clear()
-            if(senders.isNotEmpty())
+            val senders = getSenders()
+            if (senders.isNotEmpty())
                 senders.forEach {
                     launch {
                         try {
-                            it.send(messages)
-                        }
-                        catch(ioException: IOException)
-                        {
+                            it.send(listOf(firstMessage))
+                            it.send(otherMessages)
+                        } catch (ioException: IOException) {
                             // Problem with the I/O. This sender is now dead to us.
                             mSenders.remove(it)
                         }
                     }
                 }
-            else
-                Thread.sleep(250)
         }
     }
 

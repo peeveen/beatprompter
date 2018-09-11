@@ -583,10 +583,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         time = mPauseTime
                         setSongTime(time, false, false, true,true)
                     }
-                    BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, time)))
+                    BluetoothManager.mBluetoothOutQueue.put(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, time)))
                 }
             } else
-                BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, 0)))
+                BluetoothManager.mBluetoothOutQueue.put(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, 0)))
         } else {
             if (mScreenAction == ScreenAction.Volume) {
                 if (e != null) {
@@ -616,7 +616,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         val nanoTime = System.nanoTime()
         mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
-        BluetoothManager.mBluetoothOutQueue.add(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(mStartState, mPauseTime)))
+        BluetoothManager.mBluetoothOutQueue.put(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(mStartState, mPauseTime)))
         mStartState = PlayState.reduce(mStartState)
         mMediaPlayers.values.forEach{
             if(it.isPlaying)
@@ -631,7 +631,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mStartState === PlayState.Playing)
             pause(false)
         if (destroyed) {
-            BluetoothManager.mBluetoothOutQueue.add(QuitSongMessage())
+            BluetoothManager.mBluetoothOutQueue.put(QuitSongMessage())
             if (mSong != null)
                 mSong!!.recycleGraphics()
             mSong = null
@@ -692,7 +692,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processMIDIEvent(event: MIDIEvent) {
-        MIDIController.mMIDIOutQueue.addAll(event.mMessages)
+        event.mMessages.forEach{MIDIController.mMIDIOutQueue.put(it)}
     }
 
     private fun processLineEvent(event: LineEvent) {
@@ -764,7 +764,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (mStartState !== PlayState.Playing)
                 mPauseTime = nano
             if (broadcast)
-                BluetoothManager.mBluetoothOutQueue.add(SetSongTimeMessage(nano))
+                BluetoothManager.mBluetoothOutQueue.put(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
             if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
                 val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
@@ -839,7 +839,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         if (mScreenAction != ScreenAction.Scroll)
             return
-        BluetoothManager.mBluetoothOutQueue.add(PauseOnScrollStartMessage())
+        BluetoothManager.mBluetoothOutQueue.put(PauseOnScrollStartMessage())
         mUserHasScrolled = true
         mStartState = PlayState.Paused
         mMediaPlayers.values.forEach{

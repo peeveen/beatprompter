@@ -115,7 +115,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
                     mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                     mSongLoadInfo.mNativeDisplaySettings.mScreenSize))
-            BluetoothManager.mBluetoothOutQueue.add(csm)
+            BluetoothManager.mBluetoothOutQueue.put(csm)
 
             // Kick off the loading of the new song.
             BeatPrompterApplication.loadSong(mSongLoadInfo, mSongLoadTaskEventHandler, mCancelEvent, mRegistered)

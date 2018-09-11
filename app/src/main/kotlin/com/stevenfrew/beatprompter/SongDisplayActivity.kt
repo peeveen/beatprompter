@@ -73,7 +73,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        MIDIController.mMIDIOutQueue.addAll(song.mInitialMIDIMessages)
+        song.mInitialMIDIMessages.forEach{MIDIController.mMIDIOutQueue.put(it)}
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)

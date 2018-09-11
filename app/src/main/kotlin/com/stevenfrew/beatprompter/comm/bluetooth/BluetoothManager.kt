@@ -7,10 +7,10 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 
@@ -32,6 +32,9 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     private val mSenderTask= SenderTask(mBluetoothOutQueue)
     private val mReceiverTask= ReceiverTask()
 
+    private val mSenderTaskThread=Thread(mSenderTask)
+    private val mReceiverTaskThread=Thread(mReceiverTask)
+
     // Threads that watch for client/server connections, and an object to synchronize their
     // use.
     private val mBluetoothThreadsLock = Any()
@@ -42,6 +45,11 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
      * Called when the app starts. Doing basic Bluetooth setup.
      */
     fun initialise(application: BeatPrompterApplication) {
+        mSenderTaskThread.start()
+        Task.resumeTask(mSenderTask)
+        mReceiverTaskThread.start()
+        Task.resumeTask(mReceiverTask)
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         if(mBluetoothAdapter!=null) {
@@ -225,6 +233,8 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
             shutDownBluetoothClient()
             shutDownBluetoothServer()
         }
+        Task.stopTask(mSenderTask, mSenderTaskThread)
+        Task.stopTask(mReceiverTask, mReceiverTaskThread)
     }
 
     /**
