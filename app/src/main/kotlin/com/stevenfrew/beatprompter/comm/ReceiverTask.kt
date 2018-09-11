@@ -7,20 +7,26 @@ import java.io.IOException
 class ReceiverTask : Task(false) {
     override fun doWork() {
         while (!shouldStop) {
-            val receivers= getReceivers()
-            if(receivers.isNotEmpty())
-                receivers.forEach {
-                    launch {
-                        try {
-                            it.receive()
-                        } catch (ioException: IOException) {
-                            // Problem with the I/O. This receiver is now dead to us.
-                            mReceivers.remove(it)
+            try {
+                val receivers = getReceivers()
+                if (receivers.isNotEmpty())
+                    receivers.forEach {
+                        launch {
+                            try {
+                                it.receive()
+                            } catch (ioException: IOException) {
+                                // Problem with the I/O. This receiver is now dead to us.
+                                mReceivers.remove(it)
+                            }
                         }
                     }
-                }
-            else
-                Thread.sleep(250)
+                else
+                    Thread.sleep(250)
+            }
+            catch(interruptedException:InterruptedException)
+            {
+                break
+            }
         }
     }
 
