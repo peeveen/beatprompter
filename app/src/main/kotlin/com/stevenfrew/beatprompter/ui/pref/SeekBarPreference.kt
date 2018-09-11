@@ -107,7 +107,7 @@ class SeekBarPreference
         mSeekBar!!.progress = mValue
     }
 
-    override fun onSetInitialValue(restore: Boolean, defaultValue: Any) {
+    override fun onSetInitialValue(restore: Boolean, defaultValue: Any?) {
         super.onSetInitialValue(restore, defaultValue)
         mValue = if (restore)
             if (shouldPersist()) getPersistedInt(mDefault) else 0

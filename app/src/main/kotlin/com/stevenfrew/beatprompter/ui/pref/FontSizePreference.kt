@@ -50,7 +50,7 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
         super.onBindDialogView(view)
     }
 
-    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any) {
+    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
         if (restorePersistedValue) {
             // Restore existing state
             mCurrentValue = this.getPersistedInt(FONT_SIZE_MIN)
