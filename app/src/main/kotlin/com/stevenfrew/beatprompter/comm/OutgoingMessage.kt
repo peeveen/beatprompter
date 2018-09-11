@@ -5,8 +5,9 @@ open class OutgoingMessage(val mBytes:ByteArray) {
         get() = mBytes.size
 
     override fun toString(): String {
-        val strFormat = StringBuilder()
-        for (mMessageByte in mBytes) strFormat.append(String.format("%02X ", mMessageByte))
-        return strFormat.toString()
+        return StringBuilder().apply {
+            for (mMessageByte in mBytes)
+                append(String.format("%02X ", mMessageByte))
+        }.toString()
     }
 }

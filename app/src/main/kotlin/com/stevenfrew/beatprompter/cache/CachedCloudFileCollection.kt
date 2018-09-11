@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
+import android.os.Build
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.*
@@ -86,7 +87,10 @@ class CachedCloudFileCollection {
     }
 
     fun remove(cloudFile: CloudFileInfo) {
-        mFiles.removeIf{cloudFile.mID.equals(it.mID, ignoreCase = true)}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            mFiles.removeIf{cloudFile.mID.equals(it.mID, ignoreCase = true)}
+        else
+            mFiles=mFiles.filter{!cloudFile.mID.equals(it.mID, ignoreCase = true)}.toMutableList()
     }
 
     fun hasLatestVersionOf(cloudFile: CloudFileInfo): Boolean {

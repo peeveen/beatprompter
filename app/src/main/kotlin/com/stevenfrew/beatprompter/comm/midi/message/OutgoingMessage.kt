@@ -8,10 +8,10 @@ open class OutgoingMessage : Message {
 
     companion object {
         private fun appendCodeIndex(bytes: ByteArray): ByteArray {
-            val newBytes = ByteArray(bytes.size + 1)
-            newBytes[0] = getCodeIndex(bytes[0])
-            System.arraycopy(bytes, 0, newBytes, 1, bytes.size)
-            return newBytes
+            return ByteArray(bytes.size + 1).also {
+                it[0] = getCodeIndex(bytes[0])
+                System.arraycopy(bytes, 0, it, 1, bytes.size)
+            }
         }
 
         private fun getCodeIndex(messageType: Byte): Byte {

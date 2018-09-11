@@ -18,7 +18,6 @@ import kotlin.reflect.full.primaryConstructor
 abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags:Boolean, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor) {
     final override fun parse():TFileResult
     {
-//        val tagParseHelper=TagParsingHelper(this)
         val tagParseHelper= TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0
         val fileTags = mutableSetOf<KClass<out Tag>>()

@@ -718,34 +718,34 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     {
         // Calculate when this line should start scrolling
         val startScrollTime=
-                when(mCurrentLineBeatInfo.mScrollMode)
-                {
-                    // Smooth mode? Start scrolling instantly.
-                    ScrollingMode.Smooth->mSongTime
-                    else->
-                        // Pause line? Start scrolling after 95% of the pause has elapsed.
-                        if(pauseTag!=null)
-                            lineStartTime+(pauseTag.mDuration*0.95).toLong()
-                        // Beat line? Start scrolling on the last beat.
-                        else
-                            currentBeatEvents!!.mEvents.lastOrNull()?.mEventTime?:mSongTime
-                    // (Manual mode ignores these scroll values)
-                }
+            when(mCurrentLineBeatInfo.mScrollMode)
+            {
+                // Smooth mode? Start scrolling instantly.
+                ScrollingMode.Smooth->mSongTime
+                else->
+                    // Pause line? Start scrolling after 95% of the pause has elapsed.
+                    if(pauseTag!=null)
+                        lineStartTime+(pauseTag.mDuration*0.95).toLong()
+                    // Beat line? Start scrolling on the last beat.
+                    else
+                        currentBeatEvents!!.mEvents.lastOrNull()?.mEventTime?:mSongTime
+                // (Manual mode ignores these scroll values)
+            }
         // Calculate when the line should stop scrolling
         val stopScrollTime=
-                when(mCurrentLineBeatInfo.mScrollMode)
-                {
-                    // Smooth mode? It should stop scrolling once the allocated time has elapsed.
-                    ScrollingMode.Smooth->mSongTime+lineDuration
-                    else->
-                        // Pause line? It should stop scrolling when the pause has ran out
-                        if(pauseTag!=null)
-                            lineStartTime+pauseTag.mDuration
-                        // Beat line? It should stop scrolling after the final beat
-                        else
-                            currentBeatEvents!!.mBlockEndTime
-                    // (Manual mode ignores these values)
-                }
+            when(mCurrentLineBeatInfo.mScrollMode)
+            {
+                // Smooth mode? It should stop scrolling once the allocated time has elapsed.
+                ScrollingMode.Smooth->mSongTime+lineDuration
+                else->
+                    // Pause line? It should stop scrolling when the pause has ran out
+                    if(pauseTag!=null)
+                        lineStartTime+pauseTag.mDuration
+                    // Beat line? It should stop scrolling after the final beat
+                    else
+                        currentBeatEvents!!.mBlockEndTime
+                // (Manual mode ignores these values)
+            }
 
         return Pair(startScrollTime,stopScrollTime)
     }

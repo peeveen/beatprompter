@@ -30,7 +30,7 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
                 write(longBytes)
                 flush()
             }.toByteArray()
-            }
+        }
 
         @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage

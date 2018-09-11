@@ -26,9 +26,9 @@ class UsbReceiver(private val mConnection: UsbDeviceConnection, private val mEnd
 
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         val newArray = if (offset == 0) buffer else ByteArray(maximumAmount)
-        val dataRead = mConnection.bulkTransfer(mEndpoint, newArray, maximumAmount, 1000)
-        if (offset != 0)
-            System.arraycopy(newArray, 0, buffer, offset, maximumAmount)
-        return dataRead
+        return mConnection.bulkTransfer(mEndpoint, newArray, maximumAmount, 1000).also {
+            if (offset != 0)
+                System.arraycopy(newArray, 0, buffer, offset, maximumAmount)
+        }
     }
 }
