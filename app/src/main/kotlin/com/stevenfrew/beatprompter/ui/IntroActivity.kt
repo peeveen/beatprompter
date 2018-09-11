@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.ui
 
 import android.graphics.Color
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
 import com.github.paolorotolo.appintro.model.SliderPage
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.R
 
 class IntroActivity : AppIntro() {
 
@@ -15,11 +17,11 @@ class IntroActivity : AppIntro() {
         super.onCreate(savedInstanceState)
 
         val pageInfo=arrayOf(
-            IntroPageInfo(R.string.welcome_to_beatprompter,R.string.welcome_to_beatprompter_description,R.drawable.beatprompter_logo),
-            IntroPageInfo(R.string.turn_turn_turn,R.string.works_best_in_landscape,R.drawable.landscape_best),
-            IntroPageInfo(R.string.cloud_sync_explanation_title,R.string.cloud_sync_explanation,R.drawable.cloud_sync_diagram),
-            IntroPageInfo(R.string.keep_the_beat_title,R.string.keep_the_beat,R.drawable.keep_the_beat),
-            IntroPageInfo(R.string.not_just_text_title,R.string.not_just_text,R.drawable.not_just_text))
+                IntroPageInfo(R.string.welcome_to_beatprompter, R.string.welcome_to_beatprompter_description, R.drawable.beatprompter_logo),
+                IntroPageInfo(R.string.turn_turn_turn, R.string.works_best_in_landscape, R.drawable.landscape_best),
+                IntroPageInfo(R.string.cloud_sync_explanation_title, R.string.cloud_sync_explanation, R.drawable.cloud_sync_diagram),
+                IntroPageInfo(R.string.keep_the_beat_title, R.string.keep_the_beat, R.drawable.keep_the_beat),
+                IntroPageInfo(R.string.not_just_text_title, R.string.not_just_text, R.drawable.not_just_text))
 
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest.

@@ -19,7 +19,7 @@ import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.drive.DriveScopes
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.cloud.*
 import io.reactivex.subjects.PublishSubject
@@ -58,7 +58,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
             mAction.onAuthenticationRequired()
             if (!result.hasResolution()) {
                 // show the localized error dialog.
-                GoogleApiAvailability.getInstance().getErrorDialog(SongList.mSongListInstance, result.errorCode, 0).show()
+                GoogleApiAvailability.getInstance().getErrorDialog(SongListActivity.mSongListInstance, result.errorCode, 0).show()
             } else {
                 // The failure has a resolution. Resolve it.
                 // Called typically when the app is not yet authorized, and an
@@ -66,7 +66,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
                 // dialog is displayed to the user.
                 try {
                     Log.i(BeatPrompterApplication.TAG, "GoogleApiClient starting connection resolution ...")
-                    result.startResolutionForResult(SongList.mSongListInstance, GoogleDriveCloudStorage.REQUEST_CODE_RESOLUTION)
+                    result.startResolutionForResult(SongListActivity.mSongListInstance, GoogleDriveCloudStorage.REQUEST_CODE_RESOLUTION)
                 } catch (e: IntentSender.SendIntentException) {
                     Log.e(BeatPrompterApplication.TAG, "Exception while starting resolution activity", e)
                 }
@@ -290,7 +290,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
         private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
 
         internal fun recoverAuthorization(uraioe: UserRecoverableAuthIOException) {
-            SongList.mSongListInstance.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
+            SongListActivity.mSongListInstance.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
         }
     }
 }

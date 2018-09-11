@@ -14,7 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
@@ -81,7 +81,7 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
         if (contents == null)
             mDialog.dismiss()
         else {
-            contents.removeAll(SongList.mDefaultCloudDownloads.map{it.mCloudFileInfo})
+            contents.removeAll(SongListActivity.mDefaultCloudDownloads.map{it.mCloudFileInfo})
             contents.sort()
 
             val parentFolder=mCurrentFolder.mParentFolder

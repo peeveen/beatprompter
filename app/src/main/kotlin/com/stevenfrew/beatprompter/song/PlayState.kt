@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 enum class PlayState constructor(private val mValue: Int) {
     AtTitleScreen(0),

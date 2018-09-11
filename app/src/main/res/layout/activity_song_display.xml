@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    tools:context="com.stevenfrew.beatprompter.SongDisplayActivity">
+    tools:context="com.stevenfrew.beatprompter.ui.SongDisplayActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-    <com.stevenfrew.beatprompter.SongView
+    <com.stevenfrew.beatprompter.ui.SongView
         android:id="@+id/song_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

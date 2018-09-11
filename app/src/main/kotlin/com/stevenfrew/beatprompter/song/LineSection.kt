@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import android.graphics.Paint
 import android.graphics.Typeface

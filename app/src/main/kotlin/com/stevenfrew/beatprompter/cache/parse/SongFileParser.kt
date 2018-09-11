@@ -4,6 +4,7 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.find.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
+import com.stevenfrew.beatprompter.song.ScrollingMode
 
 /**
  * Base class for song file parsing.

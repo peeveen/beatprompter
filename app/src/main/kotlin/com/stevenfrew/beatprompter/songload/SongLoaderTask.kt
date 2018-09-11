@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.songload
 
 import android.os.Handler
 import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.Song
+import com.stevenfrew.beatprompter.song.Song
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 

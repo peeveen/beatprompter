@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import android.graphics.Rect
 import com.stevenfrew.beatprompter.util.Utils

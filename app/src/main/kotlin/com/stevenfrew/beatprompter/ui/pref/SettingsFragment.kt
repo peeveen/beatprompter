@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.pref
+package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.cloud.CloudFolderInfo
 import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener
 import com.stevenfrew.beatprompter.cloud.CloudStorage
@@ -80,7 +80,7 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
     }
 
     internal fun setCloudPath() {
-        val cloudType = SongList.cloud
+        val cloudType = SongListActivity.cloud
         if (cloudType !== CloudType.Demo) {
             val cs = CloudStorage.getInstance(cloudType, activity)
             cs.selectFolder(activity, this)

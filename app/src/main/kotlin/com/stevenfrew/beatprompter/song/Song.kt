@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.AudioFile
@@ -24,8 +24,8 @@ class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
     private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    val mSmoothMode:Boolean = mLines.filter{it.mScrollMode==ScrollingMode.Smooth}.any()
-    internal val mBackingTrack=findBackingTrack(firstEvent)
+    val mSmoothMode:Boolean = mLines.filter{it.mScrollMode== ScrollingMode.Smooth }.any()
+    internal val mBackingTrack= findBackingTrack(firstEvent)
 
     internal fun setProgress(nano: Long) {
         val e = mCurrentEvent

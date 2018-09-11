@@ -4,7 +4,7 @@ import android.app.Activity
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.cloud.*
 import io.reactivex.subjects.PublishSubject
 import java.io.*
@@ -66,7 +66,7 @@ class DemoCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, 
     @Throws(IOException::class)
     private fun createDemoSongAudioFile(): File {
         val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
-        SongList.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
+        SongListActivity.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
         return destinationAudioFile
     }
 

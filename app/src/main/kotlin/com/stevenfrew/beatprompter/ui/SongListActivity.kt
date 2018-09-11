@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -23,6 +23,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.android.vending.billing.IInAppBillingService
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.cache.*
@@ -34,17 +38,14 @@ import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
-import com.stevenfrew.beatprompter.pref.FontSizePreference
-import com.stevenfrew.beatprompter.pref.SettingsActivity
-import com.stevenfrew.beatprompter.pref.SortingPreference
+import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
+import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.songload.SongChoiceInfo
 import com.stevenfrew.beatprompter.songload.SongLoadTask
-import com.stevenfrew.beatprompter.ui.FilterListAdapter
-import com.stevenfrew.beatprompter.ui.MIDIAliasListAdapter
-import com.stevenfrew.beatprompter.ui.SongListAdapter
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
 import org.json.JSONException
@@ -59,7 +60,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
+class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
     private var mMenu: Menu? = null
     private var mSelectedFilter: Filter=AllSongsFilter(mutableListOf())
     private var mSortingPreference = SortingPreference.Title
@@ -105,7 +106,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
     private val cloudPath: String?
         get() { return BeatPrompterApplication.preferences.getString(getString(R.string.pref_cloudPath_key), null) }
 
-    private val includeSubfolders: Boolean
+    private val includeSubFolders: Boolean
         get() { return BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_includeSubfolders_key), false) }
 
 
@@ -401,7 +402,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                                         if (audioSpinner.selectedItemPosition == 0)
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
-                                        val track=if(selectedTrackName!=null)mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
+                                        val track=if(selectedTrackName!=null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
                                         playSong(selectedNode, selectedSong, track, mode, false, sds, sds)
                                     }
                                     .setNegativeButton(R.string.cancel) { _, _ -> }
@@ -628,7 +629,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
                         val jo = JSONObject(purchaseData)
                         val sku = jo.getString("productId")
                         mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
-                        Toast.makeText(this@SongList, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
                         Log.e(BeatPrompterApplication.TAG, "JSON exception during purchase.")
                         Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
@@ -663,7 +664,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
         else {
             mPerformingCloudSync = true
-            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath!!, includeSubfolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
+            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath!!, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
             cdt.execute()
         }
     }
@@ -767,7 +768,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
 
         // Depending on whether we have a temporary set list file, we can create a temporary
         // set list filter ...
-        val tempSetListFile= mCachedCloudFiles.setListFiles.firstOrNull {it.mFile== mTemporarySetListFile}
+        val tempSetListFile= mCachedCloudFiles.setListFiles.firstOrNull {it.mFile== mTemporarySetListFile }
         val tempSetListFilter=
             if(tempSetListFile!=null)
                 TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList())
@@ -1039,10 +1040,10 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         }
     }
 
-    class SongListEventHandler internal constructor(private val mSongList: SongList) : EventHandler() {
+    class SongListEventHandler internal constructor(private val mSongList: SongListActivity) : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                EventHandler.BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
+                BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
                 CLIENT_CONNECTED -> {
                     Toast.makeText(mSongList, msg.obj.toString() + " " + BeatPrompterApplication.getResourceString(R.string.hasConnected), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
@@ -1097,7 +1098,7 @@ class SongList : AppCompatActivity(), AdapterView.OnItemSelectedListener, Adapte
         private const val TEMPORARY_SETLIST_FILENAME = "temporary_setlist.txt"
         private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
 
-        lateinit var mSongListInstance: SongList
+        lateinit var mSongListInstance: SongListActivity
 
         private const val PLAY_SONG_REQUEST_CODE = 3
         private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4

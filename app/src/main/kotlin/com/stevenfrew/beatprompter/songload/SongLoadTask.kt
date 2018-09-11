@@ -12,6 +12,9 @@ import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.ui.SongDisplayActivity
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import java.util.concurrent.Semaphore
 
 /**
@@ -78,7 +81,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
 
     override fun onPreExecute() {
         super.onPreExecute()
-        mProgressDialog = ProgressDialog(SongList.mSongListInstance).apply {
+        mProgressDialog = ProgressDialog(SongListActivity.mSongListInstance).apply {
             setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
             setMessage(mSongLoadInfo.mSongFile.mTitle)
             max = mSongLoadInfo.mSongFile.mLines

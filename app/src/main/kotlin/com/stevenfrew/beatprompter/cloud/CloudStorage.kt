@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cloud
 import android.app.Activity
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.cloud.demo.DemoCloudStorage
 import com.stevenfrew.beatprompter.cloud.dropbox.DropboxCloudStorage
 import com.stevenfrew.beatprompter.cloud.googledrive.GoogleDriveCloudStorage
@@ -23,7 +23,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     abstract val cloudIconResourceId: Int
 
     init {
-        cacheFolder = CloudCacheFolder(SongList.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
+        cacheFolder = CloudCacheFolder(SongListActivity.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
         if (!cacheFolder.exists())
             if (!cacheFolder.mkdir())
                 Log.e(BeatPrompterApplication.TAG, "Failed to create cloud cache folder.")
@@ -37,7 +37,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
     }
 
     fun downloadFiles(filesToRefresh: MutableList<CloudFileInfo>, listener: CloudItemDownloadListener) {
-        for (defaultCloudDownload in SongList.mDefaultCloudDownloads)
+        for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
             if (filesToRefresh.contains(defaultCloudDownload.mCloudFileInfo))
                 filesToRefresh.remove(defaultCloudDownload.mCloudFileInfo)
 
@@ -48,7 +48,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
         disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
         try {
             // Always include the temporary set list and default midi alias files.
-            for (defaultCloudDownload in SongList.mDefaultCloudDownloads)
+            for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
                 downloadSource.onNext(defaultCloudDownload)
             downloadFiles(filesToRefresh, listener, downloadSource, messageSource)
         } finally {
@@ -64,7 +64,7 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
         val messageSource = PublishSubject.create<String>()
         disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
         try {
-            for (defaultCloudDownload in SongList.mDefaultCloudDownloads)
+            for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
                 folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo)
             readFolderContents(folder, listener, folderContentsSource, messageSource, includeSubfolders, returnFolders)
         } finally {

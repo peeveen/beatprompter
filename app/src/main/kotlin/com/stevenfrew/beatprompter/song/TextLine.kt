@@ -1,6 +1,8 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import android.graphics.*
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.ScreenString
@@ -28,11 +30,11 @@ class TextLine internal constructor(private val mText: String, private val mTags
     private val mAnnotationColor:Int
     private val mSections:List<LineSection>
     var mTrailingHighlightColor:Int?=null
-    override val mMeasurements:LineMeasurements
+    override val mMeasurements: LineMeasurements
 
     init {
         val paint=Paint()
-        val sharedPrefs=BeatPrompterApplication.preferences
+        val sharedPrefs= BeatPrompterApplication.preferences
         mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
         mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
         mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
@@ -363,7 +365,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        mMeasurements=LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime,mLineDuration, scrollTimes.first, scrollMode)
+        mMeasurements= LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime, mLineDuration, scrollTimes.first, scrollMode)
     }
 
     private val totalXSplits: Int

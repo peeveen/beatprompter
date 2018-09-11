@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.ScrollingMode
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 import com.stevenfrew.beatprompter.cache.SongFile

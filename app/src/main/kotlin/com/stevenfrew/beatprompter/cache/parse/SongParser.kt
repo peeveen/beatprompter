@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import android.content.SharedPreferences
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.*
@@ -9,13 +10,15 @@ import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.LineGraphic
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
-import com.stevenfrew.beatprompter.pref.MetronomeContext
-import com.stevenfrew.beatprompter.pref.ShowBPM
+import com.stevenfrew.beatprompter.song.*
+import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadInfo
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.absoluteValue
 
@@ -181,7 +184,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
             if(audioTag!=null) {
                 // Make sure file exists.
-                val mappedTracks = SongList.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
+                val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
                 if(mappedTracks.isEmpty())
                     mErrors.add(FileParseError(audioTag,BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
                 else if(mappedTracks.size>1)
@@ -235,10 +238,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 // Create the line
                 var lineObj: Line?=null
                 if (imageTag != null) {
-                    val imageFiles = SongList.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
+                    val imageFiles = SongListActivity.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode,lineStartTime,lineDuration,mCurrentLineBeatInfo.mScrollMode,mNativeDeviceSettings,mSongHeight,startAndStopScrollTimes)
+                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode, lineStartTime, lineDuration, mCurrentLineBeatInfo.mScrollMode, mNativeDeviceSettings, mSongHeight, startAndStopScrollTimes)
                         }
                         catch(e:Exception)
                         {
@@ -289,7 +292,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if(mLines.isEmpty())
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.no_lines_in_song_file))
 
-        val smoothMode=mLines.filter{it.mScrollMode==ScrollingMode.Smooth}.any()
+        val smoothMode=mLines.filter{it.mScrollMode== ScrollingMode.Smooth}.any()
 
         val startScreenStrings=createStartScreenStrings()
         val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
@@ -347,7 +350,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Now we need to figure out which lines should NOT scroll offscreen.
         val noScrollLines=mutableListOf<Line>()
-        val lastLineIsBeat=mLines.lastOrNull()?.mScrollMode==ScrollingMode.Beat
+        val lastLineIsBeat=mLines.lastOrNull()?.mScrollMode== ScrollingMode.Beat
         if(lastLineIsBeat) {
             noScrollLines.add(mLines.last())
             sortedEventList.removeAt(mEvents.indexOfLast { it is LineEvent })
@@ -381,17 +384,17 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Calculate the last position that we can scroll to.
         val scrollEndPixel=calculateScrollEndPixel(smoothMode,smoothScrollOffset)
 
-        return Song(mSongLoadInfo.mSongFile,mNativeDeviceSettings,firstEvent,mLines,audioEvents,
-                mInitialMIDIMessages,mBeatBlocks,mSendMidiClock,startScreenStrings.first,startScreenStrings.second,
-                totalStartScreenTextHeight,mSongLoadInfo.mStartedByBandLeader,mSongLoadInfo.mNextSong,
-                smoothScrollOffset,mSongHeight,scrollEndPixel,noScrollLines,mNativeDeviceSettings.mBeatCounterRect,songTitleHeader,
+        return Song(mSongLoadInfo.mSongFile, mNativeDeviceSettings, firstEvent, mLines, audioEvents,
+                mInitialMIDIMessages, mBeatBlocks, mSendMidiClock, startScreenStrings.first, startScreenStrings.second,
+                totalStartScreenTextHeight, mSongLoadInfo.mStartedByBandLeader, mSongLoadInfo.mNextSong,
+                smoothScrollOffset, mSongHeight, scrollEndPixel, noScrollLines, mNativeDeviceSettings.mBeatCounterRect, songTitleHeader,
                 songTitleHeaderLocation)
     }
 
     private fun calculateScrollEndPixel(smoothMode:Boolean, smoothScrollOffset:Int):Int
     {
         val manualDisplayEnd=Math.max(0,mSongHeight-mNativeDeviceSettings.mUsableScreenHeight)
-        val beatDisplayEnd=mLines.lastOrNull{it.mScrollMode===ScrollingMode.Beat}?.mSongPixelPosition
+        val beatDisplayEnd=mLines.lastOrNull{it.mScrollMode=== ScrollingMode.Beat}?.mSongPixelPosition
         return if (smoothMode)
                 manualDisplayEnd+smoothScrollOffset//+smoothScrollEndOffset
             else if(beatDisplayEnd!=null)
@@ -446,7 +449,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     private fun generateBeatEvents(startTime:Long,click:Boolean):EventBlock?
     {
-        if(mCurrentLineBeatInfo.mScrollMode===ScrollingMode.Smooth)
+        if(mCurrentLineBeatInfo.mScrollMode=== ScrollingMode.Smooth)
             return null
         var eventTime=startTime
         val beatEvents= mutableListOf<BeatEvent>()
@@ -845,6 +848,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             val result=super.add(element)
             last().mNextGraphic = first()
             return result
+        }
+    }
+
+    enum class ShowBPM {
+        Yes,Rounded,No;
+
+        companion object {
+            internal fun getShowBPMPreference(sharedPrefs: SharedPreferences): ShowBPM
+            {
+                return try {
+                    ShowBPM.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))!!)
+                } catch (e: Exception) {
+                    // backward compatibility with old shite values.
+                    No
+                }
+            }
         }
     }
 

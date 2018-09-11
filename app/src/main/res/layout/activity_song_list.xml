@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
-    tools:context="com.stevenfrew.beatprompter.SongList">
+    tools:context="com.stevenfrew.beatprompter.ui.SongListActivity">
 
     <ListView
        android:layout_width="wrap_content"

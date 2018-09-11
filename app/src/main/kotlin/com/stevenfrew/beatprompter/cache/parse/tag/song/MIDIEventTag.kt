@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.SongList
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
@@ -27,7 +27,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
     val mMessages:List<OutgoingMessage>
     val mOffset: EventOffset?
     init {
-        val parsedEvent=parseMIDIEvent(name,value,lineNumber,SongList.mCachedCloudFiles.midiAliases)
+        val parsedEvent=parseMIDIEvent(name,value,lineNumber, SongListActivity.mCachedCloudFiles.midiAliases)
         mMessages=parsedEvent.first
         mOffset=parsedEvent.second
     }

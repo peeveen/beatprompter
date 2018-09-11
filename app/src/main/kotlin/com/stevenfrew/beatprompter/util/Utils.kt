@@ -9,7 +9,7 @@ object Utils {
     // Size of a "long", in bytes.
     internal const val LONG_BUFFER_SIZE = 8
 
-    // Set by onCreate() in SongList.java
+    // Set by onCreate() in SongListActivity.java
     internal var MAXIMUM_FONT_SIZE: Int = 0
     internal var MINIMUM_FONT_SIZE: Int = 0
     var FONT_SCALING: Float = 0.toFloat()

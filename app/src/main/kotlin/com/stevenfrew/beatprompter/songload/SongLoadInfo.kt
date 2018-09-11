@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.songload
 
-import com.stevenfrew.beatprompter.ScrollingMode
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.cache.AudioFile
@@ -10,5 +10,5 @@ data class SongLoadInfo(var mSongFile: SongFile, var mTrack: AudioFile?, var mSo
     val initialScrollMode
         get()= if(mixedModeActive) ScrollingMode.Manual else mSongLoadMode
     val mixedModeActive
-        get()= mSongFile.mMixedMode && mSongLoadMode==ScrollingMode.Beat
+        get()= mSongFile.mMixedMode && mSongLoadMode== ScrollingMode.Beat
 }

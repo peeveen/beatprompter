@@ -1,6 +1,8 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import android.graphics.*
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
 import com.stevenfrew.beatprompter.graphics.ImageScalingMode
@@ -9,12 +11,12 @@ import com.stevenfrew.beatprompter.graphics.DisplaySettings
 class ImageLine internal constructor(mImageFile:ImageFile, scalingMode: ImageScalingMode, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: DisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     private val mSourceRect: Rect = Rect(0,0,mImageFile.mWidth,mImageFile.mHeight)
-    private val mDestinationRect=getDestinationRect(mBitmap,displaySettings.mScreenSize,scalingMode)
-    override val mMeasurements:LineMeasurements
+    private val mDestinationRect= getDestinationRect(mBitmap, displaySettings.mScreenSize, scalingMode)
+    override val mMeasurements: LineMeasurements
 
     init
     {
-        mMeasurements=LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime,lineDuration, scrollTimes.first, scrollMode)
+        mMeasurements= LineMeasurements(1, mDestinationRect.width(), mDestinationRect.height(), intArrayOf(mDestinationRect.height()), lineTime, lineDuration, scrollTimes.first, scrollMode)
     }
 
     override fun renderGraphics()  {

@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.ui
 
 import android.app.Activity
 import android.content.Context
@@ -14,6 +14,10 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
@@ -58,7 +62,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         mAnyOtherKeyPageDown = false//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
 
         setContentView(R.layout.activity_song_display)
-        val potentiallyNullSongView:SongView? = findViewById(R.id.song_view)
+        val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
         val songView=potentiallyNullSongView?:return
         mSongView=songView
 
@@ -211,19 +215,19 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         override fun handleMessage(msg: Message) {
             if(mSongDisplayActive)
                 when (msg.what) {
-                    EventHandler.BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
-                    EventHandler.BLUETOOTH_QUIT_SONG -> mActivity.finish()
-                    EventHandler.BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true,true)
-                    EventHandler.BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
-                    EventHandler.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
+                    BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
+                    BLUETOOTH_QUIT_SONG -> mActivity.finish()
+                    BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true,true)
+                    BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
+                    MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")
-                    EventHandler.MIDI_START_SONG -> mSongView?.startSong(true, true)
+                    MIDI_START_SONG -> mSongView?.startSong(true, true)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI start signal received by SongDisplay before view was created.")
-                    EventHandler.MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
+                    MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI continue signal received by SongDisplay before view was created.")
-                    EventHandler.MIDI_STOP_SONG -> mSongView?.stopSong(true)
+                    MIDI_STOP_SONG -> mSongView?.stopSong(true)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI stop signal received by SongDisplay before view was created.")
-                    EventHandler.END_SONG -> {
+                    END_SONG -> {
                         mActivity.setResult(Activity.RESULT_OK)
                         mActivity.finish()
                     }

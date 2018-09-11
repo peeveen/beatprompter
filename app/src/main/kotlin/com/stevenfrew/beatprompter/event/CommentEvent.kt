@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.event
 
-import com.stevenfrew.beatprompter.Song
+import com.stevenfrew.beatprompter.song.Song
 
 /**
  * A CommentEvent tells the event processor to display a comment message onscreen temporarily.

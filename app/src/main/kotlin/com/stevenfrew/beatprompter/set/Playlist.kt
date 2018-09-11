@@ -38,7 +38,7 @@ internal class Playlist {
     }
 
     fun sortByDateModified() {
-        buildSongList(songFiles.sortedBy{it.mLastModified})
+        buildSongList(songFiles.sortedByDescending {it.mLastModified})
     }
 
     private fun buildSongList(songs: List<SongFile>) {

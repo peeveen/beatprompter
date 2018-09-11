@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.pref
+package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.Context
 import android.preference.Preference

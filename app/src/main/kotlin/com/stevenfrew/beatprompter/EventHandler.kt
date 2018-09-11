@@ -1,7 +1,9 @@
 package com.stevenfrew.beatprompter
 
 import android.os.Handler
-import com.stevenfrew.beatprompter.pref.SettingsFragment
+import com.stevenfrew.beatprompter.ui.pref.SettingsFragment
+import com.stevenfrew.beatprompter.ui.SongDisplayActivity
+import com.stevenfrew.beatprompter.ui.SongListActivity
 
 abstract class EventHandler : Handler() {
     companion object {
@@ -37,11 +39,11 @@ abstract class EventHandler : Handler() {
         private val mSongListEventHandlerLock = Any()
         private val mSongDisplayEventHandlerLock = Any()
         private val mSettingsEventHandlerLock = Any()
-        private var mSongListEventHandler: SongList.SongListEventHandler? = null
+        private var mSongListEventHandler: SongListActivity.SongListEventHandler? = null
         private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
         private var mSettingsEventHandler: Handler? = null
 
-        fun setSongListEventHandler(songListEventHandler: SongList.SongListEventHandler?) {
+        fun setSongListEventHandler(songListEventHandler: SongListActivity.SongListEventHandler?) {
             synchronized(mSongListEventHandlerLock) {
                 mSongListEventHandler = songListEventHandler
             }

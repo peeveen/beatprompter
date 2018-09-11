@@ -5,7 +5,7 @@
     xmlns:sf="http://com.stevenfrew/"
     xmlns:customStyle="http://schemas.android.com/apk/res/com.stevenfrew.beatprompter">
     <PreferenceScreen android:title="@string/cloud_sync">
-        <com.stevenfrew.beatprompter.pref.ImageListPreference
+        <com.stevenfrew.beatprompter.ui.pref.ImageListPreference
             android:key="@string/pref_cloudStorageSystem_key"
             android:layout="@layout/cloud_pref_layout"
             customStyle:entryPreferenceImages="@array/cloudStorageSystem_images"
@@ -15,7 +15,7 @@
             android:entries="@array/pref_cloudStorageSystem_entries"
             android:entryValues="@array/pref_cloudStorageSystem_entryValues"
             android:defaultValue="@string/pref_cloudStorageSystem_defaultValue" />
-        <com.stevenfrew.beatprompter.pref.CloudPathPreference
+        <com.stevenfrew.beatprompter.ui.pref.CloudPathPreference
             android:layout="@layout/cloud_pref_layout"
             android:key="@string/pref_cloudPath_key"
             android:title="@string/pref_cloudPath_title"
@@ -156,32 +156,32 @@
                 android:title="@string/pref_alwaysUseBeatFontPrefs_title"
                 android:summary="@string/pref_alwaysUseBeatFontPrefs_summary"
                 android:defaultValue="false" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_minFontSize_key"
                 android:defaultValue="@string/pref_minFontSize_default"
                 android:summary="@string/pref_minFontSize_summary"
                 android:title="@string/pref_minFontSize_title" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_maxFontSize_key"
                 android:defaultValue="@string/pref_maxFontSize_default"
                 android:summary="@string/pref_maxFontSize_summary"
                 android:title="@string/pref_maxFontSize_title" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_minFontSizeSmooth_key"
                 android:defaultValue="@string/pref_minFontSizeSmooth_default"
                 android:summary="@string/pref_minFontSizeSmooth_summary"
                 android:title="@string/pref_minFontSizeSmooth_title" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_maxFontSizeSmooth_key"
                 android:defaultValue="@string/pref_maxFontSizeSmooth_default"
                 android:summary="@string/pref_maxFontSizeSmooth_summary"
                 android:title="@string/pref_maxFontSizeSmooth_title" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_minFontSizeManual_key"
                 android:defaultValue="@string/pref_minFontSizeManual_default"
                 android:summary="@string/pref_minFontSizeManual_summary"
                 android:title="@string/pref_minFontSizeManual_title" />
-            <com.stevenfrew.beatprompter.pref.FontSizePreference
+            <com.stevenfrew.beatprompter.ui.pref.FontSizePreference
                 android:key="@string/pref_maxFontSizeManual_key"
                 android:defaultValue="@string/pref_maxFontSizeManual_default"
                 android:summary="@string/pref_maxFontSizeManual_summary"
@@ -240,7 +240,7 @@
             android:title="@string/pref_highlightBeatSectionStart_title"
             android:summary="@string/pref_highlightBeatSectionStart_summary"
             android:defaultValue="true" />
-        <com.stevenfrew.beatprompter.pref.SeekBarPreference
+        <com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
             android:key="@string/pref_countIn_key"
             android:defaultValue="@string/pref_countIn_default"
             android:dialogMessage="@string/pref_countIn_message"
@@ -248,7 +248,7 @@
             sf:offset="@string/pref_countIn_offset"
             android:text="@string/pref_countIn_text"
             android:title="@string/pref_countIn_title" />
-        <com.stevenfrew.beatprompter.pref.SeekBarPreference
+        <com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
             android:key="@string/pref_defaultTrackVolume_key"
             android:defaultValue="@string/pref_defaultTrackVolume_default"
             android:dialogMessage="@string/pref_defaultTrackVolume_message"
@@ -256,7 +256,7 @@
             sf:offset="@string/pref_defaultTrackVolume_offset"
             android:text="@string/pref_defaultTrackVolume_text"
             android:title="@string/pref_defaultTrackVolume_title" />
-        <com.stevenfrew.beatprompter.pref.SeekBarPreference
+        <com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
             android:key="@string/pref_commentDisplayTime_key"
             android:defaultValue="@string/pref_commentDisplayTime_default"
             android:dialogMessage="@string/pref_commentDisplayTime_message"
@@ -301,13 +301,13 @@
     </PreferenceScreen>
     <PreferenceScreen
         android:title="@string/midi">
-        <com.stevenfrew.beatprompter.pref.MIDIChannelPreference
+        <com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
             android:key="@string/pref_midiIncomingChannels_key"
             android:defaultValue="@string/pref_midiIncomingChannels_default"
             android:summary="@string/pref_midiIncomingChannels_summary"
             sf:singleSelect="false"
             android:title="@string/pref_midiIncomingChannels_title" />
-        <com.stevenfrew.beatprompter.pref.MIDIChannelPreference
+        <com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
             android:key="@string/pref_defaultMIDIOutputChannel_key"
             android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
             android:summary="@string/pref_defaultMIDIOutputChannel_summary"

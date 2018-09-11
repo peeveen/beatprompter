@@ -1,11 +1,12 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.song
 
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.LineGraphic
 
 abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mScrollMode: ScrollingMode, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long, private val mDisplaySettings: DisplaySettings) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
-    abstract val mMeasurements:LineMeasurements
+    abstract val mMeasurements: LineMeasurements
     protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
 
     internal abstract fun renderGraphics()

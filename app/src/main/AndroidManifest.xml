@@ -28,7 +28,7 @@
         android:theme="@style/Theme.AppCompat.Light"
         tools:replace="android:theme">
         <activity
-            android:name=".SongList"
+            android:name=".ui.SongListActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask">
             <intent-filter>
@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".IntroActivity"
+            android:name=".ui.IntroActivity"
             android:label="@string/title_activity_intro"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
@@ -46,13 +46,13 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".SongDisplayActivity"
+            android:name=".ui.SongDisplayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_song_display"
             android:launchMode="singleTask"
             android:theme="@style/FullscreenTheme" />
         <activity
-            android:name=".pref.SettingsActivity"
+            android:name="com.stevenfrew.beatprompter.ui.pref.SettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_settings"
             android:launchMode="singleTask">
