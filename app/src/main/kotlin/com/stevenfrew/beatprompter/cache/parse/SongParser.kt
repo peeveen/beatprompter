@@ -822,9 +822,22 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Since we can't see the future, we now have to traverse the list backwards
         // setting the mNext... fields.
-        linkedEvents.last().cascadeSetNextEvents()
+        setNextBeatEvents(linkedEvents.last())
 
         return linkedEvents.first()
+    }
+
+    private fun setNextBeatEvents(finalEvent:LinkedEvent)
+    {
+        var nextBeatEvent:BeatEvent?=null
+        var lastEvent:LinkedEvent?=finalEvent
+        while(lastEvent!=null)
+        {
+            lastEvent.mNextBeatEvent=nextBeatEvent
+            if(lastEvent.mEvent is BeatEvent)
+                nextBeatEvent=lastEvent.mEvent as BeatEvent
+            lastEvent=lastEvent.mPrevEvent
+        }
     }
 
     /**

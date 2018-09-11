@@ -5,7 +5,7 @@ package com.stevenfrew.beatprompter.song.event
  * creating a linked-list style of collection. This allows us to easily find the previous
  * beat event, etc.
  */
-class LinkedEvent constructor(val mEvent:BaseEvent,private val mPrevEvent:LinkedEvent?){
+class LinkedEvent constructor(val mEvent:BaseEvent,val mPrevEvent:LinkedEvent?){
     var mNextEvent:LinkedEvent?=null
     var mNextBeatEvent:BeatEvent?=null
 
@@ -45,17 +45,5 @@ class LinkedEvent constructor(val mEvent:BaseEvent,private val mPrevEvent:Linked
                 }
             }
         }
-    }
-
-    fun cascadeSetNextEvents(nextEvent:LinkedEvent?=null,nextBeatEvent:BeatEvent?=null)
-    {
-        mNextEvent=nextEvent
-        mNextBeatEvent=nextBeatEvent
-        mPrevEvent?.cascadeSetNextEvents(this,
-            if(mEvent is BeatEvent)
-                mEvent
-            else
-                nextBeatEvent
-        )
     }
 }
