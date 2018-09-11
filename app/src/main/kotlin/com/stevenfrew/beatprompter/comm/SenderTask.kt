@@ -9,22 +9,28 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
     override fun doWork() {
         while (!shouldStop) {
             // This will block if the queue is empty
-            val firstMessage=mOutQueue.take()
-            val otherMessages=mOutQueue.toList()
-            mOutQueue.clear()
-            val senders = getSenders()
-            if (senders.isNotEmpty())
-                senders.forEach {
-                    launch {
-                        try {
-                            it.send(listOf(firstMessage))
-                            it.send(otherMessages)
-                        } catch (ioException: IOException) {
-                            // Problem with the I/O. This sender is now dead to us.
-                            mSenders.remove(it)
+            try {
+                val firstMessage = mOutQueue.take()
+                val otherMessages = mOutQueue.toList()
+                mOutQueue.clear()
+                val senders = getSenders()
+                if (senders.isNotEmpty())
+                    senders.forEach {
+                        launch {
+                            try {
+                                it.send(listOf(firstMessage))
+                                it.send(otherMessages)
+                            } catch (ioException: IOException) {
+                                // Problem with the I/O? This sender is now dead to us.
+                                mSenders.remove(it)
+                            }
                         }
                     }
-                }
+            }
+            catch(interruptedException:InterruptedException)
+            {
+                break
+            }
         }
     }
 
