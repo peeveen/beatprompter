@@ -2,7 +2,10 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.media.midi.MidiOutputPort
 import android.media.midi.MidiReceiver
+import android.os.Build
+import android.support.annotation.RequiresApi
 
+@RequiresApi(Build.VERSION_CODES.M)
 class NativeReceiver(private val mPort: MidiOutputPort):Receiver() {
     private val mInnerReceiver=NativeReceiverReceiver()
     private val mInnerBufferLock=Any()
@@ -10,11 +13,13 @@ class NativeReceiver(private val mPort: MidiOutputPort):Receiver() {
     private var mInnerBufferPosition=0
 
     init {
-        mPort.connect(mInnerReceiver)
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
+            mPort.connect(mInnerReceiver)
     }
 
     override fun close() {
-        mPort.disconnect(mInnerReceiver)
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
+            mPort.disconnect(mInnerReceiver)
         mPort.close()
     }
 

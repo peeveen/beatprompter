@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Message
@@ -600,6 +601,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         updateBluetoothIcon()
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            if(mSongEndedNaturally)
+                if (startNextSong())
+                    return
+
         if (mListAdapter != null)
             mListAdapter!!.notifyDataSetChanged()
 
@@ -635,16 +641,21 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                         Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 }
-                PLAY_SONG_REQUEST_CODE -> startNextSong()
+                PLAY_SONG_REQUEST_CODE ->
+                    if(resultCode==RESULT_OK)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            startNextSong()
             }
     }
 
-    private fun startNextSong() {
+    private fun startNextSong():Boolean {
         mSongEndedNaturally = false
-        if (mNowPlayingNode != null && mNowPlayingNode!!.mNextNode != null && shouldPlayNextSong())
+        if (mNowPlayingNode != null && mNowPlayingNode!!.mNextNode != null && shouldPlayNextSong()) {
             playPlaylistNode(mNowPlayingNode!!.mNextNode, false)
-        else
-            mNowPlayingNode = null
+            return true
+        }
+        mNowPlayingNode = null
+        return false
     }
 
     private fun canPerformCloudSync(): Boolean {
