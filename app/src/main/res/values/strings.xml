@@ -9,6 +9,8 @@
     <string name="local_storage_string">Local Storage</string>
     <string name="dropbox_string" translatable="false">Dropbox</string>
     <string name="onedrive_string" translatable="false">OneDrive</string>
+    <string name="connection_added">Connected to \'%1$s\'</string>
+    <string name="connection_lost">Lost connection to \'%1$s\'</string>
     <string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
     <string name="set_name_defined_multiple_times">Set name has already been defined.</string>
     <string name="image_too_large">Image after scaling exceeds maximum size of 8192 x 8192. Ignoring line.</string>

@@ -236,7 +236,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     }
 
     companion object {
-        private var mSongDisplayActive = false
+        var mSongDisplayActive = false
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(loadTask: SongLoadTask, songToInterruptWith: SongFile): SongInterruptResult {

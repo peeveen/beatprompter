@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.comm
 
+import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 import kotlinx.coroutines.experimental.launch
 import java.io.IOException
@@ -16,6 +17,7 @@ class ReceiverTask : Task(false) {
                                 it.receive()
                             } catch (ioException: IOException) {
                                 // Problem with the I/O. This receiver is now dead to us.
+                                EventHandler.sendEventToSongDisplay(EventHandler.CONNECTION_LOST,it.name)
                                 mReceivers.remove(it)
                             }
                         }

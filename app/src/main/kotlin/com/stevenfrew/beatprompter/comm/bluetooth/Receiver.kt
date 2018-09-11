@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 
-class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase() {
+class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.remoteDevice.name) {
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         return mmSocket.inputStream.read(buffer, offset, maximumAmount)
     }

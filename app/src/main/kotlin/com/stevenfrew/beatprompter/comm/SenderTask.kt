@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.comm
 
+import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 import kotlinx.coroutines.experimental.*
 import java.io.IOException
@@ -22,6 +23,7 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
                                 it.send(otherMessages)
                             } catch (ioException: IOException) {
                                 // Problem with the I/O? This sender is now dead to us.
+                                EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST,it.name)
                                 mSenders.remove(it)
                             }
                         }

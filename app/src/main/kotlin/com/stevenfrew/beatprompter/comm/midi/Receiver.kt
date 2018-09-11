@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import kotlin.experimental.and
 
-abstract class Receiver: ReceiverBase() {
+abstract class Receiver(name:String): ReceiverBase(name) {
     private var mInSysEx: Boolean = false
 
     override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int):Int {

@@ -209,7 +209,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
      */
     internal fun handleConnectionFromClient(socket: BluetoothSocket) {
         if (bluetoothMode === BluetoothMode.Server) {
-            EventHandler.sendEventToSongList(EventHandler.CLIENT_CONNECTED, socket.remoteDevice.name)
+            EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
             mSenderTask.addSender(Sender(socket))
         }
     }

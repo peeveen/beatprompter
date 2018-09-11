@@ -6,7 +6,7 @@ import android.os.Build
 import android.support.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.M)
-class NativeReceiver(private val mPort: MidiOutputPort):Receiver() {
+class NativeReceiver(private val mPort: MidiOutputPort,name:String):Receiver(name) {
     private val mInnerReceiver=NativeReceiverReceiver()
     private val mInnerBufferLock=Any()
     private var mInnerBuffer=ByteArray(INITIAL_INNER_BUFFER_SIZE)

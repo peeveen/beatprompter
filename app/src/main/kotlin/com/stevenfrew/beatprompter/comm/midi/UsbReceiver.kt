@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 
-class UsbReceiver(private val mConnection: UsbDeviceConnection, private val mEndpoint: UsbEndpoint): Receiver() {
+class UsbReceiver(private val mConnection: UsbDeviceConnection, private val mEndpoint: UsbEndpoint,name:String): Receiver(name) {
     init
     {
         // Read all incoming data until there is none left. Basically, clear anything that

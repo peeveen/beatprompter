@@ -1089,6 +1089,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     val cache = msg.obj as CachedCloudFileCollection
                     mSongList.onCacheUpdated(cache)
                 }
+                CONNECTION_ADDED->Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_added,msg.obj.toString()), Toast.LENGTH_LONG).show()
+                CONNECTION_LOST->Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost,msg.obj.toString()), Toast.LENGTH_LONG).show()
             }
         }
     }

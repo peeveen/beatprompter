@@ -35,6 +35,8 @@ abstract class EventHandler : Handler() {
         const val BLUETOOTH_QUIT_SONG = HANDLER_MESSAGE_BASE_ID + 23
         const val BLUETOOTH_SET_SONG_TIME = HANDLER_MESSAGE_BASE_ID + 24
         const val BLUETOOTH_TOGGLE_START_STOP = HANDLER_MESSAGE_BASE_ID + 25
+        const val CONNECTION_ADDED=HANDLER_MESSAGE_BASE_ID+26
+        const val CONNECTION_LOST=HANDLER_MESSAGE_BASE_ID+27
 
         private val mSongListEventHandlerLock = Any()
         private val mSongDisplayEventHandlerLock = Any()
