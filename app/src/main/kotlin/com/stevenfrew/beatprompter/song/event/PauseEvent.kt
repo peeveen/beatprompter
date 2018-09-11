@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.event
+package com.stevenfrew.beatprompter.song.event
 
 /**
  * A PauseEvent tells the event processor to wait for a certain amount of time, showing a

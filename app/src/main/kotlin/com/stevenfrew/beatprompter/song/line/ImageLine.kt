@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song
+package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.BeatPrompterApplication
@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
 import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.song.ScrollingMode
 
 class ImageLine internal constructor(mImageFile:ImageFile, scalingMode: ImageScalingMode, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: DisplaySettings, pixelPosition:Int, scrollTimes:Pair<Long,Long>) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
     private val mBitmap:Bitmap=BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())

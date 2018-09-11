@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.filter.*
+import com.stevenfrew.beatprompter.ui.filter.*
 
 class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>(BeatPrompterApplication.context, -1, values) {
 

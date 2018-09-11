@@ -18,9 +18,9 @@ import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.bluetooth.*
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.comm.bluetooth.message.*
-import com.stevenfrew.beatprompter.event.*
+import com.stevenfrew.beatprompter.song.event.*
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.song.Line
+import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song

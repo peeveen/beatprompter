@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
-import com.stevenfrew.beatprompter.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MIDIEvent
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException

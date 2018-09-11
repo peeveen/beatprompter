@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.event
+package com.stevenfrew.beatprompter.song.event
 
 /**
  * A BeatEvent signals the event processor to update the beat counter display, and optionally play a

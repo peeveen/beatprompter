@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.event
+package com.stevenfrew.beatprompter.song.event
 
 /**
  * During song parsing, the other events are finally encapsulated in LinkedEvent objects,

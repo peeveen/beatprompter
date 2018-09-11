@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.graphics
 
 import android.graphics.Bitmap
 import android.graphics.Rect
-import com.stevenfrew.beatprompter.song.Line
+import com.stevenfrew.beatprompter.song.line.Line
 
 class LineGraphic(size: Rect) {
     var mLastDrawnLine: Line? = null

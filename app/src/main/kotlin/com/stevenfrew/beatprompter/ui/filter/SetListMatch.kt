@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.filter
+package com.stevenfrew.beatprompter.ui.filter
 
 enum class SetListMatch {
     NoMatch,TitleMatch,TitleAndArtistMatch

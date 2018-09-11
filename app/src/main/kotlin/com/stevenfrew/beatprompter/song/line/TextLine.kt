@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song
+package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.BeatPrompterApplication
@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.songload.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.songload.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils

@@ -32,8 +32,8 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
-import com.stevenfrew.beatprompter.filter.*
-import com.stevenfrew.beatprompter.filter.Filter
+import com.stevenfrew.beatprompter.ui.filter.*
+import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger

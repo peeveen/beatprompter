@@ -3,13 +3,14 @@ package com.stevenfrew.beatprompter.song
 import android.graphics.*
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.event.AudioEvent
-import com.stevenfrew.beatprompter.event.LinkedEvent
+import com.stevenfrew.beatprompter.song.event.AudioEvent
+import com.stevenfrew.beatprompter.song.event.LinkedEvent
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,

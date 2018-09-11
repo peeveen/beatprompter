@@ -1,6 +1,7 @@
-package com.stevenfrew.beatprompter.song
+package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.Rect
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.util.Utils
 
 class LineMeasurements internal constructor(internal var mLines: Int, internal var mLineWidth: Int, internal var mLineHeight: Int, internal val mGraphicHeights: IntArray, lineTime:Long, lineDuration: Long, yStartScrollTime: Long, scrollMode: ScrollingMode) {

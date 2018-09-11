@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.set
 
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.filter.SetListMatch
+import com.stevenfrew.beatprompter.ui.filter.SetListMatch
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 /**
