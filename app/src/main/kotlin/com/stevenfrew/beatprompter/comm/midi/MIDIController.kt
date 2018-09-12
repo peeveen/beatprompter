@@ -55,6 +55,12 @@ object MIDIController {
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
                 attemptUsbMidiConnection()
             }
+            if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
+                intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE).apply {
+                    mSenderTask.removeCommunicator(deviceName)
+                    mReceiverTask.removeCommunicator(deviceName)
+                }
+            }
             else if (ACTION_USB_PERMISSION == action) {
                 synchronized(this) {
                     val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
@@ -173,15 +179,18 @@ object MIDIController {
         }
 
         override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
-            // Don't care. Relevant sender/receiver will throw an exception and be removed.
+            deviceInfo.properties[MidiDeviceInfo.PROPERTY_NAME]?.toString()?.also {
+                mSenderTask.removeCommunicator(it)
+                mReceiverTask.removeCommunicator(it)
+            }
         }
 
         override fun onDeviceOpened(openedDevice: MidiDevice?) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 try {
-                    if(openedDevice!=null) {
-                        val deviceName=""+openedDevice.info.properties[MidiDeviceInfo.PROPERTY_NAME]
-                        openedDevice.info?.ports?.forEach {
+                    openedDevice?.apply{
+                        val deviceName=""+info.properties[MidiDeviceInfo.PROPERTY_NAME]
+                        info.ports.forEach {
                             if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
                                 mReceiverTask.addCommunicator(deviceName,NativeReceiver(openedDevice.openOutputPort(it.portNumber),deviceName))
                             else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)

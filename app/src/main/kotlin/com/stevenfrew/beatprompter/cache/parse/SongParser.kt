@@ -249,10 +249,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         try {
                             lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode, lineStartTime, lineDuration, mCurrentLineBeatInfo.mScrollMode, mNativeDeviceSettings, mSongHeight, startAndStopScrollTimes)
                         }
-                        catch(e:Exception)
+                        catch(t:Throwable)
                         {
-                            // Bitmap loading could cause error here.
-                            mErrors.add(FileParseError(imageTag,e.message!!))
+                            // Bitmap loading could cause error here. Even OutOfMemory!
+                            mErrors.add(FileParseError(imageTag,t.message!!))
                         }
                     else {
                         workLine = BeatPrompterApplication.getResourceString(R.string.missing_image_file_warning)
