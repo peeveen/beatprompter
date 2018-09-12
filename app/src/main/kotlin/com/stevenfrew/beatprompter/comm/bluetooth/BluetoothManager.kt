@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import android.util.Log
@@ -54,6 +55,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
 
         if(mBluetoothAdapter!=null) {
             application.registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+            application.registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
             BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
 
             val bluetoothMode = bluetoothMode
@@ -82,6 +84,20 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
         }
     }
 
+    private val mDeviceReceiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if(intent.action==BluetoothDevice.ACTION_ACL_DISCONNECTED)
+            {
+                // Something has disconnected.
+                (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice).apply{
+                    mReceiverTask.removeCommunicator(address)
+                    mSenderTask.removeCommunicator(address)
+                }
+            }
+        }
+    }
+
+
     /**
      * The app can run in three Bluetooth modes:
      * - Server (it is listening for connections from other band members)
@@ -105,13 +121,13 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
      * Do we have a connection to a band leader?
      */
     val isConnectedToServer: Boolean
-        get()= mReceiverTask.getReceivers().isNotEmpty()
+        get()= mReceiverTask.communicatorCount>0
 
     /**
      * As a band leader, how many band members are we connected to?
      */
     val bluetoothClientCount: Int
-        get() = mSenderTask.getSenders().size
+        get() = mSenderTask.communicatorCount
 
     /**
      * Called when Bluetooth is switched off.
@@ -210,7 +226,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     internal fun handleConnectionFromClient(socket: BluetoothSocket) {
         if (bluetoothMode === BluetoothMode.Server) {
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
-            mSenderTask.addSender(Sender(socket))
+            mSenderTask.addCommunicator(socket.remoteDevice.address,Sender(socket))
         }
     }
 
@@ -219,7 +235,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
      */
     internal fun setServerConnection(socket: BluetoothSocket) {
         EventHandler.sendEventToSongList(EventHandler.SERVER_CONNECTED, socket.remoteDevice.name)
-        mReceiverTask.addReceiver(Receiver(socket))
+        mReceiverTask.addCommunicator(socket.remoteDevice.address,Receiver(socket))
     }
 
     /**
@@ -229,6 +245,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     fun shutdown(application: BeatPrompterApplication) {
         if(mBluetoothAdapter!=null) {
             BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
+            application.unregisterReceiver(mDeviceReceiver)
             application.unregisterReceiver(mAdapterReceiver)
             shutDownBluetoothClient()
             shutDownBluetoothServer()

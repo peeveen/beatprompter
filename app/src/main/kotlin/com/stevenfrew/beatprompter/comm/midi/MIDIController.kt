@@ -69,9 +69,9 @@ object MIDIController {
                                         for (f in 0 until endpointCount) {
                                             val endPoint = midiInterface.getEndpoint(f)
                                             if (endPoint.direction == UsbConstants.USB_DIR_OUT)
-                                                mSenderTask.addSender(UsbSender(conn,endPoint,device.deviceName))
+                                                mSenderTask.addCommunicator(device.deviceName,UsbSender(conn,endPoint,device.deviceName))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
-                                                mReceiverTask.addReceiver(UsbReceiver(conn,endPoint,device.deviceName))
+                                                mReceiverTask.addCommunicator(device.deviceName,UsbReceiver(conn,endPoint,device.deviceName))
                                         }
                                     }
                                 }
@@ -183,9 +183,9 @@ object MIDIController {
                         val deviceName=""+openedDevice.info.properties[MidiDeviceInfo.PROPERTY_NAME]
                         openedDevice.info?.ports?.forEach {
                             if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
-                                mReceiverTask.addReceiver(NativeReceiver(openedDevice.openOutputPort(it.portNumber),deviceName))
+                                mReceiverTask.addCommunicator(deviceName,NativeReceiver(openedDevice.openOutputPort(it.portNumber),deviceName))
                             else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
-                                mSenderTask.addSender(NativeSender(openedDevice.openInputPort(it.portNumber),deviceName))
+                                mSenderTask.addCommunicator(deviceName,NativeSender(openedDevice.openInputPort(it.portNumber),deviceName))
                         }
                         EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, deviceName)
                     }

@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter.comm
 
-interface Receiver {
-    val name:String
-    fun receive()
-    fun close()
+interface Receiver:Communicator {
+    suspend fun receive()
 }
