@@ -46,6 +46,7 @@ import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
+import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
@@ -992,9 +993,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist==choiceInfo.mNormalizedArtist) {
-                val loadTask = SongLoadTask(sf, mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull(), scrollingMode, "", true,
+                val track=mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
+                val loadTask = SongLoadTask(sf, track, scrollingMode, "", true,
                         false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
-                SongDisplayActivity.interruptCurrentSong(loadTask, sf)
+                if(SongDisplayActivity.interruptCurrentSong(loadTask, sf)==SongInterruptResult.NoSongToInterrupt)
+                    playSong(null, sf, track, scrollingMode,true,nativeSettings,sourceSettings)
                 break
             }
     }
@@ -1055,22 +1058,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
-                CLIENT_CONNECTED -> {
-                    Toast.makeText(mSongList, msg.obj.toString() + " " + BeatPrompterApplication.getResourceString(R.string.hasConnected), Toast.LENGTH_LONG).show()
-                    mSongList.updateBluetoothIcon()
-                }
-                CLIENT_DISCONNECTED -> {
-                    Toast.makeText(mSongList, msg.obj.toString() + " " + BeatPrompterApplication.getResourceString(R.string.hasDisconnected), Toast.LENGTH_LONG).show()
-                    mSongList.updateBluetoothIcon()
-                }
-                SERVER_DISCONNECTED -> {
-                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.disconnectedFromBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show()
-                    mSongList.updateBluetoothIcon()
-                }
-                SERVER_CONNECTED -> {
-                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connectedToBandLeader) + " " + msg.obj, Toast.LENGTH_LONG).show()
-                    mSongList.updateBluetoothIcon()
-                }
                 CLOUD_SYNC_ERROR -> {
                     val adb = AlertDialog.Builder(mSongList)
                     adb.setMessage(BeatPrompterApplication.getResourceString(R.string.cloudSyncErrorMessage, msg.obj as String))
@@ -1089,8 +1076,15 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     val cache = msg.obj as CachedCloudFileCollection
                     mSongList.onCacheUpdated(cache)
                 }
-                CONNECTION_ADDED->Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_added,msg.obj.toString()), Toast.LENGTH_LONG).show()
-                CONNECTION_LOST->Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost,msg.obj.toString()), Toast.LENGTH_LONG).show()
+                CONNECTION_ADDED->{
+                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_added,msg.obj.toString()), Toast.LENGTH_LONG).show()
+                    mSongList.updateBluetoothIcon()
+                }
+                CONNECTION_LOST->{
+                    Log.d(BeatPrompterApplication.TAG, "Lost connection to device.")
+                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost,msg.obj.toString()), Toast.LENGTH_LONG).show()
+                    mSongList.updateBluetoothIcon()
+                }
             }
         }
     }

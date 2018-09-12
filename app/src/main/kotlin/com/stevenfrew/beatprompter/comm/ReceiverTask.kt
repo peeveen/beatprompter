@@ -1,32 +1,21 @@
 package com.stevenfrew.beatprompter.comm
 
+import android.util.Log
+import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
-import kotlinx.coroutines.experimental.launch
+import com.stevenfrew.beatprompter.Task
 
-class ReceiverTask : CommunicationTask<Receiver>() {
+class ReceiverTask(private val mName:String,private val mReceiver:Receiver): Task(true) {
     override fun doWork() {
-        while (!shouldStop) {
+        while(!shouldStop) {
             try {
-                val receivers = getCommunicators()
-                if (receivers.isNotEmpty())
-                    receivers.forEach {
-                        launch {
-                            try {
-                                it.value.receive()
-                            } catch (ioException: Exception) {
-                                // Problem with the I/O. This receiver is now dead to us.
-                                EventHandler.sendEventToSongDisplay(EventHandler.CONNECTION_LOST,it.value.name)
-                                removeCommunicator(it.key)
-                            }
-                        }
-                    }
-                else
-                    Thread.sleep(250)
-            }
-            catch(interruptedException:InterruptedException)
-            {
+                mReceiver.receive()
+            } catch (exception: Exception) {
+                // Any I/O error means this receiver is dead to us.
                 break
             }
         }
+        Log.d(BeatPrompterApplication.TAG,"Receiver is dead, telling user")
+        EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST,mName)
     }
 }

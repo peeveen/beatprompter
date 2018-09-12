@@ -25,10 +25,11 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
             } catch (exception: NotEnoughDataException) {
                 // Read again!
                 Log.d(BluetoothManager.BLUETOOTH_TAG, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
-                return 0
+                break
             } catch (exception: UnknownMessageException) {
                 Log.d(BluetoothManager.BLUETOOTH_TAG, "Unknown Bluetooth message received.")
-                return 1
+                ++bufferStart // Skip the byte that doesn't match any known message type
+                break
             }
         }
         return bufferStart-dataStart

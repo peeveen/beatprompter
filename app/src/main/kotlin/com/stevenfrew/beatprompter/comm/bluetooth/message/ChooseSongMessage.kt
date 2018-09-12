@@ -45,22 +45,24 @@ class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo: SongCho
                     val dataRead = read(ByteArray(1))
                     if (dataRead == 1) {
                         val availableStart = available()
-                        ObjectInputStream(this).apply {
-                            val title = readObject() as String
-                            val artist = readObject() as String
-                            val track = readObject() as String
-                            val beatScroll = readBoolean()
-                            val smoothScroll = readBoolean()
-                            val orientation = readInt()
-                            val minFontSize = readFloat()
-                            val maxFontSize = readFloat()
-                            val screenWidth = readInt()
-                            val screenHeight = readInt()
-                            val availableEnd = available()
-                            val messageLength = 1 + (availableStart - availableEnd)
-                            close()
-                            return ChooseSongMessage(bytes.copyOfRange(0,messageLength), SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight)))
-                        }
+                        val songChoiceInfo=
+                            with(ObjectInputStream(this)) {
+                                val title = readObject() as String
+                                val artist = readObject() as String
+                                val track = readObject() as String
+                                val beatScroll = readBoolean()
+                                val smoothScroll = readBoolean()
+                                val orientation = readInt()
+                                val minFontSize = readFloat()
+                                val maxFontSize = readFloat()
+                                val screenWidth = readInt()
+                                val screenHeight = readInt()
+                                SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight))
+                            }
+                        val availableEnd = available()
+                        val messageLength = 1 + (availableStart - availableEnd)
+                        close()
+                        return ChooseSongMessage(bytes.copyOfRange(0,messageLength), songChoiceInfo)
                     }
                 }
             } catch (e: Exception) {

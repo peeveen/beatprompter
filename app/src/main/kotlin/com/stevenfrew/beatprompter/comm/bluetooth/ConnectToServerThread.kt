@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.util.Log
+import com.stevenfrew.beatprompter.util.Utils
 import java.io.IOException
 
 /**
@@ -33,18 +34,18 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
                         }
                         socket = mmSocket
                     }
-                    if (socket != null)
-                        startConnectionThread(socket!!)
+                    socket?.connect().also{
+                        // If the previous line didn't throw an IOException, then it connected OK.
+                        // Do work to manage the connection (in a separate thread)
+                        BluetoothManager.setServerConnection(socket!!)
+                    }
                 } catch (connectException: IOException) {
-                    Log.e(BluetoothManager.BLUETOOTH_TAG, "Failed to connect to a BeatPrompter band leader (there probably isn't one!)", connectException)
+                    // There probably isn't a server to connect to. Wait a bit and try again.
+                    Utils.safeThreadWait(100)
                 }
             else
                 // Already connected. Wait a bit and try/check again.
-                try {
-                    Thread.sleep(5000)
-                } catch (ie: InterruptedException) {
-                    Log.w(BluetoothManager.BLUETOOTH_TAG, "Thread that maintains connection to the server was interrupted while waiting.")
-                }
+                Utils.safeThreadWait(2000)
         }
     }
 
@@ -53,9 +54,6 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
      */
     private fun startConnectionThread(socket:BluetoothSocket)
     {
-        socket.connect()
-        // Do work to manage the connection (in a separate thread)
-        BluetoothManager.setServerConnection(socket)
     }
 
     /**

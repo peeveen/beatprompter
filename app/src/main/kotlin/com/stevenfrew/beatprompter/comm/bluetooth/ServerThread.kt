@@ -35,13 +35,12 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
 
                 // If a connection was accepted
                 // Do work to manage the connection (in a separate thread)
-                serverSocket?.accept(2000)?.also{
+                serverSocket?.accept(5001)?.also{
                     BluetoothManager.handleConnectionFromClient(it)
                 }
             } catch (e: IOException) {
                 //Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);
             }
-
         }
     }
 

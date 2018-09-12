@@ -143,4 +143,11 @@ object Utils {
         val byteVal = str.toInt(radix)
         return (byteVal and 0x000000FF).toByte()
     }
+
+    fun safeThreadWait(amount:Int)
+    {
+        try {
+            Thread.sleep(1000)
+        } catch (ie: InterruptedException) { }
+    }
 }

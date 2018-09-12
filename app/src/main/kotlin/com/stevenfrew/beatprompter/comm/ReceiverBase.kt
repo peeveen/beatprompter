@@ -6,7 +6,7 @@ abstract class ReceiverBase constructor(private val mName:String,private val mBu
     override val name:String
         get()=mName
 
-    override suspend fun receive() {
+    override fun receive() {
         var offset=0
         while(true)
         {
