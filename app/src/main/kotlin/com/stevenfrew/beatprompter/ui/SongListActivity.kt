@@ -157,9 +157,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
         val manualMode = BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_manualMode_key), false)
         val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
-        val bestMode=selectedSong.bestScrollingMode
-        val sds = getSongDisplaySettings(bestMode)
-        playSong(node, selectedSong, track, bestMode, startedByMidiTrigger, sds, sds)
+        val mode=if(manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
+        val sds = getSongDisplaySettings(mode)
+        playSong(node, selectedSong, track, mode, startedByMidiTrigger, sds, sds)
     }
 
     private fun shouldPlayNextSong(): Boolean {

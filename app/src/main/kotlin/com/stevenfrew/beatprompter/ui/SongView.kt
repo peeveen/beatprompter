@@ -3,9 +3,11 @@ package com.stevenfrew.beatprompter.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.SoundPool
+import android.os.Build
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
@@ -88,10 +90,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private var mManualScrollPositions: ManualScrollPositions?=null
 
-    // This is an old deprecated constructor for compatibility.
-    // The newer one:
-    // SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
-    private val mClickSoundPool: SoundPool= SoundPool(16, AudioManager.STREAM_MUSIC, 0)
+    private val mClickSoundPool: SoundPool=
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            SoundPool(16, AudioManager.STREAM_MUSIC, 0)
+        else
+            SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
     private val mClickAudioID=mClickSoundPool.load(this.context, R.raw.click, 0)
 
     internal enum class ScreenAction {

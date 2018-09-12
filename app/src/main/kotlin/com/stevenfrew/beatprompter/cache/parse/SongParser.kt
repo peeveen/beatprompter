@@ -40,6 +40,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mCustomCommentsUser:String
     private val mShowChords:Boolean
     private val mShowKey:Boolean
+    private val mManualMode:Boolean
     private val mShowBPM: ShowBPM
     private val mTriggerContext: TriggerOutputContext
     private val mNativeDeviceSettings: DisplaySettings
@@ -76,6 +77,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mSendMidiClock = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
         mCountIn = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
         mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
+        mManualMode=sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_manualMode_key), false)
         mDefaultHighlightColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default)))
         mCustomCommentsUser = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue))?:""
         mShowChords = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
@@ -185,7 +187,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 }
             mAudioTags.clear()
 
-            if(audioTag!=null) {
+            // No audio WHATSOEVER in manual mode
+            if(audioTag!=null && !mManualMode) {
                 // Make sure file exists.
                 val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
                 if(mappedTracks.isEmpty())
@@ -822,20 +825,23 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
         // Since we can't see the future, we now have to traverse the list backwards
         // setting the mNext... fields.
-        setNextBeatEvents(linkedEvents.last())
+        setNextEvents(linkedEvents.last())
 
         return linkedEvents.first()
     }
 
-    private fun setNextBeatEvents(finalEvent:LinkedEvent)
+    private fun setNextEvents(finalEvent:LinkedEvent)
     {
+        var nextEvent:LinkedEvent?=null
         var nextBeatEvent:BeatEvent?=null
         var lastEvent:LinkedEvent?=finalEvent
         while(lastEvent!=null)
         {
+            lastEvent.mNextEvent=nextEvent
             lastEvent.mNextBeatEvent=nextBeatEvent
             if(lastEvent.mEvent is BeatEvent)
                 nextBeatEvent=lastEvent.mEvent as BeatEvent
+            nextEvent=lastEvent
             lastEvent=lastEvent.mPrevEvent
         }
     }
