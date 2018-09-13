@@ -16,7 +16,6 @@ import android.media.midi.MidiManager
 import android.os.Build
 import android.support.annotation.RequiresApi
 import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
@@ -30,7 +29,6 @@ object MIDIController {
     private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
     private var mPermissionIntent: PendingIntent? = null
 
-    const val MIDI_TAG = "midi"
     private const val MIDI_QUEUE_SIZE = 1024
     var mMidiBankMSBs = ByteArray(16)
     var mMidiBankLSBs = ByteArray(16)
@@ -78,6 +76,7 @@ object MIDIController {
                                                 mSenderTask.addSender(device.deviceName,UsbSender(conn,endPoint,device.deviceName))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
                                                 mReceiverTasks.addReceiver(device.deviceName,device.deviceName,UsbReceiver(conn,endPoint,device.deviceName))
+                                            EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, device.deviceName)
                                         }
                                     }
                                 }

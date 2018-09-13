@@ -6,7 +6,6 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.IOException
-import java.util.*
 
 /**
  * A thread that continuously attempts to connect to a band leader.

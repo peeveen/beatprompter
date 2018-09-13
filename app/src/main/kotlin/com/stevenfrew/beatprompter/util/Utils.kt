@@ -144,10 +144,10 @@ object Utils {
         return (byteVal and 0x000000FF).toByte()
     }
 
-    fun safeThreadWait(amount:Int)
+    fun safeThreadWait(amount:Long)
     {
         try {
-            Thread.sleep(1000)
+            Thread.sleep(amount)
         } catch (ie: InterruptedException) { }
     }
 }
