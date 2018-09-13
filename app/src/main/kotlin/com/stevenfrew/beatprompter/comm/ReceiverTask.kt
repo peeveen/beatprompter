@@ -20,4 +20,17 @@ class ReceiverTask(private val mName:String,private val mReceiver:Receiver): Tas
         Log.d(BeatPrompterApplication.TAG,"Receiver is now dead ... notifying main activity for UI.")
         EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST,mName)
     }
+
+    override fun stop() {
+        super.stop()
+        // Receivers often block when trying to receive data, so closing the socket or whatever behind
+        // the scenes will usually kickstart it into action.
+        try {
+            mReceiver.close()
+        }
+        catch(exception:Exception)
+        {
+            // At least we tried ...
+        }
+    }
 }

@@ -18,7 +18,7 @@ class NativeReceiver(private val mPort: MidiOutputPort,name:String):Receiver(nam
     }
 
     override fun close() {
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             mPort.disconnect(mInnerReceiver)
         mPort.close()
     }

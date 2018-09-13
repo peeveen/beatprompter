@@ -16,6 +16,8 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
     override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Int {
         var bufferCopy=buffer
         var bufferStart=dataStart
+        val receivedMessages=mutableListOf<OutgoingMessage>()
+        var lastSetTimeMessage:SetSongTimeMessage?=null
         while (dataStart < dataEnd) {
             try {
                 val btm = fromBytes(bufferCopy)
@@ -23,7 +25,9 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
                 val messageLength = btm.length
                 bufferStart += messageLength
                 bufferCopy=buffer.copyOfRange(bufferStart,dataEnd)
-                routeBluetoothMessage(btm)
+                if(btm is SetSongTimeMessage)
+                    lastSetTimeMessage=btm
+                receivedMessages.add(btm)
             } catch (exception: NotEnoughDataException) {
                 // Read again!
                 Log.d(BeatPrompterApplication.TAG, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
@@ -34,6 +38,8 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
                 break
             }
         }
+        // If we receive multiple SetSongTimeMessages, there is no point in processing any except the last one.
+        receivedMessages.filter{it !is SetSongTimeMessage || it==lastSetTimeMessage}.forEach{routeBluetoothMessage(it)}
         return bufferStart-dataStart
     }
 
