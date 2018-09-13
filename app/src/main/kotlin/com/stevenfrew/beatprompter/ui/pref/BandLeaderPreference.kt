@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.ui.pref
 
 import android.app.AlertDialog
-import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.preference.ListPreference
 import android.util.AttributeSet
