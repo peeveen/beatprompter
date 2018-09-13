@@ -9,7 +9,6 @@ class ReceiverTask(private val mName:String,private val mReceiver:Receiver): Tas
     override fun doWork() {
         while(!shouldStop) {
             try {
-                Log.d(BeatPrompterApplication.TAG,"Asking receiver '$mName' for data ...")
                 mReceiver.receive()
             } catch (exception: Exception) {
                 // Any I/O error means this receiver is dead to us.

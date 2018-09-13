@@ -11,7 +11,7 @@ abstract class ReceiverBase constructor(private val mName:String,private val mBu
         while(true)
         {
             val amountReceived=receiveMessageData(mInBuffer,offset,mBufferSize-offset)
-            if(amountReceived==0)
+            if(amountReceived<=0)
                 break
             val amountOfDataToParse=offset+amountReceived
             val amountOfDataParsed=parseMessageData(mInBuffer, offset, amountOfDataToParse)

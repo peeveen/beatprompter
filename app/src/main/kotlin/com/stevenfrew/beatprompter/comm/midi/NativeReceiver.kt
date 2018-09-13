@@ -27,8 +27,11 @@ class NativeReceiver(private val mPort: MidiOutputPort,name:String):Receiver(nam
         synchronized(mInnerBufferLock)
         {
             return Math.min(maximumAmount,mInnerBufferPosition).also{
-                System.arraycopy(mInnerBuffer,0,buffer,offset,it)
-                mInnerBufferPosition-=it}
+                if(it!=0) {
+                    System.arraycopy(mInnerBuffer,0,buffer,offset,it)
+                    mInnerBufferPosition-=it
+                }
+            }
         }
     }
 
