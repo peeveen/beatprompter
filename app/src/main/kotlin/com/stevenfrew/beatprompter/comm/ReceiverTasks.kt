@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.comm
 
+import android.util.Log
+import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.Task
 
 class ReceiverTasks {
@@ -11,6 +13,7 @@ class ReceiverTasks {
     {
         synchronized(mReceiverThreadsLock)
         {
+            Log.d(BeatPrompterApplication.TAG,"Starting new receiver task '$id:' ($name)")
             mReceiverTasks[id]=ReceiverTask(name,receiver).also {
                 mReceiverThreads[id]=Thread(it).also{th->
                     th.start()
@@ -23,6 +26,7 @@ class ReceiverTasks {
     {
         synchronized(mReceiverThreadsLock)
         {
+            Log.d(BeatPrompterApplication.TAG,"Stopping receiver task '$id'")
             mReceiverTasks[id]?.stop()
             mReceiverThreads[id]?.apply {
                 interrupt()
@@ -37,6 +41,7 @@ class ReceiverTasks {
     {
         synchronized(mReceiverThreadsLock)
         {
+            Log.d(BeatPrompterApplication.TAG,"Stopping ALL receiver tasks")
             mReceiverThreads.keys.forEach {
                 removeReceiver(it)
             }

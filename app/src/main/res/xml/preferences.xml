@@ -402,14 +402,19 @@
         android:entries="@array/pref_scrollingStyle_entries"
         android:entryValues="@array/pref_scrollingStyle_entryValues"
         android:defaultValue="@string/pref_scrollingStyle_defaultValue" />-->
-    <ListPreference
-        android:key="@string/pref_bluetoothMode_key"
-        android:title="@string/pref_bluetoothMode_title"
-        android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
-        android:summary="@string/pref_bluetoothMode_summary"
-        android:entries="@array/pref_bluetoothMode_entries"
-        android:entryValues="@array/pref_bluetoothMode_entryValues"
-        android:defaultValue="@string/pref_bluetoothMode_defaultValue" />
+        <ListPreference
+            android:key="@string/pref_bluetoothMode_key"
+            android:title="@string/pref_bluetoothMode_title"
+            android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
+            android:summary="@string/pref_bluetoothMode_summary"
+            android:entries="@array/pref_bluetoothMode_entries"
+            android:entryValues="@array/pref_bluetoothMode_entryValues"
+            android:defaultValue="@string/pref_bluetoothMode_defaultValue" />
+        <com.stevenfrew.beatprompter.ui.pref.BandLeaderPreference
+            android:key="@string/pref_bandLeaderDevice_key"
+            android:title="@string/pref_bandLeaderDevice_title"
+            android:dialogTitle="@string/pref_bandLeaderDevice_dialogTitle"
+            android:summary="@string/pref_bandLeaderDevice_summary"/>
         <CheckBoxPreference
             android:key="@string/pref_manualMode_key"
             android:title="@string/pref_manualMode_title"

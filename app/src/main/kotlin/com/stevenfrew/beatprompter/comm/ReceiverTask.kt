@@ -9,13 +9,15 @@ class ReceiverTask(private val mName:String,private val mReceiver:Receiver): Tas
     override fun doWork() {
         while(!shouldStop) {
             try {
+                Log.d(BeatPrompterApplication.TAG,"Asking receiver '$mName' for data ...")
                 mReceiver.receive()
             } catch (exception: Exception) {
                 // Any I/O error means this receiver is dead to us.
+                Log.d(BeatPrompterApplication.TAG,"Receiver '$mName' threw an exception. Assuming it to be dead.")
                 break
             }
         }
-        Log.d(BeatPrompterApplication.TAG,"Receiver is dead, telling user")
+        Log.d(BeatPrompterApplication.TAG,"Receiver is now dead ... notifying main activity for UI.")
         EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST,mName)
     }
 }

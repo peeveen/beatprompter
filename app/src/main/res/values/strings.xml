@@ -566,6 +566,12 @@
     <string name="pref_bluetoothMode_summary">Configure how your device communicates with band members.</string>
     <string name="pref_bluetoothMode_dialogTitle">Bluetooth Mode</string>
 
+    <string name="pref_bandLeaderDevice_key" translatable="false">pref_bandLeaderDevice</string>
+    <string name="pref_bandLeaderDevice_title">Band Leader Device</string>
+    <string name="pref_bandLeaderDevice_defaultValue" translatable="false">_</string>
+    <string name="pref_bandLeaderDevice_summary">Specify which device to connect to when in band-member mode.</string>
+    <string name="pref_bandLeaderDevice_dialogTitle">Band Leader Device</string>
+
     <string name="pref_midiTriggerSafetyCatch_key" translatable="false">pref_midiTriggerSafetyCatch</string>
     <string name="pref_midiTriggerSafetyCatch_title">Trigger safety catch</string>
     <string name="pref_midiTriggerSafetyCatch_defaultValue" translatable="false">WhenAtTitleScreenOrPausedOrLastLine</string>
