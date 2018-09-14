@@ -56,7 +56,7 @@ object MIDIController {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
                 intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE).apply {
                     mSenderTask.removeSender(deviceName)
-                    mReceiverTasks.removeReceiver(deviceName)
+                    mReceiverTasks.stopAndRemoveReceiver(deviceName)
                 }
             }
             else if (ACTION_USB_PERMISSION == action) {
@@ -163,7 +163,7 @@ object MIDIController {
             app.unregisterReceiver(mUsbReceiver)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             mNativeMidiManager?.unregisterDeviceCallback(mMidiNativeDeviceListener)
-
+        mSenderTask.removeAll()
         Task.stopTask(mSenderTask, mSenderTaskThread)
     }
 
@@ -177,7 +177,7 @@ object MIDIController {
         override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
             deviceInfo.properties[MidiDeviceInfo.PROPERTY_NAME]?.toString()?.also {
                 mSenderTask.removeSender(it)
-                mReceiverTasks.removeReceiver(it)
+                mReceiverTasks.stopAndRemoveReceiver(it)
             }
         }
 

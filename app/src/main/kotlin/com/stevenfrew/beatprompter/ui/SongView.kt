@@ -1143,22 +1143,19 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         override fun doWork() {
             mMetronomeBeats = 0
             mNextClickTime = System.nanoTime()
-            while (!shouldStop) {
-                mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
-                if (--mBeats == 0L)
-                    stop()
-                mNextClickTime += mNanosecondsPerBeat
-                val wait = mNextClickTime - System.nanoTime()
-                if (wait > 0) {
-                    val millisecondsPerBeat = Utils.nanoToMilli(wait).toLong()
-                    val nanosecondRemainder = (wait - Utils.milliToNano(millisecondsPerBeat)).toInt()
-                    try {
-                        Thread.sleep(millisecondsPerBeat, nanosecondRemainder)
-                    } catch (ie: InterruptedException) {
-                        Log.d(BeatPrompterApplication.TAG, "Interrupted while waiting ... assuming resync attempt.", ie)
-                        mNextClickTime = System.nanoTime()
-                    }
-
+            mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
+            if (--mBeats == 0L)
+                stop()
+            mNextClickTime += mNanosecondsPerBeat
+            val wait = mNextClickTime - System.nanoTime()
+            if (wait > 0) {
+                val millisecondsPerBeat = Utils.nanoToMilli(wait).toLong()
+                val nanosecondRemainder = (wait - Utils.milliToNano(millisecondsPerBeat)).toInt()
+                try {
+                    Thread.sleep(millisecondsPerBeat, nanosecondRemainder)
+                } catch (ie: InterruptedException) {
+                    Log.d(BeatPrompterApplication.TAG, "Interrupted while waiting ... assuming resync attempt.", ie)
+                    mNextClickTime = System.nanoTime()
                 }
             }
         }

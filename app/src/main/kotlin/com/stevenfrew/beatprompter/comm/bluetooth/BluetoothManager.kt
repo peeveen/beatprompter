@@ -89,7 +89,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                 // Something has disconnected.
                 (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice).apply{
                     Log.d(BeatPrompterApplication.TAG, "A Bluetooth device with address '$address' has disconnected.")
-                    mReceiverTasks.removeReceiver(address)
+                    mReceiverTasks.stopAndRemoveReceiver(address)
                     mSenderTask.removeSender(address)
                 }
             }

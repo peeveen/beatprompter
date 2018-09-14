@@ -9,37 +9,34 @@ import java.util.concurrent.ArrayBlockingQueue
 
 class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Task(false) {
     override fun doWork() {
-        while (!shouldStop) {
-            // This will block if the queue is empty
-            try {
-                val firstMessage = mOutQueue.take()
-                val otherMessages = mOutQueue.toList()
-                mOutQueue.clear()
-                val senders = getSenders()
-                if (senders.isNotEmpty())
-                    senders.forEach {
-                        launch {
-                            try {
-                                synchronized(it.value.lock)
-                                {
-                                    Log.d(BeatPrompterApplication.TAG,"Sending messages to '$it.key' ($it.value.name).")
-                                    it.value.send(listOf(firstMessage))
-                                    it.value.send(otherMessages)
-                                }
-                            } catch (commException: Exception) {
-                                // Problem with the I/O? This sender is now dead to us.
-                                Log.d(BeatPrompterApplication.TAG,"Sender threw an exception. Assuming it to be dead.")
-                                removeSender(it.key)
+        // This will block if the queue is empty
+        try {
+            val firstMessage = mOutQueue.take()
+            val otherMessages = mOutQueue.toList()
+            mOutQueue.clear()
+            val senders = getSenders()
+            if (senders.isNotEmpty())
+                senders.forEach {
+                    launch {
+                        try {
+                            synchronized(it.value.lock)
+                            {
+                                Log.d(BeatPrompterApplication.TAG,"Sending messages to '$it.key' ($it.value.name).")
+                                it.value.send(listOf(firstMessage))
+                                it.value.send(otherMessages)
                             }
+                        } catch (commException: Exception) {
+                            // Problem with the I/O? This sender is now dead to us.
+                            Log.d(BeatPrompterApplication.TAG,"Sender threw an exception. Assuming it to be dead.")
+                            removeSender(it.key)
                         }
                     }
-            }
-            catch(interruptedException:InterruptedException)
-            {
-                break
-            }
+                }
         }
-        removeAll()
+        catch(interruptedException:InterruptedException)
+        {
+            // Must have been signalled to stop ... main Task loop will cater for this.
+        }
     }
 
     private val mSenders = mutableMapOf<String, Sender>()
@@ -54,7 +51,7 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
     }
 
     fun removeSender(id: String) {
-        getCommunicator(id)?.also {
+        getSender(id)?.also {
             Log.d(BeatPrompterApplication.TAG,"Removing sender '$id' from the collection")
             closeSender(it)
             Log.d(BeatPrompterApplication.TAG,"Sender '$id' has been closed.")
@@ -76,7 +73,7 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
         }
     }
 
-    private fun getCommunicator(id: String): Sender? {
+    private fun getSender(id: String): Sender? {
         synchronized(mSendersLock)
         {
             return mSenders[id]

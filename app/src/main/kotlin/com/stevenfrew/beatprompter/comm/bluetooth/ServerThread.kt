@@ -41,7 +41,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                     Log.d(BeatPrompterApplication.TAG, "Found a client connection.")
                     BluetoothManager.handleConnectionFromClient(it)
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 //Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);
             }
         }

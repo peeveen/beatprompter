@@ -2,11 +2,10 @@ package com.stevenfrew.beatprompter.comm
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.Task
 
 class ReceiverTasks {
     private val mReceiverThreads=mutableMapOf<String,Thread>()
-    private val mReceiverTasks=mutableMapOf<String, Task>()
+    private val mReceiverTasks=mutableMapOf<String, ReceiverTask>()
     private val mReceiverThreadsLock=Any()
 
     fun addReceiver(id:String,name:String,receiver:Receiver)
@@ -22,18 +21,23 @@ class ReceiverTasks {
         }
     }
 
-    fun removeReceiver(id:String)
+    fun stopAndRemoveReceiver(id:String)
     {
+        var receiverTask:ReceiverTask?=null
+        var receiverThread:Thread?=null
         synchronized(mReceiverThreadsLock)
         {
-            Log.d(BeatPrompterApplication.TAG,"Stopping receiver task '$id'")
-            mReceiverTasks[id]?.stop()
-            mReceiverThreads[id]?.apply {
-                interrupt()
-                join()
-            }
+            receiverTask=mReceiverTasks[id]
+            receiverThread=mReceiverThreads[id]
+            Log.d(BeatPrompterApplication.TAG,"Removing receiver task '$id'")
             mReceiverTasks.remove(id)
             mReceiverThreads.remove(id)
+        }
+        Log.d(BeatPrompterApplication.TAG,"Stopping receiver task '$id'")
+        receiverTask?.stop()
+        receiverThread?.apply {
+            interrupt()
+            join()
         }
     }
 
@@ -43,7 +47,7 @@ class ReceiverTasks {
         {
             Log.d(BeatPrompterApplication.TAG,"Stopping ALL receiver tasks")
             mReceiverThreads.keys.forEach {
-                removeReceiver(it)
+                stopAndRemoveReceiver(it)
             }
         }
     }
