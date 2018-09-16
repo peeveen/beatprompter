@@ -4,7 +4,7 @@ buildscript {
     ext.kotlin_version = '1.2.70'
     repositories {
         google()
-        jcenter()
+        maven { url "http://jcenter.bintray.com"}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
@@ -16,7 +16,7 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        maven { url "http://jcenter.bintray.com"}
         mavenCentral()
         maven {
             url "https://maven.google.com"
