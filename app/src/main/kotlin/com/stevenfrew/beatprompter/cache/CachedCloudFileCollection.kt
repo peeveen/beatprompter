@@ -67,12 +67,12 @@ class CachedCloudFileCollection {
     fun readFromXML(xmlDoc: Document) {
         clear()
 
-        addToCollection(xmlDoc,AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> AudioFileParser(descriptor).parse()}
-        addToCollection(xmlDoc,ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> ImageFileParser(descriptor).parse()}
-        addToCollection(xmlDoc,SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SongInfoParser(descriptor).parse()}
-        addToCollection(xmlDoc,SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> SetListFileParser(descriptor).parse()}
-        addToCollection(xmlDoc,MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> MIDIAliasFileParser(descriptor).parse()}
-        addToCollection(xmlDoc,IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor:CachedCloudFileDescriptor -> IrrelevantFile(descriptor)}
+        addToCollection(xmlDoc,AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> AudioFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> ImageFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> SongInfoParser(descriptor).parse()}
+        addToCollection(xmlDoc,SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> SetListFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> MIDIAliasFileParser(descriptor).parse()}
+        addToCollection(xmlDoc,IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> IrrelevantFile(descriptor)}
     }
 
     fun add(cachedFile: CachedCloudFile) {
@@ -90,7 +90,7 @@ class CachedCloudFileCollection {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             mFiles.removeIf{cloudFile.mID.equals(it.mID, ignoreCase = true)}
         else
-            mFiles=mFiles.filter{!cloudFile.mID.equals(it.mID, ignoreCase = true)}.toMutableList()
+            mFiles= mFiles.asSequence().filter{!cloudFile.mID.equals(it.mID, ignoreCase = true)}.toMutableList()
     }
 
     fun hasLatestVersionOf(cloudFile: CloudFileInfo): Boolean {

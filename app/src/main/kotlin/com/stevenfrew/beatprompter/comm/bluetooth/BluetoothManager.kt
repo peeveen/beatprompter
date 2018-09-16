@@ -218,7 +218,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                     shutDownBluetoothClient()
                     if (mServerBluetoothThread == null) {
                         Log.d(BeatPrompterApplication.TAG,"Starting Bluetooth server thread.")
-                        mServerBluetoothThread = ServerThread(mBluetoothAdapter!!).apply{start()}
+                        mServerBluetoothThread = ServerThread(mBluetoothAdapter!!) { socket -> handleConnectionFromClient(socket)}.apply{start()}
                     }
                 } else if (mode === BluetoothMode.Client) {
                     shutDownBluetoothServer()
@@ -226,7 +226,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                         mBluetoothAdapter!!.bondedDevices.firstOrNull {it.address==bandLeaderAddress}?.also {
                             try {
                                 Log.d(BeatPrompterApplication.TAG, "Starting Bluetooth client thread, looking to connect with '${it.name}'.")
-                                mConnectToServerThread=ConnectToServerThread(it).apply{start()}
+                                mConnectToServerThread=ConnectToServerThread(it){socket -> BluetoothManager.setServerConnection(socket)}.apply{start()}
                             } catch (e: Exception) {
                                 Log.e(BeatPrompterApplication.TAG, "Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
                             }

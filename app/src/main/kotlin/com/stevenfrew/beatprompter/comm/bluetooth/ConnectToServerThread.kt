@@ -10,7 +10,7 @@ import java.io.IOException
 /**
  * A thread that continuously attempts to connect to a band leader.
  */
-internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thread() {
+internal class ConnectToServerThread constructor(private val mDevice: BluetoothDevice,private val mOnConnectedFunction:(socket:BluetoothSocket)->Unit) : Thread() {
     private var mmSocket: BluetoothSocket? = null
     private var mStop = false
 
@@ -28,7 +28,7 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice) : Thr
                         // Do work to manage the connection (in a separate thread)
                         Log.d(BeatPrompterApplication.TAG, "Connected to a Bluetooth server on '${mDevice.name}'.")
                         mmSocket=socket
-                        BluetoothManager.setServerConnection(socket!!)
+                        mOnConnectedFunction(socket)
                     }
                 } catch (connectException: Exception) {
                     // There probably isn't a server to connect to. Wait a bit and try again.

@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
+import android.bluetooth.BluetoothSocket
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.IOException
@@ -11,7 +12,7 @@ import java.io.IOException
  * paired clients, and creates an output socket from each connection. Any events broadcast from this instance
  * of the app will be sent to all output sockets.
  */
-class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter) : Thread() {
+class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter, private val mOnConnectedFunction: (socket: BluetoothSocket)->Unit) : Thread() {
     private var mmServerSocket: BluetoothServerSocket? = null
     private var mStop = false
     private val mSocketNullLock = Any()
@@ -39,7 +40,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                 Log.d(BeatPrompterApplication.TAG, "Looking for a client connection.")
                 serverSocket?.accept(5000)?.also{
                     Log.d(BeatPrompterApplication.TAG, "Found a client connection.")
-                    BluetoothManager.handleConnectionFromClient(it)
+                    mOnConnectedFunction(it)
                 }
             } catch (e: Exception) {
                 //Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);
