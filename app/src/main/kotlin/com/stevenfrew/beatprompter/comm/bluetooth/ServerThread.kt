@@ -6,13 +6,14 @@ import android.bluetooth.BluetoothSocket
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.IOException
+import java.util.*
 
 /**
  * This class is a thread that runs when the app is in BlueToothServer mode. It listens for connections from
  * paired clients, and creates an output socket from each connection. Any events broadcast from this instance
  * of the app will be sent to all output sockets.
  */
-class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter, private val mOnConnectedFunction: (socket: BluetoothSocket)->Unit) : Thread() {
+class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter, private val mUUID: UUID, private val mOnConnectedFunction: (socket: BluetoothSocket)->Unit) : Thread() {
     private var mmServerSocket: BluetoothServerSocket? = null
     private var mStop = false
     private val mSocketNullLock = Any()
@@ -26,7 +27,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                     if (mmServerSocket == null) {
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
-                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, BluetoothManager.BLUETOOTH_UUID)
+                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, mUUID)
                             Log.d(BeatPrompterApplication.TAG, "Created the Bluetooth server socket.")
                         } catch (e: IOException) {
                             Log.e(BeatPrompterApplication.TAG, "Error creating Bluetooth server socket.", e)

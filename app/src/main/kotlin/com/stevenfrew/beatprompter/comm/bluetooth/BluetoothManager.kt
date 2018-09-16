@@ -20,7 +20,7 @@ import java.util.concurrent.ArrayBlockingQueue
  */
 object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     // Our unique app Bluetooth ID.
-    val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
+    private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 
     // The device Bluetooth adapter, if one exists.
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -218,7 +218,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                     shutDownBluetoothClient()
                     if (mServerBluetoothThread == null) {
                         Log.d(BeatPrompterApplication.TAG,"Starting Bluetooth server thread.")
-                        mServerBluetoothThread = ServerThread(mBluetoothAdapter!!) { socket -> handleConnectionFromClient(socket)}.apply{start()}
+                        mServerBluetoothThread = ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket -> handleConnectionFromClient(socket)}.apply{start()}
                     }
                 } else if (mode === BluetoothMode.Client) {
                     shutDownBluetoothServer()
@@ -226,7 +226,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
                         mBluetoothAdapter!!.bondedDevices.firstOrNull {it.address==bandLeaderAddress}?.also {
                             try {
                                 Log.d(BeatPrompterApplication.TAG, "Starting Bluetooth client thread, looking to connect with '${it.name}'.")
-                                mConnectToServerThread=ConnectToServerThread(it){socket -> BluetoothManager.setServerConnection(socket)}.apply{start()}
+                                mConnectToServerThread=ConnectToServerThread(it, BLUETOOTH_UUID){ socket -> BluetoothManager.setServerConnection(socket)}.apply{start()}
                             } catch (e: Exception) {
                                 Log.e(BeatPrompterApplication.TAG, "Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
                             }
@@ -246,7 +246,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
      * Adds a new connection to the pool of connected clients, and informs the user about the
      * new connection.
      */
-    internal fun handleConnectionFromClient(socket: BluetoothSocket) {
+    private fun handleConnectionFromClient(socket: BluetoothSocket) {
         if (bluetoothMode === BluetoothMode.Server) {
             Log.d(BeatPrompterApplication.TAG,"Client connection opened with '${socket.remoteDevice.name}'")
             mSenderTask.addSender(socket.remoteDevice.address,Sender(socket))
@@ -257,7 +257,7 @@ object BluetoothManager:SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * Sets the server connection socket once we connect.
      */
-    internal fun setServerConnection(socket: BluetoothSocket) {
+    private fun setServerConnection(socket: BluetoothSocket) {
         if (bluetoothMode === BluetoothMode.Client) {
             Log.d(BeatPrompterApplication.TAG, "Server connection opened with '${socket.remoteDevice.name}'")
             mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
