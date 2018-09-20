@@ -25,7 +25,7 @@ class ImageLine internal constructor(mImageFile:ImageFile, scalingMode: ImageSca
             val graphic = mGraphics[f]
             if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
-                val c = Canvas(graphic.mBitmap)
+                val c = Canvas(graphic.bitmap)
                 c.drawBitmap(mBitmap, mSourceRect, mDestinationRect, paint)
                 graphic.mLastDrawnLine = this
             }

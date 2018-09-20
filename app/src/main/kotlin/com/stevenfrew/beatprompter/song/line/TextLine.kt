@@ -436,7 +436,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 val paint = Paint()
                 val chordsDrawn = if (mChordsDrawn.size > f) mChordsDrawn[f] else true
                 val thisLineHeight = mMeasurements.mGraphicHeights[f]
-                val c = Canvas(graphic.mBitmap)
+                val c = Canvas(graphic.bitmap)
                 var currentX = 0
                 var g = 0
                 while (g < mXSplits.size && g < f) {

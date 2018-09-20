@@ -331,13 +331,11 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val graphics = currentLine.getGraphics()
                     val lineTop = currentY
                     for ((lineCounter, graphic) in graphics.withIndex()) {
-                        if (!graphic.mBitmap.isRecycled) {
-                            val sourceRect = currentLine.mMeasurements.mGraphicRectangles[lineCounter]
-                            mDestinationGraphicRect.set(sourceRect)
-                            mDestinationGraphicRect.offset(0, currentY)
-                            canvas.drawBitmap(graphic.mBitmap, sourceRect,mDestinationGraphicRect,mPaint)
-                            currentY += currentLine.mMeasurements.mGraphicHeights[lineCounter]
-                        }
+                        val sourceRect = currentLine.mMeasurements.mGraphicRectangles[lineCounter]
+                        mDestinationGraphicRect.set(sourceRect)
+                        mDestinationGraphicRect.offset(0, currentY)
+                        canvas.drawBitmap(graphic.bitmap, sourceRect,mDestinationGraphicRect,mPaint)
+                        currentY += currentLine.mMeasurements.mGraphicHeights[lineCounter]
                     }
                     val highlightColor=getLineHighlightColor(currentLine,time)
                     if(highlightColor!=null) {
@@ -360,7 +358,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     currentY = startY - prevLine.mMeasurements.mLineHeight
                     val graphics = prevLine.getGraphics()
                     for ((lineCounter, graphic) in graphics.withIndex()) {
-                        canvas.drawBitmap(graphic.mBitmap, 0f, currentY.toFloat(), mPaint)
+                        canvas.drawBitmap(graphic.bitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += prevLine.mMeasurements.mGraphicHeights[lineCounter]
                     }
                     mPaint.alpha = 255
