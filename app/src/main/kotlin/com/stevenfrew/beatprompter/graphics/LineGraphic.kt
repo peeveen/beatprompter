@@ -22,6 +22,7 @@ class LineGraphic(private val mSize: Rect) {
     }
 
     fun recycle() {
-        mBitmap.recycle()
+        if(!mBitmap.isRecycled)
+            mBitmap.recycle()
     }
 }

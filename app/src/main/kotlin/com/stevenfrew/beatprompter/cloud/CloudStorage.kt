@@ -13,6 +13,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
 abstract class CloudStorage protected constructor(protected var mParentActivity: Activity, cloudCacheFolderName: String) {
+    // TODO: Figure out when to call dispose on this.
+    private val mCompositeDisposable=CompositeDisposable()
+
     var cacheFolder: CloudCacheFolder
         protected set
 
@@ -41,36 +44,24 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
             if (filesToRefresh.contains(defaultCloudDownload.mCloudFileInfo))
                 filesToRefresh.remove(defaultCloudDownload.mCloudFileInfo)
 
-        val disp = CompositeDisposable()
         val downloadSource = PublishSubject.create<CloudDownloadResult>()
-        disp.add(downloadSource.subscribe({ listener.onItemDownloaded(it) }, { listener.onDownloadError(it) }, { listener.onDownloadComplete() }))
+        mCompositeDisposable.add(downloadSource.subscribe({ listener.onItemDownloaded(it) }, { listener.onDownloadError(it) }, { listener.onDownloadComplete() }))
         val messageSource = PublishSubject.create<String>()
-        disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
-        try {
-            // Always include the temporary set list and default midi alias files.
-            for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
-                downloadSource.onNext(defaultCloudDownload)
-            downloadFiles(filesToRefresh, listener, downloadSource, messageSource)
-        } finally {
-            // TODO: figure out how/when to dispose of this
-            //            disp.dispose();
-        }
+        mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
+        // Always include the temporary set list and default midi alias files.
+        for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
+            downloadSource.onNext(defaultCloudDownload)
+        downloadFiles(filesToRefresh, listener, downloadSource, messageSource)
     }
 
     fun readFolderContents(folder: CloudFolderInfo, listener: CloudFolderSearchListener, includeSubfolders: Boolean, returnFolders: Boolean) {
-        val disp = CompositeDisposable()
         val folderContentsSource = PublishSubject.create<CloudItemInfo>()
-        disp.add(folderContentsSource.subscribe({ listener.onCloudItemFound(it) }, { listener.onFolderSearchError(it) }, { listener.onFolderSearchComplete() }))
+        mCompositeDisposable.add(folderContentsSource.subscribe({ listener.onCloudItemFound(it) }, { listener.onFolderSearchError(it) }, { listener.onFolderSearchComplete() }))
         val messageSource = PublishSubject.create<String>()
-        disp.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
-        try {
-            for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
-                folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo)
-            readFolderContents(folder, listener, folderContentsSource, messageSource, includeSubfolders, returnFolders)
-        } finally {
-            // TODO: figure out how/when to dispose of this
-            //            disp.dispose();
-        }
+        mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
+        for (defaultCloudDownload in SongListActivity.mDefaultCloudDownloads)
+            folderContentsSource.onNext(defaultCloudDownload.mCloudFileInfo)
+        readFolderContents(folder, listener, folderContentsSource, messageSource, includeSubfolders, returnFolders)
     }
 
     fun selectFolder(parentActivity: Activity, listener: CloudFolderSelectionListener) {
@@ -96,19 +87,12 @@ abstract class CloudStorage protected constructor(protected var mParentActivity:
         } catch (e: Exception) {
             listener.onFolderSelectedError(e)
         }
-
     }
 
     private fun getRootPath(listener: CloudRootPathListener) {
-        val disp = CompositeDisposable()
         val rootPathSource = PublishSubject.create<CloudFolderInfo>()
-        disp.add(rootPathSource.subscribe({ listener.onRootPathFound(it) }, { listener.onRootPathError(it) }))
-        try {
-            getRootPath(listener, rootPathSource)
-        } finally {
-            // TODO: figure out how/when to dispose of this
-            //            disp.dispose();
-        }
+        mCompositeDisposable.add(rootPathSource.subscribe({ listener.onRootPathFound(it) }, { listener.onRootPathError(it) }))
+        getRootPath(listener, rootPathSource)
     }
 
     protected abstract fun getRootPath(listener: CloudListener, rootPathSource: PublishSubject<CloudFolderInfo>)
