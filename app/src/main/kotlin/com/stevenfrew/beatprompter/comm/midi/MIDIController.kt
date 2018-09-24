@@ -42,9 +42,7 @@ object MIDIController {
     private fun addNativeDevice(nativeDeviceInfo:MidiDeviceInfo)
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager!=null)
-            nativeDeviceInfo.ports.forEach {
-                mNativeMidiManager!!.openDevice(nativeDeviceInfo,mMidiNativeDeviceListener,null)
-            }
+            mNativeMidiManager!!.openDevice(nativeDeviceInfo,mMidiNativeDeviceListener,null)
     }
 
     private val mUsbReceiver = object : BroadcastReceiver() {

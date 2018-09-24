@@ -14,6 +14,9 @@ import com.stevenfrew.beatprompter.midi.alias.*
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @ParseTags(MIDIAliasSetNameTag::class,MIDIAliasNameTag::class,MIDIAliasInstructionTag::class)
+/**
+ * Parser for MIDI alias files.
+ */
 class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) :TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
 
     private var mAliasSetName:String?=null

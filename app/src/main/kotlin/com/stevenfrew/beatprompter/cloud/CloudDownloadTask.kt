@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.cache.CachedCloudFile
 class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHandler: Handler, private val mCloudPath: String, private val mIncludeSubFolders: Boolean, filesToUpdate: List<CachedCloudFile>?) : AsyncTask<String, String, Boolean>(), CloudFolderSearchListener, CloudItemDownloadListener {
     private var mProgressDialog: ProgressDialog? = null
     private var mErrorOccurred = false
-    private var mFilesToUpdate= filesToUpdate?.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList() ?: mutableListOf()
+    private var mFilesToUpdate= filesToUpdate?.asSequence()?.map { ftu -> CloudFileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList() ?: mutableListOf()
     private val mCloudFilesFound = mutableListOf<CloudFileInfo>()
     private val mCloudFilesToDownload = mutableListOf<CloudFileInfo>()
 
@@ -89,7 +89,7 @@ class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHa
 
     override fun onDownloadComplete() {
         if (!isRefreshingSelectedFiles)
-            SongListActivity.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.map { c -> c.mID }.toSet())
+            SongListActivity.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.asSequence().map { c -> c.mID }.toSet())
         mHandler.obtainMessage(EventHandler.CACHE_UPDATED, SongListActivity.mCachedCloudFiles).sendToTarget()
         if (mProgressDialog != null)
             mProgressDialog!!.dismiss()

@@ -65,7 +65,7 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
                     eventOffset = parseMIDIEventOffset(firstSplitBits[1],lineNumber)
                 }
             }
-            var paramValues = tagValue.splitAndTrim(",").filter{!it.isBlank()}.map { bit -> parseValue(bit) }
+            var paramValues = tagValue.splitAndTrim(",").asSequence().filter{!it.isBlank()}.map { bit -> parseValue(bit) }.toList()
             var lastParamIsChannel = false
             var channel = defaultChannel
             for (f in paramValues.indices)

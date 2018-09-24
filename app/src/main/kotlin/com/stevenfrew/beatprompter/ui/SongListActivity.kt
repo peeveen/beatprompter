@@ -233,7 +233,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun clearTemporarySetList() {
-        mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
+        mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
         for (slf in mCachedCloudFiles.setListFiles)
             if (slf.mFile == mTemporarySetListFile)
                 slf.mSetListEntries.clear()
@@ -247,7 +247,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun addToTemporarySet(song: SongFile) {
-        mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
+        mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
         try {
             initialiseTemporarySetListFile(false)
             Utils.appendToTextFile(mTemporarySetListFile!!, SetListEntry(song).toString())
@@ -276,7 +276,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         trackNames.add(getString(R.string.no_audio))
         val mappedAudioFiles= mCachedCloudFiles.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
         trackNames.addAll(mappedAudioFiles.map{it.mName})
-        val tempSetListFilter=mFilters.filterIsInstance<TemporarySetListFilter>().firstOrNull()
+        val tempSetListFilter= mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
         val addAllowed=
             if (tempSetListFilter != null)
@@ -776,7 +776,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         tagAndFolderFilters.sortBy{it.mName.toLowerCase()}
 
         // Now create the basic "all songs" filter, dead easy ...
-        val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.filter { !it.mFilterOnly }.toMutableList())
+        val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.asSequence().filter { !it.mFilterOnly }.toMutableList())
 
         // Depending on whether we have a temporary set list file, we can create a temporary
         // set list filter ...
