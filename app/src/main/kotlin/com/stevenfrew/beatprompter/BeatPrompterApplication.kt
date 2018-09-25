@@ -4,13 +4,11 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
-import android.os.Handler
 import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.song.load.SongLoadInfo
+import com.stevenfrew.beatprompter.song.load.SongLoadJob
 import com.stevenfrew.beatprompter.song.load.SongLoaderTask
 
 class BeatPrompterApplication : Application() {
@@ -39,6 +37,7 @@ class BeatPrompterApplication : Application() {
 
     companion object {
         const val TAG = "beatprompter"
+        const val TAG_COMMS = "beatprompter_comms"
         const val APP_NAME = "BeatPrompter"
         private lateinit var mApp: Application
         private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
@@ -64,8 +63,8 @@ class BeatPrompterApplication : Application() {
         val context: Context
             get() = mApp.applicationContext
 
-        fun loadSong(sli: SongLoadInfo, handler: Handler, songLoadCancelEvent: SongLoadCancelEvent, registered: Boolean) {
-            mSongLoaderTask.loadSong(sli, handler, songLoadCancelEvent, registered)
+        fun loadSong(songLoadJob: SongLoadJob) {
+            mSongLoaderTask.loadSong(songLoadJob)
         }
     }
 }

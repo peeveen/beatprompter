@@ -21,7 +21,7 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
         while (dataStart < dataEnd) {
             try {
                 val btm = fromBytes(bufferCopy)
-                Log.d(BeatPrompterApplication.TAG, "Got a fully-formed Bluetooth message.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Got a fully-formed Bluetooth message.")
                 val messageLength = btm.length
                 bufferStart += messageLength
                 bufferCopy=buffer.copyOfRange(bufferStart,dataEnd)
@@ -30,10 +30,10 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
                 receivedMessages.add(btm)
             } catch (exception: NotEnoughDataException) {
                 // Read again!
-                Log.d(BeatPrompterApplication.TAG, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
                 break
             } catch (exception: UnknownMessageException) {
-                Log.d(BeatPrompterApplication.TAG, "Unknown Bluetooth message received.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Unknown Bluetooth message received.")
                 ++bufferStart // Skip the byte that doesn't match any known message type
                 break
             }

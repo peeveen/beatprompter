@@ -51,7 +51,7 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG, "Failed to read SetSongTimeMessage, assuming insufficient data.", e)
+                    Log.e(BeatPrompterApplication.TAG_COMMS, "Failed to read SetSongTimeMessage, assuming insufficient data.", e)
                 }
             }
             throw NotEnoughDataException()

@@ -20,6 +20,7 @@ import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.song.line.TextLine
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
+import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
@@ -106,6 +107,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
+        if(mSongLoadCancelEvent.isCancelled)
+            throw SongLoadCancelledException()
         super.parseLine(line)
 
         val chordTags=line.mTags.filterIsInstance<ChordTag>()
@@ -120,7 +123,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // The "on when no track" logic will be performed during song playback.
         val metronomeOn = mMetronomeContext === MetronomeContext.On || mMetronomeContext === MetronomeContext.OnWhenNoTrack
 
-        var imageTag=tags.filterIsInstance<ImageTag>().firstOrNull()
+        var imageTag= tags.asSequence().filterIsInstance<ImageTag>().firstOrNull()
 
         if(!mSendMidiClock)
             mSendMidiClock=tags.any{it is SendMIDIClockTag}
@@ -168,7 +171,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val createLine= (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
 
-        val pauseTag=tags.filterIsInstance<PauseTag>().firstOrNull()
+        val pauseTag= tags.asSequence().filterIsInstance<PauseTag>().firstOrNull()
         if (createLine || pauseTag!=null) {
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
@@ -298,7 +301,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         if(mLines.isEmpty())
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.no_lines_in_song_file))
 
-        val smoothMode=mLines.filter{it.mScrollMode== ScrollingMode.Smooth}.any()
+        val smoothMode= mLines.asSequence().filter{it.mScrollMode== ScrollingMode.Smooth}.any()
 
         val startScreenStrings=createStartScreenStrings()
         val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
@@ -312,7 +315,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             if (smoothMode)
                 // Obviously this will only be required if the song cannot fit entirely onscreen.
                 if(mSongHeight>mNativeDeviceSettings.mUsableScreenHeight)
-                    Math.min(mLines.map{it.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
+                    Math.min(mLines.asSequence().map{it.mMeasurements.mLineHeight}.maxBy{it}?:0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
                 else
                     0
             else
@@ -381,7 +384,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // song ends. This could be the time of the final generated event,
         // but there might still be an audio file playing, so find out
         // when the last track ends ...
-        val lastAudioEndTime=sortedEventList.filterIsInstance<AudioEvent>().map{it.mAudioFile.mDuration+it.mEventTime}.max()
+        val lastAudioEndTime= sortedEventList.asSequence().filterIsInstance<AudioEvent>().map{it.mAudioFile.mDuration+it.mEventTime}.max()
         sortedEventList.add(EndEvent(Math.max(lastAudioEndTime?:0L,mSongTime)))
 
         // Now build the final event list.
@@ -567,7 +570,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
      */
     private fun offsetMIDIEvents():List<BaseEvent>
     {
-        val beatEvents=mEvents.filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }
+        val beatEvents= mEvents.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }.toList()
         return mEvents.map{
             if(it is MIDIEvent)
                 offsetMIDIEvent(it,beatEvents)
@@ -601,7 +604,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             beatsBeforeOrAfterThisMIDIEvent.reversed()
                         else
                             beatsBeforeOrAfterThisMIDIEvent
-                    val beatWeWant=beatsInOrder.take(beatCount.absoluteValue).lastOrNull()
+                    val beatWeWant= beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
                     if(beatWeWant!=null)
                         newTime=beatWeWant.mEventTime
                 }
@@ -674,7 +677,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         for (commentLine in commentLines)
             if (commentLine.trim().isNotEmpty())
                 nonBlankCommentLines.add(commentLine.trim())
-        val uniqueErrors= mErrors.distinct().sortedBy{it.mLineNumber }
+        val uniqueErrors= mErrors.asSequence().distinct().sortedBy{it.mLineNumber }.toList()
         var errorCount = uniqueErrors.size
         var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
         val showBPM = mShowBPM!= ShowBPM.No

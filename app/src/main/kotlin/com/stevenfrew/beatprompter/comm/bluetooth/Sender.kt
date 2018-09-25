@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.comm.SenderBase
 
 class Sender(private val mClientSocket: BluetoothSocket): SenderBase(mClientSocket.remoteDevice.name) {
     override fun sendMessageData(bytes: ByteArray, length: Int) {
-        Log.d(BeatPrompterApplication.TAG, "Sending Bluetooth messages.")
+        Log.d(BeatPrompterApplication.TAG_COMMS, "Sending Bluetooth messages.")
         mClientSocket.outputStream.write(if(bytes.size==length) bytes else bytes.copyOfRange(0,length))
     }
 

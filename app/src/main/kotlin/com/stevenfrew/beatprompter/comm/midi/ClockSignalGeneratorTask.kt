@@ -80,7 +80,7 @@ class ClockSignalGeneratorTask : Task(false) {
                     nanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
                 }
             } catch (e: Exception) {
-                Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI timing clock signal to output queue.", e)
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI timing clock signal to output queue.", e)
             }
 
             nanoDiff -= nanoSecondsPerMidiSignal
@@ -97,7 +97,7 @@ class ClockSignalGeneratorTask : Task(false) {
                 try {
                     Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder)
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG, "Thread sleep was interrupted.", e)
+                    Log.e(BeatPrompterApplication.TAG_COMMS, "Thread sleep was interrupted.", e)
                 }
 
             }
@@ -118,7 +118,7 @@ class ClockSignalGeneratorTask : Task(false) {
             try {
                 MIDIController.mMIDIOutQueue.put(StartMessage())
             } catch (e: Exception) {
-                Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI start signal to output queue.", e)
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI start signal to output queue.", e)
             }
 
             nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
@@ -134,7 +134,7 @@ class ClockSignalGeneratorTask : Task(false) {
         try {
             MIDIController.mMIDIOutQueue.put(StopMessage())
         } catch (e: Exception) {
-            Log.d(BeatPrompterApplication.TAG, "Failed to add MIDI stop signal to output queue.", e)
+            Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI stop signal to output queue.", e)
         }
     }
 }

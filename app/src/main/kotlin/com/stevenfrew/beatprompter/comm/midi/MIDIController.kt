@@ -30,8 +30,6 @@ object MIDIController {
     private var mPermissionIntent: PendingIntent? = null
 
     private const val MIDI_QUEUE_SIZE = 1024
-    var mMidiBankMSBs = ByteArray(16)
-    var mMidiBankLSBs = ByteArray(16)
 
     var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
     private val mSenderTask= SenderTask(mMIDIOutQueue)

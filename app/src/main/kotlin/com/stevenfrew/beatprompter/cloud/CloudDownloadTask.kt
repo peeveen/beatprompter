@@ -65,7 +65,6 @@ class CloudDownloadTask(private val mCloudStorage: CloudStorage, private val mHa
         mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.message).sendToTarget()
         if (mProgressDialog != null)
             mProgressDialog!!.dismiss()
-
     }
 
     override fun onFolderSearchComplete() {

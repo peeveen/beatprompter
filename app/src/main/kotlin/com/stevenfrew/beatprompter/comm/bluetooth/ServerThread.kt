@@ -28,9 +28,9 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
                             mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, mUUID)
-                            Log.d(BeatPrompterApplication.TAG, "Created the Bluetooth server socket.")
+                            Log.d(BeatPrompterApplication.TAG_COMMS, "Created the Bluetooth server socket.")
                         } catch (e: IOException) {
-                            Log.e(BeatPrompterApplication.TAG, "Error creating Bluetooth server socket.", e)
+                            Log.e(BeatPrompterApplication.TAG_COMMS, "Error creating Bluetooth server socket.", e)
                         }
                     }
                     serverSocket = mmServerSocket
@@ -38,9 +38,9 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
 
                 // If a connection was accepted
                 // Do work to manage the connection (in a separate thread)
-                Log.d(BeatPrompterApplication.TAG, "Looking for a client connection.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Looking for a client connection.")
                 serverSocket?.accept(5000)?.also{
-                    Log.d(BeatPrompterApplication.TAG, "Found a client connection.")
+                    Log.d(BeatPrompterApplication.TAG_COMMS, "Found a client connection.")
                     mOnConnectedFunction(it)
                 }
             } catch (e: Exception) {
@@ -54,11 +54,11 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
         mStop = true
         synchronized(mSocketNullLock) {
             try {
-                Log.d(BeatPrompterApplication.TAG, "Closing Bluetooth server socket.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Closing Bluetooth server socket.")
                 mmServerSocket?.close()
-                Log.d(BeatPrompterApplication.TAG, "Closed Bluetooth server socket.")
+                Log.d(BeatPrompterApplication.TAG_COMMS, "Closed Bluetooth server socket.")
             } catch (e: IOException) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to close Bluetooth listener socket.", e)
+                Log.e(BeatPrompterApplication.TAG_COMMS, "Failed to close Bluetooth listener socket.", e)
             } finally {
                 mmServerSocket = null
             }

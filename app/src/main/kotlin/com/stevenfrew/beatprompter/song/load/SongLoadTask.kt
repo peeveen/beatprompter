@@ -24,15 +24,16 @@ import java.util.concurrent.Semaphore
  * external event (MIDI, Bluetooth, double-tap) triggers the loading of a song either while a song is
  * currently active, or while a song is already being loaded.
  */
-class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings, private val mRegistered: Boolean) : AsyncTask<String, Int, Boolean>() {
+class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: ScrollingMode, nextSongName: String, startedByBandLeader: Boolean, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings, registered: Boolean) : AsyncTask<String, Int, Boolean>() {
 
     private var mCancelled = false
     private val mTaskEndSemaphore = Semaphore(0)
     private var mProgressTitle = ""
-    private val mCancelEvent = SongLoadCancelEvent()
+    private val mCancelEvent = SongLoadCancelEvent(selectedSong.mTitle)
     private val mSongLoadInfo: SongLoadInfo = SongLoadInfo(selectedSong, track, scrollMode, nextSongName, startedByBandLeader, startedByMidiTrigger, nativeSettings, sourceSettings)
     private var mProgressDialog: ProgressDialog? = null
     private val mSongLoadTaskEventHandler: SongLoadTaskEventHandler
+    private val mSongLoadJob=SongLoadJob(mSongLoadInfo,SongLoadTaskEventHandler(this),SongLoadCancelEvent(selectedSong.mTitle),registered)
 
     init {
         mSongLoadTaskEventHandler = SongLoadTaskEventHandler(this)
@@ -121,7 +122,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
             BluetoothManager.mBluetoothOutQueue.put(csm)
 
             // Kick off the loading of the new song.
-            BeatPrompterApplication.loadSong(mSongLoadInfo, mSongLoadTaskEventHandler, mCancelEvent, mRegistered)
+            BeatPrompterApplication.loadSong(mSongLoadJob)
             this.execute()
         }
     }

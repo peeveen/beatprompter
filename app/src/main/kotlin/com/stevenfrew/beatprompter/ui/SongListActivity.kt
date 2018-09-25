@@ -140,14 +140,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
         for (node in mPlaylist.nodes)
             if (node.mSongFile.matchesTrigger(mst)) {
+                Log.d(BeatPrompterApplication.TAG,"Found trigger match: '${node.mSongFile.mTitle}'.")
                 playPlaylistNode(node, true)
                 return
             }
         // Otherwise, it might be a song that is not currently onscreen.
         // Still play it though!
         for (sf in mCachedCloudFiles.songFiles)
-            if (sf.matchesTrigger(mst))
+            if (sf.matchesTrigger(mst)) {
+                Log.d(BeatPrompterApplication.TAG,"Found trigger match: '${sf.mTitle}'.")
                 playSongFile(sf, null, true)
+            }
     }
 
     private fun playPlaylistNode(node: PlaylistNode?, startedByMidiTrigger: Boolean) {
@@ -1068,7 +1071,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     ad.show()
                 }
                 SONG_LOAD_FAILED -> Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
-                MIDI_PROGRAM_CHANGE -> mSongList.startSongViaMidiProgramChange(MIDIController.mMidiBankMSBs[msg.arg1], MIDIController.mMidiBankLSBs[msg.arg1], msg.arg2.toByte(), msg.arg1.toByte())
+                MIDI_PROGRAM_CHANGE -> {
+                    val bytes=msg.obj as ByteArray
+                    mSongList.startSongViaMidiProgramChange(bytes[0],bytes[1],bytes[2],bytes[3])
+                }
                 MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
                 SONG_LOAD_COMPLETED -> mSongList.startSongActivity()
                 CLEAR_CACHE -> mSongList.clearCache(true)

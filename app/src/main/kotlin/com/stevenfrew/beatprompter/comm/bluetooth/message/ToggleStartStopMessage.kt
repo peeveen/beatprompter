@@ -57,7 +57,7 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) : OutgoingMes
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG, "Couldn't read ToggleStartStopMessage data, assuming insufficient data.", e)
+                    Log.e(BeatPrompterApplication.TAG_COMMS, "Couldn't read ToggleStartStopMessage data, assuming insufficient data.", e)
                 }
             }
             throw NotEnoughDataException()

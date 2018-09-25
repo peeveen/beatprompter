@@ -21,13 +21,13 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
                         try {
                             synchronized(it.value.lock)
                             {
-                                Log.d(BeatPrompterApplication.TAG,"Sending messages to '$it.key' ($it.value.name).")
+                                Log.d(BeatPrompterApplication.TAG_COMMS,"Sending messages to '$it.key' ($it.value.name).")
                                 it.value.send(listOf(firstMessage))
                                 it.value.send(otherMessages)
                             }
                         } catch (commException: Exception) {
                             // Problem with the I/O? This sender is now dead to us.
-                            Log.d(BeatPrompterApplication.TAG,"Sender threw an exception. Assuming it to be dead.")
+                            Log.d(BeatPrompterApplication.TAG_COMMS,"Sender threw an exception. Assuming it to be dead.")
                             removeSender(it.key)
                         }
                     }
@@ -45,28 +45,28 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
     fun addSender(id: String, sender: Sender) {
         synchronized(mSendersLock)
         {
-            Log.d(BeatPrompterApplication.TAG,"Adding new sender '$id' ($sender.name) to the collection")
+            Log.d(BeatPrompterApplication.TAG_COMMS,"Adding new sender '$id' ($sender.name) to the collection")
             mSenders[id] = sender
         }
     }
 
     fun removeSender(id: String) {
         getSender(id)?.also {
-            Log.d(BeatPrompterApplication.TAG,"Removing sender '$id' from the collection")
+            Log.d(BeatPrompterApplication.TAG_COMMS,"Removing sender '$id' from the collection")
             closeSender(it)
-            Log.d(BeatPrompterApplication.TAG,"Sender '$id' has been closed.")
+            Log.d(BeatPrompterApplication.TAG_COMMS,"Sender '$id' has been closed.")
             synchronized(mSendersLock)
             {
                 mSenders.remove(id)
             }
-            Log.d(BeatPrompterApplication.TAG,"Sender '$id' is now dead ... notifying main activity for UI.")
+            Log.d(BeatPrompterApplication.TAG_COMMS,"Sender '$id' is now dead ... notifying main activity for UI.")
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, it.name)
         }
     }
 
     fun removeAll()
     {
-        Log.d(BeatPrompterApplication.TAG,"Removing ALL senders from the collection.")
+        Log.d(BeatPrompterApplication.TAG_COMMS,"Removing ALL senders from the collection.")
         synchronized(mSendersLock)
         {
             mSenders.keys.forEach{removeSender(it)}

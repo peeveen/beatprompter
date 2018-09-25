@@ -66,7 +66,7 @@ class ChooseSongMessage constructor(val bytes:ByteArray,val mChoiceInfo: SongCho
                     }
                 }
             } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Couldn't read ChooseSongMessage data, assuming not enough data", e)
+                Log.e(BeatPrompterApplication.TAG_COMMS, "Couldn't read ChooseSongMessage data, assuming not enough data", e)
             }
             throw NotEnoughDataException()
         }
