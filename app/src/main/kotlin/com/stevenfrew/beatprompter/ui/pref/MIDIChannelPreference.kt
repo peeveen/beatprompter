@@ -55,7 +55,7 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
         }
     }
 
-    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any) {
+    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
         if (restorePersistedValue) {
             // Restore existing state
             mCurrentValue = this.getPersistedInt(if (mSingleSelect) 1 else 65535)

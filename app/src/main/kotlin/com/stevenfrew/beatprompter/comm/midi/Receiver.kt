@@ -7,6 +7,8 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
+import com.stevenfrew.beatprompter.ui.SongDisplayActivity
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import kotlin.experimental.and
 
 abstract class Receiver(name:String): ReceiverBase(name) {
@@ -40,7 +42,10 @@ abstract class Receiver(name:String): ReceiverBase(name) {
                             break
                     else if (messageByte == Message.MIDI_SONG_SELECT_BYTE)
                         if (f < dataEnd - 1)
-                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SONG_SELECT, buffer[++f].toInt(),0)
+                            if(SongDisplayActivity.mSongDisplayActive)
+                                EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SONG_SELECT, buffer[++f].toInt(), 0)
+                            else
+                                EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, buffer[++f].toInt(), 0)
                         else
                         // Not enough data left.
                             break
@@ -57,7 +62,10 @@ abstract class Receiver(name:String): ReceiverBase(name) {
                                 if (messageByteWithoutChannel == Message.MIDI_PROGRAM_CHANGE_BYTE)
                                     // This message requires one additional byte.
                                     if (f < dataEnd - 1)
-                                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_PROGRAM_CHANGE, channel.toInt(), buffer[++f].toInt())
+                                        if(SongDisplayActivity.mSongDisplayActive)
+                                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_PROGRAM_CHANGE, channel.toInt(), buffer[++f].toInt())
+                                        else
+                                            EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, channel.toInt(), buffer[++f].toInt())
                                     else
                                         break
                                 else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {

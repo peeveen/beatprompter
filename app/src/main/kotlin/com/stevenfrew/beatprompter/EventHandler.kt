@@ -87,6 +87,13 @@ abstract class EventHandler : Handler() {
             }
         }
 
+        fun sendEventToSongList(event: Int, arg1: Int, arg2: Int) {
+            synchronized(mSongListEventHandlerLock) {
+                if (mSongListEventHandler != null)
+                    mSongListEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
+            }
+        }
+
         fun sendEventToSongDisplay(event: Int, arg: Any) {
             synchronized(mSongDisplayEventHandlerLock) {
                 if (mSongDisplayEventHandler != null)
