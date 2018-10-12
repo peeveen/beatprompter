@@ -397,7 +397,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 mInitialMIDIMessages, mBeatBlocks, mSendMidiClock, startScreenStrings.first, startScreenStrings.second,
                 totalStartScreenTextHeight, mSongLoadInfo.mStartedByBandLeader, mSongLoadInfo.mNextSong,
                 smoothScrollOffset, mSongHeight, scrollEndPixel, noScrollLines, mNativeDeviceSettings.mBeatCounterRect, songTitleHeader,
-                songTitleHeaderLocation)
+                songTitleHeaderLocation,mSongLoadInfo.mLoadID)
     }
 
     private fun calculateScrollEndPixel(smoothMode:Boolean, smoothScrollOffset:Int):Int

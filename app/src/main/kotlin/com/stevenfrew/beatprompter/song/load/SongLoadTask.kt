@@ -67,9 +67,8 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
     override fun onPostExecute(b: Boolean?) {
         Log.d(AUTOLOAD_TAG, "In load task PostExecute.")
         super.onPostExecute(b)
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null)
             mProgressDialog!!.dismiss()
-        }
         if (mCancelled)
             Log.d(AUTOLOAD_TAG, "Song load was cancelled.")
         else
@@ -132,7 +131,7 @@ class SongLoadTask(selectedSong: SongFile, track: AudioFile?, scrollMode: Scroll
             when (msg.what) {
                 EventHandler.SONG_LOAD_COMPLETED -> {
                     mSongLoadTask.mTaskEndSemaphore.release()
-                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED)
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED,msg.obj)
                 }
                 EventHandler.SONG_LOAD_CANCELLED -> {
                     mSongLoadTask.mCancelled = true
