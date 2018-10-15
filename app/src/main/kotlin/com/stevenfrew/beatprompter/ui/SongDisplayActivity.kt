@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Message
+import android.os.ParcelUuid
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
@@ -67,6 +68,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         mSongView=songView
 
         val song = SongLoaderTask.currentSong?:return
+        val loadID: ParcelUuid =intent.extras?.get("loadID") as ParcelUuid
+        if(song.mLoadID != loadID.uuid)
+            finish()
 
         mStartedByBandLeader = song.mStartedByBandLeader
         sendMidiClock = sendMidiClock or song.mSendMIDIClock

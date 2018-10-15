@@ -10,10 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
-import android.os.Build
-import android.os.Bundle
-import android.os.IBinder
-import android.os.Message
+import android.os.*
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -35,7 +32,6 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cloud.*
 import com.stevenfrew.beatprompter.ui.filter.*
 import com.stevenfrew.beatprompter.ui.filter.Filter
-import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
@@ -124,8 +120,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             playPlaylistNode(mPlaylist.getNodeAt(position), false)
     }
 
-    internal fun startSongActivity() {
+    internal fun startSongActivity(loadID:UUID) {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
+        i.putExtra("loadID",ParcelUuid(loadID))
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
@@ -1076,7 +1073,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     mSongList.startSongViaMidiProgramChange(bytes[0],bytes[1],bytes[2],bytes[3])
                 }
                 MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
-                SONG_LOAD_COMPLETED -> mSongList.startSongActivity()
+                SONG_LOAD_COMPLETED -> mSongList.startSongActivity(msg.obj as UUID)
                 CLEAR_CACHE -> mSongList.clearCache(true)
                 CACHE_UPDATED -> {
                     val cache = msg.obj as CachedCloudFileCollection
