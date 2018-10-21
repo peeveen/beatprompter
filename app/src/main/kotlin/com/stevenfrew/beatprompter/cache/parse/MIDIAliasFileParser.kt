@@ -25,18 +25,19 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
     private var mAliases= mutableListOf<Alias>()
 
     override fun parseLine(line: TextFileLine<MIDIAliasFile>) {
-        val midiAliasSetNameTag=line.mTags.filterIsInstance<MIDIAliasSetNameTag>().firstOrNull()
+        val tagSequence=line.mTags.asSequence()
+        val midiAliasSetNameTag=tagSequence.filterIsInstance<MIDIAliasSetNameTag>().firstOrNull()
         if(midiAliasSetNameTag!=null)
             if(mAliasSetName!=null)
                 mErrors.add(FileParseError(midiAliasSetNameTag, BeatPrompterApplication.getResourceString(R.string.midi_alias_set_name_defined_multiple_times)))
             else
                 mAliasSetName=midiAliasSetNameTag.mAliasSetName
 
-        val midiAliasNameTag=line.mTags.filterIsInstance<MIDIAliasNameTag>().firstOrNull()
+        val midiAliasNameTag=tagSequence.filterIsInstance<MIDIAliasNameTag>().firstOrNull()
         if(midiAliasNameTag!=null)
             startNewAlias(midiAliasNameTag)
 
-        val midiAliasInstructionTag=line.mTags.filterIsInstance<MIDIAliasInstructionTag>().firstOrNull()
+        val midiAliasInstructionTag=tagSequence.filterIsInstance<MIDIAliasInstructionTag>().firstOrNull()
         if(midiAliasInstructionTag!=null)
             addInstructionToCurrentAlias(midiAliasInstructionTag)
     }

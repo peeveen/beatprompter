@@ -8,7 +8,7 @@ import java.util.*
 
 data class SongLoadInfo(var mSongFile: SongFile, var mTrack: AudioFile?, var mSongLoadMode: ScrollingMode, var mNextSong: String, var mStartedByBandLeader: Boolean, var mStartedByMIDITrigger: Boolean, var mNativeDisplaySettings: DisplaySettings, var mSourceDisplaySettings: DisplaySettings)
 {
-    val mLoadID=UUID.randomUUID()
+    val mLoadID=UUID.randomUUID()!!
     val initialScrollMode
         get()= if(mixedModeActive) ScrollingMode.Manual else mSongLoadMode
     val mixedModeActive

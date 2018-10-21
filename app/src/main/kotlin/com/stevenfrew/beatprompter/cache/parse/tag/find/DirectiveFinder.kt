@@ -14,8 +14,8 @@ object DirectiveFinder: EnclosedTagFinder('{','}', Type.Directive, false,true)
     private val mCommentTagNamesWithAudienceMarkers:List<String>
     init
     {
-        val commentTagNames=CommentTag::class.annotations.filterIsInstance<TagName>().map{it.mNames.toList()}.flatMap { it }
-        mCommentTagNamesWithAudienceMarkers=commentTagNames.map{it+CommentTag.AUDIENCE_SEPARATOR}
+        val commentTagNames=CommentTag::class.annotations.asSequence().filterIsInstance<TagName>().map{it.mNames.toList()}.flatMap { it.asSequence() }
+        mCommentTagNamesWithAudienceMarkers=commentTagNames.map{it+CommentTag.AUDIENCE_SEPARATOR}.toList()
     }
 
     override fun findTag(text: String): FoundTag? {
@@ -25,7 +25,7 @@ object DirectiveFinder: EnclosedTagFinder('{','}', Type.Directive, false,true)
             if(mCommentTagNamesWithAudienceMarkers.any{result.mName.startsWith(it)})
             {
                 val bits=result.mName.splitAndTrim(CommentTag.AUDIENCE_SEPARATOR)
-                val newAudience=bits.drop(1).joinToString(CommentTag.AUDIENCE_SEPARATOR)
+                val newAudience=bits.asSequence().drop(1).joinToString(CommentTag.AUDIENCE_SEPARATOR)
                 return FoundTag(result.mStart,result.mEnd,"comment",newAudience+CommentTag.AUDIENCE_END_MARKER+result.mValue,result.mType)
             }
         }

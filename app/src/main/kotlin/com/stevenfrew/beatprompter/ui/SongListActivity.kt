@@ -41,9 +41,7 @@ import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
-import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
-import com.stevenfrew.beatprompter.song.load.SongInterruptResult
-import com.stevenfrew.beatprompter.song.load.SongLoadTask
+import com.stevenfrew.beatprompter.song.load.*
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
 import org.json.JSONException
@@ -113,7 +111,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             val maf = mCachedCloudFiles.midiAliasFiles[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
-        } else if (!SongLoadTask.songCurrentlyLoading())
+        }
+        else if (!SongLoadQueueWatcherTask.songCurrentlyLoading)
             // Don't allow another song to be started from the song list (by clicking)
             // if one is already loading. The only circumstances this is allowed is via
             // MIDI triggers.
@@ -146,21 +145,21 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.matchesTrigger(mst)) {
                 Log.d(BeatPrompterApplication.TAG,"Found trigger match: '${sf.mTitle}'.")
-                playSongFile(sf, null, true)
+                playSongFile(sf, PlaylistNode(sf), true)
             }
     }
 
-    private fun playPlaylistNode(node: PlaylistNode?, startedByMidiTrigger: Boolean) {
-        val selectedSong = node!!.mSongFile
+    private fun playPlaylistNode(node: PlaylistNode, startedByMidiTrigger: Boolean) {
+        val selectedSong = node.mSongFile
         playSongFile(selectedSong, node, startedByMidiTrigger)
     }
 
-    private fun playSongFile(selectedSong: SongFile, node: PlaylistNode?, startedByMidiTrigger: Boolean) {
+    private fun playSongFile(selectedSong: SongFile, node: PlaylistNode, startedByMidiTrigger: Boolean) {
         val manualMode = BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_manualMode_key), false)
         val track:AudioFile?=if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val mode=if(manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
-        playSong(node, selectedSong, track, mode, startedByMidiTrigger, sds, sds)
+        playSong(node, track, mode, startedByMidiTrigger, sds, sds)
     }
 
     private fun shouldPlayNextSong(): Boolean {
@@ -222,14 +221,16 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         return DisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0, 0, size.x, size.y), songScrollMode != ScrollingMode.Manual)
     }
 
-    private fun playSong(selectedNode: PlaylistNode?, selectedSong: SongFile, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode, track:AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings) {
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
-        if (selectedNode?.mNextNode != null && shouldPlayNextSong())
+        if (selectedNode.mNextNode != null && shouldPlayNextSong())
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
-        SongLoadTask.loadSong(SongLoadTask(selectedSong, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo))
+        val songLoadInfo=SongLoadInfo(selectedNode.mSongFile,track,scrollMode,nextSongName,false,startedByMidiTrigger,nativeSettings,sourceSettings)
+        val songLoadJob=SongLoadJob(songLoadInfo,mFullVersionUnlocked || cloud === CloudType.Demo)
+        SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
 
     private fun clearTemporarySetList() {
@@ -405,7 +406,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
                                         val track=if(selectedTrackName!=null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
-                                        playSong(selectedNode, selectedSong, track, mode, false, sds, sds)
+                                        playSong(selectedNode, track, mode, false, sds, sds)
                                     }
                                     .setNegativeButton(R.string.cancel) { _, _ -> }
                             val customAD = builder1.create()
@@ -614,7 +615,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         if (isFirstRun)
             firstRunSetup()
         else
-            SongLoadTask.onResume()
+            SongLoadJob.onResume()
     }
 
     private fun firstRunSetup() {
@@ -652,7 +653,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun startNextSong():Boolean {
         mSongEndedNaturally = false
         if (mNowPlayingNode != null && mNowPlayingNode!!.mNextNode != null && shouldPlayNextSong()) {
-            playPlaylistNode(mNowPlayingNode!!.mNextNode, false)
+            playPlaylistNode(mNowPlayingNode!!.mNextNode!!, false)
             return true
         }
         mNowPlayingNode = null
@@ -994,10 +995,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist==choiceInfo.mNormalizedArtist) {
                 val track=mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
-                val loadTask = SongLoadTask(sf, track, scrollingMode, "", true,
-                        false, nativeSettings, sourceSettings, mFullVersionUnlocked || cloud === CloudType.Demo)
-                if(SongDisplayActivity.interruptCurrentSong(loadTask, sf)==SongInterruptResult.NoSongToInterrupt)
-                    playSong(null, sf, track, scrollingMode,true,nativeSettings,sourceSettings)
+
+                val songLoadInfo=SongLoadInfo(sf,track,scrollingMode,"",true,false,nativeSettings,sourceSettings)
+                val songLoadJob=SongLoadJob(songLoadInfo,mFullVersionUnlocked || cloud === CloudType.Demo)
+                if(SongDisplayActivity.interruptCurrentSong(songLoadJob)==SongInterruptResult.NoSongToInterrupt)
+                    playSong(PlaylistNode(sf), track, scrollingMode,true,nativeSettings,sourceSettings)
                 break
             }
     }

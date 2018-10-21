@@ -17,7 +17,7 @@ class SetListFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDe
     private val mSetListEntries=mutableListOf<SetListEntry>()
 
     override fun parseLine(line: TextFileLine<SetListFile>) {
-        val setNameTag=line.mTags.filterIsInstance<SetNameTag>().firstOrNull()
+        val setNameTag=line.mTags.asSequence().filterIsInstance<SetNameTag>().firstOrNull()
         if(setNameTag!=null) {
             if (mSetName.isNotBlank())
                 mErrors.add(FileParseError(setNameTag, BeatPrompterApplication.getResourceString(R.string.set_name_defined_multiple_times)))

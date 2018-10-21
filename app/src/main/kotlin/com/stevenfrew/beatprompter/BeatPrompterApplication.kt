@@ -8,11 +8,10 @@ import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
-import com.stevenfrew.beatprompter.song.load.SongLoadJob
-import com.stevenfrew.beatprompter.song.load.SongLoaderTask
+import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 
 class BeatPrompterApplication : Application() {
-    private val mSongLoaderTaskThread = Thread(mSongLoaderTask)
+    private val mSongLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -25,11 +24,11 @@ class BeatPrompterApplication : Application() {
         MIDIController.initialise(this)
         BluetoothManager.initialise(this)
         mSongLoaderTaskThread.start()
-        Task.resumeTask(mSongLoaderTask)
+        Task.resumeTask(SongLoadQueueWatcherTask)
     }
 
     override fun onTerminate() {
-        Task.stopTask(mSongLoaderTask, mSongLoaderTaskThread)
+        Task.stopTask(SongLoadQueueWatcherTask, mSongLoaderTaskThread)
         BluetoothManager.shutdown(this)
         MIDIController.shutdown(this)
         super.onTerminate()
@@ -37,11 +36,11 @@ class BeatPrompterApplication : Application() {
 
     companion object {
         const val TAG = "beatprompter"
+        const val TAG_LOAD = "beatprompter_load"
         const val TAG_COMMS = "beatprompter_comms"
         const val APP_NAME = "BeatPrompter"
         private lateinit var mApp: Application
         private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
-        private val mSongLoaderTask = SongLoaderTask()
 
         fun getResourceString(resID: Int): String {
             return mApp.getString(resID)
@@ -62,9 +61,5 @@ class BeatPrompterApplication : Application() {
 
         val context: Context
             get() = mApp.applicationContext
-
-        fun loadSong(songLoadJob: SongLoadJob) {
-            mSongLoaderTask.loadSong(songLoadJob)
-        }
     }
 }

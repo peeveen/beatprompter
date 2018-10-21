@@ -21,11 +21,12 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
         var scrollBeatOffset=scrollBeatModifiers.sumBy{it.mModifier}
 
         // ... or by a tag (which overrides commas)
-        val barsTag=line.mTags.filterIsInstance<BarsTag>().firstOrNull()
-        val barsPerLineTag=line.mTags.filterIsInstance<BarsPerLineTag>().firstOrNull()
-        val beatsPerBarTag=line.mTags.filterIsInstance<BeatsPerBarTag>().firstOrNull()
-        val beatsPerMinuteTag=line.mTags.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
-        val scrollBeatTag=line.mTags.filterIsInstance<ScrollBeatTag>().firstOrNull()
+        val tagSequence=line.mTags.asSequence()
+        val barsTag=tagSequence.filterIsInstance<BarsTag>().firstOrNull()
+        val barsPerLineTag=tagSequence.filterIsInstance<BarsPerLineTag>().firstOrNull()
+        val beatsPerBarTag=tagSequence.filterIsInstance<BeatsPerBarTag>().firstOrNull()
+        val beatsPerMinuteTag=tagSequence.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
+        val scrollBeatTag=tagSequence.filterIsInstance<ScrollBeatTag>().firstOrNull()
 
         val barsInThisLine=barsTag?.mBars?:barsPerLineTag?.mBPL?: if(commaBars==0) mOngoingBeatInfo.mBPL else commaBars
         val beatsPerBarInThisLine=beatsPerBarTag?.mBPB?:mOngoingBeatInfo.mBPB
@@ -52,8 +53,8 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
             scrollBeatOffset = 0
         }
 
-        val beatStartTags=line.mTags.filterIsInstance<BeatStartTag>().toMutableList()
-        val beatStopTags=line.mTags.filterIsInstance<BeatStopTag>().toMutableList()
+        val beatStartTags=tagSequence.filterIsInstance<BeatStartTag>().toMutableList()
+        val beatStopTags=tagSequence.filterIsInstance<BeatStopTag>().toMutableList()
         val beatModeTags=listOf(beatStartTags,beatStopTags).flatMap { it }.toMutableList()
 
         // Multiple beatstart or beatstop tags on the same line are nonsensical

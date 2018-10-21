@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.cache.CachedCloudFile
 import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
 
 /**

@@ -19,13 +19,11 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
-import com.stevenfrew.beatprompter.song.load.SongLoadTask
-import com.stevenfrew.beatprompter.song.load.SongLoaderTask
+import com.stevenfrew.beatprompter.song.load.SongLoadJob
 
 class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mSongView: SongView? = null
@@ -67,7 +65,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         val songView=potentiallyNullSongView?:return
         mSongView=songView
 
-        val song = SongLoaderTask.currentSong?:return
+        val song = SongLoadJob.mLoadedSong?:return
         val loadID: ParcelUuid =intent.extras?.get("loadID") as ParcelUuid
         if(song.mLoadID != loadID.uuid)
             finish()
@@ -243,23 +241,23 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         var mSongDisplayActive = false
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
-        fun interruptCurrentSong(loadTask: SongLoadTask, songToInterruptWith: SongFile): SongInterruptResult {
+        fun interruptCurrentSong(interruptJob: SongLoadJob): SongInterruptResult {
             if (mSongDisplayActive) {
-                val loadedSong = SongLoaderTask.currentSong
+                val loadedSong = SongLoadJob.mLoadedSong
                         ?: return SongInterruptResult.NoSongToInterrupt
 
                 // The first one should never happen, but we'll check just to be sure.
                 // Trying to interrupt a song with itself is pointless!
                 return when {
-                    loadedSong.mSongFile.mID == songToInterruptWith.mID -> SongInterruptResult.NoSongToInterrupt
+                    loadedSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.NoSongToInterrupt
                     mSongDisplayInstance.canYieldToExternalTrigger() -> {
                         loadedSong.mCancelled = true
-                        SongLoadTask.mSongLoadTaskOnResume = loadTask
+                        SongLoadJob.mSongLoadJobOnResume = interruptJob
                         EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
                         SongInterruptResult.CanInterrupt
                     }
                     else -> {
-                        SongLoadTask.mSongLoadTaskOnResume = null
+                        SongLoadJob.mSongLoadJobOnResume = null
                         SongInterruptResult.CannotInterrupt
                     }
                 }
