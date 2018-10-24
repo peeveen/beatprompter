@@ -18,7 +18,7 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
 
         val commaBars=line.mTags.filterIsInstance<BarMarkerTag>().size
         val scrollBeatModifiers=line.mTags.filterIsInstance<ScrollBeatModifierTag>()
-        var scrollBeatOffset=scrollBeatModifiers.sumBy{it.mModifier}
+        var thisScrollBeatTotalOffset=scrollBeatModifiers.sumBy{it.mModifier}
 
         // ... or by a tag (which overrides commas)
         val tagSequence=line.mTags.asSequence()
@@ -45,12 +45,16 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
             if(beatsPerBarInThisLine-prevScrollBeatDiff>0)
                 scrollBeatInThisLine=beatsPerBarInThisLine-prevScrollBeatDiff
         }
+        // If this results in the new scrollbeat being off the chart, auto-fix it.
         if(scrollBeatInThisLine>beatsPerBarInThisLine)
             scrollBeatInThisLine=beatsPerBarInThisLine
 
-        if ((beatsPerBarInThisLine!=0)&&(scrollBeatOffset < -beatsPerBarInThisLine || scrollBeatOffset >= beatsPerBarInThisLine)) {
+        val scrollBeatTagDiff=scrollBeatInThisLine-beatsPerBarInThisLine
+        thisScrollBeatTotalOffset+=scrollBeatTagDiff
+
+        if ((beatsPerBarInThisLine!=0)&&(thisScrollBeatTotalOffset < -beatsPerBarInThisLine || thisScrollBeatTotalOffset >= beatsPerBarInThisLine)) {
             mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
-            scrollBeatOffset = 0
+            thisScrollBeatTotalOffset = 0
         }
 
         val beatStartTags=tagSequence.filterIsInstance<BeatStartTag>().toMutableList()
@@ -72,24 +76,20 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
             else
                 lastLineBeatInfo.mScrollMode
 
-        val lastScrollBeatOffset = lastLineBeatInfo.mScrollBeatOffset
-        val lastBPB = lastLineBeatInfo.mBPB
-        val lastScrollBeat = lastLineBeatInfo.mScrollBeat
-        val scrollBeatDifference =mCurrentLineBeatInfo.mScrollBeat - mCurrentLineBeatInfo.mBPB - (lastScrollBeat - lastBPB)
+        val lastScrollBeatTotalOffset = lastLineBeatInfo.mScrollBeatTotalOffset
 
         var beatsForThisLine = beatsPerBarInThisLine * barsInThisLine
-        beatsForThisLine += scrollBeatOffset
-        beatsForThisLine += scrollBeatDifference
-        beatsForThisLine -= lastScrollBeatOffset
+        beatsForThisLine -= lastScrollBeatTotalOffset
+        beatsForThisLine += thisScrollBeatTotalOffset
 
         mOngoingBeatInfo= SongBeatInfo(barsPerLineTag?.mBPL
                 ?: mOngoingBeatInfo.mBPL, beatsPerBarInThisLine, beatsPerMinuteInThisLine, scrollBeatInThisLine, mOngoingBeatInfo.mScrollMode)
-        mCurrentLineBeatInfo= LineBeatInfo(beatsForThisLine, barsInThisLine, beatsPerBarInThisLine, beatsPerMinuteInThisLine, scrollBeatInThisLine, scrollBeatOffset, newScrollMode)
+        mCurrentLineBeatInfo= LineBeatInfo(beatsForThisLine, barsInThisLine, beatsPerBarInThisLine, beatsPerMinuteInThisLine, scrollBeatInThisLine, thisScrollBeatTotalOffset, newScrollMode)
     }
 
-    data class LineBeatInfo(val mBeats:Int,val mBPL:Int, val mBPB:Int, val mBPM:Double, val mScrollBeat:Int, val mScrollBeatOffset:Int, val mScrollMode: ScrollingMode = ScrollingMode.Beat)
+    data class LineBeatInfo(val mBeats:Int,val mBPL:Int, val mBPB:Int, val mBPM:Double, val mScrollBeat:Int, val mScrollBeatTotalOffset:Int, val mScrollMode: ScrollingMode = ScrollingMode.Beat)
     {
-        constructor(songBeatInfo: SongBeatInfo):this(songBeatInfo.mBPB*songBeatInfo.mBPL,songBeatInfo.mBPL,songBeatInfo.mBPB,songBeatInfo.mBPM,songBeatInfo.mScrollBeat,0,songBeatInfo.mScrollMode)
+        constructor(songBeatInfo: SongBeatInfo):this(songBeatInfo.mBPB*songBeatInfo.mBPL,songBeatInfo.mBPL,songBeatInfo.mBPB,songBeatInfo.mBPM,songBeatInfo.mScrollBeat,songBeatInfo.mBPB-songBeatInfo.mScrollBeat,songBeatInfo.mScrollMode)
     }
 
     data class SongBeatInfo(val mBPL:Int=4, val mBPB:Int=4, val mBPM:Double=120.0, val mScrollBeat:Int=4, val mScrollMode: ScrollingMode = ScrollingMode.Beat)

@@ -292,6 +292,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 mSongTime+=pauseTag.mDuration
             }
         }
+        else
+            // If there is no actual line data, then the scroll beat offset never took effect.
+            // Clear it so that the next line (which MIGHT be a proper line) doesn't take it into account.
+            mCurrentLineBeatInfo=LineBeatInfo(mCurrentLineBeatInfo.mBeats,mCurrentLineBeatInfo.mBPL,mCurrentLineBeatInfo.mBPB,mCurrentLineBeatInfo.mBPM,mCurrentLineBeatInfo.mScrollBeat,0,mCurrentLineBeatInfo.mScrollMode)
 
         mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, line.mLineNumber, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
@@ -474,9 +478,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             }
         mBeatsToAdjust = 0
 
-        var currentBarBeat = 0
-        while (currentBarBeat < mCurrentLineBeatInfo.mBeats) {
-            val beatsRemaining = mCurrentLineBeatInfo.mBeats - currentBarBeat
+        var currentLineBeat = 0
+        while (currentLineBeat < mCurrentLineBeatInfo.mBeats) {
+            val beatsRemaining = mCurrentLineBeatInfo.mBeats - currentLineBeat
             beatThatWeWillScrollOn = if (beatsRemaining > mCurrentLineBeatInfo.mBPB)
                 -1
             else
@@ -505,7 +509,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             mCurrentBeat++
             if (mCurrentBeat == (if (rolloverBPB > 0) rolloverBPB else mCurrentLineBeatInfo.mBPB))
                 mCurrentBeat = 0
-            ++currentBarBeat
+            ++currentLineBeat
         }
 
         val beatsThisLine =mCurrentLineBeatInfo.mBeats-rolloverBeatCount+beatsToAdjustCount
