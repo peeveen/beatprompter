@@ -4,10 +4,18 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.util.concurrent.ArrayBlockingQueue
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Task(false) {
+class SenderTask constructor(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Task(false),CoroutineScope {
+    private val mCoRoutineJob= Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + mCoRoutineJob
+
     override fun doWork() {
         // This will block if the queue is empty
         try {
@@ -19,12 +27,9 @@ class SenderTask(private val mOutQueue:ArrayBlockingQueue<OutgoingMessage>) : Ta
                 senders.forEach {
                     launch {
                         try {
-                            synchronized(it.value.lock)
-                            {
-                                Log.d(BeatPrompterApplication.TAG_COMMS,"Sending messages to '$it.key' ($it.value.name).")
-                                it.value.send(listOf(firstMessage))
-                                it.value.send(otherMessages)
-                            }
+                            Log.d(BeatPrompterApplication.TAG_COMMS,"Sending messages to '$it.key' ($it.value.name).")
+                            it.value.send(listOf(firstMessage))
+                            it.value.send(otherMessages)
                         } catch (commException: Exception) {
                             // Problem with the I/O? This sender is now dead to us.
                             Log.d(BeatPrompterApplication.TAG_COMMS,"Sender threw an exception. Assuming it to be dead.")

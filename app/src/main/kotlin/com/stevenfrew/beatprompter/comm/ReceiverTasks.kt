@@ -23,8 +23,8 @@ class ReceiverTasks {
 
     fun stopAndRemoveReceiver(id:String)
     {
-        var receiverTask:ReceiverTask?=null
-        var receiverThread:Thread?=null
+        var receiverTask:ReceiverTask?
+        var receiverThread:Thread?
         synchronized(mReceiverThreadsLock)
         {
             receiverTask=mReceiverTasks[id]

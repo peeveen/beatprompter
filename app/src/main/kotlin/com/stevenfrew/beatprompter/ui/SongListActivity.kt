@@ -677,7 +677,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
         else {
             mPerformingCloudSync = true
-            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath!!, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
+            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
             cdt.execute()
         }
     }

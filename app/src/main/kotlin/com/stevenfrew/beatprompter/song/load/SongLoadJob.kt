@@ -8,20 +8,23 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import com.stevenfrew.beatprompter.song.Song
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.Semaphore
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
-class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boolean):CoroutineScope {
+class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boolean): CoroutineScope {
     var mLoading=false
     private val mLoadingUI:SongLoadUITask = SongLoadUITask(this)
     private val mSemaphore=Semaphore(0)
     private val mHandler=SongLoadJobEventHandler(this)
     private val mCancelEvent=SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
-    private val mCoroutineJob=Job()
+    private val mCoRoutineJob= Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + mCoroutineJob
+        get() = Dispatchers.Main + mCoRoutineJob
 
     init {
         mLoadingUI.execute()

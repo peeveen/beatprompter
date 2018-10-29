@@ -22,7 +22,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
         // Keep listening until exception occurs or a socket is returned
         while (!mStop) {
             try {
-                var serverSocket: BluetoothServerSocket?=null
+                var serverSocket: BluetoothServerSocket?
                 synchronized(mSocketNullLock) {
                     if (mmServerSocket == null) {
                         try {
