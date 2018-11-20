@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BeatPrompter</string>
-    <string name="otherErrorCount">... E %1$d altro errore(s).</string>
-    <string name="about">Di ...</string>
+    <string name="otherErrorCount">… E %1$d altro errore(s).</string>
+    <string name="about">Di …</string>
     <string name="no_tag_selected">Tutte le canzoni</string>
     <string name="pref_ignoreColorInfo_summary">Utilizza sempre colori predefiniti.</string>
     <string name="pref_trackOffset_title">Offset inizio traccia audio</string>
@@ -44,8 +44,8 @@
     <string name="pref_bpm_title">Tempo di default</string>
     <string name="deleting">Eliminazione %1$s</string>
     <string name="docs_at">La documentazione è disponibile all\'indirizzo</string>
-    <string name="downloading">Il download %1$s</string>
-    <string name="downloadingFiles">Il download di file</string>
+    <string name="downloading">Sincronizzazione %1$s</string>
+    <string name="downloadingFiles">Sincronizzazione di file</string>
     <string name="metronomeDuringCount">Durante count-in</string>
     <string name="fileNotFound">Il file "%1$s" non trovato!</string>
     <string name="pref_fixedLineHeight_title">Altezza della linea fissa</string>
@@ -63,7 +63,7 @@
     <string name="pref_showMusicIcon_summary">Nell\'elenco canzone principale, mostrerà un\'icona che indica che una canzone ha una base musicale.</string>
     <string name="jumpScrollingStyle">Saltare</string>
     <string name="leftJustified">Sinistra</string>
-    <string name="lineTooLong">Linea %1$d era più lungo di %2$d caratteri. Troncando ...</string>
+    <string name="lineTooLong">Linea %1$d era più lungo di %2$d caratteri. Troncando …</string>
     <string name="pref_lineJustification_title">Giustificazione linea</string>
     <string name="pref_lineJustification_dialogTitle">Linea Giustificazione</string>
     <string name="pref_minLines_text">linee</string>
@@ -72,12 +72,12 @@
     <string name="pref_maxFontSize_title">La dimensione massima dei caratteri ( beat- scrolling)</string>
     <string name="pref_lyricsHeight_title">Altezza testi Massimo</string>
     <string name="intValueTooHigh">Il valore massimo è %1$d, valore trovato era %2$d.</string>
-    <string name="doubleValueTooHigh">Il valore massimo è %1$f, valore trovato era %2$f.</string>
+    <string name="doubleValueTooHigh">Il valore massimo è %1$d, valore trovato era %2$.2f.</string>
     <string name="pref_metronome_title">Metronomo</string>
     <string name="pref_metronome_dialogTitle">Metronomo</string>
     <string name="pref_minFontSize_title">Dimensione minima del carattere</string>
     <string name="intValueTooLow">Il valore minimo è %1$d, valore trovato era %2$d.</string>
-    <string name="doubleValueTooLow">Il valore minimo è %1$f, valore trovato era %2$f.</string>
+    <string name="doubleValueTooLow">Il valore minimo è %1$d, valore trovato era %2$.2f.</string>
     <string name="pref_minLines_title">Linee minimi visibili</string>
     <string name="pref_trackOffset_text">ms</string>
     <string name="noTitleFound">No {title} trovati nel file del brano "%1$s"</string>
@@ -85,7 +85,7 @@
     <string name="metronomeOff">Via</string>
     <string name="metronomeOn">Sopra</string>
     <string name="play">Giocare</string>
-    <string name="play_submenu">Giocare ...</string>
+    <string name="play_submenu">Giocare …</string>
     <string name="play_options">Opzioni di Giocare</string>
     <string name="rightJustified">Destra</string>
     <string name="scrollbeatOffTheMap">Scrollbeat offset è maggiore o uguale al numero di battute al bar. Ripristino a zero.</string>
@@ -94,7 +94,7 @@
     <string name="pref_scrollingStyle_dialogTitle">Stile di Scorrimento</string>
     <string name="pref_defaultPause_text">secondi</string>
     <string name="title_activity_settings">Impostazioni</string>
-    <string name="settings">Impostazioni ...</string>
+    <string name="settings">Impostazioni …</string>
     <string name="pref_showMusicIcon_title">Icona di spettacolo musicale</string>
     <string name="pref_showScrollIndicator_title">Mostra indicatore di scorrimento.</string>
     <string name="pref_showBeatStyleIcons_title">Icone di mostrare lo stile di scorrimento</string>
@@ -102,8 +102,8 @@
     <string name="smoothScrollingStyle">Liscio</string>
     <string name="smooth_scrolling">Liscio Scorrimento</string>
     <string name="song_options">Opzioni Canzone</string>
-    <string name="sort_songs">Ordina ...</string>
-    <string name="sortSongs">Ordina canzone ...</string>
+    <string name="sort_songs">Ordina …</string>
+    <string name="sortSongs">Ordina canzone …</string>
     <string name="tapTwiceToStart"> TAP DUE VOLTE PER AVVIARE</string>
     <string name="lowerCaseThe">il</string>
     <string name="pref_pulse_summary">Lo sfondo sarà impulsi in tempo per il ritmo.</string>
@@ -115,7 +115,7 @@
     <string name="pref_minLines_message">Il numero minimo di righe che deve essere visibile in qualsiasi momento.</string>
     <string name="pref_trackOffset_message">L\'offset dall\'inizio del brano, in millisecondi, in cui inizierà la traccia audio di supporto.</string>
     <string name="pref_minFontSize_summary">La dimensione più piccola di carattere che verrà utilizzato.</string>
-    <string name="pauseLongerThanSong">{pause} tempo totale supera ora canzone designato.</string>
+    <string name="pauseLongerThanSong">{pause} tempo totale supera ora canzone designato. Disabilitare la modalità di scorrimento uniforme.</string>
     <string name="pref_maxFontSizeSmooth_summary"> Il più grande dimensione del font che verrà utilizzato in modalità liscia-scrolling.</string>
     <string name="pref_maxFontSizeSmooth_title">Font size massima (scorrimento continuo)</string>
     <string name="pref_alwaysUseBeatFontPrefs_summary"> Utilizza le preferenze relative alle dimensioni dei caratteri battere a scorrimento per tutte le canzoni.</string>
@@ -188,7 +188,7 @@
     <string name="channel_must_be_last_parameter">Il canale MIDI deve essere l\'ultimo parametro</string>
     <string name="channel_specifier_cannot_merge_with_channel_specifier">Il valore del canale identificatore non può contenere sottolineature.</string>
     <string name="clear_set">Setlist temporanea chiaro</string>
-    <string name="cloud_sync_explanation">BeatPrompter legge tutti i vostri file musicali, file audio, set list e altro da cloud storage. Attualmente supporta Google Drive, Dropbox o Microsoft Microsoft Onedrive.</string>
+    <string name="cloud_sync_explanation">BeatPrompter legge tutti i tuoi file di canzoni, file audio, set di elenchi e altro da cloud o archiviazione locale. Attualmente supporta Google Drive, Dropbox o Microsoft OneDrive.</string>
     <string name="connect_to_leader_string">Collegare al leader</string>
     <string name="default_alias_set_name">Predefinito MIDI Alias Set</string>
     <string name="empty_tag">Tag è vuoto.</string>
@@ -232,7 +232,7 @@
     <string name="pref_sendMidiTriggerOnStart_dialogTitle">Uscita MIDI messaggio trigger</string>
     <string name="pref_sendMidiTriggerOnStart_summary">Se il messaggio MIDI grilletto essere uscita quando la canzone inizia?</string>
     <string name="pref_sendMidiTriggerOnStart_title">Uscita trigger MIDI</string>
-    <string name="processingSong">Canzone elaborazione:</string>
+    <string name="processingSong">Canzone elaborazione: %1$s</string>
     <string name="sendMidiTriggerOnStartAlways">Sempre</string>
     <string name="sendMidiTriggerOnStartManualStartOnly">Quando viene avviato manualmente</string>
     <string name="sendMidiTriggerOnStartNever">Mai</string>
@@ -276,20 +276,20 @@ testi e accordi [Em]nel tempo con una battuta.\n
 [Em]Io vi auguro di simile!</string>
     <string name="one_drive_not_connected">API Microsoft Onedrive non connesso.</string>
     <string name="cache_cleared">Cache cancellata.</string>
-    <string name="cloud_sync">Sincronizzazione Nube</string>
-    <string name="no_cloud_folder_currently_set">Non cartella di cloud storage è stata selezionata</string>
-    <string name="no_cloud_storage_system_set">E stata selezionata alcuna sistema di cloud storage.</string>
+    <string name="cloud_sync">File</string>
+    <string name="no_cloud_folder_currently_set">Nessun sistema di archiviazione è stato selezionato.</string>
+    <string name="no_cloud_storage_system_set">Nessun sistema di archiviazione è stato selezionato.</string>
     <string name="pref_clearCache_summary">Elimina tutti i file scaricati.</string>
     <string name="pref_clearCache_title">Cancella cache</string>
-    <string name="pref_cloudStorageSystem_dialogTitle">Sistema di Cloud Storage</string>
+    <string name="pref_cloudStorageSystem_dialogTitle">Sistema di archiviazione</string>
     <string name="pref_cloudStorageSystem_summary">Dove vengono memorizzati i file musicali?</string>
-    <string name="pref_cloudStorageSystem_title">Sistema di Cloud Storage</string>
-    <string name="synchronize_string">Scaricare file</string>
-    <string name="pref_cloudPath_title">Cartella Cloud Storage</string>
+    <string name="pref_cloudStorageSystem_title">Sistema di archiviazione</string>
+    <string name="synchronize_string">Sincronizza i file …</string>
+    <string name="pref_cloudPath_title">Cartella di archiviazione</string>
     <string name="pref_cloudPath_summary">Questa è la cartella che i file dei brani BeatPrompter sono memorizzati in.</string>
     <string name="itemsFound">%1$d oggetti trovati.</string>
     <string name="itemsFoundWithMax">%1$d/%2$d oggetti trovati.</string>
-    <string name="scanningCloudFolder">Caricamento in corso ...</string>
+    <string name="scanningCloudFolder">Caricamento in corso …</string>
     <string name="bluetoothModeBandLeader">Band Leader (server)</string>
     <string name="bluetoothModeBandMember">Membro Band (client)</string>
     <string name="bluetoothModeNone">Nessuna</string>
@@ -319,8 +319,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="showBPMYesRounded">Sì, arrotondato all\'intero</string>
     <string name="text_found_with_image">Il testo è stato trovato in una riga in cui è stata specificata un\'immagine. Ignorare il testo.</string>
     <string name="unknown_image_scaling_mode">Modalità di scala immagine sconosciuta, in base alla modalità di stretching.</string>
-    <string name="cloudSyncErrorMessage">Si è verificato un errore durante la comunicazione con il servizio di archiviazione cloud ("%1$s").\n\nNon tutti i file sono stati scaricati correttamente.\n\nControlla la tua connessione e riprova.</string>
-    <string name="cloudSyncErrorTitle">Errore di Sincronizzazione del Cloud</string>
+    <string name="cloudSyncErrorMessage">Si è verificato un errore durante la comunicazione con il servizio di archiviazione (\"%1$s\").\\n\\nNon tutti i file sono stati recuperati o analizzati correttamente.\\n\\nControllare la connessione e riprovare.</string>
+    <string name="cloudSyncErrorTitle">Errore di Sincronizzazione</string>
     <string name="pref_mimicBandLeaderDisplay_title">Display mimic leader della band in modalità manuale</string>
     <string name="pref_mimicBandLeaderDisplay_summary">Se si sta eseguendo una canzone con una band leader in modalità manuale, questo imposterà automaticamente lo schermo con lo stesso orientamento e le stesse dimensioni dei caratteri.</string>
     <string name="pref_minFontSizeManual_title">Dimensione minima del carattere (scorrimento manuale)</string>
@@ -373,7 +373,7 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="not_a_valid_argument_index">Indice argomento non valido trovato nella direttiva MIDI.</string>
     <string name="not_a_valid_byte_value">Valore byte non valido trovato nella direttiva MIDI.</string>
     <string name="no_lines_in_song_file">Il file di brano selezionato non ha linee.</string>
-    <string name="instructions">Istruzioni ...</string>
+    <string name="instructions">Istruzioni …</string>
     <string name="pref_anyOtherKeyPageDown_title">Qualsiasi altro tasto è page-down.</string>
     <string name="pref_anyOtherKeyPageDown_summary">Qualsiasi altro tasto premuto su una tastiera collegata si comporterà come pagina-giù.</string>
 </resources>

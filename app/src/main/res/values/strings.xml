@@ -685,5 +685,5 @@ lyrics and [Em]chords in time with a beat.\n
     <string name="cloudSyncErrorMessage">There was an error communicating with the storage service ("%1$s").\n\nNot all of the files were fetched or scanned successfully.\n\nCheck your connection and try again.</string>
     <string name="cloudSyncErrorTitle">Sync Error</string>
 
-    <string name="instructions">Instructions ...</string>
+    <string name="instructions">Instructions …</string>
 </resources>

@@ -11,7 +11,7 @@
     <string name="byTitle">Por titulo</string>
     <string name="cancel">Cancelar</string>
     <string name="cannotFindAudioFile">No se puede encontrar el archivo de audio: %1$s</string>
-    <string name="otherErrorCount">... y %1$d otro error(s).</string>
+    <string name="otherErrorCount">… y %1$d otro error(s).</string>
     <string name="no_tag_selected">Todas las canciones</string>
     <string name="pref_ignoreColorInfo_summary">Siempre utiliza los colores predeterminados.</string>
     <string name="pref_trackOffset_title">Inicio de la pista de audio compensada</string>
@@ -44,8 +44,8 @@
     <string name="pref_bpm_title">Tempo predeterminado</string>
     <string name="deleting">La eliminación de %1$s</string>
     <string name="docs_at">Documentación se puede encontrar en</string>
-    <string name="downloading">La descarga de %1$s</string>
-    <string name="downloadingFiles">La descarga de archivos</string>
+    <string name="downloading">Sincronizando %1$s</string>
+    <string name="downloadingFiles">Sincronizando archivos</string>
     <string name="metronomeDuringCount">Durante claqueta</string>
     <string name="fileNotFound">El archivo "%1$s" no encontrado!</string>
     <string name="pref_fixedLineHeight_title">Altura de la línea fija</string>
@@ -72,12 +72,12 @@
     <string name="pref_maxFontSize_title">El tamaño máximo de fuente ( beat- desplazamiento)</string>
     <string name="pref_lyricsHeight_title">La altura máxima de la letra</string>
     <string name="intValueTooHigh">El valor máximo es %1$d, valor encontrado fue %2$d.</string>
-    <string name="doubleValueTooHigh">El valor máximo es %1$f, valor que se encuentra fue %2$f.</string>
+    <string name="doubleValueTooHigh">El valor máximo es %1$d, valor que se encuentra fue %2$.2f.</string>
     <string name="pref_metronome_title">Metrónomo</string>
     <string name="pref_metronome_dialogTitle">Haga clic del metrónomo</string>
     <string name="pref_minFontSize_title">El tamaño mínimo de fuente</string>
     <string name="intValueTooLow">El valor mínimo es %1$d, valor que se encuentra fue %2$d.</string>
-    <string name="doubleValueTooLow">El valor mínimo es %1$f, valor que se encuentra fue %2$f.</string>
+    <string name="doubleValueTooLow">El valor mínimo es %1$d, valor que se encuentra fue %2$.2f.</string>
     <string name="pref_minLines_title">Líneas visibles mínimos</string>
     <string name="pref_trackOffset_text">ms</string>
     <string name="noTitleFound">No {title} encontrado en el archivo de la canción "%1$s"</string>
@@ -85,7 +85,7 @@
     <string name="metronomeOff">Apagado</string>
     <string name="metronomeOn">En</string>
     <string name="play">Jugar</string>
-    <string name="play_submenu">Jugar ...</string>
+    <string name="play_submenu">Jugar …</string>
     <string name="play_options">Opciones de Juego</string>
     <string name="rightJustified">Derecha</string>
     <string name="scrollbeatOffTheMap">Scrollbeat desplazamiento es mayor que o igual que el número de latidos en el bar. Puesta a cero.</string>
@@ -94,7 +94,7 @@
     <string name="pref_scrollingStyle_dialogTitle">Estilo de Desplazamiento</string>
     <string name="pref_defaultPause_text">segundos</string>
     <string name="title_activity_settings">Ajustes</string>
-    <string name="settings">Ajustes ...</string>
+    <string name="settings">Ajustes …</string>
     <string name="pref_showMusicIcon_title">Mostrar icono de la música</string>
     <string name="pref_showScrollIndicator_title">Mostrar indicador de desplazamiento.</string>
     <string name="pref_showBeatStyleIcons_title">Mostrar iconos de estilo de desplazamiento</string>
@@ -102,8 +102,8 @@
     <string name="smoothScrollingStyle">Suave</string>
     <string name="smooth_scrolling">Desplazamiento suave</string>
     <string name="song_options">Canciones Options</string>
-    <string name="sort_songs">Ordenar ...</string>
-    <string name="sortSongs">Ordenar canciones ...</string>
+    <string name="sort_songs">Ordenar …</string>
+    <string name="sortSongs">Ordenar canciones …</string>
     <string name="tapTwiceToStart">TAP DOS VECES PARA INICIAR</string>
     <string name="lowerCaseThe">el</string>
     <string name="pref_pulse_summary">El fondo pulsará en el tiempo con el ritmo.</string>
@@ -115,7 +115,7 @@
     <string name="pref_minLines_message">El número mínimo de líneas que debería ser visible en un momento dado.</string>
     <string name="pref_trackOffset_message">El desplazamiento desde el inicio de la canción, en milisegundos, a la que comenzará la pista de audio de soporte.</string>
     <string name="pref_minFontSize_summary">El tamaño de fuente más pequeño que se utilizará.</string>
-    <string name="pauseLongerThanSong">Total {pause} de tiempo supera el tiempo designado canción.</string>
+    <string name="pauseLongerThanSong">Total {pause} de tiempo supera el tiempo designado canción. Deshabilitando el modo de desplazamiento suave.</string>
     <string name="pref_maxFontSizeSmooth_summary">El tamaño de fuente más grande que será utilizado en el modo de liso-desplazamiento.</string>
     <string name="pref_maxFontSizeSmooth_title">Tamaño de la fuente máxima (desplazamiento suave)</string>
     <string name="pref_alwaysUseBeatFontPrefs_summary"> Utiliza las preferencias de tamaño de fuente del golpe de desplazamiento para todas las canciones.</string>
@@ -189,7 +189,7 @@
     <string name="channel_specifier_cannot_merge_with_channel_specifier">El valor del canal especificador no puede contener guiones.</string>
     <string name="connect_to_leader_string">Conectar con el líder</string>
     <string name="clear_set">Setlist temporal clara</string>
-    <string name="cloud_sync_explanation">BeatPrompter lee todos sus archivos de canciones, archivos de audio, listas de set y más de almacenamiento en la nube. Actualmente es compatible con Google Drive, Dropbox o Microsoft OneDrive.</string>
+    <string name="cloud_sync_explanation">BeatPrompter lee todos sus archivos de canciones, archivos de audio, listas de conjuntos y más desde la nube o el almacenamiento local. Actualmente es compatible con Google Drive, Dropbox o Microsoft OneDrive.</string>
     <string name="default_alias_set_name">Por defecto MIDI Alias Set</string>
     <string name="empty_tag">La etiqueta está vacía.</string>
     <string name="force_refresh_midi_alias">Forzar la actualización del archivo de alias MIDI</string>
@@ -232,7 +232,7 @@
     <string name="pref_sendMidiTriggerOnStart_dialogTitle">Mensaje MIDI de disparo de salida</string>
     <string name="pref_sendMidiTriggerOnStart_summary">¿Debe aparecer el mensaje de disparador MIDI cuando se inicia la canción?</string>
     <string name="pref_sendMidiTriggerOnStart_title">Salida de disparo MIDI</string>
-    <string name="processingSong">Canción de procesamiento:</string>
+    <string name="processingSong">Canción de procesamiento: %1$s</string>
     <string name="sendMidiTriggerOnStartAlways">Siempre</string>
     <string name="sendMidiTriggerOnStartManualStartOnly">Cuando se inicia manualmente</string>
     <string name="sendMidiTriggerOnStartNever">Nunca</string>
@@ -276,20 +276,20 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 [Em]espero que les guste!</string>
     <string name="one_drive_not_connected">API de OneDrive no está conectada.</string>
     <string name="cache_cleared">Se borró el caché.</string>
-    <string name="cloud_sync">Sincronización de la nube</string>
-    <string name="no_cloud_folder_currently_set">No se ha seleccionado ninguna carpeta de almacenamiento en la nube</string>
-    <string name="no_cloud_storage_system_set">No se ha seleccionado ningún sistema de almacenamiento en la nube.</string>
+    <string name="cloud_sync">Archivos</string>
+    <string name="no_cloud_folder_currently_set">No se ha seleccionado ningún sistema de almacenamiento.</string>
+    <string name="no_cloud_storage_system_set">No se ha seleccionado ningún sistema de almacenamiento.</string>
     <string name="pref_clearCache_summary">Borra todos los archivos descargados.</string>
     <string name="pref_clearCache_title">Limpiar cache</string>
-    <string name="pref_cloudStorageSystem_dialogTitle">Sistema de almacenamiento en la nube</string>
+    <string name="pref_cloudStorageSystem_dialogTitle">Sistema de almacenamiento</string>
     <string name="pref_cloudStorageSystem_summary">¿Dónde se almacenan los archivos de canciones?</string>
-    <string name="pref_cloudStorageSystem_title">Sistema de almacenamiento en la nube</string>
-    <string name="synchronize_string">Descargar archivos</string>
-    <string name="pref_cloudPath_title">Carpeta de almacenamiento en la nube</string>
+    <string name="pref_cloudStorageSystem_title">Sistema de almacenamiento</string>
+    <string name="synchronize_string">Sincronizar archivos …</string>
+    <string name="pref_cloudPath_title">Carpeta de almacenamiento</string>
     <string name="pref_cloudPath_summary">Esta es la carpeta en la que se almacenan los archivos de canciones BeatPrompter.</string>
     <string name="itemsFound">%1$d artículos encontrados.</string>
     <string name="itemsFoundWithMax">%1$d/%2$d artículos encontrados.</string>
-    <string name="scanningCloudFolder">Cargando ...</string>
+    <string name="scanningCloudFolder">Cargando …</string>
     <string name="bluetoothModeBandLeader">Líder de banda (servidor)</string>
     <string name="bluetoothModeBandMember">Miembro de la banda (cliente)</string>
     <string name="bluetoothModeNone">Ninguna</string>
@@ -319,8 +319,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="showBPMYesRounded">Sí, redondeado a entero</string>
     <string name="text_found_with_image">Se encontró texto en una línea en la que se especificó una imagen. Ignorar texto.</string>
     <string name="unknown_image_scaling_mode">Modo de escala de imagen desconocido, predeterminado para el modo de estiramiento.</string>
-    <string name="cloudSyncErrorMessage">Se produjo un error al comunicarse con el servicio de almacenamiento en la nube ("%1$s").\n\nNo todos los archivos se descargaron correctamente.\n\nVerifica tu conexión y vuelve a intentarlo.</string>
-    <string name="cloudSyncErrorTitle">Error de Sincronización de la Nube</string>
+    <string name="cloudSyncErrorMessage">Se produjo un error al comunicarse con el servicio de almacenamiento (\"%1$s\").\\n\\nNo todos los archivos fueron recuperados o escaneados con éxito.\\n\\nVerifique su conexión e intente nuevamente.</string>
+    <string name="cloudSyncErrorTitle">Error de Sincronización</string>
     <string name="pref_mimicBandLeaderDisplay_title">Indicador de líder de banda mímica en modo manual</string>
     <string name="pref_mimicBandLeaderDisplay_summary">Si realiza una canción con un líder de banda en modo manual, esto configurará automáticamente su pantalla con la misma orientación y tamaños de fuente.</string>
     <string name="pref_minFontSizeManual_title">Tamaño de fuente mínimo (desplazamiento manual)</string>
@@ -373,7 +373,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="not_a_valid_argument_index">Se ha encontrado un índice de argumento no válido en la directiva MIDI.</string>
     <string name="not_a_valid_byte_value">Se ha encontrado un valor de byte no válido en la directiva MIDI.</string>
     <string name="no_lines_in_song_file">El archivo de la canción seleccionada no tiene líneas.</string>
-    <string name="instructions">Instrucciones ...</string>
+    <string name="instructions">Instrucciones …</string>
     <string name="pref_anyOtherKeyPageDown_title">Cualquier otra clave es page-down.</string>
     <string name="pref_anyOtherKeyPageDown_summary">Cualquier otra tecla presionada en un teclado conectado actuará como página abajo.</string>
 </resources>

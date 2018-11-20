@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BeatPrompter</string>
-    <string name="otherErrorCount">... E %1$d outro erro(s).</string>
-    <string name="about">Sobre ...</string>
+    <string name="otherErrorCount">… E %1$d outro erro(s).</string>
+    <string name="about">Sobre …</string>
     <string name="pref_ignoreColorInfo_summary">Sempre usa cores padrão.</string>
     <string name="no_tag_selected">Todas as musicas</string>
     <string name="badAudioVolume">Volume da faixa de áudio não é um número entre 0 e 100.</string>
@@ -44,8 +44,8 @@
     <string name="pref_bpm_title">Tempo padrão</string>
     <string name="deleting">Excluindo %1$s</string>
     <string name="docs_at">A documentação pode ser encontrada em</string>
-    <string name="downloadingFiles">Download de arquivos</string>
-    <string name="downloading">Baixando %1$s</string>
+    <string name="downloadingFiles">Sincronizando de arquivos</string>
+    <string name="downloading">Sincronizando %1$s</string>
     <string name="metronomeDuringCount">Durante a contagem-in</string>
     <string name="fileNotFound">O arquivo "%1$s" não encontrado!</string>
     <string name="pref_fixedLineHeight_title">Altura de linha fixa</string>
@@ -63,7 +63,7 @@
     <string name="pref_showMusicIcon_summary">Na lista de músicas principal, mostrar um ícone indicando que uma canção tem uma faixa de apoio.</string>
     <string name="jumpScrollingStyle">Saltar</string>
     <string name="leftJustified">Esquerda</string>
-    <string name="lineTooLong">Linha %1$d era mais do que %2$d caracteres. Truncando ...</string>
+    <string name="lineTooLong">Linha %1$d era mais do que %2$d caracteres. Truncando …</string>
     <string name="pref_lineJustification_title">Justificação de linha</string>
     <string name="pref_lineJustification_dialogTitle">Linha Justificação</string>
     <string name="pref_minLines_text">linhas</string>
@@ -72,12 +72,12 @@
     <string name="pref_maxFontSize_title">Tamanho máximo da fonte ( bater-scrolling)</string>
     <string name="pref_lyricsHeight_title">Altura letras máximas</string>
     <string name="intValueTooHigh">O valor máximo é %1$d, valor encontrado foi %2$d.</string>
-    <string name="doubleValueTooHigh">O valor máximo é %1$f, valor encontrado foi %2$f.</string>
+    <string name="doubleValueTooHigh">O valor máximo é %1$d, valor encontrado foi %2$.2f.</string>
     <string name="pref_metronome_title">Clique Metronome</string>
     <string name="pref_metronome_dialogTitle">Metronome Clique</string>
     <string name="pref_minFontSize_title">Tamanho mínimo da fonte</string>
     <string name="intValueTooLow">O valor mínimo é %1$d, valor encontrado foi %2$d.</string>
-    <string name="doubleValueTooLow">O valor mínimo é %1$f, valor encontrado foi %2$f.</string>
+    <string name="doubleValueTooLow">O valor mínimo é %1$d, valor encontrado foi %2$.2f.</string>
     <string name="pref_minLines_title">Linhas visíveis mínimos</string>
     <string name="pref_trackOffset_text">ms</string>
     <string name="noTitleFound">Não {title} encontrada no arquivo de música "%1$s"</string>
@@ -85,7 +85,7 @@
     <string name="metronomeOff">Fora</string>
     <string name="metronomeOn">Em</string>
     <string name="play">Toque</string>
-    <string name="play_submenu">Toque ...</string>
+    <string name="play_submenu">Toque …</string>
     <string name="play_options">Formas de Jogar</string>
     <string name="rightJustified">Certo</string>
     <string name="scrollbeatOffTheMap">Scrollbeat deslocamento é maior do que ou igual ao número de batidas na barra. Repor a zero.</string>
@@ -94,7 +94,7 @@
     <string name="pref_scrollingStyle_dialogTitle">Estilo de Rolagem</string>
     <string name="pref_defaultPause_text">segundos</string>
     <string name="title_activity_settings">Configurações</string>
-    <string name="settings">Configurações ...</string>
+    <string name="settings">Configurações …</string>
     <string name="pref_showMusicIcon_title">Mostrar ícone da música</string>
     <string name="pref_showScrollIndicator_title">Mostrar indicador de rolagem.</string>
     <string name="pref_showBeatStyleIcons_title">Mostrar ícones de estilo de rolagem</string>
@@ -102,8 +102,8 @@
     <string name="smoothScrollingStyle">Suave</string>
     <string name="smooth_scrolling">Rolagem Suave</string>
     <string name="song_options">Opções de Música</string>
-    <string name="sort_songs">Organize ...</string>
-    <string name="sortSongs">Classificar músicas ...</string>
+    <string name="sort_songs">Organize …</string>
+    <string name="sortSongs">Classificar músicas …</string>
     <string name="tapTwiceToStart">TAP DUAS VEZES PARA INICIAR</string>
     <string name="lowerCaseThe">a</string>
     <string name="pref_pulse_summary">O fundo vai pulsar no tempo com o ritmo.</string>
@@ -115,7 +115,7 @@
     <string name="pref_minLines_message">O número mínimo de linhas que devem ser visíveis a qualquer momento.</string>
     <string name="pref_trackOffset_message">O deslocamento do início da canção, em milissegundos, em que a faixa de áudio de apoio começará.</string>
     <string name="pref_minFontSize_summary">O menor tamanho de fonte que vai ser usado.</string>
-    <string name="pauseLongerThanSong">Total {pause} tempo excede o tempo canção designado.</string>
+    <string name="pauseLongerThanSong">Total {pause} tempo excede o tempo canção designado. Desativando o modo de rolagem suave.</string>
     <string name="pref_maxFontSizeSmooth_summary">O maior tamanho de fonte que será usado no modo suave-scrolling .</string>
     <string name="pref_maxFontSizeSmooth_title">Tamanho da fonte máxima (rolagem suave) </string>
     <string name="pref_alwaysUseBeatFontPrefs_summary"> Usa as preferências de tamanho font- rolagem bater para todas as músicas.</string>
@@ -188,7 +188,7 @@
     <string name="channel_must_be_last_parameter">O canal MIDI deve ser o último parâmetro</string>
     <string name="channel_specifier_cannot_merge_with_channel_specifier">O valor do especificador de canal não pode conter sublinhados.</string>
     <string name="clear_set">Limpar setlist temporário</string>
-    <string name="cloud_sync_explanation">BeatPrompter lê todos os seus arquivos de música, arquivos de áudio, listas de set e mais de armazenamento em nuvem. Ele atualmente suporta Google Drive, Dropbox ou Microsoft OneDrive.</string>
+    <string name="cloud_sync_explanation">BeatPrompter lê todos os arquivos de músicas, arquivos de áudio, listas de conjuntos e muito mais do armazenamento em nuvem ou local. Atualmente, suporta o Google Drive, o Dropbox ou o Microsoft OneDrive.</string>
     <string name="connect_to_leader_string">Conecte-se ao líder</string>
     <string name="default_alias_set_name">Conjunto de alias MIDI padrão</string>
     <string name="empty_tag">A etiqueta está vazia.</string>
@@ -232,7 +232,7 @@
     <string name="pref_sendMidiTriggerOnStart_dialogTitle">Saída MIDI mensagem de disparo</string>
     <string name="pref_sendMidiTriggerOnStart_summary">Caso o gatilho ser saída de mensagem MIDI Quando a música começa?</string>
     <string name="pref_sendMidiTriggerOnStart_title">Disparadores MIDI de saída</string>
-    <string name="processingSong">Canção de processamento:</string>
+    <string name="processingSong">Canção de processamento: %1$s</string>
     <string name="sendMidiTriggerOnStartAlways">Sempre</string>
     <string name="sendMidiTriggerOnStartManualStartOnly">Quando iniciado manualmente</string>
     <string name="sendMidiTriggerOnStartNever">Nunca</string>
@@ -276,20 +276,20 @@ letras e [em]acordes no tempo, com uma batida.\n
 [Em]Espero que gostem!</string>
     <string name="one_drive_not_connected">API OneDrive não está conectada.</string>
     <string name="cache_cleared">Cache desmarcado.</string>
-    <string name="cloud_sync">Sincronização em nuvem</string>
-    <string name="no_cloud_folder_currently_set">Nenhuma pasta de armazenamento em nuvem foi selecionada</string>
-    <string name="no_cloud_storage_system_set">Nenhum sistema de armazenamento em nuvem foi selecionado.</string>
+    <string name="cloud_sync">Arquivos</string>
+    <string name="no_cloud_folder_currently_set">Nenhum sistema de armazenamento foi selecionado.</string>
+    <string name="no_cloud_storage_system_set">Nenhum sistema de armazenamento foi selecionado.</string>
     <string name="pref_clearCache_summary">Exclui todos os arquivos baixados.</string>
     <string name="pref_clearCache_title">Limpar cache</string>
-    <string name="pref_cloudStorageSystem_dialogTitle">Sistema de armazenamento em nuvem</string>
+    <string name="pref_cloudStorageSystem_dialogTitle">Sistema de armazenamento</string>
     <string name="pref_cloudStorageSystem_summary">Onde estão os arquivos de músicas armazenados?</string>
-    <string name="pref_cloudStorageSystem_title">Sistema de armazenamento em nuvem</string>
-    <string name="synchronize_string">Baixar arquivos</string>
-    <string name="pref_cloudPath_title">Pasta de armazenamento em nuvem</string>
+    <string name="pref_cloudStorageSystem_title">Sistema de armazenamento</string>
+    <string name="synchronize_string">Sincronize arquivos …</string>
+    <string name="pref_cloudPath_title">Pasta de armazenamento</string>
     <string name="pref_cloudPath_summary">Esta é a pasta que os arquivos de música BeatPrompter são armazenados.</string>
     <string name="itemsFound">%1$d itens encontrados.</string>
     <string name="itemsFoundWithMax">%1$d/%2$d itens encontrados.</string>
-    <string name="scanningCloudFolder">Carregando ...</string>
+    <string name="scanningCloudFolder">Carregando …</string>
     <string name="bluetoothModeBandLeader">Band Leader (servidor)</string>
     <string name="bluetoothModeBandMember">Membro da banda (cliente)</string>
     <string name="bluetoothModeNone">Nenhum</string>
@@ -319,8 +319,8 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="showBPMYesRounded">Sim, arredondado para o inteiro</string>
     <string name="text_found_with_image">O texto foi encontrado em uma linha onde uma imagem foi especificada. Ignorando o texto.</string>
     <string name="unknown_image_scaling_mode">Modo de escala de imagem desconhecida, padrão para o modo de estiramento.</string>
-    <string name="cloudSyncErrorMessage">Ocorreu um erro ao se comunicar com o serviço de armazenamento na nuvem ("%1$s").\n\nNem todos os arquivos foram baixados com sucesso.\n\nVerifique a sua conexão e tente novamente.</string>
-    <string name="cloudSyncErrorTitle">Erro de Sincronização de Nuvem</string>
+    <string name="cloudSyncErrorMessage">Houve um erro na comunicação com o serviço de armazenamento (\"%1$s\").\\n\\nNem todos os arquivos foram buscados ou verificados com êxito.\\n\\nVerifique sua conexão e tente novamente.</string>
+    <string name="cloudSyncErrorTitle">Erro de Sincronização</string>
     <string name="pref_mimicBandLeaderDisplay_title">Exibição do líder da banda Mimic no modo manual</string>
     <string name="pref_mimicBandLeaderDisplay_summary">Se estiver executando uma música com um líder de banda no modo manual, isso automaticamente ajustará sua exibição para a mesma orientação e tamanhos de fonte.</string>
     <string name="pref_minFontSizeManual_title">Tamanho mínimo da fonte (rolagem manual)</string>
@@ -373,7 +373,7 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="not_a_valid_argument_index">Índice de argumento inválido encontrado na diretiva MIDI.</string>
     <string name="not_a_valid_byte_value">Valor de byte inválido encontrado na diretiva MIDI.</string>
     <string name="no_lines_in_song_file">O arquivo de música selecionado não tem linhas.</string>
-    <string name="instructions">Instruções ...</string>
+    <string name="instructions">Instruções …</string>
     <string name="pref_anyOtherKeyPageDown_title">Qualquer outra chave é page-down.</string>
     <string name="pref_anyOtherKeyPageDown_summary">Qualquer outra tecla pressionada em um teclado conectado atuará como page-down.</string>
 </resources>
