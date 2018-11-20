@@ -480,7 +480,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun showPageDownMarkers(canvas:Canvas)
     {
-        if(mManualScrollPositions!=null && mSong!!.mCurrentLine.mScrollMode== ScrollingMode.Manual)
+        if(mManualScrollPositions!=null && mSong!!.mCurrentLine.mScrollMode== ScrollingMode.Manual && mSongPixelPosition<mSong!!.mScrollEndPixel)
         {
             val scrollPosition=((mManualScrollPositions!!.mPageDownPosition-mSongPixelPosition)+mSong!!.mDisplaySettings.mBeatCounterRect.height()).toFloat()
             val screenHeight=mSong!!.mDisplaySettings.mScreenSize.height().toFloat()
@@ -995,9 +995,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun calculateManualScrollPositions()
     {
         val currentLine=mSong!!.mCurrentLine
-        // Don't bother doing this if we aren't in manual mode, or if we're already at the end
-        // of the song.
-        if(currentLine.mScrollMode== ScrollingMode.Manual && mSongPixelPosition<mSong!!.mScrollEndPixel) {
+        // Don't bother doing this if we aren't in manual mode.
+        if(currentLine.mScrollMode== ScrollingMode.Manual) {
             val usableScreenHeight=mSong!!.mDisplaySettings.mUsableScreenHeight
 
             // We don't always want to scroll bang onto a line. If the candidate line is really big

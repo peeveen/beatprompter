@@ -57,8 +57,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
         mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
-        // NICETOHAVE: some sort of normal keyboard support.
-        mAnyOtherKeyPageDown = false//sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false);
+        mAnyOtherKeyPageDown = sharedPref.getBoolean(getString(R.string.pref_anyOtherKeyPageDown_key), false);
 
         setContentView(R.layout.activity_song_display)
         val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
@@ -194,6 +193,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     private fun activateOtherPageDown(eventTime: Long) {
         // Don't allow two of these events to happen within the same second.
+        // A foot on a keyboard can generate a lot of events!
         if (eventTime - mLastOtherPageDownEvent > 1000000000) {
             mLastOtherPageDownEvent = eventTime
             mSongView!!.onOtherPageDownActivated()

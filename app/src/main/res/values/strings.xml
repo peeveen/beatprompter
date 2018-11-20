@@ -263,6 +263,10 @@
     <string name="pref_proximityScroll_title">Proximity sensor scrolls page.</string>
     <string name="pref_proximityScroll_summary">If your device has a proximity sensor, triggering it will act like pressing a "page down" pedal.</string>
 
+    <string name="pref_anyOtherKeyPageDown_key" translatable="false">pref_anyOtherKeyPageDown</string>
+    <string name="pref_anyOtherKeyPageDown_title">Any other key is page-down.</string>
+    <string name="pref_anyOtherKeyPageDown_summary">Any other key pressed on a connected keyboard will act like page-down.</string>
+
     <string name="pref_includeSubfolders_key" translatable="false">pref_includeSubfolders</string>
     <string name="pref_includeSubfolders_title">Include Subfolders</string>
     <string name="pref_includeSubfolders_summary">Fetch files from subfolders also?</string>
