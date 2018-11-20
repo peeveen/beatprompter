@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
+import android.net.Uri
 import android.os.*
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -876,12 +877,19 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         }
     }
 
+    private fun openManualURL()
+    {
+        val browserIntent = Intent(Intent.ACTION_VIEW, MANUAL_URL)
+        startActivity(browserIntent)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.synchronize -> performFullCloudSync()
             R.id.sort_songs -> showSortDialog()
             R.id.settings -> startActivity(Intent(applicationContext, SettingsActivity::class.java))
             R.id.buy_full_version -> buyFullVersion()
+            R.id.manual -> openManualURL()
             R.id.about -> showAboutDialog()
             else -> return super.onOptionsItemSelected(item)
         }
@@ -1104,6 +1112,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         var mSongEndedNaturally = false
 
         private var mFullVersionUnlocked = true
+
+        private val MANUAL_URL=Uri.parse("https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI")
 
         private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
         private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
