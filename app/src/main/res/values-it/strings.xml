@@ -149,8 +149,6 @@
     <string name="manual_scrolling"> Manuale di scorrimento</string>
     <string name="pref_sendMidi_summary">Se un brano è battere tempi, questo invierà segnali di clock MIDI tramite USB On-The-Go collegamento.</string>
     <string name="pref_sendMidi_title">Invia segnali di clock MIDI</string>
-    <string name="pref_readMidi_summary">Avviare, arrestare e continuare la canzone quando segnali MIDI rilevanti vengono ricevuti tramite USB On-The-Go.</string>
-    <string name="pref_readMidi_title">Start/Stop/Continue sui segnali MIDI.</string>
     <string name="pref_manualMode_summary">Per impostazione predefinita, le canzoni giocano sempre in modalità di scorrimento manuale senza base musicale.</string>
     <string name="pref_manualMode_title">Modalità manuale</string>
     <string name="google_api_not_connected">API di Google non è collegato.</string>

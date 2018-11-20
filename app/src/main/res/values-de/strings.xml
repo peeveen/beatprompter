@@ -148,8 +148,6 @@
     <string name="manual_scrolling"> Manuelle Scrolling</string>
     <string name="pref_sendMidi_summary">Wenn ein Song Timings schlagen hat, wird diese MIDI-Clock-Signale über einen USB senden On-The-Go-Anschluss.</string>
     <string name="pref_sendMidi_title">Senden Sie MIDI-Clock-Signale</string>
-    <string name="pref_readMidi_summary">Start, Stopp und das Lied weiter, wenn relevante MIDI-Signale über USB empfangen werden On-The-Go.</string>
-    <string name="pref_readMidi_title">" Start/Stopp/Weiter auf MIDI-Signale."</string>
     <string name="pref_manualMode_summary">In der Standardeinstellung Songs spielen immer im manuellen Scrollen Modus ohne Playback.</string>
     <string name="pref_manualMode_title">Manueller Modus</string>
     <string name="google_api_not_connected">Google-API nicht angeschlossen.</string>

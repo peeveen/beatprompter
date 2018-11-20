@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sf="http://com.stevenfrew/"
-    xmlns:customStyle="http://schemas.android.com/apk/res/com.stevenfrew.beatprompter">
+    xmlns:customStyle="http://schemas.android.com/apk/res-auto">
     <PreferenceScreen android:title="@string/cloud_sync">
         <com.stevenfrew.beatprompter.ui.pref.ImageListPreference
             android:key="@string/pref_cloudStorageSystem_key"

@@ -149,8 +149,6 @@
     <string name="manual_scrolling">Manuel Scrolling</string>
     <string name="pref_sendMidi_summary">Si un morceau a battu timings, ce qui enverra des signaux d\'horloge MIDI via une connexion USB On-The-Go .</string>
     <string name="pref_sendMidi_title">Envoyer des signaux d\'horloge MIDI</string>
-    <string name="pref_readMidi_summary">Démarrer, arrêter et continuer la chanson lorsque les signaux MIDI pertinents sont reçus via USB On-The-Go.</string>
-    <string name="pref_readMidi_title">" Start/Stop/continuer sur les signaux MIDI."</string>
     <string name="pref_manualMode_summary">Par défaut, les chansons jouent toujours en mode de défilement manuel sans piste d\'accompagnement.</string>
     <string name="pref_manualMode_title">Mode manuel</string>
     <string name="google_api_not_connected">API Google non connecté.</string>
