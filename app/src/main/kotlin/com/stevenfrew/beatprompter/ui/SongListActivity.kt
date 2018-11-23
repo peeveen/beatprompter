@@ -856,12 +856,15 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         // Inflate the menu; this adds items to the action bar if it is present.
         mMenu = menu
         menuInflater.inflate(R.menu.songlistmenu, menu)
-        val spinner = menu.findItem(R.id.tagspinner).actionView as Spinner
+        val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
+        val spinner = spinnerLayout.findViewById<Spinner>(R.id.tagspinner)
         spinner.onItemSelectedListener = this
-        val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.setOnQueryTextListener(this)
         val filterListAdapter = FilterListAdapter(mFilters)
         spinner.adapter = filterListAdapter
+
+        val searchView = menu.findItem(R.id.search).actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        searchView.isSubmitButtonEnabled=false
 
         updateBluetoothIcon()
         return true
@@ -1053,8 +1056,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 else -> R.drawable.master9plus
             }
         if (mMenu != null) {
-            val btlayout = mMenu!!.findItem(R.id.btconnectionstatuslayout).actionView as LinearLayout
-            val btIcon = btlayout.findViewById<ImageView>(R.id.btconnectionstatus)
+            val btLayout = mMenu!!.findItem(R.id.btconnectionstatuslayout).actionView as LinearLayout
+            val btIcon = btLayout.findViewById<ImageView>(R.id.btconnectionstatus)
             btIcon?.setImageResource(resourceID)
         }
     }
