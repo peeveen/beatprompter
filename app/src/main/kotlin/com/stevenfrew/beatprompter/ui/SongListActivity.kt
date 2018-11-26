@@ -67,7 +67,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private var mNowPlayingNode: PlaylistNode? = null
     private var mFilters = listOf<Filter>()
     private var mListAdapter: BaseAdapter? = null
-    private var mSearchText=""
+    private var mSearchText = ""
     private var mPerformingCloudSync = false
     private var mSavedListIndex = 0
     private var mSavedListOffset = 0
@@ -472,6 +472,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         return true
     }
 
+    private fun checkPermissions(permissions: List<String>) {
+        permissions.filter {
+            ContextCompat.checkSelfPermission(this,
+                    it) != PackageManager.PERMISSION_GRANTED
+        }.let { missingPermissions ->
+            ActivityCompat.requestPermissions(this,
+                    missingPermissions.toTypedArray(),
+                    MY_PERMISSIONS_REQUEST)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -479,23 +490,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         mSongListInstance = this
         initialiseLocalStorage()
 
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.GET_ACCOUNTS),
-                    MY_PERMISSIONS_REQUEST_GET_ACCOUNTS)
-
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    MY_PERMISSIONS_REQUEST_READ_STORAGE)
-
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    MY_PERMISSIONS_REQUEST_WRITE_STORAGE)
+        checkPermissions(listOf(Manifest.permission.GET_ACCOUNTS,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE))
 
         BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
 
@@ -522,9 +519,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         // Now ready to receive events.
         EventHandler.setSongListEventHandler(mSongListEventHandler!!)
 
-        supportActionBar?.displayOptions= ActionBar.DISPLAY_SHOW_HOME
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_HOME
         supportActionBar?.setIcon(R.drawable.ic_beatprompter)
-        supportActionBar?.title=""
+        supportActionBar?.title = ""
     }
 
     private fun initialiseList() {
@@ -864,7 +861,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.setOnQueryTextListener(this)
-        searchView.isSubmitButtonEnabled=false
+        searchView.isSubmitButtonEnabled = false
 
         updateBluetoothIcon()
         return true
@@ -1127,7 +1124,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     override fun onQueryTextChange(searchText: String?): Boolean {
-        mSearchText=searchText?:""
+        mSearchText = searchText ?: ""
         buildList()
         return true
     }
@@ -1169,9 +1166,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         private const val PLAY_SONG_REQUEST_CODE = 3
         private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4
-        private const val MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 5
-        private const val MY_PERMISSIONS_REQUEST_READ_STORAGE = 6
-        private const val MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 7
+        private const val MY_PERMISSIONS_REQUEST = 5
 
         private const val FULL_VERSION_SKU_NAME = "full_version"
 
