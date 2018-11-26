@@ -197,7 +197,9 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
                         if (mListener.shouldCancel())
                             break
                         val localFile = downloadGoogleDriveFile(file, safeFilename)
-                        SuccessfulCloudDownloadResult(cloudFile, localFile)
+                        val updatedCloudFile=CloudFileInfo(cloudFile.mID, file.name, Date(file.modifiedTime.value),
+                                cloudFile.mSubfolder)
+                        SuccessfulCloudDownloadResult(updatedCloudFile, localFile)
                     } else
                         FailedCloudDownloadResult(cloudFile)
                     mItemSource.onNext(result)

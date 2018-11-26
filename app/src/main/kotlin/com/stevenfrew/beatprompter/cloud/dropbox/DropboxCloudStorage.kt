@@ -62,7 +62,9 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
                     if (listener.shouldCancel())
                         break
                     val localFile = downloadDropboxFile(client, mdata, targetFile)
-                    result = SuccessfulCloudDownloadResult(file, localFile)
+                    val updatedCloudFile=CloudFileInfo(file.mID,mdata.name,mdata.serverModified,
+                            file.mSubfolder)
+                    result = SuccessfulCloudDownloadResult(updatedCloudFile, localFile)
                 } else
                     result = FailedCloudDownloadResult(file)
                 itemSource.onNext(result)
