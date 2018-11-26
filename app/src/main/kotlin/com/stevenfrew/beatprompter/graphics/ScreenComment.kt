@@ -6,6 +6,7 @@ class ScreenComment(private val mText: String, screenSize: Rect, paint: Paint, f
     private val mScreenString: ScreenString
     private val mTextDrawLocation: PointF
     private val mPopupRect: RectF
+
     init {
         val maxCommentBoxHeight = (screenSize.height() / 4.0).toInt()
         val maxTextWidth = (screenSize.width() * 0.9).toInt()
@@ -22,8 +23,8 @@ class ScreenComment(private val mText: String, screenSize: Rect, paint: Paint, f
         mPopupRect = RectF(rectX, rectY, rectX + rectWidth, rectY + rectHeight)
         mTextDrawLocation = PointF(textX, textY)
     }
-    fun draw(canvas:Canvas,paint:Paint,textColor:Int)
-    {
+
+    fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
         with(paint)
         {
             textSize = mScreenString.mFontSize * com.stevenfrew.beatprompter.util.Utils.FONT_SCALING

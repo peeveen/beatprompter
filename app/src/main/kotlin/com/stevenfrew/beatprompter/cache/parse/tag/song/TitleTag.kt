@@ -7,9 +7,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @OncePerFile
-@TagName("title","t")
+@TagName("title", "t")
 @TagType(Type.Directive)
 /**
  * Tag that defines the title of this song.
  */
-class TitleTag internal constructor(name:String, lineNumber:Int, position:Int, val mTitle:String): ValueTag(name,lineNumber,position,mTitle)
+class TitleTag internal constructor(name: String, lineNumber: Int, position: Int, val mTitle: String) : ValueTag(name, lineNumber, position, mTitle)

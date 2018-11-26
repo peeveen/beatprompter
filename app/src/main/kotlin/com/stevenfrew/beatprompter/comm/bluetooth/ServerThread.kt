@@ -13,7 +13,7 @@ import java.util.*
  * paired clients, and creates an output socket from each connection. Any events broadcast from this instance
  * of the app will be sent to all output sockets.
  */
-class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter, private val mUUID: UUID, private val mOnConnectedFunction: (socket: BluetoothSocket)->Unit) : Thread() {
+class ServerThread internal constructor(private val mBluetoothAdapter: BluetoothAdapter, private val mUUID: UUID, private val mOnConnectedFunction: (socket: BluetoothSocket) -> Unit) : Thread() {
     private var mmServerSocket: BluetoothServerSocket? = null
     private var mStop = false
     private val mSocketNullLock = Any()
@@ -39,7 +39,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                 // If a connection was accepted
                 // Do work to manage the connection (in a separate thread)
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Looking for a client connection.")
-                serverSocket?.accept(5000)?.also{
+                serverSocket?.accept(5000)?.also {
                     Log.d(BeatPrompterApplication.TAG_COMMS, "Found a client connection.")
                     mOnConnectedFunction(it)
                 }

@@ -81,10 +81,10 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
         if (contents == null)
             mDialog.dismiss()
         else {
-            contents.removeAll(SongListActivity.mDefaultCloudDownloads.map{it.mCloudFileInfo})
+            contents.removeAll(SongListActivity.mDefaultCloudDownloads.map { it.mCloudFileInfo })
             contents.sort()
 
-            val parentFolder=mCurrentFolder.mParentFolder
+            val parentFolder = mCurrentFolder.mParentFolder
             if (parentFolder != null)
                 contents.add(0, CloudFolderInfo(parentFolder.mParentFolder, parentFolder.mID, PARENT_DIR, parentFolder.mDisplayPath))
 

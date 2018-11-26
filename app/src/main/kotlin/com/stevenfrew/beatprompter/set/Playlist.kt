@@ -7,7 +7,7 @@ internal class Playlist {
 
     private val songFiles: List<SongFile>
         get() {
-            return mItems.map{it.mSongFile}
+            return mItems.map { it.mSongFile }
         }
 
     val nodes: List<PlaylistNode>
@@ -26,26 +26,26 @@ internal class Playlist {
     }
 
     fun sortByTitle() {
-        buildSongList(songFiles.sortedBy{it.mSortableTitle})
+        buildSongList(songFiles.sortedBy { it.mSortableTitle })
     }
 
     fun sortByArtist() {
-        buildSongList(songFiles.sortedBy{it.mSortableArtist})
+        buildSongList(songFiles.sortedBy { it.mSortableArtist })
     }
 
     fun sortByKey() {
-        buildSongList( songFiles.sortedBy{it.mKey})
+        buildSongList(songFiles.sortedBy { it.mKey })
     }
 
     fun sortByDateModified() {
-        buildSongList(songFiles.sortedByDescending {it.mLastModified})
+        buildSongList(songFiles.sortedByDescending { it.mLastModified })
     }
 
     private fun buildSongList(songs: List<SongFile>) {
         mItems.clear()
         songs.forEach {
-            val node= PlaylistNode(it)
-            mItems.lastOrNull()?.mNextNode=node
+            val node = PlaylistNode(it)
+            mItems.lastOrNull()?.mNextNode = node
             mItems.add(node)
         }
     }

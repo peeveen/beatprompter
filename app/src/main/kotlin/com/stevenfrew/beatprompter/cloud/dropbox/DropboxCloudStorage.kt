@@ -62,7 +62,7 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
                     if (listener.shouldCancel())
                         break
                     val localFile = downloadDropboxFile(client, mdata, targetFile)
-                    val updatedCloudFile=CloudFileInfo(file.mID,mdata.name,mdata.serverModified,
+                    val updatedCloudFile = CloudFileInfo(file.mID, mdata.name, mdata.serverModified,
                             file.mSubfolder)
                     result = SuccessfulCloudDownloadResult(updatedCloudFile, localFile)
                 } else
@@ -92,7 +92,7 @@ class DropboxCloudStorage(parentActivity: Activity) : CloudStorage(parentActivit
         val fos = FileOutputStream(localfile)
         fos.use {
             val downloader = client.files().download(file.id)
-            downloader.use {dler->
+            downloader.use { dler ->
                 dler.download(it)
             }
         }

@@ -67,7 +67,7 @@ object Utils {
     }
 
     fun countWords(words: List<String>): Int {
-        return words.count{!splitters.contains(it)}
+        return words.count { !splitters.contains(it) }
     }
 
     fun stitchBits(bits: List<String>, nonWhitespaceBitsToJoin: Int): String {
@@ -99,9 +99,8 @@ object Utils {
             return Math.floor(totalSecs * 1000.0).toLong()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
-            val bits=str.splitAndTrim(":")
-            if (bits.size==2)
-            {
+            val bits = str.splitAndTrim(":")
+            if (bits.size == 2) {
                 val minutes = bits[0].toInt()
                 val secs = bits[1].toInt()
                 return (secs + (minutes * 60)) * 1000L
@@ -114,16 +113,16 @@ object Utils {
     @Throws(IOException::class)
     fun streamToStream(instr: InputStream, outstr: OutputStream) {
         val buffer = ByteArray(2048)
-        var bytesRead=0
+        var bytesRead = 0
         while (bytesRead != -1) {
             bytesRead = instr.read(buffer, 0, buffer.size)
-            if(bytesRead!=-1)
+            if (bytesRead != -1)
                 outstr.write(buffer, 0, bytesRead)
         }
     }
 
     fun makeSafeFilename(str: String): String {
-        return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"),"_")
+        return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"), "_")
     }
 
     @Throws(IOException::class)
@@ -144,10 +143,10 @@ object Utils {
         return (byteVal and 0x000000FF).toByte()
     }
 
-    fun safeThreadWait(amount:Long)
-    {
+    fun safeThreadWait(amount: Long) {
         try {
             Thread.sleep(amount)
-        } catch (ie: InterruptedException) { }
+        } catch (ie: InterruptedException) {
+        }
     }
 }

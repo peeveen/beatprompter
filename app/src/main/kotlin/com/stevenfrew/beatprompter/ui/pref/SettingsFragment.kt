@@ -20,7 +20,7 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
             onCloudPathChanged(prefs.getString(key, null))
     }
 
-    private var mSettingsHandler: SettingsEventHandler?=null
+    private var mSettingsHandler: SettingsEventHandler? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -13,7 +13,7 @@ import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.characters
 
-class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime:Long, lineDuration:Long, scrollMode: ScrollingMode, displaySettings: DisplaySettings, startingHighlightColor:Int?, pixelPosition:Int, scrollTimes:Pair<Long,Long>, songLoadCancelEvent:SongLoadCancelEvent) : Line(lineTime,lineDuration,scrollMode,pixelPosition,scrollTimes.first,scrollTimes.second,displaySettings) {
+class TextLine internal constructor(private val mText: String, private val mTags: List<Tag>, lineTime: Long, lineDuration: Long, scrollMode: ScrollingMode, displaySettings: DisplaySettings, startingHighlightColor: Int?, pixelPosition: Int, scrollTimes: Pair<Long, Long>, songLoadCancelEvent: SongLoadCancelEvent) : Line(lineTime, lineDuration, scrollMode, pixelPosition, scrollTimes.first, scrollTimes.second, displaySettings) {
     private var mLineTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordTextSize: Int = 0 // font size to use, pre-measured.
     private var mChordHeight: Int = 0
@@ -26,16 +26,16 @@ class TextLine internal constructor(private val mText: String, private val mTags
     private val mPixelSplits = mutableListOf<Boolean>()
     private var mLineDescenderOffset: Int = 0
     private var mChordDescenderOffset: Int = 0
-    private val mLyricColor:Int
-    private val mChordColor:Int
-    private val mAnnotationColor:Int
-    private val mSections:List<LineSection>
-    var mTrailingHighlightColor:Int?=null
+    private val mLyricColor: Int
+    private val mChordColor: Int
+    private val mAnnotationColor: Int
+    private val mSections: List<LineSection>
+    var mTrailingHighlightColor: Int? = null
     override val mMeasurements: LineMeasurements
 
     init {
-        val paint=Paint()
-        val sharedPrefs= BeatPrompterApplication.preferences
+        val paint = Paint()
+        val sharedPrefs = BeatPrompterApplication.preferences
         mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
         mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
         mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
@@ -61,7 +61,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
-        val maxLongestFontSize= ScreenString.getBestFontSize(longestBits.toString(), paint, displaySettings.mMinFontSize,displaySettings.mMaxFontSize,displaySettings.mScreenSize.width(),-1, mFont).toDouble()
+        val maxLongestFontSize = ScreenString.getBestFontSize(longestBits.toString(), paint, displaySettings.mMinFontSize, displaySettings.mMaxFontSize, displaySettings.mScreenSize.width(), -1, mFont).toDouble()
         var textFontSize = maxLongestFontSize
         var chordFontSize = maxLongestFontSize
         var allTextSmallerThanChords: Boolean
@@ -149,7 +149,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
         var actualLineWidth = 0
         mChordHeight = 0
         mLyricHeight = mChordHeight
-        var highlightColor=startingHighlightColor
+        var highlightColor = startingHighlightColor
         for (section in mSections) {
             if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
@@ -163,7 +163,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth += Math.max(section.mLineSS!!.mWidth, section.mChordSS!!.mWidth)
             highlightColor = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), mFont, highlightColor)
         }
-        mTrailingHighlightColor=highlightColor
+        mTrailingHighlightColor = highlightColor
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
@@ -366,7 +366,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
             actualLineWidth = calculateWidestLineWidth(actualLineWidth)
         }
 
-        mMeasurements= LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime, mLineDuration, scrollTimes.first, scrollMode)
+        mMeasurements = LineMeasurements(lines, actualLineWidth, actualLineHeight, graphicHeights.toIntArray(), mLineTime, mLineDuration, scrollTimes.first, scrollMode)
     }
 
     private val totalXSplits: Int
@@ -374,9 +374,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
             return mXSplits.sum()
         }
 
-    private fun calculateSections(songLoadCancelEvent:SongLoadCancelEvent):List<LineSection>
-    {
-        val sections=mutableListOf<LineSection>()
+    private fun calculateSections(songLoadCancelEvent: SongLoadCancelEvent): List<LineSection> {
+        val sections = mutableListOf<LineSection>()
         var chordPositionStart = 0
         var chordTagIndex = -1
         run {
@@ -385,20 +384,20 @@ class TextLine internal constructor(private val mText: String, private val mTags
 
             while (chordTagIndex < chordTags.size && !songLoadCancelEvent.isCancelled) {
                 // If we're at the last chord, capture all tags from here to the end.
-                val isLastChord=chordTagIndex == chordTags.size - 1
+                val isLastChord = chordTagIndex == chordTags.size - 1
                 val chordPositionEnd =
-                    if (!isLastChord)
-                        Math.min(chordTags[chordTagIndex + 1].mPosition,mText.length)
-                    else
-                        mText.length
-                val tagPositionEnd=if(!isLastChord)
+                        if (!isLastChord)
+                            Math.min(chordTags[chordTagIndex + 1].mPosition, mText.length)
+                        else
+                            mText.length
+                val tagPositionEnd = if (!isLastChord)
                     chordPositionEnd
                 else
                     Int.MAX_VALUE
                 // mText could have been "..." which would be turned into ""
                 if (chordTagIndex != -1)
                     chordPositionStart = chordTags[chordTagIndex].mPosition
-                chordPositionStart =Math.min( mText.length,chordPositionStart)
+                chordPositionStart = Math.min(mText.length, chordPositionStart)
                 val linePart = mText.substring(chordPositionStart, chordPositionEnd)
                 var chordText = ""
                 var trueChord = false
@@ -426,7 +425,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
-        return Math.max(vTotalLineWidth-totalXSplits, mLineWidths.max()?:0)
+        return Math.max(vTotalLineWidth - totalXSplits, mLineWidths.max() ?: 0)
     }
 
     override fun renderGraphics() {

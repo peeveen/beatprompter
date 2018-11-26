@@ -8,41 +8,40 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
 
-@ParseTags(TimeTag::class,ImageTag::class,MIDISongSelectTriggerTag::class,MIDIProgramChangeTriggerTag::class,
-        TitleTag::class,ArtistTag::class,KeyTag::class,PauseTag::class,TagTag::class,FilterOnlyTag::class,
-        BarMarkerTag::class,BarsTag::class,BeatsPerMinuteTag::class,BeatsPerBarTag::class,BarsPerLineTag::class,
-        ScrollBeatModifierTag::class,ScrollBeatTag::class,BeatStartTag::class,BeatStopTag::class,AudioTag::class,
+@ParseTags(TimeTag::class, ImageTag::class, MIDISongSelectTriggerTag::class, MIDIProgramChangeTriggerTag::class,
+        TitleTag::class, ArtistTag::class, KeyTag::class, PauseTag::class, TagTag::class, FilterOnlyTag::class,
+        BarMarkerTag::class, BarsTag::class, BeatsPerMinuteTag::class, BeatsPerBarTag::class, BarsPerLineTag::class,
+        ScrollBeatModifierTag::class, ScrollBeatTag::class, BeatStartTag::class, BeatStopTag::class, AudioTag::class,
         ChordTag::class)
-@IgnoreTags(LegacyTag::class,SendMIDIClockTag::class,CommentTag::class,CountTag::class,
-        StartOfHighlightTag::class,EndOfHighlightTag::class)
+@IgnoreTags(LegacyTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,
+        StartOfHighlightTag::class, EndOfHighlightTag::class)
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor):SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat,false,false) {
-    private var mTitle:String?=null
-    private var mArtist:String?=null
-    private var mKey:String?=null
-    private var mFirstChord:String?=null
-    private var mBPM:Double=0.0
-    private var mBars:Int=0
-    private var mBeats:Int=0
-    private var mTotalPause:Long=0L
-    private var mDuration:Long=0L
-    private val mAudioFiles=mutableListOf<String>()
-    private val mImageFiles=mutableListOf<String>()
-    private var mFilterOnly=false
-    private val mTags=mutableListOf<String>()
-    private var mMIDIProgramChangeTrigger: SongTrigger?=null
-    private var mMIDISongSelectTrigger: SongTrigger?=null
-    private var mMixedMode:Boolean=false
-    private var mLines=0
+class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
+    private var mTitle: String? = null
+    private var mArtist: String? = null
+    private var mKey: String? = null
+    private var mFirstChord: String? = null
+    private var mBPM: Double = 0.0
+    private var mBars: Int = 0
+    private var mBeats: Int = 0
+    private var mTotalPause: Long = 0L
+    private var mDuration: Long = 0L
+    private val mAudioFiles = mutableListOf<String>()
+    private val mImageFiles = mutableListOf<String>()
+    private var mFilterOnly = false
+    private val mTags = mutableListOf<String>()
+    private var mMIDIProgramChangeTrigger: SongTrigger? = null
+    private var mMIDISongSelectTrigger: SongTrigger? = null
+    private var mMixedMode: Boolean = false
+    private var mLines = 0
 
-    override fun parseLine(line: TextFileLine<SongFile>)
-    {
+    override fun parseLine(line: TextFileLine<SongFile>) {
         super.parseLine(line)
         ++mLines
 
-        val tagSequence=line.mTags.asSequence()
+        val tagSequence = line.mTags.asSequence()
         val titleTag = tagSequence.filterIsInstance<TitleTag>().firstOrNull()
         val artistTag = tagSequence.filterIsInstance<ArtistTag>().firstOrNull()
         val keyTag = tagSequence.filterIsInstance<KeyTag>().firstOrNull()
@@ -69,7 +68,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
             mKey = keyTag.mKey
 
         if (filterOnlyTag != null)
-            mFilterOnly=true
+            mFilterOnly = true
 
         if (chordTag != null)
             if (mFirstChord == null && chordTag.isValidChord())
@@ -84,8 +83,8 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
         if (bpmTag != null)
             mBPM = bpmTag.mBPM
 
-        if(pauseTag!=null)
-            mTotalPause+=pauseTag.mDuration
+        if (pauseTag != null)
+            mTotalPause += pauseTag.mDuration
 
         if (timeTag != null)
             mDuration = timeTag.mDuration
@@ -106,17 +105,19 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescr
     override fun getResult(): SongFile {
         if (mTitle.isNullOrBlank())
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mCachedCloudFileDescriptor.mName))
-        if(mArtist.isNullOrBlank())
-            mArtist=""
-        val key=
-            if (mKey.isNullOrBlank())
-                if(mFirstChord.isNullOrBlank())
-                    ""
+        if (mArtist.isNullOrBlank())
+            mArtist = ""
+        val key =
+                if (mKey.isNullOrBlank())
+                    if (mFirstChord.isNullOrBlank())
+                        ""
+                    else
+                        mFirstChord!!
                 else
-                    mFirstChord!!
-            else
-                mKey!!
+                    mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor,mLines,mBars,mTitle!!,mArtist!!,key,mBPM,mDuration,mMixedMode,mTotalPause,mAudioFiles,mImageFiles,mTags.toSet(),mMIDIProgramChangeTrigger?: SongTrigger.DEAD_TRIGGER,mMIDISongSelectTrigger?: SongTrigger.DEAD_TRIGGER,mFilterOnly,mErrors)
+        return SongFile(mCachedCloudFileDescriptor, mLines, mBars, mTitle!!, mArtist!!, key, mBPM, mDuration, mMixedMode, mTotalPause, mAudioFiles, mImageFiles, mTags.toSet(), mMIDIProgramChangeTrigger
+                ?: SongTrigger.DEAD_TRIGGER, mMIDISongSelectTrigger
+                ?: SongTrigger.DEAD_TRIGGER, mFilterOnly, mErrors)
     }
 }

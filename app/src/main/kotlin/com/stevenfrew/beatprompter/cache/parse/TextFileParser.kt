@@ -15,10 +15,9 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for text file parsers.
  */
-abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags:Boolean, private vararg val mTagFinders: TagFinder):FileParser<TFileResult>(cachedCloudFileDescriptor) {
-    final override fun parse():TFileResult
-    {
-        val tagParseHelper= TagParsingUtility.getTagParsingHelper(this)
+abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags: Boolean, private vararg val mTagFinders: TagFinder) : FileParser<TFileResult>(cachedCloudFileDescriptor) {
+    final override fun parse(): TFileResult {
+        val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0
         val fileTags = mutableSetOf<KClass<out Tag>>()
         val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
@@ -26,8 +25,8 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
             // Ignore empty lines and comments
-            if(!txt.isEmpty() && !txt.startsWith('#')) {
-                val textLine = TextFileLine(txt, lineNumber, tagParseHelper,this)
+            if (!txt.isEmpty() && !txt.startsWith('#')) {
+                val textLine = TextFileLine(txt, lineNumber, tagParseHelper, this)
                 val lineTags = mutableSetOf<KClass<out Tag>>()
                 textLine.mTags.forEach { tag ->
                     val tagClass = tag::class
@@ -73,14 +72,13 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
         return getResult()
     }
 
-    abstract fun getResult():TFileResult
+    abstract fun getResult(): TFileResult
 
-    abstract fun parseLine(line:TextFileLine<TFileResult>)
+    abstract fun parseLine(line: TextFileLine<TFileResult>)
 
-    fun parseTag(foundTag: FoundTag, lineNumber:Int,parseHelper: TagParsingHelper<TFileResult>):Tag?
-    {
+    fun parseTag(foundTag: FoundTag, lineNumber: Int, parseHelper: TagParsingHelper<TFileResult>): Tag? {
         // Should we ignore this tag?
-        if(!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {
+        if (!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {
             // Nope, better parse it!
             val tagClass = parseHelper.mNameToClassMap[foundTag.mType to foundTag.mName]
                     ?: parseHelper.mNoNameToClassMap[foundTag.mType]
@@ -103,15 +101,13 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
         return null
     }
 
-    fun findFirstTag(text:String): FoundTag?
-    {
-        var bestInfo: FoundTag?=null
-        for(finder in mTagFinders)
-        {
-            val info=finder.findTag(text)
-            if(info!=null)
-                if(bestInfo==null || info.mStart<bestInfo.mStart)
-                    bestInfo=info
+    fun findFirstTag(text: String): FoundTag? {
+        var bestInfo: FoundTag? = null
+        for (finder in mTagFinders) {
+            val info = finder.findTag(text)
+            if (info != null)
+                if (bestInfo == null || info.mStart < bestInfo.mStart)
+                    bestInfo = info
         }
         return bestInfo
     }

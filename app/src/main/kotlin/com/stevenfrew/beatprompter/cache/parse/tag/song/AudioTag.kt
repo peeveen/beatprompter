@@ -11,25 +11,25 @@ import com.stevenfrew.beatprompter.util.normalize
 import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.io.File
 
-@TagName("audio","track","musicpath")
+@TagName("audio", "track", "musicpath")
 @TagType(Type.Directive)
 /**
  * Tag that describes an accompanying audio file for a song file.
  */
-class AudioTag internal constructor(name:String, lineNumber:Int, position:Int, value:String): ValueTag(name,lineNumber,position,value) {
+class AudioTag internal constructor(name: String, lineNumber: Int, position: Int, value: String) : ValueTag(name, lineNumber, position, value) {
     val mFilename: String
-    val mVolume:Int
+    val mVolume: Int
 
     init {
-        val bits=value.splitAndTrim(":")
-        val defaultTrackVolume = BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_key), BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_default).toInt())+1
+        val bits = value.splitAndTrim(":")
+        val defaultTrackVolume = BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_key), BeatPrompterApplication.getResourceString(R.string.pref_defaultTrackVolume_default).toInt()) + 1
         mFilename = File(bits[0]).name.normalize()
-        mVolume=if(bits.size>1) parseVolume(bits[1],defaultTrackVolume) else defaultTrackVolume
+        mVolume = if (bits.size > 1) parseVolume(bits[1], defaultTrackVolume) else defaultTrackVolume
     }
 
     companion object {
         @Throws(MalformedTagException::class)
-        fun parseVolume(value:String,defaultTrackVolume:Int):Int {
+        fun parseVolume(value: String, defaultTrackVolume: Int): Int {
             try {
                 val tryVolume = Integer.parseInt(value)
                 if (tryVolume < 0 || tryVolume > 100)

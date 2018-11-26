@@ -4,4 +4,4 @@ package com.stevenfrew.beatprompter.cache
 /**
  * An audio file from our cache of files.
  */
-class AudioFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mDuration:Long) : CachedCloudFile(cachedCloudFileDescriptor)
+class AudioFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mDuration: Long) : CachedCloudFile(cachedCloudFileDescriptor)

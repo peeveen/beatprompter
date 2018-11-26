@@ -15,7 +15,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Base class for MIDI auto-start tags.
  */
-open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,position:Int,triggerDescriptor:String,type: TriggerType): Tag(name,lineNumber,position) {
+open class MIDITriggerTag protected constructor(name: String, lineNumber: Int, position: Int, triggerDescriptor: String, type: TriggerType) : Tag(name, lineNumber, position) {
     val mTrigger: SongTrigger
 
     init {
@@ -24,10 +24,10 @@ open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,posit
         var lsb: Value = WildcardValue()
         var channel: Value = WildcardValue()
         if (bits.size > 1)
-            if (type== TriggerType.SongSelect)
+            if (type == TriggerType.SongSelect)
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value))
         if (bits.size > 4 || bits.isEmpty())
-            if (type== TriggerType.SongSelect)
+            if (type == TriggerType.SongSelect)
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value))
             else
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_two_or_three_values))
@@ -46,6 +46,6 @@ open class MIDITriggerTag protected constructor(name:String,lineNumber:Int,posit
 
         val index = TagParsingUtility.parseMIDIValue(bits[0], 0, bits.size)
 
-        mTrigger= SongTrigger(msb, lsb, index, channel, type)
+        mTrigger = SongTrigger(msb, lsb, index, channel, type)
     }
 }

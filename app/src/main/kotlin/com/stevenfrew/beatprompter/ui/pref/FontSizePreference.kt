@@ -72,7 +72,7 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
 
     override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         mCurrentValue = progress
-        val size =  mCurrentValue + FONT_SIZE_OFFSET
+        val size = mCurrentValue + FONT_SIZE_OFFSET
         mTextView!!.text = String.format(Locale.getDefault(), "%d", size)
         mTextView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * Utils.FONT_SCALING)
     }

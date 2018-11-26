@@ -14,21 +14,21 @@ import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.*
 
-class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
-           firstEvent: LinkedEvent, private val mLines:List<Line>, internal val mAudioEvents:List<AudioEvent>,
-           val mInitialMIDIMessages:List<OutgoingMessage>, private val mBeatBlocks:List<BeatBlock>, val mSendMIDIClock:Boolean,
-           val mStartScreenStrings:List<ScreenString>, val mNextSongString: ScreenString?, val mTotalStartScreenTextHeight:Int,
-           val mStartedByBandLeader:Boolean, val mNextSong:String,
-           val mDisplayOffset:Int, val mHeight:Int, val mScrollEndPixel:Int, val mNoScrollLines:List<Line>,
-           val mBeatCounterRect:Rect, val mSongTitleHeader: ScreenString, val mSongTitleHeaderLocation:PointF,
-           val mLoadID:UUID) {
+class Song(val mSongFile: SongFile, val mDisplaySettings: DisplaySettings,
+           firstEvent: LinkedEvent, private val mLines: List<Line>, internal val mAudioEvents: List<AudioEvent>,
+           val mInitialMIDIMessages: List<OutgoingMessage>, private val mBeatBlocks: List<BeatBlock>, val mSendMIDIClock: Boolean,
+           val mStartScreenStrings: List<ScreenString>, val mNextSongString: ScreenString?, val mTotalStartScreenTextHeight: Int,
+           val mStartedByBandLeader: Boolean, val mNextSong: String,
+           val mDisplayOffset: Int, val mHeight: Int, val mScrollEndPixel: Int, val mNoScrollLines: List<Line>,
+           val mBeatCounterRect: Rect, val mSongTitleHeader: ScreenString, val mSongTitleHeaderLocation: PointF,
+           val mLoadID: UUID) {
     internal var mCurrentLine: Line = mLines.first()
-    internal var mCurrentEvent=firstEvent // Last event that executed.
+    internal var mCurrentEvent = firstEvent // Last event that executed.
     private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    val mSmoothMode:Boolean = mLines.asSequence().filter{it.mScrollMode== ScrollingMode.Smooth }.any()
-    internal val mBackingTrack= findBackingTrack(firstEvent)
+    val mSmoothMode: Boolean = mLines.asSequence().filter { it.mScrollMode == ScrollingMode.Smooth }.any()
+    internal val mBackingTrack = findBackingTrack(firstEvent)
 
     internal fun setProgress(nano: Long) {
         val e = mCurrentEvent
@@ -61,7 +61,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
     }
 
     internal fun recycleGraphics() {
-        mLines.forEach{
+        mLines.forEach {
             it.recycleGraphics()
         }
     }
@@ -77,7 +77,7 @@ class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
 
     class Comment internal constructor(var mText: String, audience: List<String>, screenSize: Rect, paint: Paint, font: Typeface) {
         private val commentAudience = audience
-        private val mCommentGraphic= ScreenComment(mText,screenSize,paint,font)
+        private val mCommentGraphic = ScreenComment(mText, screenSize, paint, font)
 
         fun isIntendedFor(audience: String): Boolean {
             return commentAudience.isEmpty() ||
@@ -85,23 +85,20 @@ class Song(val mSongFile:SongFile, val mDisplaySettings: DisplaySettings,
                     audience.toLowerCase().splitAndTrim(",").intersect(commentAudience).any()
         }
 
-        fun draw(canvas:Canvas,paint:Paint,textColor:Int)
-        {
-            mCommentGraphic.draw(canvas,paint,textColor)
+        fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
+            mCommentGraphic.draw(canvas, paint, textColor)
         }
     }
 
     companion object {
-        private fun findBackingTrack(firstEvent:LinkedEvent):AudioFile?
-        {
+        private fun findBackingTrack(firstEvent: LinkedEvent): AudioFile? {
             // Find the backing track (if any)
-            var thisEvent:LinkedEvent?=firstEvent
-            while(thisEvent!=null)
-            {
-                val innerEvent=thisEvent.mEvent
-                if(innerEvent is AudioEvent && innerEvent.mBackingTrack)
+            var thisEvent: LinkedEvent? = firstEvent
+            while (thisEvent != null) {
+                val innerEvent = thisEvent.mEvent
+                if (innerEvent is AudioEvent && innerEvent.mBackingTrack)
                     return innerEvent.mAudioFile
-                thisEvent=thisEvent.mNextEvent
+                thisEvent = thisEvent.mNextEvent
             }
             return null
         }

@@ -8,16 +8,16 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.graphics.ColorRect
 import com.stevenfrew.beatprompter.graphics.ScreenString
 
-class LineSection constructor(val mLineText: String, val mChordText: String, val mTrueChord:Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
-    private val mTrimmedChord=mChordText.trim()
+class LineSection constructor(val mLineText: String, val mChordText: String, val mTrueChord: Boolean, private val mSectionPosition: Int, private val mTags: Collection<Tag>) {
+    private val mTrimmedChord = mChordText.trim()
     var mTextWidth = 0
     var mChordWidth = 0
     var mChordTrimWidth = 0
     var mTextHeight = 0
     var mChordHeight = 0
     var mChordDrawLine = -1
-    var mLineSS: ScreenString?=null
-    var mChordSS: ScreenString?=null
+    var mLineSS: ScreenString? = null
+    var mChordSS: ScreenString? = null
     var mHighlightingRectangles = mutableListOf<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
 
     val width: Int
@@ -55,14 +55,14 @@ class LineSection constructor(val mLineText: String, val mChordText: String, val
         var highlightColour = if (lookingForEnd) currentHighlightColour else null
         var startX = 0
         var startPosition = 0
-        val highlightTags=mTags.filter{it is StartOfHighlightTag || it is EndOfHighlightTag}
-        highlightTags.forEach{
-            val length=Math.min(it.mPosition - mSectionPosition,mLineText.length)
+        val highlightTags = mTags.filter { it is StartOfHighlightTag || it is EndOfHighlightTag }
+        highlightTags.forEach {
+            val length = Math.min(it.mPosition - mSectionPosition, mLineText.length)
             if (it is StartOfHighlightTag && !lookingForEnd) {
                 val strHighlightText = mLineText.substring(0, length)
                 startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
                 startPosition = it.mPosition - mSectionPosition
-                highlightColour=it.mColor
+                highlightColour = it.mColor
                 lookingForEnd = true
             } else if (it is EndOfHighlightTag && lookingForEnd) {
                 val strHighlightText = mLineText.substring(startPosition, length)

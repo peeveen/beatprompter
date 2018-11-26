@@ -8,25 +8,25 @@ import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 
-class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.remoteDevice.name) {
+class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.remoteDevice.name) {
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         return mmSocket.inputStream.read(buffer, offset, maximumAmount)
     }
 
     override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Int {
-        var bufferCopy=buffer
-        var bufferStart=dataStart
-        val receivedMessages=mutableListOf<OutgoingMessage>()
-        var lastSetTimeMessage:SetSongTimeMessage?=null
+        var bufferCopy = buffer
+        var bufferStart = dataStart
+        val receivedMessages = mutableListOf<OutgoingMessage>()
+        var lastSetTimeMessage: SetSongTimeMessage? = null
         while (dataStart < dataEnd) {
             try {
                 val btm = fromBytes(bufferCopy)
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Got a fully-formed Bluetooth message.")
                 val messageLength = btm.length
                 bufferStart += messageLength
-                bufferCopy=buffer.copyOfRange(bufferStart,dataEnd)
-                if(btm is SetSongTimeMessage)
-                    lastSetTimeMessage=btm
+                bufferCopy = buffer.copyOfRange(bufferStart, dataEnd)
+                if (btm is SetSongTimeMessage)
+                    lastSetTimeMessage = btm
                 receivedMessages.add(btm)
             } catch (exception: NotEnoughDataException) {
                 // Read again!
@@ -39,22 +39,21 @@ class Receiver(private val mmSocket: BluetoothSocket): ReceiverBase(mmSocket.rem
             }
         }
         // If we receive multiple SetSongTimeMessages, there is no point in processing any except the last one.
-        receivedMessages.filter{it !is SetSongTimeMessage || it==lastSetTimeMessage}.forEach{routeBluetoothMessage(it)}
-        return bufferStart-dataStart
+        receivedMessages.filter { it !is SetSongTimeMessage || it == lastSetTimeMessage }.forEach { routeBluetoothMessage(it) }
+        return bufferStart - dataStart
     }
 
     override fun close() {
         mmSocket.close()
     }
 
-    private fun routeBluetoothMessage(msg:OutgoingMessage)
-    {
+    private fun routeBluetoothMessage(msg: OutgoingMessage) {
         when (msg) {
             is ChooseSongMessage -> EventHandler.sendEventToSongList(EventHandler.BLUETOOTH_CHOOSE_SONG, msg.mChoiceInfo)
             is PauseOnScrollStartMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_PAUSE_ON_SCROLL_START)
             is QuitSongMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_QUIT_SONG)
-            is SetSongTimeMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_SET_SONG_TIME,msg.mTime)
-            is ToggleStartStopMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_TOGGLE_START_STOP,msg.mToggleInfo)
+            is SetSongTimeMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_SET_SONG_TIME, msg.mTime)
+            is ToggleStartStopMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_TOGGLE_START_STOP, msg.mToggleInfo)
         }
     }
 

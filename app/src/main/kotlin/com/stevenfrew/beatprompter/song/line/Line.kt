@@ -4,7 +4,7 @@ import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
-abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:Long, val mScrollMode: ScrollingMode, val mSongPixelPosition:Int, val mYStartScrollTime:Long, val mYStopScrollTime:Long, private val mDisplaySettings: DisplaySettings) {
+abstract class Line internal constructor(val mLineTime: Long, val mLineDuration: Long, val mScrollMode: ScrollingMode, val mSongPixelPosition: Int, val mYStartScrollTime: Long, val mYStopScrollTime: Long, private val mDisplaySettings: DisplaySettings) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements: LineMeasurements
@@ -38,45 +38,45 @@ abstract class Line internal constructor(val mLineTime:Long, val mLineDuration:L
     }
 
     private fun calculatePixelFromTime(time: Long): Int {
-        return mSongPixelPosition+mMeasurements.findClosestEarliestPixel(time)
+        return mSongPixelPosition + mMeasurements.findClosestEarliestPixel(time)
     }
 
     internal fun allocateGraphic(graphic: LineGraphic) {
         mGraphics.add(graphic)
     }
 
-    internal fun getGraphics():List<LineGraphic> {
+    internal fun getGraphics(): List<LineGraphic> {
         renderGraphics()
         return mGraphics
     }
 
     internal open fun recycleGraphics() {
-        mGraphics.forEach{it.recycle()}
+        mGraphics.forEach { it.recycle() }
     }
 
-    internal fun isFullyOnScreen(currentSongPixelPosition:Int):Boolean {
-        return currentSongPixelPosition in (mSongPixelPosition+mMeasurements.mLineHeight)-mDisplaySettings.mUsableScreenHeight..mSongPixelPosition
+    internal fun isFullyOnScreen(currentSongPixelPosition: Int): Boolean {
+        return currentSongPixelPosition in (mSongPixelPosition + mMeasurements.mLineHeight) - mDisplaySettings.mUsableScreenHeight..mSongPixelPosition
     }
 
-    internal fun screenCoverage(currentSongPixelPosition:Int):Double {
+    internal fun screenCoverage(currentSongPixelPosition: Int): Double {
         // If line is off top of screen, no coverage
-        if(currentSongPixelPosition>mSongPixelPosition+mMeasurements.mLineHeight)
+        if (currentSongPixelPosition > mSongPixelPosition + mMeasurements.mLineHeight)
             return 0.0
         // If line is off end of screen, no coverage
-        if(currentSongPixelPosition<mSongPixelPosition-mDisplaySettings.mUsableScreenHeight)
+        if (currentSongPixelPosition < mSongPixelPosition - mDisplaySettings.mUsableScreenHeight)
             return 0.0
         // If line fills or covers screen, full coverage!
-        if(currentSongPixelPosition>=mSongPixelPosition && currentSongPixelPosition<=mSongPixelPosition+mMeasurements.mLineHeight)
+        if (currentSongPixelPosition >= mSongPixelPosition && currentSongPixelPosition <= mSongPixelPosition + mMeasurements.mLineHeight)
             return 1.0
         // If line crosses top boundary, return remainder
-        val lineAmountBeforePoint=currentSongPixelPosition-mSongPixelPosition
-        if(lineAmountBeforePoint>mMeasurements.mLineHeight)
-            return (mMeasurements.mLineHeight-lineAmountBeforePoint)/mDisplaySettings.mUsableScreenHeight.toDouble()
+        val lineAmountBeforePoint = currentSongPixelPosition - mSongPixelPosition
+        if (lineAmountBeforePoint > mMeasurements.mLineHeight)
+            return (mMeasurements.mLineHeight - lineAmountBeforePoint) / mDisplaySettings.mUsableScreenHeight.toDouble()
         // If line crosses bottom boundary, return remainder
-        val lineAmountBeforeScreenEnd=(currentSongPixelPosition+mDisplaySettings.mUsableScreenHeight)-mSongPixelPosition
-        if(lineAmountBeforeScreenEnd in 0..mMeasurements.mLineHeight)
-            return lineAmountBeforeScreenEnd/mDisplaySettings.mUsableScreenHeight.toDouble()
+        val lineAmountBeforeScreenEnd = (currentSongPixelPosition + mDisplaySettings.mUsableScreenHeight) - mSongPixelPosition
+        if (lineAmountBeforeScreenEnd in 0..mMeasurements.mLineHeight)
+            return lineAmountBeforeScreenEnd / mDisplaySettings.mUsableScreenHeight.toDouble()
         // Only other scenario is: line entirely onscreen
-        return mMeasurements.mLineHeight/mDisplaySettings.mUsableScreenHeight.toDouble()
+        return mMeasurements.mLineHeight / mDisplaySettings.mUsableScreenHeight.toDouble()
     }
 }

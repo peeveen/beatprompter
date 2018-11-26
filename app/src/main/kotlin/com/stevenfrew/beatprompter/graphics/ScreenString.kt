@@ -78,7 +78,7 @@ class ScreenString private constructor(internal var mText: String, internal var 
         }
 
         private val createRect = Rect()
-        internal fun create(text: String, paint: Paint, fontSize: Float, face: Typeface, color: Int= Color.BLACK): ScreenString {
+        internal fun create(text: String, paint: Paint, fontSize: Float, face: Typeface, color: Int = Color.BLACK): ScreenString {
             paint.typeface = face
             paint.textSize = fontSize * Utils.FONT_SCALING
             var measureText = text

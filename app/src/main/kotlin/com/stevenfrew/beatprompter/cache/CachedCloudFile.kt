@@ -10,8 +10,7 @@ import org.w3c.dom.Element
  */
 abstract class CachedCloudFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : CachedCloudFileDescriptor(cachedCloudFileDescriptor.mFile, cachedCloudFileDescriptor.mID, cachedCloudFileDescriptor.mName, cachedCloudFileDescriptor.mLastModified, cachedCloudFileDescriptor.mSubfolder) {
 
-    fun writeToXML(d: Document, element: Element)
-    {
+    fun writeToXML(d: Document, element: Element) {
         val newElement = d.createElement(this::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
         super.writeToXML(newElement)
         element.appendChild(newElement)

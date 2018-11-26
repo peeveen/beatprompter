@@ -36,9 +36,7 @@ class DemoCloudStorage(parentActivity: Activity) : CloudStorage(parentActivity, 
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME))
                     itemSource.onNext(SuccessfulCloudDownloadResult(cloudFile, createDemoSongAudioFile()))
                 }
-            }
-            catch(ioe:IOException)
-            {
+            } catch (ioe: IOException) {
                 Log.d(BeatPrompterApplication.TAG, "Failed to create demo file", ioe)
                 itemSource.onError(ioe)
                 return

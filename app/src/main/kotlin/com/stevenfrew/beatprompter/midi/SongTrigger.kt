@@ -9,13 +9,13 @@ import com.stevenfrew.beatprompter.comm.midi.message.SongSelectMessage
 
 class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
 
-    private val mBankSelectMSB=bankSelectMSB
-    private val mBankSelectLSB=bankSelectLSB
-    private val mTriggerIndex=triggerIndex
-    private val mChannel=channel
-    private val mType=type
+    private val mBankSelectMSB = bankSelectMSB
+    private val mBankSelectLSB = bankSelectLSB
+    private val mTriggerIndex = triggerIndex
+    private val mChannel = channel
+    private val mType = type
 
-    constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType): this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
+    constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType) : this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
     companion object {
         val DEAD_TRIGGER = SongTrigger(NoValue(), NoValue(), NoValue(), NoValue(), TriggerType.SongSelect)

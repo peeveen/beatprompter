@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Semaphore
 import kotlin.coroutines.CoroutineContext
 
-class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boolean): CoroutineScope {
-    var mLoading=false
-    private val mLoadingUI:SongLoadUITask = SongLoadUITask(this)
-    private val mSemaphore=Semaphore(0)
-    private val mHandler=SongLoadJobEventHandler(this)
-    private val mCancelEvent=SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
-    private val mCoRoutineJob= Job()
+class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Boolean) : CoroutineScope {
+    var mLoading = false
+    private val mLoadingUI: SongLoadUITask = SongLoadUITask(this)
+    private val mSemaphore = Semaphore(0)
+    private val mHandler = SongLoadJobEventHandler(this)
+    private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
+    private val mCoRoutineJob = Job()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + mCoRoutineJob
@@ -30,8 +30,7 @@ class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boole
         mLoadingUI.execute()
     }
 
-    fun startLoading()
-    {
+    fun startLoading() {
         synchronized(this)
         {
             mLoading = true
@@ -43,7 +42,7 @@ class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boole
                     if (mCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
                     Log.d(TAG_LOAD, "Song was loaded successfully.")
-                    mLoadedSong=loadedSong
+                    mLoadedSong = loadedSong
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
                 } catch (e: SongLoadCancelledException) {
                     Log.d(TAG_LOAD, "Song load was cancelled.")
@@ -51,57 +50,51 @@ class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boole
                 } catch (e: Exception) {
                     Log.d(TAG_LOAD, "Song load failed.")
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED, e.message).sendToTarget()
-                }
-                finally {
+                } finally {
                     System.gc()
                 }
             }
         }
     }
 
-    fun stopLoading()
-    {
+    fun stopLoading() {
         mCancelEvent.set()
         mLoadingUI.cancelLoad()
     }
 
-    fun onCompletion()
-    {
+    fun onCompletion() {
         mSemaphore.release()
     }
 
-    fun waitForCompletion()
-    {
+    fun waitForCompletion() {
         mSemaphore.acquire()
     }
 
-    class SongLoadJobEventHandler internal constructor(private val mLoadJob:SongLoadJob) : EventHandler() {
+    class SongLoadJobEventHandler internal constructor(private val mLoadJob: SongLoadJob) : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 EventHandler.SONG_LOAD_COMPLETED -> {
                     mLoadJob.onCompletion()
-                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED,msg.obj)
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED, msg.obj)
                 }
                 EventHandler.SONG_LOAD_FAILED -> {
                     mLoadJob.onCompletion()
                     EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED, msg.obj)
                 }
                 EventHandler.SONG_LOAD_CANCELLED -> mLoadJob.onCompletion()
-                EventHandler.SONG_LOAD_LINE_PROCESSED -> mLoadJob.mLoadingUI.updateProgress(BeatPrompterApplication.getResourceString(R.string.processingSong,mLoadJob.mSongLoadInfo.mSongFile.mTitle),msg.arg1, msg.arg2)
+                EventHandler.SONG_LOAD_LINE_PROCESSED -> mLoadJob.mLoadingUI.updateProgress(BeatPrompterApplication.getResourceString(R.string.processingSong, mLoadJob.mSongLoadInfo.mSongFile.mTitle), msg.arg1, msg.arg2)
             }
         }
     }
 
     companion object {
-        var mLoadedSong:Song?=null
-        var mSongLoadJobOnResume:SongLoadJob?=null
+        var mLoadedSong: Song? = null
+        var mSongLoadJobOnResume: SongLoadJob? = null
 
-        fun onResume()
-        {
-            if(mSongLoadJobOnResume!=null)
-            {
-                val loadJob=mSongLoadJobOnResume!!
-                mSongLoadJobOnResume=null
+        fun onResume() {
+            if (mSongLoadJobOnResume != null) {
+                val loadJob = mSongLoadJobOnResume!!
+                mSongLoadJobOnResume = null
                 SongLoadQueueWatcherTask.loadSong(loadJob)
             }
         }

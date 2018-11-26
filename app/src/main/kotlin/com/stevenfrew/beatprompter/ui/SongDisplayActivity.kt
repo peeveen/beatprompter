@@ -40,8 +40,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
-    private val mMidiClockOutTask= ClockSignalGeneratorTask()
-    private val mMidiClockOutTaskThread=Thread(mMidiClockOutTask)
+    private val mMidiClockOutTask = ClockSignalGeneratorTask()
+    private val mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -61,12 +61,12 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         setContentView(R.layout.activity_song_display)
         val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
-        val songView=potentiallyNullSongView?:return
-        mSongView=songView
+        val songView = potentiallyNullSongView ?: return
+        mSongView = songView
 
-        val song = SongLoadJob.mLoadedSong?:return
-        val loadID: ParcelUuid =intent.extras?.get("loadID") as ParcelUuid
-        if(song.mLoadID != loadID.uuid)
+        val song = SongLoadJob.mLoadedSong ?: return
+        val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
+        if (song.mLoadID != loadID.uuid)
             finish()
 
         mStartedByBandLeader = song.mStartedByBandLeader
@@ -78,14 +78,14 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        song.mInitialMIDIMessages.forEach{MIDIController.mMIDIOutQueue.put(it)}
+        song.mInitialMIDIMessages.forEach { MIDIController.mMIDIOutQueue.put(it) }
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
         EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
-        songView.init(this,song)
+        songView.init(this, song)
 
         if (sendMidiClock)
             mMidiClockOutTaskThread.start()
@@ -215,11 +215,11 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     class SongDisplayEventHandler internal constructor(private val mActivity: SongDisplayActivity, private val mSongView: SongView?) : EventHandler() {
         override fun handleMessage(msg: Message) {
-            if(mSongDisplayActive)
+            if (mSongDisplayActive)
                 when (msg.what) {
                     BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
                     BLUETOOTH_QUIT_SONG -> mActivity.finish()
-                    BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true,true)
+                    BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true, true)
                     BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
                     MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")

@@ -17,8 +17,7 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
     companion object {
         internal const val SET_SONG_TIME_MESSAGE_ID: Byte = 2
 
-        private fun asBytes(t:Long):ByteArray
-        {
+        private fun asBytes(t: Long): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(SET_SONG_TIME_MESSAGE_ID))
                 val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
@@ -33,13 +32,12 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
         }
 
         @Throws(NotEnoughDataException::class)
-        internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage
-        {
+        internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage {
             ByteArrayInputStream(bytes).apply {
                 try {
                     var bytesRead = read(ByteArray(1))
                     if (bytesRead == 1) {
-                        var time:Long = 0
+                        var time: Long = 0
                         val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
                         bytesRead = read(longBytes)
                         if (bytesRead == Utils.LONG_BUFFER_SIZE) {

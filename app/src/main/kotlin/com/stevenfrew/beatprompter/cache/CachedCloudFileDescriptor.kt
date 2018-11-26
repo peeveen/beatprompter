@@ -9,17 +9,16 @@ import java.util.*
  * A description of a cached cloud file. Basically a file on the filesystem, and relevant info about
  * it's source.
  */
-open class CachedCloudFileDescriptor:CloudFileInfo {
+open class CachedCloudFileDescriptor : CloudFileInfo {
     val mFile: File
 
-    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?):super(id,name,lastModified,subfolder)
-    {
-        mFile=file
+    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?) : super(id, name, lastModified, subfolder) {
+        mFile = file
     }
-    constructor(file: File, cloudFileInfo:CloudFileInfo):this(file,cloudFileInfo.mID,cloudFileInfo.mName,cloudFileInfo.mLastModified,cloudFileInfo.mSubfolder)
 
-    constructor(element:Element):super(element)
-    {
+    constructor(file: File, cloudFileInfo: CloudFileInfo) : this(file, cloudFileInfo.mID, cloudFileInfo.mName, cloudFileInfo.mLastModified, cloudFileInfo.mSubfolder)
+
+    constructor(element: Element) : super(element) {
         mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
     }
 

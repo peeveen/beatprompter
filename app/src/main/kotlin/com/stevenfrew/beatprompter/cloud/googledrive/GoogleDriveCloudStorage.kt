@@ -47,7 +47,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
     }
 
     internal inner class GoogleDriveConnectionListener(private var mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        private var mClient: GoogleApiClient?=null
+        private var mClient: GoogleApiClient? = null
         fun setClient(client: GoogleApiClient) {
             mClient = client
         }
@@ -197,7 +197,7 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
                         if (mListener.shouldCancel())
                             break
                         val localFile = downloadGoogleDriveFile(file, safeFilename)
-                        val updatedCloudFile=CloudFileInfo(cloudFile.mID, file.name, Date(file.modifiedTime.value),
+                        val updatedCloudFile = CloudFileInfo(cloudFile.mID, file.name, Date(file.modifiedTime.value),
                                 cloudFile.mSubfolder)
                         SuccessfulCloudDownloadResult(updatedCloudFile, localFile)
                     } else
@@ -228,10 +228,10 @@ class GoogleDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentAct
         private fun downloadGoogleDriveFile(file: com.google.api.services.drive.model.File, filename: String): File {
             val localFile = File(mDownloadFolder, filename)
             val inputStream = getDriveFileInputStream(file)
-            inputStream?.use{ inStream ->
+            inputStream?.use { inStream ->
                 Log.d(BeatPrompterApplication.TAG, "Creating new local file, " + localFile.absolutePath)
                 val fos = FileOutputStream(localFile)
-                fos.use{
+                fos.use {
                     Utils.streamToStream(inStream, it)
                 }
             }

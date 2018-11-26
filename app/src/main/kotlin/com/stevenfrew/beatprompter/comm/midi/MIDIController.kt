@@ -23,8 +23,8 @@ import com.stevenfrew.beatprompter.comm.ReceiverTasks
 object MIDIController {
     private var mMidiUsbRegistered = false
     private var mUsbManager: UsbManager? = null
-    private var mNativeMidiManager:MidiManager?=null
-    private var mMidiNativeDeviceListener:MidiNativeDeviceListener?=null
+    private var mNativeMidiManager: MidiManager? = null
+    private var mMidiNativeDeviceListener: MidiNativeDeviceListener? = null
 
     private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
     private var mPermissionIntent: PendingIntent? = null
@@ -32,15 +32,14 @@ object MIDIController {
     private const val MIDI_QUEUE_SIZE = 1024
 
     var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
-    private val mSenderTask= SenderTask(mMIDIOutQueue)
-    private val mReceiverTasks= ReceiverTasks()
+    private val mSenderTask = SenderTask(mMIDIOutQueue)
+    private val mReceiverTasks = ReceiverTasks()
 
-    private val mSenderTaskThread=Thread(mSenderTask)
+    private val mSenderTaskThread = Thread(mSenderTask)
 
-    private fun addNativeDevice(nativeDeviceInfo:MidiDeviceInfo)
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager!=null)
-            mNativeMidiManager!!.openDevice(nativeDeviceInfo,mMidiNativeDeviceListener,null)
+    private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager != null)
+            mNativeMidiManager!!.openDevice(nativeDeviceInfo, mMidiNativeDeviceListener, null)
     }
 
     private val mUsbReceiver = object : BroadcastReceiver() {
@@ -54,8 +53,7 @@ object MIDIController {
                     mSenderTask.removeSender(deviceName)
                     mReceiverTasks.stopAndRemoveReceiver(deviceName)
                 }
-            }
-            else if (ACTION_USB_PERMISSION == action) {
+            } else if (ACTION_USB_PERMISSION == action) {
                 synchronized(this) {
                     val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
@@ -69,9 +67,9 @@ object MIDIController {
                                         for (f in 0 until endpointCount) {
                                             val endPoint = midiInterface.getEndpoint(f)
                                             if (endPoint.direction == UsbConstants.USB_DIR_OUT)
-                                                mSenderTask.addSender(device.deviceName,UsbSender(conn,endPoint,device.deviceName))
+                                                mSenderTask.addSender(device.deviceName, UsbSender(conn, endPoint, device.deviceName))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
-                                                mReceiverTasks.addReceiver(device.deviceName,device.deviceName,UsbReceiver(conn,endPoint,device.deviceName))
+                                                mReceiverTasks.addReceiver(device.deviceName, device.deviceName, UsbReceiver(conn, endPoint, device.deviceName))
                                             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, device.deviceName)
                                         }
                                     }
@@ -134,9 +132,8 @@ object MIDIController {
         mSenderTaskThread.start()
         Task.resumeTask(mSenderTask)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
-            mMidiNativeDeviceListener=MidiNativeDeviceListener()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mMidiNativeDeviceListener = MidiNativeDeviceListener()
             mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
             mNativeMidiManager?.devices?.forEach { addNativeDevice(it) }
             mNativeMidiManager?.registerDeviceCallback(mMidiNativeDeviceListener, null)
@@ -164,8 +161,7 @@ object MIDIController {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    class MidiNativeDeviceListener:MidiManager.OnDeviceOpenedListener,MidiManager.DeviceCallback()
-    {
+    class MidiNativeDeviceListener : MidiManager.OnDeviceOpenedListener, MidiManager.DeviceCallback() {
         override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) {
             addNativeDevice(deviceInfo)
         }
@@ -180,19 +176,17 @@ object MIDIController {
         override fun onDeviceOpened(openedDevice: MidiDevice?) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 try {
-                    openedDevice?.apply{
-                        val deviceName=""+info.properties[MidiDeviceInfo.PROPERTY_NAME]
+                    openedDevice?.apply {
+                        val deviceName = "" + info.properties[MidiDeviceInfo.PROPERTY_NAME]
                         info.ports.forEach {
                             if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
-                                mReceiverTasks.addReceiver(deviceName,deviceName,NativeReceiver(openedDevice.openOutputPort(it.portNumber),deviceName))
+                                mReceiverTasks.addReceiver(deviceName, deviceName, NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName))
                             else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
-                                mSenderTask.addSender(deviceName,NativeSender(openedDevice.openInputPort(it.portNumber),deviceName))
+                                mSenderTask.addSender(deviceName, NativeSender(openedDevice.openInputPort(it.portNumber), deviceName))
                         }
                         EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, deviceName)
                     }
-                }
-                catch(ioException:Exception)
-                {
+                } catch (ioException: Exception) {
                     // Obviously not for us.
                 }
         }

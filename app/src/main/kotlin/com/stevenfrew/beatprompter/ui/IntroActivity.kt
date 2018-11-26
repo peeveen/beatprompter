@@ -11,12 +11,12 @@ import com.stevenfrew.beatprompter.R
 
 class IntroActivity : AppIntro() {
 
-    data class IntroPageInfo constructor(val caption:Int,val description:Int,val image:Int)
+    data class IntroPageInfo constructor(val caption: Int, val description: Int, val image: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val pageInfo=arrayOf(
+        val pageInfo = arrayOf(
                 IntroPageInfo(R.string.welcome_to_beatprompter, R.string.welcome_to_beatprompter_description, R.drawable.beatprompter_logo),
                 IntroPageInfo(R.string.turn_turn_turn, R.string.works_best_in_landscape, R.drawable.landscape_best),
                 IntroPageInfo(R.string.cloud_sync_explanation_title, R.string.cloud_sync_explanation, R.drawable.cloud_sync_diagram),

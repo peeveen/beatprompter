@@ -6,13 +6,13 @@ import android.content.res.Resources
 import android.os.AsyncTask
 import com.stevenfrew.beatprompter.ui.SongListActivity
 
-class SongLoadUITask(private val mLoadJob:SongLoadJob): AsyncTask<String, Int, Boolean>() {
-    private var mProgressDialog:ProgressDialog?=null
-    private var mProgressTitle=""
+class SongLoadUITask(private val mLoadJob: SongLoadJob) : AsyncTask<String, Int, Boolean>() {
+    private var mProgressDialog: ProgressDialog? = null
+    private var mProgressTitle = ""
 
     override fun onPreExecute() {
         super.onPreExecute()
-        if(!isCancelled)
+        if (!isCancelled)
             mProgressDialog = ProgressDialog(SongListActivity.mSongListInstance).apply {
                 setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
                 setMessage(mLoadJob.mSongLoadInfo.mSongFile.mTitle)
@@ -30,7 +30,7 @@ class SongLoadUITask(private val mLoadJob:SongLoadJob): AsyncTask<String, Int, B
     override fun onCancelled() {
         super.onCancelled()
         mProgressDialog?.dismiss()
-        mProgressDialog=null
+        mProgressDialog = null
     }
 
     override fun onProgressUpdate(vararg values: Int?) {
@@ -52,19 +52,17 @@ class SongLoadUITask(private val mLoadJob:SongLoadJob): AsyncTask<String, Int, B
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         mProgressDialog?.dismiss()
-        mProgressDialog=null
+        mProgressDialog = null
     }
 
-    internal fun updateProgress(message:String,currentProgress:Int,max:Int)
-    {
-        mProgressTitle=message
-        publishProgress(currentProgress,max)
+    internal fun updateProgress(message: String, currentProgress: Int, max: Int) {
+        mProgressTitle = message
+        publishProgress(currentProgress, max)
     }
 
-    internal fun cancelLoad()
-    {
+    internal fun cancelLoad() {
         mProgressDialog?.dismiss()
-        mProgressDialog=null
+        mProgressDialog = null
         cancel(true)
     }
 }

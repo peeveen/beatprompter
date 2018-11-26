@@ -10,13 +10,13 @@ import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 import kotlin.experimental.and
 
-abstract class Receiver(name:String): ReceiverBase(name) {
+abstract class Receiver(name: String) : ReceiverBase(name) {
     private var mInSysEx: Boolean = false
 
     private var mMidiBankMSBs = ByteArray(16)
     private var mMidiBankLSBs = ByteArray(16)
 
-    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int):Int {
+    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Int {
         var f = dataStart
         while (f < dataEnd) {
             val messageByte = buffer[f]
@@ -37,8 +37,8 @@ abstract class Receiver(name:String): ReceiverBase(name) {
                         EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
                     else if (messageByte == Message.MIDI_SONG_POSITION_POINTER_BYTE)
                     // This message requires two additional bytes.
-                        if(f < dataEnd - 2)
-                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++f], buffer[++f]),0)
+                        if (f < dataEnd - 2)
+                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++f], buffer[++f]), 0)
                         else
                         // Not enough data left.
                             break
@@ -59,25 +59,23 @@ abstract class Receiver(name:String): ReceiverBase(name) {
                             val channel = (messageByte and 0x0F)
                             if (channelsToListenTo and (1 shl channel.toInt()) != 0) {
                                 if (messageByteWithoutChannel == Message.MIDI_PROGRAM_CHANGE_BYTE)
-                                    // This message requires one additional byte.
+                                // This message requires one additional byte.
                                     if (f < dataEnd - 1) {
-                                        val pcValues= byteArrayOf(mMidiBankMSBs[channel.toInt()],mMidiBankLSBs[channel.toInt()],buffer[++f],channel)
+                                        val pcValues = byteArrayOf(mMidiBankMSBs[channel.toInt()], mMidiBankLSBs[channel.toInt()], buffer[++f], channel)
                                         EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, pcValues)
-                                    }
-                                    else
+                                    } else
                                         break
                                 else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {
                                     // The only control change value we care about are bank selects.
                                     // Control change messages have two additional bytes.
                                     if (f < dataEnd - 2) {
-                                        val controller=buffer[++f]
-                                        val bankValue=buffer[++f]
-                                        if(controller==Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
+                                        val controller = buffer[++f]
+                                        val bankValue = buffer[++f]
+                                        if (controller == Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
                                             mMidiBankMSBs[channel.toInt()] = bankValue
-                                        else if(controller==Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
+                                        else if (controller == Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
                                             mMidiBankLSBs[channel.toInt()] = bankValue
-                                    }
-                                    else
+                                    } else
                                         break
                                 }
                             }
@@ -89,12 +87,12 @@ abstract class Receiver(name:String): ReceiverBase(name) {
         }
         // If we broke out of this loop before the end of the actual loop, then f will be ON the last read byte
         // We want to move back one so that that byte becomes part of the next parsing operation.
-        if(f!=dataEnd)
+        if (f != dataEnd)
             --f
-        return f-dataStart
+        return f - dataStart
     }
 
-    companion object:SharedPreferences.OnSharedPreferenceChangeListener {
+    companion object : SharedPreferences.OnSharedPreferenceChangeListener {
         init {
             BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
         }
@@ -104,14 +102,14 @@ abstract class Receiver(name:String): ReceiverBase(name) {
                 setIncomingChannels()
         }
 
-        private const val ZERO_AS_BYTE=0.toByte()
-        private const val EIGHT_ZERO_HEX=0x80.toByte()
-        private const val F_ZERO_HEX=0xF0.toByte()
+        private const val ZERO_AS_BYTE = 0.toByte()
+        private const val EIGHT_ZERO_HEX = 0x80.toByte()
+        private const val F_ZERO_HEX = 0xF0.toByte()
 
-        private var mIncomingChannels=getIncomingChannelsPrefValue()
+        private var mIncomingChannels = getIncomingChannelsPrefValue()
         private val mIncomingChannelsLock = Any()
 
-        private fun getIncomingChannelsPrefValue():Int {
+        private fun getIncomingChannelsPrefValue(): Int {
             return BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_midiIncomingChannels_key), 65535)
         }
 
@@ -127,8 +125,7 @@ abstract class Receiver(name:String): ReceiverBase(name) {
             }
         }
 
-        private fun calculateMidiBeat(byte1:Byte,byte2:Byte):Int
-        {
+        private fun calculateMidiBeat(byte1: Byte, byte2: Byte): Int {
             var firstHalf = byte2.toInt()
             firstHalf = firstHalf shl 7
             val secondHalf = byte1.toInt()

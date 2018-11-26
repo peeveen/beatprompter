@@ -11,7 +11,7 @@ import java.util.*
 /**
  * A thread that continuously attempts to connect to a band leader.
  */
-internal class ConnectToServerThread constructor(private val mDevice: BluetoothDevice, private val mUUID: UUID, private val mOnConnectedFunction:(socket:BluetoothSocket)->Unit) : Thread() {
+internal class ConnectToServerThread constructor(private val mDevice: BluetoothDevice, private val mUUID: UUID, private val mOnConnectedFunction: (socket: BluetoothSocket) -> Unit) : Thread() {
     private var mmSocket: BluetoothSocket? = null
     private var mStop = false
 
@@ -22,13 +22,13 @@ internal class ConnectToServerThread constructor(private val mDevice: BluetoothD
                     // Connect the device through the socket. This will block
                     // until it succeeds or throws an exception, which can happen
                     // if it doesn't find anything to connect to within about 4 seconds.
-                    val socket=mDevice.createRfcommSocketToServiceRecord(mUUID)
+                    val socket = mDevice.createRfcommSocketToServiceRecord(mUUID)
                     Log.d(BeatPrompterApplication.TAG_COMMS, "Attempting to connect to a Bluetooth server on '${mDevice.name}'.")
-                    socket?.connect().also{
+                    socket?.connect().also {
                         // If the previous line didn't throw an IOException, then it connected OK.
                         // Do work to manage the connection (in a separate thread)
                         Log.d(BeatPrompterApplication.TAG_COMMS, "Connected to a Bluetooth server on '${mDevice.name}'.")
-                        mmSocket=socket
+                        mmSocket = socket
                         mOnConnectedFunction(socket)
                     }
                 } catch (connectException: Exception) {

@@ -14,7 +14,7 @@ import io.reactivex.subjects.PublishSubject
 
 abstract class CloudStorage protected constructor(protected var mParentActivity: Activity, cloudCacheFolderName: String) {
     // TODO: Figure out when to call dispose on this.
-    private val mCompositeDisposable=CompositeDisposable()
+    private val mCompositeDisposable = CompositeDisposable()
 
     var cacheFolder: CloudCacheFolder
         protected set

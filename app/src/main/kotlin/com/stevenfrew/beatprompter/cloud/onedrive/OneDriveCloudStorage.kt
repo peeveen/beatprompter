@@ -129,7 +129,7 @@ class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivi
                         if (mListener.shouldCancel())
                             break
                         val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
-                        val updatedCloudFile=CloudFileInfo(file.mID,driveFile.name,driveFile.lastModifiedDateTime.time,
+                        val updatedCloudFile = CloudFileInfo(file.mID, driveFile.name, driveFile.lastModifiedDateTime.time,
                                 file.mSubfolder)
                         result = SuccessfulCloudDownloadResult(updatedCloudFile, localFile)
                     } else
@@ -160,7 +160,7 @@ class OneDriveCloudStorage(parentActivity: Activity) : CloudStorage(parentActivi
             val fos = FileOutputStream(localFile)
             fos.use {
                 val inputStream = client.drive.getItems(file.id).content.buildRequest().get()
-                inputStream.use { inStream->
+                inputStream.use { inStream ->
                     Utils.streamToStream(inStream, fos)
                 }
             }

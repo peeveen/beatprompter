@@ -11,4 +11,4 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that means "switch to manual mode" on this line.
  */
-class BeatStopTag internal constructor(name:String,lineNumber:Int,position:Int): Tag(name,lineNumber,position)
+class BeatStopTag internal constructor(name: String, lineNumber: Int, position: Int) : Tag(name, lineNumber, position)

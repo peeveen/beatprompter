@@ -22,7 +22,7 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) : OutgoingMes
     companion object {
         internal const val TOGGLE_START_STOP_MESSAGE_ID: Byte = 1
 
-        private fun asBytes(toggleInfo: StartStopToggleInfo):ByteArray {
+        private fun asBytes(toggleInfo: StartStopToggleInfo): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(TOGGLE_START_STOP_MESSAGE_ID, toggleInfo.mStartState.asValue().toByte()))
                 val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
@@ -38,7 +38,7 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) : OutgoingMes
 
         @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): ToggleStartStopMessage {
-            ByteArrayInputStream(bytes).apply{
+            ByteArrayInputStream(bytes).apply {
                 try {
                     var bytesRead = read(ByteArray(1))
                     if (bytesRead == 1) {

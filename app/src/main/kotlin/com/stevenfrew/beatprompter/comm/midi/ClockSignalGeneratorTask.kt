@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 
 class ClockSignalGeneratorTask : Task(false) {
-    private val mRegistered= SongListActivity.mSongListInstance.fullVersionUnlocked()
+    private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
     private var mLastSignalTime = 0.0
     private var mClockSignalsSent = 0
     private var mNanoSecondsPerMidiSignal = 0.0

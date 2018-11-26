@@ -12,4 +12,4 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that instructs the app to output MIDI clock signals at the same tempo as the song.
  */
-class SendMIDIClockTag internal constructor(name:String, lineNumber:Int, position:Int): Tag(name,lineNumber,position)
+class SendMIDIClockTag internal constructor(name: String, lineNumber: Int, position: Int) : Tag(name, lineNumber, position)

@@ -13,4 +13,4 @@ import com.stevenfrew.beatprompter.midi.TriggerType
  * Tag that defines a MIDI song select event that, if received, will cause this song to be
  * automatically started.
  */
-class MIDISongSelectTriggerTag internal constructor(name:String,lineNumber:Int,position:Int,triggerDescriptor:String): MIDITriggerTag(name,lineNumber,position,triggerDescriptor, TriggerType.SongSelect)
+class MIDISongSelectTriggerTag internal constructor(name: String, lineNumber: Int, position: Int, triggerDescriptor: String) : MIDITriggerTag(name, lineNumber, position, triggerDescriptor, TriggerType.SongSelect)

@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm
 
-open class OutgoingMessage(val mBytes:ByteArray) {
-    val length:Int
+open class OutgoingMessage(val mBytes: ByteArray) {
+    val length: Int
         get() = mBytes.size
 
     override fun toString(): String {

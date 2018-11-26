@@ -14,5 +14,5 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the start of a block of highlighted text.
  */
-class StartOfHighlightTag internal constructor(name:String,lineNumber:Int,position:Int,value:String)
-    : ColorTag(name,lineNumber,position,if(value.isBlank()) "#"+((BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))) and 0x00FFFFFF).toString(16).padStart(6,'0')) else value)
+class StartOfHighlightTag internal constructor(name: String, lineNumber: Int, position: Int, value: String)
+    : ColorTag(name, lineNumber, position, if (value.isBlank()) "#" + ((BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default))) and 0x00FFFFFF).toString(16).padStart(6, '0')) else value)

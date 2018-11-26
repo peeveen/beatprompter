@@ -15,14 +15,13 @@ import kotlin.reflect.KClass
  * Should only construct one TagParsingHelper per file type, instead of one per file.
  */
 object TagParsingUtility {
-    private val mHelperMap=mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
-    fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T>
-    {
+    private val mHelperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
+    fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T> {
         return mHelperMap.getOrPut(parser::class) { TagParsingHelper(parser) as TagParsingHelper<Any> } as TagParsingHelper<T>
     }
 
     @Throws(MalformedTagException::class)
-    fun parseIntegerValue(value:String,min: Int, max: Int): Int {
+    fun parseIntegerValue(value: String, min: Int, max: Int): Int {
         try {
             return value.toInt().also {
                 if (it < min)
@@ -36,7 +35,7 @@ object TagParsingUtility {
     }
 
     @Throws(MalformedTagException::class)
-    fun parseDurationValue(value:String,min: Long, max: Long, trackLengthAllowed: Boolean): Long {
+    fun parseDurationValue(value: String, min: Long, max: Long, trackLengthAllowed: Boolean): Long {
         try {
             return Utils.milliToNano(Utils.parseDuration(value, trackLengthAllowed).also {
                 if (it < min && it != Utils.TRACK_AUDIO_LENGTH_VALUE)
@@ -50,7 +49,7 @@ object TagParsingUtility {
     }
 
     @Throws(MalformedTagException::class)
-    fun parseDoubleValue(value:String,min: Int, max: Int): Double {
+    fun parseDoubleValue(value: String, min: Int, max: Int): Double {
         try {
             return value.toDouble().also {
                 if (it < min)
@@ -64,7 +63,7 @@ object TagParsingUtility {
     }
 
     @Throws(MalformedTagException::class)
-    fun parseColourValue(value:String): Int {
+    fun parseColourValue(value: String): Int {
         return try {
             Color.parseColor(value)
         } catch (iae: IllegalArgumentException) {
@@ -140,7 +139,7 @@ object TagParsingUtility {
             } catch (nfe: NumberFormatException) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
             }
-            else->throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
+            else -> throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_byte_value))
         }
     }
 }
