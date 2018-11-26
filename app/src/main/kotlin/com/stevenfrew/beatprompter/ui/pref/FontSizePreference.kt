@@ -41,6 +41,8 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
                 BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_default))
                 BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_default))
                 BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_default))
+                BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default))
+                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeManual_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeManual_default))
                 else -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default))
             }
         }
