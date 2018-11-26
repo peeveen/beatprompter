@@ -79,24 +79,27 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFile
             mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
     }
 
-    @Throws(MalformedTagException::class)
     private fun createAliasComponent(tag: MIDIAliasInstructionTag): AliasComponent {
         val instructions = tag.mInstructions
         val name = tag.mName
         val componentArgs = mutableListOf<Value>()
         val paramBits = instructions.splitAndTrim(",")
         for ((paramCounter, paramBit) in paramBits.withIndex()) {
-            val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
-            componentArgs.add(aliasValue)
+            try {
+                val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
+                componentArgs.add(aliasValue)
+            } catch (mte: MalformedTagException) {
+                mErrors.add(FileParseError(tag, mte.message!!))
+            }
         }
         val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
         var channelArg: ChannelValue? = null
         if (channelArgs.size > 1)
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_channel_args))
+            mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_channel_args)))
         else if (channelArgs.size == 1) {
             channelArg = channelArgs.first()
             if (componentArgs.last() != channelArg)
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+                mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter)))
             componentArgs.remove(channelArg)
         }
         return if (name.equals("midi_send", ignoreCase = true))

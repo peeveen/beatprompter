@@ -1,4 +1,21 @@
 <resources>
+    <string name="midiButton1" translatable="false">1</string>
+    <string name="midiButton2" translatable="false">2</string>
+    <string name="midiButton3" translatable="false">3</string>
+    <string name="midiButton4" translatable="false">4</string>
+    <string name="midiButton5" translatable="false">5</string>
+    <string name="midiButton6" translatable="false">6</string>
+    <string name="midiButton7" translatable="false">7</string>
+    <string name="midiButton8" translatable="false">8</string>
+    <string name="midiButton9" translatable="false">9</string>
+    <string name="midiButton10" translatable="false">10</string>
+    <string name="midiButton11" translatable="false">11</string>
+    <string name="midiButton12" translatable="false">12</string>
+    <string name="midiButton13" translatable="false">13</string>
+    <string name="midiButton14" translatable="false">14</string>
+    <string name="midiButton15" translatable="false">15</string>
+    <string name="midiButton16" translatable="false">16</string>
+    <string name="pointlessString" translatable="false">abc</string>
     <string name="version" translatable="false">v1.30</string>
     <string name="app_name">BeatPrompter</string>
     <string name="author_name" translatable="false">Steven Frew</string>

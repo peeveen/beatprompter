@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="AbcOpqXyz"
+        android:text="@string/pointlessString"
         android:id="@+id/fontSizeTextView"
         android:layout_gravity="center_horizontal"
         android:height="300dp"

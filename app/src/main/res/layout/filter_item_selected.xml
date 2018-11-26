@@ -12,7 +12,7 @@
         android:ellipsize="end"
         android:textColor="#de000000"
         android:maxLines="1"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_marginBottom="0dp"
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"
