@@ -31,6 +31,7 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
 
     internal class FolderContentsFetchHandler(private var mChooseFolderDialog: ChooseCloudFolderDialog) : Handler() {
         override fun handleMessage(msg: Message) {
+            @Suppress("UNCHECKED_CAST")
             when (msg.what) {
                 EventHandler.FOLDER_CONTENTS_FETCHED -> mChooseFolderDialog.populateBrowser(msg.obj as MutableList<CloudItemInfo>)
                 EventHandler.FOLDER_CONTENTS_FETCHING -> mChooseFolderDialog.updateProgress(msg.arg1, msg.arg2)
