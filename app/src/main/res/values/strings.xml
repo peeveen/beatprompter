@@ -407,7 +407,7 @@
     <string name="pref_maxFontSize_key" translatable="false">pref_maxFontSize</string>
     <string name="pref_maxFontSize_title">Maximum font size (beat-scrolling)</string>
     <string name="pref_maxFontSize_summary">The largest font size that will be used in beat-scrolling mode.</string>
-    <string name="pref_maxFontSize_default" translatable="false">92</string>
+    <string name="pref_maxFontSize_default" translatable="false">52</string>
 
     <string name="pref_minFontSizeSmooth_key" translatable="false">pref_minFontSizeSmooth</string>
     <string name="pref_minFontSizeSmooth_title">Minimum font size (smooth scrolling)</string>
