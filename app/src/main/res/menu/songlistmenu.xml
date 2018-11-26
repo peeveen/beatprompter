@@ -8,7 +8,7 @@
         android:title=""
         android:visible="true"
         app:actionLayout="@layout/bluetooth_status_indicator_layout"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/tagspinnerlayout"
         android:enabled="true"
