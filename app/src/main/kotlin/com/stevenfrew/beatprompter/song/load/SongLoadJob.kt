@@ -62,7 +62,7 @@ class SongLoadJob(val mSongLoadInfo:SongLoadInfo, private val mRegistered: Boole
     fun stopLoading()
     {
         mCancelEvent.set()
-        mLoadingUI.cancel(true)
+        mLoadingUI.cancelLoad()
     }
 
     fun onCompletion()

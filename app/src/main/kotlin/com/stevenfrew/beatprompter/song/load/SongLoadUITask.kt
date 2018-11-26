@@ -30,12 +30,13 @@ class SongLoadUITask(private val mLoadJob:SongLoadJob): AsyncTask<String, Int, B
     override fun onCancelled() {
         super.onCancelled()
         mProgressDialog?.dismiss()
+        mProgressDialog=null
     }
 
     override fun onProgressUpdate(vararg values: Int?) {
         super.onProgressUpdate(*values)
         if (values.size > 1) {
-            mProgressDialog!!.apply {
+            mProgressDialog?.apply {
                 setMessage(mProgressTitle)
                 max = values[1]!!
                 progress = values[0]!!
@@ -51,11 +52,19 @@ class SongLoadUITask(private val mLoadJob:SongLoadJob): AsyncTask<String, Int, B
     override fun onPostExecute(result: Boolean?) {
         super.onPostExecute(result)
         mProgressDialog?.dismiss()
+        mProgressDialog=null
     }
 
     internal fun updateProgress(message:String,currentProgress:Int,max:Int)
     {
         mProgressTitle=message
         publishProgress(currentProgress,max)
+    }
+
+    internal fun cancelLoad()
+    {
+        mProgressDialog?.dismiss()
+        mProgressDialog=null
+        cancel(true)
     }
 }
