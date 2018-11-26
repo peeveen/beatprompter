@@ -85,9 +85,9 @@ class MIDIEventTag internal constructor(name:String,lineNumber:Int,position:Int,
                     resolvedBytes[f] = paramValues[f].resolve()
                 for (alias in aliases)
                     if (alias.mName.equals(tagName, ignoreCase = true))
-                        return Pair(alias.resolve(aliases, resolvedBytes, channel), eventOffset)
+                        return alias.resolve(aliases, resolvedBytes, channel) to eventOffset
                 if (tagName == "midi_send")
-                    return Pair(listOf(OutgoingMessage(resolvedBytes)), eventOffset)
+                    return listOf(OutgoingMessage(resolvedBytes)) to eventOffset
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, tagName))
             } catch (re: ResolutionException) {
                 throw MalformedTagException(re.message!!)

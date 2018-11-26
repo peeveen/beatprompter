@@ -48,13 +48,13 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
                         val startedByClass = startedByAnnotation.mStartedBy
                         val startedByEndedByAnnotation = startedByClass.findAnnotation<EndedBy>()!!
                         val endedByClass = startedByEndedByAnnotation.mEndedBy
-                        if (!livePairings.remove(Pair(startedByClass, endedByClass)))
+                        if (!livePairings.remove(startedByClass to endedByClass))
                             mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.ending_tag_found_before_starting_tag, tag.mName)))
                     } else if (endedByAnnotation != null) {
                         val endedByClass = endedByAnnotation.mEndedBy
                         val endedByStartedByAnnotation = endedByClass.findAnnotation<StartedBy>()!!
                         val startedByClass = endedByStartedByAnnotation.mStartedBy
-                        val pairing = Pair(startedByClass, endedByClass)
+                        val pairing = startedByClass to endedByClass
                         if (livePairings.contains(pairing))
                             mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.starting_tag_found_after_starting_tag, tag.mName)))
                         else
@@ -82,7 +82,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedClou
         // Should we ignore this tag?
         if(!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {
             // Nope, better parse it!
-            val tagClass = parseHelper.mNameToClassMap[Pair(foundTag.mType, foundTag.mName)]
+            val tagClass = parseHelper.mNameToClassMap[foundTag.mType to foundTag.mName]
                     ?: parseHelper.mNoNameToClassMap[foundTag.mType]
             if (tagClass != null) {
                 // We found a match!

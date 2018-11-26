@@ -25,7 +25,7 @@ class LocalStorage(parentActivity: Activity) : CloudStorage(parentActivity, "loc
     }
 
     override fun downloadFiles(filesToRefresh: List<CloudFileInfo>, cloudListener: CloudListener, itemSource: PublishSubject<CloudDownloadResult>, messageSource: PublishSubject<String>) {
-        filesToRefresh.map{SuccessfulCloudDownloadResult(it, File(it.mID))}.forEach {
+        filesToRefresh.map { sourceCloudFile -> File(sourceCloudFile.mID) to sourceCloudFile.mSubfolder }.map { updatedFile -> SuccessfulCloudDownloadResult(CloudFileInfo(updatedFile.first.absolutePath, updatedFile.first.name, Date(updatedFile.first.lastModified()), updatedFile.second), updatedFile.first) }.forEach {
             messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, it.cachedCloudFileDescriptor.mName))
             itemSource.onNext(it)
         }
@@ -33,21 +33,21 @@ class LocalStorage(parentActivity: Activity) : CloudStorage(parentActivity, "loc
     }
 
     override fun readFolderContents(folder: CloudFolderInfo, listener: CloudListener, itemSource: PublishSubject<CloudItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
-        val foldersToSearch=mutableListOf(folder)
-        while(foldersToSearch.isNotEmpty()) {
-            val folderToSearch=foldersToSearch.removeAt(0)
+        val foldersToSearch = mutableListOf(folder)
+        while (foldersToSearch.isNotEmpty()) {
+            val folderToSearch = foldersToSearch.removeAt(0)
             val localFolder = File(folderToSearch.mID)
             messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, localFolder.name))
             try {
                 val files = localFolder.listFiles()
                 if (files != null) {
                     files.filter { it.isFile }.map { CloudFileInfo(it.absolutePath, it.name, Date(it.lastModified()), localFolder.name) }.forEach { itemSource.onNext(it) }
-                    if(includeSubfolders)
-                        foldersToSearch.addAll(files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)})
-                    if(returnFolders)
-                        files.filter{it.isDirectory}.map{CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath)}.forEach{itemSource.onNext(it)}
+                    if (includeSubfolders)
+                        foldersToSearch.addAll(files.filter { it.isDirectory }.map { CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath) })
+                    if (returnFolders)
+                        files.filter { it.isDirectory }.map { CloudFolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath) }.forEach { itemSource.onNext(it) }
                 }
-            } catch (e:Exception) {
+            } catch (e: Exception) {
                 itemSource.onError(e)
                 return
             }

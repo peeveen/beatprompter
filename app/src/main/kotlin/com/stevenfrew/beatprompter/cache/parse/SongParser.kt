@@ -721,7 +721,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         }
         if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
             startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
-        return Pair(startScreenStrings,nextSongString)
+        return startScreenStrings to nextSongString
     }
 
     private fun calculateStartAndStopScrollTimes(pauseTag:PauseTag?,lineStartTime:Long,lineDuration:Long,currentBeatEvents:EventBlock?):Pair<Long,Long>

@@ -40,9 +40,9 @@ class SetListEntry private constructor(private val mNormalizedTitle:String,priva
         {
             val bits=setListFileLine.splitAndTrim(SET_LIST_ENTRY_DELIMITER)
             return if(bits.size>1)
-                Pair(bits[0],bits[1])
+                bits[0] to bits[1]
             else
-                Pair(bits[0],"")
+                bits[0] to ""
         }
     }
 }

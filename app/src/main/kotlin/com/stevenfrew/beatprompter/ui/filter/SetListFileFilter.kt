@@ -40,7 +40,7 @@ open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<S
             return setListEntries.mapNotNull { entry ->
                 val fullMatch = songFiles.firstOrNull { song: SongFile -> entry.matches(song) == desiredMatchType }
                 if (fullMatch != null)
-                    Pair(entry, fullMatch)
+                    entry to fullMatch
                 else
                     null
             }
