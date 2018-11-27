@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.cache.AudioFile
 import java.util.*
 
-data class SongLoadInfo(var mSongFile: SongFile, var mTrack: AudioFile?, var mSongLoadMode: ScrollingMode, var mNextSong: String, var mStartedByBandLeader: Boolean, var mStartedByMIDITrigger: Boolean, var mNativeDisplaySettings: DisplaySettings, var mSourceDisplaySettings: DisplaySettings) {
+data class SongLoadInfo(val mSongFile: SongFile, val mTrack: AudioFile?, val mSongLoadMode: ScrollingMode, val mNextSong: String, val mStartedByBandLeader: Boolean, val mStartedByMIDITrigger: Boolean, val mNativeDisplaySettings: DisplaySettings, val mSourceDisplaySettings: DisplaySettings, val mNoAudio: Boolean) {
     val mLoadID = UUID.randomUUID()!!
     val initialScrollMode
         get() = if (mixedModeActive) ScrollingMode.Manual else mSongLoadMode

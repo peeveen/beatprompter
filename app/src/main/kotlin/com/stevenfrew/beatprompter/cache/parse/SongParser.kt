@@ -41,7 +41,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     private val mCustomCommentsUser: String
     private val mShowChords: Boolean
     private val mShowKey: Boolean
-    private val mManualMode: Boolean
     private val mShowBPM: ShowBPM
     private val mTriggerContext: TriggerOutputContext
     private val mNativeDeviceSettings: DisplaySettings
@@ -77,7 +76,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         mSendMidiClock = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
         mCountIn = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
         mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
-        mManualMode = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_manualMode_key), false)
         mDefaultHighlightColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default)))
         mCustomCommentsUser = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue)) ?: ""
         mShowChords = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
@@ -182,12 +180,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                     when {
                         mStopAddingStartupItems -> audioTagsThisLine.firstOrNull()
                         mSongLoadInfo.mTrack == null -> mAudioTags.firstOrNull()
-                        else -> mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack!!.mNormalizedName }
+                        else -> mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack.mNormalizedName }
                     }
             mAudioTags.clear()
 
             // No audio WHATSOEVER in manual mode
-            if (audioTag != null && !mManualMode) {
+            if (audioTag != null && !mSongLoadInfo.mNoAudio) {
                 // Make sure file exists.
                 val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
                 if (mappedTracks.isEmpty())

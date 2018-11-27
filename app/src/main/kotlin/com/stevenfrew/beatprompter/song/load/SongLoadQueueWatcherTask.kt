@@ -75,7 +75,8 @@ object SongLoadQueueWatcherTask : Task(true) {
                         loadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
                         loadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
                         loadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
-                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize))
+                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
+                        loadJob.mSongLoadInfo.mNoAudio))
                 BluetoothManager.mBluetoothOutQueue.put(csm)
 
                 synchronized(mSongsToLoad)

@@ -33,6 +33,7 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                     writeFloat(choiceInfo.mMaxFontSize)
                     writeInt(choiceInfo.mScreenSize.width())
                     writeInt(choiceInfo.mScreenSize.height())
+                    writeBoolean(choiceInfo.mNoAudio)
                     flush()
                     close()
                 }
@@ -58,7 +59,8 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                                     val maxFontSize = readFloat()
                                     val screenWidth = readInt()
                                     val screenHeight = readInt()
-                                    SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight))
+                                    val noAudio = readBoolean()
+                                    SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight), noAudio)
                                 }
                         val availableEnd = available()
                         val messageLength = 1 + (availableStart - availableEnd)

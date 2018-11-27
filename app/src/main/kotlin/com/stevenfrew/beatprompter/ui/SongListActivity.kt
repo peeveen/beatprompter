@@ -174,7 +174,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val track: AudioFile? = if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val mode = if (manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
-        playSong(node, track, mode, startedByMidiTrigger, sds, sds)
+        playSong(node, track, mode, startedByMidiTrigger, sds, sds, manualMode || track == null)
     }
 
     private fun shouldPlayNextSong(): Boolean {
@@ -236,7 +236,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         return DisplaySettings(resources.configuration.orientation, minimumFontSize.toFloat(), maximumFontSize.toFloat(), Rect(0, 0, size.x, size.y), songScrollMode != ScrollingMode.Manual)
     }
 
-    private fun playSong(selectedNode: PlaylistNode, track: AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings) {
+    private fun playSong(selectedNode: PlaylistNode, track: AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings, noAudio: Boolean) {
         showLoadingProgressUI(true)
         mNowPlayingNode = selectedNode
 
@@ -244,7 +244,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         if (selectedNode.mNextNode != null && shouldPlayNextSong())
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
-        val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings)
+        val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
         SongDisplayActivity.mLoadID = songLoadInfo.mLoadID
         val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || cloud === CloudType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
@@ -423,7 +423,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                                             selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
                                         val track = if (selectedTrackName != null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
-                                        playSong(selectedNode, track, mode, false, sds, sds)
+                                        playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
                                     }
                                     .setNegativeButton(R.string.cancel) { _, _ -> }
                             val customAD = builder1.create()
@@ -1024,10 +1024,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
                 val track = mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
-                val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings)
+                val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || cloud === CloudType.Demo)
                 if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
-                    playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings)
+                    playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 break
             }
     }
