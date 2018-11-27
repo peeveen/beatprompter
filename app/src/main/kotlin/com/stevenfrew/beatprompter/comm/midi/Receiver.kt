@@ -7,7 +7,6 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 import kotlin.experimental.and
 
 abstract class Receiver(name: String) : ReceiverBase(name) {

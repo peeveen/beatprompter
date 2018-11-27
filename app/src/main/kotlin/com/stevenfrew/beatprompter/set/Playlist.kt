@@ -21,10 +21,6 @@ internal class Playlist {
         buildSongList(songs)
     }
 
-    fun getNodeAt(position: Int): PlaylistNode {
-        return mItems[position]
-    }
-
     fun sortByTitle() {
         buildSongList(songFiles.sortedBy { it.mSortableTitle })
     }

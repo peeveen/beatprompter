@@ -35,14 +35,14 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
 
         val clearCachePrefName = getString(R.string.pref_clearCache_key)
         val clearCachePref = findPreference(clearCachePrefName)
-        clearCachePref?.setOnPreferenceClickListener { _ ->
+        clearCachePref?.setOnPreferenceClickListener {
             EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE)
             true
         }
 
         val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
         val cloudPathPref = findPreference(cloudPathPrefName)
-        cloudPathPref?.setOnPreferenceClickListener { _ ->
+        cloudPathPref?.setOnPreferenceClickListener {
             EventHandler.sendEventToSettings(EventHandler.SET_CLOUD_PATH)
             true
         }

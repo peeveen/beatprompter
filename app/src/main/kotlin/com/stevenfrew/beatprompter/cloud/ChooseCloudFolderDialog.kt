@@ -106,7 +106,7 @@ internal class ChooseCloudFolderDialog(private val mActivity: Activity, private 
                 mDialog.setTitle(getDisplayPath(folderChosen))
                 refresh(folderChosen)
             }
-            okButton.setOnClickListener { _ -> setNewPath(mCurrentFolder) }
+            okButton.setOnClickListener { setNewPath(mCurrentFolder) }
         }
     }
 

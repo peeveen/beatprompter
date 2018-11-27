@@ -18,7 +18,7 @@ open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<S
             copiedSongList.removeAll(fullyMatchedSongs)
             val partialMatches = getMatches(copiedSetListEntries, copiedSongList, SetListMatch.TitleMatch)
             val partiallyMatchedSongs = partialMatches.map { it.second }
-            return listOf(fullyMatchedSongs, partiallyMatchedSongs).flatMap { it }.toMutableList()
+            return listOf(fullyMatchedSongs, partiallyMatchedSongs).flatten().toMutableList()
         }
 
         private fun getMissingSetListEntries(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SetListEntry> {
