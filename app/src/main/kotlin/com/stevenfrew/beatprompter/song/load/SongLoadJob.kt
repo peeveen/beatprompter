@@ -2,33 +2,24 @@ package com.stevenfrew.beatprompter.song.load
 
 import android.os.Message
 import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.BeatPrompterApplication.Companion.TAG_LOAD
 import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import com.stevenfrew.beatprompter.song.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.Semaphore
 import kotlin.coroutines.CoroutineContext
 
 class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Boolean) : CoroutineScope {
     var mLoading = false
-    private val mLoadingUI: SongLoadUITask = SongLoadUITask(this)
-    private val mSemaphore = Semaphore(0)
-    private val mHandler = SongLoadJobEventHandler(this)
+    private val mHandler = SongLoadJobEventHandler()
     private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
     private val mCoRoutineJob = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + mCoRoutineJob
-
-    init {
-        mLoadingUI.execute()
-    }
+        get() = Dispatchers.Default + mCoRoutineJob
 
     fun startLoading() {
         synchronized(this)
@@ -59,30 +50,15 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
 
     fun stopLoading() {
         mCancelEvent.set()
-        mLoadingUI.cancelLoad()
     }
 
-    fun onCompletion() {
-        mSemaphore.release()
-    }
-
-    fun waitForCompletion() {
-        mSemaphore.acquire()
-    }
-
-    class SongLoadJobEventHandler internal constructor(private val mLoadJob: SongLoadJob) : EventHandler() {
+    class SongLoadJobEventHandler : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                EventHandler.SONG_LOAD_COMPLETED -> {
-                    mLoadJob.onCompletion()
-                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_COMPLETED, msg.obj)
-                }
-                EventHandler.SONG_LOAD_FAILED -> {
-                    mLoadJob.onCompletion()
-                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_FAILED, msg.obj)
-                }
-                EventHandler.SONG_LOAD_CANCELLED -> mLoadJob.onCompletion()
-                EventHandler.SONG_LOAD_LINE_PROCESSED -> mLoadJob.mLoadingUI.updateProgress(BeatPrompterApplication.getResourceString(R.string.processingSong, mLoadJob.mSongLoadInfo.mSongFile.mTitle), msg.arg1, msg.arg2)
+                EventHandler.SONG_LOAD_CANCELLED, EventHandler.SONG_LOAD_FAILED, EventHandler.SONG_LOAD_COMPLETED ->
+                    EventHandler.sendEventToSongList(msg.what, msg.obj)
+                EventHandler.SONG_LOAD_LINE_PROCESSED ->
+                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_LINE_PROCESSED, msg.arg1, msg.arg2)
             }
         }
     }

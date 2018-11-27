@@ -12,7 +12,7 @@ class SongLoadCancelEvent(private val mSongName: String) {
         private set
 
     fun set() {
-        Log.d(BeatPrompterApplication.TAG, "Cancelling the load of '$mSongName'.")
+        Log.d(BeatPrompterApplication.TAG_LOAD, "Cancelling the load of '$mSongName'.")
         isCancelled = true
     }
 }

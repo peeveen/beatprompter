@@ -194,7 +194,7 @@
     <string name="invalid_channel_value">Os valores dos canais MIDI devem estar entre 1 e 16.</string>
     <string name="invalid_midi_alias_argument_index">Índice de argumento de alias MIDI inválido.</string>
     <string name="keep_the_beat">Com um pouco de modificação em seus arquivos de música, o BeatPrompter manterá a tela perfeitamente ao ritmo da batida. Nunca muito rápido, nunca muito lento, e sempre agradável e grande e legível!</string>
-    <string name="loadingSong">Carregamento de música:</string>
+    <string name="loadingSong">Carregamento:</string>
     <string name="merge_with_channel_non_zero_lower_nibble">Somente o nibble inferior de um valor pode ser mesclado com o especificador de canal.</string>
     <string name="midiTriggerSafetyCatchAlways">Sempre</string>
     <string name="midiTriggerSafetyCatchNever">Nunca</string>

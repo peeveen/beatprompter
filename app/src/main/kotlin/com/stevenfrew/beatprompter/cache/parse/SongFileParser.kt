@@ -59,7 +59,7 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
 
         val beatStartTags = tagSequence.filterIsInstance<BeatStartTag>().toMutableList()
         val beatStopTags = tagSequence.filterIsInstance<BeatStopTag>().toMutableList()
-        val beatModeTags = listOf(beatStartTags, beatStopTags).flatMap { it }.toMutableList()
+        val beatModeTags = listOf(beatStartTags, beatStopTags).flatten().toMutableList()
 
         // Multiple beatstart or beatstop tags on the same line are nonsensical
         val newScrollMode =

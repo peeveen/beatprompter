@@ -24,6 +24,7 @@ import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
+import java.util.*
 
 class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mSongView: SongView? = null
@@ -57,7 +58,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         val sharedPref = BeatPrompterApplication.preferences
         var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
         mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
-        mAnyOtherKeyPageDown = sharedPref.getBoolean(getString(R.string.pref_anyOtherKeyPageDown_key), false);
+        mAnyOtherKeyPageDown = sharedPref.getBoolean(getString(R.string.pref_anyOtherKeyPageDown_key), false)
 
         setContentView(R.layout.activity_song_display)
         val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
@@ -66,7 +67,16 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         val song = SongLoadJob.mLoadedSong ?: return
         val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
-        if (song.mLoadID != loadID.uuid)
+        // For a song to load successfully, all three IDs must match:
+        // 1) The ID passed in the startActivityForResult parcelable
+        // 2) The ID of the current loadedSong in SongLoadJob
+        // 3) The static ID in this class set by SongListActivity
+        // If there is any mismatch, then there has been a cancellation caused by another
+        // song being loaded very quickly. We need all this checking because anything can
+        // happen in the split second between this SongDisplay activity being launched, and
+        // us reaching this code here. If we don't finish() in the event of a mismatch, we
+        // can end up with multiple SongDisplay activities running.
+        if (song.mLoadID != loadID.uuid || song.mLoadID != mLoadID || loadID.uuid != mLoadID)
             finish()
 
         mStartedByBandLeader = song.mStartedByBandLeader
@@ -100,7 +110,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // Set up the user interaction to manually show or hide the system UI.
-        mSongView!!.setOnClickListener { _ -> }
+        mSongView!!.setOnClickListener { }
     }
 
     fun canYieldToExternalTrigger(): Boolean {
@@ -239,6 +249,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     companion object {
         var mSongDisplayActive = false
+        var mLoadID: UUID = UUID.randomUUID()
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(interruptJob: SongLoadJob): SongInterruptResult {

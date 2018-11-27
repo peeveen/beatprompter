@@ -14,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 class SenderTask constructor(private val mOutQueue: ArrayBlockingQueue<OutgoingMessage>) : Task(false), CoroutineScope {
     private val mCoRoutineJob = Job()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + mCoRoutineJob
+        get() = Dispatchers.Default + mCoRoutineJob
 
     override fun doWork() {
         // This will block if the queue is empty

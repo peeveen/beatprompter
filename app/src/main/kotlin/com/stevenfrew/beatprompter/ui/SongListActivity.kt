@@ -47,6 +47,10 @@ import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.load.*
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import org.xml.sax.SAXException
@@ -58,8 +62,12 @@ import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.coroutines.CoroutineContext
 
-class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener, SearchView.OnQueryTextListener {
+class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener, SearchView.OnQueryTextListener, CoroutineScope {
+    private val mCoRoutineJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + mCoRoutineJob
     private var mMenu: Menu? = null
     private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
     private var mSortingPreference = SortingPreference.Title
@@ -229,6 +237,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun playSong(selectedNode: PlaylistNode, track: AudioFile?, scrollMode: ScrollingMode, startedByMidiTrigger: Boolean, nativeSettings: DisplaySettings, sourceSettings: DisplaySettings) {
+        showLoadingProgressUI(true)
         mNowPlayingNode = selectedNode
 
         var nextSongName = ""
@@ -236,6 +245,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
         val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings)
+        SongDisplayActivity.mLoadID = songLoadInfo.mLoadID
         val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || cloud === CloudType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
@@ -1087,13 +1097,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     ad.setCanceledOnTouchOutside(true)
                     ad.show()
                 }
-                SONG_LOAD_FAILED -> Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
                 MIDI_PROGRAM_CHANGE -> {
                     val bytes = msg.obj as ByteArray
                     mSongList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
                 }
                 MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
-                SONG_LOAD_COMPLETED -> mSongList.startSongActivity(msg.obj as UUID)
                 CLEAR_CACHE -> mSongList.clearCache(true)
                 CACHE_UPDATED -> {
                     val cache = msg.obj as CachedCloudFileCollection
@@ -1108,6 +1116,34 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
+                SONG_LOAD_CANCELLED -> {
+                    mSongList.showLoadingProgressUI(false)
+                }
+                SONG_LOAD_FAILED -> {
+                    mSongList.showLoadingProgressUI(false)
+                    Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
+                }
+                SONG_LOAD_COMPLETED -> {
+                    Log.d(BeatPrompterApplication.TAG_LOAD, "Song ${msg.obj} was fully loaded successfully.")
+                    mSongList.showLoadingProgressUI(false)
+                    mSongList.startSongActivity(msg.obj as UUID)
+                }
+                SONG_LOAD_LINE_PROCESSED -> {
+                    mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
+                }
+            }
+        }
+    }
+
+    private fun showLoadingProgressUI(show: Boolean) {
+        findViewById<LinearLayout>(R.id.songLoadUI).visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun updateLoadingProgress(currentProgress: Int, maxProgress: Int) {
+        launch {
+            findViewById<ProgressBar>(R.id.loadingProgress).apply {
+                max = maxProgress
+                progress = currentProgress
             }
         }
     }

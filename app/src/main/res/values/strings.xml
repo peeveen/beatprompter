@@ -209,7 +209,7 @@
     <string name="lineTooLong">Line %1$d was longer than %2$d characters. Truncating …</string>
     <string name="pauseLongerThanSong">Total {pause} time exceeds designated song time. Disabling smooth scrolling mode.</string>
     <string name="scrollbeatOffTheMap">Scrollbeat offset is greater than or equal to the number of beats in the bar. Resetting to zero.</string>
-    <string name="loadingSong">Loading song:\u0020</string>
+    <string name="loadingSong">Loading:\u0020</string>
     <string name="processingSong">Processing song: %1$s</string>
 
     <string name="pref_lyricsHeight_key" translatable="false">pref_lyricsHeight</string>
