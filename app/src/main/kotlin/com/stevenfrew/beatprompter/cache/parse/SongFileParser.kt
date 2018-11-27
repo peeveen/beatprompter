@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.find.*
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Base class for song file parsing.
  */
-abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, initialScrollMode: ScrollingMode, private val mAllowModeChange: Boolean, reportUnexpectedTags: Boolean) : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
+abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedFileDescriptor, initialScrollMode: ScrollingMode, private val mAllowModeChange: Boolean, reportUnexpectedTags: Boolean) : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
     protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
     protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
 

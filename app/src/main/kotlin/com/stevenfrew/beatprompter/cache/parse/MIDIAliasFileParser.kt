@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
@@ -17,7 +17,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Parser for MIDI alias files.
  */
-class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
+class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor) : TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
 
     private var mAliasSetName: String? = null
     private var mCurrentAliasName: String? = null

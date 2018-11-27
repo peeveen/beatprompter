@@ -4,4 +4,4 @@ package com.stevenfrew.beatprompter.cache
 /**
  * An image file from our cache.
  */
-class ImageFile internal constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor, val mWidth: Int, val mHeight: Int) : CachedCloudFile(cachedCloudFileDescriptor)
+class ImageFile internal constructor(cachedCloudFileDescriptor: CachedFileDescriptor, val mWidth: Int, val mHeight: Int) : CachedFile(cachedCloudFileDescriptor)

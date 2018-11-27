@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
@@ -18,7 +18,7 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedCloudFileDescriptor) : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
+class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor) : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
     private var mTitle: String? = null
     private var mArtist: String? = null
     private var mKey: String? = null

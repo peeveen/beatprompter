@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 
 /**
  * Base class for all file parsers.
  */
-abstract class FileParser<TFileResult> constructor(protected val mCachedCloudFileDescriptor: CachedCloudFileDescriptor) {
+abstract class FileParser<TFileResult> constructor(protected val mCachedCloudFileDescriptor: CachedFileDescriptor) {
     protected val mErrors = mutableListOf<FileParseError>()
 
     @Throws(InvalidBeatPrompterFileException::class)

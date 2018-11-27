@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedCloudFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
@@ -15,7 +15,7 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for text file parsers.
  */
-abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedCloudFileDescriptor, private val mReportUnexpectedTags: Boolean, private vararg val mTagFinders: TagFinder) : FileParser<TFileResult>(cachedCloudFileDescriptor) {
+abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFileDescriptor, private val mReportUnexpectedTags: Boolean, private vararg val mTagFinders: TagFinder) : FileParser<TFileResult>(cachedCloudFileDescriptor) {
     final override fun parse(): TFileResult {
         val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0

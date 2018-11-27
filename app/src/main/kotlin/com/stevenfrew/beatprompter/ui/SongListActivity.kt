@@ -32,7 +32,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.cloud.*
+import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.ui.filter.*
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -246,7 +246,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
         SongDisplayActivity.mLoadID = songLoadInfo.mLoadID
-        val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || cloud === CloudType.Demo)
+        val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
 
@@ -584,9 +584,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }
 
-        mDefaultCloudDownloads.clear()
-        mDefaultCloudDownloads.add(SuccessfulCloudDownloadResult(CloudFileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date(), ""), mTemporarySetListFile!!))
-        mDefaultCloudDownloads.add(SuccessfulCloudDownloadResult(CloudFileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date(), ""), mDefaultMidiAliasesFile!!))
+        mDefaultDownloads.clear()
+        mDefaultDownloads.add(SuccessfulDownloadResult(FileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date(), ""), mTemporarySetListFile!!))
+        mDefaultDownloads.add(SuccessfulDownloadResult(FileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date(), ""), mDefaultMidiAliasesFile!!))
 
         if (previousSongFilesFolder != null)
             if (previousSongFilesFolder != mBeatPrompterSongFilesFolder)
@@ -679,23 +679,23 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun canPerformCloudSync(): Boolean {
-        return cloud !== CloudType.Demo && cloudPath != null
+        return storage !== StorageType.Demo && cloudPath != null
     }
 
     private fun performFullCloudSync() {
         performCloudSync(null, false)
     }
 
-    private fun performCloudSync(fileToUpdate: CachedCloudFile?, dependenciesToo: Boolean) {
+    private fun performCloudSync(fileToUpdate: CachedFile?, dependenciesToo: Boolean) {
         if (fileToUpdate == null)
             clearTemporarySetList()
-        val cs = CloudStorage.getInstance(cloud, this)
+        val cs = Storage.getInstance(storage, this)
         val cloudPath = cloudPath
         if (cloudPath.isNullOrBlank())
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
         else {
             mPerformingCloudSync = true
-            val cdt = CloudDownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
+            val cdt = DownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
             cdt.execute()
         }
     }
@@ -991,7 +991,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     internal fun clearCache(report: Boolean) {
         // Clear both cache folders
-        val cs = CloudStorage.getInstance(cloud, this)
+        val cs = Storage.getInstance(storage, this)
         cs.cacheFolder.clear()
         mPlaylist = Playlist()
         mCachedCloudFiles.clear()
@@ -1025,7 +1025,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 val track = mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
                 val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
-                val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || cloud === CloudType.Demo)
+                val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
                 if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
                     playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 break
@@ -1183,7 +1183,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     companion object {
-        var mDefaultCloudDownloads: MutableList<CloudDownloadResult> = mutableListOf()
+        var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
         var mCachedCloudFiles = CachedCloudFileCollection()
 
         private var mBeatPrompterDataFolder: File? = null
@@ -1208,22 +1208,22 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         private const val FULL_VERSION_SKU_NAME = "full_version"
 
-        // Fake cloud items for temporary set list and default midi aliases
+        // Fake storage items for temporary set list and default midi aliases
         var mTemporarySetListFile: File? = null
         var mDefaultMidiAliasesFile: File? = null
 
         var mSongListEventHandler: SongListEventHandler? = null
 
-        val cloud: CloudType
+        val storage: StorageType
             get() {
                 val sharedPrefs = BeatPrompterApplication.preferences
                 val cloudPref = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_cloudStorageSystem_key), null)
                 return when (cloudPref) {
-                    BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> CloudType.Local
-                    BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> CloudType.GoogleDrive
-                    BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> CloudType.Dropbox
-                    BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> CloudType.OneDrive
-                    else -> CloudType.Demo
+                    BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> StorageType.Local
+                    BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
+                    BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> StorageType.Dropbox
+                    BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> StorageType.OneDrive
+                    else -> StorageType.Demo
                 }
             }
 

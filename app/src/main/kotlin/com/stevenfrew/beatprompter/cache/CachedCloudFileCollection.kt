@@ -4,7 +4,7 @@ import android.os.Build
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.*
-import com.stevenfrew.beatprompter.cloud.CloudFileInfo
+import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.util.flattenAll
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.util.normalize
@@ -16,7 +16,7 @@ import kotlin.reflect.full.findAnnotation
  * The file cache.
  */
 class CachedCloudFileCollection {
-    private var mFiles = mutableListOf<CachedCloudFile>()
+    private var mFiles = mutableListOf<CachedFile>()
 
     val songFiles: List<SongFile>
         get() =
@@ -46,19 +46,19 @@ class CachedCloudFileCollection {
             ccf.writeToXML(d, root)
     }
 
-    private fun <TCachedCloudFileType : CachedCloudFile> addToCollection(xmlDoc: Document, tagName: String, parser: (cachedCloudFileDescriptor: CachedCloudFileDescriptor) -> TCachedCloudFileType) {
+    private fun <TCachedCloudFileType : CachedFile> addToCollection(xmlDoc: Document, tagName: String, parser: (cachedCloudFileDescriptor: CachedFileDescriptor) -> TCachedCloudFileType) {
         val elements = xmlDoc.getElementsByTagName(tagName)
         for (f in 0 until elements.length) {
             val element = elements.item(f) as Element
             try {
-                add(parser(CachedCloudFileDescriptor(element)))
+                add(parser(CachedFileDescriptor(element)))
             } catch (ibpfe: InvalidBeatPrompterFileException) {
                 // This should never happen. If we could write out the file info, then it was valid.
                 // So it must still be valid when we come to read it in. Unless some dastardly devious sort
                 // has meddled with files outside of the app ...
                 Log.d(BeatPrompterApplication.TAG, "Failed to parse file.")
                 // File has become irrelevant
-                add(IrrelevantFile(CachedCloudFileDescriptor(element)))
+                add(IrrelevantFile(CachedFileDescriptor(element)))
             }
         }
     }
@@ -74,7 +74,7 @@ class CachedCloudFileCollection {
         addToCollection(xmlDoc, IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> IrrelevantFile(descriptor) }
     }
 
-    fun add(cachedFile: CachedCloudFile) {
+    fun add(cachedFile: CachedFile) {
         for (f in mFiles.indices.reversed()) {
             val existingFile = mFiles[f]
             if (cachedFile.mID.equals(existingFile.mID, ignoreCase = true)) {
@@ -85,15 +85,15 @@ class CachedCloudFileCollection {
         mFiles.add(cachedFile)
     }
 
-    fun remove(cloudFile: CloudFileInfo) {
+    fun remove(file: FileInfo) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            mFiles.removeIf { cloudFile.mID.equals(it.mID, ignoreCase = true) }
+            mFiles.removeIf { file.mID.equals(it.mID, ignoreCase = true) }
         else
-            mFiles = mFiles.asSequence().filter { !cloudFile.mID.equals(it.mID, ignoreCase = true) }.toMutableList()
+            mFiles = mFiles.asSequence().filter { !file.mID.equals(it.mID, ignoreCase = true) }.toMutableList()
     }
 
-    fun hasLatestVersionOf(cloudFile: CloudFileInfo): Boolean {
-        return mFiles.any { it.mID.equals(cloudFile.mID, ignoreCase = true) && it.mLastModified == cloudFile.mLastModified }
+    fun hasLatestVersionOf(file: FileInfo): Boolean {
+        return mFiles.any { it.mID.equals(file.mID, ignoreCase = true) && it.mLastModified == file.mLastModified }
     }
 
     fun removeNonExistent(storageIDs: Set<String>) {
@@ -118,8 +118,8 @@ class CachedCloudFileCollection {
         return inStrs.map { imageFiles.filter { imageFile -> imageFile.mNormalizedName.equals(it.normalize(), ignoreCase = true) } }.flattenAll().filterIsInstance<ImageFile>()
     }
 
-    fun getFilesToRefresh(fileToRefresh: CachedCloudFile?, includeDependencies: Boolean): List<CachedCloudFile> {
-        val filesToRefresh = mutableListOf<CachedCloudFile>()
+    fun getFilesToRefresh(fileToRefresh: CachedFile?, includeDependencies: Boolean): List<CachedFile> {
+        val filesToRefresh = mutableListOf<CachedFile>()
         if (fileToRefresh != null) {
             filesToRefresh.add(fileToRefresh)
             if (fileToRefresh is SongFile && includeDependencies) {

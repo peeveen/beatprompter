@@ -9,12 +9,12 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
-import com.stevenfrew.beatprompter.cloud.CloudFolderInfo
-import com.stevenfrew.beatprompter.cloud.CloudFolderSelectionListener
-import com.stevenfrew.beatprompter.cloud.CloudStorage
-import com.stevenfrew.beatprompter.cloud.CloudType
+import com.stevenfrew.beatprompter.storage.FolderInfo
+import com.stevenfrew.beatprompter.storage.FolderSelectionListener
+import com.stevenfrew.beatprompter.storage.Storage
+import com.stevenfrew.beatprompter.storage.StorageType
 
-class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
         if (key == getString(R.string.pref_cloudPath_key))
             onCloudPathChanged(prefs.getString(key, null))
@@ -80,15 +80,15 @@ class SettingsFragment : PreferenceFragment(), CloudFolderSelectionListener, Sha
     }
 
     internal fun setCloudPath() {
-        val cloudType = SongListActivity.cloud
-        if (cloudType !== CloudType.Demo) {
-            val cs = CloudStorage.getInstance(cloudType, activity)
+        val cloudType = SongListActivity.storage
+        if (cloudType !== StorageType.Demo) {
+            val cs = Storage.getInstance(cloudType, activity)
             cs.selectFolder(activity, this)
         } else
             Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG).show()
     }
 
-    override fun onFolderSelected(folderInfo: CloudFolderInfo) {
+    override fun onFolderSelected(folderInfo: FolderInfo) {
         BeatPrompterApplication.preferences
                 .edit()
                 .putString(getString(R.string.pref_cloudPath_key), folderInfo.mID)
