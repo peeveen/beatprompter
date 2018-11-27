@@ -385,6 +385,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Calculate the last position that we can scroll to.
         val scrollEndPixel = calculateScrollEndPixel(smoothMode, smoothScrollOffset)
 
+        if ((mTriggerContext == TriggerOutputContext.Always) || (mTriggerContext == TriggerOutputContext.ManualStartOnly && !mSongLoadInfo.mStartedByMIDITrigger)) {
+            mInitialMIDIMessages.addAll(mSongLoadInfo.mSongFile.mProgramChangeTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
+            mInitialMIDIMessages.addAll(mSongLoadInfo.mSongFile.mSongSelectTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
+        }
+
         return Song(mSongLoadInfo.mSongFile, mNativeDeviceSettings, firstEvent, mLines, audioEvents,
                 mInitialMIDIMessages, mBeatBlocks, mSendMidiClock, startScreenStrings.first, startScreenStrings.second,
                 totalStartScreenTextHeight, mSongLoadInfo.mStartedByBandLeader, mSongLoadInfo.mNextSong,

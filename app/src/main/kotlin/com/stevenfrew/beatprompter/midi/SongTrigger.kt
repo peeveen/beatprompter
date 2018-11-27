@@ -33,7 +33,7 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
         return false
     }
 
-    fun isSendable(): Boolean {
+    private fun canSend(): Boolean {
         return (mTriggerIndex is CommandValue
                 && mBankSelectLSB is CommandValue
                 && mBankSelectMSB is CommandValue)
@@ -42,18 +42,19 @@ class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, trigge
     @Throws(ResolutionException::class)
     fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
         return mutableListOf<OutgoingMessage>().apply {
-            if (mType == TriggerType.SongSelect)
-                add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
-            else {
-                val channel = if (mChannel is WildcardValue)
-                    defaultOutputChannel
-                else
-                    mChannel.resolve()
+            if (canSend())
+                if (mType == TriggerType.SongSelect)
+                    add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
+                else {
+                    val channel = if (mChannel is WildcardValue)
+                        defaultOutputChannel
+                    else
+                        mChannel.resolve()
 
-                add(ControlChangeMessage(Message.MIDI_MSB_BANK_SELECT_CONTROLLER, mBankSelectMSB.resolve(), channel))
-                add(ControlChangeMessage(Message.MIDI_LSB_BANK_SELECT_CONTROLLER, mBankSelectLSB.resolve(), channel))
-                add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
-            }
+                    add(ControlChangeMessage(Message.MIDI_MSB_BANK_SELECT_CONTROLLER, mBankSelectMSB.resolve(), channel))
+                    add(ControlChangeMessage(Message.MIDI_LSB_BANK_SELECT_CONTROLLER, mBankSelectLSB.resolve(), channel))
+                    add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
+                }
         }
     }
 
