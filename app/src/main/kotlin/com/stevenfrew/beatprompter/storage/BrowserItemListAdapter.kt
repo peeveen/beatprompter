@@ -10,6 +10,9 @@ import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 
+/**
+ * Display adapter for browser items.
+ */
 internal class BrowserItemListAdapter(items: List<ItemInfo>) : ArrayAdapter<ItemInfo>(BeatPrompterApplication.context, -1, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

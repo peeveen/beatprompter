@@ -19,6 +19,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
 
+/**
+ * Dialog allowing the user to choose the folder to use as the source for data.
+ */
 internal class ChooseFolderDialog(private val mActivity: Activity, private val mStorage: Storage, listener: FolderSelectionListener, private var mCurrentFolder: FolderInfo) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
 
     private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)

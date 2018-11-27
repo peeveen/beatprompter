@@ -3,6 +3,9 @@ package com.stevenfrew.beatprompter.storage
 import org.w3c.dom.Element
 import java.util.*
 
+/**
+ * A file in a storage system.
+ */
 open class FileInfo(id: String, name: String, var mLastModified: Date,
 // Name of the immediate subfolder that it comes from, for filtering purposes.
                     var mSubfolder: String?) : ItemInfo(id, name) {

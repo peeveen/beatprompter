@@ -4,6 +4,10 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import java.io.File
 
+/**
+ * Local cache folder where synchronized files are stored. Typically one of these exists
+ * for each storage system.
+ */
 class CacheFolder internal constructor(parentFolder: File, name: String) : File(parentFolder, name) {
 
     fun clear() {

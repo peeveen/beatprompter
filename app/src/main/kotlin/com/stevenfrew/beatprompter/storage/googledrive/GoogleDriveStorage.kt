@@ -29,6 +29,9 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
+/**
+ * GoogleDrive implementation of the storage system.
+ */
 class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
 
 

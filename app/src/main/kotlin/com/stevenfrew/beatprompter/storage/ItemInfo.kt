@@ -2,6 +2,9 @@ package com.stevenfrew.beatprompter.storage
 
 import com.stevenfrew.beatprompter.util.normalize
 
+/**
+ * Base class for all items stored in a storage system.
+ */
 abstract class ItemInfo internal constructor(// Unique ID of the item in the storage storage.
         val mID: String, // Display name.
         val mName: String) : Comparable<ItemInfo> {

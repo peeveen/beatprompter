@@ -21,6 +21,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
+/**
+ * DropBox implementation of the storage system.
+ */
 class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX_CACHE_FOLDER_NAME) {
 
     override val directorySeparator: String

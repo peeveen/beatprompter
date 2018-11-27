@@ -23,6 +23,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.ArrayList
 
+/**
+ * OneDrive implementation of the storage system.
+ */
 class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
 
     private val oneDriveAuthenticator = object : MSAAuthenticator() {
