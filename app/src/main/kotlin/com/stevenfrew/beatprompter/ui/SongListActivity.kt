@@ -1137,6 +1137,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun showLoadingProgressUI(show: Boolean) {
         findViewById<LinearLayout>(R.id.songLoadUI).visibility = if (show) View.VISIBLE else View.GONE
+        if (!show)
+            updateLoadingProgress(0, 1)
     }
 
     private fun updateLoadingProgress(currentProgress: Int, maxProgress: Int) {
