@@ -7,7 +7,6 @@ import com.stevenfrew.beatprompter.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class SenderTask constructor(private val mMessageQueue: MessageQueue) : Task(false), CoroutineScope {
@@ -22,7 +21,7 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue) : Task(fal
             val senders = getSenders()
             if (senders.isNotEmpty())
                 senders.forEach {
-                    launch {
+                    //                    runBlocking {
                         try {
                             Log.d(BeatPrompterApplication.TAG_COMMS, "Sending messages to '$it.key' ($it.value.name).")
                             it.value.send(messages)
@@ -31,7 +30,7 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue) : Task(fal
                             Log.d(BeatPrompterApplication.TAG_COMMS, "Sender threw an exception. Assuming it to be dead.")
                             removeSender(it.key)
                         }
-                    }
+//                    }
                 }
         } catch (interruptedException: InterruptedException) {
             // Must have been signalled to stop ... main Task loop will cater for this.

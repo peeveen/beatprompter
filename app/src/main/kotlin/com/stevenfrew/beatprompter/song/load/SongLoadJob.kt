@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Boolean) : CoroutineScope {
-    var mLoading = false
     private val mHandler = SongLoadJobEventHandler()
     private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
     private val mCoRoutineJob = Job()
@@ -24,7 +23,6 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
     fun startLoading() {
         synchronized(this)
         {
-            mLoading = true
             launch {
                 System.gc()
                 try {
@@ -33,13 +31,16 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
                     if (mCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
                     Log.d(TAG_LOAD, "Song was loaded successfully.")
+                    SongLoadQueueWatcherTask.onSongLoadFinished()
                     mLoadedSong = loadedSong
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
                 } catch (e: SongLoadCancelledException) {
                     Log.d(TAG_LOAD, "Song load was cancelled.")
+                    SongLoadQueueWatcherTask.onSongLoadFinished()
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
                 } catch (e: Exception) {
                     Log.d(TAG_LOAD, "Song load failed.")
+                    SongLoadQueueWatcherTask.onSongLoadFinished()
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED, e.message).sendToTarget()
                 } finally {
                     System.gc()
@@ -55,7 +56,9 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
     class SongLoadJobEventHandler : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                EventHandler.SONG_LOAD_CANCELLED, EventHandler.SONG_LOAD_FAILED, EventHandler.SONG_LOAD_COMPLETED ->
+                EventHandler.SONG_LOAD_CANCELLED ->
+                    EventHandler.sendEventToSongList(msg.what)
+                EventHandler.SONG_LOAD_FAILED, EventHandler.SONG_LOAD_COMPLETED ->
                     EventHandler.sendEventToSongList(msg.what, msg.obj)
                 EventHandler.SONG_LOAD_LINE_PROCESSED ->
                     EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_LINE_PROCESSED, msg.arg1, msg.arg2)
@@ -65,14 +68,5 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
 
     companion object {
         var mLoadedSong: Song? = null
-        var mSongLoadJobOnResume: SongLoadJob? = null
-
-        fun onResume() {
-            if (mSongLoadJobOnResume != null) {
-                val loadJob = mSongLoadJobOnResume!!
-                mSongLoadJobOnResume = null
-                SongLoadQueueWatcherTask.loadSong(loadJob)
-            }
-        }
     }
 }

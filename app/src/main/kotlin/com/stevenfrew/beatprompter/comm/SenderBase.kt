@@ -8,7 +8,7 @@ abstract class SenderBase constructor(private val mName: String, private val mBu
     override val name: String
         get() = mName
 
-    override suspend fun send(messages: List<OutgoingMessage>) {
+    override fun send(messages: List<OutgoingMessage>) {
         var messagesCopy = messages
         while (messagesCopy.isNotEmpty()) {
             var messagesSent = 0

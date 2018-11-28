@@ -27,24 +27,24 @@ import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.storage.*
-import com.stevenfrew.beatprompter.ui.filter.*
-import com.stevenfrew.beatprompter.ui.filter.Filter
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
-import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
-import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
-import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.*
+import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.ui.filter.*
+import com.stevenfrew.beatprompter.ui.filter.Filter
+import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
+import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.flattenAll
 import kotlinx.coroutines.CoroutineScope
@@ -54,7 +54,9 @@ import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import org.xml.sax.SAXException
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
@@ -127,16 +129,18 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             val maf = filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles)[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
-        } else if (!SongLoadQueueWatcherTask.songCurrentlyLoading)
-        // Don't allow another song to be started from the song list (by clicking)
-        // if one is already loading. The only circumstances this is allowed is via
-        // MIDI triggers.
+        } else if (!SongLoadQueueWatcherTask.isLoadingASong && !SongLoadQueueWatcherTask.hasASongToLoad) {
+            // Don't allow another song to be started from the song list (by clicking)
+            // if one is already loading. The only circumstances this is allowed is via
+            // MIDI triggers.
             playPlaylistNode(filterPlaylistNodes(mPlaylist)[position], false)
+        }
     }
 
     internal fun startSongActivity(loadID: UUID) {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
         i.putExtra("loadID", ParcelUuid(loadID))
+        Log.d(BeatPrompterApplication.TAG_LOAD, "Starting SongDisplayActivity for $loadID!")
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
@@ -245,7 +249,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
 
         val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
-        SongDisplayActivity.mLoadID = songLoadInfo.mLoadID
         val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
@@ -633,7 +636,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         if (isFirstRun)
             firstRunSetup()
         else
-            SongLoadJob.onResume()
+            SongLoadQueueWatcherTask.onResume()
     }
 
     private fun firstRunSetup() {
@@ -1126,7 +1129,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 SONG_LOAD_COMPLETED -> {
                     Log.d(BeatPrompterApplication.TAG_LOAD, "Song ${msg.obj} was fully loaded successfully.")
                     mSongList.showLoadingProgressUI(false)
-                    mSongList.startSongActivity(msg.obj as UUID)
+                    // No point starting up the activity if there are songs in the load queue
+                    if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
+                        Log.d(BeatPrompterApplication.TAG_LOAD, "Abandoning loaded song: there appears to be another song incoming.")
+                    else
+                        mSongList.startSongActivity(msg.obj as UUID)
                 }
                 SONG_LOAD_LINE_PROCESSED -> {
                     mSongList.updateLoadingProgress(msg.arg1, msg.arg2)

@@ -22,4 +22,11 @@ class MessageQueue(capacity: Int) {
             mBlockingQueue.put(message)
         }
     }
+
+    fun putMessages(messages: List<OutgoingMessage>) {
+        synchronized(mBlockingQueue)
+        {
+            mBlockingQueue.addAll(messages)
+        }
+    }
 }

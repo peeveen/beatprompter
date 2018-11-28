@@ -62,7 +62,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
         when (msg) {
             is ChooseSongMessage -> EventHandler.sendEventToSongList(EventHandler.BLUETOOTH_CHOOSE_SONG, msg.mChoiceInfo)
             is PauseOnScrollStartMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_PAUSE_ON_SCROLL_START)
-            is QuitSongMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_QUIT_SONG)
+            is QuitSongMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_QUIT_SONG, msg.songTitle to msg.songArtist)
             is SetSongTimeMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_SET_SONG_TIME, msg.mTime)
             is ToggleStartStopMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_TOGGLE_START_STOP, msg.mToggleInfo)
         }
@@ -80,7 +80,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                     ToggleStartStopMessage.TOGGLE_START_STOP_MESSAGE_ID -> ToggleStartStopMessage.fromBytes(bytes)
                     SetSongTimeMessage.SET_SONG_TIME_MESSAGE_ID -> SetSongTimeMessage.fromBytes(bytes)
                     PauseOnScrollStartMessage.PAUSE_ON_SCROLL_START_MESSAGE_ID -> PauseOnScrollStartMessage()
-                    QuitSongMessage.QUIT_SONG_MESSAGE_ID -> QuitSongMessage()
+                    QuitSongMessage.QUIT_SONG_MESSAGE_ID -> QuitSongMessage.fromBytes(bytes)
                     else -> throw UnknownMessageException()
                 }
             throw NotEnoughDataException()

@@ -631,9 +631,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mStartState === PlayState.Playing)
             pause(false)
         if (destroyed) {
-            BluetoothManager.mBluetoothOutQueue.putMessage(QuitSongMessage())
-            if (mSong != null)
+            if (mSong != null) {
+                BluetoothManager.mBluetoothOutQueue.putMessage(QuitSongMessage(mSong!!.mSongFile.mNormalizedTitle, mSong!!.mSongFile.mNormalizedArtist))
                 mSong!!.recycleGraphics()
+            }
             mSong = null
             Task.stopTask(mManualMetronomeTask, mManualMetronomeThread)
             mMediaPlayers.values.forEach {
@@ -682,6 +683,10 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return mMediaPlayers.values.any { it.isPlaying }
     }
 
+    fun hasSong(title: String, artist: String): Boolean {
+        return mSong?.mSongFile?.mNormalizedArtist == artist && mSong?.mSongFile?.mNormalizedTitle == title
+    }
+
     private fun processPauseEvent(event: PauseEvent?) {
         if (event == null)
             return
@@ -692,7 +697,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processMIDIEvent(event: MIDIEvent) {
-        event.mMessages.forEach { MIDIController.mMIDIOutQueue.putMessage(it) }
+        MIDIController.mMIDIOutQueue.putMessages(event.mMessages)
     }
 
     private fun processLineEvent(event: LineEvent) {

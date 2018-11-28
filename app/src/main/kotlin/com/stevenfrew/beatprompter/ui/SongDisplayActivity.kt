@@ -24,7 +24,7 @@ import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
-import java.util.*
+import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 
 class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private var mSongView: SongView? = null
@@ -76,13 +76,13 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // happen in the split second between this SongDisplay activity being launched, and
         // us reaching this code here. If we don't finish() in the event of a mismatch, we
         // can end up with multiple SongDisplay activities running.
-        if (song.mLoadID != loadID.uuid || song.mLoadID != mLoadID || loadID.uuid != mLoadID) {
+        if (song.mLoadID != loadID.uuid) {
             Log.d(BeatPrompterApplication.TAG_LOAD, "*** Load ID Mismatch ***")
             Log.d(BeatPrompterApplication.TAG_LOAD, "Parcelable Load ID = ${loadID.uuid}")
             Log.d(BeatPrompterApplication.TAG_LOAD, "SongLoadJob ID = ${song.mLoadID}")
-            Log.d(BeatPrompterApplication.TAG_LOAD, "SongDisplayActivity ID = $mLoadID")
             finish()
-        }
+        } else
+            Log.d(BeatPrompterApplication.TAG_LOAD, "Successful load ID match: ${song.mLoadID}")
 
         mStartedByBandLeader = song.mStartedByBandLeader
         sendMidiClock = sendMidiClock or song.mSendMIDIClock
@@ -93,7 +93,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        song.mInitialMIDIMessages.forEach { MIDIController.mMIDIOutQueue.putMessage(it) }
+        MIDIController.mMIDIOutQueue.putMessages(song.mInitialMIDIMessages)
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
@@ -233,7 +233,15 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             if (mSongDisplayActive)
                 when (msg.what) {
                     BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
-                    BLUETOOTH_QUIT_SONG -> mActivity.finish()
+                    BLUETOOTH_QUIT_SONG -> {
+                        Log.d(BeatPrompterApplication.TAG_LOAD, "Quit song Bluetooth message received. Finishing activity.")
+                        val songInfo = msg.obj as Pair<String, String>
+                        val title = songInfo.first
+                        val artist = songInfo.second
+                        if (mSongView != null)
+                            if (mSongView.hasSong(title, artist))
+                                mActivity.finish()
+                    }
                     BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true, true)
                     BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
                     MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
@@ -246,6 +254,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                             ?: Log.d(BeatPrompterApplication.TAG, "MIDI stop signal received by SongDisplay before view was created.")
                     END_SONG -> {
                         mActivity.setResult(Activity.RESULT_OK)
+                        Log.d(BeatPrompterApplication.TAG_LOAD, "End song message received. Finishing activity.")
                         mActivity.finish()
                     }
                 }
@@ -254,7 +263,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
     companion object {
         var mSongDisplayActive = false
-        var mLoadID: UUID = UUID.randomUUID()
         private lateinit var mSongDisplayInstance: SongDisplayActivity
 
         fun interruptCurrentSong(interruptJob: SongLoadJob): SongInterruptResult {
@@ -268,12 +276,12 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                     loadedSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.NoSongToInterrupt
                     mSongDisplayInstance.canYieldToExternalTrigger() -> {
                         loadedSong.mCancelled = true
-                        SongLoadJob.mSongLoadJobOnResume = interruptJob
+                        SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)
                         EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
                         SongInterruptResult.CanInterrupt
                     }
                     else -> {
-                        SongLoadJob.mSongLoadJobOnResume = null
+                        SongLoadQueueWatcherTask.setSongToLoadOnResume(null)
                         SongInterruptResult.CannotInterrupt
                     }
                 }
