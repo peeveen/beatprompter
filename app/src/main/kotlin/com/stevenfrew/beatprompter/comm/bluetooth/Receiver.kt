@@ -13,9 +13,9 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
         return mmSocket.inputStream.read(buffer, offset, maximumAmount)
     }
 
-    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Int {
+    override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
         var bufferCopy = buffer
-        var bufferStart = dataStart
+        var dataStart = 0
         val receivedMessages = mutableListOf<OutgoingMessage>()
         var lastSetTimeMessage: SetSongTimeMessage? = null
         while (dataStart < dataEnd) {
@@ -23,8 +23,8 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                 val btm = fromBytes(bufferCopy)
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Got a fully-formed Bluetooth message.")
                 val messageLength = btm.length
-                bufferStart += messageLength
-                bufferCopy = buffer.copyOfRange(bufferStart, dataEnd)
+                dataStart += messageLength
+                bufferCopy = buffer.copyOfRange(dataStart, dataEnd)
                 if (btm is SetSongTimeMessage)
                     lastSetTimeMessage = btm
                 receivedMessages.add(btm)
@@ -34,13 +34,12 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                 break
             } catch (exception: UnknownMessageException) {
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Unknown Bluetooth message received.")
-                ++bufferStart // Skip the byte that doesn't match any known message type
-                break
+                ++dataStart // Skip the byte that doesn't match any known message type
             }
         }
         // If we receive multiple SetSongTimeMessages, there is no point in processing any except the last one.
         receivedMessages.filter { it !is SetSongTimeMessage || it == lastSetTimeMessage }.forEach { routeBluetoothMessage(it) }
-        return bufferStart - dataStart
+        return dataStart
     }
 
     override fun close() {

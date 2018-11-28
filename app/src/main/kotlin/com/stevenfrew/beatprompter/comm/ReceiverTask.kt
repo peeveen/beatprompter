@@ -11,6 +11,7 @@ class ReceiverTask(val mName: String, private val mReceiver: Receiver) : Task(tr
             mReceiver.receive()
         } catch (exception: Exception) {
             // Any I/O error means this receiver is dead to us.
+            Log.e(BeatPrompterApplication.TAG_COMMS, "Unexpected IO exception from receiver.", exception)
             Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver '$mName' threw an exception. Assuming it to be dead.")
             super.stop()
             Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver is now stopped.")

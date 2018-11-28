@@ -15,10 +15,10 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
     private var mMidiBankMSBs = ByteArray(16)
     private var mMidiBankLSBs = ByteArray(16)
 
-    override fun parseMessageData(buffer: ByteArray, dataStart: Int, dataEnd: Int): Int {
-        var f = dataStart
-        while (f < dataEnd) {
-            val messageByte = buffer[f]
+    override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
+        var dataStart = 0
+        while (dataStart < dataEnd) {
+            val messageByte = buffer[dataStart]
             // All interesting MIDI signals have the top bit set.
             if (messageByte and EIGHT_ZERO_HEX != ZERO_AS_BYTE) {
                 if (mInSysEx) {
@@ -36,14 +36,14 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                         EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
                     else if (messageByte == Message.MIDI_SONG_POSITION_POINTER_BYTE)
                     // This message requires two additional bytes.
-                        if (f < dataEnd - 2)
-                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++f], buffer[++f]), 0)
+                        if (dataStart < dataEnd - 2)
+                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++dataStart], buffer[++dataStart]), 0)
                         else
                         // Not enough data left.
                             break
                     else if (messageByte == Message.MIDI_SONG_SELECT_BYTE)
-                        if (f < dataEnd - 1)
-                            EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, buffer[++f].toInt(), 0)
+                        if (dataStart < dataEnd - 1)
+                            EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, buffer[++dataStart].toInt(), 0)
                         else
                         // Not enough data left.
                             break
@@ -59,17 +59,17 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                             if (channelsToListenTo and (1 shl channel.toInt()) != 0) {
                                 if (messageByteWithoutChannel == Message.MIDI_PROGRAM_CHANGE_BYTE)
                                 // This message requires one additional byte.
-                                    if (f < dataEnd - 1) {
-                                        val pcValues = byteArrayOf(mMidiBankMSBs[channel.toInt()], mMidiBankLSBs[channel.toInt()], buffer[++f], channel)
+                                    if (dataStart < dataEnd - 1) {
+                                        val pcValues = byteArrayOf(mMidiBankMSBs[channel.toInt()], mMidiBankLSBs[channel.toInt()], buffer[++dataStart], channel)
                                         EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, pcValues)
                                     } else
                                         break
                                 else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {
                                     // The only control change value we care about are bank selects.
                                     // Control change messages have two additional bytes.
-                                    if (f < dataEnd - 2) {
-                                        val controller = buffer[++f]
-                                        val bankValue = buffer[++f]
+                                    if (dataStart < dataEnd - 2) {
+                                        val controller = buffer[++dataStart]
+                                        val bankValue = buffer[++dataStart]
                                         if (controller == Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
                                             mMidiBankMSBs[channel.toInt()] = bankValue
                                         else if (controller == Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
@@ -82,13 +82,13 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                     }
                 }
             }
-            ++f
+            ++dataStart
         }
         // If we broke out of this loop before the end of the actual loop, then f will be ON the last read byte
         // We want to move back one so that that byte becomes part of the next parsing operation.
-        if (f != dataEnd)
-            --f
-        return f - dataStart
+        if (dataStart != dataEnd)
+            --dataStart
+        return dataStart
     }
 
     companion object : SharedPreferences.OnSharedPreferenceChangeListener {
