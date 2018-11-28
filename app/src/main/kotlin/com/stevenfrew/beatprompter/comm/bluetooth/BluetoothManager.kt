@@ -9,11 +9,10 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import java.util.*
-import java.util.concurrent.ArrayBlockingQueue
 
 /**
  * General Bluetooth management singleton object.
@@ -25,8 +24,8 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
     // The device Bluetooth adapter, if one exists.
     private var mBluetoothAdapter: BluetoothAdapter? = null
 
-    private const val BLUETOOTH_QUEUE_SIZE = 1024
-    var mBluetoothOutQueue = ArrayBlockingQueue<OutgoingMessage>(BLUETOOTH_QUEUE_SIZE)
+    private const val BLUETOOTH_QUEUE_SIZE = 4096
+    val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
     private val mSenderTask = SenderTask(mBluetoothOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 

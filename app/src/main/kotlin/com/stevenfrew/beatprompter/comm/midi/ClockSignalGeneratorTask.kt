@@ -2,12 +2,12 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
+import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
     private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
@@ -73,7 +73,7 @@ class ClockSignalGeneratorTask : Task(false) {
         while (nanoDiff >= nanoSecondsPerMidiSignal) {
             try {
                 signalSent = true
-                MIDIController.mMIDIOutQueue.put(ClockMessage())
+                MIDIController.mMIDIOutQueue.putMessage(ClockMessage())
                 // We've hit the 24-signal boundary. Switch to the next speed.
                 if (incrementClockSignalsSent() == 24) {
                     resetClockSignalsSent()
@@ -116,7 +116,7 @@ class ClockSignalGeneratorTask : Task(false) {
             resetClockSignalsSent()
             lastSignalTime = System.nanoTime().toDouble()
             try {
-                MIDIController.mMIDIOutQueue.put(StartMessage())
+                MIDIController.mMIDIOutQueue.putMessage(StartMessage())
             } catch (e: Exception) {
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI start signal to output queue.", e)
             }
@@ -132,7 +132,7 @@ class ClockSignalGeneratorTask : Task(false) {
         lastSignalTime = 0.0
         resetClockSignalsSent()
         try {
-            MIDIController.mMIDIOutQueue.put(StopMessage())
+            MIDIController.mMIDIOutQueue.putMessage(StopMessage())
         } catch (e: Exception) {
             Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI stop signal to output queue.", e)
         }

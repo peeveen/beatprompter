@@ -76,8 +76,13 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // happen in the split second between this SongDisplay activity being launched, and
         // us reaching this code here. If we don't finish() in the event of a mismatch, we
         // can end up with multiple SongDisplay activities running.
-        if (song.mLoadID != loadID.uuid || song.mLoadID != mLoadID || loadID.uuid != mLoadID)
+        if (song.mLoadID != loadID.uuid || song.mLoadID != mLoadID || loadID.uuid != mLoadID) {
+            Log.d(BeatPrompterApplication.TAG_LOAD, "*** Load ID Mismatch ***")
+            Log.d(BeatPrompterApplication.TAG_LOAD, "Parcelable Load ID = ${loadID.uuid}")
+            Log.d(BeatPrompterApplication.TAG_LOAD, "SongLoadJob ID = ${song.mLoadID}")
+            Log.d(BeatPrompterApplication.TAG_LOAD, "SongDisplayActivity ID = $mLoadID")
             finish()
+        }
 
         mStartedByBandLeader = song.mStartedByBandLeader
         sendMidiClock = sendMidiClock or song.mSendMIDIClock
@@ -88,7 +93,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        song.mInitialMIDIMessages.forEach { MIDIController.mMIDIOutQueue.put(it) }
+        song.mInitialMIDIMessages.forEach { MIDIController.mMIDIOutQueue.putMessage(it) }
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)

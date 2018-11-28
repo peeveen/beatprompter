@@ -15,31 +15,43 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
 
     override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
         var bufferCopy = buffer
-        var dataStart = 0
+        var dataParsed = 0
+        var dataRemaining = dataEnd
         val receivedMessages = mutableListOf<OutgoingMessage>()
         var lastSetTimeMessage: SetSongTimeMessage? = null
-        while (dataStart < dataEnd) {
+        var lastChooseSongMessage: ChooseSongMessage? = null
+        while (dataRemaining > 0) {
             try {
-                val btm = fromBytes(bufferCopy)
-                Log.d(BeatPrompterApplication.TAG_COMMS, "Got a fully-formed Bluetooth message.")
-                val messageLength = btm.length
-                dataStart += messageLength
-                bufferCopy = buffer.copyOfRange(dataStart, dataEnd)
-                if (btm is SetSongTimeMessage)
-                    lastSetTimeMessage = btm
-                receivedMessages.add(btm)
+                val btm = try {
+                    fromBytes(bufferCopy).also {
+                        Log.d(BeatPrompterApplication.TAG_COMMS, "Got a fully-formed Bluetooth message.")
+                        if (it is SetSongTimeMessage)
+                            lastSetTimeMessage = it
+                        else if (it is ChooseSongMessage)
+                            lastChooseSongMessage = it
+                        receivedMessages.add(it)
+                    }
+                } catch (exception: UnknownMessageException) {
+                    Log.d(BeatPrompterApplication.TAG_COMMS, "Unknown Bluetooth message received.")
+                    null
+                }
+                // If bad message, skip the byte that doesn't match any known message type
+                val messageLength = btm?.length ?: 1
+
+                dataParsed += messageLength
+                bufferCopy = bufferCopy.copyOfRange(messageLength, dataRemaining)
+                dataRemaining -= messageLength
             } catch (exception: NotEnoughDataException) {
                 // Read again!
                 Log.d(BeatPrompterApplication.TAG_COMMS, "Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
                 break
-            } catch (exception: UnknownMessageException) {
-                Log.d(BeatPrompterApplication.TAG_COMMS, "Unknown Bluetooth message received.")
-                ++dataStart // Skip the byte that doesn't match any known message type
             }
         }
-        // If we receive multiple SetSongTimeMessages, there is no point in processing any except the last one.
-        receivedMessages.filter { it !is SetSongTimeMessage || it == lastSetTimeMessage }.forEach { routeBluetoothMessage(it) }
-        return dataStart
+        // If we receive multiple SetSongTimeMessages or ChooseSongMessages, there is no point in processing any except the last one.
+        receivedMessages
+                .filter { (it !is SetSongTimeMessage && it !is ChooseSongMessage) || it == lastSetTimeMessage || it == lastChooseSongMessage }
+                .forEach { routeBluetoothMessage(it) }
+        return dataParsed
     }
 
     override fun close() {

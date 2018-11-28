@@ -1,24 +1,26 @@
 package com.stevenfrew.beatprompter.comm.midi
 
 import android.app.PendingIntent
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
+import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.Task
-import java.util.concurrent.ArrayBlockingQueue
-import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Build
 import android.support.annotation.RequiresApi
+import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
+import com.stevenfrew.beatprompter.comm.SenderTask
 
 object MIDIController {
     private var mMidiUsbRegistered = false
@@ -29,9 +31,9 @@ object MIDIController {
     private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
     private var mPermissionIntent: PendingIntent? = null
 
-    private const val MIDI_QUEUE_SIZE = 1024
+    private const val MIDI_QUEUE_SIZE = 4096
 
-    var mMIDIOutQueue = ArrayBlockingQueue<OutgoingMessage>(MIDI_QUEUE_SIZE)
+    var mMIDIOutQueue = MessageQueue(MIDI_QUEUE_SIZE)
     private val mSenderTask = SenderTask(mMIDIOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 

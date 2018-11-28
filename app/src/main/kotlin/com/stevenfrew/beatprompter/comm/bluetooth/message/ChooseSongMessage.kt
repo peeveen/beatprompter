@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -65,6 +65,7 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                         val availableEnd = available()
                         val messageLength = 1 + (availableStart - availableEnd)
                         close()
+                        Log.d(BeatPrompterApplication.TAG_LOAD, "Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"")
                         return ChooseSongMessage(bytes.copyOfRange(0, messageLength), songChoiceInfo)
                     }
                 }

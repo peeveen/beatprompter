@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.song.load
 
 import android.util.Log
+import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.BeatPrompterApplication.Companion.TAG_LOAD
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
@@ -64,21 +65,23 @@ object SongLoadQueueWatcherTask : Task(true) {
         // A result of CannotInterrupt means that the current song refuses to stop. In which case, we can't load.
         // A result of CanInterrupt means that the current song has been instructed to end and, once it has, it will load the new one.
         // A result of NoSongToInterrupt, however, means full steam ahead.
+        if (interruptResult != SongInterruptResult.CannotInterrupt) {
+            // Create a bluetooth song-selection message to broadcast to other listeners.
+            Log.d(BeatPrompterApplication.TAG_LOAD, "Sending ChooseSongMessage for \"${loadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
+            val csm = ChooseSongMessage(SongChoiceInfo(loadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
+                    loadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
+                    loadJob.mSongLoadInfo.mTrack?.mName ?: "",
+                    loadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
+                    loadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
+                    loadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
+                    loadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
+                    loadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
+                    loadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
+                    loadJob.mSongLoadInfo.mNoAudio))
+            BluetoothManager.mBluetoothOutQueue.putMessage(csm)
+        }
         when (interruptResult) {
             SongInterruptResult.NoSongToInterrupt -> {
-                // Create a bluetooth song-selection message to broadcast to other listeners.
-                val csm = ChooseSongMessage(SongChoiceInfo(loadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
-                        loadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
-                        loadJob.mSongLoadInfo.mTrack?.mName ?: "",
-                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
-                        loadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
-                        loadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
-                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
-                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
-                        loadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
-                        loadJob.mSongLoadInfo.mNoAudio))
-                BluetoothManager.mBluetoothOutQueue.put(csm)
-
                 synchronized(mSongsToLoad)
                 {
                     Log.d(TAG_LOAD, "Adding a song to the load queue: ${loadJob.mSongLoadInfo.mSongFile.mTitle}")
