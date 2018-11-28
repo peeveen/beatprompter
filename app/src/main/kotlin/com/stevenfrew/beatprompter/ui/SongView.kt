@@ -152,13 +152,13 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         val rDiff = pR - bgR
         val gDiff = pG - bgG
         val bDiff = pB - bgB
-        for (f in 0..100) {
-            val sineLookup = Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]
+        repeat(101) {
+            val sineLookup = Utils.mSineLookup[(90.0 * (it.toDouble() / 100.0)).toInt()]
             val red = pR - (sineLookup * rDiff.toDouble()).toInt()
             val green = pG - (sineLookup * gDiff.toDouble()).toInt()
             val blue = pB - (sineLookup * bDiff.toDouble()).toInt()
             val color = Color.rgb(red, green, blue)
-            mBackgroundColorLookup[f] = color
+            mBackgroundColorLookup[it] = color
         }
         mSongTitleContrastBackground = Utils.makeContrastingColour(mBackgroundColorLookup[100])
     }
@@ -1174,15 +1174,16 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         private const val MINIMUM_SCREEN_COVERAGE_FOR_BEAT_SCROLL = 0.1
 
         init {
-            for (f in 0..2047)
-                mAccelerations[f] = Math.ceil(Math.sqrt((f + 1).toDouble()) * 2.0).toInt()
+            repeat(2048) {
+                mAccelerations[it] = Math.ceil(Math.sqrt((it + 1).toDouble()) * 2.0).toInt()
+            }
         }
 
         private fun createStrobingHighlightColourArray(startColor: Int): IntArray {
             val colourArray = IntArray(512)
-            for (f in 0..255) {
-                colourArray[f] = Utils.makeHighlightColour(startColor, (f / 2).toByte())
-                colourArray[511 - f] = colourArray[f]
+            repeat(256) {
+                colourArray[it] = Utils.makeHighlightColour(startColor, (it / 2).toByte())
+                colourArray[511 - it] = colourArray[it]
             }
             return colourArray
         }

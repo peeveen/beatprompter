@@ -10,8 +10,9 @@ class LineMeasurements internal constructor(internal var mLines: Int, internal v
     internal val mGraphicRectangles = mGraphicHeights.map { Rect(0, 0, mLineWidth, it) }.toTypedArray()
 
     init {
-        for (f in 0..100)
-            mJumpScrollIntervals[f] = Math.min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (f.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
+        repeat(101) {
+            mJumpScrollIntervals[it] = Math.min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (it.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
+        }
 
         mPixelsToTimes = LongArray(Math.max(1, mLineHeight))
         val lineEndTime = lineTime + lineDuration

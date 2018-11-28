@@ -64,8 +64,8 @@ object MIDIController {
                                 if (conn != null) {
                                     if (conn.claimInterface(midiInterface, true)) {
                                         val endpointCount = midiInterface.endpointCount
-                                        for (f in 0 until endpointCount) {
-                                            val endPoint = midiInterface.getEndpoint(f)
+                                        repeat(endpointCount) {
+                                            val endPoint = midiInterface.getEndpoint(it)
                                             if (endPoint.direction == UsbConstants.USB_DIR_OUT)
                                                 mSenderTask.addSender(device.deviceName, UsbSender(conn, endPoint, device.deviceName))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
@@ -85,8 +85,8 @@ object MIDIController {
     private fun getDeviceMidiInterface(device: UsbDevice): UsbInterface? {
         val interfaceCount = device.interfaceCount
         var fallbackInterface: UsbInterface? = null
-        for (h in 0 until interfaceCount) {
-            val face = device.getInterface(h)
+        repeat (interfaceCount) { interfaceIndex->
+            val face = device.getInterface(interfaceIndex)
             val mainClass = face.interfaceClass
             val subclass = face.interfaceSubclass
             // Oh you f***in beauty, we've got a perfect compliant MIDI interface!
@@ -99,8 +99,8 @@ object MIDIController {
                 // The endpoints have a max packet size that is a mult of 4.
                 val endPointCount = face.endpointCount
                 var allEndpointsCheckout = true
-                for (g in 0 until endPointCount) {
-                    val ep = face.getEndpoint(g)
+                repeat (endPointCount) {
+                    val ep = face.getEndpoint(it)
                     val maxPacket = ep.maxPacketSize
                     val type = ep.type
                     allEndpointsCheckout = allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)

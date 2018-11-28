@@ -45,9 +45,9 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
         gridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
         gridLayout.isRowOrderPreserved = false
         mCurrentValue = this.getPersistedInt(if (mSingleSelect) 1 else 65535)
-        for (f in 0..15) {
-            val tb = view.findViewById<ToggleButton>(toggleIDs[f])
-            val set = mCurrentValue and (1 shl f) != 0
+        repeat(16) {
+            val tb = view.findViewById<ToggleButton>(toggleIDs[it])
+            val set = mCurrentValue and (1 shl it) != 0
             tb.isChecked = set
             if (mSingleSelect && set)
                 tb.isEnabled = false
@@ -75,8 +75,8 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         if (mSingleSelect && isChecked) {
-            for (f in 0..15) {
-                val tb = mView!!.findViewById<ToggleButton>(toggleIDs[f])
+            repeat(16) {
+                val tb = mView!!.findViewById<ToggleButton>(toggleIDs[it])
                 if (tb !== buttonView) {
                     if (tb.isChecked && !tb.isEnabled) {
                         tb.isChecked = false

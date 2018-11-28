@@ -20,8 +20,8 @@ class ImageLine internal constructor(mImageFile: ImageFile, scalingMode: ImageSc
     }
 
     override fun renderGraphics() {
-        for (f in 0 until mMeasurements.mLines) {
-            val graphic = mGraphics[f]
+        repeat(mMeasurements.mLines) {
+            val graphic = mGraphics[it]
             if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
                 val c = Canvas(graphic.bitmap)

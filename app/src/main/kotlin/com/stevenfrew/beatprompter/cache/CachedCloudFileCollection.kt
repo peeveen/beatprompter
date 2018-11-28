@@ -48,8 +48,8 @@ class CachedCloudFileCollection {
 
     private fun <TCachedCloudFileType : CachedFile> addToCollection(xmlDoc: Document, tagName: String, parser: (cachedCloudFileDescriptor: CachedFileDescriptor) -> TCachedCloudFileType) {
         val elements = xmlDoc.getElementsByTagName(tagName)
-        for (f in 0 until elements.length) {
-            val element = elements.item(f) as Element
+        repeat(elements.length) {
+            val element = elements.item(it) as Element
             try {
                 add(parser(CachedFileDescriptor(element)))
             } catch (ibpfe: InvalidBeatPrompterFileException) {

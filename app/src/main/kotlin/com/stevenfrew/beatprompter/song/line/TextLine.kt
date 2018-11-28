@@ -357,8 +357,8 @@ class TextLine internal constructor(private val mText: String, private val mTags
             // If we are splitting the line over multiple lines, then the height will increase.
             // If the height is too much for the screen, then we have to X scroll.
             var totalLineHeight = 0
-            for (f in 0 until lines) {
-                val thisLineHeight = actualLineHeight - if (mChordsDrawn[f]) 0 else mChordHeight + mChordDescenderOffset - if (mTextDrawn[f]) 0 else mLyricHeight + mLineDescenderOffset
+            repeat(lines) {
+                val thisLineHeight = actualLineHeight - if (mChordsDrawn[it]) 0 else mChordHeight + mChordDescenderOffset - if (mTextDrawn[it]) 0 else mLyricHeight + mLineDescenderOffset
                 totalLineHeight += thisLineHeight
                 graphicHeights.add(thisLineHeight)
             }
@@ -429,27 +429,27 @@ class TextLine internal constructor(private val mText: String, private val mTags
     }
 
     override fun renderGraphics() {
-        for (f in 0 until mMeasurements.mLines) {
-            val graphic = mGraphics[f]
+        repeat(mMeasurements.mLines) { lineNumber->
+            val graphic = mGraphics[lineNumber]
             if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()
-                val chordsDrawn = if (mChordsDrawn.size > f) mChordsDrawn[f] else true
-                val thisLineHeight = mMeasurements.mGraphicHeights[f]
+                val chordsDrawn = if (mChordsDrawn.size > lineNumber) mChordsDrawn[lineNumber] else true
+                val thisLineHeight = mMeasurements.mGraphicHeights[lineNumber]
                 val c = Canvas(graphic.bitmap)
                 var currentX = 0
                 var g = 0
-                while (g < mXSplits.size && g < f) {
+                while (g < mXSplits.size && g < lineNumber) {
                     currentX -= mXSplits[g]
                     ++g
                 }
                 paint.typeface = mFont
                 c.drawColor(0x0000ffff, PorterDuff.Mode.SRC) // Fill with transparency.
-                val xSplit = if (mXSplits.size > f) mXSplits[f] else Integer.MAX_VALUE
+                val xSplit = if (mXSplits.size > lineNumber) mXSplits[lineNumber] else Integer.MAX_VALUE
                 mSections.forEach {
                     if (currentX < xSplit) {
                         val width = it.width
                         if (currentX + width > 0) {
-                            if (chordsDrawn && (it.mChordDrawLine == f || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText.trim().isNotEmpty()) {
+                            if (chordsDrawn && (it.mChordDrawLine == lineNumber || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText.trim().isNotEmpty()) {
                                 paint.color = if (it.mTrueChord) mChordColor else mAnnotationColor
                                 paint.textSize = mChordTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG

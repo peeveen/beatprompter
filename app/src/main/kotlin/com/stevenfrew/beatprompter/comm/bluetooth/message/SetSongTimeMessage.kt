@@ -22,8 +22,8 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
                 write(byteArrayOf(SET_SONG_TIME_MESSAGE_ID))
                 val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
                 var time = t
-                for (f in 0 until Utils.LONG_BUFFER_SIZE) {
-                    longBytes[f] = (time and 0x00000000000000FFL).toByte()
+                repeat(Utils.LONG_BUFFER_SIZE) {
+                    longBytes[it] = (time and 0x00000000000000FFL).toByte()
                     time = time shr 8
                 }
                 write(longBytes)

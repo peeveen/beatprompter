@@ -19,9 +19,9 @@ object Utils {
     private val splitters = arrayOf(" ", "-")
 
     init {
-        for (f in 0..90) {
-            val radians = Math.toRadians(f.toDouble())
-            mSineLookup[f] = Math.sin(radians)
+        repeat(91) {
+            val radians = Math.toRadians(it.toDouble())
+            mSineLookup[it] = Math.sin(radians)
         }
     }
 

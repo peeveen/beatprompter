@@ -27,8 +27,8 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) : OutgoingMes
                 write(byteArrayOf(TOGGLE_START_STOP_MESSAGE_ID, toggleInfo.mStartState.asValue().toByte()))
                 val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
                 var time = toggleInfo.mTime
-                for (f in 0 until Utils.LONG_BUFFER_SIZE) {
-                    longBytes[f] = (time and 0x00000000000000FFL).toByte()
+                repeat(Utils.LONG_BUFFER_SIZE) {
+                    longBytes[it] = (time and 0x00000000000000FFL).toByte()
                     time = time shr 8
                 }
                 write(longBytes)

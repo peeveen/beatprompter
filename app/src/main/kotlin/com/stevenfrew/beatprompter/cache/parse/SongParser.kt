@@ -321,15 +321,16 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
         val lineGraphics = CircularGraphicsList()
-        for (f in 0 until maxGraphicsRequired)
-            lineGraphics.add(LineGraphic(getBiggestLineSize(f, maxGraphicsRequired)))
+        repeat (maxGraphicsRequired) {
+            lineGraphics.add(LineGraphic(getBiggestLineSize(it, maxGraphicsRequired)))
+        }
 
         // There may be no lines! So we have to check ...
         if (lineGraphics.isNotEmpty()) {
             var graphic: LineGraphic = lineGraphics.first()
-            mLines.forEach {
-                for (f in 0 until it.mMeasurements.mLines) {
-                    it.allocateGraphic(graphic)
+            mLines.forEach { line->
+                repeat(line.mMeasurements.mLines) {
+                    line.allocateGraphic(graphic)
                     graphic = graphic.mNextGraphic
                 }
             }
@@ -427,7 +428,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
         var maxLines = 0
-        for (start in 0 until mLines.size) {
+        repeat(mLines.size) { start->
             var heightCounter = 0
             var lineCounter = 0
             for (f in start until mLines.size) {
@@ -529,8 +530,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val remainder = pauseTag.mDuration - Utils.milliToNano(deciSeconds * 100)
         val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
         eventTime += remainder
-        for (f in 0 until deciSeconds) {
-            val pauseEvent = PauseEvent(eventTime, deciSeconds, f)
+        repeat(deciSeconds) {
+            val pauseEvent = PauseEvent(eventTime, deciSeconds, it)
             pauseEvents.add(pauseEvent)
             eventTime += oneDeciSecondInNanoseconds
         }
@@ -545,11 +546,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 val countbpm = mCurrentLineBeatInfo.mBPM
                 val countbpb = mCurrentLineBeatInfo.mBPB
                 val nanoPerBeat = Utils.nanosecondsPerBeat(countbpm)
-                for (f in 0 until countBars)
-                    for (g in 0 until countbpb) {
-                        countInEvents.add(BeatEvent(startTime, mCurrentLineBeatInfo.mBPM, mCurrentLineBeatInfo.mBPB, g, click, if (f == countBars - 1) countbpb - 1 else -1))
+                repeat(countBars) { bar ->
+                    repeat(countbpb) { beat ->
+                        countInEvents.add(BeatEvent(startTime, mCurrentLineBeatInfo.mBPM, mCurrentLineBeatInfo.mBPB, beat, click, if (bar == countBars - 1) countbpb - 1 else -1))
                         startTime += nanoPerBeat
                     }
+                }
             }
         }
         return EventBlock(countInEvents, startTime)
