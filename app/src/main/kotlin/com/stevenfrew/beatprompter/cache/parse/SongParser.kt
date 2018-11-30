@@ -321,14 +321,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // Allocate graphics objects.
         val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
         val lineGraphics = CircularGraphicsList()
-        repeat (maxGraphicsRequired) {
+        repeat(maxGraphicsRequired) {
             lineGraphics.add(LineGraphic(getBiggestLineSize(it, maxGraphicsRequired)))
         }
 
         // There may be no lines! So we have to check ...
         if (lineGraphics.isNotEmpty()) {
             var graphic: LineGraphic = lineGraphics.first()
-            mLines.forEach { line->
+            mLines.forEach { line ->
                 repeat(line.mMeasurements.mLines) {
                     line.allocateGraphic(graphic)
                     graphic = graphic.mNextGraphic
@@ -428,7 +428,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
 
     private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
         var maxLines = 0
-        repeat(mLines.size) { start->
+        repeat(mLines.size) { start ->
             var heightCounter = 0
             var lineCounter = 0
             for (f in start until mLines.size) {

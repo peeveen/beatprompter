@@ -34,31 +34,13 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
         val showBeatIcons = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_key), BeatPrompterApplication.getResourceString(R.string.pref_showBeatStyleIcons_defaultValue).toBoolean())
         val showKey = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_key), BeatPrompterApplication.getResourceString(R.string.pref_showKeyInList_defaultValue).toBoolean())
         val showMusicIcon = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_key), BeatPrompterApplication.getResourceString(R.string.pref_showMusicIcon_defaultValue).toBoolean())
-        if (song.mAudioFiles.isEmpty() || !showMusicIcon) {
-            notesIcon.visibility = View.GONE
-            //            RelativeLayout.LayoutParams docIconLayoutParams=(RelativeLayout.LayoutParams)docIcon.getLayoutParams();
-            //            docIconLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            //            docIcon.setLayoutParams(docIconLayoutParams);
-        } else
-            notesIcon.visibility = View.VISIBLE
-        if (!song.isSmoothScrollable || !showBeatIcons) {
-            docIcon.visibility = View.GONE
-            //            RelativeLayout.LayoutParams beatIconLayoutParams=(RelativeLayout.LayoutParams)beatIcon.getLayoutParams();
-            //            beatIconLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            //            beatIcon.setLayoutParams(beatIconLayoutParams);
-        } else
-            docIcon.visibility = View.VISIBLE
-        if (!song.isBeatScrollable || !showBeatIcons) {
-            beatIcon.visibility = View.GONE
-        } else
-            beatIcon.visibility = View.VISIBLE
+        notesIcon.visibility = if (song.mAudioFiles.isEmpty() || !showMusicIcon) View.GONE else View.VISIBLE
+        docIcon.visibility = if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
+        beatIcon.visibility = if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
         titleView.text = song.mTitle
-        var artist = song.mArtist
-        if (showKey) {
-            val key = song.mKey
-            if (key.isNotBlank())
-                artist += " - $key"
-        }
+        val key = song.mKey
+        val keyString = if (showKey && key.isNotBlank()) " - $key" else ""
+        val artist = song.mArtist + keyString
         artistView.text = artist
         return rowView
     }

@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.comm
 
 abstract class ReceiverBase constructor(private val mName: String, private val mBufferSize: Int = IN_BUFFER_SIZE) : Receiver {
     private val mInBuffer = ByteArray(mBufferSize)
-    private var mAmountOfDataInBuffer=0
+    private var mAmountOfDataInBuffer = 0
 
     override val name: String
         get() = mName
@@ -12,10 +12,10 @@ abstract class ReceiverBase constructor(private val mName: String, private val m
             val amountReceived = receiveMessageData(mInBuffer, mAmountOfDataInBuffer, mBufferSize - mAmountOfDataInBuffer)
             if (amountReceived <= 0)
                 break
-            mAmountOfDataInBuffer+=amountReceived
+            mAmountOfDataInBuffer += amountReceived
             val amountOfDataParsed = parseMessageData(mInBuffer, mAmountOfDataInBuffer)
             mAmountOfDataInBuffer -= amountOfDataParsed
-            System.arraycopy(mInBuffer,amountOfDataParsed,mInBuffer,0,mAmountOfDataInBuffer)
+            System.arraycopy(mInBuffer, amountOfDataParsed, mInBuffer, 0, mAmountOfDataInBuffer)
         }
     }
 

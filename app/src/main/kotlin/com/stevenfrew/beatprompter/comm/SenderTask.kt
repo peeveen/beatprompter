@@ -22,14 +22,14 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue) : Task(fal
             if (senders.isNotEmpty())
                 senders.forEach {
                     //                    runBlocking {
-                        try {
-                            Log.d(BeatPrompterApplication.TAG_COMMS, "Sending messages to '$it.key' ($it.value.name).")
-                            it.value.send(messages)
-                        } catch (commException: Exception) {
-                            // Problem with the I/O? This sender is now dead to us.
-                            Log.d(BeatPrompterApplication.TAG_COMMS, "Sender threw an exception. Assuming it to be dead.")
-                            removeSender(it.key)
-                        }
+                    try {
+                        Log.d(BeatPrompterApplication.TAG_COMMS, "Sending messages to '$it.key' ($it.value.name).")
+                        it.value.send(messages)
+                    } catch (commException: Exception) {
+                        // Problem with the I/O? This sender is now dead to us.
+                        Log.d(BeatPrompterApplication.TAG_COMMS, "Sender threw an exception. Assuming it to be dead.")
+                        removeSender(it.key)
+                    }
 //                    }
                 }
         } catch (interruptedException: InterruptedException) {

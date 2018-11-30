@@ -184,12 +184,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun shouldPlayNextSong(): Boolean {
         val sharedPrefs = BeatPrompterApplication.preferences
         val playNextSongPref = sharedPrefs.getString(getString(R.string.pref_automaticallyPlayNextSong_key), getString(R.string.pref_automaticallyPlayNextSong_defaultValue))
-        var playNextSong = false
-        if (playNextSongPref == getString(R.string.playNextSongAlwaysValue))
-            playNextSong = true
-        else if (playNextSongPref == getString(R.string.playNextSongSetListsOnlyValue))
-            playNextSong = mSelectedFilter is SetListFilter
-        return playNextSong
+        return when (playNextSongPref) {
+            getString(R.string.playNextSongAlwaysValue) -> true
+            getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
+            else -> false
+        }
     }
 
     private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
@@ -197,25 +196,12 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
 
         val fontSizeMin = Integer.parseInt(getString(R.string.fontSizeMin))
-        var minimumFontSizeBeat = sharedPref.getInt(getString(R.string.pref_minFontSize_key), Integer.parseInt(getString(R.string.pref_minFontSize_default)))
-        minimumFontSizeBeat += fontSizeMin
-        var maximumFontSizeBeat = sharedPref.getInt(getString(R.string.pref_maxFontSize_key), Integer.parseInt(getString(R.string.pref_maxFontSize_default)))
-        maximumFontSizeBeat += fontSizeMin
-        var minimumFontSizeSmooth = sharedPref.getInt(getString(R.string.pref_minFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_minFontSizeSmooth_default)))
-        minimumFontSizeSmooth += fontSizeMin
-        var maximumFontSizeSmooth = sharedPref.getInt(getString(R.string.pref_maxFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_maxFontSizeSmooth_default)))
-        maximumFontSizeSmooth += fontSizeMin
-        var minimumFontSizeManual = sharedPref.getInt(getString(R.string.pref_minFontSizeManual_key), Integer.parseInt(getString(R.string.pref_minFontSizeManual_default)))
-        minimumFontSizeManual += fontSizeMin
-        var maximumFontSizeManual = sharedPref.getInt(getString(R.string.pref_maxFontSizeManual_key), Integer.parseInt(getString(R.string.pref_maxFontSizeManual_default)))
-        maximumFontSizeManual += fontSizeMin
-
-        if (onlyUseBeatFontSizes) {
-            minimumFontSizeManual = minimumFontSizeBeat
-            minimumFontSizeSmooth = minimumFontSizeManual
-            maximumFontSizeManual = maximumFontSizeBeat
-            maximumFontSizeSmooth = maximumFontSizeManual
-        }
+        val minimumFontSizeBeat = fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSize_key), Integer.parseInt(getString(R.string.pref_minFontSize_default)))
+        val maximumFontSizeBeat = fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSize_key), Integer.parseInt(getString(R.string.pref_maxFontSize_default)))
+        val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_minFontSizeSmooth_default)))
+        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_maxFontSizeSmooth_default)))
+        val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSizeManual_key), Integer.parseInt(getString(R.string.pref_minFontSizeManual_default)))
+        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSizeManual_key), Integer.parseInt(getString(R.string.pref_maxFontSizeManual_default)))
 
         val minimumFontSize: Int
         val maximumFontSize: Int
@@ -244,10 +230,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         showLoadingProgressUI(true)
         mNowPlayingNode = selectedNode
 
-        var nextSongName = ""
-        if (selectedNode.mNextNode != null && shouldPlayNextSong())
-            nextSongName = selectedNode.mNextNode!!.mSongFile.mTitle
-
+        val nextSongName = if (selectedNode.mNextNode != null && shouldPlayNextSong()) selectedNode.mNextNode!!.mSongFile.mTitle else ""
         val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
         val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
@@ -420,10 +403,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                                     // Add action buttons
                                     .setPositiveButton(R.string.play) { _, _ ->
                                         // sign in the user ...
-                                        var selectedTrackName = audioSpinner.selectedItem as String?
+                                        val selectedTrackName = if (audioSpinner.selectedItemPosition == 0) null else audioSpinner.selectedItem as String?
                                         val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
-                                        if (audioSpinner.selectedItemPosition == 0)
-                                            selectedTrackName = null
                                         val sds = getSongDisplaySettings(mode)
                                         val track = if (selectedTrackName != null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
                                         playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
@@ -606,17 +587,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        var listView = findViewById<ListView>(R.id.listView)
-        val currentPosition = listView.firstVisiblePosition
-        val v = listView.getChildAt(0)
-        val top = if (v == null) 0 else v.top - listView.paddingTop
+        val beforeListView = findViewById<ListView>(R.id.listView)
+        val currentPosition = beforeListView.firstVisiblePosition
+        val v = beforeListView.getChildAt(0)
+        val top = if (v == null) 0 else v.top - beforeListView.paddingTop
 
         super.onConfigurationChanged(newConfig)
         setContentView(R.layout.activity_song_list)
         buildList()
 
-        listView = findViewById(R.id.listView)
-        listView.setSelectionFromTop(currentPosition, top)
+        val afterListView = findViewById<ListView>(R.id.listView)
+        afterListView.setSelectionFromTop(currentPosition, top)
     }
 
     override fun onResume() {
@@ -846,19 +827,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        var item: MenuItem? = menu.findItem(R.id.sort_songs)
-
-        if (item != null) {
-            item.isEnabled = mSelectedFilter.mCanSort
-        }
-        if (fullVersionUnlocked()) {
-            item = menu.findItem(R.id.buy_full_version)
-            if (item != null)
-                item.isVisible = false
-        }
-        item = menu.findItem(R.id.synchronize)
-        if (item != null)
-            item.isEnabled = canPerformCloudSync()
+        menu.findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
+        menu.findItem(R.id.buy_full_version)?.isVisible = !fullVersionUnlocked()
+        menu.findItem(R.id.synchronize)?.isEnabled = canPerformCloudSync()
         return true
     }
 
@@ -1051,20 +1022,26 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val connectedToServer = BluetoothManager.isConnectedToServer
         val master = BluetoothManager.bluetoothMode === BluetoothMode.Server
         val connectedClients = BluetoothManager.bluetoothClientCount
-        var resourceID = if (slave) if (connectedToServer) R.drawable.duncecap else R.drawable.duncecap_outline else R.drawable.blank_icon
-        if (master)
-            resourceID = when (connectedClients) {
-                0 -> R.drawable.master0
-                1 -> R.drawable.master1
-                2 -> R.drawable.master2
-                3 -> R.drawable.master3
-                4 -> R.drawable.master4
-                5 -> R.drawable.master5
-                6 -> R.drawable.master6
-                7 -> R.drawable.master7
-                8 -> R.drawable.master8
-                else -> R.drawable.master9plus
-            }
+        val resourceID =
+                if (slave)
+                    if (connectedToServer)
+                        R.drawable.duncecap
+                    else
+                        R.drawable.duncecap_outline
+                else if (master)
+                    when (connectedClients) {
+                        0 -> R.drawable.master0
+                        1 -> R.drawable.master1
+                        2 -> R.drawable.master2
+                        3 -> R.drawable.master3
+                        4 -> R.drawable.master4
+                        5 -> R.drawable.master5
+                        6 -> R.drawable.master6
+                        7 -> R.drawable.master7
+                        8 -> R.drawable.master8
+                        else -> R.drawable.master9plus
+                    }
+                else R.drawable.blank_icon
         if (mMenu != null) {
             val btLayout = mMenu!!.findItem(R.id.btconnectionstatuslayout).actionView as LinearLayout
             val btIcon = btLayout.findViewById<ImageView>(R.id.btconnectionstatus)

@@ -87,7 +87,7 @@ object MIDIController {
     private fun getDeviceMidiInterface(device: UsbDevice): UsbInterface? {
         val interfaceCount = device.interfaceCount
         var fallbackInterface: UsbInterface? = null
-        repeat (interfaceCount) { interfaceIndex->
+        repeat(interfaceCount) { interfaceIndex ->
             val face = device.getInterface(interfaceIndex)
             val mainClass = face.interfaceClass
             val subclass = face.interfaceSubclass
@@ -101,7 +101,7 @@ object MIDIController {
                 // The endpoints have a max packet size that is a mult of 4.
                 val endPointCount = face.endpointCount
                 var allEndpointsCheckout = true
-                repeat (endPointCount) {
+                repeat(endPointCount) {
                     val ep = face.getEndpoint(it)
                     val maxPacket = ep.maxPacketSize
                     val type = ep.type

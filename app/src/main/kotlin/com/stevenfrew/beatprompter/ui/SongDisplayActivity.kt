@@ -56,7 +56,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         mSongDisplayInstance = this
 
         val sharedPref = BeatPrompterApplication.preferences
-        var sendMidiClock = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
+        val sendMidiClockPref = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
         mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
         mAnyOtherKeyPageDown = sharedPref.getBoolean(getString(R.string.pref_anyOtherKeyPageDown_key), false)
 
@@ -85,7 +85,6 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             Log.d(BeatPrompterApplication.TAG_LOAD, "Successful load ID match: ${song.mLoadID}")
 
         mStartedByBandLeader = song.mStartedByBandLeader
-        sendMidiClock = sendMidiClock or song.mSendMIDIClock
         val orientation = song.mDisplaySettings.mOrientation
         mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -102,7 +101,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
         songView.init(this, song)
 
-        if (sendMidiClock)
+        if (sendMidiClockPref || song.mSendMIDIClock)
             mMidiClockOutTaskThread.start()
 
         try {

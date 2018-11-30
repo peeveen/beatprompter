@@ -429,7 +429,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
     }
 
     override fun renderGraphics() {
-        repeat(mMeasurements.mLines) { lineNumber->
+        repeat(mMeasurements.mLines) { lineNumber ->
             val graphic = mGraphics[lineNumber]
             if (graphic.mLastDrawnLine !== this) {
                 val paint = Paint()

@@ -557,7 +557,7 @@
 
     <string name="cloud_sync">Files</string>
 
-    <string name="pref_automaticallyPlayNextSong_key" translatable="false">pref_automaticallyPlayNexSong</string>
+    <string name="pref_automaticallyPlayNextSong_key" translatable="false">pref_automaticallyPlayNextSong</string>
     <string name="pref_automaticallyPlayNextSong_title">Automatically play next song</string>
     <string name="pref_automaticallyPlayNextSong_defaultValue" translatable="false">sets</string>
     <string name="pref_automaticallyPlayNextSong_summary">Should the next song start automatically when the current song ends?</string>

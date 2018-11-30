@@ -122,8 +122,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             mScreenAction = ScreenAction.Scroll
         mShowScrollIndicator = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_key), BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_defaultValue).toBoolean())
         mShowSongTitle = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_defaultValue).toBoolean())
-        var commentDisplayTimeSeconds = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default).toInt())
-        commentDisplayTimeSeconds += Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset))
+        val commentDisplayTimeSeconds = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset)) + sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default).toInt())
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
         mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue))!!)
         mHighlightCurrentLine = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
@@ -402,33 +401,34 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun calculateScrolling(): Boolean {
-        var scrolling = false
-        if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
+        return if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
             mSongPixelPosition = mScroller.currY
             //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
             run {
                 val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
                 setSongTime(songTime, mStartState === PlayState.Paused, true, false, true)
             }
-            scrolling = true
-        } else if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition) {
-            val diff = Math.min(2048, Math.max(-2048, mTargetPixelPosition - mSongPixelPosition))
-            val absDiff = Math.abs(diff)
-            val targetAcceleration = Math.min(mAccelerations[absDiff - 1], absDiff)
-            if (mTargetAcceleration * 2 < targetAcceleration)
-                mTargetAcceleration *= 2
-            else
-                mTargetAcceleration = targetAcceleration
-            if (diff > 0)
-                mSongPixelPosition += mTargetAcceleration
-            else
-                mSongPixelPosition -= mTargetAcceleration
-            if (mSongPixelPosition == mTargetPixelPosition)
-                clearScrollTarget()
-            val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
-            setSongTime(songTime, mStartState === PlayState.Paused, true, false, false)
+            true
+        } else {
+            if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition) {
+                val diff = Math.min(2048, Math.max(-2048, mTargetPixelPosition - mSongPixelPosition))
+                val absDiff = Math.abs(diff)
+                val targetAcceleration = Math.min(mAccelerations[absDiff - 1], absDiff)
+                if (mTargetAcceleration * 2 < targetAcceleration)
+                    mTargetAcceleration *= 2
+                else
+                    mTargetAcceleration = targetAcceleration
+                if (diff > 0)
+                    mSongPixelPosition += mTargetAcceleration
+                else
+                    mSongPixelPosition -= mTargetAcceleration
+                if (mSongPixelPosition == mTargetPixelPosition)
+                    clearScrollTarget()
+                val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
+                setSongTime(songTime, mStartState === PlayState.Paused, true, false, false)
+            }
+            false
         }
-        return scrolling
     }
 
     private fun drawTitleScreen(canvas: Canvas) {
