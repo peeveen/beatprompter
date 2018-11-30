@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.graphics
 import android.graphics.Rect
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 
-class DisplaySettings internal constructor(var mOrientation: Int, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect, val mShowBeatCounter: Boolean) {
+class DisplaySettings internal constructor(val mOrientation: Int, val mMinFontSize: Float, val mMaxFontSize: Float, val mScreenSize: Rect, val mShowBeatCounter: Boolean) {
     internal constructor(choiceInfo: SongChoiceInfo) : this(choiceInfo.mOrientation, choiceInfo.mMinFontSize, choiceInfo.mMaxFontSize, choiceInfo.mScreenSize, choiceInfo.mBeatScroll || choiceInfo.mSmoothScroll)
 
     private val mBeatCounterHeight =

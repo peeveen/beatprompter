@@ -12,8 +12,8 @@ import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.ListFolderResult
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -48,10 +48,9 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
         for (file in filesToDownload) {
             if (listener.shouldCancel())
                 break
-            var result: DownloadResult
             try {
                 val mdata = client.files().getMetadata(file.mID)
-                if (mdata is FileMetadata) {
+                val result = if (mdata is FileMetadata) {
                     val title = file.mName
                     Log.d(BeatPrompterApplication.TAG, "File title: $title")
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
@@ -67,17 +66,16 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
                     val localFile = downloadDropboxFile(client, mdata, targetFile)
                     val updatedCloudFile = FileInfo(file.mID, mdata.name, mdata.serverModified,
                             file.mSubfolder)
-                    result = SuccessfulDownloadResult(updatedCloudFile, localFile)
+                    SuccessfulDownloadResult(updatedCloudFile, localFile)
                 } else
-                    result = FailedDownloadResult(file)
+                    FailedDownloadResult(file)
                 itemSource.onNext(result)
                 if (listener.shouldCancel())
                     break
             } catch (gmee: GetMetadataErrorException) {
-                if (gmee.errorValue.pathValue.isNotFound) {
-                    result = FailedDownloadResult(file)
-                    itemSource.onNext(result)
-                } else {
+                if (gmee.errorValue.pathValue.isNotFound)
+                    itemSource.onNext(FailedDownloadResult(file))
+                else {
                     itemSource.onError(gmee)
                     return
                 }
@@ -156,13 +154,11 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
 
     private fun doDropboxAction(action: DropboxAction) {
         val sharedPrefs = BeatPrompterApplication.privatePreferences
-        var storedAccessToken = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), null)
-        if (storedAccessToken == null) {
-            // Did we authenticate last time it failed?
-            storedAccessToken = Auth.getOAuth2Token()
-            if (storedAccessToken != null)
-                sharedPrefs.edit().putString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), storedAccessToken).apply()
-        }
+        // Did we authenticate last time it failed?
+        val storedAccessToken = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), null)
+                ?: Auth.getOAuth2Token()?.also {
+                    sharedPrefs.edit().putString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), it).apply()
+                }
         if (storedAccessToken == null) {
             action.onAuthenticationRequired()
             Auth.startOAuth2Authentication(mParentActivity, DROPBOX_APP_KEY)

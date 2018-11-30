@@ -5,6 +5,11 @@ import com.stevenfrew.beatprompter.R
 
 internal class ArgumentValue(private val mArgumentIndex: Int) : Value() {
 
+    init {
+        if (mArgumentIndex < 0)
+            throw ValueException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_argument_index))
+    }
+
     @Throws(ResolutionException::class)
     override fun resolve(arguments: ByteArray, channel: Byte): Byte {
         if (mArgumentIndex >= arguments.size)

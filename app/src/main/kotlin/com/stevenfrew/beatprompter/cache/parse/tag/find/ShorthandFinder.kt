@@ -13,13 +13,13 @@ object ShorthandFinder : TagFinder {
                     -1
                 else {
                     // Look for the FIRST ending chevron
-                    var position = text.length - 1
-                    while (position >= 0 && (text[position] == '<' || text[position] == '>'))
-                        --position
-                    if (++position < text.length)
-                        position
-                    else
+                    val firstNonChevronIndex = (text.length - 1..0).firstOrNull {
+                        text[it] != '<' && text[it] != '>'
+                    }
+                    if (firstNonChevronIndex == null || firstNonChevronIndex == text.length - 1)
                         -1
+                    else
+                        firstNonChevronIndex + 1
                 }
         if (markerPos == -1)
             return null

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.midi.alias
 
-abstract class ByteValue internal constructor(internal var mValue: Byte) : Value() {
+abstract class ByteValue internal constructor(internal val mValue: Byte) : Value() {
 
     override fun resolve(arguments: ByteArray, channel: Byte): Byte {
         return mValue

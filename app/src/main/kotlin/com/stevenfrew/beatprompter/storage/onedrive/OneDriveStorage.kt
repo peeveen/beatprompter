@@ -15,13 +15,13 @@ import com.onedrive.sdk.extensions.OneDriveClient
 import com.onedrive.sdk.http.OneDriveServiceException
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
 
 /**
  * OneDrive implementation of the storage system.
@@ -52,7 +52,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
         fun onAuthenticationRequired()
     }
 
-    private class GetOneDriveFolderContentsTask internal constructor(internal var mClient: IOneDriveClient, internal var mStorage: OneDriveStorage, internal var mFolder: FolderInfo, internal var mListener: StorageListener, internal var mItemSource: PublishSubject<ItemInfo>, internal var mMessageSource: PublishSubject<String>, internal var mIncludeSubfolders: Boolean, internal var mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
+    private class GetOneDriveFolderContentsTask internal constructor(internal val mClient: IOneDriveClient, internal val mStorage: OneDriveStorage, internal val mFolder: FolderInfo, internal val mListener: StorageListener, internal val mItemSource: PublishSubject<ItemInfo>, internal val mMessageSource: PublishSubject<String>, internal val mIncludeSubfolders: Boolean, internal val mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
         private fun isSuitableFileToDownload(childItem: Item): Boolean {
             return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase().endsWith(".txt")
         }

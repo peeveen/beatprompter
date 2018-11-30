@@ -249,9 +249,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mSong == null)
             return
         ensureInitialised()
-        var scrolling = false
-        if (mStartState !== PlayState.AtTitleScreen)
-            scrolling = calculateScrolling()
+        val scrolling = if (mStartState !== PlayState.AtTitleScreen) calculateScrolling() else false
         var timePassed: Long = 0
         var beatPercent = 1.0
         var showTempMessage = false

@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.util.Utils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -35,12 +35,12 @@ class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
         internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage {
             ByteArrayInputStream(bytes).apply {
                 try {
-                    var bytesRead = read(ByteArray(1))
-                    if (bytesRead == 1) {
+                    val signalTypeBytesRead = read(ByteArray(1))
+                    if (signalTypeBytesRead == 1) {
                         var time: Long = 0
                         val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
-                        bytesRead = read(longBytes)
-                        if (bytesRead == Utils.LONG_BUFFER_SIZE) {
+                        val longBytesRead = read(longBytes)
+                        if (longBytesRead == Utils.LONG_BUFFER_SIZE) {
                             for (f in Utils.LONG_BUFFER_SIZE - 1 downTo 0) {
                                 time = time shl 8
                                 time = time or (longBytes[f].toLong() and 0x00000000000000FFL)

@@ -19,9 +19,9 @@ import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.drive.DriveScopes
 import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
-import com.stevenfrew.beatprompter.storage.*
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
@@ -49,7 +49,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
         fun onAuthenticationRequired()
     }
 
-    internal inner class GoogleDriveConnectionListener(private var mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    internal inner class GoogleDriveConnectionListener(private val mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
         private var mClient: GoogleApiClient? = null
         fun setClient(client: GoogleApiClient) {
             mClient = client
@@ -112,7 +112,14 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
         googleApiClient.connect()
     }
 
-    private class ReadGoogleDriveFolderContentsTask internal constructor(internal var mClient: com.google.api.services.drive.Drive, internal var mStorage: GoogleDriveStorage, internal var mFolder: FolderInfo, internal var mListener: StorageListener, internal var mItemSource: PublishSubject<ItemInfo>, internal var mMessageSource: PublishSubject<String>, internal var mIncludeSubfolders: Boolean, internal var mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
+    private class ReadGoogleDriveFolderContentsTask internal constructor(internal val mClient: com.google.api.services.drive.Drive,
+                                                                         internal val mStorage: GoogleDriveStorage,
+                                                                         internal val mFolder: FolderInfo,
+                                                                         internal val mListener: StorageListener,
+                                                                         internal val mItemSource: PublishSubject<ItemInfo>,
+                                                                         internal val mMessageSource: PublishSubject<String>,
+                                                                         internal val mIncludeSubfolders: Boolean,
+                                                                         internal val mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg args: Void): Void? {
             val foldersToQuery = ArrayList<FolderInfo>()
