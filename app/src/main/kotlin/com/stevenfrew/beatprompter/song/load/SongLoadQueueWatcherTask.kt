@@ -25,7 +25,7 @@ object SongLoadQueueWatcherTask : Task(true) {
     val hasASongToLoad: Boolean
         get() = synchronized(mSongLoadLock)
         {
-            mSongToLoad != null
+            mSongToLoad != null || mSongToLoadOnResume != null
         }
     val isLoadingASong: Boolean
         get() = synchronized(mSongLoadLock)
