@@ -234,9 +234,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                     BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
                     BLUETOOTH_QUIT_SONG -> {
                         Log.d(BeatPrompterApplication.TAG_LOAD, "Quit song Bluetooth message received. Finishing activity.")
-                        val songInfo = msg.obj as Pair<String, String>
-                        val title = songInfo.first
-                        val artist = songInfo.second
+                        val songInfo = msg.obj as Pair<*, *>
+                        val title = songInfo.first as String
+                        val artist = songInfo.second as String
                         if (mSongView != null)
                             if (mSongView.hasSong(title, artist))
                                 mActivity.finish()
