@@ -16,9 +16,7 @@ class FileParseError(lineNumber: Int, private val mMessage: String) {
     }
 
     override fun hashCode(): Int {
-        var result = mLineNumber.hashCode()
-        result = 31 * result + mMessage.hashCode()
-        return result
+        return 31 * mLineNumber.hashCode() + mMessage.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {

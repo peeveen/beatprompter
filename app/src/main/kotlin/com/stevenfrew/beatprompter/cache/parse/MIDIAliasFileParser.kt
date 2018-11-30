@@ -93,14 +93,17 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedFileDescr
             }
         }
         val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
-        var channelArg: ChannelValue? = null
-        if (channelArgs.size > 1)
-            mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_channel_args)))
-        else if (channelArgs.size == 1) {
-            channelArg = channelArgs.first()
-            if (componentArgs.last() != channelArg)
-                mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter)))
-            componentArgs.remove(channelArg)
+        val channelArg = when (channelArgs.size) {
+            0 -> null
+            1 -> channelArgs.first().also {
+                if (componentArgs.last() != it)
+                    mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter)))
+                componentArgs.remove(it)
+            }
+            else -> {
+                mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.multiple_channel_args)))
+                null
+            }
         }
         return if (name.equals("midi_send", ignoreCase = true))
             SimpleAliasComponent(componentArgs, channelArg)
@@ -111,9 +114,8 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedFileDescr
     @Throws(InvalidBeatPrompterFileException::class)
     private fun getAliasSet(): AliasSet {
         finishCurrentAlias()
-        if (mAliasSetName != null)
-            return AliasSet(mAliasSetName!!, mAliases)
-        else
+        if (mAliasSetName == null)
             throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.not_a_valid_midi_alias_file, mCachedCloudFileDescriptor.mName))
+        return AliasSet(mAliasSetName!!, mAliases)
     }
 }

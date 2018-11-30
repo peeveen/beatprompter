@@ -31,11 +31,10 @@ class AudioTag internal constructor(name: String, lineNumber: Int, position: Int
         @Throws(MalformedTagException::class)
         fun parseVolume(value: String, defaultTrackVolume: Int): Int {
             try {
-                val tryVolume = Integer.parseInt(value)
-                if (tryVolume < 0 || tryVolume > 100)
-                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
-                else
+                val tryVolume = value.toInt()
+                if (tryVolume in 0..100)
                     return (defaultTrackVolume.toDouble() * (tryVolume.toDouble() / 100.0)).toInt()
+                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
             } catch (nfe: NumberFormatException) {
                 throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.badAudioVolume))
             }
