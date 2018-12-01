@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.MessageQueue
+import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import java.util.*
@@ -294,5 +295,9 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
                 startBluetoothWatcherThreads()
             }
         }
+    }
+
+    fun removeReceiver(task: ReceiverTask) {
+        mReceiverTasks.stopAndRemoveReceiver(task.mName)
     }
 }

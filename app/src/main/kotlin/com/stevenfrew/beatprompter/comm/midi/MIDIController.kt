@@ -19,6 +19,7 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.MessageQueue
+import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
@@ -160,6 +161,10 @@ object MIDIController {
             mNativeMidiManager?.unregisterDeviceCallback(mMidiNativeDeviceListener)
         mSenderTask.removeAll()
         Task.stopTask(mSenderTask, mSenderTaskThread)
+    }
+
+    fun removeReceiver(task: ReceiverTask) {
+        mReceiverTasks.stopAndRemoveReceiver(task.mName)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

@@ -17,6 +17,7 @@ class ReceiverTasks {
                     th.start()
                 }
             }
+            Log.d(BeatPrompterApplication.TAG_COMMS, "Started new receiver task '$id:' ($name)")
         }
     }
 
@@ -25,18 +26,21 @@ class ReceiverTasks {
         var receiverThread: Thread?
         synchronized(mReceiverThreadsLock)
         {
+            Log.d(BeatPrompterApplication.TAG_COMMS, "Removing receiver task '$id'")
             receiverTask = mReceiverTasks[id]
             receiverThread = mReceiverThreads[id]
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Removing receiver task '$id'")
             mReceiverTasks.remove(id)
             mReceiverThreads.remove(id)
+            Log.d(BeatPrompterApplication.TAG_COMMS, "Removed receiver task '$id'")
         }
         Log.d(BeatPrompterApplication.TAG_COMMS, "Stopping receiver task '$id'")
+        receiverTask?.setUnregistered()
         receiverTask?.stop()
         receiverThread?.apply {
             interrupt()
             join()
         }
+        Log.d(BeatPrompterApplication.TAG_COMMS, "Stopped receiver task '$id'")
     }
 
     fun stopAll() {
@@ -46,6 +50,7 @@ class ReceiverTasks {
             mReceiverThreads.keys.forEach {
                 stopAndRemoveReceiver(it)
             }
+            Log.d(BeatPrompterApplication.TAG_COMMS, "Stopped ALL receiver tasks")
         }
     }
 

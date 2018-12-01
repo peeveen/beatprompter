@@ -6,6 +6,8 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 
 class ReceiverTask(val mName: String, private val mReceiver: Receiver) : Task(true) {
+    private var mUnregistered = false
+
     override fun doWork() {
         try {
             mReceiver.receive()
@@ -13,6 +15,8 @@ class ReceiverTask(val mName: String, private val mReceiver: Receiver) : Task(tr
             // Any I/O error means this receiver is dead to us.
             Log.e(BeatPrompterApplication.TAG_COMMS, "Unexpected IO exception from receiver.", exception)
             Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver '$mName' threw an exception. Assuming it to be dead.")
+            if (!mUnregistered)
+                mReceiver.unregister(this)
             super.stop()
             Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver is now stopped.")
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, mName)
@@ -28,5 +32,9 @@ class ReceiverTask(val mName: String, private val mReceiver: Receiver) : Task(tr
         } catch (exception: Exception) {
             // At least we tried ...
         }
+    }
+
+    fun setUnregistered() {
+        mUnregistered = true
     }
 }

@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
+import com.stevenfrew.beatprompter.comm.ReceiverTask
 
 class UsbReceiver(private val mConnection: UsbDeviceConnection, private val mEndpoint: UsbEndpoint, name: String) : Receiver(name) {
     init {
@@ -29,5 +30,9 @@ class UsbReceiver(private val mConnection: UsbDeviceConnection, private val mEnd
             if (offset != 0)
                 System.arraycopy(newArray, 0, buffer, offset, maximumAmount)
         }
+    }
+
+    override fun unregister(task: ReceiverTask) {
+        MIDIController.removeReceiver(task)
     }
 }

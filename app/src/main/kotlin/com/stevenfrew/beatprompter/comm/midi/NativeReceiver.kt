@@ -4,6 +4,7 @@ import android.media.midi.MidiOutputPort
 import android.media.midi.MidiReceiver
 import android.os.Build
 import android.support.annotation.RequiresApi
+import com.stevenfrew.beatprompter.comm.ReceiverTask
 
 @RequiresApi(Build.VERSION_CODES.M)
 class NativeReceiver(private val mPort: MidiOutputPort, name: String) : Receiver(name) {
@@ -33,6 +34,10 @@ class NativeReceiver(private val mPort: MidiOutputPort, name: String) : Receiver
                 }
             }
         }
+    }
+
+    override fun unregister(task: ReceiverTask) {
+        MIDIController.removeReceiver(task)
     }
 
     inner class NativeReceiverReceiver : MidiReceiver() {

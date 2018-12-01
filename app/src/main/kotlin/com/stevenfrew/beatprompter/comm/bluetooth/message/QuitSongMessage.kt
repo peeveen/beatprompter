@@ -36,16 +36,16 @@ class QuitSongMessage constructor(val bytes: ByteArray, val songTitle: String, v
                     val dataRead = read(ByteArray(1))
                     if (dataRead == 1) {
                         val availableStart = available()
-                        val quitMessage =
+                        val songInfo =
                                 with(ObjectInputStream(this)) {
                                     val title = readObject() as String
                                     val artist = readObject() as String
-                                    val availableEnd = available()
-                                    val messageLength = 1 + (availableStart - availableEnd)
-                                    QuitSongMessage(bytes.copyOfRange(0, messageLength), title, artist)
+                                    title to artist
                                 }
+                        val availableEnd = available()
                         close()
-                        return quitMessage
+                        val messageLength = 1 + (availableStart - availableEnd)
+                        return QuitSongMessage(bytes.copyOfRange(0, messageLength), songInfo.first, songInfo.second)
                     }
                 }
             } catch (e: Exception) {
