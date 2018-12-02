@@ -5,7 +5,6 @@ import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication.Companion.TAG_LOAD
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.cache.parse.SongParser
-import com.stevenfrew.beatprompter.song.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,6 +22,7 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
     fun startLoading() {
         synchronized(this)
         {
+            val thisSongLoadJob = this
             launch {
                 System.gc()
                 try {
@@ -32,7 +32,7 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
                         throw SongLoadCancelledException()
                     Log.d(TAG_LOAD, "Song was loaded successfully.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
-                    mLoadedSong = loadedSong
+                    mLoadedSong = LoadedSong(loadedSong, thisSongLoadJob)
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
                 } catch (e: SongLoadCancelledException) {
                     Log.d(TAG_LOAD, "Song load was cancelled.")
@@ -67,6 +67,6 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Bool
     }
 
     companion object {
-        var mLoadedSong: Song? = null
+        var mLoadedSong: LoadedSong? = null
     }
 }

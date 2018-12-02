@@ -19,9 +19,14 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
@@ -65,7 +70,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         val songView = potentiallyNullSongView ?: return
         mSongView = songView
 
-        val song = SongLoadJob.mLoadedSong ?: return
+        val loadedSong = SongLoadJob.mLoadedSong ?: return
+        val song = loadedSong.mSong
         val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
         // For a song to load successfully, all three IDs must match:
         // 1) The ID passed in the startActivityForResult parcelable
@@ -81,8 +87,23 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             Log.d(BeatPrompterApplication.TAG_LOAD, "Parcelable Load ID = ${loadID.uuid}")
             Log.d(BeatPrompterApplication.TAG_LOAD, "SongLoadJob ID = ${song.mLoadID}")
             finish()
-        } else
+        } else {
             Log.d(BeatPrompterApplication.TAG_LOAD, "Successful load ID match: ${song.mLoadID}")
+            if (BluetoothManager.bluetoothMode == BluetoothMode.Server) {
+                Log.d(BeatPrompterApplication.TAG_LOAD, "Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
+                val csm = ChooseSongMessage(SongChoiceInfo(loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
+                        loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
+                        loadedSong.mLoadJob.mSongLoadInfo.mTrack?.mName ?: "",
+                        loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
+                        loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
+                        loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
+                        loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
+                        loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
+                        loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
+                        loadedSong.mLoadJob.mSongLoadInfo.mNoAudio))
+                BluetoothManager.mBluetoothOutQueue.putMessage(csm)
+            }
+        }
 
         mStartedByBandLeader = song.mStartedByBandLeader
         val orientation = song.mDisplaySettings.mOrientation
@@ -272,9 +293,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 // The first one should never happen, but we'll check just to be sure.
                 // Trying to interrupt a song with itself is pointless!
                 return when {
-                    loadedSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.NoSongToInterrupt
+                    loadedSong.mSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.NoSongToInterrupt
                     mSongDisplayInstance.canYieldToExternalTrigger() -> {
-                        loadedSong.mCancelled = true
+                        loadedSong.mSong.mCancelled = true
                         SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)
                         EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
                         SongInterruptResult.CanInterrupt
