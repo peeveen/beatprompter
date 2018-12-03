@@ -24,7 +24,7 @@ import kotlin.coroutines.CoroutineContext
 object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
     private val mCoRoutineJob = Job()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + mCoRoutineJob
+        get() = Dispatchers.Default + mCoRoutineJob
 
     // Our unique app Bluetooth ID.
     private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
