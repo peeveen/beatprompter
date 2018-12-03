@@ -10,6 +10,7 @@ class ChanneledCommandValue internal constructor(value: Byte) : ByteValue(value)
         if (mValue and 0x0F != 0.toByte())
             throw ValueException(BeatPrompterApplication.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
     }
+
     override fun resolve(arguments: ByteArray, channel: Byte): Byte {
         return ((mValue and 0xF0.toByte()) or (channel and 0x0F))
     }

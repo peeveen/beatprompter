@@ -154,15 +154,6 @@ object MIDIController {
         attemptUsbMidiConnection()
     }
 
-    fun shutdown(app: BeatPrompterApplication) {
-        if (mMidiUsbRegistered)
-            app.unregisterReceiver(mUsbReceiver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            mNativeMidiManager?.unregisterDeviceCallback(mMidiNativeDeviceListener)
-        mSenderTask.removeAll()
-        Task.stopTask(mSenderTask, mSenderTaskThread)
-    }
-
     fun removeReceiver(task: ReceiverTask) {
         mReceiverTasks.stopAndRemoveReceiver(task.mName)
     }

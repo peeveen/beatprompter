@@ -13,12 +13,19 @@ import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
+import kotlinx.coroutines.*
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * General Bluetooth management singleton object.
  */
-object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
+object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
+    private val mCoRoutineJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + mCoRoutineJob
+
     // Our unique app Bluetooth ID.
     private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 
@@ -47,6 +54,12 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
         Task.resumeTask(mSenderTask)
         Log.d(BeatPrompterApplication.TAG_COMMS, "Bluetooth sender thread started.")
 
+        launch {
+            while (true) {
+                BluetoothManager.mBluetoothOutQueue.putMessage(HeartbeatMessage)
+                delay(1000)
+            }
+        }
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         if (mBluetoothAdapter != null) {
@@ -109,7 +122,6 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
                 // Backwards compatibility with old shite values from previous app versions.
                 BluetoothMode.None
             }
-
         }
 
     /**
@@ -258,22 +270,6 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener {
             mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
         }
-    }
-
-    /**
-     * Called when the app ends. Shuts down all Bluetooth functionality and unregisters
-     * us from any Bluetooth events.
-     */
-    fun shutdown(application: BeatPrompterApplication) {
-        if (mBluetoothAdapter != null) {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Bluetooth shutdown initiated.")
-            BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
-            application.unregisterReceiver(mDeviceReceiver)
-            application.unregisterReceiver(mAdapterReceiver)
-            shutDownBluetoothClient()
-            shutDownBluetoothServer()
-        }
-        Task.stopTask(mSenderTask, mSenderTaskThread)
     }
 
     /**

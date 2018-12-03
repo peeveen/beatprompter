@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -11,12 +10,10 @@ import java.io.ObjectOutputStream
 /**
  * Bluetooth message that instructs the receiver to stop playing the current song.
  */
-class QuitSongMessage constructor(val bytes: ByteArray, val songTitle: String, val songArtist: String) : OutgoingMessage(bytes) {
+class QuitSongMessage constructor(val bytes: ByteArray, val songTitle: String, val songArtist: String) : BluetoothMessage(bytes) {
     constructor(songTitle: String, songArtist: String) : this(asBytes(songTitle, songArtist), songTitle, songArtist)
 
     companion object {
-        internal const val QUIT_SONG_MESSAGE_ID: Byte = 4
-
         private fun asBytes(songTitle: String, songArtist: String): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(QUIT_SONG_MESSAGE_ID), 0, 1)

@@ -81,11 +81,12 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
         internal fun fromBytes(bytes: ByteArray): OutgoingMessage {
             if (bytes.isNotEmpty())
                 return when (bytes[0]) {
-                    ChooseSongMessage.CHOOSE_SONG_MESSAGE_ID -> ChooseSongMessage.fromBytes(bytes)
-                    ToggleStartStopMessage.TOGGLE_START_STOP_MESSAGE_ID -> ToggleStartStopMessage.fromBytes(bytes)
-                    SetSongTimeMessage.SET_SONG_TIME_MESSAGE_ID -> SetSongTimeMessage.fromBytes(bytes)
-                    PauseOnScrollStartMessage.PAUSE_ON_SCROLL_START_MESSAGE_ID -> PauseOnScrollStartMessage()
-                    QuitSongMessage.QUIT_SONG_MESSAGE_ID -> QuitSongMessage.fromBytes(bytes)
+                    BluetoothMessage.CHOOSE_SONG_MESSAGE_ID -> ChooseSongMessage.fromBytes(bytes)
+                    BluetoothMessage.TOGGLE_START_STOP_MESSAGE_ID -> ToggleStartStopMessage.fromBytes(bytes)
+                    BluetoothMessage.SET_SONG_TIME_MESSAGE_ID -> SetSongTimeMessage.fromBytes(bytes)
+                    BluetoothMessage.PAUSE_ON_SCROLL_START_MESSAGE_ID -> PauseOnScrollStartMessage
+                    BluetoothMessage.QUIT_SONG_MESSAGE_ID -> QuitSongMessage.fromBytes(bytes)
+                    BluetoothMessage.HEARTBEAT_MESSAGE_ID -> HeartbeatMessage
                     else -> throw UnknownMessageException()
                 }
             throw NotEnoughDataException()

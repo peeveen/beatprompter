@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 import android.graphics.Rect
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -13,12 +12,10 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo) : OutgoingMessage(bytes) {
+class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo) : BluetoothMessage(bytes) {
     constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 
     companion object {
-        internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
-
         private fun asBytes(choiceInfo: SongChoiceInfo): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)

@@ -8,6 +8,7 @@ class ChannelValue internal constructor(channel: Byte) : ByteValue(channel) {
         if (mValue !in 0..15)
             throw ValueException(BeatPrompterApplication.getResourceString(R.string.invalid_channel_value))
     }
+
     override fun toString(): String {
         return "#$mValue"
     }

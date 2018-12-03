@@ -840,7 +840,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         if (mScreenAction != ScreenAction.Scroll)
             return
-        BluetoothManager.mBluetoothOutQueue.putMessage(PauseOnScrollStartMessage())
+        BluetoothManager.mBluetoothOutQueue.putMessage(PauseOnScrollStartMessage)
         mUserHasScrolled = true
         mStartState = PlayState.Paused
         mMediaPlayers.values.forEach {

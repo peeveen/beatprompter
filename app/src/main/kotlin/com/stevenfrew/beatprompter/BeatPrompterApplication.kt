@@ -27,13 +27,6 @@ class BeatPrompterApplication : Application() {
         Task.resumeTask(SongLoadQueueWatcherTask)
     }
 
-    override fun onTerminate() {
-        Task.stopTask(SongLoadQueueWatcherTask, mSongLoaderTaskThread)
-        BluetoothManager.shutdown(this)
-        MIDIController.shutdown(this)
-        super.onTerminate()
-    }
-
     companion object {
         const val TAG = "beatprompter"
         const val TAG_LOAD = "beatprompter_load"

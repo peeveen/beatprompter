@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -10,13 +9,11 @@ import java.io.ByteArrayOutputStream
 /**
  * Bluetooth message that instructs the receiver to change the current song position.
  */
-class SetSongTimeMessage(time: Long) : OutgoingMessage(asBytes(time)) {
+class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
 
     var mTime: Long = time
 
     companion object {
-        internal const val SET_SONG_TIME_MESSAGE_ID: Byte = 2
-
         private fun asBytes(t: Long): ByteArray {
             return ByteArrayOutputStream().apply {
                 write(byteArrayOf(SET_SONG_TIME_MESSAGE_ID))
