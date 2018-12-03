@@ -135,9 +135,11 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                 mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, if (firstFolder) "..." else currentFolderName))
                 firstFolder = false
 
-                var queryString = "trashed=false and '$currentFolderID' in parents"
-                if (!mIncludeSubfolders && !mReturnFolders)
-                    queryString += " and mimeType != '$GOOGLE_DRIVE_FOLDER_MIMETYPE'"
+                val queryString = "trashed=false and '$currentFolderID' in parents" +
+                        if (!mIncludeSubfolders && !mReturnFolders)
+                            " and mimeType != '$GOOGLE_DRIVE_FOLDER_MIMETYPE'"
+                        else
+                            ""
                 try {
                     if (mListener.shouldCancel())
                         break
@@ -188,16 +190,19 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
         }
     }
 
-    private class DownloadGoogleDriveFilesTask internal constructor(internal var mClient: com.google.api.services.drive.Drive, internal var mListener: StorageListener, internal var mItemSource: PublishSubject<DownloadResult>, internal var mMessageSource: PublishSubject<String>, internal var mFilesToDownload: List<FileInfo>, internal var mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
-
+    private class DownloadGoogleDriveFilesTask internal constructor(internal val mClient: com.google.api.services.drive.Drive,
+                                                                    internal val mListener: StorageListener,
+                                                                    internal val mItemSource: PublishSubject<DownloadResult>,
+                                                                    internal val mMessageSource: PublishSubject<String>,
+                                                                    internal val mFilesToDownload: List<FileInfo>,
+                                                                    internal val mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg args: Void): Void? {
             for (cloudFile in mFilesToDownload) {
                 if (mListener.shouldCancel())
                     break
-                var result: DownloadResult
                 try {
                     val file = mClient.files().get(cloudFile.mID).setFields("id,name,mimeType,trashed,modifiedTime").execute()
-                    result = if (!file.trashed) {
+                    val result = if (!file.trashed) {
                         val title = file.name
                         Log.d(BeatPrompterApplication.TAG, "File title: $title")
                         val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
@@ -218,8 +223,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                 } catch (gjre: GoogleJsonResponseException) {
                     // You get a 404 if the document has been 100% deleted.
                     if (gjre.statusCode == 404) {
-                        result = FailedDownloadResult(cloudFile)
-                        mItemSource.onNext(result)
+                        mItemSource.onNext(FailedDownloadResult(cloudFile))
                     } else {
                         mItemSource.onError(gjre)
                         return null
