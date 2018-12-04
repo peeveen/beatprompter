@@ -27,7 +27,8 @@ class Song(val mSongFile: SongFile, val mDisplaySettings: DisplaySettings,
     private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
     var mCancelled = false
     private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-    val mSmoothMode: Boolean = mLines.asSequence().filter { it.mScrollMode == ScrollingMode.Smooth }.any()
+    val mSmoothMode: Boolean = mLines.asSequence().filter { it.mScrollMode === ScrollingMode.Smooth }.any()
+    val mManualMode: Boolean = mLines.all { it.mScrollMode === ScrollingMode.Manual }
     internal val mBackingTrack = findBackingTrack(firstEvent)
 
     internal fun setProgress(nano: Long) {

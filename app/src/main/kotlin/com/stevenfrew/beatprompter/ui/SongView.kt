@@ -174,20 +174,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     fun init(songDisplayActivity: SongDisplayActivity, song: Song) {
         mSongDisplayActivity = songDisplayActivity
 
-        // TODO: FIX METRONOME FOR MIXED MODE
-/*        if (song.mSongFile.mBPM > 0.0) {
-            var metronomeOn = metronomePref==MetronomeContext.On
-            val metronomeOnWhenNoBackingTrack = metronomePref==MetronomeContext.OnWhenNoTrack
-            val metronomeCount = metronomePref==MetronomeContext.DuringCountIn
-
-            if (metronomeOnWhenNoBackingTrack && song.mEvents.any{it is AudioEvent})
-                metronomeOn = true
-
-            if (metronomeOn)
-                mMetronomeBeats = Long.MAX_VALUE
-            else if (metronomeCount)
-                mMetronomeBeats = (song.mCountIn * song.mInitialBPB).toLong()
-        }*/
+        if (song.mSongFile.mBPM > 0.0) {
+            val metronomeOnPref = mMetronomePref == MetronomeContext.On
+            val metronomeOnWhenNoBackingTrackPref = mMetronomePref == MetronomeContext.OnWhenNoTrack
+            // We switch the metronome on (full time) if the pref says "on"
+            // or if it says "when no audio track" and there are no audio events.
+            val metronomeOn = metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
+            mMetronomeBeats = if (metronomeOn) Long.MAX_VALUE else 0
+        }
 
         mSilenceMediaPlayer.isLooping = true
         mSilenceMediaPlayer.setVolume(0.01f, 0.01f)
@@ -229,18 +223,15 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (mSong!!.mSmoothMode)
                 mPulse = false
             mInitialized = true
-            // TODO: FIX METRONOME
-/*
-            if (mSong!!.mScrollMode === SongScrollingMode.Manual) {
+            if (mSong!!.mManualMode) {
                 if (mMetronomeBeats > 0) {
-                    mMetronomeTask = MetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
-                    mMetronomeThread = Thread(mMetronomeTask)
+                    mManualMetronomeTask = ManualMetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
+                    mManualMetronomeThread = Thread(mManualMetronomeTask)
                     // Infinite metronome? Might as well start it now.
                     if (mMetronomeBeats == Long.MAX_VALUE)
-                        mMetronomeThread!!.start()
+                        mManualMetronomeThread!!.start()
                 }
             }
-*/
         }
     }
 
