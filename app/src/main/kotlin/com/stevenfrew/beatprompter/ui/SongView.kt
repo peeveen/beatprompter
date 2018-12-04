@@ -41,7 +41,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private val mDestinationGraphicRect = Rect(0, 0, 0, 0)
     private var mCurrentBeatCountRect = Rect()
     private var mEndSongByPedalCounter = 0
-    private var mMetronomeBeats: Long = 0
+    private var mMetronomeOn: Boolean = false
     private var mInitialized = false
     private var mSkipping = false
     private var mCurrentVolume = 80
@@ -179,8 +179,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             val metronomeOnWhenNoBackingTrackPref = mMetronomePref == MetronomeContext.OnWhenNoTrack
             // We switch the metronome on (full time) if the pref says "on"
             // or if it says "when no audio track" and there are no audio events.
-            val metronomeOn = metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
-            mMetronomeBeats = if (metronomeOn) Long.MAX_VALUE else 0
+            mMetronomeOn = metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
         }
 
         mSilenceMediaPlayer.isLooping = true
@@ -224,12 +223,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 mPulse = false
             mInitialized = true
             if (mSong!!.mManualMode) {
-                if (mMetronomeBeats > 0) {
-                    mManualMetronomeTask = ManualMetronomeTask(mSong!!.mSongFile.mBPM, mMetronomeBeats)
-                    mManualMetronomeThread = Thread(mManualMetronomeTask)
-                    // Infinite metronome? Might as well start it now.
-                    if (mMetronomeBeats == Long.MAX_VALUE)
-                        mManualMetronomeThread!!.start()
+                if (mMetronomeOn) {
+                    mManualMetronomeTask = ManualMetronomeTask(mSong!!.mSongFile.mBPM)
+                    mManualMetronomeThread = Thread(mManualMetronomeTask).apply { start() }
                 }
             }
         }
@@ -553,7 +549,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     // Start the count in.
                     if (mManualMetronomeThread != null) {
                         if (!mManualMetronomeThread!!.isAlive) {
-                            return if (mMetronomeBeats != 0L) {
+                            return if (mMetronomeOn) {
                                 mManualMetronomeThread!!.start()
                                 true
                             } else
@@ -1120,7 +1116,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return null
     }
 
-    internal inner class ManualMetronomeTask(bpm: Double, private var mBeats: Long) : Task(true) {
+    internal inner class ManualMetronomeTask(bpm: Double) : Task(true) {
         private var mNanosecondsPerBeat: Long = 0
         private var mNextClickTime: Long = 0
 
@@ -1129,11 +1125,8 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
 
         override fun doWork() {
-            mMetronomeBeats = 0
             mNextClickTime = System.nanoTime()
             mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
-            if (--mBeats == 0L)
-                stop()
             mNextClickTime += mNanosecondsPerBeat
             val wait = mNextClickTime - System.nanoTime()
             if (wait > 0) {
