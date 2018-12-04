@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.R
 
 class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeListener {
     private var mCurrentValue: Int = 0
-    private var mSingleSelect: Boolean = false
+    private val mSingleSelect: Boolean
     private var mView: View? = null
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
@@ -33,8 +33,10 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
 
     private fun getSingleSelectSetting(attrs: AttributeSet): Boolean {
         val resourceID = attrs.getAttributeResourceValue(sfns, "singleSelect", 0)
-        return if (resourceID == 0) attrs.getAttributeBooleanValue(sfns, "singleSelect", false) else context.getString(resourceID).toBoolean()
-
+        return if (resourceID == 0)
+            attrs.getAttributeBooleanValue(sfns, "singleSelect", false)
+        else
+            context.getString(resourceID).toBoolean()
     }
 
     override fun onBindDialogView(view: View) {
@@ -98,9 +100,23 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
     }
 
     companion object {
-
         private const val sfns = "http://com.stevenfrew/"
-
-        private val toggleIDs = intArrayOf(R.id.midiChannel1Button, R.id.midiChannel2Button, R.id.midiChannel3Button, R.id.midiChannel4Button, R.id.midiChannel5Button, R.id.midiChannel6Button, R.id.midiChannel7Button, R.id.midiChannel8Button, R.id.midiChannel9Button, R.id.midiChannel10Button, R.id.midiChannel11Button, R.id.midiChannel12Button, R.id.midiChannel13Button, R.id.midiChannel14Button, R.id.midiChannel15Button, R.id.midiChannel16Button)
+        private val toggleIDs = intArrayOf(
+                R.id.midiChannel1Button,
+                R.id.midiChannel2Button,
+                R.id.midiChannel3Button,
+                R.id.midiChannel4Button,
+                R.id.midiChannel5Button,
+                R.id.midiChannel6Button,
+                R.id.midiChannel7Button,
+                R.id.midiChannel8Button,
+                R.id.midiChannel9Button,
+                R.id.midiChannel10Button,
+                R.id.midiChannel11Button,
+                R.id.midiChannel12Button,
+                R.id.midiChannel13Button,
+                R.id.midiChannel14Button,
+                R.id.midiChannel15Button,
+                R.id.midiChannel16Button)
     }
 }

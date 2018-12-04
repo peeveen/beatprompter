@@ -21,13 +21,14 @@ class SeekBarPreference
 
     private var mSeekBar: SeekBar? = null
     private var mValueText: TextView? = null
-
-    private var mDialogMessage: String? = null
-    private var mSuffix: String? = null
-    private val mDefault: Int
-    var max: Int = 0
     private var mValue: Int = 0
-    private val mOffset: Int
+
+    private val mDialogMessage = getResourceString(mContext, attrs, "dialogMessage")
+    private val mSuffix = getResourceString(mContext, attrs, "text")
+    private val mDefault = getAttributeIntValue(attrs, androidns, "defaultValue", 0)
+    val max = getAttributeIntValue(attrs, androidns, "max", 100)
+    private val mOffset = getAttributeIntValue(attrs, sfns, "offset", 0)
+
     var progress: Int
         get() = mValue
         set(progress) {
@@ -36,27 +37,6 @@ class SeekBarPreference
                 mSeekBar!!.progress = progress
         }
 
-    init {
-
-        // Get string value for dialogMessage :
-        val mDialogMessageId = attrs.getAttributeResourceValue(androidns, "dialogMessage", 0)
-        mDialogMessage = if (mDialogMessageId == 0)
-            attrs.getAttributeValue(androidns, "dialogMessage")
-        else
-            mContext.getString(mDialogMessageId)
-
-        // Get string value for suffix (text attribute in xml file) :
-        val mSuffixId = attrs.getAttributeResourceValue(androidns, "text", 0)
-        mSuffix = if (mSuffixId == 0)
-            attrs.getAttributeValue(androidns, "text")
-        else
-            mContext.getString(mSuffixId)
-
-        // Get default and max seekbar values :
-        mDefault = getAttributeIntValue(attrs, androidns, "defaultValue", 0)
-        max = getAttributeIntValue(attrs, androidns, "max", 100)
-        mOffset = getAttributeIntValue(attrs, sfns, "offset", 0)
-    }
     // ------------------------------------------------------------------------------------------
 
 
@@ -121,7 +101,7 @@ class SeekBarPreference
     // OnSeekBarChangeListener methods :
     override fun onProgressChanged(seek: SeekBar, value: Int, fromTouch: Boolean) {
         val t = (value + mOffset).toString()
-        mValueText!!.text = if (mSuffix == null) t else t + (" " + mSuffix!!)
+        mValueText!!.text = if (mSuffix == null) t else "$t $mSuffix"
     }
 
     override fun onStartTrackingTouch(seek: SeekBar) {}
@@ -156,6 +136,14 @@ class SeekBarPreference
         // Private attributes :
         private const val androidns = "http://schemas.android.com/apk/res/android"
         private const val sfns = "http://com.stevenfrew/"
+
+        private fun getResourceString(context: Context, attrs: AttributeSet, identifier: String): String? {
+            val resourceId = attrs.getAttributeResourceValue(androidns, identifier, 0)
+            return if (resourceId == 0)
+                attrs.getAttributeValue(androidns, identifier)
+            else
+                context.getString(resourceId)
+        }
     }
     // ------------------------------------------------------------------------------------------
 }

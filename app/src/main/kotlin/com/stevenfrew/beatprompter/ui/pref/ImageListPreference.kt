@@ -59,7 +59,6 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
     fun forceUpdate() {
         if (!inForceUpdate) {
             try {
-
                 inForceUpdate = true
                 notifyChanged()
             } finally {
