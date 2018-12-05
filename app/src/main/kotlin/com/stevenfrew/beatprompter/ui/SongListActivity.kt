@@ -164,7 +164,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val track: AudioFile? = if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val mode = if (manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
-        playSong(node, track, mode, startedByMidiTrigger, sds, sds, manualMode || track == null)
+        playSong(node, track, mode, startedByMidiTrigger, sds, sds, manualMode || (track == null && !selectedSong.mMixedMode))
     }
 
     private fun shouldPlayNextSong(): Boolean {
