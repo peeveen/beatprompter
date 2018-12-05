@@ -29,7 +29,7 @@ class MIDIEventTag internal constructor(name: String,
                                         value: String)
     : Tag(name, lineNumber, position) {
     val mMessages: List<OutgoingMessage>
-    val mOffset: EventOffset?
+    val mOffset: EventOffset
 
     init {
         val parsedEvent = parseMIDIEvent(name,

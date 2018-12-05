@@ -8,20 +8,24 @@ object ShorthandFinder
     override fun findTag(text: String): FoundTag? {
         // TODO: dynamic BPB changing with + and _ chars?
         val markerPos =
-                if (text.startsWith(','))
-                    0
-                else if (text.isEmpty())
-                    return null
-                else {
-                    val lastIndex = text.length - 1
-                    // Look for the FIRST ending chevron
-                    val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
-                        text[it] != '<' && text[it] != '>'
+                when {
+                    text.startsWith(',') -> 0
+                    text.isEmpty() -> return null
+                    else -> {
+                        val lastIndex = text.length - 1
+                        // Look for the FIRST ending chevron
+                        val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
+                            text[it] != '<' && text[it] != '>'
+                        }
+                        when (firstNonChevronIndex) {
+                            // Entire string was chevrons
+                            null -> 0
+                            // Last character was NOT a chevron
+                            lastIndex -> return null
+                            // Normal scenario
+                            else -> firstNonChevronIndex + 1
+                        }
                     }
-                    if (firstNonChevronIndex == null || firstNonChevronIndex == lastIndex)
-                        return null
-                    else
-                        firstNonChevronIndex + 1
                 }
         return FoundTag(markerPos,
                 markerPos,

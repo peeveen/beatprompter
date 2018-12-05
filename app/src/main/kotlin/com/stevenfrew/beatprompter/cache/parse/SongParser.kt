@@ -2,26 +2,30 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import android.graphics.*
 import android.os.Handler
-import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
-import com.stevenfrew.beatprompter.song.event.*
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
-import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
+import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
-import com.stevenfrew.beatprompter.song.*
+import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.Song
+import com.stevenfrew.beatprompter.song.event.*
 import com.stevenfrew.beatprompter.song.line.ImageLine
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.song.line.TextLine
-import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.absoluteValue
 
@@ -129,6 +133,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
         if (!mSendMidiClock)
             mSendMidiClock = tags.any { it is SendMIDIClockTag }
+        mSendMidiClock = tags.any { it is SendMIDIClockTag }
 
         if (!mStopAddingStartupItems)
             mCountIn = tags.filterIsInstance<CountTag>().firstOrNull()?.mCount ?: mCountIn
@@ -158,7 +163,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                             mEvents.add(it.toMIDIEvent(mSongTime))
                         else {
                             mInitialMIDIMessages.addAll(it.mMessages)
-                            if (it.mOffset != null)
+                            if (it.mOffset.mAmount != 0)
                                 mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
                         }
                     }
@@ -638,37 +643,36 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
      * Each MIDIEvent might have an offset. Process that here.
      */
     private fun offsetMIDIEvent(midiEvent: MIDIEvent, beatEvents: List<BeatEvent>): MIDIEvent {
-        if (midiEvent.mOffset != null)
-            if (midiEvent.mOffset.mAmount != 0) {
-                // OK, this event needs moved.
-                var newTime: Long = -1
-                if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-                    val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-                    newTime = midiEvent.mEventTime + offset
-                } else {
-                    // Offset by beat count.
-                    val beatCount = midiEvent.mOffset.mAmount
-                    val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
-                        if (beatCount >= 0)
-                            it.mEventTime > midiEvent.mEventTime
+        if (midiEvent.mOffset.mAmount != 0) {
+            // OK, this event needs moved.
+            var newTime: Long = -1
+            if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+                val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+                newTime = midiEvent.mEventTime + offset
+            } else {
+                // Offset by beat count.
+                val beatCount = midiEvent.mOffset.mAmount
+                val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
+                    if (beatCount >= 0)
+                        it.mEventTime > midiEvent.mEventTime
+                    else
+                        it.mEventTime < midiEvent.mEventTime
+                }
+                val beatsInOrder =
+                        if (beatCount < 0)
+                            beatsBeforeOrAfterThisMIDIEvent.reversed()
                         else
-                            it.mEventTime < midiEvent.mEventTime
-                    }
-                    val beatsInOrder =
-                            if (beatCount < 0)
-                                beatsBeforeOrAfterThisMIDIEvent.reversed()
-                            else
-                                beatsBeforeOrAfterThisMIDIEvent
-                    val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
-                    if (beatWeWant != null)
-                        newTime = beatWeWant.mEventTime
-                }
-                if (newTime < 0) {
-                    mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, R.string.midi_offset_is_before_start_of_song))
-                    newTime = 0
-                }
-                return MIDIEvent(newTime, midiEvent.mMessages)
+                            beatsBeforeOrAfterThisMIDIEvent
+                val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
+                if (beatWeWant != null)
+                    newTime = beatWeWant.mEventTime
             }
+            if (newTime < 0) {
+                mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, R.string.midi_offset_is_before_start_of_song))
+                newTime = 0
+            }
+            return MIDIEvent(newTime, midiEvent.mMessages)
+        }
         return midiEvent
     }
 
