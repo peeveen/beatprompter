@@ -133,28 +133,35 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         if (!mStopAddingStartupItems)
             mCountIn = tags.filterIsInstance<CountTag>().firstOrNull()?.mCount ?: mCountIn
 
-        val commentTags = tags.filterIsInstance<CommentTag>()
-        commentTags.forEach {
-            val comment = Song.Comment(it.mComment, it.mAudience, mNativeDeviceSettings.mScreenSize, mPaint, mFont)
-            if (comment.isIntendedFor(mCustomCommentsUser))
-                if (mStopAddingStartupItems)
-                    mEvents.add(CommentEvent(mSongTime, comment))
-                else
-                    mStartScreenComments.add(comment)
-        }
-
-        val midiEventTags = tags.filterIsInstance<MIDIEventTag>()
-        midiEventTags.forEach {
-            if (mDisplayLineCounter < DEMO_LINE_COUNT || mRegistered) {
-                if (mStopAddingStartupItems)
-                    mEvents.add(it.toMIDIEvent(mSongTime))
-                else {
-                    mInitialMIDIMessages.addAll(it.mMessages)
-                    if (it.mOffset != null)
-                        mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+        tags
+                .filterIsInstance<CommentTag>()
+                .map {
+                    Song.Comment(it.mComment,
+                            it.mAudience,
+                            mNativeDeviceSettings.mScreenSize,
+                            mPaint,
+                            mFont)
                 }
-            }
-        }
+                .filter { it.isIntendedFor(mCustomCommentsUser) }
+                .forEach {
+                    if (mStopAddingStartupItems)
+                        mEvents.add(CommentEvent(mSongTime, it))
+                    else
+                        mStartScreenComments.add(it)
+                }
+
+        if (mDisplayLineCounter < DEMO_LINE_COUNT || mRegistered)
+            tags
+                    .filterIsInstance<MIDIEventTag>()
+                    .forEach {
+                        if (mStopAddingStartupItems)
+                            mEvents.add(it.toMIDIEvent(mSongTime))
+                        else {
+                            mInitialMIDIMessages.addAll(it.mMessages)
+                            if (it.mOffset != null)
+                                mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+                        }
+                    }
 
         val audioTagsThisLine = tags.filterIsInstance<AudioTag>()
         // If there are multiple {audio} tags on a line, and we've actually reached song content, add an error.
@@ -175,7 +182,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
             if (mCountIn > 0) {
-                val countInEvents = generateCountInEvents(mCountIn, mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
+                val countInEvents = generateCountInEvents(mCountIn,
+                        mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn)
                 mEvents.addAll(countInEvents.mEvents)
                 mSongTime = countInEvents.mBlockEndTime
                 mCountIn = 0
@@ -237,10 +245,16 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 val beatEvents = generateBeatEvents(mSongTime, metronomeOn)
 
                 // Calculate how long this line will last for
-                val lineDuration = calculateLineDuration(pauseTag, addToPause, lineStartTime, beatEvents)
+                val lineDuration = calculateLineDuration(pauseTag,
+                        addToPause,
+                        lineStartTime,
+                        beatEvents)
 
                 // Calculate the start and stop scroll times for this line
-                val startAndStopScrollTimes = calculateStartAndStopScrollTimes(pauseTag, lineStartTime + addToPause, lineDuration, beatEvents)
+                val startAndStopScrollTimes = calculateStartAndStopScrollTimes(pauseTag,
+                        lineStartTime + addToPause,
+                        lineDuration,
+                        beatEvents)
 
                 // Create the line
                 var lineObj: Line? = null
@@ -248,7 +262,14 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     val imageFiles = SongListActivity.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
-                            lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode, lineStartTime, lineDuration, mCurrentLineBeatInfo.mScrollMode, mNativeDeviceSettings, mSongHeight, startAndStopScrollTimes)
+                            lineObj = ImageLine(imageFiles.first(),
+                                    imageTag.mImageScalingMode,
+                                    lineStartTime,
+                                    lineDuration,
+                                    mCurrentLineBeatInfo.mScrollMode,
+                                    mNativeDeviceSettings,
+                                    mSongHeight,
+                                    startAndStopScrollTimes)
                         } catch (t: Throwable) {
                             // Bitmap loading could cause error here. Even OutOfMemory!
                             mErrors.add(FileParseError(imageTag, t))
@@ -260,7 +281,18 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     }
                 }
                 if (imageTag == null)
-                    lineObj = TextLine(workLine, tags, lineStartTime, lineDuration, mCurrentLineBeatInfo.mScrollMode, mNativeDeviceSettings, mLines.filterIsInstance<TextLine>().lastOrNull()?.mTrailingHighlightColor, mSongHeight, startAndStopScrollTimes, mSongLoadCancelEvent)
+                    lineObj = TextLine(workLine,
+                            tags,
+                            lineStartTime,
+                            lineDuration,
+                            mCurrentLineBeatInfo.mScrollMode,
+                            mNativeDeviceSettings,
+                            mLines
+                                    .filterIsInstance<TextLine>()
+                                    .lastOrNull()?.mTrailingHighlightColor,
+                            mSongHeight,
+                            startAndStopScrollTimes,
+                            mSongLoadCancelEvent)
 
                 if (lineObj != null) {
                     mLines.add(lineObj)
@@ -289,9 +321,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         } else
         // If there is no actual line data, then the scroll beat offset never took effect.
         // Clear it so that the next line (which MIGHT be a proper line) doesn't take it into account.
-            mCurrentLineBeatInfo = LineBeatInfo(mCurrentLineBeatInfo.mBeats, mCurrentLineBeatInfo.mBPL, mCurrentLineBeatInfo.mBPB, mCurrentLineBeatInfo.mBPM, mCurrentLineBeatInfo.mScrollBeat, 0, mCurrentLineBeatInfo.mScrollMode)
+            mCurrentLineBeatInfo = LineBeatInfo(mCurrentLineBeatInfo.mBeats,
+                    mCurrentLineBeatInfo.mBPL,
+                    mCurrentLineBeatInfo.mBPB,
+                    mCurrentLineBeatInfo.mBPM,
+                    mCurrentLineBeatInfo.mScrollBeat,
+                    0, mCurrentLineBeatInfo.mScrollMode)
 
-        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, line.mLineNumber, mSongLoadInfo.mSongFile.mLines).sendToTarget()
+        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,
+                line.mLineNumber, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
 
     override fun getResult(): Song {
@@ -380,7 +418,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // song ends. This could be the time of the final generated event,
         // but there might still be an audio file playing, so find out
         // when the last track ends ...
-        val lastAudioEndTime = sortedEventList.asSequence().filterIsInstance<AudioEvent>().map { it.mAudioFile.mDuration + it.mEventTime }.max()
+        val lastAudioEndTime = sortedEventList
+                .asSequence()
+                .filterIsInstance<AudioEvent>()
+                .map { it.mAudioFile.mDuration + it.mEventTime }
+                .max()
         sortedEventList.add(EndEvent(Math.max(lastAudioEndTime ?: 0L, mSongTime)))
 
         // Now build the final event list.
@@ -389,16 +431,33 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // Calculate the last position that we can scroll to.
         val scrollEndPixel = calculateScrollEndPixel(smoothMode, smoothScrollOffset)
 
-        if ((mTriggerContext == TriggerOutputContext.Always) || (mTriggerContext == TriggerOutputContext.ManualStartOnly && !mSongLoadInfo.mStartedByMIDITrigger)) {
+        if ((mTriggerContext == TriggerOutputContext.Always)
+                || (mTriggerContext == TriggerOutputContext.ManualStartOnly && !mSongLoadInfo.mStartedByMIDITrigger)) {
             mInitialMIDIMessages.addAll(mSongLoadInfo.mSongFile.mProgramChangeTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
             mInitialMIDIMessages.addAll(mSongLoadInfo.mSongFile.mSongSelectTrigger.getMIDIMessages(mDefaultMIDIOutputChannel))
         }
 
-        return Song(mSongLoadInfo.mSongFile, mNativeDeviceSettings, firstEvent, mLines, audioEvents,
-                mInitialMIDIMessages, mBeatBlocks, mSendMidiClock, startScreenStrings.first, startScreenStrings.second,
-                totalStartScreenTextHeight, mSongLoadInfo.mStartedByBandLeader, mSongLoadInfo.mNextSong,
-                smoothScrollOffset, mSongHeight, scrollEndPixel, noScrollLines, mNativeDeviceSettings.mBeatCounterRect, songTitleHeader,
-                songTitleHeaderLocation, mSongLoadInfo.mLoadID)
+        return Song(mSongLoadInfo.mSongFile,
+                mNativeDeviceSettings,
+                firstEvent,
+                mLines,
+                audioEvents,
+                mInitialMIDIMessages,
+                mBeatBlocks,
+                mSendMidiClock,
+                startScreenStrings.first,
+                startScreenStrings.second,
+                totalStartScreenTextHeight,
+                mSongLoadInfo.mStartedByBandLeader,
+                mSongLoadInfo.mNextSong,
+                smoothScrollOffset,
+                mSongHeight,
+                scrollEndPixel,
+                noScrollLines,
+                mNativeDeviceSettings.mBeatCounterRect,
+                songTitleHeader,
+                songTitleHeaderLocation,
+                mSongLoadInfo.mLoadID)
     }
 
     private fun calculateScrollEndPixel(smoothMode: Boolean, smoothScrollOffset: Int): Int {

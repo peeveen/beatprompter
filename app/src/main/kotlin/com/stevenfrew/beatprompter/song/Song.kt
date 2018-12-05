@@ -14,13 +14,26 @@ import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.*
 
-class Song(val mSongFile: SongFile, val mDisplaySettings: DisplaySettings,
-           firstEvent: LinkedEvent, private val mLines: List<Line>, internal val mAudioEvents: List<AudioEvent>,
-           val mInitialMIDIMessages: List<OutgoingMessage>, private val mBeatBlocks: List<BeatBlock>, val mSendMIDIClock: Boolean,
-           val mStartScreenStrings: List<ScreenString>, val mNextSongString: ScreenString?, val mTotalStartScreenTextHeight: Int,
-           val mStartedByBandLeader: Boolean, val mNextSong: String,
-           val mDisplayOffset: Int, val mHeight: Int, val mScrollEndPixel: Int, val mNoScrollLines: List<Line>,
-           val mBeatCounterRect: Rect, val mSongTitleHeader: ScreenString, val mSongTitleHeaderLocation: PointF,
+class Song(val mSongFile: SongFile,
+           val mDisplaySettings: DisplaySettings,
+           firstEvent: LinkedEvent,
+           private val mLines: List<Line>,
+           internal val mAudioEvents: List<AudioEvent>,
+           val mInitialMIDIMessages: List<OutgoingMessage>,
+           private val mBeatBlocks: List<BeatBlock>,
+           val mSendMIDIClock: Boolean,
+           val mStartScreenStrings: List<ScreenString>,
+           val mNextSongString: ScreenString?,
+           val mTotalStartScreenTextHeight: Int,
+           val mStartedByBandLeader: Boolean,
+           val mNextSong: String,
+           val mDisplayOffset: Int,
+           val mHeight: Int,
+           val mScrollEndPixel: Int,
+           val mNoScrollLines: List<Line>,
+           val mBeatCounterRect: Rect,
+           val mSongTitleHeader: ScreenString,
+           val mSongTitleHeaderLocation: PointF,
            val mLoadID: UUID) {
     internal var mCurrentLine: Line = mLines.first()
     internal var mCurrentEvent = firstEvent // Last event that executed.

@@ -11,7 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SongLoadJob(val mSongLoadInfo: SongLoadInfo, private val mRegistered: Boolean) : CoroutineScope {
+class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
+                  private val mRegistered: Boolean)
+    : CoroutineScope {
     private val mHandler = SongLoadJobEventHandler()
     private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
     private val mCoRoutineJob = Job()
