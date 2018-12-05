@@ -20,6 +20,6 @@ class ImageFileParser constructor(cachedCloudFileDescriptor: CachedFileDescripto
         } catch (e: Exception) {
             // Not bothered about what the exception is. File is obviously shite.
         }
-        throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.could_not_read_image_file) + ": " + mCachedCloudFileDescriptor.mName)
+        throw InvalidBeatPrompterFileException(R.string.could_not_read_image_file, mCachedCloudFileDescriptor.mName)
     }
 }

@@ -14,7 +14,11 @@ import java.io.File
 /**
  * Tag that defines an image to use for the current line instead of text.
  */
-class ImageTag internal constructor(name: String, lineNumber: Int, position: Int, value: String) : ValueTag(name, lineNumber, position, value) {
+class ImageTag internal constructor(name: String,
+                                    lineNumber: Int,
+                                    position: Int,
+                                    value: String)
+    : ValueTag(name, lineNumber, position, value) {
     val mFilename: String
     val mImageScalingMode: ImageScalingMode
 
@@ -30,7 +34,7 @@ class ImageTag internal constructor(name: String, lineNumber: Int, position: Int
             try {
                 return ImageScalingMode.valueOf(value.toLowerCase().capitalize())
             } catch (e: Exception) {
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_image_scaling_mode))
+                throw MalformedTagException(R.string.unknown_image_scaling_mode)
             }
         }
     }

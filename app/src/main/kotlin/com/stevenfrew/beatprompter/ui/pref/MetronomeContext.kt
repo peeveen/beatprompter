@@ -1,16 +1,14 @@
 package com.stevenfrew.beatprompter.ui.pref
 
-import android.content.SharedPreferences
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 
 enum class MetronomeContext {
     On, OnWhenNoTrack, Off, DuringCountIn;
 
     companion object {
-        internal fun getMetronomeContextPreference(sharedPrefs: SharedPreferences): MetronomeContext {
+        internal fun getMetronomeContextPreference(): MetronomeContext {
             return try {
-                MetronomeContext.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_metronome_key), BeatPrompterApplication.getResourceString(R.string.pref_metronome_defaultValue))!!)
+                MetronomeContext.valueOf(BeatPrompterPreferences.metronomeContext)
             } catch (e: Exception) {
                 // backward compatibility with old shite values.
                 Off

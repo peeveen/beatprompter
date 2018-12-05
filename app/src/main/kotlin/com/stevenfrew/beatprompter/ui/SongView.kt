@@ -16,10 +16,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
@@ -82,7 +79,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private var mTargetAcceleration = 1
     private val mHighlightCurrentLine: Boolean
     private val mHighlightBeatSectionStart: Boolean
-    private val mHighlightPageDownLine: Boolean
+    private val mShowPageDownMarker: Boolean
     private var mSongTitleContrastBackground: Int = 0
     private var mSongTitleContrastBeatCounter: Int = 0
     private var mScrollIndicatorRect: Rect? = null
@@ -112,40 +109,37 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mGestureDetector = GestureDetectorCompat(context, this)
         mSongPixelPosition = 0
 
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val screenAction = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_screenAction_key), BeatPrompterApplication.getResourceString(R.string.pref_screenAction_defaultValue))
-        if (screenAction!!.equals(BeatPrompterApplication.getResourceString(R.string.screenActionNoneValue), ignoreCase = true))
-            mScreenAction = ScreenAction.None
-        if (screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionVolumeValue), ignoreCase = true))
-            mScreenAction = ScreenAction.Volume
-        if (screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true))
-            mScreenAction = ScreenAction.Scroll
-        mShowScrollIndicator = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_key), BeatPrompterApplication.getResourceString(R.string.pref_showScrollIndicator_defaultValue).toBoolean())
-        mShowSongTitle = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongTitle_defaultValue).toBoolean())
-        val commentDisplayTimeSeconds = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset)) + sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_key), BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_default).toInt())
+        val screenAction = BeatPrompterPreferences.screenAction
+        when {
+            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionNoneValue), ignoreCase = true) -> mScreenAction = ScreenAction.None
+            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionVolumeValue), ignoreCase = true) -> mScreenAction = ScreenAction.Volume
+            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true) -> mScreenAction = ScreenAction.Scroll
+        }
+        mShowScrollIndicator = BeatPrompterPreferences.showScrollIndicator
+        mShowSongTitle = BeatPrompterPreferences.showSongTitle
+        val commentDisplayTimeSeconds = BeatPrompterPreferences.commentDisplayTime
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_key), BeatPrompterApplication.getResourceString(R.string.pref_midiTriggerSafetyCatch_defaultValue))!!)
-        mHighlightCurrentLine = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightCurrentLine_defaultValue).toBoolean())
-        mHighlightPageDownLine = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightPageDownLine_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightPageDownLine_defaultValue).toBoolean())
-        mHighlightBeatSectionStart = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_highlightBeatSectionStart_key), BeatPrompterApplication.getResourceString(R.string.pref_highlightBeatSectionStart_defaultValue).toBoolean())
-
-        mBeatCounterColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatCounterColor_default)))
-        mCommentTextColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_commentTextColor_default)))
-        mScrollMarkerColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_scrollMarkerColor_default)))
-        val mHighlightBeatSectionStartColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_beatSectionStartHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_beatSectionStartHighlightColor_default)))
+        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(BeatPrompterPreferences.midiTriggerSafetyCatch)
+        mHighlightCurrentLine = BeatPrompterPreferences.highlightCurrentLine
+        mShowPageDownMarker = BeatPrompterPreferences.showPageDownMarker
+        mHighlightBeatSectionStart = BeatPrompterPreferences.highlightBeatSectionStart
+        mBeatCounterColor = BeatPrompterPreferences.beatCounterColor
+        mCommentTextColor = BeatPrompterPreferences.commentColor
+        mScrollMarkerColor = BeatPrompterPreferences.scrollIndicatorColor
+        val mHighlightBeatSectionStartColor = BeatPrompterPreferences.beatSectionStartHighlightColor
         mBeatSectionStartHighlightColors = createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
-        mDefaultCurrentLineHighlightColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_currentLineHighlightColor_default))))
-        mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_pageDownScrollHighlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_pageDownScrollHighlightColor_default))))
-        mPulse = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_pulse_key), BeatPrompterApplication.getResourceString(R.string.pref_pulse_defaultValue).toBoolean())
-        mSendMidiClockPreference = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
-        mMetronomePref = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
+        mDefaultCurrentLineHighlightColor = Utils.makeHighlightColour(BeatPrompterPreferences.currentLineHighlightColor)
+        mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(BeatPrompterPreferences.pageDownMarkerColor)
+        mPulse = BeatPrompterPreferences.pulseDisplay
+        mSendMidiClockPreference = BeatPrompterPreferences.sendMIDIClock
+        mMetronomePref = MetronomeContext.getMetronomeContextPreference()
 
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
-        val backgroundColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+        val backgroundColor = BeatPrompterPreferences.backgroundColor
         val pulseColor =
                 if (mPulse)
-                    sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_backgroundColor_default)))
+                    BeatPrompterPreferences.pulseColor
                 else
                     backgroundColor
         val bgR = Color.red(backgroundColor)
@@ -364,7 +358,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mPaint.strokeWidth = 1.0f
         canvas.drawRect(mCurrentBeatCountRect, mPaint)
         canvas.drawLine(0f, mSong!!.mBeatCounterRect.height().toFloat(), mSong!!.mDisplaySettings.mScreenSize.width().toFloat(), mSong!!.mBeatCounterRect.height().toFloat(), mPaint)
-        if (mHighlightPageDownLine)
+        if (mShowPageDownMarker)
             showPageDownMarkers(canvas)
         if (mShowSongTitle)
             showSongTitle(canvas)

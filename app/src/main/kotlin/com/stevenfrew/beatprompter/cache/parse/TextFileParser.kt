@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.parse.tag.*
@@ -15,7 +14,10 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for text file parsers.
  */
-abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFileDescriptor, private val mReportUnexpectedTags: Boolean, private vararg val mTagFinders: TagFinder) : FileParser<TFileResult>(cachedCloudFileDescriptor) {
+abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFileDescriptor,
+                                           private val mReportUnexpectedTags: Boolean,
+                                           private vararg val mTagFinders: TagFinder)
+    : FileParser<TFileResult>(cachedCloudFileDescriptor) {
     final override fun parse(): TFileResult {
         val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0
@@ -40,30 +42,30 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFile
                     fileTags.add(tagClass)
                     lineTags.add(tagClass)
                     if (isOncePerFile && alreadyUsedInFile)
-                        mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.tag_used_multiple_times_in_file, tag.mName)))
+                        mErrors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_file, tag.mName))
                     if (isOncePerLine && alreadyUsedInLine)
-                        mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.tag_used_multiple_times_in_line, tag.mName)))
+                        mErrors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_line, tag.mName))
                     if (startedByAnnotation != null) {
                         val startedByClass = startedByAnnotation.mStartedBy
                         val startedByEndedByAnnotation = startedByClass.findAnnotation<EndedBy>()!!
                         val endedByClass = startedByEndedByAnnotation.mEndedBy
                         if (!livePairings.remove(startedByClass to endedByClass))
-                            mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.ending_tag_found_before_starting_tag, tag.mName)))
+                            mErrors.add(FileParseError(tag, R.string.ending_tag_found_before_starting_tag, tag.mName))
                     } else if (endedByAnnotation != null) {
                         val endedByClass = endedByAnnotation.mEndedBy
                         val endedByStartedByAnnotation = endedByClass.findAnnotation<StartedBy>()!!
                         val startedByClass = endedByStartedByAnnotation.mStartedBy
                         val pairing = startedByClass to endedByClass
                         if (livePairings.contains(pairing))
-                            mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.starting_tag_found_after_starting_tag, tag.mName)))
+                            mErrors.add(FileParseError(tag, R.string.starting_tag_found_after_starting_tag, tag.mName))
                         else
                             livePairings.add(pairing)
                     }
                     lineExclusiveTags.forEach {
                         if (lineTags.contains(it.mCantShareWith))
-                            mErrors.add(FileParseError(tag, BeatPrompterApplication.getResourceString(R.string.tag_cant_share_line_with,
+                            mErrors.add(FileParseError(tag, R.string.tag_cant_share_line_with,
                                     tag.mName,
-                                    it.mCantShareWith.findAnnotation<TagName>()!!.mNames.first())))
+                                    it.mCantShareWith.findAnnotation<TagName>()!!.mNames.first()))
                     }
                 }
                 parseLine(textLine)
@@ -96,7 +98,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFile
                     throw ite.targetException
                 }
             } else if (mReportUnexpectedTags)
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unexpected_tag_in_file, foundTag.mName))
+                throw MalformedTagException(R.string.unexpected_tag_in_file, foundTag.mName)
         }
         return null
     }

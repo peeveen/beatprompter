@@ -12,4 +12,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the title of this song.
  */
-class TitleTag internal constructor(name: String, lineNumber: Int, position: Int, val mTitle: String) : ValueTag(name, lineNumber, position, mTitle)
+class TitleTag internal constructor(name: String,
+                                    lineNumber: Int,
+                                    position: Int,
+                                    val mTitle: String)
+    : ValueTag(name, lineNumber, position, mTitle)

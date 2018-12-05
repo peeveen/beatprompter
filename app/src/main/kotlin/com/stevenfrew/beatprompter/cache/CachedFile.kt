@@ -8,7 +8,12 @@ import org.w3c.dom.Element
 /**
  * Base class for cached files.
  */
-abstract class CachedFile internal constructor(cachedCloudFileDescriptor: CachedFileDescriptor) : CachedFileDescriptor(cachedCloudFileDescriptor.mFile, cachedCloudFileDescriptor.mID, cachedCloudFileDescriptor.mName, cachedCloudFileDescriptor.mLastModified, cachedCloudFileDescriptor.mSubfolder) {
+abstract class CachedFile internal constructor(cachedCloudFileDescriptor: CachedFileDescriptor)
+    : CachedFileDescriptor(cachedCloudFileDescriptor.mFile,
+        cachedCloudFileDescriptor.mID,
+        cachedCloudFileDescriptor.mName,
+        cachedCloudFileDescriptor.mLastModified,
+        cachedCloudFileDescriptor.mSubfolder) {
 
     fun writeToXML(d: Document, element: Element) {
         val newElement = d.createElement(this::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)

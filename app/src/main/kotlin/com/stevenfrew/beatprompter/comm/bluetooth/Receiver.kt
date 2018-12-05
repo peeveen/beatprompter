@@ -54,7 +54,11 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
         }
         // If we receive multiple SetSongTimeMessages or ChooseSongMessages, there is no point in processing any except the last one.
         receivedMessages
-                .filter { (it !is SetSongTimeMessage && it !is ChooseSongMessage) || it == lastSetTimeMessage || it == lastChooseSongMessage }
+                .filter {
+                    (it !is SetSongTimeMessage && it !is ChooseSongMessage)
+                            || it == lastSetTimeMessage
+                            || it == lastChooseSongMessage
+                }
                 .forEach { routeBluetoothMessage(it) }
         return dataParsed
     }

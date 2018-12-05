@@ -12,4 +12,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the artist or subtitle for a song file.
  */
-class ArtistTag internal constructor(name: String, lineNumber: Int, position: Int, val mArtist: String) : ValueTag(name, lineNumber, position, mArtist)
+class ArtistTag internal constructor(name: String,
+                                     lineNumber: Int,
+                                     position: Int,
+                                     val mArtist: String)
+    : ValueTag(name, lineNumber, position, mArtist)

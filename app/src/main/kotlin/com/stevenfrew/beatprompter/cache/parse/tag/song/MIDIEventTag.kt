@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
@@ -23,12 +23,17 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Tag that defines a MIDI event to be output to any connected devices.
  */
-class MIDIEventTag internal constructor(name: String, lineNumber: Int, position: Int, value: String) : Tag(name, lineNumber, position) {
+class MIDIEventTag internal constructor(name: String,
+                                        lineNumber: Int,
+                                        position: Int,
+                                        value: String)
+    : Tag(name, lineNumber, position) {
     val mMessages: List<OutgoingMessage>
     val mOffset: EventOffset?
 
     init {
-        val parsedEvent = parseMIDIEvent(name, value, lineNumber, SongListActivity.mCachedCloudFiles.midiAliases)
+        val parsedEvent = parseMIDIEvent(name,
+                value, lineNumber, SongListActivity.mCachedCloudFiles.midiAliases)
         mMessages = parsedEvent.first
         mOffset = parsedEvent.second
     }
@@ -39,15 +44,23 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
 
     companion object {
         @Throws(MalformedTagException::class)
-        fun parseMIDIEvent(name: String, value: String, lineNumber: Int, aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset> {
-
-            val defaultChannelPref = BeatPrompterApplication.preferences.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
+        fun parseMIDIEvent(name: String,
+                           value: String,
+                           lineNumber: Int,
+                           aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset> {
+            val defaultChannelPref = BeatPrompterPreferences.defaultMIDIOutputChannel
             val defaultChannel = Message.getChannelFromBitmask(defaultChannelPref)
 
             val (tagName, tagValue, eventOffset) = normalizeMIDIValues(name, value, lineNumber)
 
-            val firstPassParamValues = tagValue.splitAndTrim(",").asSequence().filter { !it.isBlank() }.map { bit -> parseValue(bit) }.toList()
-            val (params, channelValue) = separateParametersFromChannel(firstPassParamValues, defaultChannel)
+            val firstPassParamValues =
+                    tagValue
+                            .splitAndTrim(",")
+                            .asSequence()
+                            .filter { !it.isBlank() }
+                            .map { bit -> parseValue(bit) }.toList()
+            val (params, channelValue) =
+                    separateParametersFromChannel(firstPassParamValues, defaultChannel)
 
             try {
                 val channel = channelValue.resolve()
@@ -56,7 +69,7 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
                 return when {
                     tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes)) to eventOffset
                     matchedAlias != null -> matchedAlias.resolve(aliases, resolvedBytes, channel) to eventOffset
-                    else -> throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.unknown_midi_directive, tagName))
+                    else -> throw MalformedTagException(R.string.unknown_midi_directive, tagName)
                 }
             } catch (re: ResolutionException) {
                 throw MalformedTagException(re.message!!)
@@ -64,11 +77,12 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
         }
 
         @Throws(MalformedTagException::class)
-        fun separateParametersFromChannel(params: List<Value>, defaultChannel: Byte): Pair<List<Value>, ChannelValue> {
+        fun separateParametersFromChannel(params: List<Value>,
+                                          defaultChannel: Byte): Pair<List<Value>, ChannelValue> {
             val channelValue = params.mapIndexed { index, param ->
                 if (param is ChannelValue)
                     if (index != params.size - 1)
-                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.channel_must_be_last_parameter))
+                        throw MalformedTagException(R.string.channel_must_be_last_parameter)
                 param
             }.filterIsInstance<ChannelValue>().firstOrNull()
             return Pair(if (channelValue == null) params else params.dropLast(1), channelValue
@@ -76,13 +90,15 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
         }
 
         @Throws(MalformedTagException::class)
-        fun normalizeMIDIValues(name: String, value: String, lineNumber: Int): Triple<String, String, EventOffset> {
+        fun normalizeMIDIValues(name: String,
+                                value: String,
+                                lineNumber: Int): Triple<String, String, EventOffset> {
             return if (value.isEmpty()) {
                 // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
                 if (name.contains(";")) {
                     val bits = name.splitAndTrim(";")
                     if (bits.size > 2)
-                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
+                        throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
                     if (bits.size > 1)
                         Triple(bits[0], value, parseMIDIEventOffset(bits[1], lineNumber))
                     else
@@ -93,7 +109,7 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
                 val firstSplitBits = value.splitAndTrim(";")
                 if (firstSplitBits.size > 1) {
                     if (firstSplitBits.size > 2)
-                        throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.multiple_semi_colons_in_midi_tag))
+                        throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
                     Triple(name, firstSplitBits[0], parseMIDIEventOffset(firstSplitBits[1], lineNumber))
                 } else
                     Triple(name, value, EventOffset(lineNumber))
@@ -106,7 +122,8 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
             if (!trimmedOffsetString.isEmpty()) {
                 try {
                     return try {
-                        EventOffset(trimmedOffsetString.toInt(), EventOffsetType.Milliseconds, lineNumber)
+                        EventOffset(trimmedOffsetString.toInt(),
+                                EventOffsetType.Milliseconds, lineNumber)
                     } catch (e: NumberFormatException) {
                         // Might be in the beat format
                         val offsetChars = trimmedOffsetString.toCharArray()
@@ -114,7 +131,7 @@ class MIDIEventTag internal constructor(name: String, lineNumber: Int, position:
                         val downDiff = offsetChars.count { it == '<' }
                         val badCharsFound = offsetChars.any { it != '<' && it != '>' }
                         if (badCharsFound)
-                            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.non_beat_characters_in_midi_offset))
+                            throw MalformedTagException(R.string.non_beat_characters_in_midi_offset)
                         EventOffset(upDiff + downDiff, EventOffsetType.Beats, lineNumber)
                     }
                 } catch (badValueEx: IllegalArgumentException) {

@@ -301,7 +301,7 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="force_refresh_with_dependencies">Force le rafraîchissement (y compris les dépendances)</string>
     <string name="byKey">Par clé</string>
     <string name="cannotFindImageFile">Impossible de trouver le fichier image: %1$s</string>
-    <string name="could_not_read_image_file">Impossible de lire le fichier image</string>
+    <string name="could_not_read_image_file">Impossible de lire le fichier image: %1$s</string>
     <string name="keyPrefix">Clé</string>
     <string name="metronomeOnWhenNoBackingTrack">Sur quand il n\'y a pas de piste de soutien</string>
     <string name="multiple_images_in_one_line">Plusieurs images trouvées en une seule ligne. Utiliser uniquement le premier.</string>

@@ -12,7 +12,8 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo) : BluetoothMessage(bytes) {
+class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo)
+    : BluetoothMessage(bytes) {
     constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 
     companion object {
@@ -57,7 +58,16 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                                     val screenWidth = readInt()
                                     val screenHeight = readInt()
                                     val noAudio = readBoolean()
-                                    SongChoiceInfo(title, artist, track, orientation, beatScroll, smoothScroll, minFontSize, maxFontSize, Rect(0, 0, screenWidth, screenHeight), noAudio)
+                                    SongChoiceInfo(title,
+                                            artist,
+                                            track,
+                                            orientation,
+                                            beatScroll,
+                                            smoothScroll,
+                                            minFontSize,
+                                            maxFontSize,
+                                            Rect(0, 0, screenWidth, screenHeight),
+                                            noAudio)
                                 }
                         val availableEnd = available()
                         val messageLength = 1 + (availableStart - availableEnd)

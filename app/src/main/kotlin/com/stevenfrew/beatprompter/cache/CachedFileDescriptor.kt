@@ -12,11 +12,18 @@ import java.util.*
 open class CachedFileDescriptor : FileInfo {
     val mFile: File
 
-    constructor(file: File, id: String, name: String, lastModified: Date, subfolder: String?) : super(id, name, lastModified, subfolder) {
+    constructor(file: File,
+                id: String,
+                name: String,
+                lastModified: Date,
+                subfolder: String?)
+            : super(id, name, lastModified, subfolder) {
         mFile = file
     }
 
-    constructor(file: File, fileInfo: FileInfo) : this(file, fileInfo.mID, fileInfo.mName, fileInfo.mLastModified, fileInfo.mSubfolder)
+    constructor(file: File,
+                fileInfo: FileInfo)
+            : this(file, fileInfo.mID, fileInfo.mName, fileInfo.mLastModified, fileInfo.mSubfolder)
 
     constructor(element: Element) : super(element) {
         mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))

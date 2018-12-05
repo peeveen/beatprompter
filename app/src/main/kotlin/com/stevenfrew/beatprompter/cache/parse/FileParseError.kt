@@ -1,15 +1,18 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 /**
  * A description of a parsing error that can be shown to the user.
  */
-class FileParseError(lineNumber: Int, private val mMessage: String) {
-    val mLineNumber = lineNumber
+class FileParseError private constructor(val mLineNumber: Int, val mMessage: String) {
 
-    constructor(tag: Tag, message: String) : this(tag.mLineNumber, message)
-    constructor(message: String) : this(-1, message)
+    constructor(lineNumber: Int, resourceId: Int, vararg args: Any) : this(lineNumber, BeatPrompterApplication.getResourceString(resourceId, *args))
+    constructor(tag: Tag, t: Throwable) : this(tag.mLineNumber, t.message ?: t.toString())
+    constructor(lineNumber: Int, t: Throwable) : this(lineNumber, t.message ?: t.toString())
+    constructor(tag: Tag, resourceId: Int, vararg args: Any) : this(tag.mLineNumber, resourceId, *args)
+    constructor(resourceId: Int, vararg args: Any) : this(-1, resourceId, *args)
 
     override fun toString(): String {
         return (if (mLineNumber != -1) "$mLineNumber: " else "") + mMessage

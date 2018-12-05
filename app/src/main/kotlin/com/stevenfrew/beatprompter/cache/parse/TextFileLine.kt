@@ -7,7 +7,10 @@ import com.stevenfrew.beatprompter.cache.parse.tag.*
 /**
  * Represents a line from a parsed text file.
  */
-open class TextFileLine<TFileType>(line: String, val mLineNumber: Int, tagParseHelper: TagParsingHelper<TFileType>, parser: TextFileParser<TFileType>) {
+open class TextFileLine<TFileType>(line: String,
+                                   val mLineNumber: Int,
+                                   tagParseHelper: TagParsingHelper<TFileType>,
+                                   parser: TextFileParser<TFileType>) {
     private val mLine: String
     val mLineWithNoTags: String
 
@@ -19,7 +22,7 @@ open class TextFileLine<TFileType>(line: String, val mLineNumber: Int, tagParseH
         var currentLine = line.trim()
         if (currentLine.length > MAX_LINE_LENGTH) {
             currentLine = currentLine.substring(0, MAX_LINE_LENGTH)
-            parser.addError(FileParseError(mLineNumber, BeatPrompterApplication.getResourceString(R.string.lineTooLong, mLineNumber, MAX_LINE_LENGTH)))
+            parser.addError(FileParseError(mLineNumber, R.string.lineTooLong, mLineNumber, MAX_LINE_LENGTH))
         }
 
         mLine = currentLine
@@ -33,7 +36,7 @@ open class TextFileLine<TFileType>(line: String, val mLineNumber: Int, tagParseH
                 if (tag != null)
                     tagCollection.add(tag)
             } catch (mte: MalformedTagException) {
-                parser.addError(FileParseError(mLineNumber, mte.message!!))
+                parser.addError(FileParseError(mLineNumber, mte))
             }
             currentLine = lineWithoutTag.trim()
         }

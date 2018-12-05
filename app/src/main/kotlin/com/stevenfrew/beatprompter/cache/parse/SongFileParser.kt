@@ -9,7 +9,11 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Base class for song file parsing.
  */
-abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedFileDescriptor, initialScrollMode: ScrollingMode, private val mAllowModeChange: Boolean, reportUnexpectedTags: Boolean) : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
+abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedFileDescriptor,
+                                                       initialScrollMode: ScrollingMode,
+                                                       private val mAllowModeChange: Boolean,
+                                                       reportUnexpectedTags: Boolean)
+    : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
     protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
     protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
 
@@ -53,7 +57,7 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
         thisScrollBeatTotalOffset += scrollBeatTagDiff
 
         if ((beatsPerBarInThisLine != 0) && (thisScrollBeatTotalOffset < -beatsPerBarInThisLine || thisScrollBeatTotalOffset >= beatsPerBarInThisLine)) {
-            mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.scrollbeatOffTheMap)))
+            mErrors.add(FileParseError(line.mLineNumber, R.string.scrollbeatOffTheMap))
             thisScrollBeatTotalOffset = 0
         }
 
@@ -66,7 +70,7 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
                 if (mAllowModeChange && beatModeTags.size == 1)
                     if (beatStartTags.isNotEmpty())
                         if (mOngoingBeatInfo.mBPM == 0.0) {
-                            mErrors.add(FileParseError(beatStartTags.first(), BeatPrompterApplication.getResourceString(R.string.beatstart_with_no_bpm)))
+                            mErrors.add(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
                             lastLineBeatInfo.mScrollMode
                         } else
                             ScrollingMode.Beat

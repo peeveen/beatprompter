@@ -64,7 +64,7 @@
     <string name="missing_songs_dialog_title">Unknown Songs In Set List</string>
     <string name="song_index_must_have_one_two_or_three_values">Program change trigger tags must contain between one and four values.</string>
     <string name="song_index_must_have_one_value">Song select trigger tags must contain only one value.</string>
-    <string name="could_not_read_image_file">Could not read image file</string>
+    <string name="could_not_read_image_file">Could not read image file: %1$s</string>
     <string name="value_must_be_zero_to_onehundredtwentyseven">MIDI parameters must be a value between 0 and 127.</string>
     <string name="invalid_channel_value">MIDI channel values must be between 1 and 16.</string>
     <string name="multiple_underscores_in_midi_value">An alias value cannot contain multiple underscores.</string>
@@ -235,6 +235,8 @@
     <string name="pref_oneDriveAccessToken_key" translatable="false">pref_oneDriveAccessToken</string>
     <string name="pref_dropboxAccessToken_key" translatable="false">pref_dropboxV2AccessToken</string>
     <string name="pref_songSource_key" translatable="false">pref_songSource</string>
+
+    <string name="pref_sorting_key" translatable="false">pref_sorting</string>
 
     <string name="pref_minLines_key" translatable="false">pref_minLines</string>
     <string name="pref_minLines_offset" translatable="false">1</string>

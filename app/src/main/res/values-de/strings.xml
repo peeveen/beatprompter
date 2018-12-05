@@ -301,7 +301,7 @@ Em]zeigt den Beat Progression.\n
     <string name="byKey">Mit Schlüssel</string>
     <string name="cannotFindImageFile">Kann keine Bilddatei finden: %1$s</string>
     <string name="crap_audio_file_warning">Audiodatei konnte nicht geladen werden. Fehlt oder korrupt?</string>
-    <string name="could_not_read_image_file">Bilddatei konnte nicht gelesen werden</string>
+    <string name="could_not_read_image_file">Bilddatei konnte nicht gelesen werden: %1$s</string>
     <string name="keyPrefix">Schlüssel</string>
     <string name="metronomeOnWhenNoBackingTrack">On, wenn es keine Backing Track gibt</string>
     <string name="multiple_images_in_one_line">Mehrere Bilder in einer Zeile gefunden. Nur mit dem ersten.</string>

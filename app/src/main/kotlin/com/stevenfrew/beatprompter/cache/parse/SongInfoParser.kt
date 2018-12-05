@@ -18,7 +18,8 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor) : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
+class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor)
+    : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
     private var mTitle: String? = null
     private var mArtist: String? = null
     private var mKey: String? = null
@@ -71,7 +72,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor
             mFilterOnly = true
 
         if (chordTag != null)
-            if (mFirstChord == null && chordTag.isValidChord())
+            if (mFirstChord == null && chordTag.mValidChord)
                 mFirstChord = chordTag.mName
 
         if (midiSongSelectTriggerTag != null)
@@ -104,7 +105,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor
 
     override fun getResult(): SongFile {
         if (mTitle.isNullOrBlank())
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.noTitleFound, mCachedCloudFileDescriptor.mName))
+            throw InvalidBeatPrompterFileException(R.string.noTitleFound, mCachedCloudFileDescriptor.mName)
         if (mArtist.isNullOrBlank())
             mArtist = ""
         val key =

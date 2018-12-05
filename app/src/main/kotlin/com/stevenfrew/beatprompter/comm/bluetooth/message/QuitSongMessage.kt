@@ -10,8 +10,12 @@ import java.io.ObjectOutputStream
 /**
  * Bluetooth message that instructs the receiver to stop playing the current song.
  */
-class QuitSongMessage constructor(val bytes: ByteArray, val songTitle: String, val songArtist: String) : BluetoothMessage(bytes) {
-    constructor(songTitle: String, songArtist: String) : this(asBytes(songTitle, songArtist), songTitle, songArtist)
+class QuitSongMessage constructor(val bytes: ByteArray,
+                                  val songTitle: String,
+                                  val songArtist: String)
+    : BluetoothMessage(bytes) {
+    constructor(songTitle: String, songArtist: String)
+            : this(asBytes(songTitle, songArtist), songTitle, songArtist)
 
     companion object {
         private fun asBytes(songTitle: String, songArtist: String): ByteArray {
@@ -42,7 +46,9 @@ class QuitSongMessage constructor(val bytes: ByteArray, val songTitle: String, v
                         val availableEnd = available()
                         close()
                         val messageLength = 1 + (availableStart - availableEnd)
-                        return QuitSongMessage(bytes.copyOfRange(0, messageLength), songInfo.first, songInfo.second)
+                        return QuitSongMessage(bytes.copyOfRange(0, messageLength),
+                                songInfo.first,
+                                songInfo.second)
                     }
                 }
             } catch (e: Exception) {

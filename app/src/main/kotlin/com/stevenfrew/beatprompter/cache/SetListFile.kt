@@ -7,4 +7,8 @@ import com.stevenfrew.beatprompter.cache.parse.*
 /**
  * A set list file in our cache.
  */
-class SetListFile internal constructor(cachedCloudFileDescriptor: CachedFileDescriptor, val mSetTitle: String, val mSetListEntries: MutableList<SetListEntry>, errors: List<FileParseError>) : CachedTextFile(cachedCloudFileDescriptor, errors)
+class SetListFile internal constructor(cachedCloudFileDescriptor: CachedFileDescriptor,
+                                       val mSetTitle: String,
+                                       val mSetListEntries: MutableList<SetListEntry>,
+                                       errors: List<FileParseError>)
+    : CachedTextFile(cachedCloudFileDescriptor, errors)

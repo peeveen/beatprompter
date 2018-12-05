@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.*
@@ -98,30 +99,30 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private var sortingPreference: SortingPreference
         get() {
             return try {
-                SortingPreference.valueOf(BeatPrompterApplication.preferences.getString("pref_sorting", SortingPreference.Title.name)!!)
+                SortingPreference.valueOf(BeatPrompterPreferences.sorting)
             } catch (ignored: Exception) {
                 SortingPreference.Title
             }
         }
         set(pref) {
-            BeatPrompterApplication.preferences.edit().putString("pref_sorting", pref.name).apply()
+            BeatPrompterPreferences.sorting = pref.name
             mSortingPreference = pref
             sortSongList()
         }
 
     private val isFirstRun: Boolean
         get() {
-            return BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_firstRun_key), true)
+            return BeatPrompterPreferences.firstRun
         }
 
     private val cloudPath: String?
         get() {
-            return BeatPrompterApplication.preferences.getString(getString(R.string.pref_cloudPath_key), null)
+            return BeatPrompterPreferences.cloudPath
         }
 
     private val includeSubFolders: Boolean
         get() {
-            return BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_includeSubfolders_key), false)
+            return BeatPrompterPreferences.includeSubFolders
         }
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -174,7 +175,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode, startedByMidiTrigger: Boolean) {
-        val manualMode = BeatPrompterApplication.preferences.getBoolean(getString(R.string.pref_manualMode_key), false)
+        val manualMode = BeatPrompterPreferences.manualMode
         val track: AudioFile? = if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val mode = if (manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
@@ -182,8 +183,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun shouldPlayNextSong(): Boolean {
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val playNextSongPref = sharedPrefs.getString(getString(R.string.pref_automaticallyPlayNextSong_key), getString(R.string.pref_automaticallyPlayNextSong_defaultValue))
+        val playNextSongPref = BeatPrompterPreferences.playNextSong
         return when (playNextSongPref) {
             getString(R.string.playNextSongAlwaysValue) -> true
             getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
@@ -192,16 +192,14 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
-        val sharedPref = BeatPrompterApplication.preferences
-        val onlyUseBeatFontSizes = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_key), BeatPrompterApplication.getResourceString(R.string.pref_alwaysUseBeatFontPrefs_defaultValue).toBoolean())
+        val onlyUseBeatFontSizes = BeatPrompterPreferences.onlyUseBeatFontSizes
 
-        val fontSizeMin = Integer.parseInt(getString(R.string.fontSizeMin))
-        val minimumFontSizeBeat = fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSize_key), Integer.parseInt(getString(R.string.pref_minFontSize_default)))
-        val maximumFontSizeBeat = fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSize_key), Integer.parseInt(getString(R.string.pref_maxFontSize_default)))
-        val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_minFontSizeSmooth_default)))
-        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSizeSmooth_key), Integer.parseInt(getString(R.string.pref_maxFontSizeSmooth_default)))
-        val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_minFontSizeManual_key), Integer.parseInt(getString(R.string.pref_minFontSizeManual_default)))
-        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else fontSizeMin + sharedPref.getInt(getString(R.string.pref_maxFontSizeManual_key), Integer.parseInt(getString(R.string.pref_maxFontSizeManual_default)))
+        val minimumFontSizeBeat = BeatPrompterPreferences.minimumBeatFontSize
+        val maximumFontSizeBeat = BeatPrompterPreferences.maximumBeatFontSize
+        val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.minimumSmoothFontSize
+        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.maximumSmoothFontSize
+        val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.minimumManualFontSize
+        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.maximumManualFontSize
 
         val minimumFontSize: Int
         val maximumFontSize: Int
@@ -488,7 +486,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE))
 
-        BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
+        BeatPrompterPreferences.registerOnSharedPreferenceChangeListener(this)
 
         val serviceIntent = Intent("com.android.vending.billing.InAppBillingService.BIND")
         serviceIntent.setPackage("com.android.vending")
@@ -542,9 +540,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             Log.e(BeatPrompterApplication.TAG, "Package name not found ", e)
         }
 
-        val sharedPrefs = BeatPrompterApplication.preferences
         val songFilesFolder: String
-        val useExternalStorage = sharedPrefs.getBoolean(getString(R.string.pref_useExternalStorage_key), false)
+        val useExternalStorage = BeatPrompterPreferences.useExternalStorage
         val externalFilesDir = getExternalFilesDir(null)
         songFilesFolder = if (useExternalStorage && externalFilesDir != null)
             externalFilesDir.absolutePath
@@ -579,7 +576,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     public override fun onDestroy() {
-        BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
+        BeatPrompterPreferences.unregisterOnSharedPreferenceChangeListener(this)
         EventHandler.setSongListEventHandler(null)
         super.onDestroy()
 
@@ -621,12 +618,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun firstRunSetup() {
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val editor = sharedPrefs.edit()
-        editor.putBoolean(getString(R.string.pref_firstRun_key), false)
-        editor.putString(getString(R.string.pref_cloudStorageSystem_key), "demo")
-        editor.putString(getString(R.string.pref_cloudPath_key), "/")
-        editor.apply()
+        BeatPrompterPreferences.firstRun = false
+        BeatPrompterPreferences.storageSystem = "demo"
+        BeatPrompterPreferences.cloudPath = "/"
         performFullCloudSync()
     }
 
@@ -985,9 +979,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val smooth = choiceInfo.mSmoothScroll
         val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val prefName = getString(R.string.pref_mimicBandLeaderDisplay_key)
-        val mimicDisplay = scrollingMode === ScrollingMode.Manual && sharedPrefs.getBoolean(prefName, true)
+        val mimicDisplay = scrollingMode === ScrollingMode.Manual && BeatPrompterPreferences.mimicBandLeaderDisplay
 
         // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
         // Also, beat and smooth scrolling should never mimic.
@@ -1137,7 +1129,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
         if (key == getString(R.string.pref_storageLocation_key) || key == getString(R.string.pref_useExternalStorage_key))
             initialiseLocalStorage()
-        else if (key == getString(R.string.pref_largePrintList_key))
+        else if (key == getString(R.string.pref_largePrintList_key)
+                || key == getString(R.string.pref_showBeatStyleIcons_key)
+                || key == getString(R.string.pref_showMusicIcon_key)
+                || key == getString(R.string.pref_showKeyInList_key))
             buildList()
     }
 
@@ -1200,9 +1195,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         val storage: StorageType
             get() {
-                val sharedPrefs = BeatPrompterApplication.preferences
-                val cloudPref = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_cloudStorageSystem_key), null)
-                return when (cloudPref) {
+                val storagePref = BeatPrompterPreferences.storageSystem
+                return when (storagePref) {
                     BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> StorageType.Local
                     BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
                     BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> StorageType.Dropbox

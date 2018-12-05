@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import android.content.SharedPreferences
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.*
@@ -36,7 +35,14 @@ import kotlin.math.absoluteValue
 /**
  * Song file parser. This returns the full information for playing the song.
  */
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private val mSongLoadCancelEvent: SongLoadCancelEvent, private val mSongLoadHandler: Handler, private val mRegistered: Boolean) : SongFileParser<Song>(mSongLoadInfo.mSongFile, mSongLoadInfo.initialScrollMode, mSongLoadInfo.mixedModeActive, true) {
+class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
+                             private val mSongLoadCancelEvent: SongLoadCancelEvent,
+                             private val mSongLoadHandler: Handler,
+                             private val mRegistered: Boolean)
+    : SongFileParser<Song>(mSongLoadInfo.mSongFile,
+        mSongLoadInfo.initialScrollMode,
+        mSongLoadInfo.mixedModeActive,
+        true) {
     private val mMetronomeContext: MetronomeContext
     private val mCustomCommentsUser: String
     private val mShowChords: Boolean
@@ -72,18 +78,17 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // All songFile info parsing errors count as our errors too.
         mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
 
-        val sharedPrefs = BeatPrompterApplication.preferences
-        mSendMidiClock = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_sendMidi_key), false)
-        mCountIn = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_countIn_default)))
-        mMetronomeContext = MetronomeContext.getMetronomeContextPreference(sharedPrefs)
-        mDefaultHighlightColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_highlightColor_default)))
-        mCustomCommentsUser = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_customComments_key), BeatPrompterApplication.getResourceString(R.string.pref_customComments_defaultValue)) ?: ""
-        mShowChords = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showChords_key), BeatPrompterApplication.getResourceString(R.string.pref_showChords_defaultValue).toBoolean())
-        mTriggerContext = TriggerOutputContext.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_key), BeatPrompterApplication.getResourceString(R.string.pref_sendMidiTriggerOnStart_defaultValue))!!)
-        val defaultMIDIOutputChannelPrefValue = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_key), Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_defaultMIDIOutputChannel_default)))
+        mSendMidiClock = BeatPrompterPreferences.sendMIDIClock
+        mCountIn = BeatPrompterPreferences.defaultCountIn
+        mMetronomeContext = MetronomeContext.getMetronomeContextPreference()
+        mDefaultHighlightColor = BeatPrompterPreferences.defaultHighlightColor
+        mCustomCommentsUser = BeatPrompterPreferences.customCommentsUser
+        mShowChords = BeatPrompterPreferences.showChords
+        mTriggerContext = TriggerOutputContext.valueOf(BeatPrompterPreferences.sendMIDITriggerOnStart)
+        val defaultMIDIOutputChannelPrefValue = BeatPrompterPreferences.defaultMIDIOutputChannel
         mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-        mShowKey = sharedPrefs.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongKey_defaultValue).toBoolean()) && mSongLoadInfo.mSongFile.mKey.isNotBlank()
-        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) ShowBPM.getShowBPMPreference(sharedPrefs) else ShowBPM.No
+        mShowKey = BeatPrompterPreferences.showKey && mSongLoadInfo.mSongFile.mKey.isNotBlank()
+        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) ShowBPM.getShowBPMPreference() else ShowBPM.No
 
         // Figure out the screen size
         mNativeDeviceSettings = translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings, mSongLoadInfo.mNativeDisplaySettings)
@@ -94,7 +99,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         val lengthOfBackingTrack = mSongLoadInfo.mTrack?.mDuration ?: 0L
         var songTime = if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
         if (songTime > 0 && mSongLoadInfo.mSongFile.mTotalPauses > songTime) {
-            mErrors.add(FileParseError(BeatPrompterApplication.getResourceString(R.string.pauseLongerThanSong)))
+            mErrors.add(FileParseError(R.string.pauseLongerThanSong))
             mOngoingBeatInfo = SongBeatInfo(mScrollMode = ScrollingMode.Manual)
             mCurrentLineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
             songTime = 0
@@ -146,7 +151,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 else {
                     mInitialMIDIMessages.addAll(it.mMessages)
                     if (it.mOffset != null)
-                        mErrors.add(FileParseError(it, BeatPrompterApplication.getResourceString(R.string.midi_offset_before_first_line)))
+                        mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
                 }
             }
         }
@@ -156,7 +161,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         // You should only be allowed to define multiple {audio} tags in the pre-song section.
         if (mStopAddingStartupItems) {
             if (audioTagsThisLine.size > 1) {
-                mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.multiple_audio_tags_on_song_line)))
+                mErrors.add(FileParseError(line.mLineNumber, R.string.multiple_audio_tags_on_song_line))
                 mAudioTags.add(audioTagsThisLine.first())
             }
         } else
@@ -189,13 +194,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                 // Make sure file exists.
                 val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
                 if (mappedTracks.isEmpty())
-                    mErrors.add(FileParseError(audioTag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
+                    mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
                 else if (mappedTracks.size > 1)
-                    mErrors.add(FileParseError(audioTag, BeatPrompterApplication.getResourceString(R.string.multipleFilenameMatches, audioTag.mFilename)))
+                    mErrors.add(FileParseError(audioTag, R.string.multipleFilenameMatches, audioTag.mFilename))
                 else {
                     val audioFile = mappedTracks.first()
                     if (!audioFile.mFile.exists())
-                        mErrors.add(FileParseError(audioTag, BeatPrompterApplication.getResourceString(R.string.cannotFindAudioFile, audioTag.mFilename)))
+                        mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
                     else
                         mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume, !mStopAddingStartupItems))
                 }
@@ -206,7 +211,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
             mStopAddingStartupItems = true
 
             if (imageTag != null && (workLine.isNotBlank() || chordsFound))
-                mErrors.add(FileParseError(line.mLineNumber, BeatPrompterApplication.getResourceString(R.string.text_found_with_image)))
+                mErrors.add(FileParseError(line.mLineNumber, R.string.text_found_with_image))
             if (workLine.isBlank() && (!chordsFound || chordsFoundButNotShowingThem))
                 workLine = "▼"
 
@@ -246,11 +251,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                             lineObj = ImageLine(imageFiles.first(), imageTag.mImageScalingMode, lineStartTime, lineDuration, mCurrentLineBeatInfo.mScrollMode, mNativeDeviceSettings, mSongHeight, startAndStopScrollTimes)
                         } catch (t: Throwable) {
                             // Bitmap loading could cause error here. Even OutOfMemory!
-                            mErrors.add(FileParseError(imageTag, t.message!!))
+                            mErrors.add(FileParseError(imageTag, t))
                         }
                     else {
                         workLine = BeatPrompterApplication.getResourceString(R.string.missing_image_file_warning)
-                        mErrors.add(FileParseError(imageTag, workLine))
+                        mErrors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
                         imageTag = null
                     }
                 }
@@ -292,7 +297,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
     override fun getResult(): Song {
         // Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
         if (mLines.isEmpty())
-            throw InvalidBeatPrompterFileException(BeatPrompterApplication.getResourceString(R.string.no_lines_in_song_file))
+            throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
         val smoothMode = mLines.asSequence().filter { it.mScrollMode == ScrollingMode.Smooth }.any()
 
@@ -600,7 +605,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
                         newTime = beatWeWant.mEventTime
                 }
                 if (newTime < 0) {
-                    mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, BeatPrompterApplication.getResourceString(R.string.midi_offset_is_before_start_of_song)))
+                    mErrors.add(FileParseError(midiEvent.mOffset.mSourceFileLineNumber, R.string.midi_offset_is_before_start_of_song))
                     newTime = 0
                 }
                 return MIDIEvent(newTime, midiEvent.mMessages)
@@ -628,7 +633,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         minimumFontSize *= ratioMultiplier.toFloat()
         maximumFontSize *= ratioMultiplier.toFloat()
         if (minimumFontSize > maximumFontSize) {
-            mErrors.add(FileParseError(0, BeatPrompterApplication.getResourceString(R.string.fontSizesAllMessedUp)))
+            mErrors.add(FileParseError(0, R.string.fontSizesAllMessedUp))
             maximumFontSize = minimumFontSize
         }
         return DisplaySettings(sourceSettings.mOrientation, minimumFontSize, maximumFontSize, nativeScreenSize, sourceSettings.mShowBeatCounter)
@@ -860,9 +865,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo, private va
         Yes, Rounded, No;
 
         companion object {
-            internal fun getShowBPMPreference(sharedPrefs: SharedPreferences): ShowBPM {
+            internal fun getShowBPMPreference(): ShowBPM {
                 return try {
-                    ShowBPM.valueOf(sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_key), BeatPrompterApplication.getResourceString(R.string.pref_showSongBPM_defaultValue))!!)
+                    ShowBPM.valueOf(BeatPrompterPreferences.showBPM)
                 } catch (e: Exception) {
                     // backward compatibility with old shite values.
                     No

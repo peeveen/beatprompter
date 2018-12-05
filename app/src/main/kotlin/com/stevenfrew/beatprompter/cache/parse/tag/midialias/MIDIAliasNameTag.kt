@@ -12,4 +12,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines a MIDI alias name.
  */
-class MIDIAliasNameTag internal constructor(name: String, lineNumber: Int, position: Int, val mAliasName: String) : Tag(name, lineNumber, position)
+class MIDIAliasNameTag internal constructor(name: String,
+                                            lineNumber: Int,
+                                            position: Int,
+                                            val mAliasName: String)
+    : Tag(name, lineNumber, position)

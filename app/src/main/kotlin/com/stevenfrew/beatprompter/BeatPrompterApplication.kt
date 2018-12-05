@@ -43,10 +43,10 @@ class BeatPrompterApplication : Application() {
             return mApp.getString(resID, *args)
         }
 
-        val preferences: SharedPreferences
+        internal val preferences: SharedPreferences
             get() = PreferenceManager.getDefaultSharedPreferences(mApp)
 
-        val privatePreferences: SharedPreferences
+        internal val privatePreferences: SharedPreferences
             get() = mApp.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE)
 
         val assetManager: AssetManager

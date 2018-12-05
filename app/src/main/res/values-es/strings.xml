@@ -301,7 +301,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="force_refresh_with_dependencies">Actualización de fuerzas (incluidas las dependencias)</string>
     <string name="byKey">Por clave</string>
     <string name="cannotFindImageFile">No se puede encontrar el archivo de imagen: %1$s</string>
-    <string name="could_not_read_image_file">No se pudo leer el archivo de imagen</string>
+    <string name="could_not_read_image_file">No se pudo leer el archivo de imagen: %1$s</string>
     <string name="keyPrefix">Llave</string>
     <string name="metronomeOnWhenNoBackingTrack">Encendido cuando no hay pista de acompañamiento</string>
     <string name="multiple_images_in_one_line">Múltiples imágenes encontradas en una línea. Sólo con el primero.</string>

@@ -10,7 +10,24 @@ import com.stevenfrew.beatprompter.util.normalize
 /**
  * A song file in the cache.
  */
-class SongFile constructor(cachedCloudFileDescriptor: CachedFileDescriptor, val mLines: Int, val mBars: Int, val mTitle: String, val mArtist: String, val mKey: String, val mBPM: Double, val mDuration: Long, val mMixedMode: Boolean, val mTotalPauses: Long, val mAudioFiles: List<String>, val mImageFiles: List<String>, val mTags: Set<String>, val mProgramChangeTrigger: SongTrigger, val mSongSelectTrigger: SongTrigger, val mFilterOnly: Boolean, errors: List<FileParseError>) : CachedTextFile(cachedCloudFileDescriptor, errors) {
+class SongFile constructor(cachedCloudFileDescriptor: CachedFileDescriptor,
+                           val mLines: Int,
+                           val mBars: Int,
+                           val mTitle: String,
+                           val mArtist: String,
+                           val mKey: String,
+                           val mBPM: Double,
+                           val mDuration: Long,
+                           val mMixedMode: Boolean,
+                           val mTotalPauses: Long,
+                           val mAudioFiles: List<String>,
+                           val mImageFiles: List<String>,
+                           val mTags: Set<String>,
+                           val mProgramChangeTrigger: SongTrigger,
+                           val mSongSelectTrigger: SongTrigger,
+                           val mFilterOnly: Boolean,
+                           errors: List<FileParseError>)
+    : CachedTextFile(cachedCloudFileDescriptor, errors) {
     val mNormalizedArtist = mArtist.normalize()
     val mNormalizedTitle = mTitle.normalize()
     val mSortableArtist = sortableString(mArtist)

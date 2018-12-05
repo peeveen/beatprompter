@@ -46,7 +46,9 @@ class CachedCloudFileCollection {
             ccf.writeToXML(d, root)
     }
 
-    private fun <TCachedCloudFileType : CachedFile> addToCollection(xmlDoc: Document, tagName: String, parser: (cachedCloudFileDescriptor: CachedFileDescriptor) -> TCachedCloudFileType) {
+    private fun <TCachedCloudFileType : CachedFile> addToCollection(xmlDoc: Document,
+                                                                    tagName: String,
+                                                                    parser: (cachedCloudFileDescriptor: CachedFileDescriptor) -> TCachedCloudFileType) {
         val elements = xmlDoc.getElementsByTagName(tagName)
         repeat(elements.length) {
             val element = elements.item(it) as Element
@@ -66,12 +68,24 @@ class CachedCloudFileCollection {
     fun readFromXML(xmlDoc: Document) {
         clear()
 
-        addToCollection(xmlDoc, AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> AudioFileParser(descriptor).parse() }
-        addToCollection(xmlDoc, ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> ImageFileParser(descriptor).parse() }
-        addToCollection(xmlDoc, SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> SongInfoParser(descriptor).parse() }
-        addToCollection(xmlDoc, SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> SetListFileParser(descriptor).parse() }
-        addToCollection(xmlDoc, MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> MIDIAliasFileParser(descriptor).parse() }
-        addToCollection(xmlDoc, IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor -> IrrelevantFile(descriptor) }
+        addToCollection(xmlDoc, AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            AudioFileParser(descriptor).parse()
+        }
+        addToCollection(xmlDoc, ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            ImageFileParser(descriptor).parse()
+        }
+        addToCollection(xmlDoc, SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            SongInfoParser(descriptor).parse()
+        }
+        addToCollection(xmlDoc, SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            SetListFileParser(descriptor).parse()
+        }
+        addToCollection(xmlDoc, MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            MIDIAliasFileParser(descriptor).parse()
+        }
+        addToCollection(xmlDoc, IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { descriptor ->
+            IrrelevantFile(descriptor)
+        }
     }
 
     fun add(cachedFile: CachedFile) {
@@ -89,11 +103,16 @@ class CachedCloudFileCollection {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             mFiles.removeIf { file.mID.equals(it.mID, ignoreCase = true) }
         else
-            mFiles = mFiles.asSequence().filter { !file.mID.equals(it.mID, ignoreCase = true) }.toMutableList()
+            mFiles = mFiles
+                    .asSequence()
+                    .filter { !file.mID.equals(it.mID, ignoreCase = true) }
+                    .toMutableList()
     }
 
     fun hasLatestVersionOf(file: FileInfo): Boolean {
-        return mFiles.any { it.mID.equals(file.mID, ignoreCase = true) && it.mLastModified == file.mLastModified }
+        return mFiles.any {
+            it.mID.equals(file.mID, ignoreCase = true) && it.mLastModified == file.mLastModified
+        }
     }
 
     fun removeNonExistent(storageIDs: Set<String>) {
@@ -111,11 +130,27 @@ class CachedCloudFileCollection {
     }
 
     fun getMappedAudioFiles(vararg inStrs: String): List<AudioFile> {
-        return inStrs.map { audioFiles.filter { audioFile -> audioFile.mNormalizedName.equals(it.normalize(), ignoreCase = true) } }.flattenAll().filterIsInstance<AudioFile>()
+        return inStrs
+                .map {
+                    audioFiles
+                            .filter { audioFile ->
+                                audioFile.mNormalizedName.equals(it.normalize(), ignoreCase = true)
+                            }
+                }
+                .flattenAll()
+                .filterIsInstance<AudioFile>()
     }
 
     fun getMappedImageFiles(vararg inStrs: String): List<ImageFile> {
-        return inStrs.map { imageFiles.filter { imageFile -> imageFile.mNormalizedName.equals(it.normalize(), ignoreCase = true) } }.flattenAll().filterIsInstance<ImageFile>()
+        return inStrs
+                .map {
+                    imageFiles
+                            .filter { imageFile ->
+                                imageFile.mNormalizedName.equals(it.normalize(), ignoreCase = true)
+                            }
+                }
+                .flattenAll()
+                .filterIsInstance<ImageFile>()
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedFile?, includeDependencies: Boolean): List<CachedFile> {

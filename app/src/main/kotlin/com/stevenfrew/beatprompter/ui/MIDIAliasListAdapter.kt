@@ -8,16 +8,12 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 
 class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>) : ArrayAdapter<MIDIAliasFile>(BeatPrompterApplication.context, -1, values) {
-    private val mLargePrint: Boolean
-
-    init {
-        val sharedPref = BeatPrompterApplication.preferences
-        mLargePrint = sharedPref.getBoolean(BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_key), BeatPrompterApplication.getResourceString(R.string.pref_largePrintList_defaultValue).toBoolean())
-    }
+    private val mLargePrint = BeatPrompterPreferences.largePrint
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = BeatPrompterApplication.context

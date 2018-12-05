@@ -13,7 +13,11 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Tag that defines a comment that is to be shown on the song title screen, or during playback.
  */
-class CommentTag internal constructor(name: String, lineNumber: Int, position: Int, value: String) : ValueTag(name, lineNumber, position, value) {
+class CommentTag internal constructor(name: String,
+                                      lineNumber: Int,
+                                      position: Int,
+                                      value: String)
+    : ValueTag(name, lineNumber, position, value) {
     val mAudience: List<String>
     val mComment: String
 

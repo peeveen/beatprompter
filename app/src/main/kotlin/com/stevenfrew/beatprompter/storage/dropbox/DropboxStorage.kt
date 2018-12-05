@@ -11,6 +11,7 @@ import com.dropbox.core.v2.files.FolderMetadata
 import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.ListFolderResult
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.util.Utils
@@ -153,11 +154,10 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
     }
 
     private fun doDropboxAction(action: DropboxAction) {
-        val sharedPrefs = BeatPrompterApplication.privatePreferences
         // Did we authenticate last time it failed?
-        val storedAccessToken = sharedPrefs.getString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), null)
+        val storedAccessToken = BeatPrompterPreferences.dropboxAccessToken
                 ?: Auth.getOAuth2Token()?.also {
-                    sharedPrefs.edit().putString(BeatPrompterApplication.getResourceString(R.string.pref_dropboxAccessToken_key), it).apply()
+                    BeatPrompterPreferences.dropboxAccessToken = it
                 }
         if (storedAccessToken == null) {
             action.onAuthenticationRequired()

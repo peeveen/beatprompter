@@ -9,6 +9,10 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines how many bars the current line lasts for.
  */
-class BarsTag internal constructor(name: String, lineNumber: Int, position: Int, value: String) : ValueTag(name, lineNumber, position, value) {
-    val mBars: Int = TagParsingUtility.parseIntegerValue(value, 1, 128)
+class BarsTag internal constructor(name: String,
+                                   lineNumber: Int,
+                                   position: Int,
+                                   value: String)
+    : ValueTag(name, lineNumber, position, value) {
+    val mBars = TagParsingUtility.parseIntegerValue(value, 1, 128)
 }

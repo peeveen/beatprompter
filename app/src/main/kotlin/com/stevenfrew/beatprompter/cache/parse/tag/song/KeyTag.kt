@@ -12,4 +12,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines what key the current song is in.
  */
-class KeyTag internal constructor(name: String, lineNumber: Int, position: Int, val mKey: String) : ValueTag(name, lineNumber, position, mKey)
+class KeyTag internal constructor(name: String,
+                                  lineNumber: Int,
+                                  position: Int,
+                                  val mKey: String)
+    : ValueTag(name, lineNumber, position, mKey)

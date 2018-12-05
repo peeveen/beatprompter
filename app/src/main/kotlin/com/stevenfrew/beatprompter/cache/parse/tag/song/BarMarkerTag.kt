@@ -11,4 +11,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
  * Shorthand tag that means "one bar". Multiples of these indicate how many bars the current
  * song file line lasts for.
  */
-class BarMarkerTag internal constructor(name: String, lineNumber: Int, position: Int) : Tag(name, lineNumber, position)
+class BarMarkerTag internal constructor(name: String,
+                                        lineNumber: Int,
+                                        position: Int)
+    : Tag(name, lineNumber, position)

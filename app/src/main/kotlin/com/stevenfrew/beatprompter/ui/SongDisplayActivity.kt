@@ -15,10 +15,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
@@ -60,10 +57,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         mSongDisplayInstance = this
 
-        val sharedPref = BeatPrompterApplication.preferences
-        val sendMidiClockPref = sharedPref.getBoolean(getString(R.string.pref_sendMidi_key), false)
-        mScrollOnProximity = sharedPref.getBoolean(getString(R.string.pref_proximityScroll_key), false)
-        mAnyOtherKeyPageDown = sharedPref.getBoolean(getString(R.string.pref_anyOtherKeyPageDown_key), false)
+        val sendMidiClockPref = BeatPrompterPreferences.sendMIDIClock
+        mScrollOnProximity = BeatPrompterPreferences.proximityScroll
+        mAnyOtherKeyPageDown = BeatPrompterPreferences.anyOtherKeyPageDown
 
         setContentView(R.layout.activity_song_display)
         val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)

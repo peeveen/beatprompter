@@ -5,10 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
@@ -66,7 +63,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
             Log.d(BeatPrompterApplication.TAG_COMMS, "Bluetooth adapter found.")
             application.registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
             application.registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
-            BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
+            BeatPrompterPreferences.registerOnSharedPreferenceChangeListener(this)
             onBluetoothActivation()
         }
     }
@@ -116,8 +113,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     val bluetoothMode: BluetoothMode
         get() {
             return try {
-                BluetoothMode.valueOf(BeatPrompterApplication.preferences.getString(BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key),
-                        BeatPrompterApplication.getResourceString(R.string.bluetoothModeNoneValue))!!)
+                BluetoothMode.valueOf(BeatPrompterPreferences.bluetoothMode)
             } catch (e: Exception) {
                 // Backwards compatibility with old shite values from previous app versions.
                 BluetoothMode.None
@@ -132,7 +128,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * This returns the current mode.
      */
     private val bandLeaderAddress: String
-        get() = BeatPrompterApplication.preferences.getString(BeatPrompterApplication.getResourceString(R.string.pref_bandLeaderDevice_key), "")!!
+        get() = BeatPrompterPreferences.bandLeaderDevice
 
     /**
      * Do we have a connection to a band leader?
@@ -226,19 +222,27 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
                     shutDownBluetoothClient()
                     if (mServerBluetoothThread == null) {
                         Log.d(BeatPrompterApplication.TAG_COMMS, "Starting Bluetooth server thread.")
-                        mServerBluetoothThread = ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket -> handleConnectionFromClient(socket) }.apply { start() }
+                        mServerBluetoothThread =
+                                ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket ->
+                                    handleConnectionFromClient(socket)
+                                }.apply { start() }
                     }
                 } else if (mode === BluetoothMode.Client) {
                     shutDownBluetoothServer()
                     if (mConnectToServerThread == null) {
-                        mBluetoothAdapter!!.bondedDevices.firstOrNull { it.address == bandLeaderAddress }?.also {
-                            try {
-                                Log.d(BeatPrompterApplication.TAG_COMMS, "Starting Bluetooth client thread, looking to connect with '${it.name}'.")
-                                mConnectToServerThread = ConnectToServerThread(it, BLUETOOTH_UUID) { socket -> BluetoothManager.setServerConnection(socket) }.apply { start() }
-                            } catch (e: Exception) {
-                                Log.e(BeatPrompterApplication.TAG_COMMS, "Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
-                            }
-                        }
+                        mBluetoothAdapter!!.bondedDevices
+                                .firstOrNull { it.address == bandLeaderAddress }
+                                ?.also {
+                                    try {
+                                        Log.d(BeatPrompterApplication.TAG_COMMS, "Starting Bluetooth client thread, looking to connect with '${it.name}'.")
+                                        mConnectToServerThread =
+                                                ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
+                                                    BluetoothManager.setServerConnection(socket)
+                                                }.apply { start() }
+                                    } catch (e: Exception) {
+                                        Log.e(BeatPrompterApplication.TAG_COMMS, "Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
+                                    }
+                                }
                     }
                 }
             }

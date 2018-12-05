@@ -301,7 +301,7 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="force_refresh_with_dependencies">Aggiorna forza (incluse le dipendenze)</string>
     <string name="byKey">Per chiave</string>
     <string name="cannotFindImageFile">Impossibile trovare il file immagine: %1$s</string>
-    <string name="could_not_read_image_file">Impossibile leggere il file di immagine</string>
+    <string name="could_not_read_image_file">Impossibile leggere il file di immagine: %1$s</string>
     <string name="keyPrefix">Chiave</string>
     <string name="metronomeOnWhenNoBackingTrack">Quando non c\'è traccia di supporto</string>
     <string name="multiple_images_in_one_line">Immagini multiple trovate in una sola riga. Utilizza solo la prima.</string>

@@ -6,10 +6,8 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
 enum class Type {
     // {Directive} tags
     Directive,
-
     // [Chord] tags
     Chord,
-
     // ,,Shorthand<< tags
     Shorthand
 }

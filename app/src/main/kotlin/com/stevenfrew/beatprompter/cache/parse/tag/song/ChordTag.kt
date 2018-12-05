@@ -9,10 +9,11 @@ import java.util.regex.Pattern
 /**
  * Tag that defines a chord to be displayed at this point.
  */
-class ChordTag constructor(chordText: String, lineNumber: Int, position: Int) : Tag(chordText, lineNumber, position) {
-    fun isValidChord(): Boolean {
-        return chordPattern.matcher(mName.trim()).matches()
-    }
+class ChordTag constructor(chordText: String,
+                           lineNumber: Int,
+                           position: Int)
+    : Tag(chordText, lineNumber, position) {
+    val mValidChord = chordPattern.matcher(chordText.trim()).matches()
 
     companion object {
         private const val chordRegex = (

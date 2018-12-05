@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.*
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
@@ -35,10 +36,9 @@ class TextLine internal constructor(private val mText: String, private val mTags
 
     init {
         val paint = Paint()
-        val sharedPrefs = BeatPrompterApplication.preferences
-        mLyricColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_lyricColor_default)))
-        mChordColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_chordColor_default)))
-        mAnnotationColor = sharedPrefs.getInt(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_key), Color.parseColor(BeatPrompterApplication.getResourceString(R.string.pref_annotationColor_default)))
+        mLyricColor = BeatPrompterPreferences.lyricColor
+        mChordColor = BeatPrompterPreferences.chordColor
+        mAnnotationColor = BeatPrompterPreferences.annotationColor
         // TODO: Fix this, for god's sake!
         mSections = calculateSections(songLoadCancelEvent)
 
@@ -403,7 +403,7 @@ class TextLine internal constructor(private val mText: String, private val mTags
                 var trueChord = false
                 if (chordTagIndex != -1) {
                     val chordTag = chordTags[chordTagIndex]
-                    trueChord = chordTag.isValidChord()
+                    trueChord = chordTag.mValidChord
                     chordText = chordTag.mName
                     // Stick a couple of spaces on each chord, apart from the last one.
                     // This is so they don't appear right beside each other.

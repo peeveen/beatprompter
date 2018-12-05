@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.Message
 import android.preference.PreferenceFragment
 import android.widget.Toast
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterPreferences
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
@@ -31,7 +31,7 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences)
 
-        BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(this)
+        BeatPrompterPreferences.registerOnSharedPreferenceChangeListener(this)
 
         val clearCachePrefName = getString(R.string.pref_clearCache_key)
         val clearCachePref = findPreference(clearCachePrefName)
@@ -51,19 +51,16 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         val cloudPref = findPreference(cloudPrefName)
         cloudPref?.setOnPreferenceChangeListener { _, value ->
             EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE)
-            val sharedPref = BeatPrompterApplication.preferences
-            val editor = sharedPref.edit()
-            editor.putString(getString(R.string.pref_cloudStorageSystem_key), value.toString())
-            editor.putString(getString(R.string.pref_cloudPath_key), null)
-            editor.putString(getString(R.string.pref_cloudDisplayPath_key), null)
-            editor.apply()
+            BeatPrompterPreferences.storageSystem = value.toString()
+            BeatPrompterPreferences.cloudPath = null
+            BeatPrompterPreferences.cloudDisplayPath = null
             (cloudPref as ImageListPreference).forceUpdate()
             true
         }
     }
 
     override fun onDestroy() {
-        BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(this)
+        BeatPrompterPreferences.unregisterOnSharedPreferenceChangeListener(this)
         EventHandler.setSettingsEventHandler(null)
         super.onDestroy()
     }
@@ -71,8 +68,7 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
     private fun onCloudPathChanged(newValue: Any?) {
         val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
         val cloudDisplayPathPrefName = getString(R.string.pref_cloudDisplayPath_key)
-        val sharedPrefs = BeatPrompterApplication.preferences
-        val displayPath = sharedPrefs.getString(cloudDisplayPathPrefName, null)
+        val displayPath = BeatPrompterPreferences.getStringPreference(cloudDisplayPathPrefName, null)
 
         val cloudPathPref = findPreference(cloudPathPrefName)
         if (cloudPathPref != null)
@@ -89,11 +85,8 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
     }
 
     override fun onFolderSelected(folderInfo: FolderInfo) {
-        BeatPrompterApplication.preferences
-                .edit()
-                .putString(getString(R.string.pref_cloudPath_key), folderInfo.mID)
-                .putString(getString(R.string.pref_cloudDisplayPath_key), folderInfo.mDisplayPath)
-                .apply()
+        BeatPrompterPreferences.cloudPath = folderInfo.mID
+        BeatPrompterPreferences.cloudDisplayPath = folderInfo.mDisplayPath
     }
 
     override fun onFolderSelectedError(t: Throwable) {

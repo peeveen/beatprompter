@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
@@ -14,19 +13,24 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Base class for MIDI auto-start tags.
  */
-open class MIDITriggerTag protected constructor(name: String, lineNumber: Int, position: Int, triggerDescriptor: String, type: TriggerType) : Tag(name, lineNumber, position) {
+open class MIDITriggerTag protected constructor(name: String,
+                                                lineNumber: Int,
+                                                position: Int,
+                                                triggerDescriptor: String,
+                                                type: TriggerType)
+    : Tag(name, lineNumber, position) {
     val mTrigger: SongTrigger
 
     init {
         val bits = triggerDescriptor.splitAndTrim(",")
         if (bits.size > 1)
             if (type == TriggerType.SongSelect)
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value))
+                throw MalformedTagException(R.string.song_index_must_have_one_value)
         if (bits.size > 4 || bits.isEmpty())
             if (type == TriggerType.SongSelect)
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_value))
+                throw MalformedTagException(R.string.song_index_must_have_one_value)
             else
-                throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.song_index_must_have_one_two_or_three_values))
+                throw MalformedTagException(R.string.song_index_must_have_one_two_or_three_values)
 
         val channel = if (bits.size > 3) {
             val value = TagParsingUtility.parseMIDIValue(bits[3], 3, bits.size)

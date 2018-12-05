@@ -18,7 +18,9 @@ object TagParsingUtility {
     private val mHelperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
     fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T> {
         @Suppress("UNCHECKED_CAST")
-        return mHelperMap.getOrPut(parser::class) { TagParsingHelper(parser) as TagParsingHelper<Any> } as TagParsingHelper<T>
+        return mHelperMap.getOrPut(parser::class) {
+            TagParsingHelper(parser) as TagParsingHelper<Any>
+        } as TagParsingHelper<T>
     }
 
     @Throws(MalformedTagException::class)
@@ -26,12 +28,12 @@ object TagParsingUtility {
         try {
             return value.toInt().also {
                 if (it < min)
-                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooLow, min, it))
+                    throw MalformedTagException(R.string.intValueTooLow, min, it)
                 else if (it > max)
-                    throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueTooHigh, max, it))
+                    throw MalformedTagException(R.string.intValueTooHigh, max, it)
             }
         } catch (nfe: NumberFormatException) {
-            throw MalformedTagException(BeatPrompterApplication.getResourceString(R.string.intValueUnreadable, value))
+            throw MalformedTagException(R.string.intValueUnreadable, value)
         }
     }
 

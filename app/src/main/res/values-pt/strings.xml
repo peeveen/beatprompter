@@ -301,7 +301,7 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="force_refresh_with_dependencies">Forçar atualização (incluindo dependências)</string>
     <string name="byKey">Por chave</string>
     <string name="cannotFindImageFile">Não foi possível encontrar o arquivo de imagem: %1$s</string>
-    <string name="could_not_read_image_file">Não foi possível ler o arquivo de imagem</string>
+    <string name="could_not_read_image_file">Não foi possível ler o arquivo de imagem: %1$s</string>
     <string name="keyPrefix">Chave</string>
     <string name="metronomeOnWhenNoBackingTrack">Quando não há trilha de apoio</string>
     <string name="multiple_images_in_one_line">Múltiplas imagens encontradas em uma linha. Utilizando apenas o primeiro.</string>
