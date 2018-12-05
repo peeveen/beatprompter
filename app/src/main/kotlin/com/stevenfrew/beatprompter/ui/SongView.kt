@@ -275,7 +275,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         var currentY = mSong!!.mBeatCounterRect.height() + mSong!!.mDisplayOffset
         var currentLine = mSong!!.mCurrentLine
         var yScrollOffset = 0
-        if (currentLine.mScrollMode === ScrollingMode.Manual)
+        if (currentLine.mScrollMode !== ScrollingMode.Beat)
             beatPercent = 1.0
         val color = mBackgroundColorLookup[(beatPercent * 100.0).toInt()]
         canvas.drawColor(color, PorterDuff.Mode.SRC)
