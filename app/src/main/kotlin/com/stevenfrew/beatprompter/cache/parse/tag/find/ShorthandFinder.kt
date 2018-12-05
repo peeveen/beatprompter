@@ -13,11 +13,12 @@ object ShorthandFinder
                 else if (text.isEmpty())
                     return null
                 else {
+                    val lastIndex = text.length - 1
                     // Look for the FIRST ending chevron
-                    val firstNonChevronIndex = (text.length - 1..0).firstOrNull {
+                    val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
                         text[it] != '<' && text[it] != '>'
                     }
-                    if (firstNonChevronIndex == null || firstNonChevronIndex == text.length - 1)
+                    if (firstNonChevronIndex == null || firstNonChevronIndex == lastIndex)
                         return null
                     else
                         firstNonChevronIndex + 1
