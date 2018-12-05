@@ -16,15 +16,11 @@ class ImageArrayAdapter(context: Context, textViewResourceId: Int,
         val inflater = (context as Activity).layoutInflater
         val row = convertView ?: inflater.inflate(R.layout.imagelistitem, parent, false)
 
-        val imageView = row.findViewById<ImageView>(R.id.image)
-        imageView.setImageResource(resourceIds[position])
-
-        val checkedTextView = row.findViewById<CheckedTextView>(
-                R.id.check)
-
-        checkedTextView.text = getItem(position)
-        checkedTextView.isChecked = position == index
-
+        row.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
+        row.findViewById<CheckedTextView>(R.id.check).apply {
+            text = getItem(position)
+            isChecked = position == index
+        }
         return row
     }
 }

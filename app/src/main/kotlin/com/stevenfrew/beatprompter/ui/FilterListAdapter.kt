@@ -31,16 +31,16 @@ class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>
         val titleView = dropDownView.findViewById<TextView>(R.id.filtertitle)
         val filterIcon = dropDownView.findViewById<ImageView>(R.id.filterIcon)
         val filter = values[position]
-        when (filter) {
-            is TagFilter -> filterIcon.setImageResource(R.drawable.tag)
-            is TemporarySetListFilter -> filterIcon.setImageResource(R.drawable.pencil)
-            is SetListFilter -> filterIcon.setImageResource(R.drawable.ic_document)
-            is MIDIAliasFilesFilter -> filterIcon.setImageResource(R.drawable.midi)
-            is FolderFilter -> filterIcon.setImageResource(R.drawable.ic_folder)
-            else -> filterIcon.setImageResource(R.drawable.blank_icon)
+        val iconResource = when (filter) {
+            is TagFilter -> R.drawable.tag
+            is TemporarySetListFilter -> R.drawable.pencil
+            is SetListFilter -> R.drawable.ic_document
+            is MIDIAliasFilesFilter -> R.drawable.midi
+            is FolderFilter -> R.drawable.ic_folder
+            else -> R.drawable.blank_icon
         }
+        filterIcon.setImageResource(iconResource)
         titleView.text = filter.mName
         return dropDownView
-
     }
 }

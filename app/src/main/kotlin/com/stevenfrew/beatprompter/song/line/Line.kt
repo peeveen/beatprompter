@@ -4,7 +4,13 @@ import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
-abstract class Line internal constructor(val mLineTime: Long, val mLineDuration: Long, val mScrollMode: ScrollingMode, val mSongPixelPosition: Int, val mYStartScrollTime: Long, val mYStopScrollTime: Long, private val mDisplaySettings: DisplaySettings) {
+abstract class Line internal constructor(val mLineTime: Long,
+                                         val mLineDuration: Long,
+                                         val mScrollMode: ScrollingMode,
+                                         val mSongPixelPosition: Int,
+                                         val mYStartScrollTime: Long,
+                                         val mYStopScrollTime: Long,
+                                         private val mDisplaySettings: DisplaySettings) {
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements: LineMeasurements

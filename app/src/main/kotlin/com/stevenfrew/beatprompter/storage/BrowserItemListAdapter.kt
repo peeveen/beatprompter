@@ -13,7 +13,8 @@ import com.stevenfrew.beatprompter.R
 /**
  * Display adapter for browser items.
  */
-internal class BrowserItemListAdapter(items: List<ItemInfo>) : ArrayAdapter<ItemInfo>(BeatPrompterApplication.context, -1, items) {
+internal class BrowserItemListAdapter(items: List<ItemInfo>)
+    : ArrayAdapter<ItemInfo>(BeatPrompterApplication.context, -1, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = BeatPrompterApplication.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -22,15 +23,15 @@ internal class BrowserItemListAdapter(items: List<ItemInfo>) : ArrayAdapter<Item
         val imageView = rowView.findViewById<ImageView>(R.id.file_or_folder_icon)
         val cloudItem = this.getItem(position)
         if (cloudItem != null) {
-            textView.text = cloudItem.mName
             val isFolder = cloudItem is FolderInfo
-            textView.isEnabled = isFolder
-            imageView.isEnabled = isFolder
-            //rowView.setEnabled(isFolder);
-            if (isFolder)
-                imageView.setImageResource(R.drawable.ic_folder)
-            else
-                imageView.setImageResource(R.drawable.ic_document)
+            textView.apply {
+                text = cloudItem.mName
+                isEnabled = isFolder
+            }
+            imageView.apply {
+                isEnabled = isFolder
+                imageView.setImageResource(if (isFolder) R.drawable.ic_folder else R.drawable.ic_document)
+            }
         }
         return rowView
     }

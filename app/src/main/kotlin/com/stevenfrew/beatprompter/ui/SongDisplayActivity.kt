@@ -85,7 +85,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             finish()
         } else {
             Log.d(BeatPrompterApplication.TAG_LOAD, "Successful load ID match: ${song.mLoadID}")
-            if (BluetoothManager.bluetoothMode == BluetoothMode.Server) {
+            if (BeatPrompterPreferences.bluetoothMode == BluetoothMode.Server) {
                 Log.d(BeatPrompterApplication.TAG_LOAD, "Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
                 val csm = ChooseSongMessage(SongChoiceInfo(loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
                         loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,

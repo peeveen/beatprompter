@@ -6,7 +6,13 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.util.Utils
 
-class ScreenString private constructor(internal val mText: String, internal val mFontSize: Float, internal val mColor: Int, width: Int, height: Int, internal val mFace: Typeface, val mDescenderOffset: Int) {
+class ScreenString private constructor(internal val mText: String,
+                                       internal val mFontSize: Float,
+                                       internal val mColor: Int,
+                                       width: Int,
+                                       height: Int,
+                                       internal val mFace: Typeface,
+                                       val mDescenderOffset: Int) {
     val mWidth = Math.max(0, width)
     val mHeight = Math.max(0, height)
 

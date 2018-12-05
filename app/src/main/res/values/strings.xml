@@ -536,15 +536,15 @@
 
     <string name="pref_screenAction_key" translatable="false">pref_screenaction</string>
     <string name="pref_screenAction_title">Controls during performance</string>
-    <string name="pref_screenAction_defaultValue" translatable="false">scroll</string>
+    <string name="pref_screenAction_defaultValue" translatable="false">Scroll</string>
     <string name="pref_screenAction_summary">What controls should be available while a song is playing?</string>
     <string name="pref_screenAction_dialogTitle">Controls During Performance</string>
     <string name="screenActionScrollPauseAndRestart">Scrolling, pausing, restarting</string>
     <string name="screenActionVolume">Volume</string>
     <string name="screenActionNone">Nothing</string>
-    <string name="screenActionScrollPauseAndRestartValue" translatable="false">scroll</string>
-    <string name="screenActionVolumeValue" translatable="false">volume</string>
-    <string name="screenActionNoneValue" translatable="false">none</string>
+    <string name="screenActionScrollPauseAndRestartValue" translatable="false">Scroll</string>
+    <string name="screenActionVolumeValue" translatable="false">Volume</string>
+    <string name="screenActionNoneValue" translatable="false">None</string>
 
     <string name="localStorageValue" translatable="false">localstorage</string>
     <string name="googleDriveValue" translatable="false">googledrive</string>
@@ -585,7 +585,7 @@
 
     <string name="pref_bluetoothMode_key" translatable="false">pref_bluetoothMode</string>
     <string name="pref_bluetoothMode_title">Bluetooth mode</string>
-    <string name="pref_bluetoothMode_defaultValue" translatable="false">none</string>
+    <string name="pref_bluetoothMode_defaultValue" translatable="false">None</string>
     <string name="pref_bluetoothMode_summary">Configure how your device communicates with band members.</string>
     <string name="pref_bluetoothMode_dialogTitle">Bluetooth Mode</string>
 

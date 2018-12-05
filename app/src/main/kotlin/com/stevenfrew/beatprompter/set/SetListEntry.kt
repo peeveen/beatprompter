@@ -7,10 +7,16 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Represents one entry from a set list file.
  */
-class SetListEntry private constructor(private val mNormalizedTitle: String, private val mNormalizedArtist: String) {
-    private constructor(titleAndArtist: Pair<String, String>) : this(titleAndArtist.first, titleAndArtist.second)
-    constructor(songFile: SongFile) : this(songFile.mNormalizedTitle, songFile.mNormalizedArtist)
-    constructor(setListFileLine: String) : this(getTitleAndArtistFromSetListLine(setListFileLine))
+class SetListEntry private constructor(private val mNormalizedTitle: String,
+                                       private val mNormalizedArtist: String) {
+    private constructor(titleAndArtist: Pair<String, String>)
+            : this(titleAndArtist.first, titleAndArtist.second)
+
+    constructor(songFile: SongFile)
+            : this(songFile.mNormalizedTitle, songFile.mNormalizedArtist)
+
+    constructor(setListFileLine: String)
+            : this(getTitleAndArtistFromSetListLine(setListFileLine))
 
     fun matches(songFile: SongFile): SetListMatch {
         if (songFile.mNormalizedTitle.equals(mNormalizedTitle, true)) {
@@ -22,7 +28,8 @@ class SetListEntry private constructor(private val mNormalizedTitle: String, pri
     }
 
     fun toDisplayString(): String {
-        return if (mNormalizedArtist.isBlank()) mNormalizedTitle else "$mNormalizedArtist - $mNormalizedTitle"
+        return if (mNormalizedArtist.isBlank()) mNormalizedTitle
+        else "$mNormalizedArtist - $mNormalizedTitle"
     }
 
     override fun toString(): String {

@@ -2,8 +2,9 @@ package com.stevenfrew.beatprompter.ui.filter
 
 import com.stevenfrew.beatprompter.cache.SongFile
 
-class FolderFilter(folderName: String, songs: MutableList<SongFile>) : SongFilter(folderName, songs, true) {
-
+class FolderFilter(folderName: String,
+                   songs: MutableList<SongFile>)
+    : SongFilter(folderName, songs, true) {
     override fun equals(other: Any?): Boolean {
         return other is FolderFilter && mName == other.mName
     }

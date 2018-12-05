@@ -9,7 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
-class SenderTask constructor(private val mMessageQueue: MessageQueue) : Task(false), CoroutineScope {
+class SenderTask constructor(private val mMessageQueue: MessageQueue)
+    : Task(false), CoroutineScope {
     private val mCoRoutineJob = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + mCoRoutineJob

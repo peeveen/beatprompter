@@ -5,7 +5,9 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 
-class ReceiverTask(val mName: String, private val mReceiver: Receiver) : Task(true) {
+class ReceiverTask(val mName: String,
+                   private val mReceiver: Receiver)
+    : Task(true) {
     private var mUnregistered = false
 
     override fun doWork() {

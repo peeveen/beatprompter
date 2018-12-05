@@ -101,13 +101,12 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         return false
     }
 
-    class SettingsEventHandler internal constructor(private val mFragment: SettingsFragment) : EventHandler() {
-
+    class SettingsEventHandler internal constructor(private val mFragment: SettingsFragment)
+        : EventHandler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 EventHandler.SET_CLOUD_PATH -> mFragment.setCloudPath()
             }
         }
-
     }
 }

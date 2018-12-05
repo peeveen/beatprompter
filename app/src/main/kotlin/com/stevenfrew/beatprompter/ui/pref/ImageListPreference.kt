@@ -46,14 +46,14 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
         super.onBindView(view)
         val imageView = view.findViewById<ImageView>(R.id.iconImageView)
         val value = BeatPrompterPreferences.getStringPreference(key, "")
-
-        when (value) {
-            BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> imageView.setImageResource(R.drawable.ic_google_drive)
-            BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> imageView.setImageResource(R.drawable.ic_dropbox)
-            BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> imageView.setImageResource(R.drawable.ic_onedrive)
-            BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> imageView.setImageResource(R.drawable.ic_device)
-            else -> imageView.setImageResource(R.drawable.blank_icon)
+        val iconResource = when (value) {
+            BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
+            BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
+            BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
+            BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> R.drawable.ic_device
+            else -> R.drawable.blank_icon
         }
+        imageView.setImageResource(iconResource)
     }
 
     fun forceUpdate() {

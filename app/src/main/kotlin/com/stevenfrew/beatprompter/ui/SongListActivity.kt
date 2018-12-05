@@ -73,7 +73,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         get() = Dispatchers.Main + mCoRoutineJob
     private var mMenu: Menu? = null
     private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
-    private var mSortingPreference = SortingPreference.Title
     private var mPlaylist = Playlist()
     private var mNowPlayingNode: PlaylistNode? = null
     private var mFilters = listOf<Filter>()
@@ -95,20 +94,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             fullVersionUnlocked()
         }
     }
-
-    private var sortingPreference: SortingPreference
-        get() {
-            return try {
-                SortingPreference.valueOf(BeatPrompterPreferences.sorting)
-            } catch (ignored: Exception) {
-                SortingPreference.Title
-            }
-        }
-        set(pref) {
-            BeatPrompterPreferences.sorting = pref.name
-            mSortingPreference = pref
-            sortSongList()
-        }
 
     private val isFirstRun: Boolean
         get() {
@@ -518,7 +503,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun initialiseList() {
         try {
-            mSortingPreference = sortingPreference
             readDatabase()
             sortSongList()
             buildList()
@@ -680,7 +664,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun sortSongList() {
         if (mSelectedFilter.mCanSort)
-            when (mSortingPreference) {
+            when (BeatPrompterPreferences.sorting) {
                 SortingPreference.Date -> sortSongsByDateModified()
                 SortingPreference.Artist -> sortSongsByArtist()
                 SortingPreference.Title -> sortSongsByTitle()
@@ -757,7 +741,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         for (song in mCachedCloudFiles.songFiles) {
             song.mTags.forEach { tagDictionaries.getOrPut(it) { mutableListOf() }.add(song) }
             if (!song.mSubfolder.isNullOrBlank())
-                folderDictionaries.getOrPut(song.mSubfolder!!) { mutableListOf() }.add(song)
+                folderDictionaries.getOrPut(song.mSubfolder) { mutableListOf() }.add(song)
         }
         tagDictionaries.forEach {
             tagAndFolderFilters.add(TagFilter(it.key, it.value))
@@ -852,11 +836,12 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             adb.setItems(items) { d, n ->
                 d.dismiss()
                 when (n) {
-                    0 -> sortingPreference = SortingPreference.Title
-                    1 -> sortingPreference = SortingPreference.Artist
-                    2 -> sortingPreference = SortingPreference.Date
-                    3 -> sortingPreference = SortingPreference.Key
+                    0 -> BeatPrompterPreferences.sorting = SortingPreference.Title
+                    1 -> BeatPrompterPreferences.sorting = SortingPreference.Artist
+                    2 -> BeatPrompterPreferences.sorting = SortingPreference.Date
+                    3 -> BeatPrompterPreferences.sorting = SortingPreference.Key
                 }
+                sortSongList()
                 buildList()
             }
             adb.setTitle(getString(R.string.sortSongs))
@@ -1010,9 +995,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     internal fun updateBluetoothIcon() {
-        val slave = BluetoothManager.bluetoothMode === BluetoothMode.Client
+        val bluetoothMode = BeatPrompterPreferences.bluetoothMode
+        val slave = bluetoothMode === BluetoothMode.Client
         val connectedToServer = BluetoothManager.isConnectedToServer
-        val master = BluetoothManager.bluetoothMode === BluetoothMode.Server
+        val master = bluetoothMode === BluetoothMode.Server
         val connectedClients = BluetoothManager.bluetoothClientCount
         val resourceID =
                 if (slave)

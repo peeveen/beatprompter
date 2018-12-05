@@ -3,7 +3,9 @@ package com.stevenfrew.beatprompter.ui.filter
 import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.SongFile
 
-class TemporarySetListFilter(setListFile: SetListFile, songs: MutableList<SongFile>) : SetListFileFilter(setListFile, songs) {
+class TemporarySetListFilter(setListFile: SetListFile,
+                             songs: MutableList<SongFile>)
+    : SetListFileFilter(setListFile, songs) {
     fun addSong(sf: SongFile) {
         mSongs.add(sf)
     }

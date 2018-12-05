@@ -2,6 +2,11 @@ package com.stevenfrew.beatprompter
 
 import android.content.SharedPreferences
 import android.graphics.Color
+import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.midi.TriggerOutputContext
+import com.stevenfrew.beatprompter.ui.SongView
+import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 
 object BeatPrompterPreferences {
@@ -17,8 +22,13 @@ object BeatPrompterPreferences {
     val bandLeaderDevice: String
         get() = getStringPreference(R.string.pref_bandLeaderDevice_key, "") ?: ""
 
-    val bluetoothMode: String
-        get() = getStringPreference(R.string.pref_bluetoothMode_key, R.string.bluetoothModeNoneValue)!!
+    val bluetoothMode: BluetoothMode
+        get() = try {
+            BluetoothMode.valueOf(getStringPreference(R.string.pref_bluetoothMode_key, R.string.pref_bluetoothMode_defaultValue)!!)
+        } catch (e: Exception) {
+            // Backwards compatibility with old shite values from previous app versions.
+            BluetoothMode.None
+        }
 
     val incomingMIDIChannels: Int
         get() = getIntPreference(R.string.pref_midiIncomingChannels_key, 65535)
@@ -41,9 +51,14 @@ object BeatPrompterPreferences {
     val manualMode: Boolean
         get() = getBooleanPreference(R.string.pref_manualMode_key, false)
 
-    var sorting: String
-        get() = getStringPreference(R.string.pref_sorting_key, SortingPreference.Title.name)!!
-        set(value) = setStringPreference(R.string.pref_sorting_key, value)
+    var sorting: SortingPreference
+        get() = try {
+            SortingPreference.valueOf(getStringPreference(R.string.pref_sorting_key, SortingPreference.Title.name)!!)
+        } catch (ignored: Exception) {
+            // backward compatibility with old shite values.
+            SortingPreference.Title
+        }
+        set(value) = setStringPreference(R.string.pref_sorting_key, value.toString())
 
     val defaultCountIn: Int
         get() = getIntPreference(R.string.pref_countIn_key, R.string.pref_countIn_default, 0)
@@ -61,14 +76,29 @@ object BeatPrompterPreferences {
     val showKey: Boolean
         get() = getBooleanPreference(R.string.pref_showSongKey_key, R.string.pref_showSongKey_defaultValue)
 
-    val showBPM: String
-        get() = getStringPreference(R.string.pref_showSongBPM_key, R.string.pref_showSongBPM_defaultValue)!!
+    val showBPMContext: ShowBPMContext
+        get() = try {
+            ShowBPMContext.valueOf(getStringPreference(R.string.pref_showSongBPM_key, R.string.pref_showSongBPM_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            ShowBPMContext.No
+        }
 
-    val sendMIDITriggerOnStart: String
-        get() = getStringPreference(R.string.pref_sendMidiTriggerOnStart_key, R.string.pref_sendMidiTriggerOnStart_defaultValue)!!
+    val sendMIDITriggerOnStart: TriggerOutputContext
+        get() = try {
+            TriggerOutputContext.valueOf(getStringPreference(R.string.pref_sendMidiTriggerOnStart_key, R.string.pref_sendMidiTriggerOnStart_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            TriggerOutputContext.ManualStartOnly
+        }
 
-    val metronomeContext: String
-        get() = getStringPreference(R.string.pref_metronome_key, R.string.pref_metronome_defaultValue)!!
+    val metronomeContext: MetronomeContext
+        get() = try {
+            MetronomeContext.valueOf(getStringPreference(R.string.pref_metronome_key, R.string.pref_metronome_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            MetronomeContext.Off
+        }
 
     val lyricColor: Int
         get() = getColorPreference(R.string.pref_lyricColor_key, R.string.pref_lyricColor_default)
@@ -133,8 +163,13 @@ object BeatPrompterPreferences {
     val showMusicIcon: Boolean
         get() = getBooleanPreference(R.string.pref_showMusicIcon_key, R.string.pref_showMusicIcon_defaultValue)
 
-    val screenAction: String
-        get() = getStringPreference(R.string.pref_screenAction_key, R.string.pref_screenAction_defaultValue)!!
+    val screenAction: SongView.ScreenAction
+        get() = try {
+            SongView.ScreenAction.valueOf(getStringPreference(R.string.pref_screenAction_key, R.string.pref_screenAction_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            SongView.ScreenAction.Scroll
+        }
 
     val showScrollIndicator: Boolean
         get() = getBooleanPreference(R.string.pref_showScrollIndicator_key, R.string.pref_showScrollIndicator_defaultValue)
@@ -147,8 +182,13 @@ object BeatPrompterPreferences {
     val commentDisplayTime: Int
         get() = getIntPreference(R.string.pref_commentDisplayTime_key, R.string.pref_commentDisplayTime_default, commentDisplayTimeOffset)
 
-    val midiTriggerSafetyCatch: String
-        get() = getStringPreference(R.string.pref_midiTriggerSafetyCatch_key, R.string.pref_midiTriggerSafetyCatch_defaultValue)!!
+    val midiTriggerSafetyCatch: SongView.TriggerSafetyCatch
+        get() = try {
+            SongView.TriggerSafetyCatch.valueOf(getStringPreference(R.string.pref_midiTriggerSafetyCatch_key, R.string.pref_midiTriggerSafetyCatch_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            SongView.TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine
+        }
 
     val highlightCurrentLine: Boolean
         get() = getBooleanPreference(R.string.pref_highlightCurrentLine_key, R.string.pref_highlightCurrentLine_defaultValue)

@@ -49,9 +49,11 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
     }
 
     override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
-        itemSource.onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date(), ""))
-        itemSource.onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date(), ""))
-        itemSource.onComplete()
+        itemSource.apply {
+            onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date(), ""))
+            onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date(), ""))
+            onComplete()
+        }
     }
 
     private fun createDemoSongTextFile(): File {
@@ -72,7 +74,6 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
     }
 
     companion object {
-
         private const val DEMO_SONG_TEXT_ID = "demoSongText"
         private const val DEMO_SONG_AUDIO_ID = "demoSongAudio"
         private const val DEMO_SONG_FILENAME = "demo_song.txt"

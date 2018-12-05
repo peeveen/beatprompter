@@ -12,7 +12,12 @@ import com.stevenfrew.beatprompter.cache.CachedFile
 /**
  * Task that downloads files from a storage system.
  */
-class DownloadTask(private val mStorage: Storage, private val mHandler: Handler, private val mCloudPath: String, private val mIncludeSubFolders: Boolean, filesToUpdate: List<CachedFile>?) : AsyncTask<String, String, Boolean>(), FolderSearchListener, ItemDownloadListener {
+class DownloadTask(private val mStorage: Storage,
+                   private val mHandler: Handler,
+                   private val mCloudPath: String,
+                   private val mIncludeSubFolders: Boolean,
+                   filesToUpdate: List<CachedFile>?)
+    : AsyncTask<String, String, Boolean>(), FolderSearchListener, ItemDownloadListener {
     private var mProgressDialog: ProgressDialog? = null
     private var mErrorOccurred = false
     private var mFilesToUpdate = filesToUpdate?.asSequence()?.map { ftu -> FileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList()

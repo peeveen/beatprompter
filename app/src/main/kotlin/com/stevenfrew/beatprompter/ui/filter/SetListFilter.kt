@@ -2,7 +2,9 @@ package com.stevenfrew.beatprompter.ui.filter
 
 import com.stevenfrew.beatprompter.cache.SongFile
 
-open class SetListFilter internal constructor(name: String, songs: MutableList<SongFile>) : SongFilter(name, songs, false) {
+open class SetListFilter internal constructor(name: String,
+                                              songs: MutableList<SongFile>)
+    : SongFilter(name, songs, false) {
 
     fun containsSong(sf: SongFile): Boolean {
         return mSongs.contains(sf)

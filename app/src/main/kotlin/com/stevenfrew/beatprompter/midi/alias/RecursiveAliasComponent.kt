@@ -4,8 +4,10 @@ import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 
-class RecursiveAliasComponent(private val mReferencedAliasName: String, private val mArguments: List<Value>, private val mChannelValue: ChannelValue?) : AliasComponent {
-
+class RecursiveAliasComponent(private val mReferencedAliasName: String,
+                              private val mArguments: List<Value>,
+                              private val mChannelValue: ChannelValue?)
+    : AliasComponent {
     @Throws(ResolutionException::class)
     override fun resolve(aliases: List<Alias>, parameters: ByteArray, channel: Byte): List<OutgoingMessage> {
         try {

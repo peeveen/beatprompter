@@ -6,9 +6,11 @@ import java.util.*
 /**
  * A file in a storage system.
  */
-open class FileInfo(id: String, name: String, var mLastModified: Date,
-// Name of the immediate subfolder that it comes from, for filtering purposes.
-                    var mSubfolder: String?) : ItemInfo(id, name) {
+open class FileInfo(id: String,
+                    name: String,
+                    val mLastModified: Date,
+                    val mSubfolder: String?)
+    : ItemInfo(id, name) {
 
     constructor(element: Element) : this(element.getAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME),
             element.getAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME),
@@ -19,7 +21,7 @@ open class FileInfo(id: String, name: String, var mLastModified: Date,
         element.setAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME, mName)
         element.setAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME, mID)
         element.setAttribute(CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "" + mLastModified.time)
-        element.setAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME, if (mSubfolder == null) "" else mSubfolder)
+        element.setAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME, mSubfolder ?: "")
     }
 
     companion object {

@@ -7,14 +7,11 @@ import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.midi.message.ProgramChangeMessage
 import com.stevenfrew.beatprompter.comm.midi.message.SongSelectMessage
 
-class SongTrigger constructor(bankSelectMSB: Value, bankSelectLSB: Value, triggerIndex: Value, channel: Value, type: TriggerType) {
-
-    private val mBankSelectMSB = bankSelectMSB
-    private val mBankSelectLSB = bankSelectLSB
-    private val mTriggerIndex = triggerIndex
-    private val mChannel = channel
-    private val mType = type
-
+class SongTrigger constructor(private val mBankSelectMSB: Value,
+                              private val mBankSelectLSB: Value,
+                              private val mTriggerIndex: Value,
+                              private val mChannel: Value,
+                              private val mType: TriggerType) {
     constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType) : this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
     companion object {

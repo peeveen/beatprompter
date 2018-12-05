@@ -4,7 +4,9 @@ import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.set.SetListEntry
 
-open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<SongFile>) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSetListEntries, songs)) {
+open class SetListFileFilter(var mSetListFile: SetListFile,
+                             songs: MutableList<SongFile>)
+    : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSetListEntries, songs)) {
     var mMissingSetListEntries = getMissingSetListEntries(mSetListFile.mSetListEntries, mSongs)
     var mWarned = mMissingSetListEntries.isEmpty()
 
@@ -35,9 +37,13 @@ open class SetListFileFilter(var mSetListFile: SetListFile, songs: MutableList<S
             return copiedSetListEntries
         }
 
-        private fun getMatches(setListEntries: List<SetListEntry>, songFiles: List<SongFile>, desiredMatchType: SetListMatch): List<Pair<SetListEntry, SongFile>> {
+        private fun getMatches(setListEntries: List<SetListEntry>,
+                               songFiles: List<SongFile>,
+                               desiredMatchType: SetListMatch): List<Pair<SetListEntry, SongFile>> {
             return setListEntries.mapNotNull { entry ->
-                val fullMatch = songFiles.firstOrNull { song: SongFile -> entry.matches(song) == desiredMatchType }
+                val fullMatch = songFiles.firstOrNull { song: SongFile ->
+                    entry.matches(song) == desiredMatchType
+                }
                 if (fullMatch != null)
                     entry to fullMatch
                 else

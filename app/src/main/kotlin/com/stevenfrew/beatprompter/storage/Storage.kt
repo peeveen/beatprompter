@@ -15,7 +15,8 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Base class for all storage systems that we will support.
  */
-abstract class Storage protected constructor(protected var mParentActivity: Activity, cloudCacheFolderName: String) {
+abstract class Storage protected constructor(protected var mParentActivity: Activity,
+                                             cloudCacheFolderName: String) {
     // TODO: Figure out when to call dispose on this.
     private val mCompositeDisposable = CompositeDisposable()
 

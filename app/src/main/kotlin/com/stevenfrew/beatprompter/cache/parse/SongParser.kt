@@ -47,7 +47,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
     private val mCustomCommentsUser: String
     private val mShowChords: Boolean
     private val mShowKey: Boolean
-    private val mShowBPM: ShowBPM
+    private val mShowBPM: ShowBPMContext
     private val mTriggerContext: TriggerOutputContext
     private val mNativeDeviceSettings: DisplaySettings
     private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
@@ -80,15 +80,15 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
         mSendMidiClock = BeatPrompterPreferences.sendMIDIClock
         mCountIn = BeatPrompterPreferences.defaultCountIn
-        mMetronomeContext = MetronomeContext.getMetronomeContextPreference()
+        mMetronomeContext = BeatPrompterPreferences.metronomeContext
         mDefaultHighlightColor = BeatPrompterPreferences.defaultHighlightColor
         mCustomCommentsUser = BeatPrompterPreferences.customCommentsUser
         mShowChords = BeatPrompterPreferences.showChords
-        mTriggerContext = TriggerOutputContext.valueOf(BeatPrompterPreferences.sendMIDITriggerOnStart)
+        mTriggerContext = BeatPrompterPreferences.sendMIDITriggerOnStart
         val defaultMIDIOutputChannelPrefValue = BeatPrompterPreferences.defaultMIDIOutputChannel
         mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
         mShowKey = BeatPrompterPreferences.showKey && mSongLoadInfo.mSongFile.mKey.isNotBlank()
-        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) ShowBPM.getShowBPMPreference() else ShowBPM.No
+        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) BeatPrompterPreferences.showBPMContext else ShowBPMContext.No
 
         // Figure out the screen size
         mNativeDeviceSettings = translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings, mSongLoadInfo.mNativeDisplaySettings)
@@ -674,7 +674,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         val uniqueErrors = mErrors.asSequence().distinct().sortedBy { it.mLineNumber }.toList()
         var errorCount = uniqueErrors.size
         var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
-        val showBPM = mShowBPM != ShowBPM.No
+        val showBPM = mShowBPM != ShowBPMContext.No
         if (showBPM)
             ++messages
         if (mShowKey)
@@ -699,8 +699,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
                 startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
-            if (mShowBPM != ShowBPM.No) {
-                val rounded = mShowBPM == ShowBPM.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
+            if (mShowBPM != ShowBPMContext.No) {
+                val rounded = mShowBPM == ShowBPMContext.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
                 var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
                     Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
@@ -858,21 +858,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             val result = super.add(element)
             last().mNextGraphic = first()
             return result
-        }
-    }
-
-    enum class ShowBPM {
-        Yes, Rounded, No;
-
-        companion object {
-            internal fun getShowBPMPreference(): ShowBPM {
-                return try {
-                    ShowBPM.valueOf(BeatPrompterPreferences.showBPM)
-                } catch (e: Exception) {
-                    // backward compatibility with old shite values.
-                    No
-                }
-            }
         }
     }
 

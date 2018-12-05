@@ -4,7 +4,8 @@ import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class Message constructor(bytes: ByteArray) : OutgoingMessage(bytes) {
+open class Message constructor(bytes: ByteArray)
+    : OutgoingMessage(bytes) {
     companion object {
         internal const val MIDI_SYSEX_START_BYTE = 0xf0.toByte()
         internal const val MIDI_SONG_POSITION_POINTER_BYTE = 0xf2.toByte()
@@ -88,5 +89,4 @@ open class Message constructor(bytes: ByteArray) : OutgoingMessage(bytes) {
     internal fun getProgramChangeValue(): Int {
         return mBytes[1].toInt()
     }
-
 }

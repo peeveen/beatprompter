@@ -100,7 +100,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
     private val mClickAudioID = mClickSoundPool.load(this.context, R.raw.click, 0)
 
-    internal enum class ScreenAction {
+    enum class ScreenAction {
         Scroll, Volume, None
     }
 
@@ -109,17 +109,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mGestureDetector = GestureDetectorCompat(context, this)
         mSongPixelPosition = 0
 
-        val screenAction = BeatPrompterPreferences.screenAction
-        when {
-            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionNoneValue), ignoreCase = true) -> mScreenAction = ScreenAction.None
-            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionVolumeValue), ignoreCase = true) -> mScreenAction = ScreenAction.Volume
-            screenAction.equals(BeatPrompterApplication.getResourceString(R.string.screenActionScrollPauseAndRestartValue), ignoreCase = true) -> mScreenAction = ScreenAction.Scroll
-        }
+        mScreenAction = BeatPrompterPreferences.screenAction
         mShowScrollIndicator = BeatPrompterPreferences.showScrollIndicator
         mShowSongTitle = BeatPrompterPreferences.showSongTitle
         val commentDisplayTimeSeconds = BeatPrompterPreferences.commentDisplayTime
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-        mExternalTriggerSafetyCatch = TriggerSafetyCatch.valueOf(BeatPrompterPreferences.midiTriggerSafetyCatch)
+        mExternalTriggerSafetyCatch = BeatPrompterPreferences.midiTriggerSafetyCatch
         mHighlightCurrentLine = BeatPrompterPreferences.highlightCurrentLine
         mShowPageDownMarker = BeatPrompterPreferences.showPageDownMarker
         mHighlightBeatSectionStart = BeatPrompterPreferences.highlightBeatSectionStart
@@ -133,7 +128,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(BeatPrompterPreferences.pageDownMarkerColor)
         mPulse = BeatPrompterPreferences.pulseDisplay
         mSendMidiClockPreference = BeatPrompterPreferences.sendMIDIClock
-        mMetronomePref = MetronomeContext.getMetronomeContextPreference()
+        mMetronomePref = BeatPrompterPreferences.metronomeContext
 
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
         val backgroundColor = BeatPrompterPreferences.backgroundColor

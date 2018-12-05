@@ -22,7 +22,11 @@ import java.util.*
 /**
  * Dialog allowing the user to choose the folder to use as the source for data.
  */
-internal class ChooseFolderDialog(private val mActivity: Activity, private val mStorage: Storage, listener: FolderSelectionListener, private var mCurrentFolder: FolderInfo) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
+internal class ChooseFolderDialog(private val mActivity: Activity,
+                                  private val mStorage: Storage,
+                                  listener: FolderSelectionListener,
+                                  private var mCurrentFolder: FolderInfo)
+    : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
 
     private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)
     private val mFolderSelectionEventSubscription: CompositeDisposable
@@ -73,8 +77,8 @@ internal class ChooseFolderDialog(private val mActivity: Activity, private val m
     private fun refresh(folder: FolderInfo?) {
         if (folder == null)
             return
-        this.mCurrentFolder = folder
-        this.mParentFolder = folder.mParentFolder
+        mCurrentFolder = folder
+        mParentFolder = folder.mParentFolder
         cancelFolderFetcher()
         mDisplayItems.clear()
         mFolderFetcher = FolderFetcherTask(mStorage, this)
@@ -115,7 +119,7 @@ internal class ChooseFolderDialog(private val mActivity: Activity, private val m
 
     private fun getDisplayPath(folder: FolderInfo): String {
         if (folder.mParentFolder != null) {
-            var parentPath = getDisplayPath(folder.mParentFolder!!)
+            var parentPath = getDisplayPath(folder.mParentFolder)
             if (!parentPath.endsWith(mStorage.directorySeparator))
                 parentPath += mStorage.directorySeparator
             return parentPath + folder.mName
@@ -153,7 +157,9 @@ internal class ChooseFolderDialog(private val mActivity: Activity, private val m
         mFolderFetcher = null
     }
 
-    class FolderFetcherTask internal constructor(private var mStorage: Storage, private var mFolderSearchListener: FolderSearchListener) : AsyncTask<FolderInfo, Void, Void>() {
+    class FolderFetcherTask internal constructor(private val mStorage: Storage,
+                                                 private val mFolderSearchListener: FolderSearchListener)
+        : AsyncTask<FolderInfo, Void, Void>() {
         override fun doInBackground(vararg args: FolderInfo): Void? {
             val folderToSearch = args[0]
             mStorage.readFolderContents(folderToSearch, mFolderSearchListener, false, true)

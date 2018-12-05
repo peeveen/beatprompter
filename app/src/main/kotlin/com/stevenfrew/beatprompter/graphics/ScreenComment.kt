@@ -2,7 +2,10 @@ package com.stevenfrew.beatprompter.graphics
 
 import android.graphics.*
 
-class ScreenComment(private val mText: String, screenSize: Rect, paint: Paint, font: Typeface) {
+class ScreenComment(private val mText: String,
+                    screenSize: Rect,
+                    paint: Paint,
+                    font: Typeface) {
     private val mScreenString: ScreenString
     private val mTextDrawLocation: PointF
     private val mPopupRect: RectF

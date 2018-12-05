@@ -82,7 +82,6 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
     override fun onStopTrackingTouch(seekBar: SeekBar) {}
 
     companion object {
-
         var FONT_SIZE_OFFSET: Int = 0
         var FONT_SIZE_MAX: Int = 0
         var FONT_SIZE_MIN: Int = 0

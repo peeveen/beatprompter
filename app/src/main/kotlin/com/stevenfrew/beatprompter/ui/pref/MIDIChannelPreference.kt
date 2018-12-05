@@ -42,10 +42,11 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
         mView = view
-        val gridLayout = view.findViewById<GridLayout>(R.id.midiGrid)
-        gridLayout.useDefaultMargins = false
-        gridLayout.alignmentMode = GridLayout.ALIGN_BOUNDS
-        gridLayout.isRowOrderPreserved = false
+        view.findViewById<GridLayout>(R.id.midiGrid).apply {
+            useDefaultMargins = false
+            alignmentMode = GridLayout.ALIGN_BOUNDS
+            isRowOrderPreserved = false
+        }
         mCurrentValue = this.getPersistedInt(if (mSingleSelect) 1 else 65535)
         repeat(16) {
             val tb = view.findViewById<ToggleButton>(toggleIDs[it])
@@ -75,26 +76,27 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
         }
     }
 
-    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        if (mSingleSelect && isChecked) {
+    override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {
+        if (mSingleSelect && isNowChecked) {
             repeat(16) {
-                val tb = mView!!.findViewById<ToggleButton>(toggleIDs[it])
-                if (tb !== buttonView) {
-                    if (tb.isChecked && !tb.isEnabled) {
-                        tb.isChecked = false
-                        tb.isEnabled = true
+                mView!!.findViewById<ToggleButton>(toggleIDs[it]).apply {
+                    if (this !== buttonView) {
+                        if (isChecked && !isEnabled) {
+                            isChecked = false
+                            isEnabled = true
+                        }
                     }
                 }
             }
             buttonView.isEnabled = false
         }
-        for (f in 0..15) {
-            if (toggleIDs[f] == buttonView.id) {
-                mCurrentValue = if (isChecked)
-                    mCurrentValue or (1 shl f)
+        repeat(16) {
+            if (toggleIDs[it] == buttonView.id) {
+                mCurrentValue = if (isNowChecked)
+                    mCurrentValue or (1 shl it)
                 else
-                    mCurrentValue and (1 shl f).inv()
-                break
+                    mCurrentValue and (1 shl it).inv()
+                return
             }
         }
     }

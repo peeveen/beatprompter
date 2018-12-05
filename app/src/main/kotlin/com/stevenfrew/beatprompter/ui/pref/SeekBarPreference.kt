@@ -11,13 +11,9 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 
-class SeekBarPreference
-// ------------------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------------------
-// Constructor :
-(private val mContext: Context, attrs: AttributeSet) : DialogPreference(mContext, attrs), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+class SeekBarPreference(private val mContext: Context,
+                        attrs: AttributeSet)
+    : DialogPreference(mContext, attrs), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
 
     private var mSeekBar: SeekBar? = null
     private var mValueText: TextView? = null
@@ -37,19 +33,13 @@ class SeekBarPreference
                 mSeekBar!!.progress = progress
         }
 
-    // ------------------------------------------------------------------------------------------
-
-
     private fun getAttributeIntValue(attrs: AttributeSet, namespace: String, name: String, lastResortDefault: Int): Int {
         val resourceID = attrs.getAttributeResourceValue(namespace, name, 0)
         return if (resourceID == 0) attrs.getAttributeIntValue(namespace, name, lastResortDefault) else Integer.parseInt(context.getString(resourceID))
 
     }
 
-    // ------------------------------------------------------------------------------------------
-    // DialogPreference methods :
     override fun onCreateDialogView(): View {
-
         val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -94,11 +84,7 @@ class SeekBarPreference
         else
             defaultValue as Int
     }
-    // ------------------------------------------------------------------------------------------
 
-
-    // ------------------------------------------------------------------------------------------
-    // OnSeekBarChangeListener methods :
     override fun onProgressChanged(seek: SeekBar, value: Int, fromTouch: Boolean) {
         val t = (value + mOffset).toString()
         mValueText!!.text = if (mSuffix == null) t else "$t $mSuffix"
@@ -106,23 +92,15 @@ class SeekBarPreference
 
     override fun onStartTrackingTouch(seek: SeekBar) {}
     override fun onStopTrackingTouch(seek: SeekBar) {}
-    // ------------------------------------------------------------------------------------------
 
-
-    // ------------------------------------------------------------------------------------------
-    // Set the positive button listener and onClick action :
     public override fun showDialog(state: Bundle?) {
-
         super.showDialog(state)
-
         val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
         positiveButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
-
         if (shouldPersist()) {
-
             mValue = mSeekBar!!.progress
             persistInt(mValue)
             callChangeListener(mSeekBar!!.progress)
@@ -132,8 +110,6 @@ class SeekBarPreference
     }
 
     companion object {
-        // ------------------------------------------------------------------------------------------
-        // Private attributes :
         private const val androidns = "http://schemas.android.com/apk/res/android"
         private const val sfns = "http://com.stevenfrew/"
 
@@ -145,5 +121,4 @@ class SeekBarPreference
                 context.getString(resourceId)
         }
     }
-    // ------------------------------------------------------------------------------------------
 }
