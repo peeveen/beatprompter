@@ -105,7 +105,6 @@ abstract class Storage protected constructor(protected var mParentActivity: Acti
     protected abstract fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean)
 
     companion object {
-
         fun getInstance(storageType: StorageType, parentActivity: Activity): Storage {
             return when {
                 storageType === StorageType.Dropbox -> DropboxStorage(parentActivity)
