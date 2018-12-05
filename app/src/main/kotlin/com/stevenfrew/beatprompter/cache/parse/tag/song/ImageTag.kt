@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*

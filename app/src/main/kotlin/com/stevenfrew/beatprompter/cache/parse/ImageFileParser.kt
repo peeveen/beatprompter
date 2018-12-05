@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import android.graphics.BitmapFactory
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 import com.stevenfrew.beatprompter.cache.ImageFile

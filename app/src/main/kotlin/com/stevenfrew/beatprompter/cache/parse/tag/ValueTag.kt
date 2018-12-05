@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse.tag
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
 import com.stevenfrew.beatprompter.R
 
 /**
