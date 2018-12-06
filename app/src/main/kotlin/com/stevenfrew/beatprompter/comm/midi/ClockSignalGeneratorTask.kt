@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.comm.midi
 
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
@@ -80,7 +80,7 @@ class ClockSignalGeneratorTask : Task(false) {
                     nanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
                 }
             } catch (e: Exception) {
-                BeatPrompterLogger.logComms("Failed to add MIDI timing clock signal to output queue.", e)
+                Logger.logComms("Failed to add MIDI timing clock signal to output queue.", e)
             }
             nanoDiff -= nanoSecondsPerMidiSignal
         }
@@ -102,7 +102,7 @@ class ClockSignalGeneratorTask : Task(false) {
                 try {
                     Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder)
                 } catch (e: Exception) {
-                    BeatPrompterLogger.logComms("Thread sleep was interrupted.", e)
+                    Logger.logComms("Thread sleep was interrupted.", e)
                 }
             }
         }
@@ -122,7 +122,7 @@ class ClockSignalGeneratorTask : Task(false) {
             try {
                 MIDIController.mMIDIOutQueue.putMessage(StartMessage())
             } catch (e: Exception) {
-                BeatPrompterLogger.logComms("Failed to add MIDI start signal to output queue.", e)
+                Logger.logComms("Failed to add MIDI start signal to output queue.", e)
             }
 
             nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
@@ -138,7 +138,7 @@ class ClockSignalGeneratorTask : Task(false) {
         try {
             MIDIController.mMIDIOutQueue.putMessage(StopMessage())
         } catch (e: Exception) {
-            BeatPrompterLogger.logComms("Failed to add MIDI stop signal to output queue.", e)
+            Logger.logComms("Failed to add MIDI stop signal to output queue.", e)
         }
     }
 }

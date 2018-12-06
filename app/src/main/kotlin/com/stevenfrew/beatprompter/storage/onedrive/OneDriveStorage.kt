@@ -13,7 +13,7 @@ import com.onedrive.sdk.extensions.Item
 import com.onedrive.sdk.extensions.OneDriveClient
 import com.onedrive.sdk.http.OneDriveServiceException
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.util.Utils
@@ -69,7 +69,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                 mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, nextFolder.mName))
 
                 try {
-                    BeatPrompterLogger.log("Getting list of everything in OneDrive folder.")
+                    Logger.log("Getting list of everything in OneDrive folder.")
                     var page: IItemCollectionPage? = mClient.drive.getItems(currentFolderID).children.buildRequest().get()
                     while (page != null) {
                         if (mListener.shouldCancel())
@@ -86,7 +86,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                                 val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
                                 val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
                                 if (mIncludeSubfolders) {
-                                    BeatPrompterLogger.log("Adding folder to list of folders to query ...")
+                                    Logger.log("Adding folder to list of folders to query ...")
                                     folders.add(newFolder)
                                 }
                                 if (mReturnFolders)
@@ -120,13 +120,13 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                     val driveFile = mClient.drive.getItems(file.mID).buildRequest().get()
                     if (driveFile != null) {
                         val title = file.mName
-                        BeatPrompterLogger.log("File title: $title")
+                        Logger.log("File title: $title")
                         mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
                         val safeFilename = Utils.makeSafeFilename(title)
                         val targetFile = File(mDownloadFolder, safeFilename)
-                        BeatPrompterLogger.log("Safe filename: $safeFilename")
+                        Logger.log("Safe filename: $safeFilename")
 
-                        BeatPrompterLogger.log("Downloading now ...")
+                        Logger.log("Downloading now ...")
                         mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
                         // Don't check lastModified ... ALWAYS download.
                         if (mListener.shouldCancel())
@@ -174,12 +174,12 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
     private fun doOneDriveAction(action: OneDriveAction) {
         val callback = object : ICallback<IOneDriveClient> {
             override fun success(clientResult: IOneDriveClient) {
-                BeatPrompterLogger.log("Signed in to OneDrive")
+                Logger.log("Signed in to OneDrive")
                 action.onConnected(clientResult)
             }
 
             override fun failure(error: ClientException) {
-                BeatPrompterLogger.log("Nae luck signing in to OneDrive")
+                Logger.log("Nae luck signing in to OneDrive")
                 action.onAuthenticationRequired()
             }
         }

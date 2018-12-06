@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
@@ -82,17 +82,17 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // All songFile info parsing errors count as our errors too.
         mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
 
-        mSendMidiClock = BeatPrompterPreferences.sendMIDIClock
-        mCountIn = BeatPrompterPreferences.defaultCountIn
-        mMetronomeContext = BeatPrompterPreferences.metronomeContext
-        mDefaultHighlightColor = BeatPrompterPreferences.defaultHighlightColor
-        mCustomCommentsUser = BeatPrompterPreferences.customCommentsUser
-        mShowChords = BeatPrompterPreferences.showChords
-        mTriggerContext = BeatPrompterPreferences.sendMIDITriggerOnStart
-        val defaultMIDIOutputChannelPrefValue = BeatPrompterPreferences.defaultMIDIOutputChannel
+        mSendMidiClock = Preferences.sendMIDIClock
+        mCountIn = Preferences.defaultCountIn
+        mMetronomeContext = Preferences.metronomeContext
+        mDefaultHighlightColor = Preferences.defaultHighlightColor
+        mCustomCommentsUser = Preferences.customCommentsUser
+        mShowChords = Preferences.showChords
+        mTriggerContext = Preferences.sendMIDITriggerOnStart
+        val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
         mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-        mShowKey = BeatPrompterPreferences.showKey && mSongLoadInfo.mSongFile.mKey.isNotBlank()
-        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) BeatPrompterPreferences.showBPMContext else ShowBPMContext.No
+        mShowKey = Preferences.showKey && mSongLoadInfo.mSongFile.mKey.isNotBlank()
+        mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) Preferences.showBPMContext else ShowBPMContext.No
 
         // Figure out the screen size
         mNativeDeviceSettings = translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings, mSongLoadInfo.mNativeDisplaySettings)

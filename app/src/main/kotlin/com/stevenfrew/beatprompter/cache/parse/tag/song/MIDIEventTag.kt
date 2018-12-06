@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
@@ -48,7 +48,7 @@ class MIDIEventTag internal constructor(name: String,
                            value: String,
                            lineNumber: Int,
                            aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset> {
-            val defaultChannelPref = BeatPrompterPreferences.defaultMIDIOutputChannel
+            val defaultChannelPref = Preferences.defaultMIDIOutputChannel
             val defaultChannel = Message.getChannelFromBitmask(defaultChannelPref)
 
             val (tagName, tagValue, eventOffset) = normalizeMIDIValues(name, value, lineNumber)

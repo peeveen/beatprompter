@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 
-object BeatPrompterPreferences {
+object Preferences {
     val defaultTrackVolume: Int
         get() = getIntPreference(R.string.pref_defaultTrackVolume_key, R.string.pref_defaultTrackVolume_default, 1)
 

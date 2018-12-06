@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.storage
 
 import android.app.Activity
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.storage.demo.DemoStorage
 import com.stevenfrew.beatprompter.storage.dropbox.DropboxStorage
@@ -32,7 +32,7 @@ abstract class Storage protected constructor(protected var mParentActivity: Acti
         cacheFolder = CacheFolder(SongListActivity.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
         if (!cacheFolder.exists())
             if (!cacheFolder.mkdir())
-                BeatPrompterLogger.log("Failed to create storage cache folder.")
+                Logger.log("Failed to create storage cache folder.")
     }
 
     fun constructFullPath(folderPath: String, itemName: String): String {

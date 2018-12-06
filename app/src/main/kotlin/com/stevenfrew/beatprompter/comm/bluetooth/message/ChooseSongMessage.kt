@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
 import android.graphics.Rect
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -71,12 +71,12 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                         val availableEnd = available()
                         val messageLength = 1 + (availableStart - availableEnd)
                         close()
-                        BeatPrompterLogger.logLoader("Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"")
+                        Logger.logLoader("Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"")
                         return ChooseSongMessage(bytes.copyOfRange(0, messageLength), songChoiceInfo)
                     }
                 }
             } catch (e: Exception) {
-                BeatPrompterLogger.logComms("Couldn't read ChooseSongMessage data, assuming not enough data", e)
+                Logger.logComms("Couldn't read ChooseSongMessage data, assuming not enough data", e)
             }
             throw NotEnoughDataException()
         }

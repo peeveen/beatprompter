@@ -17,7 +17,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.drive.DriveScopes
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.ui.SongListActivity
@@ -57,7 +57,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
 
         override fun onConnectionFailed(result: ConnectionResult) {
             // Called whenever the API client fails to connect.
-            BeatPrompterLogger.log("GoogleApiClient connection failed: " + result.toString())
+            Logger.log("GoogleApiClient connection failed: " + result.toString())
             mAction.onAuthenticationRequired()
             if (!result.hasResolution()) {
                 // show the localized error dialog.
@@ -68,17 +68,17 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                 // authorization
                 // dialog is displayed to the user.
                 try {
-                    BeatPrompterLogger.log("GoogleApiClient starting connection resolution ...")
+                    Logger.log("GoogleApiClient starting connection resolution ...")
                     result.startResolutionForResult(SongListActivity.mSongListInstance, GoogleDriveStorage.REQUEST_CODE_RESOLUTION)
                 } catch (e: IntentSender.SendIntentException) {
-                    BeatPrompterLogger.log("Exception while starting resolution activity", e)
+                    Logger.log("Exception while starting resolution activity", e)
                 }
 
             }
         }
 
         override fun onConnected(connectionHint: Bundle?) {
-            BeatPrompterLogger.log("API client connected.")
+            Logger.log("API client connected.")
 
             val accountName = Plus.AccountApi.getAccountName(mClient)
             val credential = GoogleAccountCredential.usingOAuth2(
@@ -95,7 +95,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
         }
 
         override fun onConnectionSuspended(cause: Int) {
-            BeatPrompterLogger.log("GoogleApiClient connection suspended")
+            Logger.log("GoogleApiClient connection suspended")
         }
     }
 
@@ -149,25 +149,25 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                             break
                         val children = request.execute()
 
-                        BeatPrompterLogger.log("Iterating through contents, seeing what needs updated/downloaded/deleted ...")
+                        Logger.log("Iterating through contents, seeing what needs updated/downloaded/deleted ...")
 
                         for (child in children.files) {
                             if (mListener.shouldCancel())
                                 break
                             val fileID = child.id
                             val title = child.name
-                            BeatPrompterLogger.log("File ID: $fileID")
+                            Logger.log("File ID: $fileID")
                             val mimeType = child.mimeType
                             if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
                                 val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title))
                                 if (mIncludeSubfolders) {
-                                    BeatPrompterLogger.log("Adding folder to list of folders to query ...")
+                                    Logger.log("Adding folder to list of folders to query ...")
                                     foldersToQuery.add(newFolder)
                                 }
                                 if (mReturnFolders)
                                     mItemSource.onNext(newFolder)
                             } else {
-                                BeatPrompterLogger.log("File title: $title")
+                                Logger.log("File title: $title")
                                 val newFile = FileInfo(fileID, title, Date(child.modifiedTime.value),
                                         if (currentFolder.mParentFolder == null) null else currentFolderName)
                                 mItemSource.onNext(newFile)
@@ -204,10 +204,10 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                     val file = mClient.files().get(cloudFile.mID).setFields("id,name,mimeType,trashed,modifiedTime").execute()
                     val result = if (!file.trashed) {
                         val title = file.name
-                        BeatPrompterLogger.log("File title: $title")
+                        Logger.log("File title: $title")
                         val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
-                        BeatPrompterLogger.log("Safe filename: $safeFilename")
-                        BeatPrompterLogger.log("Downloading now ...")
+                        Logger.log("Safe filename: $safeFilename")
+                        Logger.log("Downloading now ...")
                         mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
                         if (mListener.shouldCancel())
                             break
@@ -243,7 +243,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
             val localFile = File(mDownloadFolder, filename)
             val inputStream = getDriveFileInputStream(file)
             inputStream?.use { inStream ->
-                BeatPrompterLogger.log("Creating new local file, " + localFile.absolutePath)
+                Logger.log("Creating new local file, " + localFile.absolutePath)
                 val fos = FileOutputStream(localFile)
                 fos.use {
                     Utils.streamToStream(inStream, it)

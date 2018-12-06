@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.*
-import android.util.Log
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
@@ -46,10 +45,10 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * Called when the app starts. Doing basic Bluetooth setup.
      */
     fun initialise(application: BeatPrompterApplication) {
-        BeatPrompterLogger.logComms("Starting Bluetooth sender thread.")
+        Logger.logComms("Starting Bluetooth sender thread.")
         mSenderTaskThread.start()
         Task.resumeTask(mSenderTask)
-        BeatPrompterLogger.logComms("Bluetooth sender thread started.")
+        Logger.logComms("Bluetooth sender thread started.")
 
         launch {
             while (true) {
@@ -60,10 +59,10 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         if (mBluetoothAdapter != null) {
-            BeatPrompterLogger.logComms("Bluetooth adapter found.")
+            Logger.logComms("Bluetooth adapter found.")
             application.registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
             application.registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
-            BeatPrompterPreferences.registerOnSharedPreferenceChangeListener(this)
+            Preferences.registerOnSharedPreferenceChangeListener(this)
             onBluetoothActivation()
         }
     }
@@ -84,8 +83,8 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     }
 
     private fun onBluetoothActivation() {
-        BeatPrompterLogger.logComms("Bluetooth is on.")
-        if (BeatPrompterPreferences.bluetoothMode !== BluetoothMode.None)
+        Logger.logComms("Bluetooth is on.")
+        if (Preferences.bluetoothMode !== BluetoothMode.None)
             BluetoothManager.onStartBluetooth()
     }
 
@@ -94,7 +93,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
             if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
                 // Something has disconnected.
                 (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice).apply {
-                    BeatPrompterLogger.logComms("A Bluetooth device with address '$address' has disconnected.")
+                    Logger.logComms("A Bluetooth device with address '$address' has disconnected.")
                     mReceiverTasks.stopAndRemoveReceiver(address)
                     mSenderTask.removeSender(address)
                 }
@@ -118,7 +117,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * Called when Bluetooth is switched off.
      */
     private fun onStopBluetooth() {
-        BeatPrompterLogger.logComms("Bluetooth has stopped.")
+        Logger.logComms("Bluetooth has stopped.")
         shutDownBluetoothServer()
         shutDownBluetoothClient()
     }
@@ -128,19 +127,19 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      */
     private fun shutDownBluetoothServer() {
         mSenderTask.removeAll()
-        BeatPrompterLogger.logComms("Shutting down the Bluetooth server thread.")
+        Logger.logComms("Shutting down the Bluetooth server thread.")
         synchronized(mBluetoothThreadsLock) {
             mServerBluetoothThread?.run {
                 try {
-                    BeatPrompterLogger.logComms("Stopping listening on Bluetooth server thread.")
+                    Logger.logComms("Stopping listening on Bluetooth server thread.")
                     stopListening()
-                    BeatPrompterLogger.logComms("Interrupting Bluetooth server thread.")
+                    Logger.logComms("Interrupting Bluetooth server thread.")
                     interrupt()
-                    BeatPrompterLogger.logComms("Joining Bluetooth server thread.")
+                    Logger.logComms("Joining Bluetooth server thread.")
                     join()
-                    BeatPrompterLogger.logComms("Bluetooth server thread now finished.")
+                    Logger.logComms("Bluetooth server thread now finished.")
                 } catch (e: Exception) {
-                    BeatPrompterLogger.logComms("Error stopping BlueTooth server connection accepting thread, on thread join.", e)
+                    Logger.logComms("Error stopping BlueTooth server connection accepting thread, on thread join.", e)
                 } finally {
                     mServerBluetoothThread = null
                 }
@@ -154,22 +153,22 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      */
     private fun shutDownBluetoothClient() {
         mReceiverTasks.stopAll()
-        BeatPrompterLogger.logComms("Shutting down the Bluetooth client threads.")
+        Logger.logComms("Shutting down the Bluetooth client threads.")
         synchronized(mBluetoothThreadsLock) {
             if (mConnectToServerThread != null)
                 try {
                     with(mConnectToServerThread!!)
                     {
-                        BeatPrompterLogger.logComms("Stopping listening on a Bluetooth client thread.")
+                        Logger.logComms("Stopping listening on a Bluetooth client thread.")
                         stopTrying()
-                        BeatPrompterLogger.logComms("Interrupting a Bluetooth client thread.")
+                        Logger.logComms("Interrupting a Bluetooth client thread.")
                         interrupt()
-                        BeatPrompterLogger.logComms("Joining a Bluetooth client thread.")
+                        Logger.logComms("Joining a Bluetooth client thread.")
                         join()
-                        BeatPrompterLogger.logComms("A Bluetooth client thread has now finished.")
+                        Logger.logComms("A Bluetooth client thread has now finished.")
                     }
                 } catch (e: Exception) {
-                    BeatPrompterLogger.logComms("Error stopping BlueTooth client connection thread, on thread join.", e)
+                    Logger.logComms("Error stopping BlueTooth client connection thread, on thread join.", e)
                 }
             mConnectToServerThread = null
         }
@@ -189,11 +188,11 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     private fun startBluetoothWatcherThreads() {
         if (mBluetoothAdapter != null && mBluetoothAdapter!!.isEnabled) {
             synchronized(mBluetoothThreadsLock) {
-                val mode = BeatPrompterPreferences.bluetoothMode
+                val mode = Preferences.bluetoothMode
                 if (mode === BluetoothMode.Server) {
                     shutDownBluetoothClient()
                     if (mServerBluetoothThread == null) {
-                        BeatPrompterLogger.logComms("Starting Bluetooth server thread.")
+                        Logger.logComms("Starting Bluetooth server thread.")
                         mServerBluetoothThread =
                                 ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket ->
                                     handleConnectionFromClient(socket)
@@ -203,16 +202,16 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
                     shutDownBluetoothServer()
                     if (mConnectToServerThread == null) {
                         mBluetoothAdapter!!.bondedDevices
-                                .firstOrNull { it.address == BeatPrompterPreferences.bandLeaderDevice }
+                                .firstOrNull { it.address == Preferences.bandLeaderDevice }
                                 ?.also {
                                     try {
-                                        BeatPrompterLogger.logComms("Starting Bluetooth client thread, looking to connect with '${it.name}'.")
+                                        Logger.logComms("Starting Bluetooth client thread, looking to connect with '${it.name}'.")
                                         mConnectToServerThread =
                                                 ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
                                                     BluetoothManager.setServerConnection(socket)
                                                 }.apply { start() }
                                     } catch (e: Exception) {
-                                        BeatPrompterLogger.logComms("Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
+                                        Logger.logComms("Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
                                     }
                                 }
                     }
@@ -230,8 +229,8 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * new connection.
      */
     private fun handleConnectionFromClient(socket: BluetoothSocket) {
-        if (BeatPrompterPreferences.bluetoothMode === BluetoothMode.Server) {
-            BeatPrompterLogger.logComms("Client connection opened with '${socket.remoteDevice.name}'")
+        if (Preferences.bluetoothMode === BluetoothMode.Server) {
+            Logger.logComms("Client connection opened with '${socket.remoteDevice.name}'")
             mSenderTask.addSender(socket.remoteDevice.address, Sender(socket))
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
         }
@@ -241,8 +240,8 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * Sets the server connection socket once we connect.
      */
     private fun setServerConnection(socket: BluetoothSocket) {
-        if (BeatPrompterPreferences.bluetoothMode === BluetoothMode.Client) {
-            BeatPrompterLogger.logComms("Server connection opened with '${socket.remoteDevice.name}'")
+        if (Preferences.bluetoothMode === BluetoothMode.Client) {
+            Logger.logComms("Server connection opened with '${socket.remoteDevice.name}'")
             mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
         }
@@ -253,14 +252,14 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      */
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
         if (key == BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key)) {
-            BeatPrompterLogger.logComms("Bluetooth mode changed.")
-            if (BeatPrompterPreferences.bluetoothMode === BluetoothMode.None)
+            Logger.logComms("Bluetooth mode changed.")
+            if (Preferences.bluetoothMode === BluetoothMode.None)
                 onStopBluetooth()
             else
                 onStartBluetooth()
         } else if (key == BeatPrompterApplication.getResourceString(R.string.pref_bandLeaderDevice_key)) {
-            BeatPrompterLogger.logComms("Band leader device changed.")
-            if (BeatPrompterPreferences.bluetoothMode === BluetoothMode.Client) {
+            Logger.logComms("Band leader device changed.")
+            if (Preferences.bluetoothMode === BluetoothMode.Client) {
                 shutDownBluetoothClient()
                 startBluetoothWatcherThreads()
             }

@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothSocket
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
@@ -28,7 +28,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
             try {
                 val btm = try {
                     fromBytes(bufferCopy).also {
-                        BeatPrompterLogger.logComms("Got a fully-formed Bluetooth message.")
+                        Logger.logComms("Got a fully-formed Bluetooth message.")
                         if (it is SetSongTimeMessage)
                             lastSetTimeMessage = it
                         else if (it is ChooseSongMessage)
@@ -36,7 +36,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                         receivedMessages.add(it)
                     }
                 } catch (exception: UnknownMessageException) {
-                    BeatPrompterLogger.logComms("Unknown Bluetooth message received.")
+                    Logger.logComms("Unknown Bluetooth message received.")
                     null
                 }
                 // If bad message, skip the byte that doesn't match any known message type
@@ -47,7 +47,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                 dataRemaining -= messageLength
             } catch (exception: NotEnoughDataException) {
                 // Read again!
-                BeatPrompterLogger.logComms("Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
+                Logger.logComms("Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
                 break
             }
         }

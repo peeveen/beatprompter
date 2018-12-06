@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.storage.demo
 
 import android.app.Activity
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.storage.*
@@ -40,7 +40,7 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
                     itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongAudioFile()))
                 }
             } catch (ioe: IOException) {
-                BeatPrompterLogger.log("Failed to create demo file", ioe)
+                Logger.log("Failed to create demo file", ioe)
                 itemSource.onError(ioe)
                 return
             }

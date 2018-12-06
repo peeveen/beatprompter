@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.song.load
 
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 
 /**
  * Cancellation event that can be SET when we want to cancel the loading of a song.
@@ -11,7 +11,7 @@ class SongLoadCancelEvent(private val mSongName: String) {
         private set
 
     fun set() {
-        BeatPrompterLogger.logLoader("Cancelling the load of '$mSongName'.")
+        Logger.logLoader("Cancelling the load of '$mSongName'.")
         isCancelled = true
     }
 }

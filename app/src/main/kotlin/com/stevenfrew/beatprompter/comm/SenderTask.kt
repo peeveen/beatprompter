@@ -1,9 +1,8 @@
 package com.stevenfrew.beatprompter.comm
 
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,11 +22,11 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
             if (senders.isNotEmpty())
                 senders.forEach {
                     try {
-                        BeatPrompterLogger.logComms("Sending messages to '$it.key' ($it.value.name).")
+                        Logger.logComms("Sending messages to '$it.key' ($it.value.name).")
                         it.value.send(messages)
                     } catch (commException: Exception) {
                         // Problem with the I/O? This sender is now dead to us.
-                        BeatPrompterLogger.logComms("Sender threw an exception. Assuming it to be dead.")
+                        Logger.logComms("Sender threw an exception. Assuming it to be dead.")
                         removeSender(it.key)
                     }
                 }
@@ -42,27 +41,27 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
     fun addSender(id: String, sender: Sender) {
         synchronized(mSendersLock)
         {
-            BeatPrompterLogger.logComms("Adding new sender '$id' ($sender.name) to the collection")
+            Logger.logComms("Adding new sender '$id' ($sender.name) to the collection")
             mSenders[id] = sender
         }
     }
 
     fun removeSender(id: String) {
         getSender(id)?.also {
-            BeatPrompterLogger.logComms("Removing sender '$id' from the collection")
+            Logger.logComms("Removing sender '$id' from the collection")
             closeSender(it)
-            BeatPrompterLogger.logComms("Sender '$id' has been closed.")
+            Logger.logComms("Sender '$id' has been closed.")
             synchronized(mSendersLock)
             {
                 mSenders.remove(id)
             }
-            BeatPrompterLogger.logComms("Sender '$id' is now dead ... notifying main activity for UI.")
+            Logger.logComms("Sender '$id' is now dead ... notifying main activity for UI.")
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, it.name)
         }
     }
 
     fun removeAll() {
-        BeatPrompterLogger.logComms("Removing ALL senders from the collection.")
+        Logger.logComms("Removing ALL senders from the collection.")
         synchronized(mSendersLock)
         {
             mSenders.keys.forEach { removeSender(it) }

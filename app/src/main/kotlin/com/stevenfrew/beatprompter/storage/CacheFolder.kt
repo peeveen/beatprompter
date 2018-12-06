@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.storage
 
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import java.io.File
 
 /**
@@ -15,13 +15,13 @@ class CacheFolder internal constructor(parentFolder: File,
         try {
             if (this.exists()) {
                 listFiles().filter { !it.isDirectory }.forEach {
-                    BeatPrompterLogger.log("Deleting " + it.absolutePath)
+                    Logger.log("Deleting " + it.absolutePath)
                     if (!it.delete())
-                        BeatPrompterLogger.log("Failed to delete " + it.absolutePath)
+                        Logger.log("Failed to delete " + it.absolutePath)
                 }
             }
         } catch (e: Exception) {
-            BeatPrompterLogger.log("Failed to clear cache folder.", e)
+            Logger.log("Failed to clear cache folder.", e)
         }
     }
 }

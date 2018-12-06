@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter
 
 import android.util.Log
 
-object BeatPrompterLogger {
+object Logger {
     private const val LOGGING = true
     private const val TAG = "beatprompter"
     private const val TAG_LOAD = "beatprompter_load"

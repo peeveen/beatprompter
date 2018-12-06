@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.*
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.ScreenString
@@ -50,9 +50,9 @@ class TextLine internal constructor(private val mText: String,
 
     init {
         val paint = Paint()
-        mLyricColor = BeatPrompterPreferences.lyricColor
-        mChordColor = BeatPrompterPreferences.chordColor
-        mAnnotationColor = BeatPrompterPreferences.annotationColor
+        mLyricColor = Preferences.lyricColor
+        mChordColor = Preferences.chordColor
+        mAnnotationColor = Preferences.annotationColor
         // TODO: Fix this, for god's sake!
         mSections = calculateSections(songLoadCancelEvent)
 

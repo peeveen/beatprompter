@@ -7,7 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.ImageArrayAdapter
 
@@ -45,7 +45,7 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
     public override fun onBindView(view: View) {
         super.onBindView(view)
         val imageView = view.findViewById<ImageView>(R.id.iconImageView)
-        val value = BeatPrompterPreferences.getStringPreference(key, "")
+        val value = Preferences.getStringPreference(key, "")
         val iconResource = when (value) {
             BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
             BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox

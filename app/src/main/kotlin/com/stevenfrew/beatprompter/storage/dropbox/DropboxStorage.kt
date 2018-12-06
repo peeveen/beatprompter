@@ -10,8 +10,8 @@ import com.dropbox.core.v2.files.FolderMetadata
 import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.ListFolderResult
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterLogger
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
+import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.util.Utils
@@ -53,13 +53,13 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
                 val mdata = client.files().getMetadata(file.mID)
                 val result = if (mdata is FileMetadata) {
                     val title = file.mName
-                    BeatPrompterLogger.log("File title: $title")
+                    Logger.log("File title: $title")
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
                     val safeFilename = Utils.makeSafeFilename(title)
                     val targetFile = File(cacheFolder, safeFilename)
-                    BeatPrompterLogger.log("Safe filename: $safeFilename")
+                    Logger.log("Safe filename: $safeFilename")
 
-                    BeatPrompterLogger.log("Downloading now ...")
+                    Logger.log("Downloading now ...")
                     messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
                     // Don't check lastModified ... ALWAYS download.
                     if (listener.shouldCancel())
@@ -114,7 +114,7 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
             messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, currentFolderName))
 
             try {
-                BeatPrompterLogger.log("Getting list of everything in Dropbox folder.")
+                Logger.log("Getting list of everything in Dropbox folder.")
                 var listResult: ListFolderResult? = client.files().listFolder(currentFolderID)
                 while (listResult != null) {
                     if (listener.shouldCancel())
@@ -129,7 +129,7 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
                                 itemSource.onNext(FileInfo(mdata.id, mdata.name, mdata.serverModified,
                                         if (folderToSearch.mParentFolder == null) null else currentFolderName))
                         } else if (mdata is FolderMetadata) {
-                            BeatPrompterLogger.log("Adding folder to list of folders to query ...")
+                            Logger.log("Adding folder to list of folders to query ...")
                             val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay())
                             if (includeSubfolders)
                                 foldersToSearch.add(newFolder)
@@ -155,9 +155,9 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
 
     private fun doDropboxAction(action: DropboxAction) {
         // Did we authenticate last time it failed?
-        val storedAccessToken = BeatPrompterPreferences.dropboxAccessToken
+        val storedAccessToken = Preferences.dropboxAccessToken
                 ?: Auth.getOAuth2Token()?.also {
-                    BeatPrompterPreferences.dropboxAccessToken = it
+                    Preferences.dropboxAccessToken = it
                 }
         if (storedAccessToken == null) {
             action.onAuthenticationRequired()

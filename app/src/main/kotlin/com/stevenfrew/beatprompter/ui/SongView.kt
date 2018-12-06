@@ -11,7 +11,6 @@ import android.os.Build
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.OverScroller
@@ -109,32 +108,32 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mGestureDetector = GestureDetectorCompat(context, this)
         mSongPixelPosition = 0
 
-        mScreenAction = BeatPrompterPreferences.screenAction
-        mShowScrollIndicator = BeatPrompterPreferences.showScrollIndicator
-        mShowSongTitle = BeatPrompterPreferences.showSongTitle
-        val commentDisplayTimeSeconds = BeatPrompterPreferences.commentDisplayTime
+        mScreenAction = Preferences.screenAction
+        mShowScrollIndicator = Preferences.showScrollIndicator
+        mShowSongTitle = Preferences.showSongTitle
+        val commentDisplayTimeSeconds = Preferences.commentDisplayTime
         mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-        mExternalTriggerSafetyCatch = BeatPrompterPreferences.midiTriggerSafetyCatch
-        mHighlightCurrentLine = BeatPrompterPreferences.highlightCurrentLine
-        mShowPageDownMarker = BeatPrompterPreferences.showPageDownMarker
-        mHighlightBeatSectionStart = BeatPrompterPreferences.highlightBeatSectionStart
-        mBeatCounterColor = BeatPrompterPreferences.beatCounterColor
-        mCommentTextColor = BeatPrompterPreferences.commentColor
-        mScrollMarkerColor = BeatPrompterPreferences.scrollIndicatorColor
-        val mHighlightBeatSectionStartColor = BeatPrompterPreferences.beatSectionStartHighlightColor
+        mExternalTriggerSafetyCatch = Preferences.midiTriggerSafetyCatch
+        mHighlightCurrentLine = Preferences.highlightCurrentLine
+        mShowPageDownMarker = Preferences.showPageDownMarker
+        mHighlightBeatSectionStart = Preferences.highlightBeatSectionStart
+        mBeatCounterColor = Preferences.beatCounterColor
+        mCommentTextColor = Preferences.commentColor
+        mScrollMarkerColor = Preferences.scrollIndicatorColor
+        val mHighlightBeatSectionStartColor = Preferences.beatSectionStartHighlightColor
         mBeatSectionStartHighlightColors = createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
-        mDefaultCurrentLineHighlightColor = Utils.makeHighlightColour(BeatPrompterPreferences.currentLineHighlightColor)
-        mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(BeatPrompterPreferences.pageDownMarkerColor)
-        mPulse = BeatPrompterPreferences.pulseDisplay
-        mSendMidiClockPreference = BeatPrompterPreferences.sendMIDIClock
-        mMetronomePref = BeatPrompterPreferences.metronomeContext
+        mDefaultCurrentLineHighlightColor = Utils.makeHighlightColour(Preferences.currentLineHighlightColor)
+        mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
+        mPulse = Preferences.pulseDisplay
+        mSendMidiClockPreference = Preferences.sendMIDIClock
+        mMetronomePref = Preferences.metronomeContext
 
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
-        val backgroundColor = BeatPrompterPreferences.backgroundColor
+        val backgroundColor = Preferences.backgroundColor
         val pulseColor =
                 if (mPulse)
-                    BeatPrompterPreferences.pulseColor
+                    Preferences.pulseColor
                 else
                     backgroundColor
         val bgR = Color.red(backgroundColor)
@@ -555,7 +554,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         time = mSong!!.getTimeFromPixel(mSongPixelPosition)
                         setSongTime(time, false, false, false, true)
                     } else {
-                        BeatPrompterLogger.log("Resuming, pause time=$mPauseTime")
+                        Logger.log("Resuming, pause time=$mPauseTime")
                         time = mPauseTime
                         setSongTime(time, false, false, true, true)
                     }
@@ -684,7 +683,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun processAudioEvent(event: AudioEvent): Boolean {
         val mediaPlayer = mMediaPlayers[event.mAudioFile] ?: return false
-        BeatPrompterLogger.log("Track event hit: starting MediaPlayer")
+        Logger.log("Track event hit: starting MediaPlayer")
         mediaPlayer.seekTo(0)
         mediaPlayer.start()
         return true
@@ -753,7 +752,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val mediaPlayer = seekTrack(audioEvent.mAudioFile, nTime)
                     musicPlaying = mediaPlayer != null
                     if (mStartState === PlayState.Playing) {
-                        BeatPrompterLogger.log("Starting MediaPlayer")
+                        Logger.log("Starting MediaPlayer")
                         mediaPlayer?.start()
                     }
                 }
@@ -823,7 +822,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mUserHasScrolled = true
         mStartState = PlayState.Paused
         mMediaPlayers.values.forEach {
-            BeatPrompterLogger.log("Pausing MediaPlayers")
+            Logger.log("Pausing MediaPlayers")
             if (it.isPlaying)
                 it.pause()
         }
@@ -1127,7 +1126,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 try {
                     Thread.sleep(millisecondsPerBeat, nanosecondRemainder)
                 } catch (ie: InterruptedException) {
-                    BeatPrompterLogger.log("Interrupted while waiting ... assuming resync attempt.", ie)
+                    Logger.log("Interrupted while waiting ... assuming resync attempt.", ie)
                     mNextClickTime = System.nanoTime()
                 }
             }

@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterLogger
+import com.stevenfrew.beatprompter.Logger
 import java.io.IOException
 import java.util.*
 
@@ -31,9 +31,9 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
                             mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, mUUID)
-                            BeatPrompterLogger.logComms("Created the Bluetooth server socket.")
+                            Logger.logComms("Created the Bluetooth server socket.")
                         } catch (e: IOException) {
-                            BeatPrompterLogger.logComms("Error creating Bluetooth server socket.", e)
+                            Logger.logComms("Error creating Bluetooth server socket.", e)
                         }
                     }
                     serverSocket = mmServerSocket
@@ -41,9 +41,9 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
 
                 // If a connection was accepted
                 // Do work to manage the connection (in a separate thread)
-                BeatPrompterLogger.logComms("Looking for a client connection.")
+                Logger.logComms("Looking for a client connection.")
                 serverSocket?.accept(5000)?.also {
-                    BeatPrompterLogger.logComms("Found a client connection.")
+                    Logger.logComms("Found a client connection.")
                     mOnConnectedFunction(it)
                 }
             } catch (e: Exception) {
@@ -57,11 +57,11 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
         mStop = true
         synchronized(mSocketNullLock) {
             try {
-                BeatPrompterLogger.logComms("Closing Bluetooth server socket.")
+                Logger.logComms("Closing Bluetooth server socket.")
                 mmServerSocket?.close()
-                BeatPrompterLogger.logComms("Closed Bluetooth server socket.")
+                Logger.logComms("Closed Bluetooth server socket.")
             } catch (e: IOException) {
-                BeatPrompterLogger.logComms("Failed to close Bluetooth listener socket.", e)
+                Logger.logComms("Failed to close Bluetooth listener socket.", e)
             } finally {
                 mmServerSocket = null
             }

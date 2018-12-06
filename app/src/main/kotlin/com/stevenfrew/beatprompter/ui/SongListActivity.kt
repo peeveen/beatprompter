@@ -93,17 +93,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private val isFirstRun: Boolean
         get() {
-            return BeatPrompterPreferences.firstRun
+            return Preferences.firstRun
         }
 
     private val cloudPath: String?
         get() {
-            return BeatPrompterPreferences.cloudPath
+            return Preferences.cloudPath
         }
 
     private val includeSubFolders: Boolean
         get() {
-            return BeatPrompterPreferences.includeSubFolders
+            return Preferences.includeSubFolders
         }
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -122,7 +122,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     internal fun startSongActivity(loadID: UUID) {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
         i.putExtra("loadID", ParcelUuid(loadID))
-        BeatPrompterLogger.logLoader("Starting SongDisplayActivity for $loadID!")
+        Logger.logLoader("Starting SongDisplayActivity for $loadID!")
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
@@ -137,7 +137,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
         for (node in mPlaylist.nodes)
             if (node.mSongFile.matchesTrigger(mst)) {
-                BeatPrompterLogger.log("Found trigger match: '${node.mSongFile.mTitle}'.")
+                Logger.log("Found trigger match: '${node.mSongFile.mTitle}'.")
                 playPlaylistNode(node, true)
                 return
             }
@@ -145,7 +145,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         // Still play it though!
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.matchesTrigger(mst)) {
-                BeatPrompterLogger.log("Found trigger match: '${sf.mTitle}'.")
+                Logger.log("Found trigger match: '${sf.mTitle}'.")
                 playSongFile(sf, PlaylistNode(sf), true)
             }
     }
@@ -156,7 +156,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode, startedByMidiTrigger: Boolean) {
-        val manualMode = BeatPrompterPreferences.manualMode
+        val manualMode = Preferences.manualMode
         val track: AudioFile? = if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
         val mode = if (manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
@@ -164,7 +164,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun shouldPlayNextSong(): Boolean {
-        val playNextSongPref = BeatPrompterPreferences.playNextSong
+        val playNextSongPref = Preferences.playNextSong
         return when (playNextSongPref) {
             getString(R.string.playNextSongAlwaysValue) -> true
             getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
@@ -173,14 +173,14 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
-        val onlyUseBeatFontSizes = BeatPrompterPreferences.onlyUseBeatFontSizes
+        val onlyUseBeatFontSizes = Preferences.onlyUseBeatFontSizes
 
-        val minimumFontSizeBeat = BeatPrompterPreferences.minimumBeatFontSize
-        val maximumFontSizeBeat = BeatPrompterPreferences.maximumBeatFontSize
-        val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.minimumSmoothFontSize
-        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.maximumSmoothFontSize
-        val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.minimumManualFontSize
-        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompterPreferences.maximumManualFontSize
+        val minimumFontSizeBeat = Preferences.minimumBeatFontSize
+        val maximumFontSizeBeat = Preferences.maximumBeatFontSize
+        val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumSmoothFontSize
+        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.maximumSmoothFontSize
+        val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumManualFontSize
+        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.maximumManualFontSize
 
         val minimumFontSize: Int
         val maximumFontSize: Int
@@ -225,7 +225,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             writeDatabase()
         } catch (ioe: Exception) {
-            BeatPrompterLogger.log(ioe)
+            Logger.log(ioe)
         }
     }
 
@@ -243,7 +243,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             if (deleteExisting)
                 if (!mTemporarySetListFile!!.delete())
-                    BeatPrompterLogger.log("Could not delete temporary set list file.")
+                    Logger.log("Could not delete temporary set list file.")
             if (!mTemporarySetListFile!!.exists())
                 Utils.appendToTextFile(mTemporarySetListFile!!, String.format("{set:%1\$s}", getString(R.string.temporary)))
         } catch (ioe: IOException) {
@@ -467,7 +467,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE))
 
-        BeatPrompterPreferences.registerOnSharedPreferenceChangeListener(this)
+        Preferences.registerOnSharedPreferenceChangeListener(this)
 
         val serviceIntent = Intent("com.android.vending.billing.InAppBillingService.BIND")
         serviceIntent.setPackage("com.android.vending")
@@ -503,7 +503,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             sortSongList()
             buildList()
         } catch (e: Exception) {
-            BeatPrompterLogger.log(e)
+            Logger.log(e)
         }
     }
 
@@ -517,11 +517,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
         } catch (e: PackageManager.NameNotFoundException) {
             // There is no way that this can happen.
-            BeatPrompterLogger.log("Package name not found ", e)
+            Logger.log("Package name not found ", e)
         }
 
         val songFilesFolder: String
-        val useExternalStorage = BeatPrompterPreferences.useExternalStorage
+        val useExternalStorage = Preferences.useExternalStorage
         val externalFilesDir = getExternalFilesDir(null)
         songFilesFolder = if (useExternalStorage && externalFilesDir != null)
             externalFilesDir.absolutePath
@@ -531,7 +531,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         mBeatPrompterSongFilesFolder = if (songFilesFolder.isEmpty()) mBeatPrompterDataFolder else File(songFilesFolder)
         if (!mBeatPrompterSongFilesFolder!!.exists())
             if (!mBeatPrompterSongFilesFolder!!.mkdir())
-                BeatPrompterLogger.log("Failed to create song files folder.")
+                Logger.log("Failed to create song files folder.")
 
         if (!mBeatPrompterSongFilesFolder!!.exists())
             mBeatPrompterSongFilesFolder = mBeatPrompterDataFolder
@@ -556,7 +556,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     public override fun onDestroy() {
-        BeatPrompterPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        Preferences.unregisterOnSharedPreferenceChangeListener(this)
         EventHandler.setSongListEventHandler(null)
         super.onDestroy()
 
@@ -598,9 +598,9 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun firstRunSetup() {
-        BeatPrompterPreferences.firstRun = false
-        BeatPrompterPreferences.storageSystem = "demo"
-        BeatPrompterPreferences.cloudPath = "/"
+        Preferences.firstRun = false
+        Preferences.storageSystem = "demo"
+        Preferences.cloudPath = "/"
         performFullCloudSync()
     }
 
@@ -615,7 +615,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                         mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
                         Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
-                        BeatPrompterLogger.log("JSON exception during purchase.")
+                        Logger.log("JSON exception during purchase.")
                         Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 }
@@ -660,7 +660,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun sortSongList() {
         if (mSelectedFilter.mCanSort)
-            when (BeatPrompterPreferences.sorting) {
+            when (Preferences.sorting) {
                 SortingPreference.Date -> sortSongsByDateModified()
                 SortingPreference.Artist -> sortSongsByArtist()
                 SortingPreference.Title -> sortSongsByTitle()
@@ -714,7 +714,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun writeDatabase() {
         val bpdb = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
         if (!bpdb.delete())
-            BeatPrompterLogger.log("Failed to delete database file.")
+            Logger.log("Failed to delete database file.")
         val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val d = docBuilder.newDocument()
         val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
@@ -727,7 +727,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun buildFilterList() {
-        BeatPrompterLogger.log("Building taglist ...")
+        Logger.log("Building taglist ...")
         val tagAndFolderFilters = mutableListOf<Filter>()
 
         // Create filters from song tags and sub-folders. Many songs can share the same
@@ -795,7 +795,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     }
                 }
             } catch (e: Exception) {
-                BeatPrompterLogger.log("Failed to check for purchased version.", e)
+                Logger.log("Failed to check for purchased version.", e)
             }
         return mFullVersionUnlocked
     }
@@ -832,10 +832,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             adb.setItems(items) { d, n ->
                 d.dismiss()
                 when (n) {
-                    0 -> BeatPrompterPreferences.sorting = SortingPreference.Title
-                    1 -> BeatPrompterPreferences.sorting = SortingPreference.Artist
-                    2 -> BeatPrompterPreferences.sorting = SortingPreference.Date
-                    3 -> BeatPrompterPreferences.sorting = SortingPreference.Key
+                    0 -> Preferences.sorting = SortingPreference.Title
+                    1 -> Preferences.sorting = SortingPreference.Artist
+                    2 -> Preferences.sorting = SortingPreference.Date
+                    3 -> Preferences.sorting = SortingPreference.Key
                 }
                 sortSongList()
                 buildList()
@@ -886,7 +886,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                             GOOGLE_PLAY_TRANSACTION_FINISHED, Intent(), 0, 0, 0)
             }
         } catch (e: Exception) {
-            BeatPrompterLogger.log("Failed to buy full version.", e)
+            Logger.log("Failed to buy full version.", e)
         }
     }
 
@@ -948,7 +948,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             writeDatabase()
         } catch (ioe: Exception) {
-            BeatPrompterLogger.log(ioe)
+            Logger.log(ioe)
         }
 
         if (report)
@@ -960,7 +960,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val smooth = choiceInfo.mSmoothScroll
         val scrollingMode = if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
-        val mimicDisplay = scrollingMode === ScrollingMode.Manual && BeatPrompterPreferences.mimicBandLeaderDisplay
+        val mimicDisplay = scrollingMode === ScrollingMode.Manual && Preferences.mimicBandLeaderDisplay
 
         // Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
         // Also, beat and smooth scrolling should never mimic.
@@ -991,7 +991,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     internal fun updateBluetoothIcon() {
-        val bluetoothMode = BeatPrompterPreferences.bluetoothMode
+        val bluetoothMode = Preferences.bluetoothMode
         val slave = bluetoothMode === BluetoothMode.Client
         val connectedToServer = BluetoothManager.isConnectedToServer
         val master = bluetoothMode === BluetoothMode.Server
@@ -1034,7 +1034,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             writeDatabase()
             buildFilterList()
         } catch (ioe: Exception) {
-            BeatPrompterLogger.log(ioe)
+            Logger.log(ioe)
         }
     }
 
@@ -1066,7 +1066,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     mSongList.updateBluetoothIcon()
                 }
                 CONNECTION_LOST -> {
-                    BeatPrompterLogger.log("Lost connection to device.")
+                    Logger.log("Lost connection to device.")
                     Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
@@ -1078,11 +1078,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
                 }
                 SONG_LOAD_COMPLETED -> {
-                    BeatPrompterLogger.logLoader("Song ${msg.obj} was fully loaded successfully.")
+                    Logger.logLoader("Song ${msg.obj} was fully loaded successfully.")
                     mSongList.showLoadingProgressUI(false)
                     // No point starting up the activity if there are songs in the load queue
                     if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
-                        BeatPrompterLogger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
+                        Logger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
                     else
                         mSongList.startSongActivity(msg.obj as UUID)
                 }
@@ -1177,7 +1177,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         val storage: StorageType
             get() {
-                val storagePref = BeatPrompterPreferences.storageSystem
+                val storagePref = Preferences.storageSystem
                 return when (storagePref) {
                     BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> StorageType.Local
                     BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
