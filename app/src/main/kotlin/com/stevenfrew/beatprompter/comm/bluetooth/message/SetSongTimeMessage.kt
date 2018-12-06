@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -46,7 +45,7 @@ class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG_COMMS, "Failed to read SetSongTimeMessage, assuming insufficient data.", e)
+                    BeatPrompterLogger.logComms("Failed to read SetSongTimeMessage, assuming insufficient data.", e)
                 }
             }
             throw NotEnoughDataException()

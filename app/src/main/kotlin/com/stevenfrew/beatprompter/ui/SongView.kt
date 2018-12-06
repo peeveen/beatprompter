@@ -555,7 +555,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         time = mSong!!.getTimeFromPixel(mSongPixelPosition)
                         setSongTime(time, false, false, false, true)
                     } else {
-                        Log.d(BeatPrompterApplication.TAG, "Resuming, pause time=$mPauseTime")
+                        BeatPrompterLogger.log("Resuming, pause time=$mPauseTime")
                         time = mPauseTime
                         setSongTime(time, false, false, true, true)
                     }
@@ -684,7 +684,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private fun processAudioEvent(event: AudioEvent): Boolean {
         val mediaPlayer = mMediaPlayers[event.mAudioFile] ?: return false
-        Log.d(BeatPrompterApplication.TAG, "Track event hit: starting MediaPlayer")
+        BeatPrompterLogger.log("Track event hit: starting MediaPlayer")
         mediaPlayer.seekTo(0)
         mediaPlayer.start()
         return true
@@ -753,7 +753,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val mediaPlayer = seekTrack(audioEvent.mAudioFile, nTime)
                     musicPlaying = mediaPlayer != null
                     if (mStartState === PlayState.Playing) {
-                        Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer")
+                        BeatPrompterLogger.log("Starting MediaPlayer")
                         mediaPlayer?.start()
                     }
                 }
@@ -823,7 +823,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mUserHasScrolled = true
         mStartState = PlayState.Paused
         mMediaPlayers.values.forEach {
-            Log.d(BeatPrompterApplication.TAG, "Pausing MediaPlayers")
+            BeatPrompterLogger.log("Pausing MediaPlayers")
             if (it.isPlaying)
                 it.pause()
         }
@@ -1127,7 +1127,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                 try {
                     Thread.sleep(millisecondsPerBeat, nanosecondRemainder)
                 } catch (ie: InterruptedException) {
-                    Log.d(BeatPrompterApplication.TAG, "Interrupted while waiting ... assuming resync attempt.", ie)
+                    BeatPrompterLogger.log("Interrupted while waiting ... assuming resync attempt.", ie)
                     mNextClickTime = System.nanoTime()
                 }
             }

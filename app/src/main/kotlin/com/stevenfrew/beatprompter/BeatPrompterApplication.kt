@@ -28,9 +28,6 @@ class BeatPrompterApplication : Application() {
     }
 
     companion object {
-        const val TAG = "beatprompter"
-        const val TAG_LOAD = "beatprompter_load"
-        const val TAG_COMMS = "beatprompter_comms"
         const val APP_NAME = "BeatPrompter"
         private lateinit var mApp: Application
         private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"

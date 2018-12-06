@@ -12,7 +12,10 @@ class MessageQueue(capacity: Int) {
         {
             val otherMessages = mBlockingQueue.toList()
             mBlockingQueue.clear()
-            return listOf(firstMessage, otherMessages).flatten()
+            return if (otherMessages.isEmpty())
+                firstMessage
+            else
+                listOf(firstMessage, otherMessages).flatten()
         }
     }
 

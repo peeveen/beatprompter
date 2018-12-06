@@ -1,8 +1,7 @@
 package com.stevenfrew.beatprompter.cache
 
 import android.os.Build
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.cache.parse.*
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.util.flattenAll
@@ -58,7 +57,7 @@ class CachedCloudFileCollection {
                 // This should never happen. If we could write out the file info, then it was valid.
                 // So it must still be valid when we come to read it in. Unless some dastardly devious sort
                 // has meddled with files outside of the app ...
-                Log.d(BeatPrompterApplication.TAG, "Failed to parse file.")
+                BeatPrompterLogger.log("Failed to parse file.")
                 // File has become irrelevant
                 add(IrrelevantFile(CachedFileDescriptor(element)))
             }
@@ -120,7 +119,7 @@ class CachedCloudFileCollection {
         val noLongerExistingFiles = mFiles.filter { !storageIDs.contains(it.mID) }
         noLongerExistingFiles.forEach { f ->
             if (!f.mFile.delete())
-                Log.e(BeatPrompterApplication.TAG, "Failed to delete file: " + f.mFile.name)
+                BeatPrompterLogger.log("Failed to delete file: " + f.mFile.name)
         }
         mFiles = remainingFiles.toMutableList()
     }

@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.storage.onedrive
 
 import android.app.Activity
 import android.os.AsyncTask
-import android.util.Log
 import com.onedrive.sdk.authentication.MSAAuthenticator
 import com.onedrive.sdk.concurrency.ICallback
 import com.onedrive.sdk.core.ClientException
@@ -14,6 +13,7 @@ import com.onedrive.sdk.extensions.Item
 import com.onedrive.sdk.extensions.OneDriveClient
 import com.onedrive.sdk.http.OneDriveServiceException
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.util.Utils
@@ -69,7 +69,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                 mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, nextFolder.mName))
 
                 try {
-                    Log.d(BeatPrompterApplication.TAG, "Getting list of everything in OneDrive folder.")
+                    BeatPrompterLogger.log("Getting list of everything in OneDrive folder.")
                     var page: IItemCollectionPage? = mClient.drive.getItems(currentFolderID).children.buildRequest().get()
                     while (page != null) {
                         if (mListener.shouldCancel())
@@ -86,7 +86,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                                 val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
                                 val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
                                 if (mIncludeSubfolders) {
-                                    Log.d(BeatPrompterApplication.TAG, "Adding folder to list of folders to query ...")
+                                    BeatPrompterLogger.log("Adding folder to list of folders to query ...")
                                     folders.add(newFolder)
                                 }
                                 if (mReturnFolders)
@@ -120,13 +120,13 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                     val driveFile = mClient.drive.getItems(file.mID).buildRequest().get()
                     if (driveFile != null) {
                         val title = file.mName
-                        Log.d(BeatPrompterApplication.TAG, "File title: $title")
+                        BeatPrompterLogger.log("File title: $title")
                         mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
                         val safeFilename = Utils.makeSafeFilename(title)
                         val targetFile = File(mDownloadFolder, safeFilename)
-                        Log.d(BeatPrompterApplication.TAG, "Safe filename: $safeFilename")
+                        BeatPrompterLogger.log("Safe filename: $safeFilename")
 
-                        Log.d(BeatPrompterApplication.TAG, "Downloading now ...")
+                        BeatPrompterLogger.log("Downloading now ...")
                         mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
                         // Don't check lastModified ... ALWAYS download.
                         if (mListener.shouldCancel())
@@ -174,12 +174,12 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
     private fun doOneDriveAction(action: OneDriveAction) {
         val callback = object : ICallback<IOneDriveClient> {
             override fun success(clientResult: IOneDriveClient) {
-                Log.v(BeatPrompterApplication.TAG, "Signed in to OneDrive")
+                BeatPrompterLogger.log("Signed in to OneDrive")
                 action.onConnected(clientResult)
             }
 
             override fun failure(error: ClientException) {
-                Log.e(BeatPrompterApplication.TAG, "Nae luck signing in to OneDrive")
+                BeatPrompterLogger.log("Nae luck signing in to OneDrive")
                 action.onAuthenticationRequired()
             }
         }

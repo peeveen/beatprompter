@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.ByteArrayInputStream
@@ -55,7 +54,7 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo)
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG_COMMS, "Couldn't read ToggleStartStopMessage data, assuming insufficient data.", e)
+                    BeatPrompterLogger.logComms("Couldn't read ToggleStartStopMessage data, assuming insufficient data.", e)
                 }
             }
             throw NotEnoughDataException()

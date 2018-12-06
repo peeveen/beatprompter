@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.comm
 
 import android.util.Log
 import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 
@@ -15,12 +16,12 @@ class ReceiverTask(val mName: String,
             mReceiver.receive()
         } catch (exception: Exception) {
             // Any I/O error means this receiver is dead to us.
-            Log.e(BeatPrompterApplication.TAG_COMMS, "Unexpected IO exception from receiver.", exception)
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver '$mName' threw an exception. Assuming it to be dead.")
+            BeatPrompterLogger.logComms("Unexpected IO exception from receiver.", exception)
+            BeatPrompterLogger.logComms("Receiver '$mName' threw an exception. Assuming it to be dead.")
             if (!mUnregistered)
                 mReceiver.unregister(this)
             super.stop()
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Receiver is now stopped.")
+            BeatPrompterLogger.logComms("Receiver is now stopped.")
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, mName)
         }
     }

@@ -79,14 +79,14 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // us reaching this code here. If we don't finish() in the event of a mismatch, we
         // can end up with multiple SongDisplay activities running.
         if (song.mLoadID != loadID.uuid) {
-            Log.d(BeatPrompterApplication.TAG_LOAD, "*** Load ID Mismatch ***")
-            Log.d(BeatPrompterApplication.TAG_LOAD, "Parcelable Load ID = ${loadID.uuid}")
-            Log.d(BeatPrompterApplication.TAG_LOAD, "SongLoadJob ID = ${song.mLoadID}")
+            BeatPrompterLogger.logLoader("*** Load ID Mismatch ***")
+            BeatPrompterLogger.logLoader("Parcelable Load ID = ${loadID.uuid}")
+            BeatPrompterLogger.logLoader("SongLoadJob ID = ${song.mLoadID}")
             finish()
         } else {
-            Log.d(BeatPrompterApplication.TAG_LOAD, "Successful load ID match: ${song.mLoadID}")
+            BeatPrompterLogger.logLoader("Successful load ID match: ${song.mLoadID}")
             if (BeatPrompterPreferences.bluetoothMode == BluetoothMode.Server) {
-                Log.d(BeatPrompterApplication.TAG_LOAD, "Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
+                BeatPrompterLogger.logLoader("Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
                 val csm = ChooseSongMessage(SongChoiceInfo(loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
                         loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
                         loadedSong.mLoadJob.mSongLoadInfo.mTrack?.mName ?: "",
@@ -250,7 +250,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                 when (msg.what) {
                     BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
                     BLUETOOTH_QUIT_SONG -> {
-                        Log.d(BeatPrompterApplication.TAG_LOAD, "Quit song Bluetooth message received. Finishing activity.")
+                        BeatPrompterLogger.logLoader("Quit song Bluetooth message received. Finishing activity.")
                         val songInfo = msg.obj as Pair<*, *>
                         val title = songInfo.first as String
                         val artist = songInfo.second as String
@@ -261,16 +261,16 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
                     BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true, true)
                     BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
                     MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
-                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI song position pointer received by SongDisplay before view was created.")
+                            ?: BeatPrompterLogger.log("MIDI song position pointer received by SongDisplay before view was created.")
                     MIDI_START_SONG -> mSongView?.startSong(true, true)
-                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI start signal received by SongDisplay before view was created.")
+                            ?: BeatPrompterLogger.log("MIDI start signal received by SongDisplay before view was created.")
                     MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
-                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI continue signal received by SongDisplay before view was created.")
+                            ?: BeatPrompterLogger.log("MIDI continue signal received by SongDisplay before view was created.")
                     MIDI_STOP_SONG -> mSongView?.stopSong(true)
-                            ?: Log.d(BeatPrompterApplication.TAG, "MIDI stop signal received by SongDisplay before view was created.")
+                            ?: BeatPrompterLogger.log("MIDI stop signal received by SongDisplay before view was created.")
                     END_SONG -> {
                         mActivity.setResult(Activity.RESULT_OK)
-                        Log.d(BeatPrompterApplication.TAG_LOAD, "End song message received. Finishing activity.")
+                        BeatPrompterLogger.logLoader("End song message received. Finishing activity.")
                         mActivity.finish()
                     }
                 }

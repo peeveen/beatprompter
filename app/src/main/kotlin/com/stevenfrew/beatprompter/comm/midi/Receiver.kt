@@ -1,11 +1,7 @@
 package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.SharedPreferences
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import kotlin.experimental.and
@@ -24,7 +20,7 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
             if (messageByte and EIGHT_ZERO_HEX != ZERO_AS_BYTE) {
                 if (mInSysEx) {
                     if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
-                        Log.d(BeatPrompterApplication.TAG_COMMS, "Received MIDI SysEx end message.")
+                        BeatPrompterLogger.logComms("Received MIDI SysEx end message.")
                         mInSysEx = false
                     }
                 } else {
@@ -49,7 +45,7 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                         // Not enough data left.
                             break
                     else if (messageByte == Message.MIDI_SYSEX_START_BYTE) {
-                        Log.d(BeatPrompterApplication.TAG_COMMS, "Received MIDI SysEx start message.")
+                        BeatPrompterLogger.logComms("Received MIDI SysEx start message.")
                         mInSysEx = true
                     } else {
                         val channelsToListenTo = getIncomingChannels()

@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 
 class ReceiverTasks {
     private val mReceiverThreads = mutableMapOf<String, Thread>()
@@ -11,13 +10,13 @@ class ReceiverTasks {
     fun addReceiver(id: String, name: String, receiver: Receiver) {
         synchronized(mReceiverThreadsLock)
         {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Starting new receiver task '$id:' ($name)")
+            BeatPrompterLogger.logComms("Starting new receiver task '$id:' ($name)")
             mReceiverTasks[id] = ReceiverTask(name, receiver).also {
                 mReceiverThreads[id] = Thread(it).also { th ->
                     th.start()
                 }
             }
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Started new receiver task '$id:' ($name)")
+            BeatPrompterLogger.logComms("Started new receiver task '$id:' ($name)")
         }
     }
 
@@ -26,31 +25,31 @@ class ReceiverTasks {
         var receiverThread: Thread?
         synchronized(mReceiverThreadsLock)
         {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Removing receiver task '$id'")
+            BeatPrompterLogger.logComms("Removing receiver task '$id'")
             receiverTask = mReceiverTasks[id]
             receiverThread = mReceiverThreads[id]
             mReceiverTasks.remove(id)
             mReceiverThreads.remove(id)
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Removed receiver task '$id'")
+            BeatPrompterLogger.logComms("Removed receiver task '$id'")
         }
-        Log.d(BeatPrompterApplication.TAG_COMMS, "Stopping receiver task '$id'")
+        BeatPrompterLogger.logComms("Stopping receiver task '$id'")
         receiverTask?.setUnregistered()
         receiverTask?.stop()
         receiverThread?.apply {
             interrupt()
             join()
         }
-        Log.d(BeatPrompterApplication.TAG_COMMS, "Stopped receiver task '$id'")
+        BeatPrompterLogger.logComms("Stopped receiver task '$id'")
     }
 
     fun stopAll() {
         synchronized(mReceiverThreadsLock)
         {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Stopping ALL receiver tasks")
+            BeatPrompterLogger.logComms("Stopping ALL receiver tasks")
             mReceiverThreads.keys.forEach {
                 stopAndRemoveReceiver(it)
             }
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Stopped ALL receiver tasks")
+            BeatPrompterLogger.logComms("Stopped ALL receiver tasks")
         }
     }
 

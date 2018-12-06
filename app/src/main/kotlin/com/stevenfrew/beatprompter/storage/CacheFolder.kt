@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.storage
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import java.io.File
 
 /**
@@ -16,13 +15,13 @@ class CacheFolder internal constructor(parentFolder: File,
         try {
             if (this.exists()) {
                 listFiles().filter { !it.isDirectory }.forEach {
-                    Log.d(BeatPrompterApplication.TAG, "Deleting " + it.absolutePath)
+                    BeatPrompterLogger.log("Deleting " + it.absolutePath)
                     if (!it.delete())
-                        Log.e(BeatPrompterApplication.TAG, "Failed to delete " + it.absolutePath)
+                        BeatPrompterLogger.log("Failed to delete " + it.absolutePath)
                 }
             }
         } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, "Failed to clear cache folder.", e)
+            BeatPrompterLogger.log("Failed to clear cache folder.", e)
         }
     }
 }

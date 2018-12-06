@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm.midi
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
@@ -11,6 +10,7 @@ import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
     private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
+    private val mMessageBuffer = mutableListOf<ClockMessage>()
     private var mLastSignalTime = 0.0
     private var mClockSignalsSent = 0
     private var mNanoSecondsPerMidiSignal = 0.0
@@ -73,33 +73,37 @@ class ClockSignalGeneratorTask : Task(false) {
         while (nanoDiff >= nanoSecondsPerMidiSignal) {
             try {
                 signalSent = true
-                MIDIController.mMIDIOutQueue.putMessage(ClockMessage())
+                mMessageBuffer.add(ClockMessage())
                 // We've hit the 24-signal boundary. Switch to the next speed.
                 if (incrementClockSignalsSent() == 24) {
                     resetClockSignalsSent()
                     nanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
                 }
             } catch (e: Exception) {
-                Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI timing clock signal to output queue.", e)
+                BeatPrompterLogger.logComms("Failed to add MIDI timing clock signal to output queue.", e)
             }
-
             nanoDiff -= nanoSecondsPerMidiSignal
         }
+        MIDIController.mMIDIOutQueue.putMessages(mMessageBuffer)
+        mMessageBuffer.clear()
         if (signalSent) {
-            val vLastSignalTime = nanoTime - nanoDiff
-            lastSignalTime = vLastSignalTime
-            val nextSignalDue = vLastSignalTime + nanoSecondsPerMidiSignal
+            lastSignalTime = nanoTime - nanoDiff
+            val nextSignalDue = lastSignalTime + nanoSecondsPerMidiSignal
             val nextSignalDueNano = nextSignalDue.toLong() - nanoTime
             if (nextSignalDueNano > 0) {
                 val nextSignalDueMilli = Utils.nanoToMilli(nextSignalDueNano).toLong()
                 val nextSignalDueNanoRoundedToMilli = Utils.milliToNano(nextSignalDueMilli)
-                val nextSignalDueNanoRemainder = (if (nextSignalDueNanoRoundedToMilli > 0) nextSignalDueNano % nextSignalDueNanoRoundedToMilli else nextSignalDueNano).toInt()
+                val nextSignalDueNanoRemainder =
+                        (if (nextSignalDueNanoRoundedToMilli > 0)
+                            nextSignalDueNano % nextSignalDueNanoRoundedToMilli
+                        else
+                            nextSignalDueNano)
+                                .toInt()
                 try {
                     Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder)
                 } catch (e: Exception) {
-                    Log.e(BeatPrompterApplication.TAG_COMMS, "Thread sleep was interrupted.", e)
+                    BeatPrompterLogger.logComms("Thread sleep was interrupted.", e)
                 }
-
             }
         }
     }
@@ -118,7 +122,7 @@ class ClockSignalGeneratorTask : Task(false) {
             try {
                 MIDIController.mMIDIOutQueue.putMessage(StartMessage())
             } catch (e: Exception) {
-                Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI start signal to output queue.", e)
+                BeatPrompterLogger.logComms("Failed to add MIDI start signal to output queue.", e)
             }
 
             nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
@@ -134,7 +138,7 @@ class ClockSignalGeneratorTask : Task(false) {
         try {
             MIDIController.mMIDIOutQueue.putMessage(StopMessage())
         } catch (e: Exception) {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to add MIDI stop signal to output queue.", e)
+            BeatPrompterLogger.logComms("Failed to add MIDI stop signal to output queue.", e)
         }
     }
 }

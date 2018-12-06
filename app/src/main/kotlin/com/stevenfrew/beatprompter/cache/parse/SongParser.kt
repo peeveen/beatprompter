@@ -133,7 +133,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
         if (!mSendMidiClock)
             mSendMidiClock = tags.any { it is SendMIDIClockTag }
-        mSendMidiClock = tags.any { it is SendMIDIClockTag }
 
         if (!mStopAddingStartupItems)
             mCountIn = tags.filterIsInstance<CountTag>().firstOrNull()?.mCount ?: mCountIn

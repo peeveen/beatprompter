@@ -2,8 +2,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.IOException
 import java.util.*
@@ -23,17 +22,17 @@ internal class ConnectToServerThread constructor(private val mDevice: BluetoothD
                     // until it succeeds or throws an exception, which can happen
                     // if it doesn't find anything to connect to within about 4 seconds.
                     val socket = mDevice.createRfcommSocketToServiceRecord(mUUID)
-                    Log.d(BeatPrompterApplication.TAG_COMMS, "Attempting to connect to a Bluetooth server on '${mDevice.name}'.")
+                    BeatPrompterLogger.logComms("Attempting to connect to a Bluetooth server on '${mDevice.name}'.")
                     socket?.connect().also {
                         // If the previous line didn't throw an IOException, then it connected OK.
                         // Do work to manage the connection (in a separate thread)
-                        Log.d(BeatPrompterApplication.TAG_COMMS, "Connected to a Bluetooth server on '${mDevice.name}'.")
+                        BeatPrompterLogger.logComms("Connected to a Bluetooth server on '${mDevice.name}'.")
                         mmSocket = socket
                         mOnConnectedFunction(socket)
                     }
                 } catch (connectException: Exception) {
                     // There probably isn't a server to connect to. Wait a bit and try again.
-                    Log.d(BeatPrompterApplication.TAG_COMMS, "Failed to connect to a server on '${mDevice.name}'.")
+                    BeatPrompterLogger.logComms("Failed to connect to a server on '${mDevice.name}'.")
                     Utils.safeThreadWait(1000)
                 }
             else {
@@ -56,11 +55,11 @@ internal class ConnectToServerThread constructor(private val mDevice: BluetoothD
      */
     private fun closeSocket() {
         try {
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Closing the server searching socket.")
+            BeatPrompterLogger.logComms("Closing the server searching socket.")
             mmSocket?.close()
-            Log.d(BeatPrompterApplication.TAG_COMMS, "Closed the server searching socket.")
+            BeatPrompterLogger.logComms("Closed the server searching socket.")
         } catch (e: IOException) {
-            Log.e(BeatPrompterApplication.TAG_COMMS, "Error closing Bluetooth socket.", e)
+            BeatPrompterLogger.logComms("Error closing Bluetooth socket.", e)
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -52,7 +51,7 @@ class QuitSongMessage constructor(val bytes: ByteArray,
                     }
                 }
             } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG_COMMS, "Couldn't read QuitSongMessage data, assuming not enough data", e)
+                BeatPrompterLogger.logComms("Couldn't read QuitSongMessage data, assuming not enough data", e)
             }
             throw NotEnoughDataException()
         }

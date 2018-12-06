@@ -17,17 +17,13 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.android.vending.billing.IInAppBillingService
-import com.stevenfrew.beatprompter.BeatPrompterApplication
-import com.stevenfrew.beatprompter.BeatPrompterPreferences
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
@@ -126,7 +122,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     internal fun startSongActivity(loadID: UUID) {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
         i.putExtra("loadID", ParcelUuid(loadID))
-        Log.d(BeatPrompterApplication.TAG_LOAD, "Starting SongDisplayActivity for $loadID!")
+        BeatPrompterLogger.logLoader("Starting SongDisplayActivity for $loadID!")
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
@@ -141,7 +137,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
         for (node in mPlaylist.nodes)
             if (node.mSongFile.matchesTrigger(mst)) {
-                Log.d(BeatPrompterApplication.TAG, "Found trigger match: '${node.mSongFile.mTitle}'.")
+                BeatPrompterLogger.log("Found trigger match: '${node.mSongFile.mTitle}'.")
                 playPlaylistNode(node, true)
                 return
             }
@@ -149,7 +145,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         // Still play it though!
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.matchesTrigger(mst)) {
-                Log.d(BeatPrompterApplication.TAG, "Found trigger match: '${sf.mTitle}'.")
+                BeatPrompterLogger.log("Found trigger match: '${sf.mTitle}'.")
                 playSongFile(sf, PlaylistNode(sf), true)
             }
     }
@@ -229,7 +225,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             writeDatabase()
         } catch (ioe: Exception) {
-            Log.e(BeatPrompterApplication.TAG, ioe.message)
+            BeatPrompterLogger.log(ioe)
         }
     }
 
@@ -247,7 +243,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             if (deleteExisting)
                 if (!mTemporarySetListFile!!.delete())
-                    Log.d(BeatPrompterApplication.TAG, "Could not delete temporary set list file.")
+                    BeatPrompterLogger.log("Could not delete temporary set list file.")
             if (!mTemporarySetListFile!!.exists())
                 Utils.appendToTextFile(mTemporarySetListFile!!, String.format("{set:%1\$s}", getString(R.string.temporary)))
         } catch (ioe: IOException) {
@@ -507,7 +503,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             sortSongList()
             buildList()
         } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, e.message)
+            BeatPrompterLogger.log(e)
         }
     }
 
@@ -521,7 +517,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
         } catch (e: PackageManager.NameNotFoundException) {
             // There is no way that this can happen.
-            Log.e(BeatPrompterApplication.TAG, "Package name not found ", e)
+            BeatPrompterLogger.log("Package name not found ", e)
         }
 
         val songFilesFolder: String
@@ -535,7 +531,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         mBeatPrompterSongFilesFolder = if (songFilesFolder.isEmpty()) mBeatPrompterDataFolder else File(songFilesFolder)
         if (!mBeatPrompterSongFilesFolder!!.exists())
             if (!mBeatPrompterSongFilesFolder!!.mkdir())
-                Log.e(BeatPrompterApplication.TAG, "Failed to create song files folder.")
+                BeatPrompterLogger.log("Failed to create song files folder.")
 
         if (!mBeatPrompterSongFilesFolder!!.exists())
             mBeatPrompterSongFilesFolder = mBeatPrompterDataFolder
@@ -619,7 +615,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                         mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
                         Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
-                        Log.e(BeatPrompterApplication.TAG, "JSON exception during purchase.")
+                        BeatPrompterLogger.log("JSON exception during purchase.")
                         Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
                     }
                 }
@@ -718,7 +714,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun writeDatabase() {
         val bpdb = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
         if (!bpdb.delete())
-            Log.e(BeatPrompterApplication.TAG, "Failed to delete database file.")
+            BeatPrompterLogger.log("Failed to delete database file.")
         val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val d = docBuilder.newDocument()
         val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
@@ -731,7 +727,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun buildFilterList() {
-        Log.d(BeatPrompterApplication.TAG, "Building taglist ...")
+        BeatPrompterLogger.log("Building taglist ...")
         val tagAndFolderFilters = mutableListOf<Filter>()
 
         // Create filters from song tags and sub-folders. Many songs can share the same
@@ -799,7 +795,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     }
                 }
             } catch (e: Exception) {
-                Log.e(BeatPrompterApplication.TAG, "Failed to check for purchased version.", e)
+                BeatPrompterLogger.log("Failed to check for purchased version.", e)
             }
         return mFullVersionUnlocked
     }
@@ -890,7 +886,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                             GOOGLE_PLAY_TRANSACTION_FINISHED, Intent(), 0, 0, 0)
             }
         } catch (e: Exception) {
-            Log.e(BeatPrompterApplication.TAG, "Failed to buy full version.", e)
+            BeatPrompterLogger.log("Failed to buy full version.", e)
         }
     }
 
@@ -952,7 +948,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         try {
             writeDatabase()
         } catch (ioe: Exception) {
-            Log.e(BeatPrompterApplication.TAG, ioe.message)
+            BeatPrompterLogger.log(ioe)
         }
 
         if (report)
@@ -1038,7 +1034,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             writeDatabase()
             buildFilterList()
         } catch (ioe: Exception) {
-            Log.e(BeatPrompterApplication.TAG, ioe.message)
+            BeatPrompterLogger.log(ioe)
         }
     }
 
@@ -1070,7 +1066,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     mSongList.updateBluetoothIcon()
                 }
                 CONNECTION_LOST -> {
-                    Log.d(BeatPrompterApplication.TAG, "Lost connection to device.")
+                    BeatPrompterLogger.log("Lost connection to device.")
                     Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
@@ -1082,11 +1078,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
                 }
                 SONG_LOAD_COMPLETED -> {
-                    Log.d(BeatPrompterApplication.TAG_LOAD, "Song ${msg.obj} was fully loaded successfully.")
+                    BeatPrompterLogger.logLoader("Song ${msg.obj} was fully loaded successfully.")
                     mSongList.showLoadingProgressUI(false)
                     // No point starting up the activity if there are songs in the load queue
                     if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
-                        Log.d(BeatPrompterApplication.TAG_LOAD, "Abandoning loaded song: there appears to be another song incoming.")
+                        BeatPrompterLogger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
                     else
                         mSongList.startSongActivity(msg.obj as UUID)
                 }

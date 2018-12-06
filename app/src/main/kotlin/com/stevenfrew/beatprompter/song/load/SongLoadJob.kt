@@ -1,8 +1,7 @@
 package com.stevenfrew.beatprompter.song.load
 
 import android.os.Message
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication.Companion.TAG_LOAD
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import kotlinx.coroutines.CoroutineScope
@@ -28,20 +27,20 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
             launch {
                 System.gc()
                 try {
-                    Log.d(TAG_LOAD, "Starting to load '${mSongLoadInfo.mSongFile.mTitle}'.")
+                    BeatPrompterLogger.logLoader("Starting to load '${mSongLoadInfo.mSongFile.mTitle}'.")
                     val loadedSong = SongParser(mSongLoadInfo, mCancelEvent, mHandler, mRegistered).parse()
                     if (mCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
-                    Log.d(TAG_LOAD, "Song was loaded successfully.")
+                    BeatPrompterLogger.logLoader("Song was loaded successfully.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
                     mLoadedSong = LoadedSong(loadedSong, thisSongLoadJob)
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
                 } catch (e: SongLoadCancelledException) {
-                    Log.d(TAG_LOAD, "Song load was cancelled.")
+                    BeatPrompterLogger.logLoader("Song load was cancelled.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
                 } catch (e: Exception) {
-                    Log.d(TAG_LOAD, "Song load failed.")
+                    BeatPrompterLogger.logLoader("Song load failed.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
                     mHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED, e.message).sendToTarget()
                 } finally {

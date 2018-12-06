@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.song.load
 
-import android.util.Log
-import com.stevenfrew.beatprompter.BeatPrompterApplication.Companion.TAG_LOAD
+import com.stevenfrew.beatprompter.BeatPrompterLogger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 
@@ -34,7 +33,7 @@ object SongLoadQueueWatcherTask : Task(true) {
             val songToLoad = nextSongToLoad
             if (songToLoad != null) {
                 mLoadingSong = songToLoad
-                Log.d(TAG_LOAD, "Found a song to load: ${songToLoad.mSongLoadInfo.mSongFile.mTitle}")
+                BeatPrompterLogger.logLoader("Found a song to load: ${songToLoad.mSongLoadInfo.mSongFile.mTitle}")
                 synchronized(songToLoad)
                 {
                     songToLoad.startLoading()
@@ -61,15 +60,15 @@ object SongLoadQueueWatcherTask : Task(true) {
         synchronized(mSongLoadLock)
         {
             if (mSongToLoadOnResume != null) {
-                Log.d(TAG_LOAD, "Removing an unstarted load-on-resume from the queue: ${mSongToLoadOnResume!!.mSongLoadInfo.mSongFile.mTitle}")
+                BeatPrompterLogger.logLoader("Removing an unstarted load-on-resume from the queue: ${mSongToLoadOnResume!!.mSongLoadInfo.mSongFile.mTitle}")
                 mSongToLoadOnResume = null
             }
             if (mSongToLoad != null) {
-                Log.d(TAG_LOAD, "Removing an unstarted load from the queue: ${mSongToLoad!!.mSongLoadInfo.mSongFile.mTitle}")
+                BeatPrompterLogger.logLoader("Removing an unstarted load from the queue: ${mSongToLoad!!.mSongLoadInfo.mSongFile.mTitle}")
                 mSongToLoad = null
             }
             if (mLoadingSong != null) {
-                Log.d(TAG_LOAD, "Cancelling started load: ${mLoadingSong!!.mSongLoadInfo.mSongFile.mTitle}")
+                BeatPrompterLogger.logLoader("Cancelling started load: ${mLoadingSong!!.mSongLoadInfo.mSongFile.mTitle}")
                 mLoadingSong!!.stopLoading()
                 mLoadingSong = null
             }
@@ -89,14 +88,14 @@ object SongLoadQueueWatcherTask : Task(true) {
             SongInterruptResult.NoSongToInterrupt -> {
                 synchronized(mSongLoadLock)
                 {
-                    Log.d(TAG_LOAD, "Adding a song to the load queue: ${loadJob.mSongLoadInfo.mSongFile.mTitle}")
+                    BeatPrompterLogger.logLoader("Adding a song to the load queue: ${loadJob.mSongLoadInfo.mSongFile.mTitle}")
                     mSongToLoadOnResume = null
                     mSongToLoad = loadJob
                 }
             }
             SongInterruptResult.CannotInterrupt -> loadJob.stopLoading()
             SongInterruptResult.CanInterrupt -> {
-                Log.d(TAG_LOAD, "CanInterrupt ... song will load when activity finishes.")
+                BeatPrompterLogger.logLoader("CanInterrupt ... song will load when activity finishes.")
             }
         }
     }
