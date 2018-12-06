@@ -5,8 +5,6 @@ abstract class SenderBase constructor(private val mName: String,
     : Sender {
     private val mOutBuffer = ByteArray(mBufferSize)
 
-    override val lock = Any()
-
     override val name: String
         get() = mName
 
