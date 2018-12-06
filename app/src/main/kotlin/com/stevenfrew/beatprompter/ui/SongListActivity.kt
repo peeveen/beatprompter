@@ -111,12 +111,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             val maf = filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles)[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
-        } else if (!SongLoadQueueWatcherTask.isLoadingASong && !SongLoadQueueWatcherTask.hasASongToLoad) {
-            // Don't allow another song to be started from the song list (by clicking)
-            // if one is already loading. The only circumstances this is allowed is via
-            // MIDI triggers.
+        } else
             playPlaylistNode(filterPlaylistNodes(mPlaylist)[position], false)
-        }
     }
 
     internal fun startSongActivity(loadID: UUID) {
@@ -1071,7 +1067,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     mSongList.updateBluetoothIcon()
                 }
                 SONG_LOAD_CANCELLED -> {
-                    mSongList.showLoadingProgressUI(false)
+                    if (!SongLoadQueueWatcherTask.isLoadingASong && !SongLoadQueueWatcherTask.hasASongToLoad)
+                        mSongList.showLoadingProgressUI(false)
                 }
                 SONG_LOAD_FAILED -> {
                     mSongList.showLoadingProgressUI(false)

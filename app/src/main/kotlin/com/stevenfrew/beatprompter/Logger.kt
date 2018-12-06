@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter
 import android.util.Log
 
 object Logger {
-    private const val LOGGING = true
+    private const val LOGGING = false
     private const val TAG = "beatprompter"
     private const val TAG_LOAD = "beatprompter_load"
     private const val TAG_COMMS = "beatprompter_comms"
