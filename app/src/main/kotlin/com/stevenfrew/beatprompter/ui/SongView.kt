@@ -629,9 +629,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         mLastCommentEvent = event
     }
 
-    private fun processBeatEvent(event: BeatEvent?, allowClick: Boolean) {
-        if (event == null)
-            return
+    private fun processBeatEvent(event: BeatEvent, allowClick: Boolean) {
         val playClick = allowClick && (mMetronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying())
         mNanosecondsPerBeat = Utils.nanosecondsPerBeat(event.mBPM)
         val beatWidth = mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / event.mBPB.toDouble()
@@ -663,9 +661,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         return mSong?.mSongFile?.mNormalizedArtist == artist && mSong?.mSongFile?.mNormalizedTitle == title
     }
 
-    private fun processPauseEvent(event: PauseEvent?) {
-        if (event == null)
-            return
+    private fun processPauseEvent(event: PauseEvent) {
         mLastBeatTime = -1
         val currentBeatCounterWidth = (mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / (event.mBeats - 1).toDouble() * event.mBeat.toDouble()).toInt()
         mCurrentBeatCountRect = Rect(0, 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
@@ -728,10 +724,13 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         startToggle(null, false, startStopInfo.mStartState)
     }
 
-    private fun seekTrack(audioFile: AudioFile, time: Int): MediaPlayer {
+    private fun seekTrack(audioFile: AudioFile, time: Int): MediaPlayer? {
         val mediaPlayer = mMediaPlayers[audioFile]
-        mediaPlayer!!.seekTo(time)
-        return mediaPlayer
+        if (mediaPlayer != null && mediaPlayer.duration > time) {
+            mediaPlayer.seekTo(time)
+            return mediaPlayer
+        }
+        return null
     }
 
     fun setSongTime(nano: Long, redraw: Boolean, broadcast: Boolean, setPixelPosition: Boolean, recalculateManualPositions: Boolean) {
@@ -746,26 +745,28 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             if (broadcast)
                 BluetoothManager.mBluetoothOutQueue.putMessage(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
-            if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
-                val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
-                if (prevBeatEvent != null) {
-                    val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
-                    processBeatEvent(prevBeatEvent, nextBeatEvent != null)
-                }
-            } else
-                mCurrentBeatCountRect = mSong!!.mBeatCounterRect
-            mSongStartTime = System.nanoTime() - nano
+            var musicPlaying = false
             if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
                 val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
                 if (audioEvent != null) {
                     val nTime = Utils.nanoToMilli(nano - audioEvent.mEventTime)
                     val mediaPlayer = seekTrack(audioEvent.mAudioFile, nTime)
+                    musicPlaying = mediaPlayer != null
                     if (mStartState === PlayState.Playing) {
                         Log.d(BeatPrompterApplication.TAG, "Starting MediaPlayer")
-                        mediaPlayer.start()
+                        mediaPlayer?.start()
                     }
                 }
             }
+            if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
+                val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
+                if (prevBeatEvent != null) {
+                    val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
+                    processBeatEvent(prevBeatEvent, nextBeatEvent != null && !musicPlaying)
+                }
+            } else
+                mCurrentBeatCountRect = mSong!!.mBeatCounterRect
+            mSongStartTime = System.nanoTime() - nano
             if (redraw)
                 invalidate()
         }
