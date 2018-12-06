@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 
-class BeatPrompterApplication : Application() {
+class BeatPrompter : Application() {
     private val mSongLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
 
     override fun attachBaseContext(base: Context) {

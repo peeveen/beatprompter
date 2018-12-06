@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import java.io.IOException
 import java.util.*
@@ -30,7 +30,7 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                     if (mmServerSocket == null) {
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
-                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompterApplication.APP_NAME, mUUID)
+                            mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompter.APP_NAME, mUUID)
                             Logger.logComms("Created the Bluetooth server socket.")
                         } catch (e: IOException) {
                             Logger.logComms("Error creating Bluetooth server socket.", e)

@@ -125,7 +125,7 @@ object Preferences {
     val onlyUseBeatFontSizes: Boolean
         get() = getBooleanPreference(R.string.pref_alwaysUseBeatFontPrefs_key, R.string.pref_alwaysUseBeatFontPrefs_defaultValue)
 
-    private val minimumFontSizeOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.fontSizeMin))
+    private val minimumFontSizeOffset = Integer.parseInt(BeatPrompter.getResourceString(R.string.fontSizeMin))
 
     val minimumBeatFontSize: Int
         get() = getIntPreference(R.string.pref_minFontSize_key, R.string.pref_minFontSize_default, minimumFontSizeOffset)
@@ -177,7 +177,7 @@ object Preferences {
     val showSongTitle: Boolean
         get() = getBooleanPreference(R.string.pref_showSongTitle_key, R.string.pref_showSongTitle_defaultValue)
 
-    private val commentDisplayTimeOffset = Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_commentDisplayTime_offset))
+    private val commentDisplayTimeOffset = Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_commentDisplayTime_offset))
 
     val commentDisplayTime: Int
         get() = getIntPreference(R.string.pref_commentDisplayTime_key, R.string.pref_commentDisplayTime_default, commentDisplayTimeOffset)
@@ -232,87 +232,87 @@ object Preferences {
 
     private fun getIntPreference(prefResourceString: Int, prefDefaultResourceString: Int, offset: Int): Int {
         return getIntPreference(prefResourceString,
-                BeatPrompterApplication.getResourceString(prefDefaultResourceString).toInt()) + offset
+                BeatPrompter.getResourceString(prefDefaultResourceString).toInt()) + offset
     }
 
     private fun getIntPreference(prefResourceString: Int, default: Int): Int {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .preferences
-                .getInt(BeatPrompterApplication.getResourceString(prefResourceString), default)
+                .getInt(BeatPrompter.getResourceString(prefResourceString), default)
     }
 
     fun getStringPreference(key: String, default: String?): String? {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .preferences
                 .getString(key, default)
     }
 
     private fun getPrivateStringPreference(prefResourceString: Int, default: String?): String? {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .privatePreferences
-                .getString(BeatPrompterApplication.getResourceString(prefResourceString),
+                .getString(BeatPrompter.getResourceString(prefResourceString),
                         default)
     }
 
     private fun getStringPreference(prefResourceString: Int, default: String?): String? {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .preferences
-                .getString(BeatPrompterApplication.getResourceString(prefResourceString),
+                .getString(BeatPrompter.getResourceString(prefResourceString),
                         default)
     }
 
     private fun getStringPreference(prefResourceString: Int, prefDefaultResourceString: Int): String? {
         return getStringPreference(prefResourceString,
-                BeatPrompterApplication.getResourceString(prefDefaultResourceString))
+                BeatPrompter.getResourceString(prefDefaultResourceString))
     }
 
     private fun getColorPreference(prefResourceString: Int, prefDefaultResourceString: Int): Int {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .preferences
-                .getInt(BeatPrompterApplication.getResourceString(prefResourceString),
-                        Color.parseColor(BeatPrompterApplication.getResourceString(prefDefaultResourceString)))
+                .getInt(BeatPrompter.getResourceString(prefResourceString),
+                        Color.parseColor(BeatPrompter.getResourceString(prefDefaultResourceString)))
     }
 
     private fun getBooleanPreference(prefResourceString: Int, default: Boolean): Boolean {
-        return BeatPrompterApplication
+        return BeatPrompter
                 .preferences
-                .getBoolean(BeatPrompterApplication.getResourceString(prefResourceString), default)
+                .getBoolean(BeatPrompter.getResourceString(prefResourceString), default)
     }
 
     private fun setBooleanPreference(prefResourceString: Int, value: Boolean) {
-        BeatPrompterApplication
+        BeatPrompter
                 .preferences
                 .edit()
-                .putBoolean(BeatPrompterApplication.getResourceString(prefResourceString), value)
+                .putBoolean(BeatPrompter.getResourceString(prefResourceString), value)
                 .apply()
     }
 
     private fun getBooleanPreference(prefResourceString: Int, prefDefaultResourceString: Int): Boolean {
         return getBooleanPreference(prefResourceString,
-                BeatPrompterApplication.getResourceString(prefDefaultResourceString).toBoolean())
+                BeatPrompter.getResourceString(prefDefaultResourceString).toBoolean())
     }
 
     private fun setStringPreference(prefResourceString: Int, value: String?) {
-        BeatPrompterApplication
+        BeatPrompter
                 .preferences
                 .edit()
-                .putString(BeatPrompterApplication.getResourceString(prefResourceString), value)
+                .putString(BeatPrompter.getResourceString(prefResourceString), value)
                 .apply()
     }
 
     private fun setPrivateStringPreference(prefResourceString: Int, value: String?) {
-        BeatPrompterApplication
+        BeatPrompter
                 .privatePreferences
                 .edit()
-                .putString(BeatPrompterApplication.getResourceString(prefResourceString), value)
+                .putString(BeatPrompter.getResourceString(prefResourceString), value)
                 .apply()
     }
 
     fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        BeatPrompterApplication.preferences.registerOnSharedPreferenceChangeListener(listener)
+        BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(listener)
     }
 
     fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-        BeatPrompterApplication.preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        BeatPrompter.preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 }

@@ -1044,8 +1044,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
                 CLOUD_SYNC_ERROR -> {
                     val adb = AlertDialog.Builder(mSongList)
-                    adb.setMessage(BeatPrompterApplication.getResourceString(R.string.cloudSyncErrorMessage, msg.obj as String))
-                    adb.setTitle(BeatPrompterApplication.getResourceString(R.string.cloudSyncErrorTitle))
+                    adb.setMessage(BeatPrompter.getResourceString(R.string.cloudSyncErrorMessage, msg.obj as String))
+                    adb.setTitle(BeatPrompter.getResourceString(R.string.cloudSyncErrorTitle))
                     adb.setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
                     val ad = adb.create()
                     ad.setCanceledOnTouchOutside(true)
@@ -1062,12 +1062,12 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     mSongList.onCacheUpdated(cache)
                 }
                 CONNECTION_ADDED -> {
-                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_added, msg.obj.toString()), Toast.LENGTH_LONG).show()
+                    Toast.makeText(mSongList, BeatPrompter.getResourceString(R.string.connection_added, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
                 CONNECTION_LOST -> {
                     Logger.log("Lost connection to device.")
-                    Toast.makeText(mSongList, BeatPrompterApplication.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
+                    Toast.makeText(mSongList, BeatPrompter.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
                 SONG_LOAD_CANCELLED -> {
@@ -1179,17 +1179,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             get() {
                 val storagePref = Preferences.storageSystem
                 return when (storagePref) {
-                    BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> StorageType.Local
-                    BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
-                    BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> StorageType.Dropbox
-                    BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> StorageType.OneDrive
+                    BeatPrompter.getResourceString(R.string.localStorageValue) -> StorageType.Local
+                    BeatPrompter.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
+                    BeatPrompter.getResourceString(R.string.dropboxValue) -> StorageType.Dropbox
+                    BeatPrompter.getResourceString(R.string.oneDriveValue) -> StorageType.OneDrive
                     else -> StorageType.Demo
                 }
             }
 
         @Throws(IOException::class)
         fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-            val inputStream = BeatPrompterApplication.assetManager.open(filename)
+            val inputStream = BeatPrompter.assetManager.open(filename)
             inputStream.use { inStream ->
                 val outputStream = FileOutputStream(destination)
                 outputStream.use {

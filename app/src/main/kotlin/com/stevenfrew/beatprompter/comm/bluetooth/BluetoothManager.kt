@@ -44,7 +44,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     /**
      * Called when the app starts. Doing basic Bluetooth setup.
      */
-    fun initialise(application: BeatPrompterApplication) {
+    fun initialise(application: BeatPrompter) {
         Logger.logComms("Starting Bluetooth sender thread.")
         mSenderTaskThread.start()
         Task.resumeTask(mSenderTask)
@@ -251,13 +251,13 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      * Called when the user changes pertinent Bluetooth preferences.
      */
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-        if (key == BeatPrompterApplication.getResourceString(R.string.pref_bluetoothMode_key)) {
+        if (key == BeatPrompter.getResourceString(R.string.pref_bluetoothMode_key)) {
             Logger.logComms("Bluetooth mode changed.")
             if (Preferences.bluetoothMode === BluetoothMode.None)
                 onStopBluetooth()
             else
                 onStartBluetooth()
-        } else if (key == BeatPrompterApplication.getResourceString(R.string.pref_bandLeaderDevice_key)) {
+        } else if (key == BeatPrompter.getResourceString(R.string.pref_bandLeaderDevice_key)) {
             Logger.logComms("Band leader device changed.")
             if (Preferences.bluetoothMode === BluetoothMode.Client) {
                 shutDownBluetoothClient()

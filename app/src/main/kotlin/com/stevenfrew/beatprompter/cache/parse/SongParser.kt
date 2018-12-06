@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import android.graphics.*
 import android.os.Handler
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
@@ -233,7 +233,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             if (createLine) {
                 // Won't pay? We'll take it away!
                 if (mDisplayLineCounter > DEMO_LINE_COUNT && !mRegistered) {
-                    workLine = BeatPrompterApplication.getResourceString(R.string.please_buy)
+                    workLine = BeatPrompter.getResourceString(R.string.please_buy)
                     imageTag = null
                 }
 
@@ -279,7 +279,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                             mErrors.add(FileParseError(imageTag, t))
                         }
                     else {
-                        workLine = BeatPrompterApplication.getResourceString(R.string.missing_image_file_warning)
+                        workLine = BeatPrompter.getResourceString(R.string.missing_image_file_warning)
                         mErrors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
                         imageTag = null
                     }
@@ -751,19 +751,19 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 ++errorCounter
                 --errorCount
                 if (errorCounter == 5 && errorCount > 0) {
-                    startScreenStrings.add(ScreenString.create(String.format(BeatPrompterApplication.getResourceString(R.string.otherErrorCount), errorCount), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
+                    startScreenStrings.add(ScreenString.create(String.format(BeatPrompter.getResourceString(R.string.otherErrorCount), errorCount), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
                     break
                 }
             }
             for (nonBlankComment in nonBlankCommentLines)
                 startScreenStrings.add(ScreenString.create(nonBlankComment, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.WHITE, mFont, false))
             if (mShowKey) {
-                val keyString = BeatPrompterApplication.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
+                val keyString = BeatPrompter.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
                 startScreenStrings.add(ScreenString.create(keyString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))
             }
             if (mShowBPM != ShowBPMContext.No) {
                 val rounded = mShowBPM == ShowBPMContext.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
-                var bpmString = BeatPrompterApplication.getResourceString(R.string.bpmPrefix) + ": "
+                var bpmString = BeatPrompter.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
                     Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
                 else
@@ -772,7 +772,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             }
         }
         if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
-            startScreenStrings.add(ScreenString.create(BeatPrompterApplication.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
+            startScreenStrings.add(ScreenString.create(BeatPrompter.getResourceString(R.string.tapTwiceToStart), mPaint, mNativeDeviceSettings.mScreenSize.width(), tenPercent, Color.GREEN, boldFont, true))
         return startScreenStrings to nextSongString
     }
 

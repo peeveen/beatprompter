@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.*
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
@@ -67,7 +67,7 @@ class ImageLine internal constructor(mImageFile: ImageFile,
                         imageWidth
 
             if (scaledImageHeight > 8192 || scaledImageWidth > 8192)
-                throw SongParserException(BeatPrompterApplication.getResourceString(R.string.image_too_large))
+                throw SongParserException(BeatPrompter.getResourceString(R.string.image_too_large))
 
             return Rect(0, 0, scaledImageWidth, scaledImageHeight)
         }

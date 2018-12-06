@@ -6,7 +6,7 @@ import android.preference.ListPreference
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.ImageArrayAdapter
@@ -47,10 +47,10 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
         val imageView = view.findViewById<ImageView>(R.id.iconImageView)
         val value = Preferences.getStringPreference(key, "")
         val iconResource = when (value) {
-            BeatPrompterApplication.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
-            BeatPrompterApplication.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
-            BeatPrompterApplication.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
-            BeatPrompterApplication.getResourceString(R.string.localStorageValue) -> R.drawable.ic_device
+            BeatPrompter.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
+            BeatPrompter.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
+            BeatPrompter.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
+            BeatPrompter.getResourceString(R.string.localStorageValue) -> R.drawable.ic_device
             else -> R.drawable.blank_icon
         }
         imageView.setImageResource(iconResource)

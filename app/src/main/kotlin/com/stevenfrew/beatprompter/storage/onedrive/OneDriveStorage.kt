@@ -12,7 +12,7 @@ import com.onedrive.sdk.extensions.IOneDriveClient
 import com.onedrive.sdk.extensions.Item
 import com.onedrive.sdk.extensions.OneDriveClient
 import com.onedrive.sdk.http.OneDriveServiceException
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
@@ -45,7 +45,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
         get() = R.drawable.ic_onedrive
 
     override val cloudStorageName: String
-        get() = BeatPrompterApplication.getResourceString(R.string.onedrive_string)
+        get() = BeatPrompter.getResourceString(R.string.onedrive_string)
 
     interface OneDriveAction {
         fun onConnected(client: IOneDriveClient)
@@ -66,7 +66,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                     break
                 val nextFolder = folders.removeAt(0)
                 val currentFolderID = nextFolder.mID
-                mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, nextFolder.mName))
+                mMessageSource.onNext(BeatPrompter.getResourceString(R.string.scanningFolder, nextFolder.mName))
 
                 try {
                     Logger.log("Getting list of everything in OneDrive folder.")
@@ -121,13 +121,13 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                     if (driveFile != null) {
                         val title = file.mName
                         Logger.log("File title: $title")
-                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.checking, title))
+                        mMessageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
                         val safeFilename = Utils.makeSafeFilename(title)
                         val targetFile = File(mDownloadFolder, safeFilename)
                         Logger.log("Safe filename: $safeFilename")
 
                         Logger.log("Downloading now ...")
-                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
+                        mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
                         // Don't check lastModified ... ALWAYS download.
                         if (mListener.shouldCancel())
                             break
@@ -210,7 +210,7 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
             }
 
             override fun onAuthenticationRequired() {
-                rootPathSource.onError(StorageException(BeatPrompterApplication.getResourceString(R.string.could_not_find_cloud_root_error)))
+                rootPathSource.onError(StorageException(BeatPrompter.getResourceString(R.string.could_not_find_cloud_root_error)))
             }
         })
     }

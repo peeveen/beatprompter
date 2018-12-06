@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 
@@ -19,7 +19,7 @@ class CloudPathPreference(context: Context, attrs: AttributeSet) : Preference(co
         val path = Preferences.cloudPath
         var displayPath = Preferences.cloudDisplayPath
         if (path == null)
-            displayPath = BeatPrompterApplication.getResourceString(R.string.no_cloud_folder_currently_set)
+            displayPath = BeatPrompter.getResourceString(R.string.no_cloud_folder_currently_set)
         textView.text = displayPath
     }
 }

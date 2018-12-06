@@ -20,7 +20,7 @@
     <uses-feature android:name="android.software.midi" android:required="false"/>
 
     <application
-        android:name=".BeatPrompterApplication"
+        android:name=".BeatPrompter"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 
 /**
@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
  */
 class FileParseError private constructor(val mLineNumber: Int, val mMessage: String) {
 
-    constructor(lineNumber: Int, resourceId: Int, vararg args: Any) : this(lineNumber, BeatPrompterApplication.getResourceString(resourceId, *args))
+    constructor(lineNumber: Int, resourceId: Int, vararg args: Any) : this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
     constructor(tag: Tag, t: Throwable) : this(tag.mLineNumber, t.message ?: t.toString())
     constructor(lineNumber: Int, t: Throwable) : this(lineNumber, t.message ?: t.toString())
     constructor(tag: Tag, resourceId: Int, vararg args: Any) : this(tag.mLineNumber, resourceId, *args)

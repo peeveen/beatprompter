@@ -7,7 +7,7 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.util.Utils
 import java.util.*
@@ -38,12 +38,12 @@ class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
         if (mCurrentValue <= 0) {
             val prefKey = this.key
             mCurrentValue = when (prefKey) {
-                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSize_default))
-                BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSize_default))
-                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeSmooth_default))
-                BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeSmooth_default))
-                BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeManual_key) -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_maxFontSizeManual_default))
-                else -> Integer.parseInt(BeatPrompterApplication.getResourceString(R.string.pref_minFontSizeManual_default))
+                BeatPrompter.getResourceString(R.string.pref_maxFontSize_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSize_default))
+                BeatPrompter.getResourceString(R.string.pref_minFontSize_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSize_default))
+                BeatPrompter.getResourceString(R.string.pref_maxFontSizeSmooth_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSizeSmooth_default))
+                BeatPrompter.getResourceString(R.string.pref_minFontSizeSmooth_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSizeSmooth_default))
+                BeatPrompter.getResourceString(R.string.pref_maxFontSizeManual_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSizeManual_default))
+                else -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSizeManual_default))
             }
         }
         mSeekBar!!.progress = mCurrentValue

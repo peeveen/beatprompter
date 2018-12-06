@@ -94,7 +94,7 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-            if (key == BeatPrompterApplication.getResourceString(R.string.pref_midiIncomingChannels_key))
+            if (key == BeatPrompter.getResourceString(R.string.pref_midiIncomingChannels_key))
                 setIncomingChannels()
         }
 

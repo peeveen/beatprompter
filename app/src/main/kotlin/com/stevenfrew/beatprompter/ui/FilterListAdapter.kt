@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.filter.*
 
-class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>(BeatPrompterApplication.context, -1, values) {
+class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>(BeatPrompter.context, -1, values) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = BeatPrompterApplication.context
+        val inflater = BeatPrompter.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = convertView ?: inflater.inflate(R.layout.filter_item_selected, parent, false)
         val titleView = rowView.findViewById<TextView>(R.id.filtertitleselected)
@@ -25,7 +25,7 @@ class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>
 
     override fun getDropDownView(position: Int, convertView: View?,
                                  parent: ViewGroup): View {
-        val inflater = BeatPrompterApplication.context
+        val inflater = BeatPrompter.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val dropDownView = convertView ?: inflater.inflate(R.layout.filter_list_item, parent, false)
         val titleView = dropDownView.findViewById<TextView>(R.id.filtertitle)

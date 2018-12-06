@@ -16,7 +16,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.drive.DriveScopes
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
@@ -36,7 +36,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
 
 
     override val cloudStorageName: String
-        get() = BeatPrompterApplication.getResourceString(R.string.google_drive_string)
+        get() = BeatPrompter.getResourceString(R.string.google_drive_string)
 
     override val directorySeparator: String
         get() = "/"
@@ -89,7 +89,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
             val jsonFactory = JacksonFactory.getDefaultInstance()
             val service = com.google.api.services.drive.Drive.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName(BeatPrompterApplication.APP_NAME)
+                    .setApplicationName(BeatPrompter.APP_NAME)
                     .build()
             mAction.onConnected(service)
         }
@@ -132,7 +132,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                 val currentFolder = foldersToQuery.removeAt(0)
                 val currentFolderID = currentFolder.mID
                 val currentFolderName = currentFolder.mName
-                mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, if (firstFolder) "..." else currentFolderName))
+                mMessageSource.onNext(BeatPrompter.getResourceString(R.string.scanningFolder, if (firstFolder) "..." else currentFolderName))
                 firstFolder = false
 
                 val queryString = "trashed=false and '$currentFolderID' in parents" +
@@ -208,7 +208,7 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
                         val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
                         Logger.log("Safe filename: $safeFilename")
                         Logger.log("Downloading now ...")
-                        mMessageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, title))
+                        mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
                         if (mListener.shouldCancel())
                             break
                         val localFile = downloadGoogleDriveFile(file, safeFilename)

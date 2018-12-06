@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.storage.local
 
 import android.app.Activity
 import android.os.Environment
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
 import io.reactivex.subjects.PublishSubject
@@ -29,7 +29,7 @@ class LocalStorage(parentActivity: Activity) : Storage(parentActivity, "local") 
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
         filesToRefresh.map { sourceCloudFile -> File(sourceCloudFile.mID) to sourceCloudFile.mSubfolder }.map { updatedFile -> SuccessfulDownloadResult(FileInfo(updatedFile.first.absolutePath, updatedFile.first.name, Date(updatedFile.first.lastModified()), updatedFile.second), updatedFile.first) }.forEach {
-            messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, it.cachedCloudFileDescriptor.mName))
+            messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, it.cachedCloudFileDescriptor.mName))
             itemSource.onNext(it)
         }
         itemSource.onComplete()
@@ -40,7 +40,7 @@ class LocalStorage(parentActivity: Activity) : Storage(parentActivity, "local") 
         while (foldersToSearch.isNotEmpty()) {
             val folderToSearch = foldersToSearch.removeAt(0)
             val localFolder = File(folderToSearch.mID)
-            messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.scanningFolder, localFolder.name))
+            messageSource.onNext(BeatPrompter.getResourceString(R.string.scanningFolder, localFolder.name))
             try {
                 val files = localFolder.listFiles()
                 if (files != null) {

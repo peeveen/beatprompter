@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.storage.demo
 
 import android.app.Activity
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
@@ -33,10 +33,10 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
         for (cloudFile in filesToRefresh) {
             try {
                 if (cloudFile.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true)) {
-                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_FILENAME))
+                    messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, DEMO_SONG_FILENAME))
                     itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongTextFile()))
                 } else if (cloudFile.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true)) {
-                    messageSource.onNext(BeatPrompterApplication.getResourceString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME))
+                    messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, DEMO_SONG_AUDIO_FILENAME))
                     itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongAudioFile()))
                 }
             } catch (ioe: IOException) {
@@ -58,7 +58,7 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
 
     private fun createDemoSongTextFile(): File {
         val destinationSongFile = File(cacheFolder, DEMO_SONG_FILENAME)
-        val demoFileText = BeatPrompterApplication.getResourceString(R.string.demo_song)
+        val demoFileText = BeatPrompter.getResourceString(R.string.demo_song)
         val bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
         bw.use {
             bw.write(demoFileText)

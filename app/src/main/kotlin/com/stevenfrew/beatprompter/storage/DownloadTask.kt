@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.storage
 import android.app.ProgressDialog
 import android.os.AsyncTask
 import android.os.Handler
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
@@ -52,8 +52,8 @@ class DownloadTask(private val mStorage: Storage,
     override fun onPreExecute() {
         super.onPreExecute()
         mProgressDialog = ProgressDialog(SongListActivity.mSongListInstance).apply {
-            setTitle(BeatPrompterApplication.getResourceString(R.string.downloadingFiles))
-            setMessage(BeatPrompterApplication.getResourceString(R.string.accessingCloudStorage, mStorage.cloudStorageName))
+            setTitle(BeatPrompter.getResourceString(R.string.downloadingFiles))
+            setMessage(BeatPrompter.getResourceString(R.string.accessingCloudStorage, mStorage.cloudStorageName))
             setCancelable(false)
             isIndeterminate = true
             show()

@@ -15,7 +15,7 @@ import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Build
 import android.support.annotation.RequiresApi
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.MessageQueue
@@ -131,7 +131,7 @@ object MIDIController {
         }
     }
 
-    fun initialise(application: BeatPrompterApplication) {
+    fun initialise(application: BeatPrompter) {
         mSenderTaskThread.start()
         Task.resumeTask(mSenderTask)
 

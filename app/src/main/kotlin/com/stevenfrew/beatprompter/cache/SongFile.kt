@@ -44,7 +44,7 @@ class SongFile constructor(cachedCloudFileDescriptor: CachedFileDescriptor,
     }
 
     companion object {
-        private var thePrefix = BeatPrompterApplication.getResourceString(R.string.lowerCaseThe) + " "
+        private var thePrefix = BeatPrompter.getResourceString(R.string.lowerCaseThe) + " "
 
         fun sortableString(inStr: String?): String {
             val str = inStr?.toLowerCase()

@@ -7,19 +7,19 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.R
 
-class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<PlaylistNode>(BeatPrompterApplication.context, -1, values) {
+class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<PlaylistNode>(BeatPrompter.context, -1, values) {
     private val mLargePrint: Boolean = Preferences.largePrint
     private val mShowBeatIcons = Preferences.showBeatStyleIcons
     private val mShowKey = Preferences.showKeyInSongList
     private val mShowMusicIcon = Preferences.showMusicIcon
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = BeatPrompterApplication.context
+        val inflater = BeatPrompter.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = convertView
                 ?: inflater.inflate(if (mLargePrint) R.layout.song_list_item_large else R.layout.song_list_item, parent, false)

@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
 import com.github.paolorotolo.appintro.model.SliderPage
-import com.stevenfrew.beatprompter.BeatPrompterApplication
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 
 class IntroActivity : AppIntro() {
@@ -29,8 +29,8 @@ class IntroActivity : AppIntro() {
 
         pageInfo.forEach {
             addSlide(AppIntroFragment.newInstance(SliderPage().apply {
-                title = BeatPrompterApplication.getResourceString(it.caption)
-                description = BeatPrompterApplication.getResourceString(it.description)
+                title = BeatPrompter.getResourceString(it.caption)
+                description = BeatPrompter.getResourceString(it.description)
                 imageDrawable = it.image
                 bgColor = backgroundColor
             }))
