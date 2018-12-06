@@ -23,7 +23,7 @@ abstract class SenderBase constructor(private val mName: String,
                     break
                 System.arraycopy(message.mBytes, 0, mOutBuffer, bytesCopied, messageSize)
                 bytesCopied += messageSize
-                messagesSent++
+                ++messagesSent
             }
             sendMessageData(mOutBuffer, bytesCopied)
             messagesCopy = messagesCopy.drop(messagesSent)

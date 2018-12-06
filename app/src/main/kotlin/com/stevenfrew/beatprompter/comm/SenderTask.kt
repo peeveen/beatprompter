@@ -22,7 +22,6 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
             val senders = getSenders()
             if (senders.isNotEmpty())
                 senders.forEach {
-                    //                    runBlocking {
                     try {
                         Log.d(BeatPrompterApplication.TAG_COMMS, "Sending messages to '$it.key' ($it.value.name).")
                         it.value.send(messages)
@@ -31,7 +30,6 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
                         Log.d(BeatPrompterApplication.TAG_COMMS, "Sender threw an exception. Assuming it to be dead.")
                         removeSender(it.key)
                     }
-//                    }
                 }
         } catch (interruptedException: InterruptedException) {
             // Must have been signalled to stop ... main Task loop will cater for this.
