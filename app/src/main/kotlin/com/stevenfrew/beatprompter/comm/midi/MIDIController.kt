@@ -17,6 +17,7 @@ import android.os.Build
 import android.support.annotation.RequiresApi
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
@@ -41,8 +42,9 @@ object MIDIController {
     private val mSenderTaskThread = Thread(mSenderTask)
 
     private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager != null)
-            mNativeMidiManager!!.openDevice(nativeDeviceInfo, mMidiNativeDeviceListener, null)
+        if (Preferences.midiConnectionType == ConnectionType.Native)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager != null)
+                mNativeMidiManager!!.openDevice(nativeDeviceInfo, mMidiNativeDeviceListener, null)
     }
 
     private val mUsbReceiver = object : BroadcastReceiver() {
@@ -118,14 +120,16 @@ object MIDIController {
     }
 
     private fun attemptUsbMidiConnection() {
-        val list = mUsbManager!!.deviceList
-        if (list != null && list.size > 0) {
-            val devObjs = list.values
-            for (devObj in devObjs) {
-                val dev = devObj as UsbDevice
-                if (getDeviceMidiInterface(dev) != null) {
-                    mUsbManager!!.requestPermission(dev, mPermissionIntent)
-                    break
+        if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
+            val list = mUsbManager!!.deviceList
+            if (list != null && list.size > 0) {
+                val devObjs = list.values
+                for (devObj in devObjs) {
+                    val dev = devObj as UsbDevice
+                    if (getDeviceMidiInterface(dev) != null) {
+                        mUsbManager!!.requestPermission(dev, mPermissionIntent)
+                        break
+                    }
                 }
             }
         }

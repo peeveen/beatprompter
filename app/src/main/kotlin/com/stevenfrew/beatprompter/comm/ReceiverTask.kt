@@ -14,8 +14,8 @@ class ReceiverTask(val mName: String,
             mReceiver.receive()
         } catch (exception: Exception) {
             // Any I/O error means this receiver is dead to us.
-            Logger.logComms("Unexpected IO exception from receiver.", exception)
-            Logger.logComms("Receiver '$mName' threw an exception. Assuming it to be dead.")
+            Logger.logComms({ "Unexpected IO exception from receiver." }, exception)
+            Logger.logComms { "Receiver '$mName' threw an exception. Assuming it to be dead." }
             if (!mUnregistered)
                 mReceiver.unregister(this)
             super.stop()

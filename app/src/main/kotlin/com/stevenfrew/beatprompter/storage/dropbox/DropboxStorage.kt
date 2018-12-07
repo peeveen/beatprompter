@@ -53,11 +53,11 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
                 val mdata = client.files().getMetadata(file.mID)
                 val result = if (mdata is FileMetadata) {
                     val title = file.mName
-                    Logger.log("File title: $title")
+                    Logger.log { "File title: $title" }
                     messageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
                     val safeFilename = Utils.makeSafeFilename(title)
                     val targetFile = File(cacheFolder, safeFilename)
-                    Logger.log("Safe filename: $safeFilename")
+                    Logger.log { "Safe filename: $safeFilename" }
 
                     Logger.log("Downloading now ...")
                     messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))

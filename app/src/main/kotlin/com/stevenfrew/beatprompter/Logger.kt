@@ -8,6 +8,11 @@ object Logger {
     private const val TAG_LOAD = "beatprompter_load"
     private const val TAG_COMMS = "beatprompter_comms"
 
+    private fun log(tag: String, message: () -> String, t: Throwable? = null) {
+        if (LOGGING)
+            log(tag, message(), t)
+    }
+
     private fun log(tag: String, message: String, t: Throwable? = null) {
         if (LOGGING)
             if (t == null)
@@ -16,16 +21,40 @@ object Logger {
                 Log.e(tag, message, t)
     }
 
+    fun log(message: () -> String, t: Throwable? = null) {
+        log(TAG, message, t)
+    }
+
+    fun log(message: () -> String) {
+        log(message, null)
+    }
+
     fun log(message: String, t: Throwable? = null) {
         log(TAG, message, t)
     }
 
     fun log(t: Throwable) {
-        log(TAG, t.message ?: "", t)
+        log(TAG, { t.message ?: "" }, t)
+    }
+
+    fun logLoader(message: () -> String, t: Throwable? = null) {
+        log(TAG_LOAD, message, t)
+    }
+
+    fun logLoader(message: () -> String) {
+        logLoader(message, null)
     }
 
     fun logLoader(message: String, t: Throwable? = null) {
         log(TAG_LOAD, message, t)
+    }
+
+    fun logComms(message: () -> String, t: Throwable? = null) {
+        log(TAG_COMMS, message, t)
+    }
+
+    fun logComms(message: () -> String) {
+        logComms(message, null)
     }
 
     fun logComms(message: String, t: Throwable? = null) {

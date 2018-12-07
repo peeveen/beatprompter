@@ -45,7 +45,7 @@ class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
                         }
                     }
                 } catch (e: Exception) {
-                    Logger.logComms("Failed to read SetSongTimeMessage, assuming insufficient data.", e)
+                    Logger.logComms({ "Failed to read SetSongTimeMessage, assuming insufficient data." }, e)
                 }
             }
             throw NotEnoughDataException()

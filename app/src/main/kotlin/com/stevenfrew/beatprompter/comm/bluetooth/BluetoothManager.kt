@@ -93,7 +93,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
             if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
                 // Something has disconnected.
                 (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice).apply {
-                    Logger.logComms("A Bluetooth device with address '$address' has disconnected.")
+                    Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
                     mReceiverTasks.stopAndRemoveReceiver(address)
                     mSenderTask.removeSender(address)
                 }
@@ -205,13 +205,13 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
                                 .firstOrNull { it.address == Preferences.bandLeaderDevice }
                                 ?.also {
                                     try {
-                                        Logger.logComms("Starting Bluetooth client thread, looking to connect with '${it.name}'.")
+                                        Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
                                         mConnectToServerThread =
                                                 ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
                                                     BluetoothManager.setServerConnection(socket)
                                                 }.apply { start() }
                                     } catch (e: Exception) {
-                                        Logger.logComms("Failed to create ConnectToServerThread for bluetooth device ${it.name}'.", e)
+                                        Logger.logComms({ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." }, e)
                                     }
                                 }
                     }
@@ -230,7 +230,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      */
     private fun handleConnectionFromClient(socket: BluetoothSocket) {
         if (Preferences.bluetoothMode === BluetoothMode.Server) {
-            Logger.logComms("Client connection opened with '${socket.remoteDevice.name}'")
+            Logger.logComms { "Client connection opened with '${socket.remoteDevice.name}'" }
             mSenderTask.addSender(socket.remoteDevice.address, Sender(socket))
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
         }
@@ -241,7 +241,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
      */
     private fun setServerConnection(socket: BluetoothSocket) {
         if (Preferences.bluetoothMode === BluetoothMode.Client) {
-            Logger.logComms("Server connection opened with '${socket.remoteDevice.name}'")
+            Logger.logComms { "Server connection opened with '${socket.remoteDevice.name}'" }
             mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
             EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
         }

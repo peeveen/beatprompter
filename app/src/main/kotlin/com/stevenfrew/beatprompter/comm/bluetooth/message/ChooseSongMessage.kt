@@ -71,12 +71,12 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
                         val availableEnd = available()
                         val messageLength = 1 + (availableStart - availableEnd)
                         close()
-                        Logger.logLoader("Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"")
+                        Logger.logLoader { "Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"" }
                         return ChooseSongMessage(bytes.copyOfRange(0, messageLength), songChoiceInfo)
                     }
                 }
             } catch (e: Exception) {
-                Logger.logComms("Couldn't read ChooseSongMessage data, assuming not enough data", e)
+                Logger.logComms({ "Couldn't read ChooseSongMessage data, assuming not enough data" }, e)
             }
             throw NotEnoughDataException()
         }

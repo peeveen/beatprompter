@@ -27,7 +27,7 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
             launch {
                 System.gc()
                 try {
-                    Logger.logLoader("Starting to load '${mSongLoadInfo.mSongFile.mTitle}'.")
+                    Logger.logLoader { "Starting to load '${mSongLoadInfo.mSongFile.mTitle}'." }
                     val loadedSong = SongParser(mSongLoadInfo, mCancelEvent, mHandler, mRegistered).parse()
                     if (mCancelEvent.isCancelled)
                         throw SongLoadCancelledException()

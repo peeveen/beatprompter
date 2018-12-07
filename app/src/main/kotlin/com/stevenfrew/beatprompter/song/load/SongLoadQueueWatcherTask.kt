@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.song.load
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 
 object SongLoadQueueWatcherTask : Task(true) {
@@ -27,13 +28,19 @@ object SongLoadQueueWatcherTask : Task(true) {
             mLoadingSong != null
         }
 
+    fun isAlreadyLoadingSong(songFile: SongFile): Boolean {
+        return mSongToLoad?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
+                || mLoadingSong?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
+                || SongLoadJob.mLoadedSong?.mLoadJob?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
+    }
+
     override fun doWork() {
         synchronized(mSongLoadLock)
         {
             val songToLoad = nextSongToLoad
             if (songToLoad != null) {
                 mLoadingSong = songToLoad
-                Logger.logLoader("Found a song to load: ${songToLoad.mSongLoadInfo.mSongFile.mTitle}")
+                Logger.logLoader { "Found a song to load: ${songToLoad.mSongLoadInfo.mSongFile.mTitle}" }
                 synchronized(songToLoad)
                 {
                     songToLoad.startLoading()
@@ -60,15 +67,15 @@ object SongLoadQueueWatcherTask : Task(true) {
         synchronized(mSongLoadLock)
         {
             if (mSongToLoadOnResume != null) {
-                Logger.logLoader("Removing an unstarted load-on-resume from the queue: ${mSongToLoadOnResume!!.mSongLoadInfo.mSongFile.mTitle}")
+                Logger.logLoader { "Removing an unstarted load-on-resume from the queue: ${mSongToLoadOnResume!!.mSongLoadInfo.mSongFile.mTitle}" }
                 mSongToLoadOnResume = null
             }
             if (mSongToLoad != null) {
-                Logger.logLoader("Removing an unstarted load from the queue: ${mSongToLoad!!.mSongLoadInfo.mSongFile.mTitle}")
+                Logger.logLoader { "Removing an unstarted load from the queue: ${mSongToLoad!!.mSongLoadInfo.mSongFile.mTitle}" }
                 mSongToLoad = null
             }
             if (mLoadingSong != null) {
-                Logger.logLoader("Cancelling started load: ${mLoadingSong!!.mSongLoadInfo.mSongFile.mTitle}")
+                Logger.logLoader { "Cancelling started load: ${mLoadingSong!!.mSongLoadInfo.mSongFile.mTitle}" }
                 mLoadingSong!!.stopLoading()
                 mLoadingSong = null
             }
@@ -88,7 +95,7 @@ object SongLoadQueueWatcherTask : Task(true) {
             SongInterruptResult.NoSongToInterrupt -> {
                 synchronized(mSongLoadLock)
                 {
-                    Logger.logLoader("Adding a song to the load queue: ${loadJob.mSongLoadInfo.mSongFile.mTitle}")
+                    Logger.logLoader { "Adding a song to the load queue: ${loadJob.mSongLoadInfo.mSongFile.mTitle}" }
                     mSongToLoadOnResume = null
                     mSongToLoad = loadJob
                 }

@@ -554,7 +554,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         time = mSong!!.getTimeFromPixel(mSongPixelPosition)
                         setSongTime(time, false, false, false, true)
                     } else {
-                        Logger.log("Resuming, pause time=$mPauseTime")
+                        Logger.log { "Resuming, pause time=$mPauseTime" }
                         time = mPauseTime
                         setSongTime(time, false, false, true, true)
                     }
@@ -668,7 +668,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun processMIDIEvent(event: MIDIEvent) {
-        MIDIController.mMIDIOutQueue.putMessages(event.mMessages)
+        event.mMessages.forEach {
+            MIDIController.mMIDIOutQueue.putMessage(it)
+        }
     }
 
     private fun processLineEvent(event: LineEvent) {

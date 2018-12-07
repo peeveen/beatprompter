@@ -120,11 +120,11 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
                     val driveFile = mClient.drive.getItems(file.mID).buildRequest().get()
                     if (driveFile != null) {
                         val title = file.mName
-                        Logger.log("File title: $title")
+                        Logger.log { "File title: $title" }
                         mMessageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
                         val safeFilename = Utils.makeSafeFilename(title)
                         val targetFile = File(mDownloadFolder, safeFilename)
-                        Logger.log("Safe filename: $safeFilename")
+                        Logger.log { "Safe filename: $safeFilename" }
 
                         Logger.log("Downloading now ...")
                         mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))

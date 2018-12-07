@@ -10,7 +10,6 @@ import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
     private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
-    private val mMessageBuffer = mutableListOf<ClockMessage>()
     private var mLastSignalTime = 0.0
     private var mClockSignalsSent = 0
     private var mNanoSecondsPerMidiSignal = 0.0
@@ -73,19 +72,17 @@ class ClockSignalGeneratorTask : Task(false) {
         while (nanoDiff >= nanoSecondsPerMidiSignal) {
             try {
                 signalSent = true
-                mMessageBuffer.add(ClockMessage())
+                MIDIController.mMIDIOutQueue.putMessage(ClockMessage)
                 // We've hit the 24-signal boundary. Switch to the next speed.
                 if (incrementClockSignalsSent() == 24) {
                     resetClockSignalsSent()
                     nanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
                 }
             } catch (e: Exception) {
-                Logger.logComms("Failed to add MIDI timing clock signal to output queue.", e)
+                Logger.logComms({ "Failed to add MIDI timing clock signal to output queue." }, e)
             }
             nanoDiff -= nanoSecondsPerMidiSignal
         }
-        MIDIController.mMIDIOutQueue.putMessages(mMessageBuffer)
-        mMessageBuffer.clear()
         if (signalSent) {
             lastSignalTime = nanoTime - nanoDiff
             val nextSignalDue = lastSignalTime + nanoSecondsPerMidiSignal
@@ -102,7 +99,7 @@ class ClockSignalGeneratorTask : Task(false) {
                 try {
                     Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder)
                 } catch (e: Exception) {
-                    Logger.logComms("Thread sleep was interrupted.", e)
+                    Logger.logComms({ "Thread sleep was interrupted." }, e)
                 }
             }
         }
@@ -120,9 +117,9 @@ class ClockSignalGeneratorTask : Task(false) {
             resetClockSignalsSent()
             lastSignalTime = System.nanoTime().toDouble()
             try {
-                MIDIController.mMIDIOutQueue.putMessage(StartMessage())
+                MIDIController.mMIDIOutQueue.putMessage(StartMessage)
             } catch (e: Exception) {
-                Logger.logComms("Failed to add MIDI start signal to output queue.", e)
+                Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
             }
 
             nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
@@ -136,9 +133,9 @@ class ClockSignalGeneratorTask : Task(false) {
         lastSignalTime = 0.0
         resetClockSignalsSent()
         try {
-            MIDIController.mMIDIOutQueue.putMessage(StopMessage())
+            MIDIController.mMIDIOutQueue.putMessage(StopMessage)
         } catch (e: Exception) {
-            Logger.logComms("Failed to add MIDI stop signal to output queue.", e)
+            Logger.logComms({ "Failed to add MIDI stop signal to output queue." }, e)
         }
     }
 }

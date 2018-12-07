@@ -79,13 +79,13 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         // can end up with multiple SongDisplay activities running.
         if (song.mLoadID != loadID.uuid) {
             Logger.logLoader("*** Load ID Mismatch ***")
-            Logger.logLoader("Parcelable Load ID = ${loadID.uuid}")
-            Logger.logLoader("SongLoadJob ID = ${song.mLoadID}")
+            Logger.logLoader { "Parcelable Load ID = ${loadID.uuid}" }
+            Logger.logLoader { "SongLoadJob ID = ${song.mLoadID}" }
             finish()
         } else {
-            Logger.logLoader("Successful load ID match: ${song.mLoadID}")
+            Logger.logLoader { "Successful load ID match: ${song.mLoadID}" }
             if (Preferences.bluetoothMode == BluetoothMode.Server) {
-                Logger.logLoader("Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"")
+                Logger.logLoader { "Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"" }
                 val csm = ChooseSongMessage(SongChoiceInfo(loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
                         loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
                         loadedSong.mLoadJob.mSongLoadInfo.mTrack?.mName ?: "",
@@ -108,7 +108,9 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        MIDIController.mMIDIOutQueue.putMessages(song.mInitialMIDIMessages)
+        song.mInitialMIDIMessages.forEach {
+            MIDIController.mMIDIOutQueue.putMessage(it)
+        }
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)

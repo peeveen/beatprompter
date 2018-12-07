@@ -546,16 +546,22 @@
     <string name="screenActionVolumeValue" translatable="false">Volume</string>
     <string name="screenActionNoneValue" translatable="false">None</string>
 
-    <string name="localStorageValue" translatable="false">localstorage</string>
-    <string name="googleDriveValue" translatable="false">googledrive</string>
-    <string name="dropboxValue" translatable="false">dropbox</string>
-    <string name="oneDriveValue" translatable="false">onedrive</string>
+    <string name="localStorageValue" translatable="false">Local</string>
+    <string name="googleDriveValue" translatable="false">GoogleDrive</string>
+    <string name="dropboxValue" translatable="false">Dropbox</string>
+    <string name="oneDriveValue" translatable="false">OneDrive</string>
 
     <string name="pref_cloudStorageSystem_key" translatable="false">pref_cloudStorageSystem</string>
     <string name="pref_cloudStorageSystem_title">Storage System</string>
-    <string name="pref_cloudStorageSystem_defaultValue" translatable="false">googledrive</string>
+    <string name="pref_cloudStorageSystem_defaultValue" translatable="false">Demo</string>
     <string name="pref_cloudStorageSystem_summary">Where are your song files stored?</string>
     <string name="pref_cloudStorageSystem_dialogTitle">Storage System</string>
+
+    <string name="pref_midiConnectionType_key" translatable="false">pref_midiConnectionType</string>
+    <string name="pref_midiConnectionType_title">Connection Type</string>
+    <string name="pref_midiConnectionType_defaultValue" translatable="false">USBOnTheGo</string>
+    <string name="pref_midiConnectionType_summary">What type of MIDI connection do you use?</string>
+    <string name="pref_midiConnectionType_dialogTitle">Connection Type</string>
 
     <string name="cloud_sync">Files</string>
 
@@ -705,4 +711,12 @@ lyrics and [Em]chords in time with a beat.\n
     <string name="cloudSyncErrorTitle">Sync Error</string>
 
     <string name="instructions">Instructions …</string>
+
+    <string name="midi_usb_on_the_go_string">USB On-The-Go</string>
+    <string name="midi_native_string">Native</string>
+    <string name="midi_bluetooth_string">Bluetooth</string>
+
+    <string name="midi_usb_on_the_go_value">USBOnTheGo</string>
+    <string name="midi_native_value">Native</string>
+    <string name="midi_bluetooth_value">Bluetooth</string>
 </resources>

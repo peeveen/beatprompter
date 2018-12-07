@@ -4,12 +4,22 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
+import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 
 object Preferences {
+    val midiConnectionType: ConnectionType
+        get() = try {
+            ConnectionType.valueOf(getStringPreference(R.string.pref_midiConnectionType_key, R.string.pref_midiConnectionType_defaultValue)!!)
+        } catch (e: Exception) {
+            // Backwards compatibility with old shite values from previous app versions.
+            ConnectionType.USBOnTheGo
+        }
+
     val defaultTrackVolume: Int
         get() = getIntPreference(R.string.pref_defaultTrackVolume_key, R.string.pref_defaultTrackVolume_default, 1)
 
@@ -118,9 +128,14 @@ object Preferences {
     val anyOtherKeyPageDown: Boolean
         get() = getBooleanPreference(R.string.pref_anyOtherKeyPageDown_key, false)
 
-    var storageSystem: String?
-        get() = getStringPreference(R.string.pref_cloudStorageSystem_key, null)
-        set(value) = setStringPreference(R.string.pref_cloudStorageSystem_key, value)
+    var storageSystem: StorageType
+        get() = try {
+            StorageType.valueOf(getStringPreference(R.string.pref_cloudStorageSystem_key, R.string.pref_cloudStorageSystem_defaultValue)!!)
+        } catch (e: Exception) {
+            // backward compatibility with old shite values.
+            StorageType.GoogleDrive
+        }
+        set(value) = setStringPreference(R.string.pref_cloudStorageSystem_key, value.name)
 
     val onlyUseBeatFontSizes: Boolean
         get() = getBooleanPreference(R.string.pref_alwaysUseBeatFontPrefs_key, R.string.pref_alwaysUseBeatFontPrefs_defaultValue)

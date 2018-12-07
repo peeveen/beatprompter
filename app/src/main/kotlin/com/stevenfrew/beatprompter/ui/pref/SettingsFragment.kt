@@ -8,7 +8,6 @@ import android.widget.Toast
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.FolderSelectionListener
 import com.stevenfrew.beatprompter.storage.Storage
@@ -51,7 +50,7 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         val cloudPref = findPreference(cloudPrefName)
         cloudPref?.setOnPreferenceChangeListener { _, value ->
             EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE)
-            Preferences.storageSystem = value.toString()
+            Preferences.storageSystem = StorageType.valueOf(value.toString())
             Preferences.cloudPath = null
             Preferences.cloudDisplayPath = null
             (cloudPref as ImageListPreference).forceUpdate()
@@ -66,17 +65,17 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
     }
 
     private fun onCloudPathChanged(newValue: Any?) {
-        val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
-        val cloudDisplayPathPrefName = getString(R.string.pref_cloudDisplayPath_key)
-        val displayPath = Preferences.getStringPreference(cloudDisplayPathPrefName, null)
+        val displayPath = Preferences.cloudDisplayPath
 
+        val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
         val cloudPathPref = findPreference(cloudPathPrefName)
+
         if (cloudPathPref != null)
             cloudPathPref.summary = if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
     }
 
     internal fun setCloudPath() {
-        val cloudType = SongListActivity.storage
+        val cloudType = Preferences.storageSystem
         if (cloudType !== StorageType.Demo) {
             val cs = Storage.getInstance(cloudType, activity)
             cs.selectFolder(activity, this)

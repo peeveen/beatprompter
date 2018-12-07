@@ -111,14 +111,17 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             val maf = filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles)[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
-        } else
-            playPlaylistNode(filterPlaylistNodes(mPlaylist)[position], false)
+        } else {
+            val songToLoad = filterPlaylistNodes(mPlaylist)[position]
+            if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.mSongFile))
+                playPlaylistNode(songToLoad, false)
+        }
     }
 
     internal fun startSongActivity(loadID: UUID) {
         val i = Intent(applicationContext, SongDisplayActivity::class.java)
         i.putExtra("loadID", ParcelUuid(loadID))
-        Logger.logLoader("Starting SongDisplayActivity for $loadID!")
+        Logger.logLoader { "Starting SongDisplayActivity for $loadID!" }
         startActivityForResult(i, PLAY_SONG_REQUEST_CODE)
     }
 
@@ -133,7 +136,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
         for (node in mPlaylist.nodes)
             if (node.mSongFile.matchesTrigger(mst)) {
-                Logger.log("Found trigger match: '${node.mSongFile.mTitle}'.")
+                Logger.log { "Found trigger match: '${node.mSongFile.mTitle}'." }
                 playPlaylistNode(node, true)
                 return
             }
@@ -141,7 +144,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         // Still play it though!
         for (sf in mCachedCloudFiles.songFiles)
             if (sf.matchesTrigger(mst)) {
-                Logger.log("Found trigger match: '${sf.mTitle}'.")
+                Logger.log { "Found trigger match: '${sf.mTitle}'." }
                 playSongFile(sf, PlaylistNode(sf), true)
             }
     }
@@ -207,7 +210,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         val nextSongName = if (selectedNode.mNextNode != null && shouldPlayNextSong()) selectedNode.mNextNode!!.mSongFile.mTitle else ""
         val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
-        val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
+        val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
 
@@ -575,6 +578,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     override fun onResume() {
         super.onResume()
+        SongLoadJob.mLoadedSong = null
 
         updateBluetoothIcon()
 
@@ -595,7 +599,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun firstRunSetup() {
         Preferences.firstRun = false
-        Preferences.storageSystem = "demo"
+        Preferences.storageSystem = StorageType.Demo
         Preferences.cloudPath = "/"
         performFullCloudSync()
     }
@@ -633,7 +637,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     private fun canPerformCloudSync(): Boolean {
-        return storage !== StorageType.Demo && cloudPath != null
+        return Preferences.storageSystem !== StorageType.Demo && cloudPath != null
     }
 
     private fun performFullCloudSync() {
@@ -643,7 +647,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     private fun performCloudSync(fileToUpdate: CachedFile?, dependenciesToo: Boolean) {
         if (fileToUpdate == null)
             clearTemporarySetList()
-        val cs = Storage.getInstance(storage, this)
+        val cs = Storage.getInstance(Preferences.storageSystem, this)
         val cloudPath = cloudPath
         if (cloudPath.isNullOrBlank())
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
@@ -936,7 +940,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     internal fun clearCache(report: Boolean) {
         // Clear both cache folders
-        val cs = Storage.getInstance(storage, this)
+        val cs = Storage.getInstance(Preferences.storageSystem, this)
         cs.cacheFolder.clear()
         mPlaylist = Playlist()
         mCachedCloudFiles.clear()
@@ -968,7 +972,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 val track = mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
                 val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
-                val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || storage === StorageType.Demo)
+                val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
                 if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
                     playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 break
@@ -1075,7 +1079,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
                 }
                 SONG_LOAD_COMPLETED -> {
-                    Logger.logLoader("Song ${msg.obj} was fully loaded successfully.")
+                    Logger.logLoader { "Song ${msg.obj} was fully loaded successfully." }
                     mSongList.showLoadingProgressUI(false)
                     // No point starting up the activity if there are songs in the load queue
                     if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
@@ -1171,18 +1175,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         var mDefaultMidiAliasesFile: File? = null
 
         var mSongListEventHandler: SongListEventHandler? = null
-
-        val storage: StorageType
-            get() {
-                val storagePref = Preferences.storageSystem
-                return when (storagePref) {
-                    BeatPrompter.getResourceString(R.string.localStorageValue) -> StorageType.Local
-                    BeatPrompter.getResourceString(R.string.googleDriveValue) -> StorageType.GoogleDrive
-                    BeatPrompter.getResourceString(R.string.dropboxValue) -> StorageType.Dropbox
-                    BeatPrompter.getResourceString(R.string.oneDriveValue) -> StorageType.OneDrive
-                    else -> StorageType.Demo
-                }
-            }
 
         @Throws(IOException::class)
         fun copyAssetsFileToLocalFolder(filename: String, destination: File) {

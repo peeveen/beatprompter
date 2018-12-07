@@ -10,13 +10,13 @@ class ReceiverTasks {
     fun addReceiver(id: String, name: String, receiver: Receiver) {
         synchronized(mReceiverThreadsLock)
         {
-            Logger.logComms("Starting new receiver task '$id:' ($name)")
+            Logger.logComms { "Starting new receiver task '$id:' ($name)" }
             mReceiverTasks[id] = ReceiverTask(name, receiver).also {
                 mReceiverThreads[id] = Thread(it).also { th ->
                     th.start()
                 }
             }
-            Logger.logComms("Started new receiver task '$id:' ($name)")
+            Logger.logComms { "Started new receiver task '$id:' ($name)" }
         }
     }
 
@@ -25,21 +25,21 @@ class ReceiverTasks {
         var receiverThread: Thread?
         synchronized(mReceiverThreadsLock)
         {
-            Logger.logComms("Removing receiver task '$id'")
+            Logger.logComms { "Removing receiver task '$id'" }
             receiverTask = mReceiverTasks[id]
             receiverThread = mReceiverThreads[id]
             mReceiverTasks.remove(id)
             mReceiverThreads.remove(id)
-            Logger.logComms("Removed receiver task '$id'")
+            Logger.logComms { "Removed receiver task '$id'" }
         }
-        Logger.logComms("Stopping receiver task '$id'")
+        Logger.logComms { "Stopping receiver task '$id'" }
         receiverTask?.setUnregistered()
         receiverTask?.stop()
         receiverThread?.apply {
             interrupt()
             join()
         }
-        Logger.logComms("Stopped receiver task '$id'")
+        Logger.logComms { "Stopped receiver task '$id'" }
     }
 
     fun stopAll() {

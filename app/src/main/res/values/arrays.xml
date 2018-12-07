@@ -130,6 +130,16 @@
         <item>@string/onedrive_string</item>
         <item>@string/local_storage_string</item>
     </string-array>
+    <string-array name="pref_midiConnectionType_entryValues">
+        <item>@string/midi_usb_on_the_go_value</item>
+        <item>@string/midi_native_value</item>
+        <item>@string/midi_bluetooth_value</item>
+    </string-array>
+    <string-array name="pref_midiConnectionType_entries">
+        <item>@string/midi_usb_on_the_go_string</item>
+        <item>@string/midi_native_string</item>
+        <item>@string/midi_bluetooth_string</item>
+    </string-array>
     <string-array name="pref_cloudStorageSystem_entryValues">
         <item>@string/googleDriveValue</item>
         <item>@string/dropboxValue</item>
@@ -148,5 +158,10 @@
         <item>@drawable/ic_dropbox</item>
         <item>@drawable/ic_onedrive</item>
         <item>@drawable/ic_device</item>
+    </array>
+    <array name="midi_connectiontype_pref_images">
+        <item>@drawable/ic_usb</item>
+        <item>@drawable/midi</item>
+        <item>@drawable/ic_bluetooth</item>
     </array>
 </resources>

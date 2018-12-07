@@ -119,7 +119,7 @@ class CachedCloudFileCollection {
         val noLongerExistingFiles = mFiles.filter { !storageIDs.contains(it.mID) }
         noLongerExistingFiles.forEach { f ->
             if (!f.mFile.delete())
-                Logger.log("Failed to delete file: " + f.mFile.name)
+                Logger.log { "Failed to delete file: ${f.mFile.name}" }
         }
         mFiles = remainingFiles.toMutableList()
     }

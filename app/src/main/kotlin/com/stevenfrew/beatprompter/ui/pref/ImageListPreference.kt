@@ -51,6 +51,9 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
             BeatPrompter.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
             BeatPrompter.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
             BeatPrompter.getResourceString(R.string.localStorageValue) -> R.drawable.ic_device
+            BeatPrompter.getResourceString(R.string.midi_usb_on_the_go_value) -> R.drawable.ic_usb
+            BeatPrompter.getResourceString(R.string.midi_native_value) -> R.drawable.midi
+            BeatPrompter.getResourceString(R.string.midi_bluetooth_value) -> R.drawable.ic_bluetooth
             else -> R.drawable.blank_icon
         }
         imageView.setImageResource(iconResource)

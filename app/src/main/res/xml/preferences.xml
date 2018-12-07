@@ -306,6 +306,16 @@
     </PreferenceScreen>
     <PreferenceScreen
         android:title="@string/midi">
+        <com.stevenfrew.beatprompter.ui.pref.ImageListPreference
+            android:key="@string/pref_midiConnectionType_key"
+            android:layout="@layout/midi_connectiontype_pref_layout"
+            customStyle:entryPreferenceImages="@array/midi_connectiontype_pref_images"
+            android:title="@string/pref_midiConnectionType_title"
+            android:dialogTitle="@string/pref_midiConnectionType_dialogTitle"
+            android:summary="@string/pref_midiConnectionType_summary"
+            android:entries="@array/pref_midiConnectionType_entries"
+            android:entryValues="@array/pref_midiConnectionType_entryValues"
+            android:defaultValue="@string/pref_midiConnectionType_defaultValue" />
         <com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
             android:key="@string/pref_midiIncomingChannels_key"
             android:defaultValue="@string/pref_midiIncomingChannels_default"

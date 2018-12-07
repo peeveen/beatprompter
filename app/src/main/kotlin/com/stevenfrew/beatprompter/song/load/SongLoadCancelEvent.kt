@@ -11,7 +11,7 @@ class SongLoadCancelEvent(private val mSongName: String) {
         private set
 
     fun set() {
-        Logger.logLoader("Cancelling the load of '$mSongName'.")
+        Logger.logLoader { "Cancelling the load of '$mSongName'." }
         isCancelled = true
     }
 }
