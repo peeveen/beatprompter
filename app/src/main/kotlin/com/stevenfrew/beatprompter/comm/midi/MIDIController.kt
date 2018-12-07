@@ -142,8 +142,8 @@ object MIDIController {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mMidiNativeDeviceListener = MidiNativeDeviceListener()
             mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
-            mNativeMidiManager?.devices?.forEach { addNativeDevice(it) }
             mNativeMidiManager?.registerDeviceCallback(mMidiNativeDeviceListener, null)
+            mNativeMidiManager?.devices?.forEach { addNativeDevice(it) }
         }
         mUsbManager = application.getSystemService(Context.USB_SERVICE) as UsbManager
         mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)

@@ -12,6 +12,6 @@ class UsbSender(private val mConnection: UsbDeviceConnection,
     }
 
     override fun sendMessageData(bytes: ByteArray, length: Int) {
-        mConnection.bulkTransfer(mEndpoint, bytes, length, 60000)
+        mConnection.bulkTransfer(mEndpoint, bytes, length, 5000)
     }
 }
