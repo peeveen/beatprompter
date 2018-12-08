@@ -458,8 +458,12 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mSongListEventHandler = SongListEventHandler(this)
         mSongListInstance = this
+
+        mSongListEventHandler = SongListEventHandler(this)
+        // Now ready to receive events.
+        EventHandler.setSongListEventHandler(mSongListEventHandler!!)
+
         initialiseLocalStorage()
 
         checkPermissions(listOf(Manifest.permission.GET_ACCOUNTS,
@@ -487,9 +491,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             showFirstRunMessages()
 
         initialiseList()
-
-        // Now ready to receive events.
-        EventHandler.setSongListEventHandler(mSongListEventHandler!!)
 
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_HOME
         supportActionBar?.setIcon(R.drawable.ic_beatprompter)

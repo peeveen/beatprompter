@@ -75,13 +75,12 @@ class ScreenString private constructor(internal val mText: String,
         }
 
         internal fun getBestFontSize(text: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface): Int {
-            return getBestFontSize(text, paint, minimumFontSize, maximumFontSize, maxWidth, maxHeight, face, false, null)
+            return getBestFontSize(text, paint, minimumFontSize, maximumFontSize, maxWidth, maxHeight, face, false)
         }
 
         fun create(text: String, paint: Paint, maxWidth: Int, maxHeight: Int, color: Int, face: Typeface, bold: Boolean): ScreenString {
-            val outRect = Rect()
-            val fontSize = getBestFontSize(text, paint, Utils.MINIMUM_FONT_SIZE.toFloat(), Utils.MAXIMUM_FONT_SIZE.toFloat(), maxWidth, maxHeight, face, bold, outRect)
-            return ScreenString(text, fontSize.toFloat(), color, outRect.width(), outRect.height() + MARGIN_PIXELS, face, outRect.bottom)
+            val fontSize = getBestFontSize(text, paint, Utils.MINIMUM_FONT_SIZE.toFloat(), Utils.MAXIMUM_FONT_SIZE.toFloat(), maxWidth, maxHeight, face, bold)
+            return ScreenString(text, fontSize.toFloat(), color, bestFontSizeRect.width(), bestFontSizeRect.height() + MARGIN_PIXELS, face, bestFontSizeRect.bottom)
         }
 
         private val createRect = Rect()
@@ -95,35 +94,35 @@ class ScreenString private constructor(internal val mText: String,
             return ScreenString(text, fontSize, color, createRect.width(), createRect.height() + MARGIN_PIXELS, face, createRect.bottom)
         }
 
-        private fun getBestFontSize(textIn: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean, outRect: Rect?): Int {
+        val bestFontSizeRect = Rect()
+        private fun getBestFontSize(textIn: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean): Int {
             if (maxWidth <= 0)
                 return 0
             var hi = maximumFontSize
             var lo = minimumFontSize
             val threshold = 0.5f // How close we have to be
 
-            val rect = outRect ?: Rect()
             val text = if (MASKING) MASKING_STRING + textIn + MASKING_STRING else textIn
             paint.typeface = face
             while (hi - lo > threshold) {
                 val size = ((hi + lo) / 2.0).toFloat()
                 val intSize = Math.floor(size.toDouble()).toInt()
                 paint.textSize = intSize * Utils.FONT_SCALING
-                getTextRect(text, paint, rect)
+                getTextRect(text, paint, bestFontSizeRect)
                 val widthXX = (if (MASKING) getDoubleXStringLength(paint, intSize.toFloat(), bold) else 0).toFloat()
-                if (rect.width() - widthXX >= maxWidth || maxHeight != -1 && rect.height() >= maxHeight - MARGIN_PIXELS)
+                if (bestFontSizeRect.width() - widthXX >= maxWidth || maxHeight != -1 && bestFontSizeRect.height() >= maxHeight - MARGIN_PIXELS)
                     hi = size // too big
                 else
                     lo = size // too small
             }
             // Use lo so that we undershoot rather than overshoot
             val sizeToUse = Math.floor(lo.toDouble()).toInt()
-            if (outRect != null) {
+            if (bestFontSizeRect != null) {
                 paint.textSize = sizeToUse * Utils.FONT_SCALING
-                getTextRect(text, paint, outRect)
+                getTextRect(text, paint, bestFontSizeRect)
                 if (MASKING) {
                     val widthXX = getDoubleXStringLength(paint, sizeToUse.toFloat(), bold).toFloat()
-                    outRect.right -= widthXX.toInt()
+                    bestFontSizeRect.right -= widthXX.toInt()
                 }
             }
             return sizeToUse

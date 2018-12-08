@@ -43,7 +43,11 @@ class UsbReceiver(private val mConnection: UsbDeviceConnection,
 
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         val maxRead = maximumAmount - offset
-        val newArray = if (offset == 0) buffer else ByteArray(maxRead)
+        val newArray =
+                if (offset == 0)
+                    buffer
+                else
+                    ByteArray(maxRead)
         return mConnection.bulkTransfer(mEndpoint,
                 newArray,
                 maxRead,

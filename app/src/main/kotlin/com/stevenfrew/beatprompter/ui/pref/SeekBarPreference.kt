@@ -86,7 +86,7 @@ class SeekBarPreference(private val mContext: Context,
     }
 
     override fun onProgressChanged(seek: SeekBar, value: Int, fromTouch: Boolean) {
-        val t = (value + mOffset).toString()
+        val t = "${value + mOffset}"
         mValueText!!.text = if (mSuffix == null) t else "$t $mSuffix"
     }
 

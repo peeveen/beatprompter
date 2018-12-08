@@ -224,7 +224,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         if (mSong == null)
             return
         ensureInitialised()
-        val scrolling = if (mStartState !== PlayState.AtTitleScreen) calculateScrolling() else false
+        val scrolling = calculateScrolling()
         var timePassed: Long = 0
         var beatPercent = 1.0
         var showTempMessage = false
@@ -310,12 +310,13 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                         firstLineOnscreen = currentLine
                     val graphics = currentLine.getGraphics()
                     val lineTop = currentY
-                    for ((lineCounter, graphic) in graphics.withIndex()) {
-                        val sourceRect = currentLine.mMeasurements.mGraphicRectangles[lineCounter]
+                    for (f in 0 until graphics.size) {
+                        val graphic = graphics[f]
+                        val sourceRect = currentLine.mMeasurements.mGraphicRectangles[f]
                         mDestinationGraphicRect.set(sourceRect)
                         mDestinationGraphicRect.offset(0, currentY)
                         canvas.drawBitmap(graphic.bitmap, sourceRect, mDestinationGraphicRect, mPaint)
-                        currentY += currentLine.mMeasurements.mGraphicHeights[lineCounter]
+                        currentY += currentLine.mMeasurements.mGraphicHeights[f]
                     }
                     val highlightColor = getLineHighlightColor(currentLine, time)
                     if (highlightColor != null) {
@@ -360,7 +361,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             showSongTitle(canvas)
         if (showTempMessage) {
             if (mEndSongByPedalCounter == 0)
-                showTempMessage(mCurrentVolume.toString() + "%", 80, Color.BLACK, canvas)
+                showTempMessage("$mCurrentVolume%", 80, Color.BLACK, canvas)
             else {
                 val message = "Press pedal " + (SONG_END_PEDAL_PRESSES - mEndSongByPedalCounter) + " more times to end song."
                 showTempMessage(message, 20, Color.BLUE, canvas)
@@ -376,7 +377,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     }
 
     private fun calculateScrolling(): Boolean {
-        return if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
+        return if (mStartState === PlayState.AtTitleScreen)
+            false
+        else if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
             mSongPixelPosition = mScroller.currY
             //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
             run {
@@ -979,7 +982,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun calculateManualScrollPositions() {
         val currentLine = mSong!!.mCurrentLine
         // Don't bother doing this if we aren't in manual mode.
-        if (currentLine.mScrollMode == ScrollingMode.Manual) {
+        mManualScrollPositions = if (currentLine.mScrollMode == ScrollingMode.Manual) {
             val usableScreenHeight = mSong!!.mDisplaySettings.mUsableScreenHeight
 
             // We don't always want to scroll bang onto a line. If the candidate line is really big
@@ -1069,9 +1072,9 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             // Never scroll beyond the pre-calculated end point (though this should never happen).
             pageDownPosition = Math.min(mSong!!.mScrollEndPixel, pageDownPosition)
 
-            mManualScrollPositions = ManualScrollPositions(pageUpPosition, pageDownPosition, beatJumpScrollLine)
+            ManualScrollPositions(pageUpPosition, pageDownPosition, beatJumpScrollLine)
         } else
-            mManualScrollPositions = null
+            null
     }
 
     fun setSongBeatPosition(pointer: Int, midiInitiated: Boolean) {

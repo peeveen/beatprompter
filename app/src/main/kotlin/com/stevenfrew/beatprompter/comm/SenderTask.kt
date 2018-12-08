@@ -1,56 +1,70 @@
 package com.stevenfrew.beatprompter.comm
 
-import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 
 class SenderTask constructor(private val mMessageQueue: MessageQueue)
     : Task(false) {
+    private val mSenders = mutableListOf<Sender>()
+    private val mSendersLock = Any()
+
+//    private var mClockMessages = 0
+//    private var mLastClockMessageTime: Long = 0
+//    private var mLongestClockMessageTimeDiff: Long = 0
 
     override fun doWork() {
         try {
             // This take() will block if the queue is empty
-            val message = mMessageQueue.getMessage()
-            val senders = getSenders()
+            val messages = mMessageQueue.getMessages()
 
-            if (senders.isNotEmpty())
-                senders.forEach {
-                    try {
-                        Logger.logComms { "Sending messages to '${it.key}' (${it.value.name})." }
-                        it.value.send(message)
-                    } catch (commException: Exception) {
-                        // Problem with the I/O? This sender is now dead to us.
-                        Logger.logComms("Sender threw an exception. Assuming it to be dead.")
-                        removeSender(it.key)
-                    }
+/*            val time = System.nanoTime()
+            val clockMessages = messages.count { it is ClockMessage }
+            if (messages.any { it is ClockMessage }) {
+                mClockMessages += clockMessages
+                if (mLastClockMessageTime == 0L)
+                    mLastClockMessageTime = time
+                mLongestClockMessageTimeDiff = max(mLongestClockMessageTimeDiff, time - mLastClockMessageTime)
+                mLastClockMessageTime = time
+                while (mClockMessages >= 50) {
+                    Logger.logComms("50 CLOCK MESSAGES SENT (${Utils.nanoToMilli(mLongestClockMessageTimeDiff)} ms max time diff)")
+                    mClockMessages -= 50
                 }
+            }*/
+
+            for (f in 0 until mSenders.size) {
+                try {
+                    mSenders[f].send(messages)
+                } catch (commException: Exception) {
+                    // Problem with the I/O? This sender is now dead to us.
+                    Logger.logComms("Sender threw an exception. Assuming it to be dead.")
+                    removeSender(mSenders[f].name)
+                }
+            }
         } catch (interruptedException: InterruptedException) {
             // Must have been signalled to stop ... main Task loop will cater for this.
         }
     }
 
-    private val mSenders = mutableMapOf<String, Sender>()
-    private val mSendersLock = Any()
-
     fun addSender(id: String, sender: Sender) {
         synchronized(mSendersLock)
         {
             Logger.logComms { "Adding new sender '$id' (${sender.name}) to the collection" }
-            mSenders[id] = sender
+            mSenders.add(sender)
         }
     }
 
     fun removeSender(id: String) {
-        getSender(id)?.also {
+        getSender(id)?.also { sender ->
             Logger.logComms { "Removing sender '$id' from the collection" }
-            closeSender(it)
+            closeSender(sender)
             Logger.logComms { "Sender '$id' has been closed." }
             synchronized(mSendersLock)
             {
-                mSenders.remove(id)
+                mSenders.removeAll { it.name == id }
             }
             Logger.logComms { "Sender '$id' is now dead ... notifying main activity for UI." }
-            EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, it.name)
+            EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, sender.name)
         }
     }
 
@@ -58,14 +72,14 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
         Logger.logComms("Removing ALL senders from the collection.")
         synchronized(mSendersLock)
         {
-            mSenders.keys.forEach { removeSender(it) }
+            mSenders.forEach { removeSender(it.name) }
         }
     }
 
     private fun getSender(id: String): Sender? {
         synchronized(mSendersLock)
         {
-            return mSenders[id]
+            return mSenders.firstOrNull { it.name == id }
         }
     }
 
@@ -74,13 +88,6 @@ class SenderTask constructor(private val mMessageQueue: MessageQueue)
             sender?.close()
         } catch (closeException: Exception) {
             // Couldn't close it? Who cares ...
-        }
-    }
-
-    private fun getSenders(): Map<String, Sender> {
-        synchronized(mSendersLock)
-        {
-            return mSenders.toMap()
         }
     }
 

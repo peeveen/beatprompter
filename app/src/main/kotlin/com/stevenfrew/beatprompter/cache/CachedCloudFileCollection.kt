@@ -1,11 +1,10 @@
 package com.stevenfrew.beatprompter.cache
 
-import android.os.Build
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.cache.parse.*
+import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.util.flattenAll
-import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -99,13 +98,7 @@ class CachedCloudFileCollection {
     }
 
     fun remove(file: FileInfo) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            mFiles.removeIf { file.mID.equals(it.mID, ignoreCase = true) }
-        else
-            mFiles = mFiles
-                    .asSequence()
-                    .filter { !file.mID.equals(it.mID, ignoreCase = true) }
-                    .toMutableList()
+        mFiles.removeAll { file.mID.equals(it.mID, ignoreCase = true) }
     }
 
     fun hasLatestVersionOf(file: FileInfo): Boolean {

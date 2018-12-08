@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
     private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
+    private val mClockSignalBuffer = mutableListOf<ClockMessage>()
     private var mLastSignalTime = 0.0
     private var mClockSignalsSent = 0
     private var mNanoSecondsPerMidiSignal = 0.0
@@ -72,7 +73,7 @@ class ClockSignalGeneratorTask : Task(false) {
         while (nanoDiff >= nanoSecondsPerMidiSignal) {
             try {
                 signalSent = true
-                MIDIController.mMIDIOutQueue.putMessage(ClockMessage)
+                mClockSignalBuffer.add(ClockMessage)
                 // We've hit the 24-signal boundary. Switch to the next speed.
                 if (incrementClockSignalsSent() == 24) {
                     resetClockSignalsSent()
@@ -83,6 +84,8 @@ class ClockSignalGeneratorTask : Task(false) {
             }
             nanoDiff -= nanoSecondsPerMidiSignal
         }
+        MIDIController.mMIDIOutQueue.putMessages(mClockSignalBuffer)
+        mClockSignalBuffer.clear()
         if (signalSent) {
             lastSignalTime = nanoTime - nanoDiff
             val nextSignalDue = lastSignalTime + nanoSecondsPerMidiSignal

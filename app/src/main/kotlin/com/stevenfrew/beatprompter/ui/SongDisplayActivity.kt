@@ -43,7 +43,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
     private val mMidiClockOutTask = ClockSignalGeneratorTask()
-    private val mMidiClockOutTaskThread = Thread(mMidiClockOutTask)
+    private val mMidiClockOutTaskThread = Thread(mMidiClockOutTask).also { it.priority = 10 }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -108,9 +108,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        song.mInitialMIDIMessages.forEach {
-            MIDIController.mMIDIOutQueue.putMessage(it)
-        }
+        MIDIController.mMIDIOutQueue.putMessages(song.mInitialMIDIMessages)
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
@@ -130,6 +128,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
         } catch (e: Exception) {
             // Nae sensors.
         }
+
+        System.gc()
 
         // Set up the user interaction to manually show or hide the system UI.
         mSongView!!.setOnClickListener { }

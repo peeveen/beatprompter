@@ -39,7 +39,7 @@ object MIDIController {
     private val mSenderTask = SenderTask(mMIDIOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 
-    private val mSenderTaskThread = Thread(mSenderTask)
+    private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = 10 }
 
     private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
         if (Preferences.midiConnectionType == ConnectionType.Native)
@@ -143,7 +143,9 @@ object MIDIController {
             mMidiNativeDeviceListener = MidiNativeDeviceListener()
             mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
             mNativeMidiManager?.registerDeviceCallback(mMidiNativeDeviceListener, null)
-            mNativeMidiManager?.devices?.forEach { addNativeDevice(it) }
+            mNativeMidiManager?.devices?.forEach {
+                addNativeDevice(it)
+            }
         }
         mUsbManager = application.getSystemService(Context.USB_SERVICE) as UsbManager
         mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
