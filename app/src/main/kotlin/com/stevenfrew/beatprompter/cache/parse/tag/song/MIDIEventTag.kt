@@ -128,11 +128,11 @@ class MIDIEventTag internal constructor(name: String,
                         // Might be in the beat format
                         val offsetChars = trimmedOffsetString.toCharArray()
                         val upDiff = offsetChars.count { it == '>' }
-                        val downDiff = -offsetChars.count { it == '<' }
+                        val downDiff = offsetChars.count { it == '<' }
                         val badCharsFound = offsetChars.any { it != '<' && it != '>' }
                         if (badCharsFound)
                             throw MalformedTagException(R.string.non_beat_characters_in_midi_offset)
-                        EventOffset(upDiff + downDiff, EventOffsetType.Beats, lineNumber)
+                        EventOffset(upDiff - downDiff, EventOffsetType.Beats, lineNumber)
                     }
                 } catch (badValueEx: IllegalArgumentException) {
                     throw MalformedTagException(badValueEx.message!!)
