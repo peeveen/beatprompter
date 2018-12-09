@@ -374,4 +374,6 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="instructions">Instrucciones …</string>
     <string name="pref_anyOtherKeyPageDown_title">Cualquier otra clave es page-down.</string>
     <string name="pref_anyOtherKeyPageDown_summary">Cualquier otra tecla presionada en un teclado conectado actuará como página abajo.</string>
+    <string name="midi_bluetooth_string">Bluetooth (actualmente no es compatible)</string>
+    <string name="midi_native_string">Nativo</string>
 </resources>

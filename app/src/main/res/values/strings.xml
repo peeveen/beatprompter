@@ -712,11 +712,11 @@ lyrics and [Em]chords in time with a beat.\n
 
     <string name="instructions">Instructions …</string>
 
-    <string name="midi_usb_on_the_go_string">USB On-The-Go</string>
+    <string name="midi_usb_on_the_go_string" translatable="false">USB On-The-Go</string>
     <string name="midi_native_string">Native</string>
-    <string name="midi_bluetooth_string">Bluetooth</string>
+    <string name="midi_bluetooth_string">Bluetooth (currently not supported)</string>
 
-    <string name="midi_usb_on_the_go_value">USBOnTheGo</string>
-    <string name="midi_native_value">Native</string>
-    <string name="midi_bluetooth_value">Bluetooth</string>
+    <string name="midi_usb_on_the_go_value" translatable="false">USBOnTheGo</string>
+    <string name="midi_native_value" translatable="false">Native</string>
+    <string name="midi_bluetooth_value" translatable="false">Bluetooth</string>
 </resources>
