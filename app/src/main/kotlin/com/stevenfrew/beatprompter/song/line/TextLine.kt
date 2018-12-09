@@ -4,8 +4,8 @@ import android.graphics.*
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
-import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
@@ -67,7 +67,7 @@ class TextLine internal constructor(private val mText: String,
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, 100, mFont)
             section.setChordFontSizeAndMeasure(paint, 100, mFont)
-            if (section.mChordWidth > section.mTextWidth)
+            if (section.mChordWidth > section.mLineWidth)
                 longestBits.append(section.mChordText)
             else
                 longestBits.append(section.mLineText)
@@ -169,12 +169,12 @@ class TextLine internal constructor(private val mText: String,
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, mLineTextSize, mFont)
             section.setChordFontSizeAndMeasure(paint, mChordTextSize, mFont)
-            mLineDescenderOffset = Math.max(mLineDescenderOffset, section.mLineSS!!.mDescenderOffset)
-            mChordDescenderOffset = Math.max(mChordDescenderOffset, section.mChordSS!!.mDescenderOffset)
-            mLyricHeight = Math.max(mLyricHeight, section.mTextHeight - section.mLineSS!!.mDescenderOffset)
-            mChordHeight = Math.max(mChordHeight, section.mChordHeight - section.mChordSS!!.mDescenderOffset)
+            mLineDescenderOffset = Math.max(mLineDescenderOffset, section.mLineDescenderOffset)
+            mChordDescenderOffset = Math.max(mChordDescenderOffset, section.mChordDescenderOffset)
+            mLyricHeight = Math.max(mLyricHeight, section.mLineHeight - section.mLineDescenderOffset)
+            mChordHeight = Math.max(mChordHeight, section.mChordHeight - section.mChordDescenderOffset)
             actualLineHeight = Math.max(mLyricHeight + mChordHeight + mLineDescenderOffset + mChordDescenderOffset, actualLineHeight)
-            actualLineWidth += Math.max(section.mLineSS!!.mWidth, section.mChordSS!!.mWidth)
+            actualLineWidth += Math.max(section.mLineWidth, section.mChordWidth)
             highlightColor = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), mFont, highlightColor)
         }
         mTrailingHighlightColor = highlightColor
@@ -204,7 +204,7 @@ class TextLine internal constructor(private val mText: String,
                     if (totalWidth > 0 && firstOnscreenSection == null)
                         firstOnscreenSection = sec
                     val startX = totalWidth
-                    if (startX <= 0 && startX + sec.mTextWidth > 0)
+                    if (startX <= 0 && startX + sec.mLineWidth > 0)
                         textDrawn = textDrawn or sec.hasText()
                     if (startX <= 0 && startX + sec.mChordTrimWidth > 0 && lastSplitWasPixelSplit)
                         chordsDrawn = chordsDrawn or sec.hasChord()
@@ -225,7 +225,7 @@ class TextLine internal constructor(private val mText: String,
                     var xSplit = 0
                     var lineWidth = 0
                     val sectionChordOnscreen = bothersomeSection.hasChord() && (widthWithoutBothersomeSection >= 0 || widthWithoutBothersomeSection + bothersomeSection.mChordTrimWidth > leftoverSpaceOnPreviousLine)
-                    val sectionTextOnscreen = bothersomeSection.hasText() && (widthWithoutBothersomeSection >= 0 || widthWithoutBothersomeSection + bothersomeSection.mTextWidth > 0)
+                    val sectionTextOnscreen = bothersomeSection.hasText() && (widthWithoutBothersomeSection >= 0 || widthWithoutBothersomeSection + bothersomeSection.mLineWidth > 0)
                     // Find the last word that fits onscreen.
                     var bits = Utils.splitText(bothersomeSection.mLineText)
                     val wordCount = Utils.countWords(bits)

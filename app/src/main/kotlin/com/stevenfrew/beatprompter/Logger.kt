@@ -8,6 +8,10 @@ object Logger {
     private const val TAG_LOAD = "beatprompter_load"
     private const val TAG_COMMS = "beatprompter_comms"
 
+    fun logAlways(message: String) {
+        Log.d(TAG, message)
+    }
+
     private fun log(tag: String, message: () -> String, t: Throwable? = null) {
         if (LOGGING)
             log(tag, message(), t)

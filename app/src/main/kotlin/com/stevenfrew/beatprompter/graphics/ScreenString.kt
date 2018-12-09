@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter.graphics
 
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.util.Utils
+import kotlin.math.max
 
 class ScreenString private constructor(internal val mText: String,
                                        internal val mFontSize: Float,
@@ -39,9 +39,7 @@ class ScreenString private constructor(internal val mText: String,
             r.right = Math.ceil(measureWidth.toDouble()).toInt()
         }
 
-        //    static Rect singleXRect=new Rect();
         private val doubleXRect = Rect()
-
         private fun getDoubleXStringLength(paint: Paint, fontSize: Float, bold: Boolean): Int {
             val intFontSize = (fontSize.toInt() - Utils.MINIMUM_FONT_SIZE).let {
                 // This should never happen, but let's check anyway.
@@ -69,7 +67,7 @@ class ScreenString private constructor(internal val mText: String,
                 return 0
             paint.typeface = face
             paint.textSize = fontSize * Utils.FONT_SCALING
-            val str = if (MASKING) MASKING_STRING + strIn + MASKING_STRING else strIn
+            val str = if (MASKING) "$MASKING_STRING$strIn$MASKING_STRING" else strIn
             getTextRect(str, paint, stringWidthRect)
             return stringWidthRect.width() - if (MASKING) getDoubleXStringLength(paint, fontSize, false) else 0
         }
@@ -83,18 +81,23 @@ class ScreenString private constructor(internal val mText: String,
             return ScreenString(text, fontSize.toFloat(), color, bestFontSizeRect.width(), bestFontSizeRect.height() + MARGIN_PIXELS, face, bestFontSizeRect.bottom)
         }
 
-        private val createRect = Rect()
-        internal fun create(text: String, paint: Paint, fontSize: Float, face: Typeface, color: Int = Color.BLACK): ScreenString {
+        private val measureRect = Rect()
+        var mMeasuredWidth = 0
+        var mMeasuredHeight = 0
+        var mMeasuredDescenderOffset = 0
+        fun measure(text: String, paint: Paint, fontSize: Float, face: Typeface) {
             paint.typeface = face
             paint.textSize = fontSize * Utils.FONT_SCALING
-            val measureText = if (MASKING) MASKING_STRING + text + MASKING_STRING else text
-            getTextRect(measureText, paint, createRect)
+            val measureText = if (MASKING) "$MASKING_STRING$text$MASKING_STRING" else text
+            getTextRect(measureText, paint, measureRect)
             if (MASKING)
-                createRect.right -= getDoubleXStringLength(paint, fontSize, false)
-            return ScreenString(text, fontSize, color, createRect.width(), createRect.height() + MARGIN_PIXELS, face, createRect.bottom)
+                measureRect.right -= getDoubleXStringLength(paint, fontSize, false)
+            mMeasuredWidth = max(0, measureRect.width())
+            mMeasuredHeight = max(0, measureRect.height() + MARGIN_PIXELS)
+            mMeasuredDescenderOffset = measureRect.bottom
         }
 
-        val bestFontSizeRect = Rect()
+        private val bestFontSizeRect = Rect()
         private fun getBestFontSize(textIn: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean): Int {
             if (maxWidth <= 0)
                 return 0
@@ -102,7 +105,7 @@ class ScreenString private constructor(internal val mText: String,
             var lo = minimumFontSize
             val threshold = 0.5f // How close we have to be
 
-            val text = if (MASKING) MASKING_STRING + textIn + MASKING_STRING else textIn
+            val text = if (MASKING) "$MASKING_STRING$textIn$MASKING_STRING" else textIn
             paint.typeface = face
             while (hi - lo > threshold) {
                 val size = ((hi + lo) / 2.0).toFloat()
@@ -117,13 +120,11 @@ class ScreenString private constructor(internal val mText: String,
             }
             // Use lo so that we undershoot rather than overshoot
             val sizeToUse = Math.floor(lo.toDouble()).toInt()
-            if (bestFontSizeRect != null) {
-                paint.textSize = sizeToUse * Utils.FONT_SCALING
-                getTextRect(text, paint, bestFontSizeRect)
-                if (MASKING) {
-                    val widthXX = getDoubleXStringLength(paint, sizeToUse.toFloat(), bold).toFloat()
-                    bestFontSizeRect.right -= widthXX.toInt()
-                }
+            paint.textSize = sizeToUse * Utils.FONT_SCALING
+            getTextRect(text, paint, bestFontSizeRect)
+            if (MASKING) {
+                val widthXX = getDoubleXStringLength(paint, sizeToUse.toFloat(), bold).toFloat()
+                bestFontSizeRect.right -= widthXX.toInt()
             }
             return sizeToUse
         }

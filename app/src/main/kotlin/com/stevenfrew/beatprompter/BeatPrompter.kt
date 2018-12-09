@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import android.content.res.AssetManager
 import android.preference.PreferenceManager
 import android.support.multidex.MultiDex
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
-import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 
 class BeatPrompter : Application() {
@@ -21,8 +19,8 @@ class BeatPrompter : Application() {
     override fun onCreate() {
         super.onCreate()
         mApp = this
-        MIDIController.initialise(this)
-        BluetoothManager.initialise(this)
+//        MIDIController.initialise(this)
+//        BluetoothManager.initialise(this)
         mSongLoaderTaskThread.start()
         Task.resumeTask(SongLoadQueueWatcherTask)
     }
