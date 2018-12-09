@@ -57,6 +57,10 @@ class MIDIAliasFileParser constructor(cachedCloudFileDescriptor: CachedFileDescr
                     mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
                     mCurrentAliasComponents = mutableListOf()
                     mCurrentAliasName = aliasNameTag.mAliasName
+                    if (mCurrentAliasName.isNullOrBlank()) {
+                        mErrors.add(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
+                        mCurrentAliasName = null
+                    }
                 } else
                     mErrors.add(FileParseError(aliasNameTag, R.string.midi_alias_has_no_components))
             }
