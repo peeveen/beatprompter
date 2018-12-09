@@ -43,7 +43,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
 
     private val mMidiClockOutTask = ClockSignalGeneratorTask()
-    private val mMidiClockOutTaskThread = Thread(mMidiClockOutTask).also { it.priority = 10 }
+    private val mMidiClockOutTaskThread = Thread(mMidiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)

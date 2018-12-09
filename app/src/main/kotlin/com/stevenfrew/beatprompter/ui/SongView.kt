@@ -230,6 +230,7 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         var showTempMessage = false
         var showComment = false
         val time = System.nanoTime()
+
         if (mStartState === PlayState.Playing && !scrolling) {
             timePassed = Math.max(0, time - mSongStartTime)
             if (mLastBeatTime > 0) {

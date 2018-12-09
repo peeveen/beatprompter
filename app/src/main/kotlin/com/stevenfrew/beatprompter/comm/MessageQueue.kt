@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.comm
 
 import java.util.concurrent.ArrayBlockingQueue
 
-class MessageQueue(capacity: Int) {
-    private val mBlockingQueue = ArrayBlockingQueue<OutgoingMessage>(capacity)
+open class MessageQueue(capacity: Int) {
+    protected val mBlockingQueue = ArrayBlockingQueue<OutgoingMessage>(capacity)
     // This prevents over-allocation of objects, which creates very slow garbage collection, which
     // disrupts timing critical operation.s
     private val mOutBuffer = mutableListOf<OutgoingMessage>()

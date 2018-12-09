@@ -19,7 +19,6 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -35,11 +34,11 @@ object MIDIController {
 
     private const val MIDI_QUEUE_SIZE = 4096
 
-    var mMIDIOutQueue = MessageQueue(MIDI_QUEUE_SIZE)
+    var mMIDIOutQueue = MIDIMessageQueue(MIDI_QUEUE_SIZE)
     private val mSenderTask = SenderTask(mMIDIOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 
-    private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = 10 }
+    private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
 
     private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
         if (Preferences.midiConnectionType == ConnectionType.Native)
