@@ -15,3 +15,20 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-dontwarn com.dropbox.**
+-dontwarn com.microsoft.**
+-dontwarn com.nimbusds.**
+-dontwarn com.rarepebble.**
+
+-keep public class kotlin.reflect.jvm.internal.impl.** { public *; }
+-keep class com.stevenfrew.beatprompter.cache.parse.tag.** {*;}
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlin.** { *; }
+
+-dontwarn sun.misc.Unsafe
+-dontwarn com.google.common.collect.MinMaxPriorityQueue
+
+-keepattributes *Annotation*,Signature
+
+-keep class * extends com.google.api.client.json.GenericJson {*;}
+-keep class com.google.api.services.drive.** {*;}

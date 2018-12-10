@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.song.line
 
+import android.graphics.Paint
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -16,7 +17,7 @@ abstract class Line internal constructor(val mLineTime: Long,
     abstract val mMeasurements: LineMeasurements
     protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
 
-    internal abstract fun renderGraphics()
+    internal abstract fun renderGraphics(paint: Paint)
 
     internal fun getTimeFromPixel(pixelPosition: Int): Long {
         if (pixelPosition == 0)
@@ -51,8 +52,8 @@ abstract class Line internal constructor(val mLineTime: Long,
         mGraphics.add(graphic)
     }
 
-    internal fun getGraphics(): List<LineGraphic> {
-        renderGraphics()
+    internal fun getGraphics(paint: Paint): List<LineGraphic> {
+        renderGraphics(paint)
         return mGraphics
     }
 

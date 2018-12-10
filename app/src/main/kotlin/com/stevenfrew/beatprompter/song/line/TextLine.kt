@@ -442,11 +442,10 @@ class TextLine internal constructor(private val mText: String,
         return Math.max(vTotalLineWidth - totalXSplits, mLineWidths.max() ?: 0)
     }
 
-    override fun renderGraphics() {
+    override fun renderGraphics(paint: Paint) {
         repeat(mMeasurements.mLines) { lineNumber ->
             val graphic = mGraphics[lineNumber]
             if (graphic.mLastDrawnLine !== this) {
-                val paint = Paint()
                 val chordsDrawn = if (mChordsDrawn.size > lineNumber) mChordsDrawn[lineNumber] else true
                 val thisLineHeight = mMeasurements.mGraphicHeights[lineNumber]
                 val c = Canvas(graphic.bitmap)
