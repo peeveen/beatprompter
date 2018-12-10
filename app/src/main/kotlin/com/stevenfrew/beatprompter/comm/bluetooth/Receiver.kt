@@ -28,7 +28,6 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
             try {
                 val btm = try {
                     fromBytes(bufferCopy).also {
-                        Logger.logComms("Got a fully-formed Bluetooth message.")
                         if (it is SetSongTimeMessage)
                             lastSetTimeMessage = it
                         else if (it is ChooseSongMessage)
@@ -47,7 +46,6 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
                 dataRemaining -= messageLength
             } catch (exception: NotEnoughDataException) {
                 // Read again!
-                Logger.logComms("Not enough data in the Bluetooth buffer to create a fully formed message, waiting for more data.")
                 break
             }
         }

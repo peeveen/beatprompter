@@ -20,7 +20,6 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
             if (messageByte and EIGHT_ZERO_HEX != ZERO_AS_BYTE) {
                 if (mInSysEx) {
                     if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
-                        Logger.logComms("Received MIDI SysEx end message.")
                         mInSysEx = false
                     }
                 } else {
@@ -45,7 +44,6 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                         // Not enough data left.
                             break
                     else if (messageByte == Message.MIDI_SYSEX_START_BYTE) {
-                        Logger.logComms("Received MIDI SysEx start message.")
                         mInSysEx = true
                     } else {
                         val channelsToListenTo = getIncomingChannels()
