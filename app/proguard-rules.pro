@@ -20,59 +20,30 @@
 -dontwarn com.nimbusds.**
 -dontwarn com.rarepebble.**
 
--keep public class kotlin.reflect.jvm.internal.impl.** { public *; }
--keep class com.stevenfrew.beatprompter.cache.parse.tag.** {*;}
--keep class kotlinx.coroutines.** { *; }
--keep class kotlin.** { *; }
-
--dontwarn sun.misc.Unsafe
--dontwarn com.google.common.collect.MinMaxPriorityQueue
-
 -keepattributes *Annotation*,Signature
 
+# The values of this enum are only used in annotations, which ProGuard seems to think makes
+# them fair game for removal. We don't want that.
+-keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.find.Type { *; }
+# And the constructors for the tag classes are only executed via reflection, so ProGuard
+# thinks they are never called. We have to tell it otherwise.
+-keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.song.* { <init>(...); }
+-keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.midialias.* { <init>(...); }
+-keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.set.* { <init>(...); }
+# Google Drive stuff that ProGuard doesn't realise we actually need.
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
+# Kotlin ... still to figure out why this is needed.
+-keep public class kotlin.** { *; }
+# Apparently this is a slight performance improvement ... stops NotNull checking.
+-assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+    static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
+}
 
+# No heavy logging in production code please.
 -assumenosideeffects class android.util.Log {
   public static *** v(...);
   public static *** d(...);
   public static *** i(...);
-  public static *** w(...);
-  public static *** e(...);
 }
 
--assumenosideeffects class android.graphics.Rect {
-    public java.lang.String toString();
-}
-
--assumenoexternalsideeffects class java.lang.StringBuilder {
-    public java.lang.StringBuilder();
-    public java.lang.StringBuilder(int);
-    public java.lang.StringBuilder(java.lang.String);
-    public java.lang.StringBuilder append(java.lang.Object);
-    public java.lang.StringBuilder append(java.lang.String);
-    public java.lang.StringBuilder append(java.lang.StringBuffer);
-    public java.lang.StringBuilder append(char[]);
-    public java.lang.StringBuilder append(char[], int, int);
-    public java.lang.StringBuilder append(boolean);
-    public java.lang.StringBuilder append(char);
-    public java.lang.StringBuilder append(int);
-    public java.lang.StringBuilder append(long);
-    public java.lang.StringBuilder append(float);
-    public java.lang.StringBuilder append(double);
-    public java.lang.String toString();
-}
-
--assumenoexternalreturnvalues public final class java.lang.StringBuilder {
-    public java.lang.StringBuilder append(java.lang.Object);
-    public java.lang.StringBuilder append(java.lang.String);
-    public java.lang.StringBuilder append(java.lang.StringBuffer);
-    public java.lang.StringBuilder append(char[]);
-    public java.lang.StringBuilder append(char[], int, int);
-    public java.lang.StringBuilder append(boolean);
-    public java.lang.StringBuilder append(char);
-    public java.lang.StringBuilder append(int);
-    public java.lang.StringBuilder append(long);
-    public java.lang.StringBuilder append(float);
-    public java.lang.StringBuilder append(double);
-}

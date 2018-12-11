@@ -91,9 +91,9 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFile
                     val constructor = tagClass.primaryConstructor
                     if (constructor != null)
                         return if (constructor.parameters.size == 4)
-                            tagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
+                            constructor.call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
                         else
-                            tagClass.primaryConstructor!!.call(foundTag.mName, lineNumber, foundTag.mStart)
+                            constructor.call(foundTag.mName, lineNumber, foundTag.mStart)
                 } catch (ite: InvocationTargetException) {
                     throw ite.targetException
                 }
