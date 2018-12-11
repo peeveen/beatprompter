@@ -35,7 +35,7 @@ import java.io.FileInputStream
 class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
 
     private val mDestinationGraphicRect = Rect(0, 0, 0, 0)
-    private var mCurrentBeatCountRect = Rect()
+    private val mCurrentBeatCountRect = Rect()
     private var mEndSongByPedalCounter = 0
     private var mMetronomeOn: Boolean = false
     private var mInitialized = false
@@ -196,7 +196,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
         }
 
         mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
-        mCurrentBeatCountRect = song.mBeatCounterRect
+        mCurrentBeatCountRect.apply {
+            left = song.mBeatCounterRect.left
+            top = song.mBeatCounterRect.top
+            right = song.mBeatCounterRect.right
+            bottom = song.mBeatCounterRect.bottom
+        }
         mSong = song
 
         calculateManualScrollPositions()
@@ -640,16 +645,27 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             val thirdHeight = mSong!!.mBeatCounterRect.height() / 3.0
             val scrollIndicatorStart = (beatWidth * event.mWillScrollOnBeat + thirdWidth).toInt()
             val scrollIndicatorEnd = (beatWidth * (event.mWillScrollOnBeat + 1) - thirdWidth).toInt()
-            mScrollIndicatorRect.left = scrollIndicatorStart
-            mScrollIndicatorRect.top = thirdHeight.toInt()
-            mScrollIndicatorRect.right = scrollIndicatorEnd
-            mScrollIndicatorRect.bottom = (thirdHeight * 2.0).toInt()
+            mScrollIndicatorRect.apply {
+                left = scrollIndicatorStart
+                top = thirdHeight.toInt()
+                right = scrollIndicatorEnd
+                bottom = (thirdHeight * 2.0).toInt()
+            }
         } else
             clearScrollIndicatorRect()
-        mCurrentBeatCountRect = if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Beat)
-            Rect((currentBeatCounterWidth - beatWidth).toInt(), 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
-        else
-            mSong!!.mBeatCounterRect
+        mCurrentBeatCountRect.apply {
+            if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Beat) {
+                left = (currentBeatCounterWidth - beatWidth).toInt()
+                top = 0
+                right = currentBeatCounterWidth
+                bottom = mSong!!.mBeatCounterRect.height()
+            } else {
+                left = mSong!!.mBeatCounterRect.left
+                top = mSong!!.mBeatCounterRect.top
+                right = mSong!!.mBeatCounterRect.right
+                bottom = mSong!!.mBeatCounterRect.bottom
+            }
+        }
         mLastBeatTime = mSongStartTime + event.mEventTime
         if (event.mClick && mStartState === PlayState.Playing && mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual && playClick)
             mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
@@ -668,15 +684,22 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
     private fun processPauseEvent(event: PauseEvent) {
         mLastBeatTime = -1
         val currentBeatCounterWidth = (mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / (event.mBeats - 1).toDouble() * event.mBeat.toDouble()).toInt()
-        mCurrentBeatCountRect = Rect(0, 0, currentBeatCounterWidth, mSong!!.mBeatCounterRect.height())
+        mCurrentBeatCountRect.apply {
+            left = 0
+            top = 0
+            right = currentBeatCounterWidth
+            bottom = mSong!!.mBeatCounterRect.height()
+        }
         clearScrollIndicatorRect()
     }
 
     private fun clearScrollIndicatorRect() {
-        mScrollIndicatorRect.left = -1
-        mScrollIndicatorRect.top = -1
-        mScrollIndicatorRect.right = -1
-        mScrollIndicatorRect.bottom = -1
+        mScrollIndicatorRect.apply {
+            left = -1
+            top = -1
+            right = -1
+            bottom = -1
+        }
     }
 
     private fun processMIDIEvent(event: MIDIEvent) {
@@ -690,7 +713,12 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
             return
         mSong!!.mCurrentLine = event.mLine
         if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Manual) {
-            mCurrentBeatCountRect = mSong!!.mBeatCounterRect
+            mCurrentBeatCountRect.apply {
+                left = mSong!!.mBeatCounterRect.left
+                top = mSong!!.mBeatCounterRect.top
+                right = mSong!!.mBeatCounterRect.right
+                bottom = mSong!!.mBeatCounterRect.bottom
+            }
             calculateManualScrollPositions()
         }
     }
@@ -777,8 +805,14 @@ class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
                     val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
                     processBeatEvent(prevBeatEvent, nextBeatEvent != null && !musicPlaying)
                 }
-            } else
-                mCurrentBeatCountRect = mSong!!.mBeatCounterRect
+            } else {
+                mCurrentBeatCountRect.apply {
+                    left = mSong!!.mBeatCounterRect.left
+                    top = mSong!!.mBeatCounterRect.top
+                    right = mSong!!.mBeatCounterRect.right
+                    bottom = mSong!!.mBeatCounterRect.bottom
+                }
+            }
             mSongStartTime = System.nanoTime() - nano
             if (redraw)
                 invalidate()
