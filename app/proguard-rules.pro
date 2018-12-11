@@ -35,6 +35,9 @@
 -keep class com.google.api.services.drive.** {*;}
 # Kotlin ... still to figure out why this is needed.
 -keep public class kotlin.** { *; }
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** { volatile <fields>; }
 # Apparently this is a slight performance improvement ... stops NotNull checking.
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
     static void checkParameterIsNotNull(java.lang.Object, java.lang.String);
