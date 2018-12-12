@@ -579,7 +579,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     override fun onResume() {
         super.onResume()
-        SongLoadJob.mLoadedSong = null
 
         updateBluetoothIcon()
 

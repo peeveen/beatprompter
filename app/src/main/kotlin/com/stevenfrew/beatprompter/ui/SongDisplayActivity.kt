@@ -62,10 +62,19 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         setContentView(R.layout.activity_song_display)
         val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
-        val songView = potentiallyNullSongView ?: return
-        mSongView = songView
+        if (potentiallyNullSongView == null) {
+            finish()
+            System.gc()
+            return
+        }
+        mSongView = potentiallyNullSongView
 
-        val loadedSong = SongLoadJob.mLoadedSong ?: return
+        val loadedSong = SongLoadJob.mLoadedSong
+        if (loadedSong == null) {
+            finish()
+            System.gc()
+            return
+        }
         val song = loadedSong.mSong
         val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
         // For a song to load successfully, all three IDs must match:
@@ -82,6 +91,8 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
             Logger.logLoader { "Parcelable Load ID = ${loadID.uuid}" }
             Logger.logLoader { "SongLoadJob ID = ${song.mLoadID}" }
             finish()
+            System.gc()
+            return
         } else {
             Logger.logLoader { "Successful load ID match: ${song.mLoadID}" }
             if (Preferences.bluetoothMode == BluetoothMode.Server) {
@@ -115,7 +126,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
 
         mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
         EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
-        songView.init(this, song)
+        mSongView!!.init(this, song)
 
         if (sendMidiClockPref || song.mSendMIDIClock)
             mMidiClockOutTaskThread.start()
@@ -152,6 +163,7 @@ class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
     override fun onDestroy() {
         requestedOrientation = mPreferredOrientation
         super.onDestroy()
+        SongLoadJob.mLoadedSong = null
 
         Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
 

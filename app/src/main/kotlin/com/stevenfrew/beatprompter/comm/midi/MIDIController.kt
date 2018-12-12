@@ -26,7 +26,11 @@ import com.stevenfrew.beatprompter.comm.SenderTask
 object MIDIController {
     private var mMidiUsbRegistered = false
     private var mUsbManager: UsbManager? = null
+
+    @RequiresApi(Build.VERSION_CODES.M)
     private var mNativeMidiManager: MidiManager? = null
+
+    @RequiresApi(Build.VERSION_CODES.M)
     private var mMidiNativeDeviceListener: MidiNativeDeviceListener? = null
 
     private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
@@ -40,6 +44,7 @@ object MIDIController {
 
     private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
         if (Preferences.midiConnectionType == ConnectionType.Native)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mNativeMidiManager != null)

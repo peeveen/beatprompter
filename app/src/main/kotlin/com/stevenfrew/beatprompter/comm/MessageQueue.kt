@@ -5,7 +5,7 @@ import java.util.concurrent.ArrayBlockingQueue
 open class MessageQueue(capacity: Int) {
     protected val mBlockingQueue = ArrayBlockingQueue<OutgoingMessage>(capacity)
     // This prevents over-allocation of objects, which creates very slow garbage collection, which
-    // disrupts timing critical operation.s
+    // disrupts timing-critical operations.
     private val mOutBuffer = mutableListOf<OutgoingMessage>()
 
     fun getMessages(): List<OutgoingMessage> {
