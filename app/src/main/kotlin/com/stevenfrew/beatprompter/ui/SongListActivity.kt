@@ -788,12 +788,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             try {
                 if (mIAPService != null) {
                     val ownedItems = mIAPService!!.getPurchases(3, packageName, "inapp", null)
-                    val response = ownedItems.getInt("RESPONSE_CODE")
-                    if (response == 0) {
-                        val ownedSkus = ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
-                        if (ownedSkus != null)
-                            for (sku in ownedSkus)
-                                mFullVersionUnlocked = mFullVersionUnlocked or sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
+                    if (ownedItems.getInt("RESPONSE_CODE") == 0) {
+                        mFullVersionUnlocked = ownedItems
+                                .getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
+                                ?.any { it.equals(FULL_VERSION_SKU_NAME, ignoreCase = true) } ?: false
                     }
                 }
             } catch (e: Exception) {
