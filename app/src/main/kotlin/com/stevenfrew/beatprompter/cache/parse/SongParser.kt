@@ -232,7 +232,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
             if (createLine) {
                 // Won't pay? We'll take it away!
-                if (mDisplayLineCounter > DEMO_LINE_COUNT && !mRegistered) {
+                val disabled = (++mDisplayLineCounter > DEMO_LINE_COUNT && !mRegistered)
+                if (disabled) {
                     workLine = BeatPrompter.getResourceString(R.string.please_buy)
                     imageTag = null
                 }
@@ -286,7 +287,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 }
                 if (imageTag == null)
                     lineObj = TextLine(workLine,
-                            tags,
+                            if (disabled) nonChordTags else tags,
                             lineStartTime,
                             lineDuration,
                             mCurrentLineBeatInfo.mScrollMode,

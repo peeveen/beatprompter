@@ -472,9 +472,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         Preferences.registerOnSharedPreferenceChangeListener(this)
 
-        val serviceIntent = Intent("com.android.vending.billing.InAppBillingService.BIND")
-        serviceIntent.setPackage("com.android.vending")
-        bindService(serviceIntent, mInAppPurchaseServiceConn, Context.BIND_AUTO_CREATE)
+        bindService(Intent("com.android.vending.billing.InAppBillingService.BIND").apply {
+            setPackage("com.android.vending")
+        },
+                mInAppPurchaseServiceConn,
+                Context.BIND_AUTO_CREATE)
 
         // Set font stuff first.
         val metrics = resources.displayMetrics
