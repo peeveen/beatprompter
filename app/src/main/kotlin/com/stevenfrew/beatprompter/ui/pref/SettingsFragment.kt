@@ -84,8 +84,8 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
     }
 
     override fun onFolderSelected(folderInfo: FolderInfo) {
-        Preferences.cloudPath = folderInfo.mID
         Preferences.cloudDisplayPath = folderInfo.mDisplayPath
+        Preferences.cloudPath = folderInfo.mID
     }
 
     override fun onFolderSelectedError(t: Throwable) {
