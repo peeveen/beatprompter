@@ -254,10 +254,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val selectedNode = filterPlaylistNodes(mPlaylist)[position]
         val selectedSong = selectedNode.mSongFile
         val selectedSet = if (mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
-        val trackNames = mutableListOf<String>()
-        trackNames.add(getString(R.string.no_audio))
         val mappedAudioFiles = mCachedCloudFiles.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
-        trackNames.addAll(mappedAudioFiles.map { it.mName })
+        val trackNames = listOf(getString(R.string.no_audio), *mappedAudioFiles.map { it.mName }.toTypedArray())
         val tempSetListFilter = mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
         val addAllowed =
@@ -270,7 +268,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                     true
         val includeRefreshSet = selectedSet != null && mSelectedFilter !== tempSetListFilter
         val includeClearSet = mSelectedFilter === tempSetListFilter
-        val activity = this
 
         val arrayID: Int
         arrayID = if (includeRefreshSet)
@@ -285,118 +282,123 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         else
             R.array.song_options_array
 
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.song_options)
-                .setItems(arrayID) { _, which ->
-                    when (which) {
-                        1 -> performCloudSync(selectedSong, false)
-                        2 -> performCloudSync(selectedSong, true)
-                        3 -> when {
-                            includeRefreshSet -> performCloudSync(selectedSet, false)
-                            includeClearSet -> clearTemporarySetList()
-                            else -> addToTemporarySet(selectedSong)
-                        }
-                        4 -> addToTemporarySet(selectedSong)
-                        0 -> {
-                            val builder1 = AlertDialog.Builder(activity)
-                            // Get the layout inflater
-                            val inflater = activity.layoutInflater
-
-                            @SuppressLint("InflateParams")
-                            val view = inflater.inflate(R.layout.songlist_long_press_dialog, null)
-
-                            val audioSpinner = view
-                                    .findViewById<Spinner>(R.id.audioSpinner)
-                            val audioSpinnerAdapter = ArrayAdapter(activity,
-                                    android.R.layout.simple_spinner_item, trackNames)
-                            audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                            audioSpinner.adapter = audioSpinnerAdapter
-                            if (trackNames.size > 1)
-                                audioSpinner.setSelection(1)
-
-                            val beatScrollable = selectedSong.isBeatScrollable
-                            val smoothScrollable = selectedSong.isSmoothScrollable
-                            val beatButton = view
-                                    .findViewById<ToggleButton>(R.id.toggleButton_beat)
-                            val smoothButton = view
-                                    .findViewById<ToggleButton>(R.id.toggleButton_smooth)
-                            val manualButton = view
-                                    .findViewById<ToggleButton>(R.id.toggleButton_manual)
-                            if (!smoothScrollable) {
-                                val layout = smoothButton.parent as ViewGroup
-                                layout.removeView(smoothButton)
-                            }
-                            if (!beatScrollable) {
-                                val layout = beatButton.parent as ViewGroup
-                                layout.removeView(beatButton)
-                            }
-                            when {
-                                beatScrollable -> {
-                                    beatButton.isChecked = true
-                                    beatButton.isEnabled = false
-                                }
-                                smoothScrollable -> {
-                                    smoothButton.isChecked = true
-                                    smoothButton.isEnabled = false
-                                }
-                                else -> {
-                                    manualButton.isChecked = true
-                                    manualButton.isEnabled = false
-                                }
-                            }
-
-                            beatButton.setOnCheckedChangeListener { _, isChecked ->
-                                if (isChecked) {
-                                    smoothButton.isChecked = false
-                                    manualButton.isChecked = false
-                                    smoothButton.isEnabled = true
-                                    manualButton.isEnabled = true
-                                    beatButton.isEnabled = false
-                                }
-                            }
-
-                            smoothButton.setOnCheckedChangeListener { _, isChecked ->
-                                if (isChecked) {
-                                    beatButton.isChecked = false
-                                    manualButton.isChecked = false
-                                    beatButton.isEnabled = true
-                                    manualButton.isEnabled = true
-                                    smoothButton.isEnabled = false
-                                }
-                            }
-
-                            manualButton.setOnCheckedChangeListener { _, isChecked ->
-                                if (isChecked) {
-                                    beatButton.isChecked = false
-                                    smoothButton.isChecked = false
-                                    smoothButton.isEnabled = true
-                                    beatButton.isEnabled = true
-                                    manualButton.isEnabled = false
-                                }
-                            }
-
-                            // Inflate and set the layout for the dialog
-                            // Pass null as the parent view because its going in the dialog layout
-                            builder1.setView(view)
-                                    // Add action buttons
-                                    .setPositiveButton(R.string.play) { _, _ ->
-                                        // sign in the user ...
-                                        val selectedTrackName = if (audioSpinner.selectedItemPosition == 0) null else audioSpinner.selectedItem as String?
-                                        val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
-                                        val sds = getSongDisplaySettings(mode)
-                                        val track = if (selectedTrackName != null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
-                                        playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
-                                    }
-                                    .setNegativeButton(R.string.cancel) { _, _ -> }
-                            val customAD = builder1.create()
-                            customAD.setCanceledOnTouchOutside(true)
-                            customAD.show()
-                        }
+        AlertDialog.Builder(this).apply {
+            setTitle(R.string.song_options)
+            setItems(arrayID) { _, which ->
+                when (which) {
+                    0 -> showPlayDialog(selectedNode, selectedSong, trackNames)
+                    1 -> performCloudSync(selectedSong, false)
+                    2 -> performCloudSync(selectedSong, true)
+                    3 -> when {
+                        includeRefreshSet -> performCloudSync(selectedSet, false)
+                        includeClearSet -> clearTemporarySetList()
+                        else -> addToTemporarySet(selectedSong)
                     }
+                    4 -> addToTemporarySet(selectedSong)
                 }
-        val al = builder.create()
-        al.setCanceledOnTouchOutside(true)
-        al.show()
+            }
+            create().apply {
+                setCanceledOnTouchOutside(true)
+                show()
+            }
+        }
+    }
+
+    private fun showPlayDialog(selectedNode: PlaylistNode, selectedSong: SongFile, trackNames: List<String>) {
+        // Get the layout inflater
+        val inflater = layoutInflater
+
+        @SuppressLint("InflateParams")
+        val view = inflater.inflate(R.layout.songlist_long_press_dialog, null)
+
+        val audioSpinner = view
+                .findViewById<Spinner>(R.id.audioSpinner)
+        val audioSpinnerAdapter = ArrayAdapter(this,
+                android.R.layout.simple_spinner_item, trackNames)
+        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        audioSpinner.adapter = audioSpinnerAdapter
+        if (trackNames.size > 1)
+            audioSpinner.setSelection(1)
+
+        val beatScrollable = selectedSong.isBeatScrollable
+        val smoothScrollable = selectedSong.isSmoothScrollable
+        val beatButton = view
+                .findViewById<ToggleButton>(R.id.toggleButton_beat)
+        val smoothButton = view
+                .findViewById<ToggleButton>(R.id.toggleButton_smooth)
+        val manualButton = view
+                .findViewById<ToggleButton>(R.id.toggleButton_manual)
+        if (!smoothScrollable) {
+            val layout = smoothButton.parent as ViewGroup
+            layout.removeView(smoothButton)
+        }
+        if (!beatScrollable) {
+            val layout = beatButton.parent as ViewGroup
+            layout.removeView(beatButton)
+        }
+        when {
+            beatScrollable -> {
+                beatButton.isChecked = true
+                beatButton.isEnabled = false
+            }
+            smoothScrollable -> {
+                smoothButton.isChecked = true
+                smoothButton.isEnabled = false
+            }
+            else -> {
+                manualButton.isChecked = true
+                manualButton.isEnabled = false
+            }
+        }
+
+        beatButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                smoothButton.isChecked = false
+                manualButton.isChecked = false
+                smoothButton.isEnabled = true
+                manualButton.isEnabled = true
+                beatButton.isEnabled = false
+            }
+        }
+
+        smoothButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                beatButton.isChecked = false
+                manualButton.isChecked = false
+                beatButton.isEnabled = true
+                manualButton.isEnabled = true
+                smoothButton.isEnabled = false
+            }
+        }
+
+        manualButton.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                beatButton.isChecked = false
+                smoothButton.isChecked = false
+                smoothButton.isEnabled = true
+                beatButton.isEnabled = true
+                manualButton.isEnabled = false
+            }
+        }
+
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        AlertDialog.Builder(this).apply {
+            setView(view)
+            // Add action buttons
+            setPositiveButton(R.string.play) { _, _ ->
+                val selectedTrackName = if (audioSpinner.selectedItemPosition == 0) null else audioSpinner.selectedItem as String?
+                val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
+                val sds = getSongDisplaySettings(mode)
+                val track = if (selectedTrackName != null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
+                playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
+            }
+            setNegativeButton(R.string.cancel) { _, _ -> }
+            create().apply {
+                setCanceledOnTouchOutside(true)
+                show()
+            }
+        }
     }
 
     private fun onMIDIAliasListLongClick(position: Int) {
@@ -404,36 +406,40 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         val showErrors = maf.mErrors.isNotEmpty()
         val arrayID = if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.midi_alias_list_options)
-                .setItems(arrayID) { _, which ->
-                    if (which == 0)
-                        performCloudSync(maf, false)
-                    else if (which == 1)
-                        showMIDIAliasErrors(maf.mErrors)
-                }
-        val al = builder.create()
-        al.setCanceledOnTouchOutside(true)
-        al.show()
+        AlertDialog.Builder(this).apply {
+            setTitle(R.string.midi_alias_list_options)
+                    .setItems(arrayID) { _, which ->
+                        if (which == 0)
+                            performCloudSync(maf, false)
+                        else if (which == 1)
+                            showMIDIAliasErrors(maf.mErrors)
+                    }
+            create().apply {
+                setCanceledOnTouchOutside(true)
+                show()
+            }
+        }
     }
 
     private fun showMIDIAliasErrors(errors: List<FileParseError>) {
-        val builder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         @SuppressLint("InflateParams")
         val view = inflater.inflate(R.layout.parse_errors_dialog, null)
-        builder.setView(view)
         val tv = view.findViewById<TextView>(R.id.errors)
         val str = StringBuilder()
         for (fpe in errors)
             str.append(fpe.toString()).append("\n")
         tv.text = str.toString().trim()
-        val customAD = builder.create()
-        customAD.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
-        ) { dialog, _ -> dialog.dismiss() }
-        customAD.setTitle(getString(R.string.midi_alias_file_errors))
-        customAD.setCanceledOnTouchOutside(true)
-        customAD.show()
+        AlertDialog.Builder(this).apply {
+            setView(view)
+            create().apply {
+                setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
+                ) { dialog, _ -> dialog.dismiss() }
+                setTitle(getString(R.string.midi_alias_file_errors))
+                setCanceledOnTouchOutside(true)
+                show()
+            }
+        }
     }
 
     override fun onItemLongClick(parent: AdapterView<*>, view: View, position: Int, id: Long): Boolean {
@@ -494,9 +500,11 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         initialiseList()
 
-        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_HOME
-        supportActionBar?.setIcon(R.drawable.ic_beatprompter)
-        supportActionBar?.title = ""
+        supportActionBar?.apply {
+            displayOptions = ActionBar.DISPLAY_SHOW_HOME
+            setIcon(R.drawable.ic_beatprompter)
+            title = ""
+        }
     }
 
     private fun initialiseList() {
@@ -612,8 +620,7 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 GOOGLE_PLAY_TRANSACTION_FINISHED -> {
                     val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
                     try {
-                        val jo = JSONObject(purchaseData)
-                        val sku = jo.getString("productId")
+                        val sku = JSONObject(purchaseData).getString("productId")
                         mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
                         Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
@@ -704,8 +711,10 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         if (bpdb.exists()) {
             mPlaylist = Playlist()
 
-            val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val xmlDoc = docBuilder.parse(bpdb)
+            val xmlDoc = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(bpdb)
 
             mCachedCloudFiles.readFromXML(xmlDoc)
             buildFilterList()
