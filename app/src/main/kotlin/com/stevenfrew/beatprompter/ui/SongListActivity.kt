@@ -1145,6 +1145,8 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
     }
 
     companion object {
+        private var mFullVersionUnlocked = false
+
         var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
         var mCachedCloudFiles = CachedCloudFileCollection()
 
@@ -1152,8 +1154,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         var mBeatPrompterSongFilesFolder: File? = null
 
         var mSongEndedNaturally = false
-
-        private var mFullVersionUnlocked = true
 
         private val MANUAL_URL = Uri.parse("https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI")
 
