@@ -27,7 +27,9 @@ import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 
-class SongDisplayActivity : AppCompatActivity(), SensorEventListener {
+class SongDisplayActivity
+    : AppCompatActivity(),
+        SensorEventListener {
     private var mSongView: SongView? = null
     private var mStartedByBandLeader = false
     private var mPreferredOrientation: Int = 0

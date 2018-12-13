@@ -12,7 +12,8 @@ import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.R
 
-class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<PlaylistNode>(BeatPrompter.context, -1, values) {
+class SongListAdapter(private val values: List<PlaylistNode>)
+    : ArrayAdapter<PlaylistNode>(BeatPrompter.context, -1, values) {
     private val mLayoutId =
             if (Preferences.largePrint)
                 R.layout.song_list_item_large

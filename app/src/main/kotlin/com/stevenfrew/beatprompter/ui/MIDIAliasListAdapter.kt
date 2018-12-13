@@ -12,7 +12,8 @@ import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 
-class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>) : ArrayAdapter<MIDIAliasFile>(BeatPrompter.context, -1, values) {
+class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>)
+    : ArrayAdapter<MIDIAliasFile>(BeatPrompter.context, -1, values) {
     private val mLayoutId =
             if (Preferences.largePrint)
                 R.layout.midi_alias_list_item_large

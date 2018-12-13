@@ -11,7 +11,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.filter.*
 
-class FilterListAdapter(private val values: List<Filter>) : ArrayAdapter<Filter>(BeatPrompter.context, -1, values) {
+class FilterListAdapter(private val values: List<Filter>)
+    : ArrayAdapter<Filter>(BeatPrompter.context, -1, values) {
     private val mInflater = BeatPrompter.context
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 

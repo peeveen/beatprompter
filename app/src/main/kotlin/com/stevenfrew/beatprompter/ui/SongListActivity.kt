@@ -63,7 +63,14 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import kotlin.coroutines.CoroutineContext
 
-class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener, SearchView.OnQueryTextListener, CoroutineScope {
+class SongListActivity
+    : AppCompatActivity(),
+        AdapterView.OnItemSelectedListener,
+        AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        SearchView.OnQueryTextListener,
+        CoroutineScope {
     private val mCoRoutineJob = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + mCoRoutineJob

@@ -32,7 +32,9 @@ import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.FileInputStream
 
-class SongView : AppCompatImageView, GestureDetector.OnGestureListener {
+class SongView
+    : AppCompatImageView,
+        GestureDetector.OnGestureListener {
 
     private val mDestinationGraphicRect = Rect(0, 0, 0, 0)
     private val mCurrentBeatCountRect = Rect()

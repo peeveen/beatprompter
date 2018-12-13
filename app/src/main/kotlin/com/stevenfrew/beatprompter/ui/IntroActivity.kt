@@ -9,8 +9,8 @@ import com.github.paolorotolo.appintro.model.SliderPage
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 
-class IntroActivity : AppIntro() {
-
+class IntroActivity
+    : AppIntro() {
     private data class IntroPageInfo(val caption: Int, val description: Int, val image: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
