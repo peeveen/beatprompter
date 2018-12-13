@@ -21,12 +21,12 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
     private val mShowBeatIcons = Preferences.showBeatStyleIcons
     private val mShowKey = Preferences.showKeyInSongList
     private val mShowMusicIcon = Preferences.showMusicIcon
+    private val mInflater = BeatPrompter.context
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = BeatPrompter.context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         return (convertView
-                ?: inflater.inflate(mLayoutId, parent, false)).also {
+                ?: mInflater.inflate(mLayoutId, parent, false)).also {
             val artistView = it.findViewById<TextView>(R.id.songartist)
             val titleView = it.findViewById<TextView>(R.id.songtitle)
             val beatIcon = it.findViewById<ImageView>(R.id.beaticon)

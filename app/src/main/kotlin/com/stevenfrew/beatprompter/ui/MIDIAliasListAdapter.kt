@@ -18,12 +18,12 @@ class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>) : ArrayAdapt
                 R.layout.midi_alias_list_item_large
             else
                 R.layout.midi_alias_list_item
+    private val mInflater = BeatPrompter.context
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = BeatPrompter.context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         return (convertView
-                ?: inflater.inflate(mLayoutId, parent, false)).also {
+                ?: mInflater.inflate(mLayoutId, parent, false)).also {
             val titleView = it.findViewById<TextView>(R.id.alias_file_name)
             val errorIcon = it.findViewById<ImageView>(R.id.erroricon)
             val maf = values[position]
