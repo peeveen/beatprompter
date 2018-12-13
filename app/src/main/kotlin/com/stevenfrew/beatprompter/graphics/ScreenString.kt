@@ -32,7 +32,8 @@ class ScreenString private constructor(internal val mText: String,
             }
         }
 
-        private fun getTextRect(str: String, paint: Paint, r: Rect) {
+        private fun getTextRect(str: String,
+                                paint: Paint, r: Rect) {
             val measureWidth = paint.measureText(str)
             paint.getTextBounds(str, 0, str.length, r)
             r.left = 0
@@ -40,7 +41,9 @@ class ScreenString private constructor(internal val mText: String,
         }
 
         private val doubleXRect = Rect()
-        private fun getDoubleXStringLength(paint: Paint, fontSize: Float, bold: Boolean): Int {
+        private fun getDoubleXStringLength(paint: Paint,
+                                           fontSize: Float,
+                                           bold: Boolean): Int {
             val intFontSize = (fontSize.toInt() - Utils.MINIMUM_FONT_SIZE).let {
                 // This should never happen, but let's check anyway.
                 when {
@@ -62,7 +65,10 @@ class ScreenString private constructor(internal val mText: String,
         }
 
         private val stringWidthRect = Rect()
-        internal fun getStringWidth(paint: Paint, strIn: String?, face: Typeface, fontSize: Float): Int {
+        internal fun getStringWidth(paint: Paint,
+                                    strIn: String?,
+                                    face: Typeface,
+                                    fontSize: Float): Int {
             if (strIn == null || strIn.isEmpty())
                 return 0
             paint.typeface = face
@@ -72,11 +78,23 @@ class ScreenString private constructor(internal val mText: String,
             return stringWidthRect.width() - if (MASKING) getDoubleXStringLength(paint, fontSize, false) else 0
         }
 
-        internal fun getBestFontSize(text: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface): Int {
+        internal fun getBestFontSize(text: String,
+                                     paint: Paint,
+                                     minimumFontSize: Float,
+                                     maximumFontSize: Float,
+                                     maxWidth: Int,
+                                     maxHeight: Int,
+                                     face: Typeface): Int {
             return getBestFontSize(text, paint, minimumFontSize, maximumFontSize, maxWidth, maxHeight, face, false)
         }
 
-        fun create(text: String, paint: Paint, maxWidth: Int, maxHeight: Int, color: Int, face: Typeface, bold: Boolean): ScreenString {
+        fun create(text: String,
+                   paint: Paint,
+                   maxWidth: Int,
+                   maxHeight: Int,
+                   color: Int,
+                   face: Typeface,
+                   bold: Boolean): ScreenString {
             val fontSize = getBestFontSize(text, paint, Utils.MINIMUM_FONT_SIZE.toFloat(), Utils.MAXIMUM_FONT_SIZE.toFloat(), maxWidth, maxHeight, face, bold)
             return ScreenString(text, fontSize.toFloat(), color, bestFontSizeRect.width(), bestFontSizeRect.height() + MARGIN_PIXELS, face, bestFontSizeRect.bottom)
         }
@@ -85,7 +103,10 @@ class ScreenString private constructor(internal val mText: String,
         var mMeasuredWidth = 0
         var mMeasuredHeight = 0
         var mMeasuredDescenderOffset = 0
-        fun measure(text: String, paint: Paint, fontSize: Float, face: Typeface) {
+        fun measure(text: String,
+                    paint: Paint,
+                    fontSize: Float,
+                    face: Typeface) {
             paint.typeface = face
             paint.textSize = fontSize * Utils.FONT_SCALING
             val measureText = if (MASKING) "$MASKING_STRING$text$MASKING_STRING" else text
@@ -98,7 +119,14 @@ class ScreenString private constructor(internal val mText: String,
         }
 
         private val bestFontSizeRect = Rect()
-        private fun getBestFontSize(textIn: String, paint: Paint, minimumFontSize: Float, maximumFontSize: Float, maxWidth: Int, maxHeight: Int, face: Typeface, bold: Boolean): Int {
+        private fun getBestFontSize(textIn: String,
+                                    paint: Paint,
+                                    minimumFontSize: Float,
+                                    maximumFontSize: Float,
+                                    maxWidth: Int,
+                                    maxHeight: Int,
+                                    face: Typeface,
+                                    bold: Boolean): Int {
             if (maxWidth <= 0)
                 return 0
             var hi = maximumFontSize

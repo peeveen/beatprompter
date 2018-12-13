@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.graphics
 
 import android.graphics.*
+import com.stevenfrew.beatprompter.util.Utils
 
 class ScreenComment(private val mText: String,
                     screenSize: Rect,
@@ -30,9 +31,9 @@ class ScreenComment(private val mText: String,
     fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
         with(paint)
         {
-            textSize = mScreenString.mFontSize * com.stevenfrew.beatprompter.util.Utils.FONT_SCALING
-            flags = android.graphics.Paint.ANTI_ALIAS_FLAG
-            color = android.graphics.Color.BLACK
+            textSize = mScreenString.mFontSize * Utils.FONT_SCALING
+            flags = Paint.ANTI_ALIAS_FLAG
+            color = Color.BLACK
         }
         canvas.drawRect(mPopupRect, paint)
         paint.color = Color.WHITE

@@ -6,8 +6,8 @@ import com.stevenfrew.beatprompter.song.line.Line
 
 class LineGraphic(private val mSize: Rect) {
     var mLastDrawnLine: Line? = null
-    private var mBitmap: Bitmap = createBitmap()
-    var mNextGraphic: LineGraphic = this
+    private var mBitmap = createBitmap()
+    var mNextGraphic = this
 
     val bitmap: Bitmap
         get() {
@@ -17,7 +17,9 @@ class LineGraphic(private val mSize: Rect) {
         }
 
     private fun createBitmap(): Bitmap {
-        return Bitmap.createBitmap(mSize.width(), mSize.height(), Bitmap.Config.ARGB_8888)
+        return Bitmap.createBitmap(mSize.width(),
+                mSize.height(),
+                Bitmap.Config.ARGB_8888)
     }
 
     fun recycle() {
