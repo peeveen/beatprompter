@@ -8,9 +8,9 @@ import java.io.ByteArrayOutputStream
 /**
  * Bluetooth message that instructs the receiver to change the current song position.
  */
-class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
-
-    var mTime: Long = time
+class SetSongTimeMessage(time: Long)
+    : BluetoothMessage(asBytes(time)) {
+    var mTime = time
 
     companion object {
         private fun asBytes(t: Long): ByteArray {

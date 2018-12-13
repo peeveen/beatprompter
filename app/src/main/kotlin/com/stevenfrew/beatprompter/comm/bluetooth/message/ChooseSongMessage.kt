@@ -11,7 +11,8 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo)
+class ChooseSongMessage(val bytes: ByteArray,
+                        val mChoiceInfo: SongChoiceInfo)
     : BluetoothMessage(bytes) {
     constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 

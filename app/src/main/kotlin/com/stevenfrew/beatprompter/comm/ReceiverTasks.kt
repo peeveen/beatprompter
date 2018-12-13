@@ -21,20 +21,17 @@ class ReceiverTasks {
     }
 
     fun stopAndRemoveReceiver(id: String) {
-        var receiverTask: ReceiverTask?
-        var receiverThread: Thread?
-        synchronized(mReceiverThreadsLock)
-        {
+        val (receiverTask, receiverThread) = synchronized(mReceiverThreadsLock) {
             Logger.logComms { "Removing receiver task '$id'" }
-            receiverTask = mReceiverTasks[id]
-            receiverThread = mReceiverThreads[id]
-            mReceiverTasks.remove(id)
-            mReceiverThreads.remove(id)
-            Logger.logComms { "Removed receiver task '$id'" }
+            (mReceiverTasks.remove(id) to mReceiverThreads.remove(id)).also {
+                Logger.logComms { "Removed receiver task '$id'" }
+            }
         }
         Logger.logComms { "Stopping receiver task '$id'" }
-        receiverTask?.setUnregistered()
-        receiverTask?.stop()
+        receiverTask?.apply {
+            setUnregistered()
+            stop()
+        }
         receiverThread?.apply {
             interrupt()
             join()

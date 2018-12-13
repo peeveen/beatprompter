@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -48,17 +49,10 @@ class SongFile(cachedCloudFileDescriptor: CachedFileDescriptor,
     }
 
     companion object {
-        private var thePrefix = BeatPrompter.getResourceString(R.string.lowerCaseThe) + " "
+        private var thePrefix = "${BeatPrompter.getResourceString(R.string.lowerCaseThe)} "
 
         fun sortableString(inStr: String?): String {
-            val str = inStr?.toLowerCase()
-            if (str != null) {
-                return if (str.startsWith(thePrefix))
-                    str.substring(thePrefix.length)
-                else
-                    str
-            }
-            return ""
+            return inStr?.toLowerCase()?.removePrefix(thePrefix) ?: ""
         }
     }
 }

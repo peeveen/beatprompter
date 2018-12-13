@@ -25,9 +25,8 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
         // Keep listening until exception occurs or a socket is returned
         while (!mStop) {
             try {
-                var serverSocket: BluetoothServerSocket?
-                synchronized(mSocketNullLock) {
-                    if (mmServerSocket == null) {
+                val serverSocket = synchronized(mSocketNullLock) {
+                    mmServerSocket ?: run {
                         try {
                             // MY_UUID is the app's UUID string, also used by the server code
                             mmServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompter.APP_NAME, mUUID)
@@ -35,8 +34,8 @@ class ServerThread internal constructor(private val mBluetoothAdapter: Bluetooth
                         } catch (e: IOException) {
                             Logger.logComms("Error creating Bluetooth server socket.", e)
                         }
+                        mmServerSocket
                     }
-                    serverSocket = mmServerSocket
                 }
 
                 // If a connection was accepted

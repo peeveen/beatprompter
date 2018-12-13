@@ -8,6 +8,6 @@ open class OutgoingMessage(val mBytes: ByteArray) {
         return StringBuilder().apply {
             for (mMessageByte in mBytes)
                 append(String.format("%02X ", mMessageByte))
-        }.toString()
+        }.toString().trim()
     }
 }

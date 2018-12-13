@@ -25,14 +25,14 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice,
                     // until it succeeds or throws an exception, which can happen
                     // if it doesn't find anything to connect to within about 4 seconds.
                     Logger.logComms { "Attempting to connect to a Bluetooth server on '${mDevice.name}'." }
-                    mDevice.createRfcommSocketToServiceRecord(mUUID)?.also { socket ->
-                        socket.connect().also {
-                            // If the previous line didn't throw an IOException, then it connected OK.
-                            // Do work to manage the connection (in a separate thread)
-                            Logger.logComms { "Connected to a Bluetooth server on '${mDevice.name}'." }
-                            mmSocket = socket
-                            mOnConnectedFunction(socket)
-                        }
+                    mDevice.createRfcommSocketToServiceRecord(mUUID)?.also {
+                        it.connect()
+                        // If the previous line didn't throw an IOException, then it connected OK.
+                        // Do work to manage the connection (in a separate thread)
+                        Logger.logComms { "Connected to a Bluetooth server on '${mDevice.name}'." }
+                        mmSocket = it
+                        mOnConnectedFunction(it)
+
                     }
                 } catch (connectException: Exception) {
                     // There probably isn't a server to connect to. Wait a bit and try again.
