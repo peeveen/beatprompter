@@ -191,7 +191,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         val createLine = (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
 
-        val pauseTag = tags.asSequence().filterIsInstance<PauseTag>().firstOrNull()
+        val pauseTag = tags
+                .asSequence()
+                .filterIsInstance<PauseTag>()
+                .firstOrNull()
         if (createLine || pauseTag != null) {
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
@@ -211,7 +214,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     }
             mAudioTags.clear()
 
-            // No audio WHATSOEVER in manual mode
             if (audioTag != null && !mSongLoadInfo.mNoAudio) {
                 // Make sure file exists.
                 val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
@@ -920,9 +922,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
      * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
      * actually covers the duration of the beat.
      */
-    data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
+    private data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
 
-    internal class LineList : ArrayList<Line>() {
+    private class LineList : ArrayList<Line>() {
         override fun add(element: Line): Boolean {
             val lastOrNull = lastOrNull()
             lastOrNull?.mNextLine = element
@@ -931,7 +933,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         }
     }
 
-    internal class CircularGraphicsList : ArrayList<LineGraphic>() {
+    private class CircularGraphicsList : ArrayList<LineGraphic>() {
         override fun add(element: LineGraphic): Boolean {
             lastOrNull()?.mNextGraphic = element
             val result = super.add(element)

@@ -17,7 +17,11 @@ class SetListFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     private val mSetListEntries = mutableListOf<SetListEntry>()
 
     override fun parseLine(line: TextFileLine<SetListFile>) {
-        val setNameTag = line.mTags.asSequence().filterIsInstance<SetNameTag>().firstOrNull()
+        val setNameTag = line
+                .mTags
+                .asSequence()
+                .filterIsInstance<SetNameTag>()
+                .firstOrNull()
         if (setNameTag != null) {
             if (mSetName.isNotBlank())
                 mErrors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))

@@ -15,7 +15,7 @@ object DirectiveFinder
         true) {
     // We made this dumb decision to format the comment tag this way.
     // We're stuck with it. Let's reparse it for the new file parsing system.
-    private val mCommentTagNamesWithAudienceMarkers: List<String> = CommentTag::class
+    private val mCommentTagNamesWithAudienceMarkers = CommentTag::class
             .annotations
             .asSequence()
             .filterIsInstance<TagName>()

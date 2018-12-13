@@ -15,11 +15,12 @@ class AudioFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     override fun parse(): AudioFile {
         try {
             // Try to read the length of the track. If it fails, it's not an audio file.
-            val mmr = MediaMetadataRetriever()
-            mmr.setDataSource(mCachedCloudFileDescriptor.mFile.absolutePath)
-            val data = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            if (data != null)
-                return AudioFile(mCachedCloudFileDescriptor, Utils.milliToNano(data.toLong()))
+            MediaMetadataRetriever().apply {
+                setDataSource(mCachedCloudFileDescriptor.mFile.absolutePath)
+                extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.also {
+                    return AudioFile(mCachedCloudFileDescriptor, Utils.milliToNano(it.toLong()))
+                }
+            }
         } catch (e: Exception) {
             // Not bothered about what the exception is ... file is obviously shite.
         }

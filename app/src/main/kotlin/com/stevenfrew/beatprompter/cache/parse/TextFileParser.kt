@@ -88,12 +88,12 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFile
                 // We found a match!
                 // Construct a tag of this class
                 try {
-                    val constructor = tagClass.primaryConstructor
-                    if (constructor != null)
-                        return if (constructor.parameters.size == 4)
-                            constructor.call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
+                    tagClass.primaryConstructor?.apply {
+                        return if (parameters.size == 4)
+                            call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
                         else
-                            constructor.call(foundTag.mName, lineNumber, foundTag.mStart)
+                            call(foundTag.mName, lineNumber, foundTag.mStart)
+                    }
                 } catch (ite: InvocationTargetException) {
                     throw ite.targetException
                 }
@@ -104,13 +104,8 @@ abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFile
     }
 
     fun findFirstTag(text: String): FoundTag? {
-        var bestInfo: FoundTag? = null
-        for (finder in mTagFinders) {
-            val info = finder.findTag(text)
-            if (info != null)
-                if (bestInfo == null || info.mStart < bestInfo.mStart)
-                    bestInfo = info
-        }
-        return bestInfo
+        return mTagFinders
+                .mapNotNull { it.findTag(text) }
+                .minBy { it.mStart }
     }
 }
