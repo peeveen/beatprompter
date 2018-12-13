@@ -16,6 +16,7 @@ import kotlin.reflect.KClass
  */
 object TagParsingUtility {
     private val mHelperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
+
     fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T> {
         @Suppress("UNCHECKED_CAST")
         return mHelperMap.getOrPut(parser::class) {
@@ -23,7 +24,6 @@ object TagParsingUtility {
         } as TagParsingHelper<T>
     }
 
-    @Throws(MalformedTagException::class)
     fun parseIntegerValue(value: String, min: Int, max: Int): Int {
         try {
             return value.toInt().also {
@@ -37,7 +37,6 @@ object TagParsingUtility {
         }
     }
 
-    @Throws(MalformedTagException::class)
     fun parseDurationValue(value: String, min: Long, max: Long, trackLengthAllowed: Boolean): Long {
         try {
             return Utils.milliToNano(Utils.parseDuration(value, trackLengthAllowed).also {
@@ -51,7 +50,6 @@ object TagParsingUtility {
         }
     }
 
-    @Throws(MalformedTagException::class)
     fun parseDoubleValue(value: String, min: Int, max: Int): Double {
         try {
             return value.toDouble().also {
@@ -65,7 +63,6 @@ object TagParsingUtility {
         }
     }
 
-    @Throws(MalformedTagException::class)
     fun parseColourValue(value: String): Int {
         return try {
             Color.parseColor(value)
@@ -78,7 +75,6 @@ object TagParsingUtility {
         }
     }
 
-    @Throws(MalformedTagException::class)
     fun parseMIDIValue(valueStr: String, argIndex: Int, argCount: Int): Value {
         val trimmedValue = valueStr.trim()
         if (trimmedValue.isEmpty())

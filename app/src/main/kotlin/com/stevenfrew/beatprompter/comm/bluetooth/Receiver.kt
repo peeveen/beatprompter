@@ -8,7 +8,8 @@ import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 
-class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.remoteDevice.name) {
+class Receiver(private val mmSocket: BluetoothSocket)
+    : ReceiverBase(mmSocket.remoteDevice.name) {
     override fun unregister(task: ReceiverTask) {
         BluetoothManager.removeReceiver(task)
     }
@@ -78,7 +79,6 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
         /**
          * Constructs the message object from the received bytes.
          */
-        @Throws(NotEnoughDataException::class, UnknownMessageException::class)
         internal fun fromBytes(bytes: ByteArray): OutgoingMessage {
             if (bytes.isNotEmpty())
                 return when (bytes[0]) {

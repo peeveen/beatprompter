@@ -11,20 +11,17 @@ import kotlin.reflect.full.findAnnotation
  * Collects all tag parsing metadata into one place (well, three places).
  * We could do all this work each time we reach a tag, but this saves a lot of processing.
  */
-class TagParsingHelper<FileResultType> constructor(parser: TextFileParser<FileResultType>) {
+class TagParsingHelper<FileResultType>(parser: TextFileParser<FileResultType>) {
     val mNameToClassMap: Map<Pair<Type, String>, KClass<out Tag>>
     val mNoNameToClassMap: Map<Type, KClass<out Tag>>
     val mIgnoreTagNames: List<String>
 
     init {
-        val parseClasses = parser::class
+        val (unnamedParseClasses, namedParseClasses) = parser::class
                 .annotations
                 .filterIsInstance<ParseTags>()
                 .flatMap { it.mTagClasses.toList() }
-        val unnamedAndNamedParseClasses = parseClasses
                 .partition { it.annotations.filterIsInstance<TagName>().isEmpty() }
-        val unnamedParseClasses = unnamedAndNamedParseClasses.first
-        val namedParseClasses = unnamedAndNamedParseClasses.second
         mNameToClassMap = namedParseClasses.flatMap { tagClass ->
             tagClass
                     .annotations

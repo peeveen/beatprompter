@@ -8,11 +8,20 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
  */
 class FileParseError private constructor(val mLineNumber: Int, val mMessage: String) {
 
-    constructor(lineNumber: Int, resourceId: Int, vararg args: Any) : this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
-    constructor(tag: Tag, t: Throwable) : this(tag.mLineNumber, t.message ?: t.toString())
-    constructor(lineNumber: Int, t: Throwable) : this(lineNumber, t.message ?: t.toString())
-    constructor(tag: Tag, resourceId: Int, vararg args: Any) : this(tag.mLineNumber, resourceId, *args)
-    constructor(resourceId: Int, vararg args: Any) : this(-1, resourceId, *args)
+    internal constructor(lineNumber: Int, resourceId: Int, vararg args: Any)
+            : this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
+
+    internal constructor(tag: Tag, t: Throwable)
+            : this(tag.mLineNumber, t.message ?: t.toString())
+
+    internal constructor(lineNumber: Int, t: Throwable)
+            : this(lineNumber, t.message ?: t.toString())
+
+    internal constructor(tag: Tag, resourceId: Int, vararg args: Any)
+            : this(tag.mLineNumber, resourceId, *args)
+
+    internal constructor(resourceId: Int, vararg args: Any)
+            : this(-1, resourceId, *args)
 
     override fun toString(): String {
         return (if (mLineNumber != -1) "$mLineNumber: " else "") + mMessage

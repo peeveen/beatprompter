@@ -18,10 +18,12 @@ open class FileInfo(id: String,
             element.getAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME))
 
     open fun writeToXML(element: Element) {
-        element.setAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME, mName)
-        element.setAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME, mID)
-        element.setAttribute(CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "" + mLastModified.time)
-        element.setAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME, mSubfolder ?: "")
+        element.apply {
+            setAttribute(CLOUD_FILE_NAME_ATTRIBUTE_NAME, mName)
+            setAttribute(CLOUD_FILE_STORAGE_ID_ATTRIBUTE_NAME, mID)
+            setAttribute(CLOUD_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "" + mLastModified.time)
+            setAttribute(CLOUD_FILE_SUBFOLDER_ATTRIBUTE_NAME, mSubfolder ?: "")
+        }
     }
 
     companion object {

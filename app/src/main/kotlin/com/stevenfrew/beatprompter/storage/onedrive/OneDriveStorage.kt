@@ -26,7 +26,8 @@ import java.util.*
 /**
  * OneDrive implementation of the storage system.
  */
-class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
+class OneDriveStorage(parentActivity: Activity)
+    : Storage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
 
     private val oneDriveAuthenticator = object : MSAAuthenticator() {
         override fun getClientId(): String {
@@ -158,7 +159,6 @@ class OneDriveStorage(parentActivity: Activity) : Storage(parentActivity, ONEDRI
             return null
         }
 
-        @Throws(IOException::class)
         private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File {
             val fos = FileOutputStream(localFile)
             fos.use {

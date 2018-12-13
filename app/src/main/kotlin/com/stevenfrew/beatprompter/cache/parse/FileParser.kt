@@ -5,10 +5,9 @@ import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 /**
  * Base class for all file parsers.
  */
-abstract class FileParser<TFileResult> constructor(protected val mCachedCloudFileDescriptor: CachedFileDescriptor) {
+abstract class FileParser<TFileResult>(protected val mCachedCloudFileDescriptor: CachedFileDescriptor) {
     protected val mErrors = mutableListOf<FileParseError>()
 
-    @Throws(InvalidBeatPrompterFileException::class)
     abstract fun parse(): TFileResult
 
     fun addError(error: FileParseError) {

@@ -43,13 +43,11 @@ class MIDIEventTag internal constructor(name: String,
     }
 
     companion object {
-        @Throws(MalformedTagException::class)
         fun parseMIDIEvent(name: String,
                            value: String,
                            lineNumber: Int,
                            aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset> {
-            val defaultChannelPref = Preferences.defaultMIDIOutputChannel
-            val defaultChannel = Message.getChannelFromBitmask(defaultChannelPref)
+            val defaultChannel = Message.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
 
             val (tagName, tagValue, eventOffset) = normalizeMIDIValues(name, value, lineNumber)
 
@@ -58,17 +56,20 @@ class MIDIEventTag internal constructor(name: String,
                             .splitAndTrim(",")
                             .asSequence()
                             .filter { !it.isBlank() }
-                            .map { bit -> parseValue(bit) }.toList()
+                            .map { bit -> parseValue(bit) }
+                            .toList()
+
             val (params, channelValue) =
                     separateParametersFromChannel(firstPassParamValues, defaultChannel)
 
             try {
-                val channel = channelValue.resolve()
-                val resolvedBytes = params.map { it.resolve() }.toByteArray()
+                val resolvedBytes = params
+                        .map { it.resolve() }
+                        .toByteArray()
                 val matchedAlias = aliases.firstOrNull { it.mName.equals(tagName, ignoreCase = true) }
                 return when {
                     tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes)) to eventOffset
-                    matchedAlias != null -> matchedAlias.resolve(aliases, resolvedBytes, channel) to eventOffset
+                    matchedAlias != null -> matchedAlias.resolve(aliases, resolvedBytes, channelValue.resolve()) to eventOffset
                     else -> throw MalformedTagException(R.string.unknown_midi_directive, tagName)
                 }
             } catch (re: ResolutionException) {
@@ -76,9 +77,8 @@ class MIDIEventTag internal constructor(name: String,
             }
         }
 
-        @Throws(MalformedTagException::class)
-        fun separateParametersFromChannel(params: List<Value>,
-                                          defaultChannel: Byte): Pair<List<Value>, ChannelValue> {
+        private fun separateParametersFromChannel(params: List<Value>,
+                                                  defaultChannel: Byte): Pair<List<Value>, ChannelValue> {
             val channelValue = params.mapIndexed { index, param ->
                 if (param is ChannelValue)
                     if (index != params.size - 1)
@@ -89,10 +89,9 @@ class MIDIEventTag internal constructor(name: String,
                     ?: ChannelValue(defaultChannel))
         }
 
-        @Throws(MalformedTagException::class)
-        fun normalizeMIDIValues(name: String,
-                                value: String,
-                                lineNumber: Int): Triple<String, String, EventOffset> {
+        private fun normalizeMIDIValues(name: String,
+                                        value: String,
+                                        lineNumber: Int): Triple<String, String, EventOffset> {
             return if (value.isEmpty()) {
                 // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
                 if (name.contains(";")) {
@@ -116,8 +115,7 @@ class MIDIEventTag internal constructor(name: String,
             }
         }
 
-        @Throws(MalformedTagException::class)
-        fun parseMIDIEventOffset(offsetString: String, lineNumber: Int): EventOffset {
+        private fun parseMIDIEventOffset(offsetString: String, lineNumber: Int): EventOffset {
             val trimmedOffsetString = offsetString.trim()
             if (!trimmedOffsetString.isEmpty()) {
                 try {
@@ -129,8 +127,7 @@ class MIDIEventTag internal constructor(name: String,
                         val offsetChars = trimmedOffsetString.toCharArray()
                         val upDiff = offsetChars.count { it == '>' }
                         val downDiff = offsetChars.count { it == '<' }
-                        val badCharsFound = offsetChars.any { it != '<' && it != '>' }
-                        if (badCharsFound)
+                        if (offsetChars.any { it != '<' && it != '>' })
                             throw MalformedTagException(R.string.non_beat_characters_in_midi_offset)
                         EventOffset(upDiff - downDiff, EventOffsetType.Beats, lineNumber)
                     }
@@ -141,8 +138,7 @@ class MIDIEventTag internal constructor(name: String,
             return EventOffset(lineNumber)
         }
 
-        @Throws(MalformedTagException::class)
-        fun parseValue(strVal: String): Value {
+        private fun parseValue(strVal: String): Value {
             return TagParsingUtility.parseMIDIValue(strVal, 0, 1)
         }
     }

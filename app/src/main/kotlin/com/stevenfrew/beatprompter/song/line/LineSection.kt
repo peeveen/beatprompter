@@ -8,11 +8,11 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.graphics.ColorRect
 import com.stevenfrew.beatprompter.graphics.ScreenString
 
-class LineSection constructor(val mLineText: String,
-                              val mChordText: String,
-                              val mTrueChord: Boolean,
-                              private val mSectionPosition: Int,
-                              private val mTags: Collection<Tag>) {
+class LineSection(val mLineText: String,
+                  val mChordText: String,
+                  val mTrueChord: Boolean,
+                  private val mSectionPosition: Int,
+                  private val mTags: Collection<Tag>) {
     private val mTrimmedChord = mChordText.trim()
     var mChordWidth = 0
     var mChordHeight = 0

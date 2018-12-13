@@ -7,7 +7,9 @@ import android.support.annotation.RequiresApi
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 
 @RequiresApi(Build.VERSION_CODES.M)
-class NativeReceiver(private val mPort: MidiOutputPort, name: String) : Receiver(name) {
+class NativeReceiver(private val mPort: MidiOutputPort,
+                     name: String)
+    : Receiver(name) {
     private val mInnerReceiver = NativeReceiverReceiver()
     private val mInnerBufferLock = Any()
     private var mInnerBuffer = ByteArray(INITIAL_INNER_BUFFER_SIZE)

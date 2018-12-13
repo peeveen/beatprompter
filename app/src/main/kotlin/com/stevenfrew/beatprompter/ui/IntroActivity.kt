@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.R
 
 class IntroActivity : AppIntro() {
 
-    data class IntroPageInfo constructor(val caption: Int, val description: Int, val image: Int)
+    private data class IntroPageInfo(val caption: Int, val description: Int, val image: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

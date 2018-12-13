@@ -4,7 +4,7 @@ import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 
-class SenderTask constructor(private val mMessageQueue: MessageQueue)
+class SenderTask(private val mMessageQueue: MessageQueue)
     : Task(false) {
     private val mSenders = mutableListOf<Sender>()
     private val mSendersLock = Any()

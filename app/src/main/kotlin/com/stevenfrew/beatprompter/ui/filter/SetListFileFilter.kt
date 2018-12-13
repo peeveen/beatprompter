@@ -41,13 +41,16 @@ open class SetListFileFilter(var mSetListFile: SetListFile,
                                songFiles: List<SongFile>,
                                desiredMatchType: SetListMatch): List<Pair<SetListEntry, SongFile>> {
             return setListEntries.mapNotNull { entry ->
-                val fullMatch = songFiles.firstOrNull { song: SongFile ->
-                    entry.matches(song) == desiredMatchType
-                }
-                if (fullMatch != null)
-                    entry to fullMatch
-                else
-                    null
+                songFiles
+                        .firstOrNull { song: SongFile ->
+                            entry.matches(song) == desiredMatchType
+                        }
+                        .let {
+                            if (it != null)
+                                entry to it
+                            else
+                                null
+                        }
             }
         }
     }

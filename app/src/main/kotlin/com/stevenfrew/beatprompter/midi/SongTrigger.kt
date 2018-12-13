@@ -7,11 +7,11 @@ import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.midi.message.ProgramChangeMessage
 import com.stevenfrew.beatprompter.comm.midi.message.SongSelectMessage
 
-class SongTrigger constructor(private val mBankSelectMSB: Value,
-                              private val mBankSelectLSB: Value,
-                              private val mTriggerIndex: Value,
-                              private val mChannel: Value,
-                              private val mType: TriggerType) {
+class SongTrigger(private val mBankSelectMSB: Value,
+                  private val mBankSelectLSB: Value,
+                  private val mTriggerIndex: Value,
+                  private val mChannel: Value,
+                  private val mType: TriggerType) {
     constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType) : this(CommandValue(msb), CommandValue(lsb), CommandValue(triggerIndex), CommandValue(channel), type)
 
     companion object {
@@ -36,7 +36,6 @@ class SongTrigger constructor(private val mBankSelectMSB: Value,
                 && mBankSelectMSB is CommandValue)
     }
 
-    @Throws(ResolutionException::class)
     fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
         return mutableListOf<OutgoingMessage>().apply {
             if (canSend())

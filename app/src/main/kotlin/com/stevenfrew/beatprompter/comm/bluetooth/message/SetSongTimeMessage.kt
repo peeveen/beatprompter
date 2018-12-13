@@ -27,7 +27,6 @@ class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
             }.toByteArray()
         }
 
-        @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage {
             ByteArrayInputStream(bytes).apply {
                 try {

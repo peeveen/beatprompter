@@ -5,4 +5,4 @@ package com.stevenfrew.beatprompter.cache.parse.tag
  * Annotation for tag classes. Tells the parser all possible synonymous tag names that
  * are related to this tag.
  */
-annotation class TagName constructor(vararg val mNames: String)
+annotation class TagName(vararg val mNames: String)

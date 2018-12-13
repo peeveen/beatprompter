@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm
 
-abstract class ReceiverBase constructor(private val mName: String,
-                                        private val mBufferSize: Int = IN_BUFFER_SIZE)
+abstract class ReceiverBase(private val mName: String,
+                            private val mBufferSize: Int = IN_BUFFER_SIZE)
     : Receiver {
     private val mInBuffer = ByteArray(mBufferSize)
     private var mAmountOfDataInBuffer = 0

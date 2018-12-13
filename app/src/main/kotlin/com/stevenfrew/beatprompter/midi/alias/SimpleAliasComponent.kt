@@ -8,7 +8,6 @@ import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 class SimpleAliasComponent(private val mValues: List<Value>,
                            private val mChannelValue: ChannelValue?)
     : AliasComponent {
-    @Throws(ResolutionException::class)
     override fun resolve(aliases: List<Alias>, parameters: ByteArray, channel: Byte): List<OutgoingMessage> {
         return listOf(OutgoingMessage(mValues.map {
             it.resolve(parameters, mChannelValue?.mValue ?: channel)

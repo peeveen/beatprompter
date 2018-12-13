@@ -9,10 +9,10 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Base class for song file parsing.
  */
-abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor: CachedFileDescriptor,
-                                                       initialScrollMode: ScrollingMode,
-                                                       private val mAllowModeChange: Boolean,
-                                                       reportUnexpectedTags: Boolean)
+abstract class SongFileParser<TResultType>(cachedCloudFileDescriptor: CachedFileDescriptor,
+                                           initialScrollMode: ScrollingMode,
+                                           private val mAllowModeChange: Boolean,
+                                           reportUnexpectedTags: Boolean)
     : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
     protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
     protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
@@ -21,8 +21,10 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
         val lastLineBeatInfo = mCurrentLineBeatInfo
 
         val commaBars = line.mTags.filterIsInstance<BarMarkerTag>().size
-        val scrollBeatModifiers = line.mTags.filterIsInstance<ScrollBeatModifierTag>()
-        var thisScrollBeatTotalOffset = scrollBeatModifiers.sumBy { it.mModifier }
+        var thisScrollBeatTotalOffset = line
+                .mTags
+                .filterIsInstance<ScrollBeatModifierTag>()
+                .sumBy { it.mModifier }
 
         // ... or by a tag (which overrides commas)
         val tagSequence = line.mTags.asSequence()
@@ -34,6 +36,7 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
 
         val barsInThisLine = barsTag?.mBars ?: barsPerLineTag?.mBPL
         ?: if (commaBars == 0) mOngoingBeatInfo.mBPL else commaBars
+
         val beatsPerBarInThisLine = beatsPerBarTag?.mBPB ?: mOngoingBeatInfo.mBPB
         val beatsPerMinuteInThisLine = beatsPerMinuteTag?.mBPM ?: mOngoingBeatInfo.mBPM
         var scrollBeatInThisLine = scrollBeatTag?.mScrollBeat ?: mOngoingBeatInfo.mScrollBeat
@@ -81,18 +84,34 @@ abstract class SongFileParser<TResultType> constructor(cachedCloudFileDescriptor
 
         val lastScrollBeatTotalOffset = lastLineBeatInfo.mScrollBeatTotalOffset
 
-        var beatsForThisLine = beatsPerBarInThisLine * barsInThisLine
-        beatsForThisLine -= lastScrollBeatTotalOffset
-        beatsForThisLine += thisScrollBeatTotalOffset
+        val beatsForThisLine =
+                ((beatsPerBarInThisLine * barsInThisLine)
+                        - lastScrollBeatTotalOffset) + thisScrollBeatTotalOffset
 
         mOngoingBeatInfo = SongBeatInfo(barsPerLineTag?.mBPL
                 ?: mOngoingBeatInfo.mBPL, beatsPerBarInThisLine, beatsPerMinuteInThisLine, scrollBeatInThisLine, mOngoingBeatInfo.mScrollMode)
         mCurrentLineBeatInfo = LineBeatInfo(beatsForThisLine, barsInThisLine, beatsPerBarInThisLine, beatsPerMinuteInThisLine, scrollBeatInThisLine, thisScrollBeatTotalOffset, newScrollMode)
     }
 
-    data class LineBeatInfo(val mBeats: Int, val mBPL: Int, val mBPB: Int, val mBPM: Double, val mScrollBeat: Int, val mScrollBeatTotalOffset: Int, val mScrollMode: ScrollingMode = ScrollingMode.Beat) {
-        constructor(songBeatInfo: SongBeatInfo) : this(songBeatInfo.mBPB * songBeatInfo.mBPL, songBeatInfo.mBPL, songBeatInfo.mBPB, songBeatInfo.mBPM, songBeatInfo.mScrollBeat, songBeatInfo.mBPB - songBeatInfo.mScrollBeat, songBeatInfo.mScrollMode)
+    protected data class LineBeatInfo(val mBeats: Int,
+                                      val mBPL: Int,
+                                      val mBPB: Int,
+                                      val mBPM: Double,
+                                      val mScrollBeat: Int,
+                                      val mScrollBeatTotalOffset: Int,
+                                      val mScrollMode: ScrollingMode = ScrollingMode.Beat) {
+        constructor(songBeatInfo: SongBeatInfo) : this(songBeatInfo.mBPB * songBeatInfo.mBPL,
+                songBeatInfo.mBPL,
+                songBeatInfo.mBPB,
+                songBeatInfo.mBPM,
+                songBeatInfo.mScrollBeat,
+                songBeatInfo.mBPB - songBeatInfo.mScrollBeat,
+                songBeatInfo.mScrollMode)
     }
 
-    data class SongBeatInfo(val mBPL: Int = 4, val mBPB: Int = 4, val mBPM: Double = 120.0, val mScrollBeat: Int = 4, val mScrollMode: ScrollingMode = ScrollingMode.Beat)
+    protected data class SongBeatInfo(val mBPL: Int = 4,
+                                      val mBPB: Int = 4,
+                                      val mBPM: Double = 120.0,
+                                      val mScrollBeat: Int = 4,
+                                      val mScrollMode: ScrollingMode = ScrollingMode.Beat)
 }

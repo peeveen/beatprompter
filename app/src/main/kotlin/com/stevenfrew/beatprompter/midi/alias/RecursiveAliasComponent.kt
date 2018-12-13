@@ -8,7 +8,6 @@ class RecursiveAliasComponent(private val mReferencedAliasName: String,
                               private val mArguments: List<Value>,
                               private val mChannelValue: ChannelValue?)
     : AliasComponent {
-    @Throws(ResolutionException::class)
     override fun resolve(aliases: List<Alias>, parameters: ByteArray, channel: Byte): List<OutgoingMessage> {
         try {
             return aliases.first { it.mName.equals(mReferencedAliasName, ignoreCase = true) }.resolve(aliases, mArguments.map {

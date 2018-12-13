@@ -10,17 +10,19 @@ import android.widget.ImageView
 import com.stevenfrew.beatprompter.R
 
 class ImageArrayAdapter(context: Context, textViewResourceId: Int,
-                        objects: Array<CharSequence>, private val resourceIds: IntArray, private val index: Int) : ArrayAdapter<CharSequence>(context, textViewResourceId, objects) {
+                        objects: Array<CharSequence>,
+                        private val resourceIds: IntArray,
+                        private val index: Int)
+    : ArrayAdapter<CharSequence>(context, textViewResourceId, objects) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val inflater = (context as Activity).layoutInflater
-        val row = convertView ?: inflater.inflate(R.layout.imagelistitem, parent, false)
-
-        row.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
-        row.findViewById<CheckedTextView>(R.id.check).apply {
-            text = getItem(position)
-            isChecked = position == index
+        return (convertView
+                ?: (context as Activity).layoutInflater.inflate(R.layout.imagelistitem, parent, false)).also {
+            it.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
+            it.findViewById<CheckedTextView>(R.id.check).apply {
+                text = getItem(position)
+                isChecked = position == index
+            }
         }
-        return row
     }
 }

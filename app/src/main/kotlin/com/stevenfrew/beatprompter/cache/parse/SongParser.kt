@@ -95,13 +95,19 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         mShowBPM = if (mSongLoadInfo.mSongFile.mBPM > 0.0) Preferences.showBPMContext else ShowBPMContext.No
 
         // Figure out the screen size
-        mNativeDeviceSettings = translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings, mSongLoadInfo.mNativeDisplaySettings)
+        mNativeDeviceSettings = translateSourceDeviceSettingsToNative(mSongLoadInfo.mSourceDisplaySettings,
+                mSongLoadInfo.mNativeDisplaySettings)
 
         // Start the progress message dialog
-        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED, 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
+        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,
+                0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
 
         val lengthOfBackingTrack = mSongLoadInfo.mTrack?.mDuration ?: 0L
-        var songTime = if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE) lengthOfBackingTrack else mSongLoadInfo.mSongFile.mDuration
+        var songTime =
+                if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE)
+                    lengthOfBackingTrack
+                else
+                    mSongLoadInfo.mSongFile.mDuration
         if (songTime > 0 && mSongLoadInfo.mSongFile.mTotalPauses > songTime) {
             mErrors.add(FileParseError(R.string.pauseLongerThanSong))
             mOngoingBeatInfo = SongBeatInfo(mScrollMode = ScrollingMode.Manual)
@@ -109,7 +115,11 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             songTime = 0
         }
 
-        mTimePerBar = if (songTime > 0L) (songTime.toDouble() / mSongLoadInfo.mSongFile.mBars).toLong() else 0
+        mTimePerBar =
+                if (songTime > 0L)
+                    (songTime.toDouble() / mSongLoadInfo.mSongFile.mBars).toLong()
+                else
+                    0
     }
 
     override fun parseLine(line: TextFileLine<Song>) {
@@ -388,7 +398,13 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         val maxSongTitleWidth = mNativeDeviceSettings.mScreenSize.width() * 0.9f
         val maxSongTitleHeight = beatCounterHeight * 0.9f
         val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
-        val songTitleHeader = ScreenString.create(mSongLoadInfo.mSongFile.mTitle, mPaint, maxSongTitleWidth.toInt(), maxSongTitleHeight.toInt(), Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()), mFont, false)
+        val songTitleHeader = ScreenString.create(mSongLoadInfo.mSongFile.mTitle,
+                mPaint,
+                maxSongTitleWidth.toInt(),
+                maxSongTitleHeight.toInt(),
+                Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
+                mFont,
+                false)
         val extraMargin = (maxSongTitleHeight - songTitleHeader.mHeight) / 2.0f
         val x = ((mNativeDeviceSettings.mScreenSize.width() - songTitleHeader.mWidth) / 2.0).toFloat()
         val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)

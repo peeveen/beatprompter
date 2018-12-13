@@ -19,15 +19,14 @@ open class EnclosedTagFinder(private val mStartChar: Char,
                         if (mValued) {
                             // Can't use splitAndTrim in case of something like {time:5:00}
                             val colonIndex = enclosedText.indexOf(":")
-                            if (colonIndex == -1) {
+                            if (colonIndex == -1)
                                 enclosedText to ""
-                            } else {
+                            else {
                                 enclosedText.substring(0, colonIndex).trim() to
                                         enclosedText.substring(colonIndex + 1).trim()
                             }
-                        } else {
+                        } else
                             enclosedText to ""
-                        }
                 return FoundTag(directiveStart,
                         directiveEnd,
                         if (mRetainCase) name else name.toLowerCase(),

@@ -24,11 +24,14 @@ class ImageTag internal constructor(name: String,
     init {
         val bits = value.splitAndTrim(":")
         mFilename = File(bits[0]).name
-        mImageScalingMode = if (bits.size > 1) parseImageScalingMode(bits[1]) else ImageScalingMode.Stretch
+        mImageScalingMode =
+                if (bits.size > 1)
+                    parseImageScalingMode(bits[1])
+                else
+                    ImageScalingMode.Stretch
     }
 
     companion object {
-        @Throws(MalformedTagException::class)
         fun parseImageScalingMode(value: String): ImageScalingMode {
             try {
                 return ImageScalingMode.valueOf(value.toLowerCase().capitalize())

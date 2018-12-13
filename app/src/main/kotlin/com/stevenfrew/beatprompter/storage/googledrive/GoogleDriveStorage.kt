@@ -32,8 +32,8 @@ import java.util.*
 /**
  * GoogleDrive implementation of the storage system.
  */
-class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
-
+class GoogleDriveStorage(parentActivity: Activity)
+    : Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
 
     override val cloudStorageName: String
         get() = BeatPrompter.getResourceString(R.string.google_drive_string)
@@ -238,7 +238,6 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
             return null
         }
 
-        @Throws(IOException::class)
         private fun downloadGoogleDriveFile(file: com.google.api.services.drive.model.File, filename: String): File {
             val localFile = File(mDownloadFolder, filename)
             val inputStream = getDriveFileInputStream(file)
@@ -252,7 +251,6 @@ class GoogleDriveStorage(parentActivity: Activity) : Storage(parentActivity, GOO
             return localFile
         }
 
-        @Throws(IOException::class)
         private fun getDriveFileInputStream(file: com.google.api.services.drive.model.File): InputStream? {
             val isGoogleDoc = file.mimeType.startsWith("application/vnd.google-apps.")
             if (isGoogleDoc) {

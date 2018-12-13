@@ -8,14 +8,15 @@ import com.stevenfrew.beatprompter.cache.ImageFile
 /**
  * "Parser" for image files. Basically validates that the file is actually an image.
  */
-class ImageFileParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor) : FileParser<ImageFile>(cachedCloudFileDescriptor) {
+class ImageFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
+    : FileParser<ImageFile>(cachedCloudFileDescriptor) {
 
     override fun parse(): ImageFile {
-        val options = BitmapFactory.Options()
         try {
-            val bitmap = BitmapFactory.decodeFile(mCachedCloudFileDescriptor.mFile.absolutePath, options)
-            if (bitmap != null)
-                return ImageFile(mCachedCloudFileDescriptor, bitmap.width, bitmap.height)
+            BitmapFactory.decodeFile(mCachedCloudFileDescriptor.mFile.absolutePath,
+                    BitmapFactory.Options())?.also {
+                return ImageFile(mCachedCloudFileDescriptor, it.width, it.height)
+            }
         } catch (e: Exception) {
             // Not bothered about what the exception is. File is obviously shite.
         }

@@ -12,7 +12,8 @@ import java.util.*
 /**
  * Local storage implementation of the storage system.
  */
-class LocalStorage(parentActivity: Activity) : Storage(parentActivity, "local") {
+class LocalStorage(parentActivity: Activity)
+    : Storage(parentActivity, "local") {
     // No need for region strings here.
     override val cloudStorageName: String
         get() = "local"

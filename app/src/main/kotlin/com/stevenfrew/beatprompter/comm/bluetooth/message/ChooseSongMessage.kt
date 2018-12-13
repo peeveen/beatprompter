@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream
 /**
  * OutgoingMessage that is sent/received when a song is chosen.
  */
-class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo)
+class ChooseSongMessage(val bytes: ByteArray, val mChoiceInfo: SongChoiceInfo)
     : BluetoothMessage(bytes) {
     constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 
@@ -37,7 +37,6 @@ class ChooseSongMessage constructor(val bytes: ByteArray, val mChoiceInfo: SongC
             }.toByteArray()
         }
 
-        @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): ChooseSongMessage {
             try {
                 ByteArrayInputStream(bytes).apply {

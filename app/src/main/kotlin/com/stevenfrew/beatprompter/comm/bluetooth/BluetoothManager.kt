@@ -60,8 +60,10 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
 
         if (mBluetoothAdapter != null) {
             Logger.logComms("Bluetooth adapter found.")
-            application.registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
-            application.registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+            application.apply {
+                registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+                registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+            }
             Preferences.registerOnSharedPreferenceChangeListener(this)
             onBluetoothActivation()
         }
@@ -188,32 +190,36 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     private fun startBluetoothWatcherThreads() {
         if (mBluetoothAdapter != null && mBluetoothAdapter!!.isEnabled) {
             synchronized(mBluetoothThreadsLock) {
-                val mode = Preferences.bluetoothMode
-                if (mode === BluetoothMode.Server) {
-                    shutDownBluetoothClient()
-                    if (mServerBluetoothThread == null) {
-                        Logger.logComms("Starting Bluetooth server thread.")
-                        mServerBluetoothThread =
-                                ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket ->
-                                    handleConnectionFromClient(socket)
-                                }.apply { start() }
-                    }
-                } else if (mode === BluetoothMode.Client) {
-                    shutDownBluetoothServer()
-                    if (mConnectToServerThread == null) {
-                        mBluetoothAdapter!!.bondedDevices
-                                .firstOrNull { it.address == Preferences.bandLeaderDevice }
-                                ?.also {
-                                    try {
-                                        Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
-                                        mConnectToServerThread =
-                                                ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
-                                                    BluetoothManager.setServerConnection(socket)
-                                                }.apply { start() }
-                                    } catch (e: Exception) {
-                                        Logger.logComms({ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." }, e)
+                when (Preferences.bluetoothMode) {
+                    BluetoothMode.Client -> {
+                        shutDownBluetoothServer()
+                        if (mConnectToServerThread == null) {
+                            mBluetoothAdapter!!.bondedDevices
+                                    .firstOrNull { it.address == Preferences.bandLeaderDevice }
+                                    ?.also {
+                                        try {
+                                            Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
+                                            mConnectToServerThread =
+                                                    ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
+                                                        BluetoothManager.setServerConnection(socket)
+                                                    }.apply { start() }
+                                        } catch (e: Exception) {
+                                            Logger.logComms({ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." }, e)
+                                        }
                                     }
-                                }
+                        }
+                    }
+                    BluetoothMode.Server -> {
+                        shutDownBluetoothClient()
+                        if (mServerBluetoothThread == null) {
+                            Logger.logComms("Starting Bluetooth server thread.")
+                            mServerBluetoothThread =
+                                    ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket ->
+                                        handleConnectionFromClient(socket)
+                                    }.apply { start() }
+                        }
+                    }
+                    else -> {
                     }
                 }
             }

@@ -36,7 +36,6 @@ class AudioTag internal constructor(name: String,
     }
 
     companion object {
-        @Throws(MalformedTagException::class)
         fun parseVolume(value: String, defaultTrackVolume: Int): Int {
             try {
                 val tryVolume = value.toInt()

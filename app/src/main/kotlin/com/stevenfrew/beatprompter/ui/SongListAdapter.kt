@@ -13,7 +13,11 @@ import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.R
 
 class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<PlaylistNode>(BeatPrompter.context, -1, values) {
-    private val mLargePrint: Boolean = Preferences.largePrint
+    private val mLayoutId =
+            if (Preferences.largePrint)
+                R.layout.song_list_item_large
+            else
+                R.layout.song_list_item
     private val mShowBeatIcons = Preferences.showBeatStyleIcons
     private val mShowKey = Preferences.showKeyInSongList
     private val mShowMusicIcon = Preferences.showMusicIcon
@@ -21,22 +25,22 @@ class SongListAdapter(private val values: List<PlaylistNode>) : ArrayAdapter<Pla
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = BeatPrompter.context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val rowView = convertView
-                ?: inflater.inflate(if (mLargePrint) R.layout.song_list_item_large else R.layout.song_list_item, parent, false)
-        val artistView = rowView.findViewById<TextView>(R.id.songartist)
-        val titleView = rowView.findViewById<TextView>(R.id.songtitle)
-        val beatIcon = rowView.findViewById<ImageView>(R.id.beaticon)
-        val docIcon = rowView.findViewById<ImageView>(R.id.smoothicon)
-        val notesIcon = rowView.findViewById<ImageView>(R.id.musicicon)
-        val song = values[position].mSongFile
-        notesIcon.visibility = if (song.mAudioFiles.isEmpty() || !mShowMusicIcon) View.GONE else View.VISIBLE
-        docIcon.visibility = if (!song.isSmoothScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
-        beatIcon.visibility = if (!song.isBeatScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
-        titleView.text = song.mTitle
-        val key = song.mKey
-        val keyString = if (mShowKey && key.isNotBlank()) " - $key" else ""
-        val artist = song.mArtist + keyString
-        artistView.text = artist
-        return rowView
+        return (convertView
+                ?: inflater.inflate(mLayoutId, parent, false)).also {
+            val artistView = it.findViewById<TextView>(R.id.songartist)
+            val titleView = it.findViewById<TextView>(R.id.songtitle)
+            val beatIcon = it.findViewById<ImageView>(R.id.beaticon)
+            val docIcon = it.findViewById<ImageView>(R.id.smoothicon)
+            val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
+            val song = values[position].mSongFile
+            notesIcon.visibility = if (song.mAudioFiles.isEmpty() || !mShowMusicIcon) View.GONE else View.VISIBLE
+            docIcon.visibility = if (!song.isSmoothScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
+            beatIcon.visibility = if (!song.isBeatScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
+            titleView.text = song.mTitle
+            val key = song.mKey
+            val keyString = if (mShowKey && key.isNotBlank()) " - $key" else ""
+            val artist = song.mArtist + keyString
+            artistView.text = artist
+        }
     }
 }

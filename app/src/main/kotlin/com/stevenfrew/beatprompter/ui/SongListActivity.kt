@@ -705,7 +705,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         listView.adapter = mListAdapter
     }
 
-    @Throws(IOException::class, ParserConfigurationException::class, SAXException::class)
     private fun readDatabase() {
         val bpdb = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
         if (bpdb.exists()) {
@@ -721,7 +720,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         }
     }
 
-    @Throws(ParserConfigurationException::class, TransformerException::class)
     private fun writeDatabase() {
         val bpdb = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
         if (!bpdb.delete())
@@ -1185,7 +1183,6 @@ class SongListActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
         var mSongListEventHandler: SongListEventHandler? = null
 
-        @Throws(IOException::class)
         fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
             val inputStream = BeatPrompter.assetManager.open(filename)
             inputStream.use { inStream ->

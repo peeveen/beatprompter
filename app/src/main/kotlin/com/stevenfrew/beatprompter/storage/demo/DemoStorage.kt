@@ -13,7 +13,8 @@ import java.util.*
 /**
  * An implementation of a "storage system" that only contains the demo files.
  */
-class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
+class DemoStorage(parentActivity: Activity)
+    : Storage(parentActivity, "demo") {
     // No need for region strings here.
     override val cloudStorageName: String
         get() = "demo"
@@ -66,7 +67,6 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
         return destinationSongFile
     }
 
-    @Throws(IOException::class)
     private fun createDemoSongAudioFile(): File {
         val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
         SongListActivity.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)

@@ -41,8 +41,16 @@ open class MIDITriggerTag protected constructor(name: String,
         } else
             WildcardValue()
 
-        val lsb = if (bits.size > 2) TagParsingUtility.parseMIDIValue(bits[2], 2, bits.size) else WildcardValue()
-        val msb = if (bits.size > 1) TagParsingUtility.parseMIDIValue(bits[1], 1, bits.size) else WildcardValue()
+        val lsb =
+                if (bits.size > 2)
+                    TagParsingUtility.parseMIDIValue(bits[2], 2, bits.size)
+                else
+                    WildcardValue()
+        val msb =
+                if (bits.size > 1)
+                    TagParsingUtility.parseMIDIValue(bits[1], 1, bits.size)
+                else
+                    WildcardValue()
         val index = TagParsingUtility.parseMIDIValue(bits[0], 0, bits.size)
 
         mTrigger = SongTrigger(msb, lsb, index, channel, type)

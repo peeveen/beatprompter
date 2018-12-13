@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm
 
-abstract class SenderBase constructor(private val mName: String,
-                                      private val mBufferSize: Int = OUT_BUFFER_SIZE)
+abstract class SenderBase(private val mName: String,
+                          private val mBufferSize: Int = OUT_BUFFER_SIZE)
     : Sender {
     private val mOutBuffer = ByteArray(mBufferSize)
 

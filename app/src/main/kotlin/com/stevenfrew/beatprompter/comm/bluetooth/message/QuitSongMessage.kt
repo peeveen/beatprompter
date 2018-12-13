@@ -9,9 +9,9 @@ import java.io.ObjectOutputStream
 /**
  * Bluetooth message that instructs the receiver to stop playing the current song.
  */
-class QuitSongMessage constructor(val bytes: ByteArray,
-                                  val songTitle: String,
-                                  val songArtist: String)
+class QuitSongMessage(val bytes: ByteArray,
+                      val songTitle: String,
+                      val songArtist: String)
     : BluetoothMessage(bytes) {
     constructor(songTitle: String, songArtist: String)
             : this(asBytes(songTitle, songArtist), songTitle, songArtist)
@@ -29,7 +29,6 @@ class QuitSongMessage constructor(val bytes: ByteArray,
             }.toByteArray()
         }
 
-        @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): QuitSongMessage {
             try {
                 ByteArrayInputStream(bytes).apply {

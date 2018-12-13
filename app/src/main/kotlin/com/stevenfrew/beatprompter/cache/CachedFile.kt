@@ -16,13 +16,14 @@ abstract class CachedFile internal constructor(cachedCloudFileDescriptor: Cached
         cachedCloudFileDescriptor.mSubfolder) {
 
     fun writeToXML(d: Document, element: Element) {
-        val newElement = d.createElement(this::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
-        super.writeToXML(newElement)
-        element.appendChild(newElement)
+        d.createElement(this::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
+                .also {
+                    super.writeToXML(it)
+                    element.appendChild(it)
+                }
     }
 
     companion object {
-
         fun createCachedCloudFile(result: SuccessfulDownloadResult): CachedFile {
             return try {
                 AudioFileParser(result.cachedCloudFileDescriptor).parse()

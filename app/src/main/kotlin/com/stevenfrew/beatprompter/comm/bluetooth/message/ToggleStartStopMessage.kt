@@ -33,7 +33,6 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo)
             }.toByteArray()
         }
 
-        @Throws(NotEnoughDataException::class)
         internal fun fromBytes(bytes: ByteArray): ToggleStartStopMessage {
             ByteArrayInputStream(bytes).apply {
                 try {

@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
 /**
  * "Parses" audio files. Basically validates that the file IS ACTUALLY an audio file.
  */
-class AudioFileParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor)
+class AudioFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     : FileParser<AudioFile>(cachedCloudFileDescriptor) {
 
     override fun parse(): AudioFile {

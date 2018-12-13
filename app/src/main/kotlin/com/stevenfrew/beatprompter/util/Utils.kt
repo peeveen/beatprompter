@@ -110,7 +110,6 @@ object Utils {
 
     }
 
-    @Throws(IOException::class)
     fun streamToStream(instr: InputStream, outstr: OutputStream) {
         val buffer = ByteArray(2048)
         var bytesRead = 0
@@ -125,7 +124,6 @@ object Utils {
         return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"), "_")
     }
 
-    @Throws(IOException::class)
     fun appendToTextFile(file: File, str: String) {
         FileWriter(file.absolutePath, true).use { fw -> BufferedWriter(fw).use { bw -> PrintWriter(bw).use { out -> out.println(str) } } }
     }

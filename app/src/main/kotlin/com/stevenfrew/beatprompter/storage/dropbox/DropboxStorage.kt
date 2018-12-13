@@ -25,7 +25,8 @@ import java.util.*
 /**
  * DropBox implementation of the storage system.
  */
-class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX_CACHE_FOLDER_NAME) {
+class DropboxStorage(parentActivity: Activity)
+    : Storage(parentActivity, DROPBOX_CACHE_FOLDER_NAME) {
 
     override val directorySeparator: String
         get() = "/"
@@ -89,7 +90,6 @@ class DropboxStorage(parentActivity: Activity) : Storage(parentActivity, DROPBOX
         itemSource.onComplete()
     }
 
-    @Throws(IOException::class, DbxException::class)
     private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localfile: File): File {
         val fos = FileOutputStream(localfile)
         fos.use {

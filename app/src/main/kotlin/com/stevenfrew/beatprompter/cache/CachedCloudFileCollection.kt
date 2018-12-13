@@ -108,13 +108,13 @@ class CachedCloudFileCollection {
     }
 
     fun removeNonExistent(storageIDs: Set<String>) {
-        val remainingFiles = mFiles.filter { storageIDs.contains(it.mID) }
-        val noLongerExistingFiles = mFiles.filter { !storageIDs.contains(it.mID) }
-        noLongerExistingFiles.forEach { f ->
+        // Delete no-longer-existing files.
+        mFiles.filter { !storageIDs.contains(it.mID) }.forEach { f ->
             if (!f.mFile.delete())
                 Logger.log { "Failed to delete file: ${f.mFile.name}" }
         }
-        mFiles = remainingFiles.toMutableList()
+        // Keep remaining files.
+        mFiles = mFiles.filter { storageIDs.contains(it.mID) }.toMutableList()
     }
 
     fun clear() {

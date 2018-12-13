@@ -47,25 +47,34 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
     }
 
     init {
-        mDialog.requestWindowFeature(Window.FEATURE_LEFT_ICON)
-        mDialog.setContentView(R.layout.choose_folder_dialog_loading)
-        mDialog.setCanceledOnTouchOutside(false)
-        mDialog.setOnCancelListener(this)
-        mDialog.setOnDismissListener(this)
-        val tv = mDialog.findViewById<TextView>(android.R.id.title)
-        tv.ellipsize = TextUtils.TruncateAt.END
-        tv.setLines(1)
-        tv.setHorizontallyScrolling(true)
-        mFolderSelectionEventSubscription = CompositeDisposable()
-        mFolderSelectionEventSubscription.add(mFolderSelectionSource.subscribe({ listener.onFolderSelected(it) }, { listener.onFolderSelectedError(it) }))
-        mDialog.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, mStorage.cloudIconResourceId)
+        val thisDialog = this
+        mDialog.apply {
+            requestWindowFeature(Window.FEATURE_LEFT_ICON)
+            setContentView(R.layout.choose_folder_dialog_loading)
+            setCanceledOnTouchOutside(false)
+            setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, mStorage.cloudIconResourceId)
+            mDialog.setOnCancelListener(thisDialog)
+            mDialog.setOnDismissListener(thisDialog)
+        }
+
         mHandler = FolderContentsFetchHandler(this)
+        mFolderSelectionEventSubscription = CompositeDisposable().apply {
+            add(mFolderSelectionSource.subscribe({ listener.onFolderSelected(it) }, { listener.onFolderSelectedError(it) }))
+        }
+
+        mDialog.findViewById<TextView>(android.R.id.title).apply {
+            ellipsize = TextUtils.TruncateAt.END
+            setLines(1)
+            setHorizontallyScrolling(true)
+        }
     }
 
     fun showDialog() {
         refresh(mCurrentFolder)
-        mDialog.setTitle(getDisplayPath(mCurrentFolder))
-        mDialog.show()
+        mDialog.apply {
+            setTitle(getDisplayPath(mCurrentFolder))
+            show()
+        }
     }
 
     private fun setNewPath(newFolder: FolderInfo?) {
@@ -92,28 +101,30 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
             contents.removeAll(SongListActivity.mDefaultDownloads.map { it.mFileInfo })
             contents.sort()
 
-            val parentFolder = mCurrentFolder.mParentFolder
-            if (parentFolder != null)
-                contents.add(0, FolderInfo(parentFolder.mParentFolder, parentFolder.mID, PARENT_DIR, parentFolder.mDisplayPath))
+            mCurrentFolder.mParentFolder?.also {
+                contents.add(0, FolderInfo(it.mParentFolder, it.mID, PARENT_DIR, it.mDisplayPath))
+            }
 
             // refresh the user interface
-            mDialog.setContentView(R.layout.choose_folder_dialog)
-            val list = mDialog.findViewById<ListView>(R.id.chooseFolderListView)
-            val okButton = mDialog.findViewById<Button>(R.id.chooseFolderOkButton)
-            mDialog.setTitle(getDisplayPath(mCurrentFolder))
-            list.adapter = BrowserItemListAdapter(contents)
+            mDialog.apply {
+                setContentView(R.layout.choose_folder_dialog)
+                setTitle(getDisplayPath(mCurrentFolder))
+                val list = findViewById<ListView>(R.id.chooseFolderListView)
+                list.adapter = BrowserItemListAdapter(contents)
 
-            list.setOnItemClickListener { _, _, which, _ ->
-                val folderChosen: FolderInfo = if (which == 0 && mParentFolder != null)
-                    mParentFolder as FolderInfo
-                else
-                    list.getItemAtPosition(which) as FolderInfo
+                list.setOnItemClickListener { _, _, which, _ ->
+                    val folderChosen: FolderInfo = if (which == 0 && mParentFolder != null)
+                        mParentFolder as FolderInfo
+                    else
+                        list.getItemAtPosition(which) as FolderInfo
 
-                mDialog.setContentView(R.layout.choose_folder_dialog_loading)
-                mDialog.setTitle(getDisplayPath(folderChosen))
-                refresh(folderChosen)
+                    setContentView(R.layout.choose_folder_dialog_loading)
+                    setTitle(getDisplayPath(folderChosen))
+                    refresh(folderChosen)
+                }
+                findViewById<Button>(R.id.chooseFolderOkButton)
+                        .setOnClickListener { setNewPath(mCurrentFolder) }
             }
-            okButton.setOnClickListener { setNewPath(mCurrentFolder) }
         }
     }
 
