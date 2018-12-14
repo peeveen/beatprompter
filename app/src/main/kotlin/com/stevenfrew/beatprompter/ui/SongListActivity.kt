@@ -26,7 +26,7 @@ import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
@@ -1023,9 +1023,9 @@ class SongListActivity
     internal fun updateBluetoothIcon() {
         val bluetoothMode = Preferences.bluetoothMode
         val slave = bluetoothMode === BluetoothMode.Client
-        val connectedToServer = BluetoothManager.isConnectedToServer
+        val connectedToServer = BluetoothController.isConnectedToServer
         val master = bluetoothMode === BluetoothMode.Server
-        val connectedClients = BluetoothManager.bluetoothClientCount
+        val connectedClients = BluetoothController.bluetoothClientCount
         val resourceID =
                 if (slave)
                     if (connectedToServer)

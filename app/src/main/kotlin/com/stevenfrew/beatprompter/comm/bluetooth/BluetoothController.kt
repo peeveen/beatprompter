@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * General Bluetooth management singleton object.
  */
-object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
+object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
     private val mCoRoutineJob = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + mCoRoutineJob
@@ -54,7 +54,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
 
             launch {
                 while (true) {
-                    BluetoothManager.mBluetoothOutQueue.putMessage(HeartbeatMessage)
+                    BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
                     delay(1000)
                 }
             }
@@ -76,7 +76,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
                 when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
-                    BluetoothAdapter.STATE_TURNING_OFF -> BluetoothManager.onStopBluetooth()
+                    BluetoothAdapter.STATE_TURNING_OFF -> BluetoothController.onStopBluetooth()
                     BluetoothAdapter.STATE_ON -> onBluetoothActivation()
                 }
             }
@@ -86,7 +86,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
     private fun onBluetoothActivation() {
         Logger.logComms("Bluetooth is on.")
         if (Preferences.bluetoothMode !== BluetoothMode.None)
-            BluetoothManager.onStartBluetooth()
+            BluetoothController.onStartBluetooth()
     }
 
     private val mDeviceReceiver = object : BroadcastReceiver() {
@@ -200,7 +200,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
                                             Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
                                             mConnectToServerThread =
                                                     ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
-                                                        BluetoothManager.setServerConnection(socket)
+                                                        BluetoothController.setServerConnection(socket)
                                                     }.apply { start() }
                                         } catch (e: Exception) {
                                             Logger.logComms({ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." }, e)

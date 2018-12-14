@@ -16,7 +16,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.WindowManager
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
@@ -110,7 +110,7 @@ class SongDisplayActivity
                         loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                         loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
                         loadedSong.mLoadJob.mSongLoadInfo.mNoAudio))
-                BluetoothManager.mBluetoothOutQueue.putMessage(csm)
+                BluetoothController.mBluetoothOutQueue.putMessage(csm)
             }
         }
 

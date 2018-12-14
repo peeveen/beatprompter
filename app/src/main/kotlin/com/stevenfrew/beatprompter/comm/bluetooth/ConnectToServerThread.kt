@@ -19,7 +19,7 @@ internal class ConnectToServerThread(private val mDevice: BluetoothDevice,
 
     override fun run() {
         while (!mStop) {
-            if (!BluetoothManager.isConnectedToServer)
+            if (!BluetoothController.isConnectedToServer)
                 try {
                     // Connect the device through the socket. This will block
                     // until it succeeds or throws an exception, which can happen

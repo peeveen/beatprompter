@@ -5,11 +5,11 @@ import android.content.Context
 import android.preference.ListPreference
 import android.util.AttributeSet
 import android.widget.ArrayAdapter
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 
 class BandLeaderPreference(context: Context, attrs: AttributeSet) : ListPreference(context, attrs) {
     override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
-        BluetoothManager.getPairedDevices().apply {
+        BluetoothController.getPairedDevices().apply {
             entries = map { it.name }.toTypedArray()
             entryValues = map { it.address }.toTypedArray()
         }

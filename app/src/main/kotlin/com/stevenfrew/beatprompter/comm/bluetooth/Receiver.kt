@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.message.*
 class Receiver(private val mmSocket: BluetoothSocket)
     : ReceiverBase(mmSocket.remoteDevice.name) {
     override fun unregister(task: ReceiverTask) {
-        BluetoothManager.removeReceiver(task)
+        BluetoothController.removeReceiver(task)
     }
 
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {

@@ -143,18 +143,22 @@ object MIDIController {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mMidiNativeDeviceListener = MidiNativeDeviceListener()
             mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
-            mNativeMidiManager?.registerDeviceCallback(mMidiNativeDeviceListener, null)
-            mNativeMidiManager?.devices?.forEach {
-                addNativeDevice(it)
+            mNativeMidiManager?.apply {
+                registerDeviceCallback(mMidiNativeDeviceListener, null)
+                devices?.forEach {
+                    addNativeDevice(it)
+                }
             }
         }
         mUsbManager = application.getSystemService(Context.USB_SERVICE) as UsbManager
         mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
 
-        val filter = IntentFilter()
-        filter.addAction(ACTION_USB_PERMISSION)
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        val filter = IntentFilter().apply {
+            addAction(ACTION_USB_PERMISSION)
+            addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        }
+
         application.registerReceiver(mUsbReceiver, filter)
         mMidiUsbRegistered = true
 

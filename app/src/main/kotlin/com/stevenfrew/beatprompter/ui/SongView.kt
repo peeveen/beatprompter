@@ -17,7 +17,7 @@ import android.widget.OverScroller
 import android.widget.Toast
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothManager
+import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.QuitSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.SetSongTimeMessage
@@ -567,10 +567,10 @@ class SongView
                         time = mPauseTime
                         setSongTime(time, false, false, true, true)
                     }
-                    BluetoothManager.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, time)))
+                    BluetoothController.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, time)))
                 }
             } else
-                BluetoothManager.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, 0)))
+                BluetoothController.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, 0)))
         } else {
             if (mScreenAction == ScreenAction.Volume) {
                 if (e != null) {
@@ -600,7 +600,7 @@ class SongView
             return
         val nanoTime = System.nanoTime()
         mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
-        BluetoothManager.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(mStartState, mPauseTime)))
+        BluetoothController.mBluetoothOutQueue.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(mStartState, mPauseTime)))
         mStartState = PlayState.reduce(mStartState)
         mMediaPlayers.values.forEach {
             if (it.isPlaying)
@@ -616,7 +616,7 @@ class SongView
             pause(false)
         if (destroyed) {
             if (mSong != null) {
-                BluetoothManager.mBluetoothOutQueue.putMessage(QuitSongMessage(mSong!!.mSongFile.mNormalizedTitle, mSong!!.mSongFile.mNormalizedArtist))
+                BluetoothController.mBluetoothOutQueue.putMessage(QuitSongMessage(mSong!!.mSongFile.mNormalizedTitle, mSong!!.mSongFile.mNormalizedArtist))
                 mSong!!.recycleGraphics()
             }
             mSong = null
@@ -786,7 +786,7 @@ class SongView
             if (mStartState !== PlayState.Playing)
                 mPauseTime = nano
             if (broadcast)
-                BluetoothManager.mBluetoothOutQueue.putMessage(SetSongTimeMessage(nano))
+                BluetoothController.mBluetoothOutQueue.putMessage(SetSongTimeMessage(nano))
             mSong!!.setProgress(nano)
             var musicPlaying = false
             if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
@@ -868,7 +868,7 @@ class SongView
             return
         if (mScreenAction != ScreenAction.Scroll)
             return
-        BluetoothManager.mBluetoothOutQueue.putMessage(PauseOnScrollStartMessage)
+        BluetoothController.mBluetoothOutQueue.putMessage(PauseOnScrollStartMessage)
         mUserHasScrolled = true
         mStartState = PlayState.Paused
         mMediaPlayers.values.forEach {
