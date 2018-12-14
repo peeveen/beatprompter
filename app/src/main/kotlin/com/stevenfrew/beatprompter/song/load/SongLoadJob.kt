@@ -1,8 +1,10 @@
 package com.stevenfrew.beatprompter.song.load
 
+import android.os.Handler
 import android.os.Message
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,15 +36,15 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
                     Logger.logLoader("Song was loaded successfully.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
                     mLoadedSong = LoadedSong(loadedSong, thisSongLoadJob)
-                    mHandler.obtainMessage(EventHandler.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
+                    mHandler.obtainMessage(Events.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
                 } catch (e: SongLoadCancelledException) {
                     Logger.logLoader("Song load was cancelled.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
-                    mHandler.obtainMessage(EventHandler.SONG_LOAD_CANCELLED).sendToTarget()
+                    mHandler.obtainMessage(Events.SONG_LOAD_CANCELLED).sendToTarget()
                 } catch (e: Exception) {
                     Logger.logLoader("Song load failed.")
                     SongLoadQueueWatcherTask.onSongLoadFinished()
-                    mHandler.obtainMessage(EventHandler.SONG_LOAD_FAILED, e.message).sendToTarget()
+                    mHandler.obtainMessage(Events.SONG_LOAD_FAILED, e.message).sendToTarget()
                 } finally {
                     System.gc()
                 }
@@ -54,15 +56,15 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
         mCancelEvent.set()
     }
 
-    class SongLoadJobEventHandler : EventHandler() {
+    class SongLoadJobEventHandler : Handler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                EventHandler.SONG_LOAD_CANCELLED ->
-                    EventHandler.sendEventToSongList(msg.what)
-                EventHandler.SONG_LOAD_FAILED, EventHandler.SONG_LOAD_COMPLETED ->
-                    EventHandler.sendEventToSongList(msg.what, msg.obj)
-                EventHandler.SONG_LOAD_LINE_PROCESSED ->
-                    EventHandler.sendEventToSongList(EventHandler.SONG_LOAD_LINE_PROCESSED, msg.arg1, msg.arg2)
+                Events.SONG_LOAD_CANCELLED ->
+                    EventRouter.sendEventToSongList(msg.what)
+                Events.SONG_LOAD_FAILED, Events.SONG_LOAD_COMPLETED ->
+                    EventRouter.sendEventToSongList(msg.what, msg.obj)
+                Events.SONG_LOAD_LINE_PROCESSED ->
+                    EventRouter.sendEventToSongList(Events.SONG_LOAD_LINE_PROCESSED, msg.arg1, msg.arg2)
             }
         }
     }

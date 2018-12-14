@@ -50,14 +50,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import org.xml.sax.SAXException
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.parsers.ParserConfigurationException
-import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
@@ -475,7 +472,7 @@ class SongListActivity
 
         mSongListEventHandler = SongListEventHandler(this)
         // Now ready to receive events.
-        EventHandler.setSongListEventHandler(mSongListEventHandler!!)
+        EventRouter.setSongListEventHandler(mSongListEventHandler!!)
 
         initialiseLocalStorage()
 
@@ -562,9 +559,11 @@ class SongListActivity
             Toast.makeText(this, ioe.message, Toast.LENGTH_LONG).show()
         }
 
-        mDefaultDownloads.clear()
-        mDefaultDownloads.add(SuccessfulDownloadResult(FileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date(), ""), mTemporarySetListFile!!))
-        mDefaultDownloads.add(SuccessfulDownloadResult(FileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date(), ""), mDefaultMidiAliasesFile!!))
+        mDefaultDownloads.apply {
+            clear()
+            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date(), ""), mTemporarySetListFile!!))
+            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date(), ""), mDefaultMidiAliasesFile!!))
+        }
 
         if (previousSongFilesFolder != null)
             if (previousSongFilesFolder != mBeatPrompterSongFilesFolder)
@@ -574,7 +573,7 @@ class SongListActivity
 
     public override fun onDestroy() {
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
-        EventHandler.setSongListEventHandler(null)
+        EventRouter.setSongListEventHandler(null)
         super.onDestroy()
 
         unbindService(mInAppPurchaseServiceConn)
@@ -706,10 +705,11 @@ class SongListActivity
         else
             SongListAdapter(filterPlaylistNodes(mPlaylist))
 
-        val listView = findViewById<ListView>(R.id.listView)
-        listView.onItemClickListener = this
-        listView.onItemLongClickListener = this
-        listView.adapter = mListAdapter
+        findViewById<ListView>(R.id.listView).apply {
+            onItemClickListener = this@SongListActivity
+            onItemLongClickListener = this@SongListActivity
+            adapter = mListAdapter
+        }
     }
 
     private fun readDatabase() {
@@ -789,7 +789,12 @@ class SongListActivity
                     null
 
         // Now bundle them altogether into one list.
-        mFilters = listOf(allSongsFilter, tempSetListFilter, tagAndFolderFilters, midiAliasFilesFilter).flattenAll().filterIsInstance<Filter>()
+        mFilters = listOf(allSongsFilter,
+                tempSetListFilter,
+                tagAndFolderFilters,
+                midiAliasFilesFilter)
+                .flattenAll()
+                .filterIsInstance<Filter>()
 
         // The default selected filter should be "all songs".
         mSelectedFilter = allSongsFilter
@@ -815,9 +820,11 @@ class SongListActivity
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
-        menu.findItem(R.id.buy_full_version)?.isVisible = !fullVersionUnlocked()
-        menu.findItem(R.id.synchronize)?.isEnabled = canPerformCloudSync()
+        menu.apply {
+            findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
+            findItem(R.id.buy_full_version)?.isVisible = !fullVersionUnlocked()
+            findItem(R.id.synchronize)?.isEnabled = canPerformCloudSync()
+        }
         return true
     }
 
@@ -825,15 +832,17 @@ class SongListActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         mMenu = menu
         menuInflater.inflate(R.menu.songlistmenu, menu)
-        val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
-        val spinner = spinnerLayout.findViewById<Spinner>(R.id.tagspinner)
-        spinner.onItemSelectedListener = this
-        val filterListAdapter = FilterListAdapter(mFilters)
-        spinner.adapter = filterListAdapter
 
-        val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.setOnQueryTextListener(this)
-        searchView.isSubmitButtonEnabled = false
+        val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
+        spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
+            onItemSelectedListener = this@SongListActivity
+            adapter = FilterListAdapter(mFilters)
+        }
+
+        (menu.findItem(R.id.search).actionView as SearchView).apply {
+            setOnQueryTextListener(this@SongListActivity)
+            isSubmitButtonEnabled = false
+        }
 
         updateBluetoothIcon()
         return true
@@ -841,23 +850,28 @@ class SongListActivity
 
     private fun showSortDialog() {
         if (mSelectedFilter.mCanSort) {
-            val adb = AlertDialog.Builder(this)
-            val items = arrayOf<CharSequence>(getString(R.string.byTitle), getString(R.string.byArtist), getString(R.string.byDate), getString(R.string.byKey))
-            adb.setItems(items) { d, n ->
-                d.dismiss()
-                when (n) {
-                    0 -> Preferences.sorting = SortingPreference.Title
-                    1 -> Preferences.sorting = SortingPreference.Artist
-                    2 -> Preferences.sorting = SortingPreference.Date
-                    3 -> Preferences.sorting = SortingPreference.Key
+            AlertDialog.Builder(this).apply {
+                val items = arrayOf<CharSequence>(getString(R.string.byTitle),
+                        getString(R.string.byArtist),
+                        getString(R.string.byDate),
+                        getString(R.string.byKey))
+                setItems(items) { d, n ->
+                    d.dismiss()
+                    when (n) {
+                        0 -> Preferences.sorting = SortingPreference.Title
+                        1 -> Preferences.sorting = SortingPreference.Artist
+                        2 -> Preferences.sorting = SortingPreference.Date
+                        3 -> Preferences.sorting = SortingPreference.Key
+                    }
+                    sortSongList()
+                    buildList()
                 }
-                sortSongList()
-                buildList()
+                setTitle(getString(R.string.sortSongs))
+                create().apply {
+                    setCanceledOnTouchOutside(true)
+                    show()
+                }
             }
-            adb.setTitle(getString(R.string.sortSongs))
-            val ad = adb.create()
-            ad.setCanceledOnTouchOutside(true)
-            ad.show()
         }
     }
 
@@ -931,25 +945,27 @@ class SongListActivity
                     message.append(it.toDisplayString())
                     message.append("\n")
                 }
-                val alertDialog = AlertDialog.Builder(this).create()
-                alertDialog.setTitle(R.string.missing_songs_dialog_title)
-                alertDialog.setMessage(message.toString())
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
-                ) { dialog, _ -> dialog.dismiss() }
-                alertDialog.show()
+                AlertDialog.Builder(this).create().apply {
+                    setTitle(R.string.missing_songs_dialog_title)
+                    setMessage(message.toString())
+                    setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
+                    ) { dialog, _ -> dialog.dismiss() }
+                    show()
+                }
             }
         }
     }
 
     private fun showAboutDialog() {
-        val builder = AlertDialog.Builder(this)
-        val inflater = this.layoutInflater
-        @SuppressLint("InflateParams")
-        val view = inflater.inflate(R.layout.about_dialog, null)
-        builder.setView(view)
-        val customAD = builder.create()
-        customAD.setCanceledOnTouchOutside(true)
-        customAD.show()
+        AlertDialog.Builder(this).apply {
+            @SuppressLint("InflateParams")
+            val view = layoutInflater.inflate(R.layout.about_dialog, null)
+            setView(view)
+            create().apply {
+                setCanceledOnTouchOutside(true)
+                show()
+            }
+        }
     }
 
     internal fun clearCache(report: Boolean) {
@@ -1052,47 +1068,49 @@ class SongListActivity
         }
     }
 
-    class SongListEventHandler internal constructor(private val mSongList: SongListActivity) : EventHandler() {
+    class SongListEventHandler internal constructor(private val mSongList: SongListActivity) : Handler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
-                CLOUD_SYNC_ERROR -> {
-                    val adb = AlertDialog.Builder(mSongList)
-                    adb.setMessage(BeatPrompter.getResourceString(R.string.cloudSyncErrorMessage, msg.obj as String))
-                    adb.setTitle(BeatPrompter.getResourceString(R.string.cloudSyncErrorTitle))
-                    adb.setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
-                    val ad = adb.create()
-                    ad.setCanceledOnTouchOutside(true)
-                    ad.show()
+                Events.BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
+                Events.CLOUD_SYNC_ERROR -> {
+                    AlertDialog.Builder(mSongList).apply {
+                        setMessage(BeatPrompter.getResourceString(R.string.cloudSyncErrorMessage, msg.obj as String))
+                        setTitle(BeatPrompter.getResourceString(R.string.cloudSyncErrorTitle))
+                        setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
+                        create().apply {
+                            setCanceledOnTouchOutside(true)
+                            show()
+                        }
+                    }
                 }
-                MIDI_PROGRAM_CHANGE -> {
+                Events.MIDI_PROGRAM_CHANGE -> {
                     val bytes = msg.obj as ByteArray
                     mSongList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
                 }
-                MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
-                CLEAR_CACHE -> mSongList.clearCache(true)
-                CACHE_UPDATED -> {
+                Events.MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
+                Events.CLEAR_CACHE -> mSongList.clearCache(true)
+                Events.CACHE_UPDATED -> {
                     val cache = msg.obj as CachedCloudFileCollection
                     mSongList.onCacheUpdated(cache)
                 }
-                CONNECTION_ADDED -> {
+                Events.CONNECTION_ADDED -> {
                     Toast.makeText(mSongList, BeatPrompter.getResourceString(R.string.connection_added, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
-                CONNECTION_LOST -> {
+                Events.CONNECTION_LOST -> {
                     Logger.log("Lost connection to device.")
                     Toast.makeText(mSongList, BeatPrompter.getResourceString(R.string.connection_lost, msg.obj.toString()), Toast.LENGTH_LONG).show()
                     mSongList.updateBluetoothIcon()
                 }
-                SONG_LOAD_CANCELLED -> {
+                Events.SONG_LOAD_CANCELLED -> {
                     if (!SongLoadQueueWatcherTask.isLoadingASong && !SongLoadQueueWatcherTask.hasASongToLoad)
                         mSongList.showLoadingProgressUI(false)
                 }
-                SONG_LOAD_FAILED -> {
+                Events.SONG_LOAD_FAILED -> {
                     mSongList.showLoadingProgressUI(false)
                     Toast.makeText(mSongList, msg.obj.toString(), Toast.LENGTH_LONG).show()
                 }
-                SONG_LOAD_COMPLETED -> {
+                Events.SONG_LOAD_COMPLETED -> {
                     Logger.logLoader { "Song ${msg.obj} was fully loaded successfully." }
                     mSongList.showLoadingProgressUI(false)
                     // No point starting up the activity if there are songs in the load queue
@@ -1101,7 +1119,7 @@ class SongListActivity
                     else
                         mSongList.startSongActivity(msg.obj as UUID)
                 }
-                SONG_LOAD_LINE_PROCESSED -> {
+                Events.SONG_LOAD_LINE_PROCESSED -> {
                     mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
                 }
             }

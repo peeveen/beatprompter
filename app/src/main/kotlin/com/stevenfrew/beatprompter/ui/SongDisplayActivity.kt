@@ -9,6 +9,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
 import android.os.Message
 import android.os.ParcelUuid
 import android.support.v7.app.AppCompatActivity
@@ -127,7 +128,7 @@ class SongDisplayActivity
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
-        EventHandler.setSongDisplayEventHandler(mSongDisplayEventHandler)
+        EventRouter.setSongDisplayEventHandler(mSongDisplayEventHandler)
         mSongView!!.init(this, song)
 
         if (sendMidiClockPref || song.mSendMIDIClock)
@@ -259,12 +260,12 @@ class SongDisplayActivity
         Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
     }
 
-    class SongDisplayEventHandler internal constructor(private val mActivity: SongDisplayActivity, private val mSongView: SongView?) : EventHandler() {
+    class SongDisplayEventHandler internal constructor(private val mActivity: SongDisplayActivity, private val mSongView: SongView?) : Handler() {
         override fun handleMessage(msg: Message) {
             if (mSongDisplayActive)
                 when (msg.what) {
-                    BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
-                    BLUETOOTH_QUIT_SONG -> {
+                    Events.BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
+                    Events.BLUETOOTH_QUIT_SONG -> {
                         Logger.logLoader("Quit song Bluetooth message received. Finishing activity.")
                         val songInfo = msg.obj as Pair<*, *>
                         val title = songInfo.first as String
@@ -273,17 +274,17 @@ class SongDisplayActivity
                             if (mSongView.hasSong(title, artist))
                                 mActivity.finish()
                     }
-                    BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true, true)
-                    BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
-                    MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
+                    Events.BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(msg.obj as Long, true, false, true, true)
+                    Events.BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(msg.obj as ToggleStartStopMessage.StartStopToggleInfo)
+                    Events.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
                             ?: Logger.log("MIDI song position pointer received by SongDisplay before view was created.")
-                    MIDI_START_SONG -> mSongView?.startSong(true, true)
+                    Events.MIDI_START_SONG -> mSongView?.startSong(true, true)
                             ?: Logger.log("MIDI start signal received by SongDisplay before view was created.")
-                    MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
+                    Events.MIDI_CONTINUE_SONG -> mSongView?.startSong(true, false)
                             ?: Logger.log("MIDI continue signal received by SongDisplay before view was created.")
-                    MIDI_STOP_SONG -> mSongView?.stopSong(true)
+                    Events.MIDI_STOP_SONG -> mSongView?.stopSong(true)
                             ?: Logger.log("MIDI stop signal received by SongDisplay before view was created.")
-                    END_SONG -> {
+                    Events.END_SONG -> {
                         mActivity.setResult(Activity.RESULT_OK)
                         Logger.logLoader("End song message received. Finishing activity.")
                         mActivity.finish()
@@ -308,7 +309,7 @@ class SongDisplayActivity
                     mSongDisplayInstance.canYieldToExternalTrigger() -> {
                         loadedSong.mSong.mCancelled = true
                         SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)
-                        EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
+                        EventRouter.sendEventToSongDisplay(Events.END_SONG)
                         SongInterruptResult.CanInterrupt
                     }
                     else -> {

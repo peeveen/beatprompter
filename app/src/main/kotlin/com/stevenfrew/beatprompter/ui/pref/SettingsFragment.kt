@@ -2,11 +2,13 @@ package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
 import android.os.Message
 import android.preference.PreferenceFragment
 import android.widget.Toast
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Preferences
-import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.FolderSelectionListener
@@ -25,7 +27,7 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         super.onCreate(savedInstanceState)
 
         mSettingsHandler = SettingsEventHandler(this)
-        EventHandler.setSettingsEventHandler(mSettingsHandler)
+        EventRouter.setSettingsEventHandler(mSettingsHandler)
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences)
@@ -35,21 +37,21 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
         val clearCachePrefName = getString(R.string.pref_clearCache_key)
         val clearCachePref = findPreference(clearCachePrefName)
         clearCachePref?.setOnPreferenceClickListener {
-            EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE)
+            EventRouter.sendEventToSongList(Events.CLEAR_CACHE)
             true
         }
 
         val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
         val cloudPathPref = findPreference(cloudPathPrefName)
         cloudPathPref?.setOnPreferenceClickListener {
-            EventHandler.sendEventToSettings(EventHandler.SET_CLOUD_PATH)
+            EventRouter.sendEventToSettings(Events.SET_CLOUD_PATH)
             true
         }
 
         val cloudPrefName = getString(R.string.pref_cloudStorageSystem_key)
         val cloudPref = findPreference(cloudPrefName)
         cloudPref?.setOnPreferenceChangeListener { _, value ->
-            EventHandler.sendEventToSongList(EventHandler.CLEAR_CACHE)
+            EventRouter.sendEventToSongList(Events.CLEAR_CACHE)
             Preferences.storageSystem = StorageType.valueOf(value.toString())
             Preferences.cloudPath = null
             Preferences.cloudDisplayPath = null
@@ -60,7 +62,7 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
 
     override fun onDestroy() {
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
-        EventHandler.setSettingsEventHandler(null)
+        EventRouter.setSettingsEventHandler(null)
         super.onDestroy()
     }
 
@@ -101,10 +103,10 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
     }
 
     class SettingsEventHandler internal constructor(private val mFragment: SettingsFragment)
-        : EventHandler() {
+        : Handler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                EventHandler.SET_CLOUD_PATH -> mFragment.setCloudPath()
+                Events.SET_CLOUD_PATH -> mFragment.setCloudPath()
             }
         }
     }

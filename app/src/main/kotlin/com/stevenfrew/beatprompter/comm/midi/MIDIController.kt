@@ -15,10 +15,7 @@ import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Build
 import android.support.annotation.RequiresApi
-import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.EventHandler
-import com.stevenfrew.beatprompter.Preferences
-import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -79,7 +76,7 @@ object MIDIController {
                                                 mSenderTask.addSender(device.deviceName, UsbSender(conn, endPoint, device.deviceName))
                                             else if (endPoint.direction == UsbConstants.USB_DIR_IN)
                                                 mReceiverTasks.addReceiver(device.deviceName, device.deviceName, UsbReceiver(conn, endPoint, device.deviceName))
-                                            EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, device.deviceName)
+                                            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, device.deviceName)
                                         }
                                     }
                                 }
@@ -192,7 +189,7 @@ object MIDIController {
                             else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
                                 mSenderTask.addSender(deviceName, NativeSender(openedDevice.openInputPort(it.portNumber), deviceName))
                         }
-                        EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, deviceName)
+                        EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
                     }
                 } catch (ioException: Exception) {
                     // Obviously not for us.

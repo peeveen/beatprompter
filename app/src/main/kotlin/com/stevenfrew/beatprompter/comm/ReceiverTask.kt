@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.comm
 
-import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 
@@ -20,7 +21,7 @@ class ReceiverTask(val mName: String,
                 mReceiver.unregister(this)
             super.stop()
             Logger.logComms("Receiver is now stopped.")
-            EventHandler.sendEventToSongList(EventHandler.CONNECTION_LOST, mName)
+            EventRouter.sendEventToSongList(Events.CONNECTION_LOST, mName)
         }
     }
 

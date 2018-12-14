@@ -1,8 +1,9 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothSocket
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.ReceiverTask
@@ -67,11 +68,11 @@ class Receiver(private val mmSocket: BluetoothSocket)
 
     private fun routeBluetoothMessage(msg: OutgoingMessage) {
         when (msg) {
-            is ChooseSongMessage -> EventHandler.sendEventToSongList(EventHandler.BLUETOOTH_CHOOSE_SONG, msg.mChoiceInfo)
-            is PauseOnScrollStartMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_PAUSE_ON_SCROLL_START)
-            is QuitSongMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_QUIT_SONG, msg.songTitle to msg.songArtist)
-            is SetSongTimeMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_SET_SONG_TIME, msg.mTime)
-            is ToggleStartStopMessage -> EventHandler.sendEventToSongDisplay(EventHandler.BLUETOOTH_TOGGLE_START_STOP, msg.mToggleInfo)
+            is ChooseSongMessage -> EventRouter.sendEventToSongList(Events.BLUETOOTH_CHOOSE_SONG, msg.mChoiceInfo)
+            is PauseOnScrollStartMessage -> EventRouter.sendEventToSongDisplay(Events.BLUETOOTH_PAUSE_ON_SCROLL_START)
+            is QuitSongMessage -> EventRouter.sendEventToSongDisplay(Events.BLUETOOTH_QUIT_SONG, msg.songTitle to msg.songArtist)
+            is SetSongTimeMessage -> EventRouter.sendEventToSongDisplay(Events.BLUETOOTH_SET_SONG_TIME, msg.mTime)
+            is ToggleStartStopMessage -> EventRouter.sendEventToSongDisplay(Events.BLUETOOTH_TOGGLE_START_STOP, msg.mToggleInfo)
         }
     }
 

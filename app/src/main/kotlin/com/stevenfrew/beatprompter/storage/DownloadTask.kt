@@ -4,10 +4,10 @@ import android.app.ProgressDialog
 import android.os.AsyncTask
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.cache.CachedFile
+import com.stevenfrew.beatprompter.ui.SongListActivity
 
 /**
  * Task that downloads files from a storage system.
@@ -71,7 +71,7 @@ class DownloadTask(private val mStorage: Storage,
 
     override fun onFolderSearchError(t: Throwable) {
         mErrorOccurred = true
-        mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.message).sendToTarget()
+        mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
         if (mProgressDialog != null)
             mProgressDialog!!.dismiss()
     }
@@ -94,14 +94,14 @@ class DownloadTask(private val mStorage: Storage,
 
     override fun onDownloadError(t: Throwable) {
         mErrorOccurred = true
-        mHandler.obtainMessage(EventHandler.CLOUD_SYNC_ERROR, t.message).sendToTarget()
+        mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
         onDownloadComplete()
     }
 
     override fun onDownloadComplete() {
         if (!isRefreshingSelectedFiles)
             SongListActivity.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.asSequence().map { c -> c.mID }.toSet())
-        mHandler.obtainMessage(EventHandler.CACHE_UPDATED, SongListActivity.mCachedCloudFiles).sendToTarget()
+        mHandler.obtainMessage(Events.CACHE_UPDATED, SongListActivity.mCachedCloudFiles).sendToTarget()
         if (mProgressDialog != null)
             mProgressDialog!!.dismiss()
     }

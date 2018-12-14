@@ -750,7 +750,7 @@ class SongView
             if (mSong != null)
                 mSong!!.recycleGraphics()
             mSong = null
-            EventHandler.sendEventToSongDisplay(EventHandler.END_SONG)
+            EventRouter.sendEventToSongDisplay(Events.END_SONG)
             System.gc()
         }
     }

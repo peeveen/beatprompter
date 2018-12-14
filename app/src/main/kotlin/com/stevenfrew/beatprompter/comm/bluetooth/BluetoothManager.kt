@@ -237,7 +237,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
         if (Preferences.bluetoothMode === BluetoothMode.Server) {
             Logger.logComms { "Client connection opened with '${socket.remoteDevice.name}'" }
             mSenderTask.addSender(socket.remoteDevice.address, Sender(socket))
-            EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
+            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
         }
     }
 
@@ -248,7 +248,7 @@ object BluetoothManager : SharedPreferences.OnSharedPreferenceChangeListener, Co
         if (Preferences.bluetoothMode === BluetoothMode.Client) {
             Logger.logComms { "Server connection opened with '${socket.remoteDevice.name}'" }
             mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
-            EventHandler.sendEventToSongList(EventHandler.CONNECTION_ADDED, socket.remoteDevice.name)
+            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
         }
     }
 

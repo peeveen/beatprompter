@@ -12,7 +12,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import com.stevenfrew.beatprompter.EventHandler
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import io.reactivex.disposables.CompositeDisposable
@@ -40,8 +40,8 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
         override fun handleMessage(msg: Message) {
             @Suppress("UNCHECKED_CAST")
             when (msg.what) {
-                EventHandler.FOLDER_CONTENTS_FETCHED -> mChooseFolderDialog.populateBrowser(msg.obj as MutableList<ItemInfo>)
-                EventHandler.FOLDER_CONTENTS_FETCHING -> mChooseFolderDialog.updateProgress(msg.arg1, msg.arg2)
+                Events.FOLDER_CONTENTS_FETCHED -> mChooseFolderDialog.populateBrowser(msg.obj as MutableList<ItemInfo>)
+                Events.FOLDER_CONTENTS_FETCHING -> mChooseFolderDialog.updateProgress(msg.arg1, msg.arg2)
             }
         }
     }
@@ -189,7 +189,7 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
 
     override fun onFolderSearchComplete() {
         mDisplayItems.sort()
-        mHandler.obtainMessage(EventHandler.FOLDER_CONTENTS_FETCHED, mDisplayItems).sendToTarget()
+        mHandler.obtainMessage(Events.FOLDER_CONTENTS_FETCHED, mDisplayItems).sendToTarget()
     }
 
     override fun onProgressMessageReceived(message: String) {

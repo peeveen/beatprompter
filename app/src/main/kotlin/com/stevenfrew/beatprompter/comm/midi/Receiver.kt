@@ -25,21 +25,21 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                 } else {
                     // These are single byte messages.
                     if (messageByte == Message.MIDI_START_BYTE)
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_START_SONG)
+                        EventRouter.sendEventToSongDisplay(Events.MIDI_START_SONG)
                     else if (messageByte == Message.MIDI_CONTINUE_BYTE)
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_CONTINUE_SONG)
+                        EventRouter.sendEventToSongDisplay(Events.MIDI_CONTINUE_SONG)
                     else if (messageByte == Message.MIDI_STOP_BYTE)
-                        EventHandler.sendEventToSongDisplay(EventHandler.MIDI_STOP_SONG)
+                        EventRouter.sendEventToSongDisplay(Events.MIDI_STOP_SONG)
                     else if (messageByte == Message.MIDI_SONG_POSITION_POINTER_BYTE)
                     // This message requires two additional bytes.
                         if (dataStart < dataEnd - 2)
-                            EventHandler.sendEventToSongDisplay(EventHandler.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++dataStart], buffer[++dataStart]), 0)
+                            EventRouter.sendEventToSongDisplay(Events.MIDI_SET_SONG_POSITION, calculateMidiBeat(buffer[++dataStart], buffer[++dataStart]), 0)
                         else
                         // Not enough data left.
                             break
                     else if (messageByte == Message.MIDI_SONG_SELECT_BYTE)
                         if (dataStart < dataEnd - 1)
-                            EventHandler.sendEventToSongList(EventHandler.MIDI_SONG_SELECT, buffer[++dataStart].toInt(), 0)
+                            EventRouter.sendEventToSongList(Events.MIDI_SONG_SELECT, buffer[++dataStart].toInt(), 0)
                         else
                         // Not enough data left.
                             break
@@ -56,7 +56,7 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
                                 // This message requires one additional byte.
                                     if (dataStart < dataEnd - 1) {
                                         val pcValues = byteArrayOf(mMidiBankMSBs[channel.toInt()], mMidiBankLSBs[channel.toInt()], buffer[++dataStart], channel)
-                                        EventHandler.sendEventToSongList(EventHandler.MIDI_PROGRAM_CHANGE, pcValues)
+                                        EventRouter.sendEventToSongList(Events.MIDI_PROGRAM_CHANGE, pcValues)
                                     } else
                                         break
                                 else if (messageByteWithoutChannel == Message.MIDI_CONTROL_CHANGE_BYTE) {

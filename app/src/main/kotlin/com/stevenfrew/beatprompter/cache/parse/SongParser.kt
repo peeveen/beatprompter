@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.graphics.*
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Preferences
-import com.stevenfrew.beatprompter.EventHandler
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.comm.midi.message.Message
@@ -99,7 +99,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 mSongLoadInfo.mNativeDisplaySettings)
 
         // Start the progress message dialog
-        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,
+        mSongLoadHandler.obtainMessage(Events.SONG_LOAD_LINE_PROCESSED,
                 0, mSongLoadInfo.mSongFile.mLines).sendToTarget()
 
         val lengthOfBackingTrack = mSongLoadInfo.mTrack?.mDuration ?: 0L
@@ -345,7 +345,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     mCurrentLineBeatInfo.mScrollBeat,
                     0, mCurrentLineBeatInfo.mScrollMode)
 
-        mSongLoadHandler.obtainMessage(EventHandler.SONG_LOAD_LINE_PROCESSED,
+        mSongLoadHandler.obtainMessage(Events.SONG_LOAD_LINE_PROCESSED,
                 line.mLineNumber, mSongLoadInfo.mSongFile.mLines).sendToTarget()
     }
 
