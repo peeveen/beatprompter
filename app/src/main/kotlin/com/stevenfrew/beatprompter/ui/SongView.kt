@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.SoundPool
-import android.os.Build
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
@@ -93,11 +91,11 @@ class SongView
     private var mSendMidiClock = false
     private val mManualScrollPositions: ManualScrollPositions = ManualScrollPositions()
 
-    private val mClickSoundPool: SoundPool =
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-                SoundPool(16, AudioManager.STREAM_MUSIC, 0)
-            else
-                SoundPool.Builder().setMaxStreams(16).setAudioAttributes(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()).build()
+    private val mClickSoundPool: SoundPool = SoundPool
+            .Builder()
+            .setMaxStreams(16)
+            .setAudioAttributes(SongViewAudioAttributes)
+            .build()
     private val mClickAudioID = mClickSoundPool.load(this.context, R.raw.click, 0)
 
     enum class ScreenAction {
@@ -176,25 +174,21 @@ class SongView
         mSilenceMediaPlayer.start()
 
         song.mAudioEvents.forEach {
-            val mediaPlayer = MediaPlayer()
-            // Shitty Archos workaround.
-            try {
-                val fis = FileInputStream(it.mAudioFile.mFile.absolutePath)
-                fis.use { stream ->
-                    with(mediaPlayer)
-                    {
-                        setDataSource(stream.fd)
-                        prepare()
-                        seekTo(0)
-                        setVolume(0.01f * it.mVolume, 0.01f * it.mVolume)
-                        isLooping = false
-                    }
+            mMediaPlayers[it.mAudioFile] = MediaPlayer().apply {
+                // TODO: Lose shitty Archos workaround.
+                try {
+                    FileInputStream(it.mAudioFile.mFile.absolutePath)
+                            .use { stream ->
+                                setDataSource(stream.fd)
+                                prepare()
+                                seekTo(0)
+                                setVolume(0.01f * it.mVolume, 0.01f * it.mVolume)
+                                isLooping = false
+                            }
+                } catch (e: Exception) {
+                    Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
                 }
-            } catch (e: Exception) {
-                val toast = Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG)
-                toast.show()
             }
-            mMediaPlayers[it.mAudioFile] = mediaPlayer
         }
 
         mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
@@ -1193,6 +1187,11 @@ class SongView
     }
 
     companion object {
+        private val SongViewAudioAttributes = AudioAttributes
+                .Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+
         private const val SONG_END_PEDAL_PRESSES = 3
         private val SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS = Utils.milliToNano(2000)
         private val mAccelerations = IntArray(2048)

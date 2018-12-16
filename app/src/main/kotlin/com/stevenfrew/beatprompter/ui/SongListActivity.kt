@@ -598,11 +598,6 @@ class SongListActivity
 
         updateBluetoothIcon()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            if (mSongEndedNaturally)
-                if (startNextSong())
-                    return
-
         if (mListAdapter != null)
             mListAdapter!!.notifyDataSetChanged()
 
@@ -636,8 +631,7 @@ class SongListActivity
                 }
                 PLAY_SONG_REQUEST_CODE ->
                     if (resultCode == RESULT_OK)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                            startNextSong()
+                        startNextSong()
             }
     }
 
