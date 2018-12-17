@@ -1150,7 +1150,7 @@ class SongListActivity
     }
 
     override fun onQueryTextChange(searchText: String?): Boolean {
-        mSearchText = searchText ?: ""
+        mSearchText = searchText?.toLowerCase() ?: ""
         buildList()
         return true
     }
