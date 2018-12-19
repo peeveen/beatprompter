@@ -110,7 +110,7 @@ class SongDisplayActivity
                         loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
                         loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
                         loadedSong.mLoadJob.mSongLoadInfo.mNoAudio))
-                BluetoothController.mBluetoothOutQueue.putMessage(csm)
+                BluetoothController.putMessage(csm)
             }
         }
 
@@ -122,7 +122,7 @@ class SongDisplayActivity
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
         requestedOrientation = mOrientation
 
-        MIDIController.mMIDIOutQueue.putMessages(song.mInitialMIDIMessages)
+        MIDIController.putMessages(song.mInitialMIDIMessages)
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)

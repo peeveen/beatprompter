@@ -14,6 +14,7 @@ import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -21,6 +22,7 @@ import com.stevenfrew.beatprompter.comm.SenderTask
 object MIDIController {
     private var mMidiUsbRegistered = false
     private var mUsbManager: UsbManager? = null
+    private var mInitialised = false
 
     private var mNativeMidiManager: MidiManager? = null
 
@@ -31,7 +33,7 @@ object MIDIController {
 
     private const val MIDI_QUEUE_SIZE = 4096
 
-    var mMIDIOutQueue = MIDIMessageQueue(MIDI_QUEUE_SIZE)
+    private var mMIDIOutQueue = MIDIMessageQueue(MIDI_QUEUE_SIZE)
     private val mSenderTask = SenderTask(mMIDIOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 
@@ -117,7 +119,7 @@ object MIDIController {
 
     private fun attemptUsbMidiConnection() {
         if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
-            val list = mUsbManager!!.deviceList
+            val list = mUsbManager?.deviceList
             if (list != null && list.size > 0) {
                 val devObjs = list.values
                 for (devObj in devObjs) {
@@ -132,31 +134,37 @@ object MIDIController {
     }
 
     fun initialise(application: BeatPrompter) {
-        mSenderTaskThread.start()
-        Task.resumeTask(mSenderTask)
+        try {
+            mSenderTaskThread.start()
+            Task.resumeTask(mSenderTask)
 
-        mMidiNativeDeviceListener = MidiNativeDeviceListener()
-        mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as MidiManager
-        mNativeMidiManager?.apply {
-            registerDeviceCallback(mMidiNativeDeviceListener, null)
-            devices?.forEach {
-                addNativeDevice(it)
+            mMidiNativeDeviceListener = MidiNativeDeviceListener()
+            mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as? MidiManager
+            mNativeMidiManager?.apply {
+                registerDeviceCallback(mMidiNativeDeviceListener, null)
+                devices?.forEach {
+                    addNativeDevice(it)
+                }
             }
+
+            mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
+            mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
+
+            val filter = IntentFilter().apply {
+                addAction(ACTION_USB_PERMISSION)
+                addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+                addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+            }
+
+            application.registerReceiver(mUsbReceiver, filter)
+            mMidiUsbRegistered = true
+
+            attemptUsbMidiConnection()
+            mInitialised = true
+        } catch (e: Exception) {
+            // Hardware screwup. Just means that it won't work!
+            // TODO: Status info.
         }
-
-        mUsbManager = application.getSystemService(Context.USB_SERVICE) as UsbManager
-        mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
-
-        val filter = IntentFilter().apply {
-            addAction(ACTION_USB_PERMISSION)
-            addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        }
-
-        application.registerReceiver(mUsbReceiver, filter)
-        mMidiUsbRegistered = true
-
-        attemptUsbMidiConnection()
     }
 
     fun removeReceiver(task: ReceiverTask) {
@@ -191,5 +199,20 @@ object MIDIController {
                 // Obviously not for us.
             }
         }
+    }
+
+    internal fun addBeatClockMessages(amount: Int) {
+        if (mInitialised)
+            mMIDIOutQueue.addBeatClockMessages(amount)
+    }
+
+    internal fun putMessage(message: OutgoingMessage) {
+        if (mInitialised)
+            mMIDIOutQueue.putMessage(message)
+    }
+
+    internal fun putMessages(messages: List<OutgoingMessage>) {
+        if (mInitialised)
+            mMIDIOutQueue.putMessages(messages)
     }
 }

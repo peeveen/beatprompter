@@ -5,10 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.comm.MessageQueue
-import com.stevenfrew.beatprompter.comm.ReceiverTask
-import com.stevenfrew.beatprompter.comm.ReceiverTasks
-import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.*
 import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
 import kotlinx.coroutines.*
 import java.util.*
@@ -22,6 +19,8 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + mCoRoutineJob
 
+    private var mInitialised = false
+
     // Our unique app Bluetooth ID.
     private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 
@@ -29,7 +28,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
     private val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
     private const val BLUETOOTH_QUEUE_SIZE = 4096
-    val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
+    private val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
     private val mSenderTask = SenderTask(mBluetoothOutQueue)
     private val mReceiverTasks = ReceiverTasks()
 
@@ -45,26 +44,32 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
      * Called when the app starts. Doing basic Bluetooth setup.
      */
     fun initialise(application: BeatPrompter) {
-        if (mBluetoothAdapter != null) {
-            Logger.logComms("Bluetooth adapter found.")
-            Logger.logComms("Starting Bluetooth sender thread.")
-            mSenderTaskThread.start()
-            Task.resumeTask(mSenderTask)
-            Logger.logComms("Bluetooth sender thread started.")
+        try {
+            if (mBluetoothAdapter != null) {
+                Logger.logComms("Bluetooth adapter found.")
+                Logger.logComms("Starting Bluetooth sender thread.")
+                mSenderTaskThread.start()
+                Task.resumeTask(mSenderTask)
+                Logger.logComms("Bluetooth sender thread started.")
 
-            launch {
-                while (true) {
-                    BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
-                    delay(1000)
+                launch {
+                    while (true) {
+                        BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
+                        delay(1000)
+                    }
                 }
-            }
 
-            application.apply {
-                registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
-                registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+                application.apply {
+                    registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+                    registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+                }
+                Preferences.registerOnSharedPreferenceChangeListener(this)
+                onBluetoothActivation()
+                mInitialised = true
             }
-            Preferences.registerOnSharedPreferenceChangeListener(this)
-            onBluetoothActivation()
+        } catch (e: Exception) {
+            // Hardware screwup. Just means that it won't work!
+            // TODO: Status info.
         }
     }
 
@@ -273,5 +278,10 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 
     fun removeReceiver(task: ReceiverTask) {
         mReceiverTasks.stopAndRemoveReceiver(task.mName)
+    }
+
+    internal fun putMessage(message: OutgoingMessage) {
+        if (mInitialised)
+            mBluetoothOutQueue.putMessage(message)
     }
 }

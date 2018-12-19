@@ -8,7 +8,7 @@ open class MessageQueue(capacity: Int) {
     // disrupts timing-critical operations.
     private val mOutBuffer = mutableListOf<OutgoingMessage>()
 
-    fun getMessages(): List<OutgoingMessage> {
+    internal fun getMessages(): List<OutgoingMessage> {
         mOutBuffer.clear()
         // This take() will cause a block if empty
         mOutBuffer.add(mBlockingQueue.take())
@@ -20,14 +20,14 @@ open class MessageQueue(capacity: Int) {
         }
     }
 
-    fun putMessage(message: OutgoingMessage) {
+    internal fun putMessage(message: OutgoingMessage) {
         synchronized(mBlockingQueue)
         {
             mBlockingQueue.put(message)
         }
     }
 
-    fun putMessages(messages: List<OutgoingMessage>) {
+    internal fun putMessages(messages: List<OutgoingMessage>) {
         synchronized(mBlockingQueue)
         {
             for (f in 0 until messages.size)
