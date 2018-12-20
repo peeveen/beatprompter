@@ -210,11 +210,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 .filterIsInstance<PauseTag>()
                 .firstOrNull()
         if (createLine || pauseTag != null) {
-            // Measuring a blank line will result in a 0x0 measurement, so we
-            // need to have SOMETHING to measure.
-            if (workLine.isBlank() && !chordsFound)
-                workLine = "▼"
-
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
             if (mCountIn > 0) {
@@ -255,6 +250,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
             if (imageTag != null && (workLine.isNotBlank() || chordsFound))
                 mErrors.add(FileParseError(line.mLineNumber, R.string.text_found_with_image))
+
+            // Measuring a blank line will result in a 0x0 measurement, so we
+            // need to have SOMETHING to measure. A nice wee "down arrow" should look OK.
             if (workLine.isBlank() && (!chordsFound || chordsFoundButNotShowingThem))
                 workLine = "▼"
 
