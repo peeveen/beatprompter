@@ -132,6 +132,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         val chordsFound = mShowChords && !chordTags.isEmpty()
         val chordsFoundButNotShowingThem = !mShowChords && chordsFound
         val tags = if (mShowChords) line.mTags.toList() else nonChordTags
+        val tagSequence = tags.asSequence()
 
         var workLine = line.mLineWithNoTags
 
@@ -139,7 +140,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // The "on when no track" logic will be performed during song playback.
         val metronomeOn = mMetronomeContext === MetronomeContext.On || mMetronomeContext === MetronomeContext.OnWhenNoTrack
 
-        var imageTag = tags.asSequence().filterIsInstance<ImageTag>().firstOrNull()
+        var imageTag = tagSequence.filterIsInstance<ImageTag>().firstOrNull()
 
         if (!mSendMidiClock)
             mSendMidiClock = tags.any { it is SendMIDIClockTag }
@@ -188,14 +189,12 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         } else
             mAudioTags.addAll(audioTagsThisLine)
 
-        val shorthandBarTag = tags
-                .asSequence()
+        val shorthandBarTag = tagSequence
                 .filterIsInstance<BarMarkerTag>()
                 .firstOrNull()
-        val barsTag = tags
-                .asSequence()
+/*        val barsTag = tagSequence
                 .filterIsInstance<BarsTag>()
-                .firstOrNull()
+                .firstOrNull()*/
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
         // BUT! If there are bar indicators of any kind, use the blank line.
         val createLine = (workLine.isNotEmpty()
@@ -203,10 +202,9 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 || chordsFound
                 || imageTag != null
                 || shorthandBarTag != null
-                || (barsTag != null && barsTag.mBars > 0))
+                /*|| (barsTag != null && barsTag.mBars > 0)*/)
 
-        val pauseTag = tags
-                .asSequence()
+        val pauseTag = tagSequence
                 .filterIsInstance<PauseTag>()
                 .firstOrNull()
         if (createLine || pauseTag != null) {
@@ -370,7 +368,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         if (mLines.isEmpty())
             throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
-        val smoothMode = mLines.asSequence().filter { it.mScrollMode == ScrollingMode.Smooth }.any()
+        val lineSequence = mLines.asSequence()
+        val smoothMode = lineSequence.filter { it.mScrollMode == ScrollingMode.Smooth }.any()
 
         val startScreenStrings = createStartScreenStrings()
         val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
@@ -384,7 +383,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 if (smoothMode)
                 // Obviously this will only be required if the song cannot fit entirely onscreen.
                     if (mSongHeight > mNativeDeviceSettings.mUsableScreenHeight)
-                        Math.min(mLines.asSequence().map { it.mMeasurements.mLineHeight }.maxBy { it }
+                        Math.min(lineSequence.map { it.mMeasurements.mLineHeight }.maxBy { it }
                                 ?: 0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
                     else
                         0
