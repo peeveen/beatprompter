@@ -188,14 +188,30 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         } else
             mAudioTags.addAll(audioTagsThisLine)
 
-        val createLine = (workLine.isNotEmpty() || chordsFoundButNotShowingThem || chordsFound || imageTag != null)
+        val shorthandBarTag = tags
+                .asSequence()
+                .filterIsInstance<BarMarkerTag>()
+                .firstOrNull()
+        val barsTag = tags
+                .asSequence()
+                .filterIsInstance<BarsTag>()
+                .firstOrNull()
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
+        // BUT! If there are bar indicators of any kind, use the blank line.
+        val createLine = (workLine.isNotEmpty()
+                || chordsFoundButNotShowingThem
+                || chordsFound
+                || imageTag != null
+                || shorthandBarTag != null
+                || (barsTag != null && barsTag.mBars > 0))
 
         val pauseTag = tags
                 .asSequence()
                 .filterIsInstance<PauseTag>()
                 .firstOrNull()
         if (createLine || pauseTag != null) {
+            if (workLine.isBlank() && !chordsFound)
+                workLine = "▼"
             // We definitely have a line!
             // So now is when we want to create the count-in (if any)
             if (mCountIn > 0) {

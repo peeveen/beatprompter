@@ -44,32 +44,27 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
      * Called when the app starts. Doing basic Bluetooth setup.
      */
     fun initialise(application: BeatPrompter) {
-        try {
-            if (mBluetoothAdapter != null) {
-                Logger.logComms("Bluetooth adapter found.")
-                Logger.logComms("Starting Bluetooth sender thread.")
-                mSenderTaskThread.start()
-                Task.resumeTask(mSenderTask)
-                Logger.logComms("Bluetooth sender thread started.")
+        if (mBluetoothAdapter != null) {
+            Logger.logComms("Bluetooth adapter found.")
+            Logger.logComms("Starting Bluetooth sender thread.")
+            mSenderTaskThread.start()
+            Task.resumeTask(mSenderTask)
+            Logger.logComms("Bluetooth sender thread started.")
 
-                launch {
-                    while (true) {
-                        BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
-                        delay(1000)
-                    }
+            launch {
+                while (true) {
+                    BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
+                    delay(1000)
                 }
-
-                application.apply {
-                    registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
-                    registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
-                }
-                Preferences.registerOnSharedPreferenceChangeListener(this)
-                onBluetoothActivation()
-                mInitialised = true
             }
-        } catch (e: Exception) {
-            // Hardware screwup. Just means that it won't work!
-            // TODO: Status info.
+
+            application.apply {
+                registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+                registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+            }
+            Preferences.registerOnSharedPreferenceChangeListener(this)
+            onBluetoothActivation()
+            mInitialised = true
         }
     }
 

@@ -134,37 +134,32 @@ object MIDIController {
     }
 
     fun initialise(application: BeatPrompter) {
-        try {
-            mSenderTaskThread.start()
-            Task.resumeTask(mSenderTask)
+        mSenderTaskThread.start()
+        Task.resumeTask(mSenderTask)
 
-            mMidiNativeDeviceListener = MidiNativeDeviceListener()
-            mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as? MidiManager
-            mNativeMidiManager?.apply {
-                registerDeviceCallback(mMidiNativeDeviceListener, null)
-                devices?.forEach {
-                    addNativeDevice(it)
-                }
+        mMidiNativeDeviceListener = MidiNativeDeviceListener()
+        mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as? MidiManager
+        mNativeMidiManager?.apply {
+            registerDeviceCallback(mMidiNativeDeviceListener, null)
+            devices?.forEach {
+                addNativeDevice(it)
             }
-
-            mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
-            mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
-
-            val filter = IntentFilter().apply {
-                addAction(ACTION_USB_PERMISSION)
-                addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-                addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-            }
-
-            application.registerReceiver(mUsbReceiver, filter)
-            mMidiUsbRegistered = true
-
-            attemptUsbMidiConnection()
-            mInitialised = true
-        } catch (e: Exception) {
-            // Hardware screwup. Just means that it won't work!
-            // TODO: Status info.
         }
+
+        mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
+        mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
+
+        val filter = IntentFilter().apply {
+            addAction(ACTION_USB_PERMISSION)
+            addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        }
+
+        application.registerReceiver(mUsbReceiver, filter)
+        mMidiUsbRegistered = true
+
+        attemptUsbMidiConnection()
+        mInitialised = true
     }
 
     fun removeReceiver(task: ReceiverTask) {
