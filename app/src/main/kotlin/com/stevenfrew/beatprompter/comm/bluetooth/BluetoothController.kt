@@ -25,7 +25,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
     private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 
     // The device Bluetooth adapter, if one exists.
-    private val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private val mBluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
     private const val BLUETOOTH_QUEUE_SIZE = 4096
     private val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)

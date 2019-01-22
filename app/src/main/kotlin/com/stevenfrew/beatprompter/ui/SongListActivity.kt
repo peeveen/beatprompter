@@ -160,10 +160,20 @@ class SongListActivity
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode, startedByMidiTrigger: Boolean) {
         val manualMode = Preferences.manualMode
-        val track: AudioFile? = if (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode) mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull() else null
-        val mode = if (manualMode) ScrollingMode.Manual else selectedSong.bestScrollingMode
+        val startupAudioIsViable = (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode)
+        val (startupTrackName, startupTrack) =
+                if (startupAudioIsViable)
+                    selectedSong.mAudioFiles[0] to mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull()
+                else
+                    null to null
+        val mode =
+                if (manualMode)
+                    ScrollingMode.Manual
+                else
+                    selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
-        playSong(node, track, mode, startedByMidiTrigger, sds, sds, manualMode || (track == null && !selectedSong.mMixedMode))
+        val noAudioWhatsoever = manualMode || (startupTrackName == null && !selectedSong.mMixedMode)
+        playSong(node, startupTrack, mode, startedByMidiTrigger, sds, sds, noAudioWhatsoever)
     }
 
     private fun shouldPlayNextSong(): Boolean {
@@ -391,10 +401,23 @@ class SongListActivity
             setView(view)
             // Add action buttons
             setPositiveButton(R.string.play) { _, _ ->
-                val selectedTrackName = if (audioSpinner.selectedItemPosition == 0) null else audioSpinner.selectedItem as String?
-                val mode = if (beatButton.isChecked) ScrollingMode.Beat else if (smoothButton.isChecked) ScrollingMode.Smooth else ScrollingMode.Manual
+                val selectedTrackName =
+                        if (audioSpinner.selectedItemPosition == 0)
+                            null
+                        else
+                            audioSpinner.selectedItem as String?
+                val mode =
+                        when {
+                            beatButton.isChecked -> ScrollingMode.Beat
+                            smoothButton.isChecked -> ScrollingMode.Smooth
+                            else -> ScrollingMode.Manual
+                        }
                 val sds = getSongDisplaySettings(mode)
-                val track = if (selectedTrackName != null) mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull() else null
+                val track =
+                        if (selectedTrackName != null)
+                            mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull()
+                        else
+                            null
                 playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
             }
             setNegativeButton(R.string.cancel) { _, _ -> }
