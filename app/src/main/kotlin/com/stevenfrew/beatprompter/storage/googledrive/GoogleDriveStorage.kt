@@ -1,14 +1,10 @@
 package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.app.Activity
-import android.content.IntentSender
 import android.os.AsyncTask
-import android.os.Bundle
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.drive.Drive
-import com.google.android.gms.plus.Plus
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -25,7 +21,6 @@ import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
@@ -34,6 +29,11 @@ import java.util.*
  */
 class GoogleDriveStorage(parentActivity: Activity)
     : Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
+
+    private val mGoogleClientSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestScopes(Scope(DriveScopes.DRIVE_READONLY))
+            .build()
+    private val mGoogleSignInClient = GoogleSignIn.getClient(mParentActivity, mGoogleClientSignInOptions)
 
     override val cloudStorageName: String
         get() = BeatPrompter.getResourceString(R.string.google_drive_string)
@@ -49,41 +49,15 @@ class GoogleDriveStorage(parentActivity: Activity)
         fun onAuthenticationRequired()
     }
 
-    internal inner class GoogleDriveConnectionListener(private val mAction: GoogleDriveAction) : GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        private var mClient: GoogleApiClient? = null
-        fun setClient(client: GoogleApiClient) {
-            mClient = client
-        }
-
-        override fun onConnectionFailed(result: ConnectionResult) {
-            // Called whenever the API client fails to connect.
-            Logger.log { "GoogleApiClient connection failed: $result" }
-            mAction.onAuthenticationRequired()
-            if (!result.hasResolution()) {
-                // show the localized error dialog.
-                GoogleApiAvailability.getInstance().getErrorDialog(SongListActivity.mSongListInstance, result.errorCode, 0).show()
-            } else {
-                // The failure has a resolution. Resolve it.
-                // Called typically when the app is not yet authorized, and an
-                // authorization
-                // dialog is displayed to the user.
-                try {
-                    Logger.log("GoogleApiClient starting connection resolution ...")
-                    result.startResolutionForResult(SongListActivity.mSongListInstance, GoogleDriveStorage.REQUEST_CODE_RESOLUTION)
-                } catch (e: IntentSender.SendIntentException) {
-                    Logger.log("Exception while starting resolution activity", e)
-                }
-
-            }
-        }
-
-        override fun onConnected(connectionHint: Bundle?) {
-            Logger.log("API client connected.")
-
-            val accountName = Plus.AccountApi.getAccountName(mClient)
+    private fun doGoogleDriveAction(action: GoogleDriveAction) {
+        val alreadySignedInAccount = GoogleSignIn.getLastSignedInAccount(mParentActivity)
+        if (alreadySignedInAccount == null) {
+            mActionOnHold = action
+            mParentActivity.startActivityForResult(mGoogleSignInClient.signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN)
+        } else {
             val credential = GoogleAccountCredential.usingOAuth2(
                     mParentActivity, Arrays.asList(*SCOPES))
-                    .setSelectedAccountName(accountName)
+                    .setSelectedAccount(alreadySignedInAccount.account)
                     .setBackOff(ExponentialBackOff())
             val transport = AndroidHttp.newCompatibleTransport()
             val jsonFactory = JacksonFactory.getDefaultInstance()
@@ -91,25 +65,8 @@ class GoogleDriveStorage(parentActivity: Activity)
                     transport, jsonFactory, credential)
                     .setApplicationName(BeatPrompter.APP_NAME)
                     .build()
-            mAction.onConnected(service)
+            action.onConnected(service)
         }
-
-        override fun onConnectionSuspended(cause: Int) {
-            Logger.log("GoogleApiClient connection suspended")
-        }
-    }
-
-    private fun doGoogleDriveAction(action: GoogleDriveAction) {
-        val listener = GoogleDriveConnectionListener(action)
-        val googleApiClient = GoogleApiClient.Builder(mParentActivity)
-                .addApi(Drive.API)
-                .addApi(Plus.API)
-                .addScope(Drive.SCOPE_FILE)
-                .addConnectionCallbacks(listener)
-                .addOnConnectionFailedListener(listener)
-                .build()
-        listener.setClient(googleApiClient)
-        googleApiClient.connect()
     }
 
     private class ReadGoogleDriveFolderContentsTask internal constructor(internal val mClient: com.google.api.services.drive.Drive,
@@ -300,11 +257,21 @@ class GoogleDriveStorage(parentActivity: Activity)
         private const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
         private const val GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
         private val SCOPES = arrayOf(DriveScopes.DRIVE_READONLY)
-        private const val REQUEST_CODE_RESOLUTION = 1
         private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
+
+        private var mActionOnHold: GoogleDriveAction? = null
+
+        const val REQUEST_CODE_GOOGLE_SIGN_IN = 1541
 
         internal fun recoverAuthorization(uraioe: UserRecoverableAuthIOException) {
             SongListActivity.mSongListInstance.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
+        }
+
+        fun completeAction(parentActivity: Activity) {
+            val actionOnHold = mActionOnHold
+            mActionOnHold = null
+            if (actionOnHold != null)
+                GoogleDriveStorage(parentActivity).doGoogleDriveAction(actionOnHold)
         }
     }
 }
