@@ -37,6 +37,7 @@ import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.*
 import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.ui.filter.*
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
@@ -655,6 +656,7 @@ class SongListActivity
                 PLAY_SONG_REQUEST_CODE ->
                     if (resultCode == RESULT_OK)
                         startNextSong()
+                GoogleDriveStorage.REQUEST_CODE_GOOGLE_SIGN_IN -> GoogleDriveStorage.completeAction(this)
             }
     }
 
