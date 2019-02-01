@@ -12,45 +12,33 @@ open class SetListFileFilter(var mSetListFile: SetListFile,
 
     companion object {
         private fun getSongList(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SongFile> {
-            val copiedSongList = songFiles.toMutableList()
-            val copiedSetListEntries = setListEntries.toMutableList()
-            val fullMatches = getMatches(copiedSetListEntries, copiedSongList, SetListMatch.TitleAndArtistMatch)
-            copiedSetListEntries.removeAll(fullMatches.map { it.first })
-            val fullyMatchedSongs = fullMatches.map { it.second }
-            copiedSongList.removeAll(fullyMatchedSongs)
-            val partialMatches = getMatches(copiedSetListEntries, copiedSongList, SetListMatch.TitleMatch)
-            val partiallyMatchedSongs = partialMatches.map { it.second }
-            return listOf(fullyMatchedSongs, partiallyMatchedSongs).flatten().toMutableList()
+            val matches = getMatches(setListEntries, songFiles)
+            val matchedSongs = matches.map {
+                when {
+                    it.second != null -> it.second
+                    it.third != null -> it.third
+                    else -> null
+                }
+            }
+            return matchedSongs.filterNotNull().toMutableList()
         }
 
         private fun getMissingSetListEntries(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SetListEntry> {
-            val copiedSongList = songFiles.toMutableList()
-            val copiedSetListEntries = setListEntries.toMutableList()
-            val fullMatches = getMatches(copiedSetListEntries, copiedSongList, SetListMatch.TitleAndArtistMatch)
-            copiedSetListEntries.removeAll(fullMatches.map { it.first })
-            val fullyMatchedSongs = fullMatches.map { it.second }
-            copiedSongList.removeAll(fullyMatchedSongs)
-            val partialMatches = getMatches(copiedSetListEntries, copiedSongList, SetListMatch.TitleMatch)
-            copiedSetListEntries.removeAll(partialMatches.map { it.first })
-            val partiallyMatchedSongs = partialMatches.map { it.second }
-            copiedSongList.removeAll(partiallyMatchedSongs)
-            return copiedSetListEntries
+            val matches = getMatches(setListEntries, songFiles)
+            val invalidEntries = matches.map {
+                if (it.second == null && it.third == null)
+                    it.first
+                else null
+            }
+            return invalidEntries.filterNotNull().toMutableList()
         }
 
         private fun getMatches(setListEntries: List<SetListEntry>,
-                               songFiles: List<SongFile>,
-                               desiredMatchType: SetListMatch): List<Pair<SetListEntry, SongFile>> {
-            return setListEntries.mapNotNull { entry ->
-                songFiles
-                        .firstOrNull { song: SongFile ->
-                            entry.matches(song) == desiredMatchType
-                        }
-                        .let {
-                            if (it != null)
-                                entry to it
-                            else
-                                null
-                        }
+                               songFiles: List<SongFile>): List<Triple<SetListEntry, SongFile?, SongFile?>> {
+            return setListEntries.map { entry ->
+                val exactMatch = songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleAndArtistMatch }
+                val inexactMatch = songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleMatch }
+                Triple(entry, exactMatch, inexactMatch)
             }
         }
     }
