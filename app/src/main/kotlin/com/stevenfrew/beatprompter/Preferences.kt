@@ -116,6 +116,9 @@ object Preferences {
     val chordColor: Int
         get() = getColorPreference(R.string.pref_chordColor_key, R.string.pref_chordColor_default)
 
+    val chorusHighlightColor: Int
+        get() = getColorPreference(R.string.pref_chorusSectionHighlightColor_key, R.string.pref_chorusSectionHighlightColor_default)
+
     val annotationColor: Int
         get() = getColorPreference(R.string.pref_annotationColor_key, R.string.pref_annotationColor_default)
 

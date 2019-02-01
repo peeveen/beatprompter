@@ -376,4 +376,9 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="pref_anyOtherKeyPageDown_summary">Cualquier otra tecla presionada en un teclado conectado actuará como página abajo.</string>
     <string name="midi_bluetooth_string">Bluetooth (actualmente no es compatible)</string>
     <string name="midi_native_string">Nativo</string>
+    <string name="pref_chorusSectionHighlightColor_title">Color de resaltado de sección de coro</string>
+    <string name="pref_chorusSectionHighlightColor_summary">Resaltar el color para los coros.</string>
+    <string name="pref_midiConnectionType_title">Tipo de Conección</string>
+    <string name="pref_midiConnectionType_dialogTitle">Tipo de Conección</string>
+    <string name="pref_midiConnectionType_summary">¿Qué tipo de conexión MIDI usas?</string>
 </resources>

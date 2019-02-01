@@ -376,4 +376,9 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_anyOtherKeyPageDown_summary">Toute autre touche enfoncée sur un clavier connecté agira comme une page vers le bas.</string>
     <string name="midi_bluetooth_string">Bluetooth (actuellement non pris en charge)</string>
     <string name="midi_native_string">Originaire</string>
+    <string name="pref_chorusSectionHighlightColor_title">Section de reflet couleur de surbrillance</string>
+    <string name="pref_chorusSectionHighlightColor_summary">Mettez en surbrillance la couleur pour les refrains.</string>
+    <string name="pref_midiConnectionType_title">Type de Connexion</string>
+    <string name="pref_midiConnectionType_dialogTitle">Type de Cconnexion</string>
+    <string name="pref_midiConnectionType_summary">Quel type de connexion MIDI utilisez-vous?</string>
 </resources>

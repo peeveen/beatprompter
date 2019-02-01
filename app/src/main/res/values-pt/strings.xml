@@ -376,4 +376,9 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="pref_anyOtherKeyPageDown_summary">Qualquer outra tecla pressionada em um teclado conectado atuará como page-down.</string>
     <string name="midi_bluetooth_string">Bluetooth ( 23/5000 atualmente não suportado)</string>
     <string name="midi_native_string">Nativo</string>
+    <string name="pref_chorusSectionHighlightColor_title">Cor de destaque de seção de coro</string>
+    <string name="pref_chorusSectionHighlightColor_summary">Destaque cor para refrões.</string>
+    <string name="pref_midiConnectionType_title">Tipo de Conexão</string>
+    <string name="pref_midiConnectionType_dialogTitle">Tipo de Conexão</string>
+    <string name="pref_midiConnectionType_summary">Que tipo de conexão MIDI você usa?</string>
 </resources>

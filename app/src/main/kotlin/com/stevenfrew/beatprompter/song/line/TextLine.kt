@@ -20,12 +20,14 @@ class TextLine internal constructor(private val mText: String,
                                     displaySettings: DisplaySettings,
                                     startingHighlightColor: Int?,
                                     pixelPosition: Int,
+                                    inChorusSection: Boolean,
                                     scrollTimes: Pair<Long, Long>,
                                     songLoadCancelEvent: SongLoadCancelEvent)
     : Line(lineTime,
         lineDuration,
         scrollMode,
         pixelPosition,
+        inChorusSection,
         scrollTimes.first,
         scrollTimes.second,
         displaySettings) {
@@ -43,6 +45,7 @@ class TextLine internal constructor(private val mText: String,
     private var mChordDescenderOffset: Int = 0
     private val mLyricColor: Int
     private val mChordColor: Int
+    private val mChorusHighlightColor: Int
     private val mAnnotationColor: Int
     private val mSections: List<LineSection>
     var mTrailingHighlightColor: Int? = null
@@ -52,6 +55,7 @@ class TextLine internal constructor(private val mText: String,
         val paint = Paint()
         mLyricColor = Preferences.lyricColor
         mChordColor = Preferences.chordColor
+        mChorusHighlightColor = Utils.makeHighlightColour(Preferences.chorusHighlightColor)
         mAnnotationColor = Preferences.annotationColor
         // TODO: Fix this, for god's sake!
         mSections = calculateSections(songLoadCancelEvent)
@@ -443,6 +447,7 @@ class TextLine internal constructor(private val mText: String,
     }
 
     override fun renderGraphics(paint: Paint) {
+        val backgroundColor = if (mInChorusSection) mChorusHighlightColor else 0x0000ffff
         repeat(mMeasurements.mLines) { lineNumber ->
             val graphic = mGraphics[lineNumber]
             if (graphic.mLastDrawnLine !== this) {
@@ -456,7 +461,7 @@ class TextLine internal constructor(private val mText: String,
                     ++g
                 }
                 paint.typeface = mFont
-                c.drawColor(0x0000ffff, PorterDuff.Mode.SRC) // Fill with transparency.
+                c.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > lineNumber) mXSplits[lineNumber] else Integer.MAX_VALUE
                 mSections.forEach {
                     if (currentX < xSplit) {

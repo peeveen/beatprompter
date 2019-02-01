@@ -270,6 +270,11 @@
     <string name="pref_beatSectionStartHighlightColor_summary">Highlight color for the line that is the start of a beat section.</string>
     <string name="pref_beatSectionStartHighlightColor_default" translatable="false">#ffaaaa00</string>
 
+    <string name="pref_chorusSectionHighlightColor_key" translatable="false">pref_chorusSectionHighlightColor</string>
+    <string name="pref_chorusSectionHighlightColor_title">Chorus section highlight colour</string>
+    <string name="pref_chorusSectionHighlightColor_summary">Highlight color for choruses.</string>
+    <string name="pref_chorusSectionHighlightColor_default" translatable="false">#ff888888</string>
+
     <string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
     <string name="pref_clearCache_title">Clear cache</string>
     <string name="pref_clearCache_summary">Deletes all cached files.</string>

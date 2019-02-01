@@ -33,7 +33,7 @@ import kotlin.math.absoluteValue
         StartOfHighlightTag::class, EndOfHighlightTag::class,
         BarMarkerTag::class, BarsTag::class, BeatsPerMinuteTag::class, BeatsPerBarTag::class, BarsPerLineTag::class,
         ScrollBeatModifierTag::class, ScrollBeatTag::class, BeatStartTag::class, BeatStopTag::class, AudioTag::class,
-        MIDIEventTag::class, ChordTag::class)
+        MIDIEventTag::class, ChordTag::class, StartOfChorusTag::class, EndOfChorusTag::class)
 @IgnoreTags(LegacyTag::class, TimeTag::class, MIDISongSelectTriggerTag::class, MIDIProgramChangeTriggerTag::class,
         TitleTag::class, ArtistTag::class, KeyTag::class, TagTag::class, FilterOnlyTag::class)
 /**
@@ -74,9 +74,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
     private var mCurrentBeat: Int = 0
     private var mDisplayLineCounter: Int = 0
     private var mCountIn: Int
-    private var mSendMidiClock: Boolean = false
+    private var mSendMidiClock = false
     private var mSongTime: Long = 0
     private var mDefaultMIDIOutputChannel: Byte
+    private var mInChorusSection = false
 
     init {
         // All songFile info parsing errors count as our errors too.
@@ -141,6 +142,18 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         val metronomeOn = mMetronomeContext === MetronomeContext.On || mMetronomeContext === MetronomeContext.OnWhenNoTrack
 
         var imageTag = tagSequence.filterIsInstance<ImageTag>().firstOrNull()
+
+        val startOfChorusTag = tagSequence.filterIsInstance<StartOfChorusTag>().firstOrNull()
+        val thisLineIsInChorus = startOfChorusTag != null || mInChorusSection
+        val endOfChorusTag = tagSequence.filterIsInstance<EndOfChorusTag>().firstOrNull()
+        mInChorusSection =
+                if (endOfChorusTag != null) {
+                    if (startOfChorusTag != null)
+                        endOfChorusTag.mPosition < startOfChorusTag.mPosition
+                    else
+                        false
+                } else
+                    startOfChorusTag != null || mInChorusSection
 
         if (!mSendMidiClock)
             mSendMidiClock = tags.any { it is SendMIDIClockTag }
@@ -303,6 +316,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                                     mCurrentLineBeatInfo.mScrollMode,
                                     mNativeDeviceSettings,
                                     mSongHeight,
+                                    thisLineIsInChorus,
                                     startAndStopScrollTimes)
                         } catch (t: Throwable) {
                             // Bitmap loading could cause error here. Even OutOfMemory!
@@ -325,6 +339,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                                     .filterIsInstance<TextLine>()
                                     .lastOrNull()?.mTrailingHighlightColor,
                             mSongHeight,
+                            thisLineIsInChorus,
                             startAndStopScrollTimes,
                             mSongLoadCancelEvent)
 

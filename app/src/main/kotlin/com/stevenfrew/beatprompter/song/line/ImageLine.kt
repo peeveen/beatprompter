@@ -5,8 +5,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
-import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
 class ImageLine internal constructor(mImageFile: ImageFile,
@@ -16,8 +16,16 @@ class ImageLine internal constructor(mImageFile: ImageFile,
                                      scrollMode: ScrollingMode,
                                      displaySettings: DisplaySettings,
                                      pixelPosition: Int,
+                                     inChorusSection: Boolean,
                                      scrollTimes: Pair<Long, Long>)
-    : Line(lineTime, lineDuration, scrollMode, pixelPosition, scrollTimes.first, scrollTimes.second, displaySettings) {
+    : Line(lineTime,
+        lineDuration,
+        scrollMode,
+        pixelPosition,
+        inChorusSection,
+        scrollTimes.first,
+        scrollTimes.second,
+        displaySettings) {
     private val mBitmap = BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
     private val mSourceRect = Rect(0, 0, mImageFile.mWidth, mImageFile.mHeight)
     private val mDestinationRect = getDestinationRect(mBitmap,

@@ -148,6 +148,12 @@
                 app:colorpicker_showAlpha="false"
                 app:colorpicker_showHex="false"
                 />
+            <com.rarepebble.colorpicker.ColorPreference
+                android:key="@string/pref_chorusSectionHighlightColor_key"
+                android:title="@string/pref_chorusSectionHighlightColor_title"
+                app:colorpicker_defaultColor="#ff888888"
+                app:colorpicker_showAlpha="false"
+                app:colorpicker_showHex="false" />
         </PreferenceScreen>
         <PreferenceScreen
             android:title="@string/fontSizes">

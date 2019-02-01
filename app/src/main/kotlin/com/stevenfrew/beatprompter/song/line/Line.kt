@@ -9,6 +9,7 @@ abstract class Line internal constructor(val mLineTime: Long,
                                          val mLineDuration: Long,
                                          val mScrollMode: ScrollingMode,
                                          val mSongPixelPosition: Int,
+                                         val mInChorusSection: Boolean,
                                          val mYStartScrollTime: Long,
                                          val mYStopScrollTime: Long,
                                          private val mDisplaySettings: DisplaySettings) {
