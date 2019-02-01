@@ -781,7 +781,8 @@ class SongListActivity
         tagAndFolderFilters.addAll(mCachedCloudFiles.setListFiles.mapNotNull {
             if (it.mFile != mTemporarySetListFile)
                 SetListFileFilter(it, mCachedCloudFiles.songFiles.toMutableList())
-            null
+            else
+                null
         })
         tagAndFolderFilters.sortBy { it.mName.toLowerCase() }
 
@@ -827,7 +828,8 @@ class SongListActivity
                     if (ownedItems.getInt("RESPONSE_CODE") == 0) {
                         mFullVersionUnlocked = ownedItems
                                 .getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
-                                ?.any { it.equals(FULL_VERSION_SKU_NAME, ignoreCase = true) } ?: false
+                                ?.any { it.equals(FULL_VERSION_SKU_NAME, ignoreCase = true) }
+                                ?: false
                     }
                 }
             } catch (e: Exception) {
