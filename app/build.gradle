@@ -12,8 +12,8 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
         targetSdkVersion 28
-        versionCode 505
-        versionName "1.33"
+        versionCode 507
+        versionName "1.35"
         resConfigs "en", "fr", "pt", "de", "es", "it"
     }
     signingConfigs {
