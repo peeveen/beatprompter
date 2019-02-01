@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.AsyncTask
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -31,7 +32,7 @@ class GoogleDriveStorage(parentActivity: Activity)
     : Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
 
     private val mGoogleClientSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(DriveScopes.DRIVE_READONLY))
+            .requestScopes(Scope(DriveScopes.DRIVE_READONLY), Scope(Scopes.EMAIL))
             .build()
     private val mGoogleSignInClient = GoogleSignIn.getClient(mParentActivity, mGoogleClientSignInOptions)
 
@@ -50,11 +51,16 @@ class GoogleDriveStorage(parentActivity: Activity)
     }
 
     private fun doGoogleDriveAction(action: GoogleDriveAction) {
-        val alreadySignedInAccount = GoogleSignIn.getLastSignedInAccount(mParentActivity)
+        var alreadySignedInAccount = GoogleSignIn.getLastSignedInAccount(mParentActivity)
+        if (alreadySignedInAccount?.email == null) {
+            mGoogleSignInClient.signOut()
+            alreadySignedInAccount = null
+        }
         if (alreadySignedInAccount == null) {
             mActionOnHold = action
             mParentActivity.startActivityForResult(mGoogleSignInClient.signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN)
         } else {
+            val fwefwef = alreadySignedInAccount.email
             val credential = GoogleAccountCredential.usingOAuth2(
                     mParentActivity, Arrays.asList(*SCOPES))
                     .setSelectedAccount(alreadySignedInAccount.account)
