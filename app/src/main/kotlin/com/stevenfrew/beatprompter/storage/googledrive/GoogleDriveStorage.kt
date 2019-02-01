@@ -261,7 +261,7 @@ class GoogleDriveStorage(parentActivity: Activity)
         private const val GOOGLE_DRIVE_ROOT_PATH = "/"
         private const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
         private const val GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
-        private val SCOPES = arrayOf(DriveScopes.DRIVE_READONLY)
+        private val SCOPES = arrayOf(DriveScopes.DRIVE_READONLY, Scopes.EMAIL)
         private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
 
         private var mActionOnHold: GoogleDriveAction? = null
