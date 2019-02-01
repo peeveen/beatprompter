@@ -60,7 +60,6 @@ class GoogleDriveStorage(parentActivity: Activity)
             mActionOnHold = action
             mParentActivity.startActivityForResult(mGoogleSignInClient.signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN)
         } else {
-            val fwefwef = alreadySignedInAccount.email
             val credential = GoogleAccountCredential.usingOAuth2(
                     mParentActivity, Arrays.asList(*SCOPES))
                     .setSelectedAccount(alreadySignedInAccount.account)

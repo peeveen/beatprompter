@@ -11,16 +11,15 @@ open class SetListFileFilter(var mSetListFile: SetListFile,
     var mWarned = mMissingSetListEntries.isEmpty()
 
     companion object {
-        private fun getSongList(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SongFile> {
+        private fun getSongList(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): List<SongFile> {
             val matches = getMatches(setListEntries, songFiles)
             val matchedSongs = matches.map {
                 when {
                     it.second != null -> it.second
-                    it.third != null -> it.third
-                    else -> null
+                    else -> it.third
                 }
             }
-            return matchedSongs.filterNotNull().toMutableList()
+            return matchedSongs.filterNotNull()
         }
 
         private fun getMissingSetListEntries(setListEntries: List<SetListEntry>, songFiles: List<SongFile>): MutableList<SetListEntry> {
