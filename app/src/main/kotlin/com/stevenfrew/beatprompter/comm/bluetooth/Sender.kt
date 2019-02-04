@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothSocket
-import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.comm.SenderBase
 
 class Sender(private val mClientSocket: BluetoothSocket) : SenderBase(mClientSocket.remoteDevice.name) {

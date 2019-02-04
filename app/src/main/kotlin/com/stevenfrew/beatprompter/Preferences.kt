@@ -61,6 +61,9 @@ object Preferences {
     val manualMode: Boolean
         get() = getBooleanPreference(R.string.pref_manualMode_key, false)
 
+    val mute: Boolean
+        get() = getBooleanPreference(R.string.pref_mute_key, false)
+
     var sorting: SortingPreference
         get() = try {
             SortingPreference.valueOf(getStringPreference(R.string.pref_sorting_key, SortingPreference.Title.name)!!)

@@ -126,7 +126,7 @@ class SongView
         mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
         mPulse = Preferences.pulseDisplay
         mSendMidiClockPreference = Preferences.sendMIDIClock
-        mMetronomePref = Preferences.metronomeContext
+        mMetronomePref = if (Preferences.mute) MetronomeContext.Off else Preferences.metronomeContext
 
         mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
         val backgroundColor = Preferences.backgroundColor
@@ -175,7 +175,6 @@ class SongView
 
         song.mAudioEvents.forEach {
             mMediaPlayers[it.mAudioFile] = MediaPlayer().apply {
-                // TODO: Lose shitty Archos workaround.
                 try {
                     FileInputStream(it.mAudioFile.mFile.absolutePath)
                             .use { stream ->
@@ -386,7 +385,7 @@ class SongView
             //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
             run {
                 val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
-                setSongTime(songTime, mStartState === PlayState.Paused, true, false, true)
+                setSongTime(songTime, mStartState === PlayState.Paused, broadcast = true, setPixelPosition = false, recalculateManualPositions = true)
             }
             true
         } else {
@@ -405,7 +404,7 @@ class SongView
                 if (mSongPixelPosition == mTargetPixelPosition)
                     clearScrollTarget()
                 val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
-                setSongTime(songTime, mStartState === PlayState.Paused, true, false, false)
+                setSongTime(songTime, mStartState === PlayState.Paused, broadcast = true, setPixelPosition = false, recalculateManualPositions = false)
             }
             false
         }
@@ -555,11 +554,11 @@ class SongView
                     if (mUserHasScrolled) {
                         mUserHasScrolled = false
                         time = mSong!!.getTimeFromPixel(mSongPixelPosition)
-                        setSongTime(time, false, false, false, true)
+                        setSongTime(time, redraw = false, broadcast = false, setPixelPosition = false, recalculateManualPositions = true)
                     } else {
                         Logger.log { "Resuming, pause time=$mPauseTime" }
                         time = mPauseTime
-                        setSongTime(time, false, false, true, true)
+                        setSongTime(time, redraw = false, broadcast = false, setPixelPosition = true, recalculateManualPositions = true)
                     }
                     BluetoothController.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(oldPlayState, time)))
                 }
@@ -757,7 +756,7 @@ class SongView
 
     fun processBluetoothToggleStartStopMessage(startStopInfo: ToggleStartStopMessage.StartStopToggleInfo) {
         if (startStopInfo.mTime >= 0)
-            setSongTime(startStopInfo.mTime, true, false, true, true)
+            setSongTime(startStopInfo.mTime, redraw = true, broadcast = false, setPixelPosition = true, recalculateManualPositions = true)
         startToggle(null, false, startStopInfo.mStartState)
     }
 
@@ -849,7 +848,7 @@ class SongView
             mSongPixelPosition = Math.max(0, mSongPixelPosition)
             mSongPixelPosition = Math.min(mSong!!.mScrollEndPixel, mSongPixelPosition)
             pauseOnScrollStart()
-            setSongTime(mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition), true, true, false, true)
+            setSongTime(mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition), redraw = true, broadcast = true, setPixelPosition = false, recalculateManualPositions = true)
         } else if (mScreenAction == ScreenAction.Volume) {
             mCurrentVolume += (distanceY / 10.0).toInt()
             onVolumeChanged()
@@ -988,7 +987,7 @@ class SongView
         if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
             return
         if (down && mManualScrollPositions.mBeatJumpScrollLine != null)
-            setSongTime(mManualScrollPositions.mBeatJumpScrollLine!!.mLineTime, true, true, true, false)
+            setSongTime(mManualScrollPositions.mBeatJumpScrollLine!!.mLineTime, redraw = true, broadcast = true, setPixelPosition = true, recalculateManualPositions = false)
         else
             mTargetPixelPosition =
                     if (down)
@@ -1117,12 +1116,12 @@ class SongView
 
     fun setSongBeatPosition(pointer: Int, midiInitiated: Boolean) {
         val songTime = mSong!!.getMIDIBeatTime(pointer)
-        setSongTime(songTime, true, midiInitiated, true, true)
+        setSongTime(songTime, true, midiInitiated, setPixelPosition = true, recalculateManualPositions = true)
     }
 
     fun startSong(midiInitiated: Boolean, fromStart: Boolean) {
         if (fromStart)
-            setSongTime(0, true, midiInitiated, true, true)
+            setSongTime(0, true, midiInitiated, setPixelPosition = true, recalculateManualPositions = true)
         while (mStartState !== PlayState.Playing)
             startToggle(null, midiInitiated)
     }

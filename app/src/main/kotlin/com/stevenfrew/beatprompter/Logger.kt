@@ -41,7 +41,7 @@ object Logger {
         log(TAG, { t.message ?: "" }, t)
     }
 
-    fun logLoader(message: () -> String, t: Throwable? = null) {
+    private fun logLoader(message: () -> String, t: Throwable? = null) {
         log(TAG_LOAD, message, t)
     }
 

@@ -160,6 +160,7 @@ class SongListActivity
     }
 
     private fun playSongFile(selectedSong: SongFile, node: PlaylistNode, startedByMidiTrigger: Boolean) {
+        val mute = Preferences.mute
         val manualMode = Preferences.manualMode
         val startupAudioIsViable = (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode)
         val (startupTrackName, startupTrack) =
@@ -173,7 +174,7 @@ class SongListActivity
                 else
                     selectedSong.bestScrollingMode
         val sds = getSongDisplaySettings(mode)
-        val noAudioWhatsoever = manualMode || (startupTrackName == null && !selectedSong.mMixedMode)
+        val noAudioWhatsoever = manualMode || mute || (startupTrackName == null && !selectedSong.mMixedMode)
         playSong(node, startupTrack, mode, startedByMidiTrigger, sds, sds, noAudioWhatsoever)
     }
 

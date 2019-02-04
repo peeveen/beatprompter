@@ -334,6 +334,10 @@
     <string name="pref_manualMode_title">Manual Mode</string>
     <string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
 
+    <string name="pref_mute_key" translatable="false">pref_mute</string>
+    <string name="pref_mute_title">Mute</string>
+    <string name="pref_mute_summary">Never play audio.</string>
+
     <string name="pref_sendMidi_key" translatable="false">pref_sendMidi</string>
     <string name="pref_sendMidi_title">Send MIDI clock signals</string>
     <string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals via a USB On-The-Go connection.</string>

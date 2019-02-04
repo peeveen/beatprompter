@@ -381,4 +381,6 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="pref_midiConnectionType_title">Tipo de Conexão</string>
     <string name="pref_midiConnectionType_dialogTitle">Tipo de Conexão</string>
     <string name="pref_midiConnectionType_summary">Que tipo de conexão MIDI você usa?</string>
+    <string name="pref_mute_title">Mudo</string>
+    <string name="pref_mute_summary">Nunca reproduza áudio</string>
 </resources>

@@ -381,4 +381,6 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_midiConnectionType_title">Type de Connexion</string>
     <string name="pref_midiConnectionType_dialogTitle">Type de Cconnexion</string>
     <string name="pref_midiConnectionType_summary">Quel type de connexion MIDI utilisez-vous?</string>
+    <string name="pref_mute_title">Muet</string>
+    <string name="pref_mute_summary">Ne jamais jouer de l\'audio</string>
 </resources>

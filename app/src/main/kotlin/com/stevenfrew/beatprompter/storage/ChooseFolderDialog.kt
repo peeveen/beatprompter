@@ -173,7 +173,7 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
         : AsyncTask<FolderInfo, Void, Void>() {
         override fun doInBackground(vararg args: FolderInfo): Void? {
             val folderToSearch = args[0]
-            mStorage.readFolderContents(folderToSearch, mFolderSearchListener, false, true)
+            mStorage.readFolderContents(folderToSearch, mFolderSearchListener, includeSubfolders = false, returnFolders = true)
             return null
         }
     }

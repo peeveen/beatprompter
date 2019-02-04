@@ -381,4 +381,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="pref_midiConnectionType_title">Tipo di Connessione</string>
     <string name="pref_midiConnectionType_dialogTitle">Tipo di Connessione</string>
     <string name="pref_midiConnectionType_summary">Che tipo di connessione MIDI usi?</string>
+    <string name="pref_mute_title">Muto</string>
+    <string name="pref_mute_summary">Non riprodurre mai l\'audio</string>
 </resources>

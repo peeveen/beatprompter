@@ -437,6 +437,11 @@
             android:dialogTitle="@string/pref_bandLeaderDevice_dialogTitle"
             android:summary="@string/pref_bandLeaderDevice_summary"/>
         <CheckBoxPreference
+            android:key="@string/pref_mute_key"
+            android:title="@string/pref_mute_title"
+            android:summary="@string/pref_mute_summary"
+            android:defaultValue="false" />
+        <CheckBoxPreference
             android:key="@string/pref_manualMode_key"
             android:title="@string/pref_manualMode_title"
             android:summary="@string/pref_manualMode_summary"

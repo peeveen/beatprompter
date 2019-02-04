@@ -381,4 +381,6 @@ Em]zeigt den Beat Progression.\n
     <string name="pref_midiConnectionType_title">Verbindungstyp</string>
     <string name="pref_midiConnectionType_dialogTitle">Verbindungstyp</string>
     <string name="pref_midiConnectionType_summary">Welche Art von MIDI-Verbindung verwenden Sie?</string>
+    <string name="pref_mute_title">Stumm</string>
+    <string name="pref_mute_summary">Spielen Sie niemals Audio ab</string>
 </resources>
