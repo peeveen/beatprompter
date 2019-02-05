@@ -166,7 +166,8 @@ class SongDisplayActivity
     override fun onDestroy() {
         requestedOrientation = mPreferredOrientation
         super.onDestroy()
-        SongLoadJob.mLoadedSong = null
+        if (!mSongDisplayActive)
+            SongLoadJob.mLoadedSong = null
 
         Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
 
@@ -302,10 +303,9 @@ class SongDisplayActivity
                 val loadedSong = SongLoadJob.mLoadedSong
                         ?: return SongInterruptResult.NoSongToInterrupt
 
-                // The first one should never happen, but we'll check just to be sure.
-                // Trying to interrupt a song with itself is pointless!
                 return when {
-                    loadedSong.mSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.NoSongToInterrupt
+                    // Trying to interrupt a song with itself is pointless!
+                    loadedSong.mSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.SongAlreadyLoaded
                     mSongDisplayInstance.canYieldToExternalTrigger() -> {
                         loadedSong.mSong.mCancelled = true
                         SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)

@@ -104,6 +104,7 @@ object SongLoadQueueWatcherTask : Task(true) {
             SongInterruptResult.CanInterrupt -> {
                 Logger.logLoader("CanInterrupt ... song will load when activity finishes.")
             }
+            SongInterruptResult.SongAlreadyLoaded -> return
         }
     }
 
