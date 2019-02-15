@@ -34,6 +34,12 @@ open class CachedFileDescriptor : FileInfo {
         element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, mFile.absolutePath)
     }
 
+    fun isInSubfolder(subfolder: String?): Boolean {
+        if (subfolder.isNullOrBlank() || mSubfolder.isNullOrBlank())
+            return subfolder.isNullOrBlank() && mSubfolder.isNullOrBlank()
+        return subfolder == mSubfolder
+    }
+
     companion object {
         private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
     }

@@ -103,7 +103,9 @@ class CachedCloudFileCollection {
 
     fun hasLatestVersionOf(file: FileInfo): Boolean {
         return mFiles.any {
-            it.mID.equals(file.mID, ignoreCase = true) && it.mLastModified == file.mLastModified
+            it.mID.equals(file.mID, ignoreCase = true)
+                    && it.mLastModified == file.mLastModified
+                    && it.isInSubfolder(file.mSubfolder)
         }
     }
 
