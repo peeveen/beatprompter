@@ -32,7 +32,7 @@ class LocalStorage(parentActivity: Activity)
         filesToRefresh.map { sourceCloudFile -> File(sourceCloudFile.mID) to sourceCloudFile.mSubfolderIDs }
                 .map { updatedFile -> SuccessfulDownloadResult(FileInfo(updatedFile.first.absolutePath, updatedFile.first.name, Date(updatedFile.first.lastModified()), updatedFile.second), updatedFile.first) }
                 .forEach {
-                    messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, it.cachedCloudFileDescriptor.mName))
+                    messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, it.cachedCloudFile.mName))
                     itemSource.onNext(it)
                 }
         itemSource.onComplete()

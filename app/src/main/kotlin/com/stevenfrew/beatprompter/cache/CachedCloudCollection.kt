@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.util.flattenAll
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 /**
@@ -43,7 +44,7 @@ class CachedCloudCollection {
 
     fun writeToXML(doc: Document, root: Element) {
         for (item in mItems.values) {
-            doc.createElement(item::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
+            doc.createElement(item::class.findAnnotation<CacheXmlTag>()!!.mTag)
                     .also {
                         item.writeToXML(doc, it)
                         root.appendChild(it)
@@ -72,27 +73,8 @@ class CachedCloudCollection {
 
     fun readFromXML(xmlDoc: Document) {
         clear()
-
-        addToCollection(xmlDoc, CachedFolder::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            CachedFolder(element)
-        }
-        addToCollection(xmlDoc, AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            AudioFileParser(CachedFile(element)).parse()
-        }
-        addToCollection(xmlDoc, ImageFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            ImageFileParser(CachedFile(element)).parse()
-        }
-        addToCollection(xmlDoc, SongFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            SongInfoParser(CachedFile(element)).parse()
-        }
-        addToCollection(xmlDoc, SetListFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            SetListFileParser(CachedFile(element)).parse()
-        }
-        addToCollection(xmlDoc, MIDIAliasFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            MIDIAliasFileParser(CachedFile(element)).parse()
-        }
-        addToCollection(xmlDoc, IrrelevantFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
-            IrrelevantFile(CachedFile(element))
+        PARSINGS.forEach {
+            addToCollection(xmlDoc, it.first.findAnnotation<CacheXmlTag>()!!.mTag, it.second)
         }
     }
 
@@ -132,28 +114,23 @@ class CachedCloudCollection {
         mItems.clear()
     }
 
-    fun getMappedAudioFiles(vararg inStrs: String): List<AudioFile> {
-        return inStrs
+    private inline fun <reified TCachedFileType : CachedFile> getMappedFiles(files: List<CachedFile>, filenames: Array<out String>): List<TCachedFileType> {
+        return filenames
                 .map {
-                    audioFiles
-                            .filter { audioFile ->
-                                audioFile.mNormalizedName.equals(it.normalize(), ignoreCase = true)
-                            }
+                    files.filter { file ->
+                        file.mNormalizedName.equals(it.normalize(), ignoreCase = true)
+                    }
                 }
                 .flattenAll()
-                .filterIsInstance<AudioFile>()
+                .filterIsInstance<TCachedFileType>()
     }
 
-    fun getMappedImageFiles(vararg inStrs: String): List<ImageFile> {
-        return inStrs
-                .map {
-                    imageFiles
-                            .filter { imageFile ->
-                                imageFile.mNormalizedName.equals(it.normalize(), ignoreCase = true)
-                            }
-                }
-                .flattenAll()
-                .filterIsInstance<ImageFile>()
+    fun getMappedAudioFiles(vararg filenames: String): List<AudioFile> {
+        return getMappedFiles(audioFiles, filenames)
+    }
+
+    fun getMappedImageFiles(vararg filenames: String): List<ImageFile> {
+        return getMappedFiles(imageFiles, filenames)
     }
 
     fun getFilesToRefresh(fileToRefresh: CachedFile?, includeDependencies: Boolean): List<CachedFile> {
@@ -210,4 +187,16 @@ class CachedCloudCollection {
         get() {
             return midiAliasFiles.flatMap { it.mAliasSet.aliases }.toList()
         }
+
+    companion object {
+        val PARSINGS = listOf<Pair<KClass<out CachedItem>, (item: Element) -> CachedItem>>(
+                CachedFolder::class to { element -> CachedFolder(element) },
+                AudioFile::class to { element -> AudioFileParser(CachedFile(element)).parse() },
+                ImageFile::class to { element -> ImageFileParser(CachedFile(element)).parse() },
+                SongFile::class to { element -> SongInfoParser(CachedFile(element)).parse() },
+                SetListFile::class to { element -> SetListFileParser(CachedFile(element)).parse() },
+                MIDIAliasFile::class to { element -> MIDIAliasFileParser(CachedFile(element)).parse() },
+                IrrelevantFile::class to { element -> IrrelevantFile(CachedFile(element)) }
+        )
+    }
 }

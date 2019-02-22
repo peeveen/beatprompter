@@ -45,21 +45,21 @@ open class CachedFile : CachedItem {
 
         fun createCachedCloudFile(result: SuccessfulDownloadResult): CachedFile {
             return try {
-                AudioFileParser(result.cachedCloudFileDescriptor).parse()
+                AudioFileParser(result.cachedCloudFile).parse()
             } catch (ioe: InvalidBeatPrompterFileException) {
                 try {
-                    ImageFileParser(result.cachedCloudFileDescriptor).parse()
+                    ImageFileParser(result.cachedCloudFile).parse()
                 } catch (ibpfe1: InvalidBeatPrompterFileException) {
                     try {
-                        MIDIAliasFileParser(result.cachedCloudFileDescriptor).parse()
+                        MIDIAliasFileParser(result.cachedCloudFile).parse()
                     } catch (ibpfe2: InvalidBeatPrompterFileException) {
                         try {
-                            SongInfoParser(result.cachedCloudFileDescriptor).parse()
+                            SongInfoParser(result.cachedCloudFile).parse()
                         } catch (ibpfe3: InvalidBeatPrompterFileException) {
                             try {
-                                SetListFileParser(result.cachedCloudFileDescriptor).parse()
+                                SetListFileParser(result.cachedCloudFile).parse()
                             } catch (ibpfe4: InvalidBeatPrompterFileException) {
-                                IrrelevantFile(result.cachedCloudFileDescriptor)
+                                IrrelevantFile(result.cachedCloudFile)
                             }
                         }
                     }

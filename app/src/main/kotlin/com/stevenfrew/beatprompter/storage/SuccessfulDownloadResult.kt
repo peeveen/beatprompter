@@ -10,7 +10,7 @@ import java.io.File
 class SuccessfulDownloadResult(fileInfo: FileInfo,
                                private val mDownloadedFile: File)
     : DownloadResult(fileInfo) {
-    val cachedCloudFileDescriptor
+    val cachedCloudFile
         get() =
             CachedFile(mDownloadedFile,
                     mFileInfo.mID,
