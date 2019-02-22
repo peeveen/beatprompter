@@ -55,7 +55,6 @@ class CachedCloudCollection {
                                                                     tagName: String,
                                                                     parser: (cachedItem: Element) -> TCachedCloudItemType) {
         val elements = xmlDoc.getElementsByTagName(tagName)
-        val folderTagName = CachedFolder::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag
         repeat(elements.length) {
             val element = elements.item(it) as Element
             try {
