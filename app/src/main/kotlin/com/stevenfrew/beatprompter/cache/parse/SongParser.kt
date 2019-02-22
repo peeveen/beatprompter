@@ -243,7 +243,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
             if (audioTag != null && !mSongLoadInfo.mNoAudio) {
                 // Make sure file exists.
-                val mappedTracks = SongListActivity.mCachedCloudFiles.getMappedAudioFiles(audioTag.mFilename)
+                val mappedTracks = SongListActivity.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
                 if (mappedTracks.isEmpty())
                     mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
                 else if (mappedTracks.size > 1)
@@ -306,7 +306,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 // Create the line
                 var lineObj: Line? = null
                 if (imageTag != null) {
-                    val imageFiles = SongListActivity.mCachedCloudFiles.getMappedImageFiles(imageTag.mFilename)
+                    val imageFiles = SongListActivity.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
                     if (imageFiles.isNotEmpty())
                         try {
                             lineObj = ImageLine(imageFiles.first(),

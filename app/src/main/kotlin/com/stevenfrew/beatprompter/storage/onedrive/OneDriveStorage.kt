@@ -52,7 +52,13 @@ class OneDriveStorage(parentActivity: Activity)
         fun onAuthenticationRequired()
     }
 
-    private class GetOneDriveFolderContentsTask internal constructor(internal val mClient: IOneDriveClient, internal val mStorage: OneDriveStorage, internal val mFolder: FolderInfo, internal val mListener: StorageListener, internal val mItemSource: PublishSubject<ItemInfo>, internal val mMessageSource: PublishSubject<String>, internal val mIncludeSubfolders: Boolean, internal val mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
+    private class GetOneDriveFolderContentsTask internal constructor(internal val mClient: IOneDriveClient,
+                                                                     internal val mStorage: OneDriveStorage,
+                                                                     internal val mFolder: FolderInfo,
+                                                                     internal val mListener: StorageListener,
+                                                                     internal val mItemSource: PublishSubject<ItemInfo>,
+                                                                     internal val mMessageSource: PublishSubject<String>,
+                                                                     internal val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
         private fun isSuitableFileToDownload(childItem: Item): Boolean {
             return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase().endsWith(".txt")
         }
@@ -81,16 +87,15 @@ class OneDriveStorage(parentActivity: Activity)
                             if (child.file != null) {
                                 if (isSuitableFileToDownload(child))
                                     mItemSource.onNext(FileInfo(child.id, child.name, child.lastModifiedDateTime.time,
-                                            if (nextFolder.mParentFolder == null) listOf() else listOf(nextFolder.mID)))
+                                            if (nextFolder.mParentFolder == null) "" else nextFolder.mID))
                             } else if (child.folder != null) {
                                 val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
-                                val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath, false)
-                                if (mIncludeSubfolders) {
+                                val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
+                                if (mRecurseSubfolders) {
                                     Logger.log("Adding folder to list of folders to query ...")
                                     folders.add(newFolder)
                                 }
-                                if (mReturnFolders)
-                                    mItemSource.onNext(newFolder)
+                                mItemSource.onNext(newFolder)
                             }
                         }
                         if (mListener.shouldCancel())
@@ -192,7 +197,7 @@ class OneDriveStorage(parentActivity: Activity)
     private class GetOneDriveRootFolderTask internal constructor(internal var mClient: IOneDriveClient) : AsyncTask<Void, Void, FolderInfo>() {
         override fun doInBackground(vararg args: Void): FolderInfo {
             val rootFolder = mClient.drive.root.buildRequest().get()
-            return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH, false)
+            return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)
         }
     }
 
@@ -231,11 +236,11 @@ class OneDriveStorage(parentActivity: Activity)
         })
     }
 
-    public override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    public override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         doOneDriveAction(object : OneDriveAction {
             override fun onConnected(client: IOneDriveClient) {
                 try {
-                    GetOneDriveFolderContentsTask(client, this@OneDriveStorage, folder, listener, itemSource, messageSource, includeSubfolders, returnFolders).execute()
+                    GetOneDriveFolderContentsTask(client, this@OneDriveStorage, folder, listener, itemSource, messageSource, recurseSubfolders).execute()
                 } catch (e: Exception) {
                     itemSource.onError(e)
                 }

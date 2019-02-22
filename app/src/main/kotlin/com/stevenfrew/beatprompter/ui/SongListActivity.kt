@@ -113,7 +113,7 @@ class SongListActivity
 
     override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
         if (mSelectedFilter is MIDIAliasFilesFilter) {
-            val maf = filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles)[position]
+            val maf = filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles)[position]
             if (maf.mErrors.isNotEmpty())
                 showMIDIAliasErrors(maf.mErrors)
         } else {
@@ -147,7 +147,7 @@ class SongListActivity
             }
         // Otherwise, it might be a song that is not currently onscreen.
         // Still play it though!
-        for (sf in mCachedCloudFiles.songFiles)
+        for (sf in mCachedCloudItems.songFiles)
             if (sf.matchesTrigger(mst)) {
                 Logger.log { "Found trigger match: '${sf.mTitle}'." }
                 playSongFile(sf, PlaylistNode(sf), true)
@@ -165,7 +165,7 @@ class SongListActivity
         val startupAudioIsViable = (selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode)
         val (startupTrackName, startupTrack) =
                 if (startupAudioIsViable)
-                    selectedSong.mAudioFiles[0] to mCachedCloudFiles.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull()
+                    selectedSong.mAudioFiles[0] to mCachedCloudItems.getMappedAudioFiles(selectedSong.mAudioFiles[0]).firstOrNull()
                 else
                     null to null
         val mode =
@@ -232,7 +232,7 @@ class SongListActivity
 
     private fun clearTemporarySetList() {
         mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
-        for (slf in mCachedCloudFiles.setListFiles)
+        for (slf in mCachedCloudItems.setListFiles)
             if (slf.mFile == mTemporarySetListFile)
                 slf.mSetListEntries.clear()
         initialiseTemporarySetListFile(true)
@@ -270,7 +270,7 @@ class SongListActivity
         val selectedNode = filterPlaylistNodes(mPlaylist)[position]
         val selectedSong = selectedNode.mSongFile
         val selectedSet = if (mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
-        val mappedAudioFiles = mCachedCloudFiles.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
+        val mappedAudioFiles = mCachedCloudItems.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
         val trackNames = listOf(getString(R.string.no_audio), *mappedAudioFiles.map { it.mName }.toTypedArray())
         val tempSetListFilter = mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
@@ -417,7 +417,7 @@ class SongListActivity
                 val sds = getSongDisplaySettings(mode)
                 val track =
                         if (selectedTrackName != null)
-                            mCachedCloudFiles.getMappedAudioFiles(selectedTrackName).firstOrNull()
+                            mCachedCloudItems.getMappedAudioFiles(selectedTrackName).firstOrNull()
                         else
                             null
                 playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
@@ -431,7 +431,7 @@ class SongListActivity
     }
 
     private fun onMIDIAliasListLongClick(position: Int) {
-        val maf = filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles)[position]
+        val maf = filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles)[position]
         val showErrors = maf.mErrors.isNotEmpty()
         val arrayID = if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
@@ -688,7 +688,7 @@ class SongListActivity
             Toast.makeText(this, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG).show()
         else {
             mPerformingCloudSync = true
-            val cdt = DownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubFolders, mCachedCloudFiles.getFilesToRefresh(fileToUpdate, dependenciesToo))
+            val cdt = DownloadTask(cs, mSongListEventHandler!!, cloudPath, includeSubFolders, mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo))
             cdt.execute()
         }
     }
@@ -721,7 +721,7 @@ class SongListActivity
 
     private fun buildList() {
         mListAdapter = if (mSelectedFilter is MIDIAliasFilesFilter)
-            MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudFiles.midiAliasFiles))
+            MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles))
         else
             SongListAdapter(filterPlaylistNodes(mPlaylist))
 
@@ -742,7 +742,7 @@ class SongListActivity
                     .newDocumentBuilder()
                     .parse(bpdb)
 
-            mCachedCloudFiles.readFromXML(xmlDoc)
+            mCachedCloudItems.readFromXML(xmlDoc)
             buildFilterList()
         }
     }
@@ -755,7 +755,7 @@ class SongListActivity
         val d = docBuilder.newDocument()
         val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
         d.appendChild(root)
-        mCachedCloudFiles.writeToXML(d, root)
+        mCachedCloudItems.writeToXML(d, root)
         val transformer = TransformerFactory.newInstance().newTransformer()
         val output = StreamResult(bpdb)
         val input = DOMSource(d)
@@ -769,45 +769,50 @@ class SongListActivity
         // Create filters from song tags and sub-folders. Many songs can share the same
         // tag/subfolder, so a bit of clever collection management is required here.
         val tagDictionaries = HashMap<String, MutableList<SongFile>>()
-        val folderDictionaries = HashMap<String, MutableList<SongFile>>()
-        for (song in mCachedCloudFiles.songFiles) {
-            song.mTags.forEach { tagDictionaries.getOrPut(it) { mutableListOf() }.add(song) }
-            song.mSubfolderIDs.forEach { subfolderID ->
-                mCachedCloudFiles.getFolderName(subfolderID)?.also { folderName ->
-                    folderDictionaries.getOrPut(folderName) { mutableListOf() }.add(song)
-                }
-            }
+        mCachedCloudItems.songFiles.forEach {
+            it.mTags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
         }
+
+        val folderDictionaries = HashMap<String, MutableList<SongFile>>()
+        mCachedCloudItems.folders.forEach {
+            folderDictionaries[it.mName] = mCachedCloudItems.getSongsInFolder(it).toMutableList()
+        }
+        val nonEmptyFolderDictionaries = folderDictionaries.filter { it.value.isNotEmpty() }
+
         tagDictionaries.forEach {
             tagAndFolderFilters.add(TagFilter(it.key, it.value))
         }
-        folderDictionaries.forEach {
+        nonEmptyFolderDictionaries.forEach {
             tagAndFolderFilters.add(FolderFilter(it.key, it.value))
         }
-        tagAndFolderFilters.addAll(mCachedCloudFiles.setListFiles.mapNotNull {
+        tagAndFolderFilters.addAll(mCachedCloudItems.setListFiles.mapNotNull {
             if (it.mFile != mTemporarySetListFile)
-                SetListFileFilter(it, mCachedCloudFiles.songFiles.toMutableList())
+                SetListFileFilter(it, mCachedCloudItems.songFiles.toMutableList())
             else
                 null
         })
         tagAndFolderFilters.sortBy { it.mName.toLowerCase() }
 
         // Now create the basic "all songs" filter, dead easy ...
-        val allSongsFilter = AllSongsFilter(mCachedCloudFiles.songFiles.asSequence().filter { !it.mFilterOnly }.toMutableList())
+        val allSongsFilter = AllSongsFilter(mCachedCloudItems
+                .songFiles
+                .asSequence()
+                .filter { !mCachedCloudItems.isFilterOnly(it) }
+                .toMutableList())
 
         // Depending on whether we have a temporary set list file, we can create a temporary
         // set list filter ...
-        val tempSetListFile = mCachedCloudFiles.setListFiles.firstOrNull { it.mFile == mTemporarySetListFile }
+        val tempSetListFile = mCachedCloudItems.setListFiles.firstOrNull { it.mFile == mTemporarySetListFile }
         val tempSetListFilter =
                 if (tempSetListFile != null)
-                    TemporarySetListFilter(tempSetListFile, mCachedCloudFiles.songFiles.toMutableList())
+                    TemporarySetListFilter(tempSetListFile, mCachedCloudItems.songFiles.toMutableList())
                 else
                     null
 
         // Same thing for MIDI alias files ... there's always at least ONE (default aliases), but
         // if there aren't any more, don't bother creating a filter.
         val midiAliasFilesFilter =
-                if (mCachedCloudFiles.midiAliasFiles.size > 1)
+                if (mCachedCloudItems.midiAliasFiles.size > 1)
                     MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
                 else
                     null
@@ -998,7 +1003,7 @@ class SongListActivity
         val cs = Storage.getInstance(Preferences.storageSystem, this)
         cs.cacheFolder.clear()
         mPlaylist = Playlist()
-        mCachedCloudFiles.clear()
+        mCachedCloudItems.clear()
         buildFilterList()
         try {
             writeDatabase()
@@ -1022,9 +1027,9 @@ class SongListActivity
         val nativeSettings = getSongDisplaySettings(scrollingMode)
         val sourceSettings = if (mimicDisplay) DisplaySettings(choiceInfo) else nativeSettings
 
-        for (sf in mCachedCloudFiles.songFiles)
+        for (sf in mCachedCloudItems.songFiles)
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
-                val track = mCachedCloudFiles.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
+                val track = mCachedCloudItems.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
                 val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
@@ -1084,7 +1089,7 @@ class SongListActivity
         val v = listView.getChildAt(0)
         mSavedListOffset = if (v == null) 0 else v.top - listView.paddingTop
 
-        mCachedCloudFiles = cache
+        mCachedCloudItems = cache
         try {
             writeDatabase()
             buildFilterList()
@@ -1205,7 +1210,7 @@ class SongListActivity
         private var mFullVersionUnlocked = false
 
         var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
-        var mCachedCloudFiles = CachedCloudCollection()
+        var mCachedCloudItems = CachedCloudCollection()
 
         private var mBeatPrompterDataFolder: File? = null
         var mBeatPrompterSongFilesFolder: File? = null

@@ -102,7 +102,7 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
             contents.sort()
 
             mCurrentFolder.mParentFolder?.also {
-                contents.add(0, FolderInfo(it.mParentFolder, it.mID, PARENT_DIR, it.mDisplayPath, it.mFilterOnly))
+                contents.add(0, FolderInfo(it.mParentFolder, it.mID, PARENT_DIR, it.mDisplayPath))
             }
 
             // refresh the user interface
@@ -173,7 +173,7 @@ internal class ChooseFolderDialog(private val mActivity: Activity,
         : AsyncTask<FolderInfo, Void, Void>() {
         override fun doInBackground(vararg args: FolderInfo): Void? {
             val folderToSearch = args[0]
-            mStorage.readFolderContents(folderToSearch, mFolderSearchListener, includeSubfolders = false, returnFolders = true)
+            mStorage.readFolderContents(folderToSearch, mFolderSearchListener, recurseSubfolders = false)
             return null
         }
     }

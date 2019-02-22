@@ -80,8 +80,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                                                                          internal val mListener: StorageListener,
                                                                          internal val mItemSource: PublishSubject<ItemInfo>,
                                                                          internal val mMessageSource: PublishSubject<String>,
-                                                                         internal val mIncludeSubfolders: Boolean,
-                                                                         internal val mReturnFolders: Boolean) : AsyncTask<Void, Void, Void>() {
+                                                                         internal val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg args: Void): Void? {
             val foldersToQuery = ArrayList<FolderInfo>()
@@ -97,11 +96,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                 mMessageSource.onNext(BeatPrompter.getResourceString(R.string.scanningFolder, if (firstFolder) "..." else currentFolderName))
                 firstFolder = false
 
-                val queryString = "trashed=false and '$currentFolderID' in parents" +
-                        if (!mIncludeSubfolders && !mReturnFolders)
-                            " and mimeType != '$GOOGLE_DRIVE_FOLDER_MIMETYPE'"
-                        else
-                            ""
+                val queryString = "trashed=false and '$currentFolderID' in parents"
                 try {
                     if (mListener.shouldCancel())
                         break
@@ -121,17 +116,16 @@ class GoogleDriveStorage(parentActivity: Activity)
                             Logger.log { "File ID: $fileID" }
                             val mimeType = child.mimeType
                             if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
-                                val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title), false)
-                                if (mIncludeSubfolders) {
+                                val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title))
+                                if (mRecurseSubfolders) {
                                     Logger.log("Adding folder to list of folders to query ...")
                                     foldersToQuery.add(newFolder)
                                 }
-                                if (mReturnFolders)
-                                    mItemSource.onNext(newFolder)
+                                mItemSource.onNext(newFolder)
                             } else {
                                 Logger.log { "File title: $title" }
                                 val newFile = FileInfo(fileID, title, Date(child.modifiedTime.value),
-                                        if (currentFolder.mParentFolder == null) listOf() else listOf(currentFolderID))
+                                        if (currentFolder.mParentFolder == null) "" else currentFolderID)
                                 mItemSource.onNext(newFile)
                             }
                         }
@@ -229,7 +223,7 @@ class GoogleDriveStorage(parentActivity: Activity)
     }
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_ROOT_PATH, GOOGLE_DRIVE_ROOT_PATH, false))
+        rootPathSource.onNext(FolderInfo(GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_ROOT_PATH, GOOGLE_DRIVE_ROOT_PATH))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
@@ -244,10 +238,10 @@ class GoogleDriveStorage(parentActivity: Activity)
         })
     }
 
-    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         doGoogleDriveAction(object : GoogleDriveAction {
             override fun onConnected(client: com.google.api.services.drive.Drive) {
-                ReadGoogleDriveFolderContentsTask(client, this@GoogleDriveStorage, folder, listener, itemSource, messageSource, includeSubfolders, returnFolders).execute()
+                ReadGoogleDriveFolderContentsTask(client, this@GoogleDriveStorage, folder, listener, itemSource, messageSource, recurseSubfolders).execute()
             }
 
             override fun onAuthenticationRequired() {

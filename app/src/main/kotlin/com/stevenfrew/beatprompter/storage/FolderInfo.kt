@@ -9,12 +9,11 @@ package com.stevenfrew.beatprompter.storage
 class FolderInfo(val mParentFolder: FolderInfo?,
                  id: String,
                  name: String,
-                 val mDisplayPath: String,
-                 val mFilterOnly: Boolean)
+                 val mDisplayPath: String)
     : ItemInfo(id, name) {
-    constructor(id: String, folderDisplayName: String, displayPath: String, filterOnly: Boolean)
-            : this(null, id, folderDisplayName, displayPath, filterOnly)
+    constructor(id: String, folderDisplayName: String, displayPath: String)
+            : this(null, id, folderDisplayName, displayPath)
 
     internal constructor(rootFolderIdentifier: String)
-            : this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier, false)
+            : this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier)
 }

@@ -42,10 +42,11 @@ abstract class Storage protected constructor(protected var mParentActivity: Acti
         return fullPath + itemName
     }
 
-    fun downloadFiles(filesToRefresh: MutableList<FileInfo>, listener: ItemDownloadListener) {
+    fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
+        val refreshFiles = filesToRefresh.toMutableList()
         for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
-            if (filesToRefresh.contains(defaultCloudDownload.mFileInfo))
-                filesToRefresh.remove(defaultCloudDownload.mFileInfo)
+            if (refreshFiles.contains(defaultCloudDownload.mFileInfo))
+                refreshFiles.remove(defaultCloudDownload.mFileInfo)
 
         val downloadSource = PublishSubject.create<DownloadResult>()
         mCompositeDisposable.add(downloadSource.subscribe({ listener.onItemDownloaded(it) }, { listener.onDownloadError(it) }, { listener.onDownloadComplete() }))
@@ -54,17 +55,17 @@ abstract class Storage protected constructor(protected var mParentActivity: Acti
         // Always include the temporary set list and default midi alias files.
         for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
             downloadSource.onNext(defaultCloudDownload)
-        downloadFiles(filesToRefresh, listener, downloadSource, messageSource)
+        downloadFiles(refreshFiles, listener, downloadSource, messageSource)
     }
 
-    fun readFolderContents(folder: FolderInfo, listener: FolderSearchListener, includeSubfolders: Boolean, returnFolders: Boolean) {
+    fun readFolderContents(folder: FolderInfo, listener: FolderSearchListener, recurseSubfolders: Boolean) {
         val folderContentsSource = PublishSubject.create<ItemInfo>()
         mCompositeDisposable.add(folderContentsSource.subscribe({ listener.onCloudItemFound(it) }, { listener.onFolderSearchError(it) }, { listener.onFolderSearchComplete() }))
         val messageSource = PublishSubject.create<String>()
         mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
         for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
             folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
-        readFolderContents(folder, listener, folderContentsSource, messageSource, includeSubfolders, returnFolders)
+        readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubfolders)
     }
 
     fun selectFolder(parentActivity: Activity, listener: FolderSelectionListener) {
@@ -102,7 +103,7 @@ abstract class Storage protected constructor(protected var mParentActivity: Acti
 
     protected abstract fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>)
 
-    protected abstract fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean)
+    protected abstract fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean)
 
     companion object {
         fun getInstance(storageType: StorageType, parentActivity: Activity): Storage {

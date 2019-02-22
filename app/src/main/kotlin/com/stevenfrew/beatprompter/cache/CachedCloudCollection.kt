@@ -15,50 +15,51 @@ import kotlin.reflect.full.findAnnotation
  * The file cache.
  */
 class CachedCloudCollection {
-    private var mItems = mutableListOf<CachedItem>()
+    private var mItems = mutableMapOf<String, CachedItem>()
+
+    val folders: List<CachedFolder>
+        get() =
+            mItems.values.filterIsInstance<CachedFolder>()
 
     val songFiles: List<SongFile>
         get() =
-            mItems.filterIsInstance<SongFile>()
+            mItems.values.filterIsInstance<SongFile>()
 
     val setListFiles: List<SetListFile>
         get() =
-            mItems.filterIsInstance<SetListFile>()
+            mItems.values.filterIsInstance<SetListFile>()
 
     val midiAliasFiles: List<MIDIAliasFile>
         get() =
-            mItems.filterIsInstance<MIDIAliasFile>()
+            mItems.values.filterIsInstance<MIDIAliasFile>()
 
     private val audioFiles: List<AudioFile>
         get() =
-            mItems.filterIsInstance<AudioFile>()
+            mItems.values.filterIsInstance<AudioFile>()
 
     private val imageFiles: List<ImageFile>
         get() =
-            mItems.filterIsInstance<ImageFile>()
+            mItems.values.filterIsInstance<ImageFile>()
 
     fun writeToXML(doc: Document, root: Element) {
-        for (ccf in mItems) {
-            doc.createElement(ccf::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
+        for (item in mItems.values) {
+            doc.createElement(item::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag)
                     .also {
-                        ccf.writeToXML(doc, it)
+                        item.writeToXML(doc, it)
                         root.appendChild(it)
                     }
         }
     }
 
-    private fun <TCachedCloudFileType : CachedFile> addToCollection(xmlDoc: Document,
+    private fun <TCachedCloudItemType : CachedItem> addToCollection(xmlDoc: Document,
                                                                     tagName: String,
-                                                                    parser: (cachedItem: Element) -> TCachedCloudFileType) {
+                                                                    parser: (cachedItem: Element) -> TCachedCloudItemType) {
         val elements = xmlDoc.getElementsByTagName(tagName)
         val folderTagName = CachedFolder::class.annotations.filterIsInstance<CacheXmlTag>().first().mTag
         repeat(elements.length) {
             val element = elements.item(it) as Element
             try {
-                if (element.tagName == folderTagName)
-                    add(CachedFolder(element))
-                else
-                    add(parser(element))
+                add(parser(element))
             } catch (ibpfe: InvalidBeatPrompterFileException) {
                 // This should never happen. If we could write out the file info, then it was valid.
                 // So it must still be valid when we come to read it in. Unless some dastardly devious sort
@@ -73,6 +74,9 @@ class CachedCloudCollection {
     fun readFromXML(xmlDoc: Document) {
         clear()
 
+        addToCollection(xmlDoc, CachedFolder::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
+            CachedFolder(element)
+        }
         addToCollection(xmlDoc, AudioFile::class.findAnnotation<CacheXmlTag>()!!.mTag) { element ->
             AudioFileParser(CachedFile(element)).parse()
         }
@@ -94,35 +98,35 @@ class CachedCloudCollection {
     }
 
     fun add(cachedItem: CachedItem) {
-        for (f in mItems.indices.reversed()) {
-            val existingFile = mItems[f]
-            if (cachedItem.mID.equals(existingFile.mID, ignoreCase = true)) {
-                mItems[f] = cachedItem
-                return
-            }
-        }
-        mItems.add(cachedItem)
+        mItems[cachedItem.mID] = cachedItem
+    }
+
+    fun updateLocations(fileInfo: FileInfo) {
+        val existingItem = mItems[fileInfo.mID]
+        existingItem?.mSubfolderIDs = fileInfo.mSubfolderIDs
     }
 
     fun remove(file: ItemInfo) {
-        mItems.removeAll { file.mID.equals(it.mID, ignoreCase = true) }
+        mItems.remove(file.mID)
     }
 
-    fun hasLatestVersionOf(file: FileInfo): Boolean {
-        return mItems.filterIsInstance<CachedFile>().any {
-            it.mID.equals(file.mID, ignoreCase = true)
-                    && it.mLastModified == file.mLastModified
-        }
+    fun compareWithCacheVersion(file: FileInfo): CacheComparisonResult {
+        val matchedItem = mItems[file.mID] ?: return CacheComparisonResult.Newer
+        if (matchedItem is CachedFile && matchedItem.mLastModified != file.mLastModified)
+            return CacheComparisonResult.Newer
+        if (file.mSubfolderIDs.size != matchedItem.mSubfolderIDs.size || !file.mSubfolderIDs.containsAll(matchedItem.mSubfolderIDs))
+            return CacheComparisonResult.Relocated
+        return CacheComparisonResult.Same
     }
 
     fun removeNonExistent(storageIDs: Set<String>) {
         // Delete no-longer-existing files.
-        mItems.filterIsInstance<CachedFile>().filter { !storageIDs.contains(it.mID) }.forEach { f ->
+        mItems.values.filterIsInstance<CachedFile>().filter { !storageIDs.contains(it.mID) }.forEach { f ->
             if (!f.mFile.delete())
                 Logger.log { "Failed to delete file: ${f.mFile.name}" }
         }
         // Keep remaining files.
-        mItems = mItems.filter { storageIDs.contains(it.mID) }.toMutableList()
+        mItems = mItems.filter { storageIDs.contains(it.value.mID) }.toMutableMap()
     }
 
     fun clear() {
@@ -165,10 +169,42 @@ class CachedCloudCollection {
         return filesToRefresh
     }
 
-    fun getFolderName(folderID: String): String? {
-        return mItems
-                .filterIsInstance<CachedFolder>()
-                .firstOrNull { it.mID == folderID }?.mName
+    private fun getParentFolderIDs(subfolderID: String): Set<String> {
+        val subfolderIDs = (mItems[subfolderID] as? CachedFolder)?.mSubfolderIDs ?: listOf()
+        return subfolderIDs.toMutableSet().also { resultSet ->
+            resultSet.toSet().forEach {
+                resultSet.addAll(getParentFolderIDs(it))
+            }
+        }
+    }
+
+    fun isFilterOnly(file: SongFile): Boolean {
+        if (file.mFilterOnly)
+            return true
+        // Now ... if any of the folders that the file is in contain a file called ".filter_only"
+        // then we treat this file as "filter only". This also applies to any parent folders of
+        // those folders.
+        val folderIDs = file.mSubfolderIDs.toMutableSet()
+        folderIDs.toSet().forEach {
+            folderIDs.addAll(getParentFolderIDs(it))
+        }
+        return mItems.values.any { it.mName.equals(".filter_only", true) && it.mSubfolderIDs.intersect(folderIDs).isNotEmpty() }
+    }
+
+    private fun getSubfolderIDs(folderID: String): Set<String> {
+        val subfolderIDs = folders.filter { it.mSubfolderIDs.contains(folderID) }.map { it.mID }.toMutableSet()
+        subfolderIDs.toSet().forEach {
+            subfolderIDs.addAll(getSubfolderIDs(it))
+        }
+        return subfolderIDs
+    }
+
+    fun getSongsInFolder(folder: CachedFolder): List<SongFile> {
+        val subfolderIDs = mutableSetOf(folder.mID)
+        subfolderIDs.toSet().forEach {
+            subfolderIDs.addAll(getSubfolderIDs(it))
+        }
+        return songFiles.filter { it.mSubfolderIDs.intersect(subfolderIDs).isNotEmpty() }
     }
 
     internal val midiAliases: List<Alias>

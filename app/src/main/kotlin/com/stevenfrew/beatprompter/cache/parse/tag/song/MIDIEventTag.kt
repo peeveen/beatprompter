@@ -33,7 +33,7 @@ class MIDIEventTag internal constructor(name: String,
 
     init {
         val parsedEvent = parseMIDIEvent(name,
-                value, lineNumber, SongListActivity.mCachedCloudFiles.midiAliases)
+                value, lineNumber, SongListActivity.mCachedCloudItems.midiAliases)
         mMessages = parsedEvent.first
         mOffset = parsedEvent.second
     }

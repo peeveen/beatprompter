@@ -10,8 +10,8 @@ import org.w3c.dom.Element
 abstract class CachedItem {
     val mID: String
     val mName: String
-    val mSubfolderIDs: List<String>
     val mNormalizedName: String
+    var mSubfolderIDs: List<String>
 
     constructor(id: String,
                 name: String,

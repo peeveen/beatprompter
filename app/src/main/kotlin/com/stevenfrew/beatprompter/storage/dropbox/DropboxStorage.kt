@@ -100,7 +100,7 @@ class DropboxStorage(parentActivity: Activity)
         return localfile
     }
 
-    private fun readFolderContents(client: DbxClientV2, folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    private fun readFolderContents(client: DbxClientV2, folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         val foldersToSearch = ArrayList<FolderInfo>()
         foldersToSearch.add(folder)
 
@@ -126,14 +126,13 @@ class DropboxStorage(parentActivity: Activity)
                             val filename = mdata.name.toLowerCase()
                             if (isSuitableFileToDownload(filename))
                                 itemSource.onNext(FileInfo(mdata.id, mdata.name, mdata.serverModified,
-                                        if (folderToSearch.mParentFolder == null) listOf() else listOf(currentFolderID)))
+                                        if (folderToSearch.mParentFolder == null) "" else currentFolderID))
                         } else if (mdata is FolderMetadata) {
                             Logger.log("Adding folder to list of folders to query ...")
-                            val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay(), false)
-                            if (includeSubfolders)
+                            val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay())
+                            if (recurseSubfolders)
                                 foldersToSearch.add(newFolder)
-                            if (returnFolders)
-                                itemSource.onNext(newFolder)
+                            itemSource.onNext(newFolder)
                         }
                     }
                     if (listener.shouldCancel())
@@ -180,10 +179,10 @@ class DropboxStorage(parentActivity: Activity)
         })
     }
 
-    public override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    public override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         doDropboxAction(object : DropboxAction {
             override fun onConnected(client: DbxClientV2) {
-                readFolderContents(client, folder, listener, itemSource, messageSource, includeSubfolders, returnFolders)
+                readFolderContents(client, folder, listener, itemSource, messageSource, recurseSubfolders)
             }
 
             override fun onAuthenticationRequired() {
@@ -193,7 +192,7 @@ class DropboxStorage(parentActivity: Activity)
     }
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo("", DROPBOX_ROOT_PATH, DROPBOX_ROOT_PATH, false))
+        rootPathSource.onNext(FolderInfo("", DROPBOX_ROOT_PATH, DROPBOX_ROOT_PATH))
     }
 
     companion object {

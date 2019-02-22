@@ -27,7 +27,7 @@ class DemoStorage(parentActivity: Activity)
         get() = R.drawable.ic_dropbox
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(null, "/", "", "", false))
+        rootPathSource.onNext(FolderInfo(null, "/", "", ""))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
@@ -49,7 +49,7 @@ class DemoStorage(parentActivity: Activity)
         itemSource.onComplete()
     }
 
-    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         itemSource.apply {
             onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))
             onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date()))

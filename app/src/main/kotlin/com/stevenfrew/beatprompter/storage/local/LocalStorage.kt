@@ -25,7 +25,7 @@ class LocalStorage(parentActivity: Activity)
         get() = R.drawable.ic_device
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(null, Environment.getExternalStorageDirectory().path, "/", "/", false))
+        rootPathSource.onNext(FolderInfo(null, Environment.getExternalStorageDirectory().path, "/", "/"))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
@@ -38,7 +38,7 @@ class LocalStorage(parentActivity: Activity)
         itemSource.onComplete()
     }
 
-    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
+    override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
         val foldersToSearch = mutableListOf(folder)
         while (foldersToSearch.isNotEmpty()) {
             val folderToSearch = foldersToSearch.removeAt(0)
@@ -47,11 +47,10 @@ class LocalStorage(parentActivity: Activity)
             try {
                 val files = localFolder.listFiles()
                 if (files != null) {
-                    files.filter { it.isFile }.map { FileInfo(it.absolutePath, it.name, Date(it.lastModified()), listOf(it.absolutePath)) }.forEach { itemSource.onNext(it) }
-                    if (includeSubfolders)
-                        foldersToSearch.addAll(files.filter { it.isDirectory }.map { FolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath, false) })
-                    if (returnFolders)
-                        files.filter { it.isDirectory }.map { FolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath, false) }.forEach { itemSource.onNext(it) }
+                    files.filter { it.isFile }.map { FileInfo(it.absolutePath, it.name, Date(it.lastModified()), it.absolutePath) }.forEach { itemSource.onNext(it) }
+                    if (recurseSubfolders)
+                        foldersToSearch.addAll(files.filter { it.isDirectory }.map { FolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath) })
+                    files.filter { it.isDirectory }.map { FolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath) }.forEach { itemSource.onNext(it) }
                 }
             } catch (e: Exception) {
                 itemSource.onError(e)
