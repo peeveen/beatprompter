@@ -773,21 +773,23 @@ class SongListActivity
             it.mTags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
         }
 
-        val folderDictionaries = HashMap<String, MutableList<SongFile>>()
+        val folderDictionaries = HashMap<String, List<SongFile>>()
         mCachedCloudItems.folders.forEach {
-            folderDictionaries[it.mName] = mCachedCloudItems.getSongsInFolder(it).toMutableList()
+            mCachedCloudItems.getSongsInFolder(it).let { songList ->
+                if (songList.isNotEmpty())
+                    folderDictionaries[it.mName] = songList
+            }
         }
-        val nonEmptyFolderDictionaries = folderDictionaries.filter { it.value.isNotEmpty() }
 
         tagDictionaries.forEach {
             tagAndFolderFilters.add(TagFilter(it.key, it.value))
         }
-        nonEmptyFolderDictionaries.forEach {
+        folderDictionaries.forEach {
             tagAndFolderFilters.add(FolderFilter(it.key, it.value))
         }
         tagAndFolderFilters.addAll(mCachedCloudItems.setListFiles.mapNotNull {
             if (it.mFile != mTemporarySetListFile)
-                SetListFileFilter(it, mCachedCloudItems.songFiles.toMutableList())
+                SetListFileFilter(it, mCachedCloudItems.songFiles)
             else
                 null
         })
@@ -798,14 +800,14 @@ class SongListActivity
                 .songFiles
                 .asSequence()
                 .filter { !mCachedCloudItems.isFilterOnly(it) }
-                .toMutableList())
+                .toList())
 
         // Depending on whether we have a temporary set list file, we can create a temporary
         // set list filter ...
         val tempSetListFile = mCachedCloudItems.setListFiles.firstOrNull { it.mFile == mTemporarySetListFile }
         val tempSetListFilter =
                 if (tempSetListFile != null)
-                    TemporarySetListFilter(tempSetListFile, mCachedCloudItems.songFiles.toMutableList())
+                    TemporarySetListFilter(tempSetListFile, mCachedCloudItems.songFiles)
                 else
                     null
 
