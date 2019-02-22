@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.midi.SongTrigger
+import com.stevenfrew.beatprompter.song.ScrollingMode
 
 @ParseTags(TimeTag::class, ImageTag::class, MIDISongSelectTriggerTag::class, MIDIProgramChangeTriggerTag::class,
         TitleTag::class, ArtistTag::class, KeyTag::class, PauseTag::class, TagTag::class, FilterOnlyTag::class,
@@ -17,8 +17,8 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor)
-    : SongFileParser<SongFile>(cachedCloudFileDescriptor, ScrollingMode.Beat, false, false) {
+class SongInfoParser constructor(cachedCloudFile: CachedFile)
+    : SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, false) {
     private var mTitle: String? = null
     private var mArtist: String? = null
     private var mKey: String? = null
@@ -104,7 +104,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor
 
     override fun getResult(): SongFile {
         if (mTitle.isNullOrBlank())
-            throw InvalidBeatPrompterFileException(R.string.noTitleFound, mCachedCloudFileDescriptor.mName)
+            throw InvalidBeatPrompterFileException(R.string.noTitleFound, mCachedCloudFile.mName)
         if (mArtist.isNullOrBlank())
             mArtist = ""
         val key =
@@ -116,7 +116,7 @@ class SongInfoParser constructor(cachedCloudFileDescriptor: CachedFileDescriptor
                 else
                     mKey!!
 
-        return SongFile(mCachedCloudFileDescriptor, mLines, mBars, mTitle!!, mArtist!!, key, mBPM, mDuration, mMixedMode, mTotalPause, mAudioFiles, mImageFiles, mTags.toSet(), mMIDIProgramChangeTrigger
+        return SongFile(mCachedCloudFile, mLines, mBars, mTitle!!, mArtist!!, key, mBPM, mDuration, mMixedMode, mTotalPause, mAudioFiles, mImageFiles, mTags.toSet(), mMIDIProgramChangeTrigger
                 ?: SongTrigger.DEAD_TRIGGER, mMIDISongSelectTrigger
                 ?: SongTrigger.DEAD_TRIGGER, mFilterOnly, mErrors)
     }

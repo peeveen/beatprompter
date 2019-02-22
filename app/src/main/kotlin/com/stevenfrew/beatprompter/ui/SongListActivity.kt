@@ -586,8 +586,8 @@ class SongListActivity
 
         mDefaultDownloads.apply {
             clear()
-            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date(), ""), mTemporarySetListFile!!))
-            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date(), ""), mDefaultMidiAliasesFile!!))
+            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterTemporarySetList", "BeatPrompterTemporarySetList", Date()), mTemporarySetListFile!!))
+            add(SuccessfulDownloadResult(FileInfo("idBeatPrompterDefaultMidiAliases", getString(R.string.default_alias_set_name), Date()), mDefaultMidiAliasesFile!!))
         }
 
         if (previousSongFilesFolder != null)
@@ -772,8 +772,11 @@ class SongListActivity
         val folderDictionaries = HashMap<String, MutableList<SongFile>>()
         for (song in mCachedCloudFiles.songFiles) {
             song.mTags.forEach { tagDictionaries.getOrPut(it) { mutableListOf() }.add(song) }
-            if (!song.mSubfolder.isNullOrBlank())
-                folderDictionaries.getOrPut(song.mSubfolder) { mutableListOf() }.add(song)
+            song.mSubfolderIDs.forEach { subfolderID ->
+                mCachedCloudFiles.getFolderName(subfolderID)?.also { folderName ->
+                    folderDictionaries.getOrPut(folderName) { mutableListOf() }.add(song)
+                }
+            }
         }
         tagDictionaries.forEach {
             tagAndFolderFilters.add(TagFilter(it.key, it.value))
@@ -1075,7 +1078,7 @@ class SongListActivity
         }
     }
 
-    internal fun onCacheUpdated(cache: CachedCloudFileCollection) {
+    internal fun onCacheUpdated(cache: CachedCloudCollection) {
         val listView = findViewById<ListView>(R.id.listView)
         mSavedListIndex = listView.firstVisiblePosition
         val v = listView.getChildAt(0)
@@ -1112,7 +1115,7 @@ class SongListActivity
                 Events.MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
                 Events.CLEAR_CACHE -> mSongList.clearCache(true)
                 Events.CACHE_UPDATED -> {
-                    val cache = msg.obj as CachedCloudFileCollection
+                    val cache = msg.obj as CachedCloudCollection
                     mSongList.onCacheUpdated(cache)
                 }
                 Events.CONNECTION_ADDED -> {
@@ -1202,7 +1205,7 @@ class SongListActivity
         private var mFullVersionUnlocked = false
 
         var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
-        var mCachedCloudFiles = CachedCloudFileCollection()
+        var mCachedCloudFiles = CachedCloudCollection()
 
         private var mBeatPrompterDataFolder: File? = null
         var mBeatPrompterSongFilesFolder: File? = null

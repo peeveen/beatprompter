@@ -20,7 +20,6 @@ import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 
 /**
@@ -82,10 +81,10 @@ class OneDriveStorage(parentActivity: Activity)
                             if (child.file != null) {
                                 if (isSuitableFileToDownload(child))
                                     mItemSource.onNext(FileInfo(child.id, child.name, child.lastModifiedDateTime.time,
-                                            if (nextFolder.mParentFolder == null) null else nextFolder.mName))
+                                            if (nextFolder.mParentFolder == null) listOf() else listOf(nextFolder.mID)))
                             } else if (child.folder != null) {
                                 val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
-                                val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
+                                val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath, false)
                                 if (mIncludeSubfolders) {
                                     Logger.log("Adding folder to list of folders to query ...")
                                     folders.add(newFolder)
@@ -134,7 +133,7 @@ class OneDriveStorage(parentActivity: Activity)
                             break
                         val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
                         val updatedCloudFile = FileInfo(file.mID, driveFile.name, driveFile.lastModifiedDateTime.time,
-                                file.mSubfolder)
+                                file.mSubfolderIDs)
                         result = SuccessfulDownloadResult(updatedCloudFile, localFile)
                     } else
                         result = FailedDownloadResult(file)
@@ -193,7 +192,7 @@ class OneDriveStorage(parentActivity: Activity)
     private class GetOneDriveRootFolderTask internal constructor(internal var mClient: IOneDriveClient) : AsyncTask<Void, Void, FolderInfo>() {
         override fun doInBackground(vararg args: Void): FolderInfo {
             val rootFolder = mClient.drive.root.buildRequest().get()
-            return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)
+            return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH, false)
         }
     }
 

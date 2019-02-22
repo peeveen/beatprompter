@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
+import com.stevenfrew.beatprompter.cache.CachedFolder
 import com.stevenfrew.beatprompter.ui.SongListActivity
 
 /**
@@ -20,10 +21,9 @@ class DownloadTask(private val mStorage: Storage,
     : AsyncTask<String, String, Boolean>(), FolderSearchListener, ItemDownloadListener {
     private var mProgressDialog: ProgressDialog? = null
     private var mErrorOccurred = false
-    private var mFilesToUpdate = filesToUpdate?.asSequence()?.map { ftu -> FileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolder) }?.toMutableList()
+    private var mFilesToUpdate = filesToUpdate?.asSequence()?.map { ftu -> FileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolderIDs) }?.toMutableList()
             ?: mutableListOf()
-    private val mCloudFilesFound = mutableListOf<FileInfo>()
-    private val mCloudFilesToDownload = mutableListOf<FileInfo>()
+    private var mCloudItemsFound = mutableListOf<ItemInfo>()
 
     private val isRefreshingSelectedFiles: Boolean
         get() = !mFilesToUpdate.isEmpty()
@@ -61,12 +61,7 @@ class DownloadTask(private val mStorage: Storage,
     }
 
     override fun onCloudItemFound(item: ItemInfo) {
-        // We're only interested in downloading files.
-        if (item is FileInfo) {
-            mCloudFilesFound.add(item)
-            if (!SongListActivity.mCachedCloudFiles.hasLatestVersionOf(item))
-                mCloudFilesToDownload.add(item)
-        }
+        mCloudItemsFound.add(item)
     }
 
     override fun onFolderSearchError(t: Throwable) {
@@ -77,7 +72,32 @@ class DownloadTask(private val mStorage: Storage,
     }
 
     override fun onFolderSearchComplete() {
-        mStorage.downloadFiles(mCloudFilesToDownload, this)
+        val itemsWithSubfolderIDsPopulated =
+                mCloudItemsFound
+                        .filterIsInstance<FileInfo>()
+                        .groupBy { it.mID }
+                        .map {
+                            val allSubfolderIDs = it.value.mapNotNull { item -> item.mSubfolderIDs.firstOrNull() }
+                            FileInfo(it.key, it.value.first().mName, it.value.first().mLastModified, allSubfolderIDs)
+                        }
+
+        mCloudItemsFound.filterIsInstance<FolderInfo>().forEach {
+            val parentFolderID = it.mParentFolder?.mID
+            val parentFolderIDs = if (parentFolderID == null) listOf() else listOf(parentFolderID)
+            SongListActivity.mCachedCloudFiles.add(CachedFolder(it.mID, it.mName, it.mFilterOnly, parentFolderIDs))
+        }
+
+        // TODO: Don't download if it's just the subfolders or filter_only status that have changed.
+        mCloudItemsFound = itemsWithSubfolderIDsPopulated.toMutableList()
+        val cloudFilesToDownload =
+                mCloudItemsFound
+                        .filterIsInstance<FileInfo>()
+                        .filter {
+                            !SongListActivity.mCachedCloudFiles.hasLatestVersionOf(it)
+                        }
+                        .toMutableList()
+
+        mStorage.downloadFiles(cloudFilesToDownload, this)
     }
 
     override fun onItemDownloaded(result: DownloadResult) {
@@ -100,7 +120,7 @@ class DownloadTask(private val mStorage: Storage,
 
     override fun onDownloadComplete() {
         if (!isRefreshingSelectedFiles)
-            SongListActivity.mCachedCloudFiles.removeNonExistent(mCloudFilesFound.asSequence().map { c -> c.mID }.toSet())
+            SongListActivity.mCachedCloudFiles.removeNonExistent(mCloudItemsFound.asSequence().map { c -> c.mID }.toSet())
         mHandler.obtainMessage(Events.CACHE_UPDATED, SongListActivity.mCachedCloudFiles).sendToTarget()
         if (mProgressDialog != null)
             mProgressDialog!!.dismiss()

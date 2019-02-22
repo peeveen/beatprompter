@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.storage
 
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFile
 import java.io.File
 
 /**
@@ -10,5 +10,11 @@ import java.io.File
 class SuccessfulDownloadResult(fileInfo: FileInfo,
                                private val mDownloadedFile: File)
     : DownloadResult(fileInfo) {
-    val cachedCloudFileDescriptor get() = CachedFileDescriptor(mDownloadedFile, mFileInfo)
+    val cachedCloudFileDescriptor
+        get() =
+            CachedFile(mDownloadedFile,
+                    mFileInfo.mID,
+                    mFileInfo.mName,
+                    mFileInfo.mLastModified,
+                    mFileInfo.mSubfolderIDs)
 }

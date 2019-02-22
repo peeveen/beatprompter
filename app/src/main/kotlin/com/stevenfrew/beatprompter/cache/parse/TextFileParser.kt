@@ -1,10 +1,10 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.parse.tag.*
-import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
+import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.util.removeControlCharacters
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
@@ -14,16 +14,16 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for text file parsers.
  */
-abstract class TextFileParser<TFileResult>(cachedCloudFileDescriptor: CachedFileDescriptor,
+abstract class TextFileParser<TFileResult>(cachedCloudFile: CachedFile,
                                            private val mReportUnexpectedTags: Boolean,
                                            private vararg val mTagFinders: TagFinder)
-    : FileParser<TFileResult>(cachedCloudFileDescriptor) {
+    : FileParser<TFileResult>(cachedCloudFile) {
     final override fun parse(): TFileResult {
         val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
         var lineNumber = 0
         val fileTags = mutableSetOf<KClass<out Tag>>()
         val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
-        mCachedCloudFileDescriptor.mFile.forEachLine { strLine ->
+        mCachedCloudFile.mFile.forEachLine { strLine ->
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
             // Ignore empty lines and comments

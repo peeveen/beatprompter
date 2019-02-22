@@ -1,18 +1,18 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.set.SetListEntry
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SetListFile
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.set.SetNameTag
+import com.stevenfrew.beatprompter.set.SetListEntry
 
 @ParseTags(SetNameTag::class)
 /**
  * Parser for set list files.
  */
-class SetListFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
-    : TextFileParser<SetListFile>(cachedCloudFileDescriptor, true, DirectiveFinder) {
+class SetListFileParser(cachedCloudFile: CachedFile)
+    : TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
     private var mSetName: String = ""
     private val mSetListEntries = mutableListOf<SetListEntry>()
 
@@ -34,6 +34,6 @@ class SetListFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     override fun getResult(): SetListFile {
         if (mSetName.isBlank())
             throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
-        return SetListFile(mCachedCloudFileDescriptor, mSetName, mSetListEntries, mErrors)
+        return SetListFile(mCachedCloudFile, mSetName, mSetListEntries, mErrors)
     }
 }

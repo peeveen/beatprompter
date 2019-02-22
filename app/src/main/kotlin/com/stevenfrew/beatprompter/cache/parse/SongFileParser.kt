@@ -1,19 +1,21 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
-import com.stevenfrew.beatprompter.cache.parse.tag.find.*
+import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.CachedFile
+import com.stevenfrew.beatprompter.cache.parse.tag.find.ChordFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.find.ShorthandFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.song.*
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
 /**
  * Base class for song file parsing.
  */
-abstract class SongFileParser<TResultType>(cachedCloudFileDescriptor: CachedFileDescriptor,
+abstract class SongFileParser<TResultType>(cachedCloudFile: CachedFile,
                                            initialScrollMode: ScrollingMode,
                                            private val mAllowModeChange: Boolean,
                                            reportUnexpectedTags: Boolean)
-    : TextFileParser<TResultType>(cachedCloudFileDescriptor, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
+    : TextFileParser<TResultType>(cachedCloudFile, reportUnexpectedTags, DirectiveFinder, ChordFinder, ShorthandFinder) {
     protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
     protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
 

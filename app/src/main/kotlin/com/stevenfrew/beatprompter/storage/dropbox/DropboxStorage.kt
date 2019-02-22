@@ -66,7 +66,7 @@ class DropboxStorage(parentActivity: Activity)
                         break
                     val localFile = downloadDropboxFile(client, mdata, targetFile)
                     val updatedCloudFile = FileInfo(file.mID, mdata.name, mdata.serverModified,
-                            file.mSubfolder)
+                            file.mSubfolderIDs)
                     SuccessfulDownloadResult(updatedCloudFile, localFile)
                 } else
                     FailedDownloadResult(file)
@@ -126,10 +126,10 @@ class DropboxStorage(parentActivity: Activity)
                             val filename = mdata.name.toLowerCase()
                             if (isSuitableFileToDownload(filename))
                                 itemSource.onNext(FileInfo(mdata.id, mdata.name, mdata.serverModified,
-                                        if (folderToSearch.mParentFolder == null) null else currentFolderName))
+                                        if (folderToSearch.mParentFolder == null) listOf() else listOf(currentFolderID)))
                         } else if (mdata is FolderMetadata) {
                             Logger.log("Adding folder to list of folders to query ...")
-                            val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay())
+                            val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay(), false)
                             if (includeSubfolders)
                                 foldersToSearch.add(newFolder)
                             if (returnFolders)
@@ -193,7 +193,7 @@ class DropboxStorage(parentActivity: Activity)
     }
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo("", DROPBOX_ROOT_PATH, DROPBOX_ROOT_PATH))
+        rootPathSource.onNext(FolderInfo("", DROPBOX_ROOT_PATH, DROPBOX_ROOT_PATH, false))
     }
 
     companion object {

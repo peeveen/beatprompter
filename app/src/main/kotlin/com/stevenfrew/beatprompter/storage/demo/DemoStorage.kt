@@ -4,8 +4,8 @@ import android.app.Activity
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.ui.SongListActivity
 import io.reactivex.subjects.PublishSubject
 import java.io.*
 import java.util.*
@@ -27,7 +27,7 @@ class DemoStorage(parentActivity: Activity)
         get() = R.drawable.ic_dropbox
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(null, "/", "", ""))
+        rootPathSource.onNext(FolderInfo(null, "/", "", "", false))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
@@ -51,8 +51,8 @@ class DemoStorage(parentActivity: Activity)
 
     override fun readFolderContents(folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, includeSubfolders: Boolean, returnFolders: Boolean) {
         itemSource.apply {
-            onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date(), ""))
-            onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date(), ""))
+            onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))
+            onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date()))
             onComplete()
         }
     }

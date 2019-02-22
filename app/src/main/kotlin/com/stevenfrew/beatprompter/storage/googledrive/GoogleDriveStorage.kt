@@ -121,7 +121,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                             Logger.log { "File ID: $fileID" }
                             val mimeType = child.mimeType
                             if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
-                                val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title))
+                                val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title), false)
                                 if (mIncludeSubfolders) {
                                     Logger.log("Adding folder to list of folders to query ...")
                                     foldersToQuery.add(newFolder)
@@ -131,7 +131,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                             } else {
                                 Logger.log { "File title: $title" }
                                 val newFile = FileInfo(fileID, title, Date(child.modifiedTime.value),
-                                        if (currentFolder.mParentFolder == null) null else currentFolderName)
+                                        if (currentFolder.mParentFolder == null) listOf() else listOf(currentFolderID))
                                 mItemSource.onNext(newFile)
                             }
                         }
@@ -175,7 +175,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                             break
                         val localFile = downloadGoogleDriveFile(file, safeFilename)
                         val updatedCloudFile = FileInfo(cloudFile.mID, file.name, Date(file.modifiedTime.value),
-                                cloudFile.mSubfolder)
+                                cloudFile.mSubfolderIDs)
                         SuccessfulDownloadResult(updatedCloudFile, localFile)
                     } else
                         FailedDownloadResult(cloudFile)
@@ -229,7 +229,7 @@ class GoogleDriveStorage(parentActivity: Activity)
     }
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_ROOT_PATH, GOOGLE_DRIVE_ROOT_PATH))
+        rootPathSource.onNext(FolderInfo(GOOGLE_DRIVE_ROOT_FOLDER_ID, GOOGLE_DRIVE_ROOT_PATH, GOOGLE_DRIVE_ROOT_PATH, false))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {

@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedFileDescriptor
+import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
@@ -16,8 +16,8 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Parser for MIDI alias files.
  */
-class MIDIAliasFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
-    : TextFileParser<MIDIAliasFile>(cachedCloudFileDescriptor, false, DirectiveFinder) {
+class MIDIAliasFileParser(cachedCloudFile: CachedFile)
+    : TextFileParser<MIDIAliasFile>(cachedCloudFile, false, DirectiveFinder) {
 
     private var mAliasSetName: String? = null
     private var mCurrentAliasName: String? = null
@@ -46,7 +46,7 @@ class MIDIAliasFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     }
 
     override fun getResult(): MIDIAliasFile {
-        return MIDIAliasFile(mCachedCloudFileDescriptor, getAliasSet(), mErrors)
+        return MIDIAliasFile(mCachedCloudFile, getAliasSet(), mErrors)
     }
 
     private fun startNewAlias(aliasNameTag: MIDIAliasNameTag) {
@@ -120,7 +120,7 @@ class MIDIAliasFileParser(cachedCloudFileDescriptor: CachedFileDescriptor)
     private fun getAliasSet(): AliasSet {
         finishCurrentAlias()
         if (mAliasSetName == null)
-            throw InvalidBeatPrompterFileException(R.string.not_a_valid_midi_alias_file, mCachedCloudFileDescriptor.mName)
+            throw InvalidBeatPrompterFileException(R.string.not_a_valid_midi_alias_file, mCachedCloudFile.mName)
         return AliasSet(mAliasSetName!!, mAliases)
     }
 }
