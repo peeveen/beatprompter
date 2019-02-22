@@ -164,7 +164,7 @@ class CachedCloudCollection {
         folderIDs.toSet().forEach {
             folderIDs.addAll(getParentFolderIDs(it))
         }
-        return mItems.values.any { it.mName.equals(".filter_only", true) && it.mSubfolderIDs.intersect(folderIDs).isNotEmpty() }
+        return mItems.values.any { it.mName.equals(FILTER_ONLY_FILENAME, true) && it.mSubfolderIDs.intersect(folderIDs).isNotEmpty() }
     }
 
     private fun getSubfolderIDs(folderID: String): Set<String> {
@@ -189,6 +189,8 @@ class CachedCloudCollection {
         }
 
     companion object {
+        const val FILTER_ONLY_FILENAME = ".filter_only"
+
         val PARSINGS = listOf<Pair<KClass<out CachedItem>, (item: Element) -> CachedItem>>(
                 CachedFolder::class to { element -> CachedFolder(element) },
                 AudioFile::class to { element -> AudioFileParser(CachedFile(element)).parse() },
