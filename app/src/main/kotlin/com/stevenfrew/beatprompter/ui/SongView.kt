@@ -69,7 +69,7 @@ class SongView
     private val mShowScrollIndicator: Boolean
     private val mShowSongTitle: Boolean
     private val mCommentDisplayTimeNanoseconds: Long
-    private val mMediaPlayers = mutableMapOf<AudioFile, MediaPlayer>()
+    private lateinit var mMediaPlayers: Map<AudioFile, MediaPlayer>
     private val mSilenceMediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.silence)
 
     private var mPulse: Boolean
@@ -169,11 +169,39 @@ class SongView
             mMetronomeOn = metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
         }
 
-        mSilenceMediaPlayer.isLooping = true
-        mSilenceMediaPlayer.setVolume(0.01f, 0.01f)
-        mSilenceMediaPlayer.start()
+        if (song.mAudioEvents.any()) {
+            mSilenceMediaPlayer.isLooping = true
+            mSilenceMediaPlayer.setVolume(0.01f, 0.01f)
+            mSilenceMediaPlayer.start()
+        }
 
-        song.mAudioEvents.forEach {
+        val mediaPlayerMap = song.mAudioEvents.associateBy(
+                { it.mAudioFile },
+                {
+                    try {
+                        MediaPlayer().apply {
+                            FileInputStream(it.mAudioFile.mFile.absolutePath)
+                                    .use { stream ->
+                                        setDataSource(stream.fd)
+                                        prepare()
+                                        seekTo(0)
+                                        setVolume(0.01f * it.mVolume, 0.01f * it.mVolume)
+                                        isLooping = false
+                                    }
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+        )
+
+        if (mediaPlayerMap.any { it.value == null })
+            Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
+
+        @Suppress("UNCHECKED_CAST")
+        mMediaPlayers = mediaPlayerMap.filterValues { it != null } as Map<AudioFile, MediaPlayer>
+
+/*        song.mAudioEvents.forEach {
             mMediaPlayers[it.mAudioFile] = MediaPlayer().apply {
                 try {
                     FileInputStream(it.mAudioFile.mFile.absolutePath)
@@ -188,7 +216,7 @@ class SongView
                     Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
                 }
             }
-        }
+        }*/
 
         mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
         mCurrentBeatCountRect.apply {
