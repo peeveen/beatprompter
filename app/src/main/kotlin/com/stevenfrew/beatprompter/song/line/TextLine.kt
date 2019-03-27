@@ -450,10 +450,10 @@ class TextLine internal constructor(private val mText: String,
         val backgroundColor = if (mInChorusSection) mChorusHighlightColor else 0x0000ffff
         repeat(mMeasurements.mLines) { lineNumber ->
             val graphic = mGraphics[lineNumber]
+            val canvas = mCanvasses[lineNumber]
             if (graphic.mLastDrawnLine !== this) {
                 val chordsDrawn = if (mChordsDrawn.size > lineNumber) mChordsDrawn[lineNumber] else true
                 val thisLineHeight = mMeasurements.mGraphicHeights[lineNumber]
-                val c = Canvas(graphic.bitmap)
                 var currentX = 0
                 var g = 0
                 while (g < mXSplits.size && g < lineNumber) {
@@ -461,7 +461,7 @@ class TextLine internal constructor(private val mText: String,
                     ++g
                 }
                 paint.typeface = mFont
-                c.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
+                canvas.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > lineNumber) mXSplits[lineNumber] else Integer.MAX_VALUE
                 mSections.forEach {
                     if (currentX < xSplit) {
@@ -471,22 +471,22 @@ class TextLine internal constructor(private val mText: String,
                                 paint.color = if (it.mTrueChord) mChordColor else mAnnotationColor
                                 paint.textSize = mChordTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                c.drawText(it.mChordText, currentX.toFloat(), mChordHeight.toFloat(), paint)
+                                canvas.drawText(it.mChordText, currentX.toFloat(), mChordHeight.toFloat(), paint)
                             }
-                            c.save()
+                            canvas.save()
                             if (xSplit != Integer.MAX_VALUE)
-                                c.clipRect(0, 0, xSplit, thisLineHeight)
+                                canvas.clipRect(0, 0, xSplit, thisLineHeight)
                             if (it.mLineText.trim().isNotEmpty()) {
                                 paint.color = mLyricColor
                                 paint.textSize = mLineTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                c.drawText(it.mLineText, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
+                                canvas.drawText(it.mLineText, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
                             }
                             for ((left, _, right, _, color) in it.mHighlightingRectangles) {
                                 paint.color = color
-                                c.drawRect(Rect(left + currentX, if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0, right + currentX, (if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight + mLineDescenderOffset), paint)
+                                canvas.drawRect(Rect(left + currentX, if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0, right + currentX, (if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight + mLineDescenderOffset), paint)
                             }
-                            c.restore()
+                            canvas.restore()
                         }
                         currentX += width
                     }

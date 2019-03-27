@@ -410,11 +410,8 @@ class SongView
             false
         else if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
             mSongPixelPosition = mScroller.currY
-            //if (mSong.mSongScrollingMode != SongScrollingMode.Manual)
-            run {
-                val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
-                setSongTime(songTime, mStartState === PlayState.Paused, broadcast = true, setPixelPosition = false, recalculateManualPositions = true)
-            }
+            val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
+            setSongTime(songTime, mStartState === PlayState.Paused, broadcast = true, setPixelPosition = false, recalculateManualPositions = true)
             true
         } else {
             if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition) {

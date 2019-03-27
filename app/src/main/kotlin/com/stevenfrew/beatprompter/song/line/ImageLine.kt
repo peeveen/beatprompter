@@ -43,9 +43,9 @@ class ImageLine internal constructor(mImageFile: ImageFile,
     override fun renderGraphics(paint: Paint) {
         repeat(mMeasurements.mLines) {
             val graphic = mGraphics[it]
+            val canvas = mCanvasses[it]
             if (graphic.mLastDrawnLine !== this) {
-                val c = Canvas(graphic.bitmap)
-                c.drawBitmap(mBitmap, mSourceRect, mDestinationRect, paint)
+                canvas.drawBitmap(mBitmap, mSourceRect, mDestinationRect, paint)
                 graphic.mLastDrawnLine = this
             }
         }

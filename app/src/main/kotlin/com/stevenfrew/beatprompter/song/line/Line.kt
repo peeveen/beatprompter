@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.song.line
 
+import android.graphics.Canvas
 import android.graphics.Paint
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
@@ -16,7 +17,8 @@ abstract class Line internal constructor(val mLineTime: Long,
     internal var mPrevLine: Line? = null
     internal var mNextLine: Line? = null
     abstract val mMeasurements: LineMeasurements
-    protected var mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
+    protected val mGraphics = mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
+    protected val mCanvasses = mutableListOf<Canvas>()
 
     internal abstract fun renderGraphics(paint: Paint)
 
@@ -51,6 +53,7 @@ abstract class Line internal constructor(val mLineTime: Long,
 
     internal fun allocateGraphic(graphic: LineGraphic) {
         mGraphics.add(graphic)
+        mCanvasses.add(Canvas(graphic.bitmap))
     }
 
     internal fun getGraphics(paint: Paint): List<LineGraphic> {
@@ -60,6 +63,7 @@ abstract class Line internal constructor(val mLineTime: Long,
 
     internal open fun recycleGraphics() {
         mGraphics.forEach { it.recycle() }
+        mCanvasses.clear()
     }
 
     internal fun isFullyOnScreen(currentSongPixelPosition: Int): Boolean {
