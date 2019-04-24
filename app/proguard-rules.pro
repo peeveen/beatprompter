@@ -33,6 +33,7 @@
 # Google Drive stuff that ProGuard doesn't realise we actually need.
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
+-keep class com.google.api.client.googleapis.** {*;}
 # Kotlin ... still to figure out why this is needed.
 -keep public class kotlin.** { *; }
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
