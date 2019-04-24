@@ -27,9 +27,7 @@
 -keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.find.Type { *; }
 # And the constructors for the tag classes are only executed via reflection, so ProGuard
 # thinks they are never called. We have to tell it otherwise.
--keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.song.* { <init>(...); }
--keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.midialias.* { <init>(...); }
--keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.set.* { <init>(...); }
+-keep class com.stevenfrew.beatprompter.cache.parse.tag.** {*;}
 # Google Drive stuff that ProGuard doesn't realise we actually need.
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
