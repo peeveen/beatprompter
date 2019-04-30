@@ -104,7 +104,7 @@ class DropboxStorage(parentActivity: Activity)
         val foldersToSearch = ArrayList<FolderInfo>()
         foldersToSearch.add(folder)
 
-        while (!foldersToSearch.isEmpty()) {
+        while (foldersToSearch.isNotEmpty()) {
             if (listener.shouldCancel())
                 break
             val folderToSearch = foldersToSearch.removeAt(0)

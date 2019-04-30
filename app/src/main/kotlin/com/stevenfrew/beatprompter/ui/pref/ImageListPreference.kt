@@ -45,8 +45,7 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
     public override fun onBindView(view: View) {
         super.onBindView(view)
         val imageView = view.findViewById<ImageView>(R.id.iconImageView)
-        val value = Preferences.getStringPreference(key, "")
-        val iconResource = when (value) {
+        val iconResource = when (Preferences.getStringPreference(key, "")) {
             BeatPrompter.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
             BeatPrompter.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
             BeatPrompter.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive

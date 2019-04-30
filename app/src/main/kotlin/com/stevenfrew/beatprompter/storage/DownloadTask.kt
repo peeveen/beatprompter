@@ -27,7 +27,7 @@ class DownloadTask(private val mStorage: Storage,
     private var mCloudItemsFound = mutableMapOf<String, ItemInfo>()
 
     private val isRefreshingSelectedFiles: Boolean
-        get() = !mFilesToUpdate.isEmpty()
+        get() = mFilesToUpdate.isNotEmpty()
 
     override fun doInBackground(vararg paramParams: String): Boolean? {
         if (isRefreshingSelectedFiles)

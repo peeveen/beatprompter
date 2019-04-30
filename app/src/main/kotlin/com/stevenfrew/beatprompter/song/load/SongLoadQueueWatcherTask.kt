@@ -87,11 +87,10 @@ object SongLoadQueueWatcherTask : Task(true) {
 
         // If the song-display activity is currently active, then try to interrupt
         // the current song with this one. If not possible, don't bother.
-        val interruptResult = SongDisplayActivity.interruptCurrentSong(loadJob)
         // A result of CannotInterrupt means that the current song refuses to stop. In which case, we can't load.
         // A result of CanInterrupt means that the current song has been instructed to end and, once it has, it will load the new one.
         // A result of NoSongToInterrupt, however, means full steam ahead.
-        when (interruptResult) {
+        when (SongDisplayActivity.interruptCurrentSong(loadJob)) {
             SongInterruptResult.NoSongToInterrupt -> {
                 synchronized(mSongLoadLock)
                 {
@@ -114,7 +113,7 @@ object SongLoadQueueWatcherTask : Task(true) {
             if (mSongToLoadOnResume != null) {
                 val loadJob = mSongToLoadOnResume!!
                 mSongToLoadOnResume = null
-                SongLoadQueueWatcherTask.loadSong(loadJob)
+                loadSong(loadJob)
             }
         }
     }

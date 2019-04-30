@@ -179,8 +179,7 @@ class SongListActivity
     }
 
     private fun shouldPlayNextSong(): Boolean {
-        val playNextSongPref = Preferences.playNextSong
-        return when (playNextSongPref) {
+        return when (Preferences.playNextSong) {
             getString(R.string.playNextSongAlwaysValue) -> true
             getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
             else -> false

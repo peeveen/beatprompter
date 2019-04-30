@@ -67,7 +67,7 @@ class OneDriveStorage(parentActivity: Activity)
             val folders = ArrayList<FolderInfo>()
             folders.add(mFolder)
 
-            while (!folders.isEmpty()) {
+            while (folders.isNotEmpty()) {
                 if (mListener.shouldCancel())
                     break
                 val nextFolder = folders.removeAt(0)

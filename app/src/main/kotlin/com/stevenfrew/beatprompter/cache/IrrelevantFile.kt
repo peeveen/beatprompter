@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter.cache
 
-import org.w3c.dom.Element
-
 @CacheXmlTag("irrelevantfile")
 /**
  * A file in our cache that we won't be processing in any way.

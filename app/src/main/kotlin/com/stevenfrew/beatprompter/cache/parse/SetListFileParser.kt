@@ -27,7 +27,7 @@ class SetListFileParser(cachedCloudFile: CachedFile)
                 mErrors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
             else
                 mSetName = setNameTag.mSetName
-        } else if (!line.mLineWithNoTags.isEmpty())
+        } else if (line.mLineWithNoTags.isNotEmpty())
             mSetListEntries.add(SetListEntry(line.mLineWithNoTags))
     }
 

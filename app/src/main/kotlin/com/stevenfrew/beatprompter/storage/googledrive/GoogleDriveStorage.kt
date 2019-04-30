@@ -87,7 +87,7 @@ class GoogleDriveStorage(parentActivity: Activity)
             foldersToQuery.add(mFolder)
 
             var firstFolder = true
-            while (!foldersToQuery.isEmpty()) {
+            while (foldersToQuery.isNotEmpty()) {
                 if (mListener.shouldCancel())
                     break
                 val currentFolder = foldersToQuery.removeAt(0)

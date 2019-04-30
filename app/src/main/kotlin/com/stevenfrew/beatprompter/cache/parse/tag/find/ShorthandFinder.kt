@@ -14,10 +14,9 @@ object ShorthandFinder
                     else -> {
                         val lastIndex = text.length - 1
                         // Look for the FIRST ending chevron
-                        val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
+                        when (val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
                             text[it] != '<' && text[it] != '>'
-                        }
-                        when (firstNonChevronIndex) {
+                        }) {
                             // Entire string was chevrons
                             null -> 0
                             // Last character was NOT a chevron

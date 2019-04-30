@@ -117,7 +117,7 @@ class MIDIEventTag internal constructor(name: String,
 
         private fun parseMIDIEventOffset(offsetString: String, lineNumber: Int): EventOffset {
             val trimmedOffsetString = offsetString.trim()
-            if (!trimmedOffsetString.isEmpty()) {
+            if (trimmedOffsetString.isNotEmpty()) {
                 try {
                     return try {
                         EventOffset(trimmedOffsetString.toInt(),

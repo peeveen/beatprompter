@@ -27,7 +27,7 @@ abstract class TextFileParser<TFileResult>(cachedCloudFile: CachedFile,
             ++lineNumber
             val txt = strLine.trim().removeControlCharacters()
             // Ignore empty lines and comments
-            if (!txt.isEmpty() && !txt.startsWith('#')) {
+            if (txt.isNotEmpty() && !txt.startsWith('#')) {
                 val textLine = TextFileLine(txt, lineNumber, tagParseHelper, this)
                 val lineTags = mutableSetOf<KClass<out Tag>>()
                 textLine.mTags.forEach { tag ->
