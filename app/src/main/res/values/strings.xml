@@ -19,9 +19,9 @@
     <string name="version" translatable="false">v1.35</string>
     <string name="app_name">BeatPrompter</string>
     <string name="author_name" translatable="false">Steven Frew</string>
-    <string name="author_email" translatable="false">Email: steve@beatprompter.co.uk</string>
+    <string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
     <string name="author_twitter" translatable="false">Twitter: @beatprompter</string>
-    <string name="docs_url" translatable="false">www.beatprompter.co.uk</string>
+    <string name="docs_url" translatable="false">tinyurl.com/beatprompterdocs</string>
     <string name="google_drive_string" translatable="false">Google Drive</string>
     <string name="local_storage_string">Local Storage</string>
     <string name="dropbox_string" translatable="false">Dropbox</string>
