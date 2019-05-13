@@ -451,6 +451,10 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // OK, now sort all events by time, and type within time
         val sortedEventList = sortEvents(offsetEventList).toMutableList()
 
+        // Songs need a "first event" to have as their "current event". Without this, the initial
+        // "current event" could be the EndEvent!
+        sortedEventList.add(0, StartEvent)
+
         // Now we need to figure out which lines should NOT scroll offscreen.
         val noScrollLines = mutableListOf<Line>()
         val lastLineIsBeat = mLines.lastOrNull()?.mScrollMode == ScrollingMode.Beat
