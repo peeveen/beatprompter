@@ -335,7 +335,6 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
     <string name="image_too_large">La imagen después de la escala excede el tamaño máximo de 8192 x 8192. Ignorando la línea.</string>
     <string name="midi_alias_has_no_components">Se ha definido un alias MIDI con solo un nombre.</string>
     <string name="multiple_channel_args">Un alias MIDI solo puede tener un valor de canal.</string>
-    <string name="multiple_audio_tags_on_song_line">Solo puede usar múltiples etiquetas {audio} en una línea antes de la primera línea de una canción.</string>
     <string name="no_midi_alias_name_defined">Se encontraron instrucciones, pero aún no se ha definido ningún nombre de alias MIDI.</string>
     <string name="no_midi_alias_set_name_defined">Un archivo de alias MIDI debe contener una definición de nombre de conjunto {midi_aliases}.</string>
     <string name="multipleFilenameMatches">Hay varios archivos en el caché que coinciden con el nombre de archivo \'{%1$s}\'.</string>

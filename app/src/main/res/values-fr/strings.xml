@@ -335,7 +335,6 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="image_too_large">L\'image après la mise à l\'échelle dépasse la taille maximale de 8192 x 8192. Ligne ignorée.</string>
     <string name="midi_alias_has_no_components">Un alias MIDI a été défini avec seulement un nom.</string>
     <string name="multiple_channel_args">Un alias MIDI ne peut avoir qu\'une seule valeur de canal.</string>
-    <string name="multiple_audio_tags_on_song_line">Vous ne pouvez utiliser que plusieurs balises {audio} sur une ligne avant la première ligne d\'une chanson.</string>
     <string name="no_midi_alias_name_defined">Instructions trouvées, mais aucun nom d\'alias MIDI n\'a encore été défini.</string>
     <string name="no_midi_alias_set_name_defined">Un fichier d\'alias MIDI doit contenir une définition de nom de jeu {midi_aliases}.</string>
     <string name="multipleFilenameMatches">Il y a plusieurs fichiers dans le cache qui correspondent au nom de fichier \'{%1$s}\'.</string>

@@ -335,7 +335,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="image_too_large">L\'immagine dopo il ridimensionamento supera la dimensione massima di 8192 x 8192. Linea di ignoranza.</string>
     <string name="midi_alias_has_no_components">Un alias MIDI è stato definito con un solo nome.</string>
     <string name="multiple_channel_args">Un alias MIDI può avere solo un valore di canale.</string>
-    <string name="multiple_audio_tags_on_song_line">Puoi utilizzare solo più tag {audio} su una riga prima della prima riga di un brano.</string>
     <string name="no_midi_alias_name_defined">Istruzioni trovate, ma nessun nome alias MIDI è stato ancora definito.</string>
     <string name="no_midi_alias_set_name_defined">Un file alias MIDI deve contenere una definizione del nome del set {midi_aliases}.</string>
     <string name="multipleFilenameMatches">Ci sono più file nella cache che corrispondono al nome del file \'{%1$s}\'.</string>

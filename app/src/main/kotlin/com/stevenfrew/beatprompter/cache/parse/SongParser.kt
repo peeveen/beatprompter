@@ -191,16 +191,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                         }
                     }
 
-        val audioTagsThisLine = tags.filterIsInstance<AudioTag>()
-        // If there are multiple {audio} tags on a line, and we've actually reached song content, add an error.
-        // You should only be allowed to define multiple {audio} tags in the pre-song section.
-        if (mStopAddingStartupItems) {
-            if (audioTagsThisLine.size > 1) {
-                mErrors.add(FileParseError(line.mLineNumber, R.string.multiple_audio_tags_on_song_line))
-                mAudioTags.add(audioTagsThisLine.first())
-            }
-        } else
-            mAudioTags.addAll(audioTagsThisLine)
+        mAudioTags.addAll(tags.filterIsInstance<AudioTag>())
 
         // If a line has a number of bars defined, we really should treat it as a line, even if
         // is blank.
@@ -233,29 +224,30 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 mCountIn = 0
             }
 
-            val audioTag =
+            val audioTagsToProcess =
                     when {
-                        mStopAddingStartupItems -> audioTagsThisLine.firstOrNull()
-                        mSongLoadInfo.mTrack == null -> mAudioTags.firstOrNull()
-                        else -> mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack.mNormalizedName }
+                        mStopAddingStartupItems -> mAudioTags.toList()
+                        mSongLoadInfo.mTrack == null -> listOf(mAudioTags.firstOrNull())
+                        else -> listOf(mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack.mNormalizedName })
                     }
             mAudioTags.clear()
 
-            if (audioTag != null && !mSongLoadInfo.mNoAudio) {
-                // Make sure file exists.
-                val mappedTracks = SongListActivity.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
-                if (mappedTracks.isEmpty())
-                    mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
-                else if (mappedTracks.size > 1)
-                    mErrors.add(FileParseError(audioTag, R.string.multipleFilenameMatches, audioTag.mFilename))
-                else {
-                    val audioFile = mappedTracks.first()
-                    if (!audioFile.mFile.exists())
+            if (!mSongLoadInfo.mNoAudio)
+                audioTagsToProcess.filterNotNull().forEach { audioTag ->
+                    // Make sure file exists.
+                    val mappedTracks = SongListActivity.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
+                    if (mappedTracks.isEmpty())
                         mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
-                    else
-                        mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume, !mStopAddingStartupItems))
+                    else if (mappedTracks.size > 1)
+                        mErrors.add(FileParseError(audioTag, R.string.multipleFilenameMatches, audioTag.mFilename))
+                    else {
+                        val audioFile = mappedTracks.first()
+                        if (!audioFile.mFile.exists())
+                            mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
+                        else
+                            mEvents.add(AudioEvent(mSongTime, audioFile, audioTag.mVolume, !mStopAddingStartupItems))
+                    }
                 }
-            }
 
             // Any comments or MIDI events from here will be part of the song,
             // rather than startup events.

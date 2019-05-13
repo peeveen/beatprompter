@@ -335,7 +335,6 @@ Em]zeigt den Beat Progression.\n
     <string name="image_too_large">Das Bild nach der Skalierung überschreitet die maximale Größe von 8192 x 8192. Ignorieren der Linie.</string>
     <string name="midi_alias_has_no_components">Ein MIDI-Alias wurde nur mit einem Namen definiert.</string>
     <string name="multiple_channel_args">Ein MIDI-Alias kann nur einen Kanalwert haben.</string>
-    <string name="multiple_audio_tags_on_song_line">Sie können nur mehrere {audio} -Tags in einer Zeile vor der ersten Zeile eines Songs verwenden.</string>
     <string name="no_midi_alias_name_defined">Anweisungen gefunden, aber noch kein MIDI-Aliasname definiert.</string>
     <string name="no_midi_alias_set_name_defined">Eine MIDI-Aliasdatei muss eine {midi_aliases} Setnamendefinition enthalten.</string>
     <string name="multipleFilenameMatches">Der Cache enthält mehrere Dateien, die dem Dateinamen \'{%1$s}\' entsprechen.</string>
