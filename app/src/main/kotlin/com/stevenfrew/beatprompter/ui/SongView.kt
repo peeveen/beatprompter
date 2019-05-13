@@ -265,30 +265,11 @@ class SongView
                 val beatTime = (beatTimePassed % mNanosecondsPerBeat).toDouble()
                 beatPercent = beatTime / mNanosecondsPerBeat
             }
-            if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
-                var event: LinkedEvent?
-                do {
-                    event = mSong!!.getNextEvent(timePassed)
-                    if (event != null) {
-                        val innerEvent = event.mEvent
-                        if (innerEvent is CommentEvent)
-                            processCommentEvent(innerEvent, time)
-                        else if (innerEvent is BeatEvent)
-                            processBeatEvent(innerEvent, true)
-                        else if (innerEvent is MIDIEvent)
-                            processMIDIEvent(innerEvent)
-                        else if (innerEvent is PauseEvent)
-                            processPauseEvent(innerEvent)
-                        else if (innerEvent is LineEvent)
-                            processLineEvent(innerEvent)
-                        else if (innerEvent is AudioEvent)
-                            processAudioEvent(innerEvent)
-                        else if (innerEvent is EndEvent)
-                            if (processEndEvent())
-                                return
-                    }
-                } while (event != null)
-            }
+
+            if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual)
+                if (processSongEvents(time, timePassed))
+                    return
+
             showTempMessage = time - mLastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
             if (mLastCommentEvent != null)
                 if (time - mLastCommentTime < mCommentDisplayTimeNanoseconds)
@@ -403,6 +384,28 @@ class SongView
             invalidate()  // Force a re-draw
         else if (mSong != null)
             drawTitleScreen(canvas)
+    }
+
+    private fun processSongEvents(time: Long, timePassed: Long): Boolean {
+        var event: LinkedEvent?
+        do {
+            event = mSong!!.getNextEvent(timePassed)
+            if (event != null) {
+                when (val innerEvent = event.mEvent) {
+                    is CommentEvent -> processCommentEvent(innerEvent, time)
+                    is BeatEvent -> processBeatEvent(innerEvent, true)
+                    is MIDIEvent -> processMIDIEvent(innerEvent)
+                    is PauseEvent -> processPauseEvent(innerEvent)
+                    is LineEvent -> processLineEvent(innerEvent)
+                    is AudioEvent -> processAudioEvent(innerEvent)
+                    is EndEvent -> {
+                        processEndEvent()
+                        return true
+                    }
+                }
+            }
+        } while (event != null)
+        return false
     }
 
     private fun calculateScrolling(): Boolean {
@@ -751,12 +754,9 @@ class SongView
         return true
     }
 
-    private fun processEndEvent(): Boolean {
-        // Only end the song in beat mode.
-        val end = mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Beat
-        if (end)
-            endSong(false)
-        return end
+    private fun processEndEvent() {
+        // Only end the song in non-manual mode.
+        endSong(false)
     }
 
     private fun endSong(skipped: Boolean) {
