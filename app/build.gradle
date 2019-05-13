@@ -12,7 +12,7 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
         targetSdkVersion 28
-        versionCode 509
+        versionCode 512
         versionName "1.35"
         resConfigs "en", "fr", "pt", "de", "es", "it"
     }

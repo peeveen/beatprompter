@@ -28,7 +28,8 @@
 # And the constructors for the tag classes are only executed via reflection, so ProGuard
 # thinks they are never called. We have to tell it otherwise.
 -keep class com.stevenfrew.beatprompter.cache.parse.tag.** {*;}
-# Google Drive stuff that ProGuard doesn't realise we actually need.
+# Cloud storage stuff that ProGuard incorrectly reckons we don't need.
+-keep class com.onedrive.sdk.extensions.** {*;}
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
 -keep class com.google.api.client.googleapis.** {*;}
