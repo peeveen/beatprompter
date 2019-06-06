@@ -463,26 +463,29 @@ class TextLine internal constructor(private val mText: String,
                 paint.typeface = mFont
                 canvas.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > lineNumber) mXSplits[lineNumber] else Integer.MAX_VALUE
-                mSections.forEach {
+                for (i in 0 until mSections.size) {
+                    val section = mSections[i]
                     if (currentX < xSplit) {
-                        val width = it.width
+                        val width = section.width
                         if (currentX + width > 0) {
-                            if (chordsDrawn && (it.mChordDrawLine == lineNumber || it.mChordDrawLine == -1) && currentX < xSplit && it.mChordText.trim().isNotEmpty()) {
-                                paint.color = if (it.mTrueChord) mChordColor else mAnnotationColor
+                            if (chordsDrawn && (section.mChordDrawLine == lineNumber || section.mChordDrawLine == -1) && currentX < xSplit && section.mChordText.trim().isNotEmpty()) {
+                                paint.color = if (section.mTrueChord) mChordColor else mAnnotationColor
                                 paint.textSize = mChordTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                canvas.drawText(it.mChordText, currentX.toFloat(), mChordHeight.toFloat(), paint)
+                                canvas.drawText(section.mChordText, currentX.toFloat(), mChordHeight.toFloat(), paint)
                             }
                             canvas.save()
                             if (xSplit != Integer.MAX_VALUE)
                                 canvas.clipRect(0, 0, xSplit, thisLineHeight)
-                            if (it.mLineText.trim().isNotEmpty()) {
+                            if (section.mLineText.trim().isNotEmpty()) {
                                 paint.color = mLyricColor
                                 paint.textSize = mLineTextSize * Utils.FONT_SCALING
                                 paint.flags = Paint.ANTI_ALIAS_FLAG
-                                canvas.drawText(it.mLineText, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
+                                canvas.drawText(section.mLineText, currentX.toFloat(), ((if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight).toFloat(), paint)
                             }
-                            for ((left, _, right, _, color) in it.mHighlightingRectangles) {
+                            for (j in 0 until section.mHighlightingRectangles.size) {
+                                val highlightingRectangle = section.mHighlightingRectangles[j]
+                                val (left, _, right, _, color) = highlightingRectangle
                                 paint.color = color
                                 canvas.drawRect(Rect(left + currentX, if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0, right + currentX, (if (chordsDrawn) mChordHeight + mChordDescenderOffset else 0) + mLyricHeight + mLineDescenderOffset), paint)
                             }
