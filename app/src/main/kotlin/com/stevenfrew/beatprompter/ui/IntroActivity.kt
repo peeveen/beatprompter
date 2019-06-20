@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
 import com.github.paolorotolo.appintro.AppIntroFragment
 import com.github.paolorotolo.appintro.model.SliderPage

@@ -12,9 +12,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.os.ParcelUuid
-import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode

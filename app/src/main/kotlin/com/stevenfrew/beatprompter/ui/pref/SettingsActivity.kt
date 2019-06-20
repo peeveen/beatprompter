@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.ui.pref
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 
 class SettingsActivity : AppCompatActivity() {

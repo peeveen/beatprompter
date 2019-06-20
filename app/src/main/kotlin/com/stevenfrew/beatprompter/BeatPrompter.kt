@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
 import android.preference.PreferenceManager
-import android.support.multidex.MultiDex
+import androidx.multidex.MultiDex
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask

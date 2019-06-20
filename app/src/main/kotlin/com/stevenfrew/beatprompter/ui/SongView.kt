@@ -6,13 +6,13 @@ import android.graphics.*
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.view.GestureDetectorCompat
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
