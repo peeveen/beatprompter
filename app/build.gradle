@@ -3,15 +3,15 @@ apply plugin: 'kotlin-android'
 apply plugin: 'project-report'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.1'
 
     defaultConfig {
         applicationId "com.stevenfrew.beatprompter"
         minSdkVersion 23
         // Enabling multidex support.
         multiDexEnabled true
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 512
         versionName "1.35"
         resConfigs "en", "fr", "pt", "de", "es", "it"
