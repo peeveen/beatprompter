@@ -39,7 +39,8 @@ internal class Playlist {
     }
 
     fun shuffle() {
-        buildSongList(songFiles.sortedBy { Random.Default.nextDouble() })
+        val randomizedSongs = songFiles.map { it to Random.Default.nextDouble() }
+        buildSongList(randomizedSongs.sortedBy { it.second }.map { it.first })
     }
 
     private fun buildSongList(songs: List<SongFile>) {
