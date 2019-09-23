@@ -52,7 +52,7 @@ object MIDIController {
                 attemptUsbMidiConnection()
             }
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
-                intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE).apply {
+                intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)?.apply {
                     mSenderTask.removeSender(deviceName)
                     mReceiverTasks.stopAndRemoveReceiver(deviceName)
                 }

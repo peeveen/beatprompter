@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.set
 
 import com.stevenfrew.beatprompter.cache.SongFile
+import kotlin.random.Random
 
 internal class Playlist {
     private val mItems = mutableListOf<PlaylistNode>()
@@ -35,6 +36,10 @@ internal class Playlist {
 
     fun sortByDateModified() {
         buildSongList(songFiles.sortedByDescending { it.mLastModified })
+    }
+
+    fun shuffle() {
+        buildSongList(songFiles.sortedBy { Random.Default.nextDouble() })
     }
 
     private fun buildSongList(songs: List<SongFile>) {

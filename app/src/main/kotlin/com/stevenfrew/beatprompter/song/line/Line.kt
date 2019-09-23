@@ -38,7 +38,7 @@ abstract class Line internal constructor(val mLineTime: Long,
         if (time == 0L)
             return 0
         val lineEndTime = if (mNextLine == null) Long.MAX_VALUE else mNextLine!!.mLineTime
-        if (time in mLineTime..(lineEndTime - 1))
+        if (time in mLineTime until lineEndTime)
             return calculatePixelFromTime(time)
         if (time < mLineTime && mPrevLine != null)
             return mPrevLine!!.getPixelFromTime(time)

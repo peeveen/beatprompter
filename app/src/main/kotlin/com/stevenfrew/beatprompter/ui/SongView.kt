@@ -29,6 +29,7 @@ import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
 import java.io.FileInputStream
+import kotlin.math.*
 
 class SongView
     : AppCompatImageView,
@@ -69,7 +70,7 @@ class SongView
     private val mShowScrollIndicator: Boolean
     private val mShowSongTitle: Boolean
     private val mCommentDisplayTimeNanoseconds: Long
-    private lateinit var mMediaPlayers: Map<AudioFile, MediaPlayer>
+    private var mMediaPlayers = mapOf<AudioFile, MediaPlayer>()
     private val mSilenceMediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.silence)
 
     private var mPulse: Boolean
@@ -259,9 +260,9 @@ class SongView
         val time = System.nanoTime()
 
         if (mStartState === PlayState.Playing && !scrolling) {
-            timePassed = Math.max(0, time - mSongStartTime)
+            timePassed = max(0, time - mSongStartTime)
             if (mLastBeatTime > 0) {
-                val beatTimePassed = Math.max(0, time - mLastBeatTime)
+                val beatTimePassed = max(0, time - mLastBeatTime)
                 val beatTime = (beatTimePassed % mNanosecondsPerBeat).toDouble()
                 beatPercent = beatTime / mNanosecondsPerBeat
             }
@@ -300,7 +301,7 @@ class SongView
                         if (currentLine.mScrollMode === ScrollingMode.Smooth) {
                             val remainingSongHeight = mSong!!.mHeight - currentLine.mSongPixelPosition
                             val remainingScreenHeight = mSong!!.mDisplaySettings.mScreenSize.height() - currentY
-                            yScrollOffset = Math.min((currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt(), remainingSongHeight - remainingScreenHeight)
+                            yScrollOffset = min((currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt(), remainingSongHeight - remainingScreenHeight)
                         } else if (currentLine.mScrollMode === ScrollingMode.Beat)
                             yScrollOffset = currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
                     }
@@ -319,7 +320,7 @@ class SongView
                         firstLineOnscreen = currentLine
                     val graphics = currentLine.getGraphics(mPaint)
                     val lineTop = currentY
-                    for (f in 0 until graphics.size) {
+                    for (f in graphics.indices) {
                         val graphic = graphics[f]
                         val sourceRect = currentLine.mMeasurements.mGraphicRectangles[f]
                         mDestinationGraphicRect.set(sourceRect)
@@ -347,7 +348,7 @@ class SongView
                     mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
                     currentY = startY - prevLine.mMeasurements.mLineHeight
                     val graphics = prevLine.getGraphics(mPaint)
-                    for (f in 0 until graphics.size) {
+                    for (f in graphics.indices) {
                         val graphic = graphics[f]
                         canvas.drawBitmap(graphic.bitmap, 0f, currentY.toFloat(), mPaint)
                         currentY += prevLine.mMeasurements.mGraphicHeights[f]
@@ -418,9 +419,9 @@ class SongView
             true
         } else {
             if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition) {
-                val diff = Math.min(2048, Math.max(-2048, mTargetPixelPosition - mSongPixelPosition))
-                val absDiff = Math.abs(diff)
-                val targetAcceleration = Math.min(mAccelerations[absDiff - 1], absDiff)
+                val diff = min(2048, max(-2048, mTargetPixelPosition - mSongPixelPosition))
+                val absDiff = abs(diff)
+                val targetAcceleration = min(mAccelerations[absDiff - 1], absDiff)
                 if (mTargetAcceleration * 2 < targetAcceleration)
                     mTargetAcceleration *= 2
                 else
@@ -442,7 +443,7 @@ class SongView
         canvas.drawColor(Color.BLACK)
         val midX = mSong!!.mDisplaySettings.mScreenSize.width() shr 1
         val fifteenPercent = mSong!!.mDisplaySettings.mScreenSize.height() * 0.15f
-        var startY = Math.floor(((mSong!!.mDisplaySettings.mScreenSize.height() - mSong!!.mTotalStartScreenTextHeight) / 2).toDouble()).toInt()
+        var startY = floor(((mSong!!.mDisplaySettings.mScreenSize.height() - mSong!!.mTotalStartScreenTextHeight) / 2).toDouble()).toInt()
         val nextSongSS = mSong!!.mNextSongString
         if (nextSongSS != null) {
             mPaint.color = if (mSkipping) Color.RED else Color.WHITE
@@ -540,9 +541,9 @@ class SongView
             mLastCommentEvent!!.mComment.draw(canvas, mPaint, mCommentTextColor)
     }
 
-    private fun startToggle(e: MotionEvent?, midiInitiated: Boolean, playState: PlayState) {
+    private fun startToggle(playState: PlayState) {
         mStartState = playState
-        startToggle(e, midiInitiated)
+        startToggle(null, false)
     }
 
     private fun startBackingTrack(): Boolean {
@@ -782,7 +783,7 @@ class SongView
     fun processBluetoothToggleStartStopMessage(startStopInfo: ToggleStartStopMessage.StartStopToggleInfo) {
         if (startStopInfo.mTime >= 0)
             setSongTime(startStopInfo.mTime, redraw = true, broadcast = false, setPixelPosition = true, recalculateManualPositions = true)
-        startToggle(null, false, startStopInfo.mStartState)
+        startToggle(startStopInfo.mStartState)
     }
 
     private fun seekTrack(audioFile: AudioFile, time: Int): MediaPlayer? {
@@ -870,8 +871,8 @@ class SongView
         if (mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) {
             clearScrollTarget()
             mSongPixelPosition += distanceY.toInt()
-            mSongPixelPosition = Math.max(0, mSongPixelPosition)
-            mSongPixelPosition = Math.min(mSong!!.mScrollEndPixel, mSongPixelPosition)
+            mSongPixelPosition = max(0, mSongPixelPosition)
+            mSongPixelPosition = min(mSong!!.mScrollEndPixel, mSongPixelPosition)
             pauseOnScrollStart()
             setSongTime(mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition), redraw = true, broadcast = true, setPixelPosition = false, recalculateManualPositions = true)
         } else if (mScreenAction == ScreenAction.Volume) {
@@ -899,8 +900,8 @@ class SongView
     }
 
     private fun onVolumeChanged() {
-        mCurrentVolume = Math.max(0, mCurrentVolume)
-        mCurrentVolume = Math.min(100, mCurrentVolume)
+        mCurrentVolume = max(0, mCurrentVolume)
+        mCurrentVolume = min(100, mCurrentVolume)
         mMediaPlayers.values.forEach {
             it.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
         }
@@ -1070,7 +1071,7 @@ class SongView
             }
 
             // And take the greater of the two.
-            val pageUpPosition = Math.max(defaultPageUpScrollPosition, manualModeBlockStartPosition)
+            val pageUpPosition = max(defaultPageUpScrollPosition, manualModeBlockStartPosition)
 
             // Now for page-down. Bit trickier.
             // Again, we might be using the "default scroll" amount.
@@ -1131,7 +1132,7 @@ class SongView
 
             // Phew! Got there in the end.
             // Never scroll beyond the pre-calculated end point (though this should never happen).
-            pageDownPosition = Math.min(mSong!!.mScrollEndPixel, pageDownPosition)
+            pageDownPosition = min(mSong!!.mScrollEndPixel, pageDownPosition)
 
             mManualScrollPositions.mPageUpPosition = pageUpPosition
             mManualScrollPositions.mPageDownPosition = pageDownPosition
@@ -1235,7 +1236,7 @@ class SongView
 
         init {
             repeat(2048) {
-                mAccelerations[it] = Math.ceil(Math.sqrt((it + 1).toDouble()) * 2.0).toInt()
+                mAccelerations[it] = ceil(sqrt((it + 1).toDouble()) * 2.0).toInt()
             }
         }
 

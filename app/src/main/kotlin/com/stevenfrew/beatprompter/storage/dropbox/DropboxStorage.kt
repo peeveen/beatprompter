@@ -123,7 +123,7 @@ class DropboxStorage(parentActivity: Activity)
                         if (listener.shouldCancel())
                             break
                         if (mdata is FileMetadata) {
-                            val filename = mdata.name.toLowerCase()
+                            val filename = mdata.name.toLowerCase(Locale.getDefault())
                             if (isSuitableFileToDownload(filename))
                                 itemSource.onNext(FileInfo(mdata.id, mdata.name, mdata.serverModified,
                                         if (folderToSearch.mParentFolder == null) "" else currentFolderID))

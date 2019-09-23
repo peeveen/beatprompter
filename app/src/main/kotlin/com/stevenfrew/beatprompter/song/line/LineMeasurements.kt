@@ -3,6 +3,8 @@ package com.stevenfrew.beatprompter.song.line
 import android.graphics.Rect
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.util.Utils
+import kotlin.math.max
+import kotlin.math.min
 
 class LineMeasurements internal constructor(internal val mLines: Int,
                                             internal val mLineWidth: Int,
@@ -18,10 +20,10 @@ class LineMeasurements internal constructor(internal val mLines: Int,
 
     init {
         repeat(101) {
-            mJumpScrollIntervals[it] = Math.min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (it.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
+            mJumpScrollIntervals[it] = min((mLineHeight.toDouble() * Utils.mSineLookup[(90.0 * (it.toDouble() / 100.0)).toInt()]).toInt(), mLineHeight)
         }
 
-        mPixelsToTimes = LongArray(Math.max(1, mLineHeight))
+        mPixelsToTimes = LongArray(max(1, mLineHeight))
         val lineEndTime = lineTime + lineDuration
         val timeDiff = lineEndTime - yStartScrollTime
         mPixelsToTimes[0] = lineTime

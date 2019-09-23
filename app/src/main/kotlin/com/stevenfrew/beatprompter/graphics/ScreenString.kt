@@ -4,6 +4,8 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.util.Utils
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 
 class ScreenString private constructor(internal val mText: String,
@@ -13,8 +15,8 @@ class ScreenString private constructor(internal val mText: String,
                                        height: Int,
                                        internal val mFace: Typeface,
                                        val mDescenderOffset: Int) {
-    val mWidth = Math.max(0, width)
-    val mHeight = Math.max(0, height)
+    val mWidth = max(0, width)
+    val mHeight = max(0, height)
 
     companion object {
         private const val MARGIN_PIXELS = 10
@@ -37,7 +39,7 @@ class ScreenString private constructor(internal val mText: String,
             val measureWidth = paint.measureText(str)
             paint.getTextBounds(str, 0, str.length, r)
             r.left = 0
-            r.right = Math.ceil(measureWidth.toDouble()).toInt()
+            r.right = ceil(measureWidth.toDouble()).toInt()
         }
 
         private val doubleXRect = Rect()
@@ -137,7 +139,7 @@ class ScreenString private constructor(internal val mText: String,
             paint.typeface = face
             while (hi - lo > threshold) {
                 val size = ((hi + lo) / 2.0).toFloat()
-                val intSize = Math.floor(size.toDouble()).toInt()
+                val intSize = floor(size.toDouble()).toInt()
                 paint.textSize = intSize * Utils.FONT_SCALING
                 getTextRect(text, paint, bestFontSizeRect)
                 val widthXX = (if (MASKING) getDoubleXStringLength(paint, intSize.toFloat(), bold) else 0).toFloat()
@@ -147,7 +149,7 @@ class ScreenString private constructor(internal val mText: String,
                     lo = size // too small
             }
             // Use lo so that we undershoot rather than overshoot
-            val sizeToUse = Math.floor(lo.toDouble()).toInt()
+            val sizeToUse = floor(lo.toDouble()).toInt()
             paint.textSize = sizeToUse * Utils.FONT_SCALING
             getTextRect(text, paint, bestFontSizeRect)
             if (MASKING) {

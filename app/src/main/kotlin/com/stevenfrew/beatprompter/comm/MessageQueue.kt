@@ -30,7 +30,7 @@ open class MessageQueue(capacity: Int) {
     internal fun putMessages(messages: List<OutgoingMessage>) {
         synchronized(mBlockingQueue)
         {
-            for (f in 0 until messages.size)
+            for (f in messages.indices)
                 mBlockingQueue.put(messages[f])
         }
     }

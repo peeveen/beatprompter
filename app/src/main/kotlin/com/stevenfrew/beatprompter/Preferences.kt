@@ -268,6 +268,7 @@ object Preferences {
                 .getString(key, default)
     }
 
+    @Suppress("SameParameterValue")
     private fun getPrivateStringPreference(prefResourceString: Int, default: String?): String? {
         return BeatPrompter
                 .privatePreferences
@@ -300,6 +301,7 @@ object Preferences {
                 .getBoolean(BeatPrompter.getResourceString(prefResourceString), default)
     }
 
+    @Suppress("SameParameterValue")
     private fun setBooleanPreference(prefResourceString: Int, value: Boolean) {
         BeatPrompter
                 .preferences
@@ -321,6 +323,7 @@ object Preferences {
                 .apply()
     }
 
+    @Suppress("SameParameterValue")
     private fun setPrivateStringPreference(prefResourceString: Int, value: String?) {
         BeatPrompter
                 .privatePreferences

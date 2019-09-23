@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.util
 
+import java.util.*
+
 fun String.splitAndTrim(separator: String): List<String> {
     val bits = split(separator)
     return bits.mapNotNull()
@@ -23,7 +25,7 @@ fun String.removeControlCharacters(): String {
  * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
  */
 fun String.normalize(): String {
-    return replace('’', '\'').removeControlCharacters().toLowerCase()
+    return replace('’', '\'').removeControlCharacters().toLowerCase(Locale.getDefault())
 }
 
 fun String?.looksLikeHex(): Boolean {
@@ -52,7 +54,7 @@ fun String?.looksLikeDecimal(): Boolean {
 }
 
 fun String.stripHexSignifiers(): String {
-    val str = toLowerCase()
+    val str = toLowerCase(Locale.getDefault())
     if (str.startsWith("0x"))
         return str.substringAfter("0x")
     else if (str.endsWith("h"))

@@ -33,29 +33,34 @@
         app:showAsAction="never"
         android:title="@string/synchronize_string"/>
     <item
-        android:id="@+id/sort_songs"
+        android:id="@+id/shuffle"
         android:orderInCategory="2"
+        app:showAsAction="never"
+        android:title="@string/shuffle" />
+    <item
+        android:id="@+id/sort_songs"
+        android:orderInCategory="3"
         app:showAsAction="never"
         android:title="@string/sort_songs"/>
     <item
         android:id="@+id/settings"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         app:showAsAction="never"
         android:title="@string/settings"/>
 
     <item
         android:id="@+id/buy_full_version"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         app:showAsAction="never"
         android:title="@string/buy_full_version"/>
     <item
         android:id="@+id/manual"
-        android:orderInCategory="5"
+        android:orderInCategory="6"
         app:showAsAction="never"
         android:title="@string/instructions"/>
     <item
         android:id="@+id/about"
-        android:orderInCategory="6"
+        android:orderInCategory="7"
         app:showAsAction="never"
         android:title="@string/about"/>
 </menu>

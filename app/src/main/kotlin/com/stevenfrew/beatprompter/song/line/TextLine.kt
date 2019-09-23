@@ -1,6 +1,9 @@
 package com.stevenfrew.beatprompter.song.line
 
-import android.graphics.*
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Rect
+import android.graphics.Typeface
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
@@ -11,6 +14,9 @@ import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.characters
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
 class TextLine internal constructor(private val mText: String,
                                     private val mTags: List<Tag>,
@@ -95,13 +101,13 @@ class TextLine internal constructor(private val mText: String,
                 if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
                 textExists = textExists or (section.mLineText.isNotEmpty())
-                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(textFontSize).toInt(), mFont)
-                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(chordFontSize).toInt(), mFont)
+                val textWidth = section.setTextFontSizeAndMeasure(paint, floor(textFontSize).toInt(), mFont)
+                val chordWidth = section.setChordFontSizeAndMeasure(paint, floor(chordFontSize).toInt(), mFont)
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false
                 else if (textWidth > 0 && textWidth > chordWidth)
                     allTextSmallerThanChords = false
-                width += Math.max(textWidth, chordWidth)
+                width += max(textWidth, chordWidth)
             }
             if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
@@ -137,13 +143,13 @@ class TextLine internal constructor(private val mText: String,
             for (section in mSections) {
                 if (songLoadCancelEvent.isCancelled)
                     throw SongLoadCancelledException()
-                val textWidth = section.setTextFontSizeAndMeasure(paint, Math.floor(proposedLargerTextFontSize).toInt(), mFont)
-                val chordWidth = section.setChordFontSizeAndMeasure(paint, Math.floor(proposedLargerChordFontSize).toInt(), mFont)
+                val textWidth = section.setTextFontSizeAndMeasure(paint, floor(proposedLargerTextFontSize).toInt(), mFont)
+                val chordWidth = section.setChordFontSizeAndMeasure(paint, floor(proposedLargerChordFontSize).toInt(), mFont)
                 if (chordWidth > textWidth)
                     allChordsSmallerThanText = false
                 else if (textWidth > 0 && textWidth > chordWidth)
                     allTextSmallerThanChords = false
-                width += Math.max(textWidth, chordWidth)
+                width += max(textWidth, chordWidth)
             }
             if (songLoadCancelEvent.isCancelled)
                 throw SongLoadCancelledException()
@@ -158,8 +164,8 @@ class TextLine internal constructor(private val mText: String,
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
-        mLineTextSize = Math.floor(textFontSize).toInt()
-        mChordTextSize = Math.floor(chordFontSize).toInt()
+        mLineTextSize = floor(textFontSize).toInt()
+        mChordTextSize = floor(chordFontSize).toInt()
 
         mChordDescenderOffset = 0
         mLineDescenderOffset = mChordDescenderOffset
@@ -173,12 +179,12 @@ class TextLine internal constructor(private val mText: String,
                 throw SongLoadCancelledException()
             section.setTextFontSizeAndMeasure(paint, mLineTextSize, mFont)
             section.setChordFontSizeAndMeasure(paint, mChordTextSize, mFont)
-            mLineDescenderOffset = Math.max(mLineDescenderOffset, section.mLineDescenderOffset)
-            mChordDescenderOffset = Math.max(mChordDescenderOffset, section.mChordDescenderOffset)
-            mLyricHeight = Math.max(mLyricHeight, section.mLineHeight - section.mLineDescenderOffset)
-            mChordHeight = Math.max(mChordHeight, section.mChordHeight - section.mChordDescenderOffset)
-            actualLineHeight = Math.max(mLyricHeight + mChordHeight + mLineDescenderOffset + mChordDescenderOffset, actualLineHeight)
-            actualLineWidth += Math.max(section.mLineWidth, section.mChordWidth)
+            mLineDescenderOffset = max(mLineDescenderOffset, section.mLineDescenderOffset)
+            mChordDescenderOffset = max(mChordDescenderOffset, section.mChordDescenderOffset)
+            mLyricHeight = max(mLyricHeight, section.mLineHeight - section.mLineDescenderOffset)
+            mChordHeight = max(mChordHeight, section.mChordHeight - section.mChordDescenderOffset)
+            actualLineHeight = max(mLyricHeight + mChordHeight + mLineDescenderOffset + mChordDescenderOffset, actualLineHeight)
+            actualLineWidth += max(section.mLineWidth, section.mChordWidth)
             highlightColor = section.calculateHighlightedSections(paint, mLineTextSize.toFloat(), mFont, highlightColor)
         }
         mTrailingHighlightColor = highlightColor
@@ -405,7 +411,7 @@ class TextLine internal constructor(private val mText: String,
                 val isLastChord = chordTagIndex == chordTags.size - 1
                 val chordPositionEnd =
                         if (!isLastChord)
-                            Math.min(chordTags[chordTagIndex + 1].mPosition, mText.length)
+                            min(chordTags[chordTagIndex + 1].mPosition, mText.length)
                         else
                             mText.length
                 val tagPositionEnd = if (!isLastChord)
@@ -415,7 +421,7 @@ class TextLine internal constructor(private val mText: String,
                 // mText could have been "..." which would be turned into ""
                 if (chordTagIndex != -1)
                     chordPositionStart = chordTags[chordTagIndex].mPosition
-                chordPositionStart = Math.min(mText.length, chordPositionStart)
+                chordPositionStart = min(mText.length, chordPositionStart)
                 val linePart = mText.substring(chordPositionStart, chordPositionEnd)
                 var chordText = ""
                 var trueChord = false
@@ -443,7 +449,7 @@ class TextLine internal constructor(private val mText: String,
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
-        return Math.max(vTotalLineWidth - totalXSplits, mLineWidths.max() ?: 0)
+        return max(vTotalLineWidth - totalXSplits, mLineWidths.max() ?: 0)
     }
 
     override fun renderGraphics(paint: Paint) {
@@ -463,7 +469,7 @@ class TextLine internal constructor(private val mText: String,
                 paint.typeface = mFont
                 canvas.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
                 val xSplit = if (mXSplits.size > lineNumber) mXSplits[lineNumber] else Integer.MAX_VALUE
-                for (i in 0 until mSections.size) {
+                for (i in mSections.indices) {
                     val section = mSections[i]
                     if (currentX < xSplit) {
                         val width = section.width

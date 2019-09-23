@@ -2,6 +2,8 @@ package com.stevenfrew.beatprompter.util
 
 import android.graphics.Color
 import java.io.*
+import kotlin.math.floor
+import kotlin.math.sin
 
 object Utils {
     internal var mSineLookup = DoubleArray(91)
@@ -21,7 +23,7 @@ object Utils {
     init {
         repeat(91) {
             val radians = Math.toRadians(it.toDouble())
-            mSineLookup[it] = Math.sin(radians)
+            mSineLookup[it] = sin(radians)
         }
     }
 
@@ -96,7 +98,7 @@ object Utils {
             return TRACK_AUDIO_LENGTH_VALUE
         try {
             val totalSecs = str.toDouble()
-            return Math.floor(totalSecs * 1000.0).toLong()
+            return floor(totalSecs * 1000.0).toLong()
         } catch (nfe: NumberFormatException) {
             // Might be mm:ss
             val bits = str.splitAndTrim(":")
@@ -121,6 +123,7 @@ object Utils {
     }
 
     fun makeSafeFilename(str: String): String {
+        @Suppress("RegExpRedundantEscape")
         return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"), "_")
     }
 

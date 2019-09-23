@@ -27,7 +27,7 @@ import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
-import kotlin.math.absoluteValue
+import kotlin.math.*
 
 @ParseTags(ImageTag::class, PauseTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,
         StartOfHighlightTag::class, EndOfHighlightTag::class,
@@ -393,7 +393,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 if (smoothMode)
                 // Obviously this will only be required if the song cannot fit entirely onscreen.
                     if (mSongHeight > mNativeDeviceSettings.mUsableScreenHeight)
-                        Math.min(lineSequence.map { it.mMeasurements.mLineHeight }.maxBy { it }
+                        min(lineSequence.map { it.mMeasurements.mLineHeight }.maxBy { it }
                                 ?: 0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
                     else
                         0
@@ -475,7 +475,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 .filterIsInstance<AudioEvent>()
                 .map { it.mAudioFile.mDuration + it.mEventTime }
                 .max()
-        sortedEventList.add(EndEvent(Math.max(lastAudioEndTime ?: 0L, mSongTime)))
+        sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, mSongTime)))
 
         // Now build the final event list.
         val firstEvent = buildLinkedEventList(sortedEventList)
@@ -513,7 +513,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
     }
 
     private fun calculateScrollEndPixel(smoothMode: Boolean, smoothScrollOffset: Int): Int {
-        val manualDisplayEnd = Math.max(0, mSongHeight - mNativeDeviceSettings.mUsableScreenHeight)
+        val manualDisplayEnd = max(0, mSongHeight - mNativeDeviceSettings.mUsableScreenHeight)
         val beatDisplayEnd = mLines.lastOrNull { it.mScrollMode === ScrollingMode.Beat }?.mSongPixelPosition
         return if (smoothMode)
             manualDisplayEnd + smoothScrollOffset//+smoothScrollEndOffset
@@ -533,8 +533,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         mLines.forEach {
             for (lh in it.mMeasurements.mGraphicHeights) {
                 if (lineCount % modulus == index) {
-                    maxHeight = Math.max(maxHeight, lh)
-                    maxWidth = Math.max(maxWidth, it.mMeasurements.mLineWidth)
+                    maxHeight = max(maxHeight, lh)
+                    maxWidth = max(maxWidth, it.mMeasurements.mLineWidth)
                 }
                 ++lineCount
             }
@@ -559,7 +559,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     lineCounter += mLines[f].mMeasurements.mLines
                 }
             }
-            maxLines = Math.max(maxLines, lineCounter)
+            maxLines = max(maxLines, lineCounter)
         }
         return maxLines
     }
@@ -642,7 +642,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         // We don't want to generate thousands of events, so let's say every 1/10th of a second.
         var eventTime = startTime
         val pauseEvents = mutableListOf<PauseEvent>()
-        val deciSeconds = Math.ceil(Utils.nanoToMilli(pauseTag.mDuration).toDouble() / 100.0).toInt()
+        val deciSeconds = ceil(Utils.nanoToMilli(pauseTag.mDuration).toDouble() / 100.0).toInt()
         val remainder = pauseTag.mDuration - Utils.milliToNano(deciSeconds * 100)
         val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
         eventTime += remainder
@@ -735,8 +735,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
         else
             nativeSettings.mScreenSize
         val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
-        val minRatio = Math.min(nativeRatio, sourceRatio)
-        val maxRatio = Math.max(nativeRatio, sourceRatio)
+        val minRatio = min(nativeRatio, sourceRatio)
+        val maxRatio = max(nativeRatio, sourceRatio)
         val ratioMultiplier = minRatio / maxRatio
         var minimumFontSize = sourceSettings.mMinFontSize
         var maximumFontSize = sourceSettings.mMaxFontSize
@@ -783,7 +783,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 nonBlankCommentLines.add(commentLine.trim())
         val uniqueErrors = mErrors.asSequence().distinct().sortedBy { it.mLineNumber }.toList()
         var errorCount = uniqueErrors.size
-        var messages = Math.min(errorCount, 6) + nonBlankCommentLines.size
+        var messages = min(errorCount, 6) + nonBlankCommentLines.size
         val showBPM = mShowBPM != ShowBPMContext.No
         if (showBPM)
             ++messages
@@ -791,8 +791,8 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             ++messages
         if (messages > 0) {
             val remainingScreenSpace = mNativeDeviceSettings.mScreenSize.height() - twentyPercent * 2
-            var spacePerMessageLine = Math.floor((remainingScreenSpace / messages).toDouble()).toInt()
-            spacePerMessageLine = Math.min(spacePerMessageLine, tenPercent)
+            var spacePerMessageLine = floor((remainingScreenSpace / messages).toDouble()).toInt()
+            spacePerMessageLine = min(spacePerMessageLine, tenPercent)
             var errorCounter = 0
             for (error in uniqueErrors) {
                 startScreenStrings.add(ScreenString.create(error.toString(), mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.RED, mFont, false))
@@ -813,7 +813,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 val rounded = mShowBPM == ShowBPMContext.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt().toDouble()
                 var bpmString = BeatPrompter.getResourceString(R.string.bpmPrefix) + ": "
                 bpmString += if (rounded)
-                    Math.round(mSongLoadInfo.mSongFile.mBPM).toInt()
+                    mSongLoadInfo.mSongFile.mBPM.roundToInt()
                 else
                     mSongLoadInfo.mSongFile.mBPM
                 startScreenStrings.add(ScreenString.create(bpmString, mPaint, mNativeDeviceSettings.mScreenSize.width(), spacePerMessageLine, Color.CYAN, mFont, false))

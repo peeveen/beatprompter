@@ -644,20 +644,22 @@ class SongListActivity
             when (requestCode) {
                 GOOGLE_PLAY_TRANSACTION_FINISHED -> {
                     val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
-                    try {
-                        val sku = JSONObject(purchaseData).getString("productId")
-                        mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
-                        Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
-                    } catch (e: JSONException) {
-                        Logger.log("JSON exception during purchase.")
-                        Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-                    }
+                    if (purchaseData != null)
+                        try {
+                            val sku = JSONObject(purchaseData).getString("productId")
+                            mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
+                            Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
+                        } catch (e: JSONException) {
+                            Logger.log("JSON exception during purchase.")
+                            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                        }
                 }
                 PLAY_SONG_REQUEST_CODE ->
                     if (resultCode == RESULT_OK)
                         startNextSong()
                 GoogleDriveStorage.REQUEST_CODE_GOOGLE_SIGN_IN -> GoogleDriveStorage.completeAction(this)
             }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun startNextSong(): Boolean {
@@ -716,6 +718,11 @@ class SongListActivity
 
     private fun sortSongsByKey() {
         mPlaylist.sortByKey()
+    }
+
+    private fun shuffleSongList() {
+        mPlaylist.shuffle()
+        buildList()
     }
 
     private fun buildList() {
@@ -792,7 +799,7 @@ class SongListActivity
             else
                 null
         })
-        tagAndFolderFilters.sortBy { it.mName.toLowerCase() }
+        tagAndFolderFilters.sortBy { it.mName.toLowerCase(Locale.getDefault()) }
 
         // Now create the basic "all songs" filter, dead easy ...
         val allSongsFilter = AllSongsFilter(mCachedCloudItems
@@ -914,6 +921,7 @@ class SongListActivity
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.synchronize -> performFullCloudSync()
+            R.id.shuffle -> shuffleSongList()
             R.id.sort_songs -> showSortDialog()
             R.id.settings -> startActivity(Intent(applicationContext, SettingsActivity::class.java))
             R.id.buy_full_version -> buyFullVersion()
@@ -1032,7 +1040,7 @@ class SongListActivity
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
                 val track = mCachedCloudItems.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
-                val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", true, false, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
+                val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", mStartedByBandLeader = true, mStartedByMIDITrigger = false, mNativeDisplaySettings = nativeSettings, mSourceDisplaySettings = sourceSettings, mNoAudio = choiceInfo.mNoAudio)
                 val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
                 if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
                     playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
@@ -1187,7 +1195,7 @@ class SongListActivity
     }
 
     override fun onQueryTextChange(searchText: String?): Boolean {
-        mSearchText = searchText?.toLowerCase() ?: ""
+        mSearchText = searchText?.toLowerCase(Locale.getDefault()) ?: ""
         buildList()
         return true
     }

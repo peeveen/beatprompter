@@ -3,6 +3,8 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.media.midi.MidiOutputPort
 import android.media.midi.MidiReceiver
 import com.stevenfrew.beatprompter.comm.ReceiverTask
+import kotlin.math.max
+import kotlin.math.min
 
 class NativeReceiver(private val mPort: MidiOutputPort,
                      name: String)
@@ -24,7 +26,7 @@ class NativeReceiver(private val mPort: MidiOutputPort,
     override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
         synchronized(mInnerBufferLock)
         {
-            return Math.min(maximumAmount, mInnerBufferPosition).also {
+            return min(maximumAmount, mInnerBufferPosition).also {
                 if (it != 0) {
                     System.arraycopy(mInnerBuffer, 0, buffer, offset, it)
                     mInnerBufferPosition -= it
@@ -45,7 +47,7 @@ class NativeReceiver(private val mPort: MidiOutputPort,
                     // If we exceed the available space, we have to increase space.
                     // There is no second-chance to get this data.
                     if (mInnerBufferPosition + count > mInnerBuffer.size) {
-                        val biggerBufferSize = Math.max(mInnerBuffer.size + INNER_BUFFER_GROW_SIZE, mInnerBufferPosition + count)
+                        val biggerBufferSize = max(mInnerBuffer.size + INNER_BUFFER_GROW_SIZE, mInnerBufferPosition + count)
                         val biggerBuffer = ByteArray(biggerBufferSize)
                         System.arraycopy(mInnerBuffer, 0, biggerBuffer, 0, mInnerBuffer.size)
                         mInnerBuffer = biggerBuffer

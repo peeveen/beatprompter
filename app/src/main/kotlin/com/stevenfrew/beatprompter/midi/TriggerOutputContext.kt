@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.midi
 
 enum class TriggerOutputContext {
-    Never, Always, ManualStartOnly
+    @Suppress("unused")
+    Never,
+    Always,
+    ManualStartOnly
 }

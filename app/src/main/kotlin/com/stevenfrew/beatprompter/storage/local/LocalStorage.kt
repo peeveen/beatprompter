@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.storage.local
 
 import android.app.Activity
-import android.os.Environment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
@@ -25,7 +24,7 @@ class LocalStorage(parentActivity: Activity)
         get() = R.drawable.ic_device
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(null, Environment.getExternalStorageDirectory().path, "/", "/"))
+        rootPathSource.onNext(FolderInfo(null, mParentActivity.getExternalFilesDir(null)!!.path, "/", "/"))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {

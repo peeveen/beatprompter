@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.storage
 
+import java.util.*
+
 /**
  * Base class for all items stored in a storage system.
  */
@@ -12,6 +14,6 @@ abstract class ItemInfo internal constructor(val mID: String,
         if (thisIsFolder && !otherIsFolder)
             return -1
         return if (!thisIsFolder && otherIsFolder) 1
-        else mName.toLowerCase().compareTo(other.mName.toLowerCase())
+        else mName.toLowerCase(Locale.getDefault()).compareTo(other.mName.toLowerCase(Locale.getDefault()))
     }
 }

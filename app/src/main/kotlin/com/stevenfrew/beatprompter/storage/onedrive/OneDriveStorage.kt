@@ -60,7 +60,7 @@ class OneDriveStorage(parentActivity: Activity)
                                                                      internal val mMessageSource: PublishSubject<String>,
                                                                      internal val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
         private fun isSuitableFileToDownload(childItem: Item): Boolean {
-            return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase().endsWith(".txt")
+            return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase(Locale.getDefault()).endsWith(".txt")
         }
 
         override fun doInBackground(vararg args: Void): Void? {

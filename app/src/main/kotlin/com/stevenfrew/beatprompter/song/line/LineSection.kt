@@ -7,6 +7,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.graphics.ColorRect
 import com.stevenfrew.beatprompter.graphics.ScreenString
+import kotlin.math.max
+import kotlin.math.min
 
 class LineSection(val mLineText: String,
                   val mChordText: String,
@@ -27,7 +29,7 @@ class LineSection(val mLineText: String,
     var mHighlightingRectangles = mutableListOf<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
 
     val width: Int
-        get() = Math.max(mLineWidth, mChordWidth)
+        get() = max(mLineWidth, mChordWidth)
     val height: Int
         get() = mLineHeight + mChordHeight
 
@@ -66,7 +68,7 @@ class LineSection(val mLineText: String,
         var startPosition = 0
         val highlightTags = mTags.filter { it is StartOfHighlightTag || it is EndOfHighlightTag }
         highlightTags.forEach {
-            val length = Math.min(it.mPosition - mSectionPosition, mLineText.length)
+            val length = min(it.mPosition - mSectionPosition, mLineText.length)
             if (it is StartOfHighlightTag && !lookingForEnd) {
                 val strHighlightText = mLineText.substring(0, length)
                 startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
@@ -82,7 +84,7 @@ class LineSection(val mLineText: String,
             }
         }
         if (lookingForEnd)
-            mHighlightingRectangles.add(ColorRect(startX, mChordHeight, Math.max(mLineWidth, mChordWidth), mChordHeight + mLineHeight, highlightColour!!))
+            mHighlightingRectangles.add(ColorRect(startX, mChordHeight, max(mLineWidth, mChordWidth), mChordHeight + mLineHeight, highlightColour!!))
         return highlightColour
     }
 
