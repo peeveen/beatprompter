@@ -80,7 +80,7 @@ dependencies {
     }
 
     // Include the gson dependency
-    implementation ('com.google.code.gson:gson:2.8.4')
+    implementation ('com.google.code.gson:gson:2.8.5')
 
     // Include supported authentication methods for your application
     implementation ('com.microsoft.services.msa:msa-auth:0.8.6')
