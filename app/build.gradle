@@ -61,7 +61,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.android.gms:play-services-auth:18.0.0'
     implementation 'com.google.android.gms:play-services-drive:17.0.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
