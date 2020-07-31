@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BeatPrompter.iml" filepath="$PROJECT_DIR$/BeatPrompter.iml" group="BeatPrompter" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="BeatPrompter/app" />
+      <module fileurl="file://$PROJECT_DIR$/BeatPrompter.iml" filepath="$PROJECT_DIR$/BeatPrompter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/BeatPrompter.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/BeatPrompter.app.iml" />
     </modules>
   </component>
 </project>
