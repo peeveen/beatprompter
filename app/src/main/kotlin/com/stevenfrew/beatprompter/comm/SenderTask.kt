@@ -10,36 +10,21 @@ class SenderTask(private val mMessageQueue: MessageQueue)
     private val mSenders = mutableListOf<Sender>()
     private val mSendersLock = Any()
 
-//    private var mClockMessages = 0
-//    private var mLastClockMessageTime: Long = 0
-//    private var mLongestClockMessageTimeDiff: Long = 0
-
     override fun doWork() {
         try {
             // This take() will block if the queue is empty
             val messages = mMessageQueue.getMessages()
 
-/*            val time = System.nanoTime()
-            val clockMessages = messages.count { it is ClockMessage }
-            if (messages.any { it is ClockMessage }) {
-                mClockMessages += clockMessages
-                if (mLastClockMessageTime == 0L)
-                    mLastClockMessageTime = time
-                mLongestClockMessageTimeDiff = max(mLongestClockMessageTimeDiff, time - mLastClockMessageTime)
-                mLastClockMessageTime = time
-                while (mClockMessages >= 50) {
-                    Logger.logComms("50 CLOCK MESSAGES SENT (${Utils.nanoToMilli(mLongestClockMessageTimeDiff)} ms max time diff)")
-                    mClockMessages -= 50
-                }
-            }*/
-
-            for (f in 0 until mSenders.size) {
-                try {
-                    mSenders[f].send(messages)
-                } catch (commException: Exception) {
-                    // Problem with the I/O? This sender is now dead to us.
-                    Logger.logComms("Sender threw an exception. Assuming it to be dead.")
-                    removeSender(mSenders[f].name)
+            synchronized(mSendersLock)
+            {
+                for (f in 0 until mSenders.size) {
+                    try {
+                        mSenders[f].send(messages)
+                    } catch (commException: Exception) {
+                        // Problem with the I/O? This sender is now dead to us.
+                        Logger.logComms("Sender threw an exception. Assuming it to be dead.")
+                        removeSender(mSenders[f].name)
+                    }
                 }
             }
         } catch (interruptedException: InterruptedException) {
@@ -73,7 +58,9 @@ class SenderTask(private val mMessageQueue: MessageQueue)
         Logger.logComms("Removing ALL senders from the collection.")
         synchronized(mSendersLock)
         {
-            mSenders.forEach { removeSender(it.name) }
+            // Avoid concurrent modification exception by converting to array.
+            val senderArray = mSenders.toTypedArray()
+            senderArray.forEach { removeSender(it.name) }
         }
     }
 
