@@ -393,7 +393,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 if (smoothMode)
                 // Obviously this will only be required if the song cannot fit entirely onscreen.
                     if (mSongHeight > mNativeDeviceSettings.mUsableScreenHeight)
-                        min(lineSequence.map { it.mMeasurements.mLineHeight }.maxBy { it }
+                        min(lineSequence.map { it.mMeasurements.mLineHeight }.maxByOrNull { it }
                                 ?: 0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
                     else
                         0
@@ -474,7 +474,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                 .asSequence()
                 .filterIsInstance<AudioEvent>()
                 .map { it.mAudioFile.mDuration + it.mEventTime }
-                .max()
+                .maxOrNull()
         sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, mSongTime)))
 
         // Now build the final event list.
@@ -873,7 +873,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
 
     private fun sortEvents(eventList: List<BaseEvent>): List<BaseEvent> {
         // Sort all events by time, and by type within that.
-        return eventList.sortedWith(Comparator { e1, e2 ->
+        return eventList.sortedWith { e1, e2 ->
             when {
                 e1.mEventTime > e2.mEventTime -> 1
                 e1.mEventTime < e2.mEventTime -> -1
@@ -908,7 +908,7 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                         0
                 }
             }
-        })
+        }
     }
 
     /**

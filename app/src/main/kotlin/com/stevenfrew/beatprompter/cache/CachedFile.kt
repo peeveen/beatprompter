@@ -49,16 +49,16 @@ open class CachedFile : CachedItem {
             } catch (ioe: InvalidBeatPrompterFileException) {
                 try {
                     ImageFileParser(result.cachedCloudFile).parse()
-                } catch (ibpfe1: InvalidBeatPrompterFileException) {
+                } catch (exception1: InvalidBeatPrompterFileException) {
                     try {
                         MIDIAliasFileParser(result.cachedCloudFile).parse()
-                    } catch (ibpfe2: InvalidBeatPrompterFileException) {
+                    } catch (exception2: InvalidBeatPrompterFileException) {
                         try {
                             SongInfoParser(result.cachedCloudFile).parse()
-                        } catch (ibpfe3: InvalidBeatPrompterFileException) {
+                        } catch (exception3: InvalidBeatPrompterFileException) {
                             try {
                                 SetListFileParser(result.cachedCloudFile).parse()
-                            } catch (ibpfe4: InvalidBeatPrompterFileException) {
+                            } catch (exception4: InvalidBeatPrompterFileException) {
                                 IrrelevantFile(result.cachedCloudFile)
                             }
                         }

@@ -50,8 +50,8 @@ class DropboxStorage(parentActivity: Activity)
             if (listener.shouldCancel())
                 break
             try {
-                val mdata = client.files().getMetadata(file.mID)
-                val result = if (mdata is FileMetadata) {
+                val metadata = client.files().getMetadata(file.mID)
+                val result = if (metadata is FileMetadata) {
                     val title = file.mName
                     Logger.log { "File title: $title" }
                     messageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
@@ -64,8 +64,8 @@ class DropboxStorage(parentActivity: Activity)
                     // Don't check lastModified ... ALWAYS download.
                     if (listener.shouldCancel())
                         break
-                    val localFile = downloadDropboxFile(client, mdata, targetFile)
-                    val updatedCloudFile = FileInfo(file.mID, mdata.name, mdata.serverModified,
+                    val localFile = downloadDropboxFile(client, metadata, targetFile)
+                    val updatedCloudFile = FileInfo(file.mID, metadata.name, metadata.serverModified,
                             file.mSubfolderIDs)
                     SuccessfulDownloadResult(updatedCloudFile, localFile)
                 } else
@@ -73,11 +73,11 @@ class DropboxStorage(parentActivity: Activity)
                 itemSource.onNext(result)
                 if (listener.shouldCancel())
                     break
-            } catch (gmee: GetMetadataErrorException) {
-                if (gmee.errorValue.pathValue.isNotFound)
+            } catch (metadataException: GetMetadataErrorException) {
+                if (metadataException.errorValue.pathValue.isNotFound)
                     itemSource.onNext(FailedDownloadResult(file))
                 else {
-                    itemSource.onError(gmee)
+                    itemSource.onError(metadataException)
                     return
                 }
             } catch (e: Exception) {
@@ -89,15 +89,15 @@ class DropboxStorage(parentActivity: Activity)
         itemSource.onComplete()
     }
 
-    private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localfile: File): File {
-        val fos = FileOutputStream(localfile)
-        fos.use {
+    private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localFile: File): File {
+        val fos = FileOutputStream(localFile)
+        fos.use { stream ->
             val downloader = client.files().download(file.id)
-            downloader.use { dler ->
-                dler.download(it)
+            downloader.use {
+                it.download(stream)
             }
         }
-        return localfile
+        return localFile
     }
 
     private fun readFolderContents(client: DbxClientV2, folder: FolderInfo, listener: StorageListener, itemSource: PublishSubject<ItemInfo>, messageSource: PublishSubject<String>, recurseSubfolders: Boolean) {
@@ -119,17 +119,17 @@ class DropboxStorage(parentActivity: Activity)
                     if (listener.shouldCancel())
                         break
                     val entries = listResult.entries
-                    for (mdata in entries) {
+                    for (metadata in entries) {
                         if (listener.shouldCancel())
                             break
-                        if (mdata is FileMetadata) {
-                            val filename = mdata.name.toLowerCase(Locale.getDefault())
+                        if (metadata is FileMetadata) {
+                            val filename = metadata.name.toLowerCase(Locale.getDefault())
                             if (isSuitableFileToDownload(filename))
-                                itemSource.onNext(FileInfo(mdata.id, mdata.name, mdata.serverModified,
+                                itemSource.onNext(FileInfo(metadata.id, metadata.name, metadata.serverModified,
                                         if (folderToSearch.mParentFolder == null) "" else currentFolderID))
-                        } else if (mdata is FolderMetadata) {
+                        } else if (metadata is FolderMetadata) {
                             Logger.log("Adding folder to list of folders to query ...")
-                            val newFolder = FolderInfo(folderToSearch, mdata.getPathLower(), mdata.getName(), mdata.getPathDisplay())
+                            val newFolder = FolderInfo(folderToSearch, metadata.getPathLower(), metadata.getName(), metadata.getPathDisplay())
                             if (recurseSubfolders)
                                 foldersToSearch.add(newFolder)
                             itemSource.onNext(newFolder)
@@ -198,6 +198,8 @@ class DropboxStorage(parentActivity: Activity)
     companion object {
 
         private const val DROPBOX_CACHE_FOLDER_NAME = "dropbox"
+
+        @Suppress("SpellCheckingInspection")
         private const val DROPBOX_APP_KEY = "hay1puzmg41f02r"
         private const val DROPBOX_ROOT_PATH = "/"
 

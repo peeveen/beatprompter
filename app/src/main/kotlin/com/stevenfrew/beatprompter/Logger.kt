@@ -8,6 +8,7 @@ object Logger {
     private const val TAG_LOAD = "beatprompter_load"
     private const val TAG_COMMS = "beatprompter_comms"
 
+    @Suppress("unused")
     fun logAlways(message: String) {
         Log.d(TAG, message)
     }
@@ -41,7 +42,7 @@ object Logger {
         log(TAG, { t.message ?: "" }, t)
     }
 
-    private fun logLoader(message: () -> String, t: Throwable? = null) {
+    private fun logLoader(message: () -> String, @Suppress("SameParameterValue") t: Throwable? = null) {
         log(TAG_LOAD, message, t)
     }
 

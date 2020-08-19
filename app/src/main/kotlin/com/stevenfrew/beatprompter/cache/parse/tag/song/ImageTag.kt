@@ -1,11 +1,12 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.*
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
+import com.stevenfrew.beatprompter.graphics.ImageScalingMode
 import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.io.File
+import java.util.*
 
 @OncePerLine
 @TagName("image")
@@ -34,7 +35,8 @@ class ImageTag internal constructor(name: String,
     companion object {
         fun parseImageScalingMode(value: String): ImageScalingMode {
             try {
-                return ImageScalingMode.valueOf(value.toLowerCase().capitalize())
+                val locale = Locale.getDefault()
+                return ImageScalingMode.valueOf(value.toLowerCase(locale).capitalize(locale))
             } catch (e: Exception) {
                 throw MalformedTagException(R.string.unknown_image_scaling_mode)
             }

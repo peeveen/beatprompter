@@ -106,6 +106,6 @@ abstract class TextFileParser<TFileResult>(cachedCloudFile: CachedFile,
     fun findFirstTag(text: String): FoundTag? {
         return mTagFinders
                 .mapNotNull { it.findTag(text) }
-                .minBy { it.mStart }
+                .minByOrNull { it.mStart }
     }
 }

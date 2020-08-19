@@ -13,7 +13,7 @@ class RecursiveAliasComponent(private val mReferencedAliasName: String,
             return aliases.first { it.mName.equals(mReferencedAliasName, ignoreCase = true) }.resolve(aliases, mArguments.map {
                 it.resolve(parameters, mChannelValue?.mValue ?: channel)
             }.toByteArray(), mChannelValue?.mValue ?: channel)
-        } catch (nsee: NoSuchElementException) {
+        } catch (exception: NoSuchElementException) {
             throw ResolutionException(BeatPrompter.getResourceString(R.string.unknown_midi_directive, mReferencedAliasName))
         }
     }

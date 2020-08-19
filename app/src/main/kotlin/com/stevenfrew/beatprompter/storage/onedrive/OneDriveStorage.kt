@@ -52,13 +52,13 @@ class OneDriveStorage(parentActivity: Activity)
         fun onAuthenticationRequired()
     }
 
-    private class GetOneDriveFolderContentsTask internal constructor(internal val mClient: IOneDriveClient,
-                                                                     internal val mStorage: OneDriveStorage,
-                                                                     internal val mFolder: FolderInfo,
-                                                                     internal val mListener: StorageListener,
-                                                                     internal val mItemSource: PublishSubject<ItemInfo>,
-                                                                     internal val mMessageSource: PublishSubject<String>,
-                                                                     internal val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
+    private class GetOneDriveFolderContentsTask constructor(val mClient: IOneDriveClient,
+                                                            val mStorage: OneDriveStorage,
+                                                            val mFolder: FolderInfo,
+                                                            val mListener: StorageListener,
+                                                            val mItemSource: PublishSubject<ItemInfo>,
+                                                            val mMessageSource: PublishSubject<String>,
+                                                            val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
         private fun isSuitableFileToDownload(childItem: Item): Boolean {
             return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase(Locale.getDefault()).endsWith(".txt")
         }
@@ -114,7 +114,12 @@ class OneDriveStorage(parentActivity: Activity)
         }
     }
 
-    private class DownloadOneDriveFilesTask internal constructor(internal var mClient: IOneDriveClient, internal var mListener: StorageListener, internal var mItemSource: PublishSubject<DownloadResult>, internal var mMessageSource: PublishSubject<String>, internal var mFilesToDownload: List<FileInfo>, internal var mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
+    private class DownloadOneDriveFilesTask constructor(var mClient: IOneDriveClient,
+                                                        var mListener: StorageListener,
+                                                        var mItemSource: PublishSubject<DownloadResult>,
+                                                        var mMessageSource: PublishSubject<String>,
+                                                        var mFilesToDownload: List<FileInfo>,
+                                                        var mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg args: Void): Void? {
             for (file in mFilesToDownload) {
@@ -145,12 +150,12 @@ class OneDriveStorage(parentActivity: Activity)
                     mItemSource.onNext(result)
                     if (mListener.shouldCancel())
                         break
-                } catch (odse: OneDriveServiceException) {
-                    if (odse.isError(OneDriveErrorCodes.ItemNotFound)) {
+                } catch (oneDriveException: OneDriveServiceException) {
+                    if (oneDriveException.isError(OneDriveErrorCodes.ItemNotFound)) {
                         result = FailedDownloadResult(file)
                         mItemSource.onNext(result)
                     } else {
-                        mItemSource.onError(odse)
+                        mItemSource.onError(oneDriveException)
                         return null
                     }
                 } catch (e: Exception) {
@@ -194,7 +199,7 @@ class OneDriveStorage(parentActivity: Activity)
                 .loginAndBuildClient(mParentActivity, callback)
     }
 
-    private class GetOneDriveRootFolderTask internal constructor(internal var mClient: IOneDriveClient) : AsyncTask<Void, Void, FolderInfo>() {
+    private class GetOneDriveRootFolderTask constructor(var mClient: IOneDriveClient) : AsyncTask<Void, Void, FolderInfo>() {
         override fun doInBackground(vararg args: Void): FolderInfo {
             val rootFolder = mClient.drive.root.buildRequest().get()
             return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)

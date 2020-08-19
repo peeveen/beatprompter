@@ -53,7 +53,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 
             launch {
                 while (true) {
-                    BluetoothController.mBluetoothOutQueue.putMessage(HeartbeatMessage)
+                    mBluetoothOutQueue.putMessage(HeartbeatMessage)
                     delay(1000)
                 }
             }
@@ -76,7 +76,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
                 when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
-                    BluetoothAdapter.STATE_TURNING_OFF -> BluetoothController.onStopBluetooth()
+                    BluetoothAdapter.STATE_TURNING_OFF -> onStopBluetooth()
                     BluetoothAdapter.STATE_ON -> onBluetoothActivation()
                 }
             }
@@ -86,7 +86,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
     private fun onBluetoothActivation() {
         Logger.logComms("Bluetooth is on.")
         if (Preferences.bluetoothMode !== BluetoothMode.None)
-            BluetoothController.onStartBluetooth()
+            onStartBluetooth()
     }
 
     private val mDeviceReceiver = object : BroadcastReceiver() {
@@ -200,7 +200,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
                                             Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
                                             mConnectToServerThread =
                                                     ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
-                                                        BluetoothController.setServerConnection(socket)
+                                                        setServerConnection(socket)
                                                     }.apply { start() }
                                         } catch (e: Exception) {
                                             Logger.logComms({ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." }, e)

@@ -191,11 +191,11 @@ class TextLine internal constructor(private val mText: String,
         if (songLoadCancelEvent.isCancelled)
             throw SongLoadCancelledException()
 
-        // Word wrappin' time!
+        // Word wrapping time!
         if (width > displaySettings.mScreenSize.width()) {
             var bothersomeSection: LineSection?
             do {
-                // Start from the first section again, but work from off the lefthand edge
+                // Start from the first section again, but work from off the left hand edge
                 // of the screen if there are already splits.
                 // This is because a section could contain one enormous word that spans
                 // multiple lines.
@@ -449,7 +449,7 @@ class TextLine internal constructor(private val mText: String,
     }
 
     private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
-        return max(vTotalLineWidth - totalXSplits, mLineWidths.max() ?: 0)
+        return max(vTotalLineWidth - totalXSplits, mLineWidths.maxOrNull() ?: 0)
     }
 
     override fun renderGraphics(paint: Paint) {

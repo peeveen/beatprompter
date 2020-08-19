@@ -112,13 +112,13 @@ object Utils {
 
     }
 
-    fun streamToStream(instr: InputStream, outstr: OutputStream) {
+    fun streamToStream(inStream: InputStream, outStream: OutputStream) {
         val buffer = ByteArray(2048)
         var bytesRead = 0
         while (bytesRead != -1) {
-            bytesRead = instr.read(buffer, 0, buffer.size)
+            bytesRead = inStream.read(buffer, 0, buffer.size)
             if (bytesRead != -1)
-                outstr.write(buffer, 0, bytesRead)
+                outStream.write(buffer, 0, bytesRead)
         }
     }
 

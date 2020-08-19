@@ -16,6 +16,7 @@ class ChordTag constructor(chordText: String,
     val mValidChord = chordPattern.matcher(chordText.trim()).matches()
 
     companion object {
+        @Suppress("SpellCheckingInspection")
         private const val chordRegex = (
                 "^([\\s ]*[\\(\\/]{0,2})" //spaces, opening parenthesis,
                         + "(([ABCDEFG])([b\u266D#\u266F\u266E])?)" //note name + accidental

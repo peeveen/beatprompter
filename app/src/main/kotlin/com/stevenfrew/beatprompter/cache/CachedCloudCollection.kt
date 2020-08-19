@@ -60,7 +60,7 @@ class CachedCloudCollection {
             val element = elements.item(it) as Element
             try {
                 add(parser(element))
-            } catch (ibpfe: InvalidBeatPrompterFileException) {
+            } catch (exception: InvalidBeatPrompterFileException) {
                 // This should never happen. If we could write out the file info, then it was valid.
                 // So it must still be valid when we come to read it in. Unless some dastardly devious sort
                 // has meddled with files outside of the app ...

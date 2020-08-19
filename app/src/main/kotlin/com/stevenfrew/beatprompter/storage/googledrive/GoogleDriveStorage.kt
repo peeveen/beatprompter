@@ -61,7 +61,7 @@ class GoogleDriveStorage(parentActivity: Activity)
             mParentActivity.startActivityForResult(mGoogleSignInClient.signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN)
         } else {
             val credential = GoogleAccountCredential.usingOAuth2(
-                    mParentActivity, Arrays.asList(*SCOPES))
+                    mParentActivity, listOf(*SCOPES))
                     .setSelectedAccount(alreadySignedInAccount.account)
                     .setBackOff(ExponentialBackOff())
             val transport = AndroidHttp.newCompatibleTransport()
@@ -74,13 +74,13 @@ class GoogleDriveStorage(parentActivity: Activity)
         }
     }
 
-    private class ReadGoogleDriveFolderContentsTask internal constructor(internal val mClient: com.google.api.services.drive.Drive,
-                                                                         internal val mStorage: GoogleDriveStorage,
-                                                                         internal val mFolder: FolderInfo,
-                                                                         internal val mListener: StorageListener,
-                                                                         internal val mItemSource: PublishSubject<ItemInfo>,
-                                                                         internal val mMessageSource: PublishSubject<String>,
-                                                                         internal val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
+    private class ReadGoogleDriveFolderContentsTask constructor(val mClient: com.google.api.services.drive.Drive,
+                                                                val mStorage: GoogleDriveStorage,
+                                                                val mFolder: FolderInfo,
+                                                                val mListener: StorageListener,
+                                                                val mItemSource: PublishSubject<ItemInfo>,
+                                                                val mMessageSource: PublishSubject<String>,
+                                                                val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg args: Void): Void? {
             val foldersToQuery = ArrayList<FolderInfo>()
@@ -133,8 +133,8 @@ class GoogleDriveStorage(parentActivity: Activity)
                         if (mListener.shouldCancel())
                             break
                     } while (request.pageToken != null && request.pageToken.isNotEmpty())
-                } catch (uraioe: UserRecoverableAuthIOException) {
-                    recoverAuthorization(uraioe)
+                } catch (authException: UserRecoverableAuthIOException) {
+                    recoverAuthorization(authException)
                 } catch (e: Exception) {
                     mItemSource.onError(e)
                     return null
@@ -146,12 +146,12 @@ class GoogleDriveStorage(parentActivity: Activity)
         }
     }
 
-    private class DownloadGoogleDriveFilesTask internal constructor(internal val mClient: com.google.api.services.drive.Drive,
-                                                                    internal val mListener: StorageListener,
-                                                                    internal val mItemSource: PublishSubject<DownloadResult>,
-                                                                    internal val mMessageSource: PublishSubject<String>,
-                                                                    internal val mFilesToDownload: List<FileInfo>,
-                                                                    internal val mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
+    private class DownloadGoogleDriveFilesTask constructor(val mClient: com.google.api.services.drive.Drive,
+                                                           val mListener: StorageListener,
+                                                           val mItemSource: PublishSubject<DownloadResult>,
+                                                           val mMessageSource: PublishSubject<String>,
+                                                           val mFilesToDownload: List<FileInfo>,
+                                                           val mDownloadFolder: File) : AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg args: Void): Void? {
             for (cloudFile in mFilesToDownload) {
                 if (mListener.shouldCancel())
@@ -176,12 +176,12 @@ class GoogleDriveStorage(parentActivity: Activity)
                     mItemSource.onNext(result)
                     if (mListener.shouldCancel())
                         break
-                } catch (gjre: GoogleJsonResponseException) {
+                } catch (jsonException: GoogleJsonResponseException) {
                     // You get a 404 if the document has been 100% deleted.
-                    if (gjre.statusCode == 404) {
+                    if (jsonException.statusCode == 404) {
                         mItemSource.onNext(FailedDownloadResult(cloudFile))
                     } else {
-                        mItemSource.onError(gjre)
+                        mItemSource.onError(jsonException)
                         return null
                     }
                 } catch (e: Exception) {
@@ -262,8 +262,8 @@ class GoogleDriveStorage(parentActivity: Activity)
 
         const val REQUEST_CODE_GOOGLE_SIGN_IN = 1541
 
-        internal fun recoverAuthorization(uraioe: UserRecoverableAuthIOException) {
-            SongListActivity.mSongListInstance.startActivityForResult(uraioe.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
+        internal fun recoverAuthorization(authException: UserRecoverableAuthIOException) {
+            SongListActivity.mSongListInstance.startActivityForResult(authException.intent, COMPLETE_AUTHORIZATION_REQUEST_CODE)
         }
 
         fun completeAction(parentActivity: Activity) {

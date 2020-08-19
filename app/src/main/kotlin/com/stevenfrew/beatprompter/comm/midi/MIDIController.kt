@@ -99,7 +99,7 @@ object MIDIController {
                 // Basically, go with this if:
                 // It has all endpoints of type "bulk transfer"
                 // and
-                // The endpoints have a max packet size that is a mult of 4.
+                // The endpoints have a max packet size that is a multiplier of 4.
                 val endPointCount = face.endpointCount
                 var allEndpointsCheckout = true
                 repeat(endPointCount) {
@@ -121,8 +121,8 @@ object MIDIController {
         if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
             val list = mUsbManager?.deviceList
             if (list != null && list.size > 0) {
-                val devObjs = list.values
-                for (devObj in devObjs) {
+                val devObjects = list.values
+                for (devObj in devObjects) {
                     val dev = devObj as UsbDevice
                     if (getDeviceMidiInterface(dev) != null) {
                         mUsbManager!!.requestPermission(dev, mPermissionIntent)

@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.find
 
+import java.util.*
+
 /**
  * Base class for tag finders that find tags that are enclosed in delimiters.
  */
@@ -29,7 +31,7 @@ open class EnclosedTagFinder(private val mStartChar: Char,
                             enclosedText to ""
                 return FoundTag(directiveStart,
                         directiveEnd,
-                        if (mRetainCase) name else name.toLowerCase(),
+                        if (mRetainCase) name else name.toLowerCase(Locale.getDefault()),
                         value,
                         mTagType)
             }
