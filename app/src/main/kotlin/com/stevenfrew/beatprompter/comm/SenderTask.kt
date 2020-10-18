@@ -17,13 +17,16 @@ class SenderTask(private val mMessageQueue: MessageQueue)
 
             synchronized(mSendersLock)
             {
-                for (f in 0 until mSenders.size) {
-                    try {
-                        mSenders[f].send(messages)
-                    } catch (commException: Exception) {
-                        // Problem with the I/O? This sender is now dead to us.
-                        Logger.logComms("Sender threw an exception. Assuming it to be dead.")
-                        removeSender(mSenders[f].name)
+                for (f in mSenders.size - 1 downTo 0) {
+                    // Sanity check in case a dead sender was removed.
+                    if (f < mSenders.size) {
+                        try {
+                            mSenders[f].send(messages)
+                        } catch (commException: Exception) {
+                            // Problem with the I/O? This sender is now dead to us.
+                            Logger.logComms("Sender threw an exception. Assuming it to be dead.")
+                            removeSender(mSenders[f].name)
+                        }
                     }
                 }
             }
