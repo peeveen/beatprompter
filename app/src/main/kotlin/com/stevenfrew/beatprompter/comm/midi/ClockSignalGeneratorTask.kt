@@ -4,11 +4,9 @@ import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
-import com.stevenfrew.beatprompter.ui.SongListActivity
 import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
-    private val mRegistered = SongListActivity.mSongListInstance.fullVersionUnlocked()
     private var mLastSignalTime = 0.0
     private var mClockSignalsSent = 0
     private var mNanoSecondsPerMidiSignal = 0.0
@@ -110,7 +108,7 @@ class ClockSignalGeneratorTask : Task(false) {
         if (shouldStop)
             return
         val oldNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
-        val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm + if (mRegistered) 0.0 else Math.random() * 20)
+        val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm)
         if (oldNanoSecondsPerMidiSignal == 0.0) {
             // This is the first BPM value being set.
             resetClockSignalsSent()

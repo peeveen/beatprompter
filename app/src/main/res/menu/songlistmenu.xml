@@ -49,11 +49,6 @@
         android:title="@string/settings"/>
 
     <item
-        android:id="@+id/buy_full_version"
-        android:orderInCategory="5"
-        app:showAsAction="never"
-        android:title="@string/buy_full_version"/>
-    <item
         android:id="@+id/manual"
         android:orderInCategory="6"
         app:showAsAction="never"

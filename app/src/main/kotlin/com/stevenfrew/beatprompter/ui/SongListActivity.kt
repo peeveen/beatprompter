@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -22,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.android.vending.billing.IInAppBillingService
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.*
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
@@ -39,7 +37,6 @@ import com.stevenfrew.beatprompter.song.load.*
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.ui.filter.*
-import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -49,8 +46,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -82,19 +77,6 @@ class SongListActivity
     private var mPerformingCloudSync = false
     private var mSavedListIndex = 0
     private var mSavedListOffset = 0
-
-    internal var mIAPService: IInAppBillingService? = null
-
-    private val mInAppPurchaseServiceConn: ServiceConnection = object : ServiceConnection {
-        override fun onServiceDisconnected(name: ComponentName) {
-            mIAPService = null
-        }
-
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            mIAPService = IInAppBillingService.Stub.asInterface(service)
-            fullVersionUnlocked()
-        }
-    }
 
     private val isFirstRun: Boolean
         get() {
@@ -224,8 +206,18 @@ class SongListActivity
         mNowPlayingNode = selectedNode
 
         val nextSongName = if (selectedNode.mNextNode != null && shouldPlayNextSong()) selectedNode.mNextNode!!.mSongFile.mTitle else ""
-        val songLoadInfo = SongLoadInfo(selectedNode.mSongFile, track, scrollMode, nextSongName, false, startedByMidiTrigger, nativeSettings, sourceSettings, noAudio)
-        val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
+        val songLoadInfo = SongLoadInfo(
+            selectedNode.mSongFile,
+            track,
+            scrollMode,
+            nextSongName,
+            false,
+            startedByMidiTrigger,
+            nativeSettings,
+            sourceSettings,
+            noAudio
+        )
+        val songLoadJob = SongLoadJob(songLoadInfo)
         SongLoadQueueWatcherTask.loadSong(songLoadJob)
     }
 
@@ -284,8 +276,7 @@ class SongListActivity
         val includeRefreshSet = selectedSet != null && mSelectedFilter !== tempSetListFilter
         val includeClearSet = mSelectedFilter === tempSetListFilter
 
-        val arrayID: Int
-        arrayID = if (includeRefreshSet)
+        val arrayID: Int = if (includeRefreshSet)
             if (addAllowed)
                 R.array.song_options_array_with_refresh_and_add
             else
@@ -506,12 +497,6 @@ class SongListActivity
 
         Preferences.registerOnSharedPreferenceChangeListener(this)
 
-        bindService(Intent("com.android.vending.billing.InAppBillingService.BIND").apply {
-            setPackage("com.android.vending")
-        },
-                mInAppPurchaseServiceConn,
-                Context.BIND_AUTO_CREATE)
-
         // Set font stuff first.
         val metrics = resources.displayMetrics
         Utils.FONT_SCALING = metrics.density
@@ -599,8 +584,6 @@ class SongListActivity
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
         EventRouter.setSongListEventHandler(null)
         super.onDestroy()
-
-        unbindService(mInAppPurchaseServiceConn)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -642,18 +625,6 @@ class SongListActivity
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK)
             when (requestCode) {
-                GOOGLE_PLAY_TRANSACTION_FINISHED -> {
-                    val purchaseData = data!!.getStringExtra("INAPP_PURCHASE_DATA")
-                    if (purchaseData != null)
-                        try {
-                            val sku = JSONObject(purchaseData).getString("productId")
-                            mFullVersionUnlocked = mFullVersionUnlocked || sku.equals(FULL_VERSION_SKU_NAME, ignoreCase = true)
-                            Toast.makeText(this@SongListActivity, getString(R.string.thankyou), Toast.LENGTH_LONG).show()
-                        } catch (e: JSONException) {
-                            Logger.log("JSON exception during purchase.")
-                            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-                        }
-                }
                 PLAY_SONG_REQUEST_CODE ->
                     if (resultCode == RESULT_OK)
                         startNextSong()
@@ -839,28 +810,9 @@ class SongListActivity
         invalidateOptionsMenu()
     }
 
-    fun fullVersionUnlocked(): Boolean {
-        if (!mFullVersionUnlocked)
-            try {
-                if (mIAPService != null) {
-                    val ownedItems = mIAPService!!.getPurchases(3, packageName, "inapp", null)
-                    if (ownedItems.getInt("RESPONSE_CODE") == 0) {
-                        mFullVersionUnlocked = ownedItems
-                                .getStringArrayList("INAPP_PURCHASE_ITEM_LIST")
-                                ?.any { it.equals(FULL_VERSION_SKU_NAME, ignoreCase = true) }
-                                ?: false
-                    }
-                }
-            } catch (e: Exception) {
-                Logger.log("Failed to check for purchased version.", e)
-            }
-        return mFullVersionUnlocked
-    }
-
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.apply {
             findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
-            findItem(R.id.buy_full_version)?.isVisible = !fullVersionUnlocked()
             findItem(R.id.synchronize)?.isEnabled = canPerformCloudSync()
         }
         return true
@@ -924,7 +876,6 @@ class SongListActivity
             R.id.shuffle -> shuffleSongList()
             R.id.sort_songs -> showSortDialog()
             R.id.settings -> startActivity(Intent(applicationContext, SettingsActivity::class.java))
-            R.id.buy_full_version -> buyFullVersion()
             R.id.manual -> openManualURL()
             R.id.about -> showAboutDialog()
             else -> return super.onOptionsItemSelected(item)
@@ -938,22 +889,6 @@ class SongListActivity
             mPerformingCloudSync = false
             val listView = findViewById<ListView>(R.id.listView)
             listView.setSelectionFromTop(mSavedListIndex, mSavedListOffset)
-        }
-    }
-
-    private fun buyFullVersion() {
-        try {
-            val buyIntentBundle = mIAPService!!.getBuyIntent(3, packageName,
-                    FULL_VERSION_SKU_NAME, "inapp", "")
-            val response = buyIntentBundle.getInt("RESPONSE_CODE")
-            if (response == 0) {
-                val pendingIntent = buyIntentBundle.getParcelable<PendingIntent>("BUY_INTENT")
-                if (pendingIntent != null)
-                    startIntentSenderForResult(pendingIntent.intentSender,
-                            GOOGLE_PLAY_TRANSACTION_FINISHED, Intent(), 0, 0, 0)
-            }
-        } catch (e: Exception) {
-            Logger.log("Failed to buy full version.", e)
         }
     }
 
@@ -1040,8 +975,18 @@ class SongListActivity
             if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
                 val track = mCachedCloudItems.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
 
-                val songLoadInfo = SongLoadInfo(sf, track, scrollingMode, "", mStartedByBandLeader = true, mStartedByMIDITrigger = false, mNativeDisplaySettings = nativeSettings, mSourceDisplaySettings = sourceSettings, mNoAudio = choiceInfo.mNoAudio)
-                val songLoadJob = SongLoadJob(songLoadInfo, mFullVersionUnlocked || Preferences.storageSystem === StorageType.Demo)
+                val songLoadInfo = SongLoadInfo(
+                    sf,
+                    track,
+                    scrollingMode,
+                    "",
+                    mStartedByBandLeader = true,
+                    mStartedByMIDITrigger = false,
+                    mNativeDisplaySettings = nativeSettings,
+                    mSourceDisplaySettings = sourceSettings,
+                    mNoAudio = choiceInfo.mNoAudio
+                )
+                val songLoadJob = SongLoadJob(songLoadInfo)
                 if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
                     playSong(PlaylistNode(sf), track, scrollingMode, true, nativeSettings, sourceSettings, choiceInfo.mNoAudio)
                 break
@@ -1216,8 +1161,6 @@ class SongListActivity
     }
 
     companion object {
-        private var mFullVersionUnlocked = false
-
         var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
         var mCachedCloudItems = CachedCloudCollection()
 
@@ -1236,10 +1179,7 @@ class SongListActivity
         lateinit var mSongListInstance: SongListActivity
 
         private const val PLAY_SONG_REQUEST_CODE = 3
-        private const val GOOGLE_PLAY_TRANSACTION_FINISHED = 4
         private const val MY_PERMISSIONS_REQUEST = 5
-
-        private const val FULL_VERSION_SKU_NAME = "full_version"
 
         // Fake storage items for temporary set list and default midi aliases
         var mTemporarySetListFile: File? = null

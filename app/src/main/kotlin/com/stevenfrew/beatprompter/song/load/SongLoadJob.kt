@@ -12,9 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
-                  private val mRegistered: Boolean)
-    : CoroutineScope {
+class SongLoadJob(val mSongLoadInfo: SongLoadInfo) : CoroutineScope {
     private val mHandler = SongLoadJobEventHandler()
     private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
     private val mCoRoutineJob = Job()
@@ -30,7 +28,7 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo,
                 System.gc()
                 try {
                     Logger.logLoader { "Starting to load '${mSongLoadInfo.mSongFile.mTitle}'." }
-                    val loadedSong = SongParser(mSongLoadInfo, mCancelEvent, mHandler, mRegistered).parse()
+                    val loadedSong = SongParser(mSongLoadInfo, mCancelEvent, mHandler).parse()
                     if (mCancelEvent.isCancelled)
                         throw SongLoadCancelledException()
                     Logger.logLoader("Song was loaded successfully.")

@@ -39,10 +39,11 @@ import kotlin.math.*
 /**
  * Song file parser. This returns the full information for playing the song.
  */
-class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
-                             private val mSongLoadCancelEvent: SongLoadCancelEvent,
-                             private val mSongLoadHandler: Handler,
-                             private val mRegistered: Boolean)
+class SongParser constructor(
+    private val mSongLoadInfo: SongLoadInfo,
+    private val mSongLoadCancelEvent: SongLoadCancelEvent,
+    private val mSongLoadHandler: Handler
+)
     : SongFileParser<Song>(mSongLoadInfo.mSongFile,
         mSongLoadInfo.initialScrollMode,
         mSongLoadInfo.mixedModeActive,
@@ -72,7 +73,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
     private var mLastBeatBlock: BeatBlock? = null
     private var mBeatsToAdjust: Int = 0
     private var mCurrentBeat: Int = 0
-    private var mDisplayLineCounter: Int = 0
     private var mCountIn: Int
     private var mSendMidiClock = false
     private var mSongTime: Long = 0
@@ -168,38 +168,38 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                             it.mAudience,
                             mNativeDeviceSettings.mScreenSize,
                             mPaint,
-                            mFont)
+                        mFont
+                    )
                 }
-                .filter { it.isIntendedFor(mCustomCommentsUser) }
-                .forEach {
-                    if (mStopAddingStartupItems)
-                        mEvents.add(CommentEvent(mSongTime, it))
-                    else
-                        mStartScreenComments.add(it)
-                }
+            .filter { it.isIntendedFor(mCustomCommentsUser) }
+            .forEach {
+                if (mStopAddingStartupItems)
+                    mEvents.add(CommentEvent(mSongTime, it))
+                else
+                    mStartScreenComments.add(it)
+            }
 
-        if (mDisplayLineCounter < DEMO_LINE_COUNT || mRegistered)
-            tags
-                    .filterIsInstance<MIDIEventTag>()
-                    .forEach {
-                        if (mStopAddingStartupItems)
-                            mEvents.add(it.toMIDIEvent(mSongTime))
-                        else {
-                            mInitialMIDIMessages.addAll(it.mMessages)
-                            if (it.mOffset.mAmount != 0)
-                                mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
-                        }
-                    }
+        tags
+            .filterIsInstance<MIDIEventTag>()
+            .forEach {
+                if (mStopAddingStartupItems)
+                    mEvents.add(it.toMIDIEvent(mSongTime))
+                else {
+                    mInitialMIDIMessages.addAll(it.mMessages)
+                    if (it.mOffset.mAmount != 0)
+                        mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+                }
+            }
 
         mAudioTags.addAll(tags.filterIsInstance<AudioTag>())
 
         // If a line has a number of bars defined, we really should treat it as a line, even if
         // is blank.
         val shorthandBarTag = tagSequence
-                .filterIsInstance<BarMarkerTag>()
-                .firstOrNull()
+            .filterIsInstance<BarMarkerTag>()
+            .firstOrNull()
         val barsTag = tagSequence
-                .filterIsInstance<BarsTag>()
+            .filterIsInstance<BarsTag>()
                 .firstOrNull()
         // Contains only tags? Or contains nothing? Don't use it as a blank line.
         // BUT! If there are bar indicators of any kind, use the blank line.
@@ -265,13 +265,6 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             val pauseEvents = generatePauseEvents(mSongTime, pauseTag)
 
             if (createLine) {
-                // Won't pay? We'll take it away!
-                val disabled = (++mDisplayLineCounter > DEMO_LINE_COUNT && !mRegistered)
-                if (disabled) {
-                    workLine = BeatPrompter.getResourceString(R.string.please_buy)
-                    imageTag = null
-                }
-
                 // First line should always have a time of zero, so that if the user scrolls
                 // back to the start of the song, it still picks up any count-in beat events.
                 val lineStartTime = if (mLines.isEmpty()) 0L else mSongTime
@@ -321,18 +314,19 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
                     }
                 }
                 if (imageTag == null)
-                    lineObj = TextLine(workLine,
-                            if (disabled) nonChordTags else tags,
-                            lineStartTime,
-                            lineDuration,
-                            mCurrentLineBeatInfo.mScrollMode,
-                            mNativeDeviceSettings,
-                            mLines
-                                    .filterIsInstance<TextLine>()
-                                    .lastOrNull()?.mTrailingHighlightColor,
-                            mSongHeight,
-                            thisLineIsInChorus,
-                            startAndStopScrollTimes,
+                    lineObj = TextLine(
+                        workLine,
+                        tags,
+                        lineStartTime,
+                        lineDuration,
+                        mCurrentLineBeatInfo.mScrollMode,
+                        mNativeDeviceSettings,
+                        mLines
+                            .filterIsInstance<TextLine>()
+                            .lastOrNull()?.mTrailingHighlightColor,
+                        mSongHeight,
+                        thisLineIsInChorus,
+                        startAndStopScrollTimes,
                             mSongLoadCancelEvent)
 
                 if (lineObj != null) {
@@ -969,9 +963,5 @@ class SongParser constructor(private val mSongLoadInfo: SongLoadInfo,
             last().mNextGraphic = first()
             return result
         }
-    }
-
-    companion object {
-        private const val DEMO_LINE_COUNT = 15
     }
 }
