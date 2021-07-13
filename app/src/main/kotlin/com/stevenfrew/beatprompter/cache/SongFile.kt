@@ -6,7 +6,6 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.util.normalize
-import java.util.*
 
 @CacheXmlTag("song")
 /**
@@ -53,7 +52,7 @@ class SongFile(cachedFile: CachedFile,
         private var thePrefix = "${BeatPrompter.getResourceString(R.string.lowerCaseThe)} "
 
         fun sortableString(inStr: String?): String {
-            return inStr?.toLowerCase(Locale.getDefault())?.removePrefix(thePrefix) ?: ""
+            return inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
         }
     }
 }

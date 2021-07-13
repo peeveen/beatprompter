@@ -20,7 +20,6 @@ import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
 /**
  * OneDrive implementation of the storage system.
@@ -60,7 +59,7 @@ class OneDriveStorage(parentActivity: Activity)
                                                             val mMessageSource: PublishSubject<String>,
                                                             val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
         private fun isSuitableFileToDownload(childItem: Item): Boolean {
-            return childItem.audio != null || childItem.image != null || childItem.name.toLowerCase(Locale.getDefault()).endsWith(".txt")
+            return childItem.audio != null || childItem.image != null || childItem.name.lowercase().endsWith(".txt")
         }
 
         override fun doInBackground(vararg args: Void): Void? {

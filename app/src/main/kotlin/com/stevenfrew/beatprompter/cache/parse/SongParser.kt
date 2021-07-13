@@ -376,7 +376,7 @@ class SongParser constructor(
         val smoothMode = lineSequence.filter { it.mScrollMode == ScrollingMode.Smooth }.any()
 
         val startScreenStrings = createStartScreenStrings()
-        val totalStartScreenTextHeight = startScreenStrings.first.sumBy { it.mHeight }
+        val totalStartScreenTextHeight = startScreenStrings.first.sumOf { it.mHeight }
 
         // In smooth scrolling mode, the display will start scrolling immediately.
         // This is an essential feature of smooth scrolling mode, yet causes a problem: the first line

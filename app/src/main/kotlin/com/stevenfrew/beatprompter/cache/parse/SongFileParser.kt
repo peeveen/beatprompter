@@ -24,9 +24,9 @@ abstract class SongFileParser<TResultType>(cachedCloudFile: CachedFile,
 
         val commaBars = line.mTags.filterIsInstance<BarMarkerTag>().size
         var thisScrollBeatTotalOffset = line
-                .mTags
-                .filterIsInstance<ScrollBeatModifierTag>()
-                .sumBy { it.mModifier }
+            .mTags
+            .filterIsInstance<ScrollBeatModifierTag>()
+            .sumOf { it.mModifier }
 
         // ... or by a tag (which overrides commas)
         val tagSequence = line.mTags.asSequence()

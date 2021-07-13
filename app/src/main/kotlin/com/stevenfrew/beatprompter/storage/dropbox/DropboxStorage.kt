@@ -19,7 +19,6 @@ import io.reactivex.subjects.PublishSubject
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
 /**
  * DropBox implementation of the storage system.
@@ -123,7 +122,7 @@ class DropboxStorage(parentActivity: Activity)
                         if (listener.shouldCancel())
                             break
                         if (metadata is FileMetadata) {
-                            val filename = metadata.name.toLowerCase(Locale.getDefault())
+                            val filename = metadata.name.lowercase()
                             if (isSuitableFileToDownload(filename))
                                 itemSource.onNext(FileInfo(metadata.id, metadata.name, metadata.serverModified,
                                         if (folderToSearch.mParentFolder == null) "" else currentFolderID))

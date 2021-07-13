@@ -4,13 +4,17 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.*
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Message
+import android.os.ParcelUuid
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -37,6 +41,7 @@ import com.stevenfrew.beatprompter.song.load.*
 import com.stevenfrew.beatprompter.storage.*
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.ui.filter.*
+import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -770,7 +775,7 @@ class SongListActivity
             else
                 null
         })
-        tagAndFolderFilters.sortBy { it.mName.toLowerCase(Locale.getDefault()) }
+        tagAndFolderFilters.sortBy { it.mName.lowercase() }
 
         // Now create the basic "all songs" filter, dead easy ...
         val allSongsFilter = AllSongsFilter(mCachedCloudItems
@@ -1140,7 +1145,7 @@ class SongListActivity
     }
 
     override fun onQueryTextChange(searchText: String?): Boolean {
-        mSearchText = searchText?.toLowerCase(Locale.getDefault()) ?: ""
+        mSearchText = searchText?.lowercase() ?: ""
         buildList()
         return true
     }

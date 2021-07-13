@@ -96,7 +96,7 @@ class Song(val mSongFile: SongFile,
         fun isIntendedFor(audience: String): Boolean {
             return commentAudience.isEmpty() ||
                     audience.isBlank() ||
-                    audience.toLowerCase(Locale.getDefault()).splitAndTrim(",").intersect(commentAudience).any()
+                    audience.lowercase().splitAndTrim(",").intersect(commentAudience).any()
         }
 
         fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
