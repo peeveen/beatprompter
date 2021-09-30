@@ -27,6 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light"
         tools:replace="android:theme">
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <activity
             android:name=".ui.SongListActivity"
             android:configChanges="orientation|screenSize"

@@ -93,10 +93,12 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
                 // Something has disconnected.
-                (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice).apply {
-                    Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
-                    mReceiverTasks.stopAndRemoveReceiver(address)
-                    mSenderTask.removeSender(address)
+                (intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice?).apply {
+                    if (this != null) {
+                        Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
+                        mReceiverTasks.stopAndRemoveReceiver(address)
+                        mSenderTask.removeSender(address)
+                    }
                 }
             }
         }

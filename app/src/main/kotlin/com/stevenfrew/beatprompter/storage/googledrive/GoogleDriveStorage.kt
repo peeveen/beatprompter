@@ -6,11 +6,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.Scope
-import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.drive.DriveScopes
 import com.stevenfrew.beatprompter.BeatPrompter
@@ -61,15 +61,17 @@ class GoogleDriveStorage(parentActivity: Activity)
             mParentActivity.startActivityForResult(mGoogleSignInClient.signInIntent, REQUEST_CODE_GOOGLE_SIGN_IN)
         } else {
             val credential = GoogleAccountCredential.usingOAuth2(
-                    mParentActivity, listOf(*SCOPES))
-                    .setSelectedAccount(alreadySignedInAccount.account)
-                    .setBackOff(ExponentialBackOff())
-            val transport = AndroidHttp.newCompatibleTransport()
-            val jsonFactory = JacksonFactory.getDefaultInstance()
+                mParentActivity, listOf(*SCOPES)
+            )
+                .setSelectedAccount(alreadySignedInAccount.account)
+                .setBackOff(ExponentialBackOff())
+            val transport = NetHttpTransport()
+            val jsonFactory = GsonFactory()
             val service = com.google.api.services.drive.Drive.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName(BeatPrompter.APP_NAME)
-                    .build()
+                transport, jsonFactory, credential
+            )
+                .setApplicationName(BeatPrompter.APP_NAME)
+                .build()
             action.onConnected(service)
         }
     }
