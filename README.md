@@ -12,3 +12,6 @@ comes with a demo song preloaded, and if you want to try it out further, there a
 download in the "Demo Songs" section below.
 BeatPrompter can also drive external MIDI devices, outputting custom MIDI messages at specific moments during
 a song.
+
+# Download
+Avaiable from the [Google Play Store](https://play.google.com/store/apps/details?id=com.stevenfrew.beatprompter).
