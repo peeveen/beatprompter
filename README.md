@@ -7,9 +7,9 @@ on-screen text will definitely be in the right place at the right time, BeatProm
 of the song in as large a font as possible, making it more readable from a greater distance, or for users with
 imperfect vision.
 
-[BeatPrompterSongList](/media/beatprompterSongList.png)
+![BeatPrompterSongList](/media/beatprompterSongList.png)
 
-[BeatPrompterSongDisplay](/media/beatprompterSongDisplay.png)
+![BeatPrompterSongDisplay](/media/beatprompterSongDisplay.png)
 
 BeatPrompter reads song files that have been created in the popular ChordPro format. Due to nature of the app,
 it does not make use of the full ChordPro specification, though it introduces a few new features of its own.
