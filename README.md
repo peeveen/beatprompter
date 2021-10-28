@@ -7,7 +7,7 @@ of the song in as large a font as possible, making it more readable from a great
 imperfect vision. \
 BeatPrompter reads song files that have been created in the popular ChordPro format. Due to nature of the app,
 it does not make use of the full ChordPro specification, though it introduces a few new features of its own. \
-Your music files must be stored in either Google Drive or Dropbox for BeatPrompter to access them. \
+Your music files can be stored in Google Drive, Dropbox or OneDrive, or locally on your device storage. \
 BeatPrompter can also drive external MIDI devices, outputting custom MIDI messages at specific moments during
 a song.
 
