@@ -82,7 +82,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                                                                 val mListener: StorageListener,
                                                                 val mItemSource: PublishSubject<ItemInfo>,
                                                                 val mMessageSource: PublishSubject<String>,
-                                                                val mRecurseSubfolders: Boolean) : AsyncTask<Void, Void, Void>() {
+                                                                val mRecurseFolders: Boolean) : AsyncTask<Void, Void, Void>() {
 
         override fun doInBackground(vararg args: Void): Void? {
             val foldersToQuery = ArrayList<FolderInfo>()
@@ -102,7 +102,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                 try {
                     if (mListener.shouldCancel())
                         break
-                    val request = mClient.files().list().setQ(queryString).setFields("nextPageToken,files(id,name,mimeType,modifiedTime)")
+                    val request = mClient.files().list().setQ(queryString).setFields("nextPageToken,files(id,name,mimeType,modifiedTime,shortcutDetails)")
                     do {
                         if (mListener.shouldCancel())
                             break
@@ -113,21 +113,37 @@ class GoogleDriveStorage(parentActivity: Activity)
                         for (child in children.files) {
                             if (mListener.shouldCancel())
                                 break
-                            val fileID = child.id
-                            val title = child.name
+                            // Ignore shortcuts
+                            val resolvedChild = if (child.shortcutDetails != null) {
+                                mClient.files().get(child.shortcutDetails.targetId).execute()
+                            } else {
+                                child
+                            }
+                            val fileID = resolvedChild.id
+                            val title = resolvedChild.name
+                            val mimeType = resolvedChild.mimeType
                             Logger.log { "File ID: $fileID" }
-                            val mimeType = child.mimeType
                             if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
-                                val newFolder = FolderInfo(currentFolder, fileID, title, mStorage.constructFullPath(currentFolder.mDisplayPath, title))
-                                if (mRecurseSubfolders) {
+                                val newFolder = FolderInfo(
+                                    currentFolder,
+                                    fileID,
+                                    title,
+                                    mStorage.constructFullPath(
+                                        currentFolder.mDisplayPath,
+                                        title
+                                    )
+                                )
+                                if (mRecurseFolders) {
                                     Logger.log("Adding folder to list of folders to query ...")
                                     foldersToQuery.add(newFolder)
                                 }
                                 mItemSource.onNext(newFolder)
                             } else {
                                 Logger.log { "File title: $title" }
-                                val newFile = FileInfo(fileID, title, Date(child.modifiedTime.value),
-                                        if (currentFolder.mParentFolder == null) "" else currentFolderID)
+                                val newFile = FileInfo(
+                                    fileID, title, Date(child.modifiedTime.value),
+                                    if (currentFolder.mParentFolder == null) "" else currentFolderID
+                                )
                                 mItemSource.onNext(newFile)
                             }
                         }
