@@ -4,6 +4,9 @@
 output-metadata.json
 *.ap_
 
+# Keystores
+*.keystore
+
 # Files for the ART/Dalvik VM
 *.dex
 
