@@ -42,6 +42,7 @@ android {
     packagingOptions {
         resources {
             excludes += ['META-INF/LICENSE']
+            pickFirsts += ['META-INF/DEPENDENCIES']
         }
     }
     compileOptions {
@@ -55,15 +56,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation('com.google.api-client:google-api-client-android:1.32.1') {
-        exclude group: 'org.apache.httpcomponents'
-    }
-    implementation('com.google.apis:google-api-services-drive:v3-rev20210919-1.32.1') {
-        exclude group: 'org.apache.httpcomponents'
-    }
+    implementation('com.google.api-client:google-api-client-android:1.32.1')
+    implementation('com.google.apis:google-api-services-drive:v3-rev20211107-1.32.1')
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
-    implementation 'com.google.android.gms:play-services-drive:17.0.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.media:media:1.6.0'
