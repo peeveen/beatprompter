@@ -20,4 +20,4 @@ BeatPrompter can also drive external MIDI devices, outputting custom MIDI messag
 a song.
 
 # Download
-Avaiable from the [Google Play Store](https://play.google.com/store/apps/details?id=com.stevenfrew.beatprompter).
+Available from the [Google Play Store](https://play.google.com/store/apps/details?id=com.stevenfrew.beatprompter).
