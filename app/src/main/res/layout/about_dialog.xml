@@ -57,15 +57,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/author_twitter"
-        android:id="@+id/textView232"
-        android:layout_gravity="center_horizontal"
-        android:linksClickable="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/docs_at"
         android:id="@+id/textView8"
