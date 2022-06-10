@@ -20,7 +20,6 @@
     <string name="app_name">BeatPrompter</string>
     <string name="author_name" translatable="false">Steven Frew</string>
     <string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
-    <string name="author_twitter" translatable="false">Twitter: @beatprompter</string>
     <string name="docs_url" translatable="false">tinyurl.com/beatprompterdocs</string>
     <string name="google_drive_string" translatable="false">Google Drive</string>
     <string name="local_storage_string">Local Storage</string>
@@ -704,7 +703,7 @@ lyrics and [Em]chords in time with a beat.\n
 [Em]It can play backing tracks too\n
 [C]and it also has MIDI functionality.\n
 [D]Check the documentation for full details.\n
-[G]www.beatprompter.co.uk\n
+[G]tinyurl.com/beatprompterdocs\n
 [Em]I hope you like it!
 </string>
 
