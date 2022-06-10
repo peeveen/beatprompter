@@ -140,8 +140,9 @@ class GoogleDriveStorage(parentActivity: Activity)
                                 mItemSource.onNext(newFolder)
                             } else {
                                 Logger.log { "File title: $title" }
+                                val modifiedTime = Date(resolvedChild.modifiedTime.value)
                                 val newFile = FileInfo(
-                                    fileID, title, Date(child.modifiedTime.value),
+                                    fileID, title, modifiedTime,
                                     if (currentFolder.mParentFolder == null) "" else currentFolderID
                                 )
                                 mItemSource.onNext(newFile)
