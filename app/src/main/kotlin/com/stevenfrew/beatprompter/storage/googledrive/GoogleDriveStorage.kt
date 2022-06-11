@@ -102,7 +102,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                 try {
                     if (mListener.shouldCancel())
                         break
-                    val request = mClient.files().list().setQ(queryString).setFields("nextPageToken,files(id,name,mimeType,modifiedTime,shortcutDetails)")
+                    val request = mClient.files().list().setQ(queryString).setFields("nextPageToken,files(${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN})")
                     do {
                         if (mListener.shouldCancel())
                             break
@@ -115,7 +115,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                                 break
                             // Ignore shortcuts
                             val resolvedChild = if (child.shortcutDetails != null) {
-                                mClient.files().get(child.shortcutDetails.targetId).execute()
+                                mClient.files().get(child.shortcutDetails.targetId).setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
                             } else {
                                 child
                             }
@@ -176,7 +176,7 @@ class GoogleDriveStorage(parentActivity: Activity)
                 if (mListener.shouldCancel())
                     break
                 try {
-                    val file = mClient.files().get(cloudFile.mID).setFields("id,name,mimeType,trashed,modifiedTime").execute()
+                    val file = mClient.files().get(cloudFile.mID).setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD).execute()
                     val result = if (!file.trashed) {
                         val title = file.name
                         Logger.log { "File title: $title" }
@@ -238,7 +238,6 @@ class GoogleDriveStorage(parentActivity: Activity)
                 return mClient.files().get(file.id).executeMediaAsInputStream()
             return null
         }
-
     }
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
@@ -273,6 +272,9 @@ class GoogleDriveStorage(parentActivity: Activity)
         private const val GOOGLE_DRIVE_ROOT_FOLDER_ID = "root"
         private const val GOOGLE_DRIVE_ROOT_PATH = "/"
         private const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
+        private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON = "id,name,mimeType,modifiedTime"
+        private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN = "${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},shortcutDetails"
+        private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD = "${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},trashed"
         private const val GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
         private val SCOPES = arrayOf(DriveScopes.DRIVE_READONLY, Scopes.EMAIL)
         private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
