@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.storage.local
 
 import android.app.Activity
+import android.os.Environment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.*
@@ -24,7 +25,21 @@ class LocalStorage(parentActivity: Activity)
         get() = R.drawable.ic_device
 
     override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
-        rootPathSource.onNext(FolderInfo(null, mParentActivity.getExternalFilesDir(null)!!.path, "/", "/"))
+        // Android storage APIs are notoriously stupid, dating from a time when SD cards in phones
+        // were not a concept that anyone really considered. So when we ask for the "external"
+        // storage directory, it returns the path of the internal memory filesystem.
+        val internalStoragePath = Environment.getExternalStorageDirectory().absolutePath
+        // This returns ALL the folders that our app has access to. If there are multiple
+        // storage locations (e.g. internal memory AND an SD card), then it will return more than
+        // one. The internal memory is always first, so we'll use the last one to get an
+        // actual EXTERNAL storage path. Sadly it will be suffixed with "/android/our_app_id/blah/blah",
+        // but we can do something about that.
+        val folderPath = mParentActivity.getExternalFilesDirs(null).last().absolutePath
+        // If the folderPath starts with "/storage/emulated/0" (the internal storage path), use the internal storage path.
+        // But if it doesn't, then there's an SD card in play, so use that. The SD card path will start with "/storage/" then
+        // the ID of the card, so we can adjust the substring for that.
+        val pathToUse = if(folderPath.startsWith(internalStoragePath)) internalStoragePath else folderPath.substring(0,folderPath.indexOf('/',9))
+        rootPathSource.onNext(FolderInfo(null, pathToUse, "/", "/"))
     }
 
     override fun downloadFiles(filesToRefresh: List<FileInfo>, storageListener: StorageListener, itemSource: PublishSubject<DownloadResult>, messageSource: PublishSubject<String>) {
