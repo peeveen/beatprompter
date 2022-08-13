@@ -383,4 +383,5 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="pref_mute_title">Mudo</string>
     <string name="pref_mute_summary">Nunca reproduza áudio</string>
     <string name="shuffle">Aleatória</string>
+    <string name="privacy_policy">Política de privacidade …</string>
 </resources>

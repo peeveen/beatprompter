@@ -875,6 +875,11 @@ class SongListActivity
         startActivity(browserIntent)
     }
 
+    private fun openPrivacyPolicyURL() {
+        val browserIntent = Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL)
+        startActivity(browserIntent)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.synchronize -> performFullCloudSync()
@@ -882,6 +887,7 @@ class SongListActivity
             R.id.sort_songs -> showSortDialog()
             R.id.settings -> startActivity(Intent(applicationContext, SettingsActivity::class.java))
             R.id.manual -> openManualURL()
+            R.id.privacy_policy -> openPrivacyPolicyURL()
             R.id.about -> showAboutDialog()
             else -> return super.onOptionsItemSelected(item)
         }
@@ -1175,6 +1181,7 @@ class SongListActivity
         var mSongEndedNaturally = false
 
         private val MANUAL_URL = Uri.parse("https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI")
+        private val PRIVACY_POLICY_URL = Uri.parse("https://docs.google.com/document/d/1K9l_rWqP3mC_6VPAvdmTx1vOyLdfZ7ufUk3Y1nQsYbc")
 
         private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
         private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"

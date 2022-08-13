@@ -719,6 +719,7 @@ lyrics and [Em]chords in time with a beat.\n
     <string name="cloudSyncErrorTitle">Sync Error</string>
 
     <string name="instructions">Instructions …</string>
+    <string name="privacy_policy">Privacy policy …</string>
 
     <string name="midi_usb_on_the_go_string" translatable="false">USB On-The-Go</string>
     <string name="midi_native_string">Native</string>
