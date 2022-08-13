@@ -383,4 +383,5 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_mute_title">Muet</string>
     <string name="pref_mute_summary">Ne jamais jouer de l\'audio</string>
     <string name="shuffle">Mélanger</string>
+    <string name="privacy_policy">Politique de confidentialité …</string>
 </resources>

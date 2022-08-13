@@ -54,8 +54,13 @@
         app:showAsAction="never"
         android:title="@string/instructions"/>
     <item
-        android:id="@+id/about"
+        android:id="@+id/privacy_policy"
         android:orderInCategory="7"
+        app:showAsAction="never"
+        android:title="@string/privacy_policy"/>
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="8"
         app:showAsAction="never"
         android:title="@string/about"/>
 </menu>
