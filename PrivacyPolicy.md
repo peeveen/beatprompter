@@ -1,4 +1,4 @@
-BeatPrompter Privacy Policy
+# BeatPrompter Privacy Policy
 
 BeatPrompter will request the following access rights, for the following reasons:
 
@@ -17,7 +17,8 @@ Despite the wording of this request, BeatPrompter does not access any of your ph
 
 BeatPrompter requires internet access to download files from the cloud storage. It also features Bluetooth functionality to allow multiple devices that are running BeatPrompter to operate in sync.
 
-Further information
+##Further information
+
 - BeatPrompter is friendly software with no hidden agenda.
 - BeatPrompter does not "steal" any of your information.
 - BeatPrompter does not upload anything to a server (there is no server of any kind ... I doubt I could afford one).
