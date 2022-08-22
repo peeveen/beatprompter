@@ -11,7 +11,7 @@ android {
         // Enabling multidex support.
         multiDexEnabled true
         targetSdkVersion 32
-        versionCode 525
+        versionCode 526
         versionName "1.42"
         resConfigs 'en', 'fr', 'pt', 'de', 'es', 'it'
     }
