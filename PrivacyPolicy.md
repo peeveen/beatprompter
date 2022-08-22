@@ -17,7 +17,7 @@ Despite the wording of this request, BeatPrompter does not access any of your ph
 
 BeatPrompter requires internet access to download files from the cloud storage. It also features Bluetooth functionality to allow multiple devices that are running BeatPrompter to operate in sync.
 
-##Further information
+## Further information
 
 - BeatPrompter is friendly software with no hidden agenda.
 - BeatPrompter does not "steal" any of your information.
