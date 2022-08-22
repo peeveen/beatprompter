@@ -1181,7 +1181,7 @@ class SongListActivity
         var mSongEndedNaturally = false
 
         private val MANUAL_URL = Uri.parse("https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI")
-        private val PRIVACY_POLICY_URL = Uri.parse("https://docs.google.com/document/d/1K9l_rWqP3mC_6VPAvdmTx1vOyLdfZ7ufUk3Y1nQsYbc")
+        private val PRIVACY_POLICY_URL = Uri.parse("https://github.com/peeveen/beatprompter/blob/main/PrivacyPolicy.md")
 
         private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
         private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
