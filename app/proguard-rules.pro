@@ -32,6 +32,7 @@
 -keep class com.onedrive.sdk.extensions.** {*;}
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
+-keep class org.apache.** { *; }
 -keep class com.google.api.client.googleapis.** {*;}
 # Kotlin ... still to figure out why this is needed.
 -keep public class kotlin.** { *; }
