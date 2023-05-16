@@ -147,7 +147,12 @@ object MIDIController {
         }
 
         mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
-        mPermissionIntent = PendingIntent.getBroadcast(application, 0, Intent(ACTION_USB_PERMISSION), 0)
+        mPermissionIntent = PendingIntent.getBroadcast(
+            application,
+            0,
+            Intent(ACTION_USB_PERMISSION),
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val filter = IntentFilter().apply {
             addAction(ACTION_USB_PERMISSION)
