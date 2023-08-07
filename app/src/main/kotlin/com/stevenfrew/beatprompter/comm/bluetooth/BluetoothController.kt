@@ -195,7 +195,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
                     BluetoothMode.Client -> {
                         shutDownBluetoothServer()
                         if (mConnectToServerThread == null) {
-                            mBluetoothAdapter.bondedDevices
+														getPairedDevices()
                                     .firstOrNull { it.address == Preferences.bandLeaderDevice }
                                     ?.also {
                                         try {
@@ -227,8 +227,17 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
         }
     }
 
+		private fun enableBluetooth(){
+				EventRouter.sendEventToSongList(Events.ENABLE_BLUETOOTH)
+		}
+
     fun getPairedDevices(): List<BluetoothDevice> {
-        return mBluetoothAdapter?.bondedDevices?.toList() ?: listOf()
+				return try {
+					mBluetoothAdapter?.bondedDevices?.toList() ?: listOf()
+				}catch( se:SecurityException){
+					enableBluetooth()
+					listOf()
+				}
     }
 
     /**
@@ -236,22 +245,30 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
      * new connection.
      */
     private fun handleConnectionFromClient(socket: BluetoothSocket) {
-        if (Preferences.bluetoothMode === BluetoothMode.Server) {
-            Logger.logComms { "Client connection opened with '${socket.remoteDevice.name}'" }
-            mSenderTask.addSender(socket.remoteDevice.address, Sender(socket))
-            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
-        }
+				try {
+					if (Preferences.bluetoothMode === BluetoothMode.Server) {
+						Logger.logComms { "Client connection opened with '${socket.remoteDevice.name}'" }
+						mSenderTask.addSender(socket.remoteDevice.address, Sender(socket))
+						EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
+					}
+				}catch(se:SecurityException){
+					enableBluetooth()
+				}
     }
 
     /**
      * Sets the server connection socket once we connect.
      */
     private fun setServerConnection(socket: BluetoothSocket) {
-        if (Preferences.bluetoothMode === BluetoothMode.Client) {
-            Logger.logComms { "Server connection opened with '${socket.remoteDevice.name}'" }
-            mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
-            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
-        }
+			try {
+				if (Preferences.bluetoothMode === BluetoothMode.Client) {
+					Logger.logComms { "Server connection opened with '${socket.remoteDevice.name}'" }
+					mReceiverTasks.addReceiver(socket.remoteDevice.address, socket.remoteDevice.name, Receiver(socket))
+					EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
+				}
+			} catch(se:SecurityException){
+				enableBluetooth()
+			}
     }
 
     /**
