@@ -11,10 +11,12 @@ import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.os.ParcelUuid
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -1117,6 +1119,31 @@ class SongListActivity
                 Events.SONG_LOAD_LINE_PROCESSED -> {
                     mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
                 }
+								Events.ENABLE_STORAGE -> {
+									if(ContextCompat.checkSelfPermission(mSongList,Manifest.permission.MANAGE_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED) {
+										if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+											val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
+											mSongList.startActivity(
+												Intent(
+													Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+													uri
+												)
+											)
+										}
+									}
+								}
+								Events.ENABLE_BLUETOOTH -> {
+									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+										val bluetoothPermissions = arrayOf(
+												Manifest.permission.BLUETOOTH_ADVERTISE,
+												Manifest.permission.BLUETOOTH_CONNECT,
+												Manifest.permission.BLUETOOTH_SCAN
+										)
+
+										if(!bluetoothPermissions.all{ContextCompat.checkSelfPermission(mSongList,it)==PackageManager.PERMISSION_GRANTED})
+											ActivityCompat.requestPermissions(mSongList, bluetoothPermissions, 1)
+									}
+								}
             }
         }
     }

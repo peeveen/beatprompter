@@ -56,6 +56,8 @@ class SettingsFragment : PreferenceFragment(), FolderSelectionListener, SharedPr
             Preferences.cloudPath = null
             Preferences.cloudDisplayPath = null
             (cloudPref as ImageListPreference).forceUpdate()
+						if(value==StorageType.Local.toString())
+								EventRouter.sendEventToSongList(Events.ENABLE_STORAGE)
             true
         }
     }
