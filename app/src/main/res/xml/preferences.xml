@@ -358,12 +358,12 @@
     </PreferenceScreen>
     <PreferenceScreen
         android:title="@string/miscellaneous_options">
-    <CheckBoxPreference
+<!--    <CheckBoxPreference
         android:key="@string/pref_useExternalStorage_key"
         android:title="@string/pref_useExternalStorage_title"
         android:summary="@string/pref_useExternalStorage_summary"
         android:defaultValue="false" />
-<!--    <CheckBoxPreference
+    <CheckBoxPreference
         android:key="@string/pref_useCustomStorageLocation_key"
         android:title="@string/pref_useCustomStorageLocation_title"
         android:summary="@string/pref_useCustomStorageLocation_summary"
