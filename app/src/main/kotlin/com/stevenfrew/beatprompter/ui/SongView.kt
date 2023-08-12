@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.media.SoundPool
 import android.util.AttributeSet
 import android.view.GestureDetector
@@ -14,6 +13,9 @@ import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.GestureDetectorCompat
 import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.audio.AudioPlayer
+import com.stevenfrew.beatprompter.audio.AudioPlayerFactory
+import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
@@ -28,7 +30,6 @@ import com.stevenfrew.beatprompter.song.event.*
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
-import java.io.FileInputStream
 import kotlin.math.*
 
 class SongView
@@ -70,8 +71,9 @@ class SongView
     private val mShowScrollIndicator: Boolean
     private val mShowSongTitle: Boolean
     private val mCommentDisplayTimeNanoseconds: Long
-    private var mMediaPlayers = mapOf<AudioFile, MediaPlayer>()
-    private val mSilenceMediaPlayer: MediaPlayer = MediaPlayer.create(context, R.raw.silence)
+		private val mAudioPlayerFactory:AudioPlayerFactory= AudioPlayerFactory(AudioPlayerType.ExoPlayer,context)
+    private var mAudioPlayers = mapOf<AudioFile, AudioPlayer>()
+    private val mSilenceAudioPlayer: AudioPlayer = mAudioPlayerFactory.createSilencePlayer()
 
     private var mPulse: Boolean
     private var mSongPixelPosition = 0
@@ -170,54 +172,25 @@ class SongView
             mMetronomeOn = metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
         }
 
-        if (song.mAudioEvents.any()) {
-            mSilenceMediaPlayer.isLooping = true
-            mSilenceMediaPlayer.setVolume(0.01f, 0.01f)
-            mSilenceMediaPlayer.start()
-        }
+        if (song.mAudioEvents.any())
+            mSilenceAudioPlayer.start()
 
-        val mediaPlayerMap = song.mAudioEvents.associateBy(
+        val audioPlayerMap = song.mAudioEvents.associateBy(
                 { it.mAudioFile },
                 {
                     try {
-                        MediaPlayer().apply {
-                            FileInputStream(it.mAudioFile.mFile.absolutePath)
-                                    .use { stream ->
-                                        setDataSource(stream.fd)
-                                        prepare()
-                                        seekTo(0)
-                                        setVolume(0.01f * it.mVolume, 0.01f * it.mVolume)
-                                        isLooping = false
-                                    }
-                        }
+												mAudioPlayerFactory.create(it.mAudioFile.mFile, it.mVolume)
                     } catch (e: Exception) {
                         null
                     }
                 }
         )
 
-        if (mediaPlayerMap.any { it.value == null })
+        if (audioPlayerMap.any { it.value == null })
             Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
 
         @Suppress("UNCHECKED_CAST")
-        mMediaPlayers = mediaPlayerMap.filterValues { it != null } as Map<AudioFile, MediaPlayer>
-
-/*        song.mAudioEvents.forEach {
-            mMediaPlayers[it.mAudioFile] = MediaPlayer().apply {
-                try {
-                    FileInputStream(it.mAudioFile.mFile.absolutePath)
-                            .use { stream ->
-                                setDataSource(stream.fd)
-                                prepare()
-                                seekTo(0)
-                                setVolume(0.01f * it.mVolume, 0.01f * it.mVolume)
-                                isLooping = false
-                            }
-                } catch (e: Exception) {
-                    Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
-                }
-            }
-        }*/
+        mAudioPlayers = audioPlayerMap.filterValues { it != null } as Map<AudioFile, AudioPlayer>
 
         mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
         mCurrentBeatCountRect.apply {
@@ -291,7 +264,7 @@ class SongView
                 if (currentLine.mScrollMode === ScrollingMode.Smooth)
                     scrollPercentage = yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
             } else {
-                if (!scrolling && currentLine.mScrollMode !== ScrollingMode.Manual) {
+                if (!scrolling) {
                     if (!mSong!!.mNoScrollLines.contains(currentLine)) {
                         if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
                             scrollPercentage = (timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
@@ -547,9 +520,9 @@ class SongView
     }
 
     private fun startBackingTrack(): Boolean {
-        val mediaPlayer = mMediaPlayers[mSong!!.mBackingTrack]
-        mediaPlayer?.start()
-        return mediaPlayer != null
+        val audioPlayer = mAudioPlayers[mSong!!.mBackingTrack]
+        audioPlayer?.start()
+        return audioPlayer != null
     }
 
     private fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
@@ -559,7 +532,7 @@ class SongView
             if (mStartState === PlayState.AtTitleScreen)
                 if (e != null)
                     if (e.y > mSong!!.mDisplaySettings.mScreenSize.height() * 0.85f)
-                        if (!mSong!!.mNextSong.isBlank()) {
+                        if (mSong!!.mNextSong.isNotBlank()) {
                             endSong(true)
                             return true
                         }
@@ -624,7 +597,7 @@ class SongView
         mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
         BluetoothController.putMessage(ToggleStartStopMessage(ToggleStartStopMessage.StartStopToggleInfo(mStartState, mPauseTime)))
         mStartState = PlayState.reduce(mStartState)
-        mMediaPlayers.values.forEach {
+        mAudioPlayers.values.forEach {
             if (it.isPlaying)
                 it.pause()
         }
@@ -643,12 +616,12 @@ class SongView
             }
             mSong = null
             Task.stopTask(mManualMetronomeTask, mManualMetronomeThread)
-            mMediaPlayers.values.forEach {
+            mAudioPlayers.values.forEach {
                 it.stop()
                 it.release()
             }
-            mSilenceMediaPlayer.stop()
-            mSilenceMediaPlayer.release()
+            mSilenceAudioPlayer.stop()
+            mSilenceAudioPlayer.release()
             mClickSoundPool.release()
             System.gc()
         }
@@ -698,7 +671,7 @@ class SongView
     }
 
     private fun isTrackPlaying(): Boolean {
-        return mMediaPlayers.values.any { it.isPlaying }
+        return mAudioPlayers.values.any { it.isPlaying }
     }
 
     fun hasSong(title: String, artist: String): Boolean {
@@ -748,10 +721,10 @@ class SongView
     }
 
     private fun processAudioEvent(event: AudioEvent): Boolean {
-        val mediaPlayer = mMediaPlayers[event.mAudioFile] ?: return false
-        Logger.log("Track event hit: starting MediaPlayer")
-        mediaPlayer.seekTo(0)
-        mediaPlayer.start()
+        val audioPlayer = mAudioPlayers[event.mAudioFile] ?: return false
+        Logger.log("Track event hit: starting AudioPlayer")
+        audioPlayer.seekTo(0)
+        audioPlayer.start()
         return true
     }
 
@@ -786,11 +759,11 @@ class SongView
         startToggle(startStopInfo.mStartState)
     }
 
-    private fun seekTrack(audioFile: AudioFile, time: Int): MediaPlayer? {
-        val mediaPlayer = mMediaPlayers[audioFile]
-        if (mediaPlayer != null && mediaPlayer.duration > time) {
-            mediaPlayer.seekTo(time)
-            return mediaPlayer
+    private fun seekTrack(audioFile: AudioFile, time: Int): AudioPlayer? {
+        val audioPlayer = mAudioPlayers[audioFile]
+        if (audioPlayer != null && audioPlayer.duration > time) {
+            audioPlayer.seekTo(time.toLong())
+            return audioPlayer
         }
         return null
     }
@@ -812,11 +785,11 @@ class SongView
                 val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
                 if (audioEvent != null) {
                     val nTime = Utils.nanoToMilli(nano - audioEvent.mEventTime)
-                    val mediaPlayer = seekTrack(audioEvent.mAudioFile, nTime)
-                    musicPlaying = mediaPlayer != null
+                    val audioPlayer = seekTrack(audioEvent.mAudioFile, nTime)
+                    musicPlaying = audioPlayer != null
                     if (mStartState === PlayState.Playing) {
-                        Logger.log("Starting MediaPlayer")
-                        mediaPlayer?.start()
+                        Logger.log("Starting AudioPlayer")
+                        audioPlayer?.start()
                     }
                 }
             }
@@ -861,7 +834,7 @@ class SongView
         return true
     }
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         if (mScreenAction == ScreenAction.None)
             return false
         if (mStartState === PlayState.AtTitleScreen)
@@ -890,8 +863,8 @@ class SongView
         BluetoothController.putMessage(PauseOnScrollStartMessage)
         mUserHasScrolled = true
         mStartState = PlayState.Paused
-        mMediaPlayers.values.forEach {
-            Logger.log("Pausing MediaPlayers")
+        mAudioPlayers.values.forEach {
+            Logger.log("Pausing AudioPlayers")
             if (it.isPlaying)
                 it.pause()
         }
@@ -902,15 +875,15 @@ class SongView
     private fun onVolumeChanged() {
         mCurrentVolume = max(0, mCurrentVolume)
         mCurrentVolume = min(100, mCurrentVolume)
-        mMediaPlayers.values.forEach {
-            it.setVolume(0.01f * mCurrentVolume, 0.01f * mCurrentVolume)
+        mAudioPlayers.values.forEach {
+            it.setVolume(mCurrentVolume)
         }
         mLastTempMessageTime = System.nanoTime()
     }
 
     override fun onLongPress(e: MotionEvent) {}
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         if (mScreenAction == ScreenAction.None)
             return false
         if (mStartState === PlayState.AtTitleScreen)
