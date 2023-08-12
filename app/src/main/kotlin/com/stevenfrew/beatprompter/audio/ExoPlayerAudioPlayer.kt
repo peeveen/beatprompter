@@ -32,7 +32,6 @@ class ExoPlayerAudioPlayer:AudioPlayer {
 
 	override fun seekTo(ms: Long) {
 		mInternalPlayer.seekTo(ms)
-		mInternalPlayer.prepare()
 	}
 
 	override fun stop() {
@@ -49,6 +48,7 @@ class ExoPlayerAudioPlayer:AudioPlayer {
 
 	override val isPlaying: Boolean
 		get() = mInternalPlayer.isPlaying
+
 	override val duration: Long
 		get() = mInternalPlayer.duration
 

@@ -16,12 +16,18 @@ android {
         resConfigs 'en', 'fr', 'pt', 'de', 'es', 'it'
     }
     signingConfigs {
-        release {
-            storeFile file("beatprompter.keystore")
-            storePassword "beatprompter"
-            keyAlias "beatprompter"
-            keyPassword "beatprompter"
-        }
+			debug {
+				storeFile file("beatprompter.keystore")
+				storePassword "beatprompter"
+				keyAlias "beatprompter"
+				keyPassword "beatprompter"
+			}
+			release {
+				storeFile file("beatprompter.keystore")
+				storePassword "beatprompter"
+				keyAlias "beatprompter"
+				keyPassword "beatprompter"
+			}
     }
     buildTypes {
         debug {
@@ -46,6 +52,7 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin/'
     }
+		namespace 'com.stevenfrew.beatprompter'
 }
 
 dependencies {

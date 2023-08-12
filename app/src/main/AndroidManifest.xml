@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.stevenfrew.beatprompter"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,7 +12,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
@@ -41,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.IntroActivity"
+            android:name="com.stevenfrew.beatprompter.ui.IntroActivity"
             android:label="@string/title_activity_intro"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
@@ -50,7 +48,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".ui.SongDisplayActivity"
+            android:name="com.stevenfrew.beatprompter.ui.SongDisplayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_song_display"
             android:launchMode="singleTask"

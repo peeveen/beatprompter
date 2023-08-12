@@ -23,10 +23,10 @@ class MediaPlayerAudioPlayer:AudioPlayer {
 			FileInputStream(file.absolutePath)
 			.use { stream ->
 				setDataSource(stream.fd)
-				prepare()
 				seekTo(0)
 				setVolume(0.01f * volume, 0.01f * volume)
 				isLooping = false
+				prepare()
 			}
 		}
 	}
@@ -49,6 +49,7 @@ class MediaPlayerAudioPlayer:AudioPlayer {
 
 	override val isPlaying: Boolean
 		get() = mInternalPlayer.isPlaying
+
 	override val duration: Long
 		get() = mInternalPlayer.duration.toLong()
 

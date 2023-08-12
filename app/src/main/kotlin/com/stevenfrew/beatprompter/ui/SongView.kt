@@ -834,7 +834,7 @@ class SongView
         return true
     }
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         if (mScreenAction == ScreenAction.None)
             return false
         if (mStartState === PlayState.AtTitleScreen)
@@ -883,7 +883,7 @@ class SongView
 
     override fun onLongPress(e: MotionEvent) {}
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         if (mScreenAction == ScreenAction.None)
             return false
         if (mStartState === PlayState.AtTitleScreen)
