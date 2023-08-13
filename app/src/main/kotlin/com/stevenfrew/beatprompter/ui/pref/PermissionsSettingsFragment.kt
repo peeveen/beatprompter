@@ -79,7 +79,7 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 				}
 
 				Events.ENABLE_STORAGE -> {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 						val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
 						mFragment.startActivity(
 							Intent(
