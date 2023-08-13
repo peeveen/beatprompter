@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 
 
@@ -49,7 +51,7 @@ class SettingsActivity : AppCompatActivity(),
 		requestCode: Int, permissions: Array<String?>,
 		grantResults: IntArray
 	) {
-		this.supportFragmentManager.popBackStack()
+		EventRouter.sendEventToSettings(Events.PERMISSIONS_UPDATED)
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 	}
 }

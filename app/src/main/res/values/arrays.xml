@@ -178,4 +178,7 @@
 		<item>android.permission.BLUETOOTH_SCAN</item>
 		<item>android.permission.BLUETOOTH_ADVERTISE</item>
 	</array>
+	<array name="storage_permissions">
+		<item>android.permission.READ_EXTERNAL_STORAGE</item>
+	</array>
 </resources>

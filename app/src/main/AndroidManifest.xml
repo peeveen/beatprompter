@@ -11,6 +11,9 @@
 		android:name="android.permission.BLUETOOTH_ADMIN"
 		android:maxSdkVersion="30" />
 	<uses-permission
+		android:name="android.permission.READ_EXTERNAL_STORAGE"
+		android:maxSdkVersion="30" />
+	<uses-permission
 		android:name="android.permission.BLUETOOTH_SCAN"
 		android:usesPermissionFlags="neverForLocation" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
@@ -54,7 +57,7 @@
 		<activity
 			android:name="com.stevenfrew.beatprompter.ui.IntroActivity"
 			android:label="@string/title_activity_intro"
-			android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+			android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
 		<meta-data
 			android:name="com.google.android.gms.version"
@@ -70,7 +73,7 @@
 			android:name="com.stevenfrew.beatprompter.ui.pref.SettingsActivity"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:label="@string/title_activity_settings"
-			android:launchMode="singleTask"></activity>
+			android:launchMode="singleTask" />
 		<activity
 			android:name="com.dropbox.core.android.AuthActivity"
 			android:configChanges="orientation|keyboard"

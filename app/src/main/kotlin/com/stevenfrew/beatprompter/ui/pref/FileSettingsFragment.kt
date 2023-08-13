@@ -56,8 +56,6 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 			Preferences.cloudPath = null
 			Preferences.cloudDisplayPath = null
 			cloudPref.forceUpdate()
-			if (value == StorageType.Local.toString())
-				EventRouter.sendEventToSongList(Events.ENABLE_STORAGE)
 			true
 		}
 	}

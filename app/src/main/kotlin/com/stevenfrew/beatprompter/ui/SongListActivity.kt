@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -11,12 +10,10 @@ import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.os.ParcelUuid
-import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +22,7 @@ import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.*
@@ -559,6 +557,12 @@ class SongListActivity
 
 		initialiseLocalStorage()
 
+		/*checkPermissions(
+			listOf(
+				Manifest.permission.READ_EXTERNAL_STORAGE
+			)
+		)*/
+
 		Preferences.registerOnSharedPreferenceChangeListener(this)
 
 		// Set font stuff first.
@@ -581,6 +585,21 @@ class SongListActivity
 			displayOptions = ActionBar.DISPLAY_SHOW_HOME
 			setIcon(R.drawable.ic_beatprompter)
 			title = ""
+		}
+	}
+
+	private fun checkPermissions(permissions: List<String>) {
+		permissions.filter {
+			ContextCompat.checkSelfPermission(
+				this,
+				it
+			) != PackageManager.PERMISSION_GRANTED
+		}.let { missingPermissions ->
+			ActivityCompat.requestPermissions(
+				this,
+				missingPermissions.toTypedArray(),
+				MY_PERMISSIONS_REQUEST
+			)
 		}
 	}
 
@@ -1237,24 +1256,6 @@ class SongListActivity
 
 				Events.SONG_LOAD_LINE_PROCESSED -> {
 					mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
-				}
-
-				Events.ENABLE_STORAGE -> {
-					if (ContextCompat.checkSelfPermission(
-							mSongList,
-							Manifest.permission.MANAGE_EXTERNAL_STORAGE
-						) != PackageManager.PERMISSION_GRANTED
-					) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-							val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
-							mSongList.startActivity(
-								Intent(
-									Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-									uri
-								)
-							)
-						}
-					}
 				}
 			}
 		}

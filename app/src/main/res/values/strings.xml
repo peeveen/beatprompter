@@ -737,4 +737,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="permissionPref_granted">Granted</string>
 	<string name="permissionPref_denied">Denied</string>
 	<string name="permissions">Permissions</string>
+
+	<string name="pref_localStoragePermission_key" translatable="false">pref_localStoragePermission</string>
+	<string name="pref_localStoragePermission_summary">Allow BeatPrompter to read files from local folders.</string>
 </resources>

@@ -11,6 +11,7 @@ import com.stevenfrew.beatprompter.R
 
 class PermissionsPreference : Preference {
 	private val mPermissions: Array<out String>
+	private var inForceUpdate = false
 
 	constructor(context: Context?) : this(context, null)
 
@@ -33,11 +34,25 @@ class PermissionsPreference : Preference {
 	}
 
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
-		if (permissionsGranted(context, mPermissions))
+		if (permissionsGranted(context, mPermissions)) {
 			view.findViewById(R.id.permissionDenied).visibility = View.GONE
-		else
+			view.findViewById(R.id.permissionGranted).visibility = View.VISIBLE
+		} else {
 			view.findViewById(R.id.permissionGranted).visibility = View.GONE
+			view.findViewById(R.id.permissionDenied).visibility = View.VISIBLE
+		}
 		super.onBindViewHolder(view)
+	}
+
+	fun forceUpdate() {
+		if (!inForceUpdate) {
+			try {
+				inForceUpdate = true
+				notifyChanged()
+			} finally {
+				inForceUpdate = false
+			}
+		}
 	}
 
 	companion object {

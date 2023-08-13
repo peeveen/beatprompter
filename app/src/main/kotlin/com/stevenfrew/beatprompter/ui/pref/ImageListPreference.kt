@@ -9,7 +9,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 
-class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreference(context, attrs) {
+class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
+	ListPreference(mContext, attrs) {
 	private lateinit var resourceIds: IntArray
 
 	private var inForceUpdate = false
@@ -46,6 +47,33 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
 		}
 	}
 
+	private fun localStoragePermissionGranted(): Boolean {
+		return PermissionsPreference.permissionsGranted(
+			mContext,
+			mContext.resources.getStringArray(R.array.storage_permissions)
+		)
+	}
+
+	override fun getEntries(): Array<CharSequence> {
+		val entries = super.getEntries()
+		return if (localStoragePermissionGranted()) entries else entries.filter {
+			it != mContext.getString(
+				R.string.local_storage_string
+			)
+		}
+			.toTypedArray()
+	}
+
+	override fun getEntryValues(): Array<CharSequence> {
+		val entryValues = super.getEntryValues()
+		return if (localStoragePermissionGranted()) entryValues else entryValues.filter {
+			it != mContext.getString(
+				R.string.localStorageValue
+			)
+		}
+			.toTypedArray()
+	}
+
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
 		super.onBindViewHolder(view)
 		val imageView = view.findViewById(R.id.iconImageView) as ImageView
@@ -74,18 +102,4 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
 			}
 		}
 	}
-
-	/*
-    override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
-        val index = findIndexOfValue(sharedPreferences.getString(
-                key, "1"))
-
-        val listAdapter = ImageArrayAdapter(context,
-                R.layout.imagelistitem, entries, resourceIds, index)
-
-        // Order matters.
-        builder.setAdapter(listAdapter, this)
-        super.onPrepareDialogBuilder(builder)
-    }
-	 */
 }
