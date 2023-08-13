@@ -6,6 +6,9 @@
 	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
 		android:key="@string/pref_midiConnectionType_key"
 		android:layout="@layout/image_list_preference_layout"
+		android:dialogLayout="@layout/midi_channel_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
 		customStyle:entryPreferenceImages="@array/midi_connectiontype_pref_images"
 		android:title="@string/pref_midiConnectionType_title"
 		android:dialogTitle="@string/pref_midiConnectionType_dialogTitle"
@@ -16,6 +19,9 @@
 	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
 		android:key="@string/pref_midiIncomingChannels_key"
 		android:defaultValue="@string/pref_midiIncomingChannels_default"
+		android:dialogLayout="@layout/midi_channel_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
 		app:iconSpaceReserved="false"
 		android:summary="@string/pref_midiIncomingChannels_summary"
 		sf:singleSelect="false"
@@ -23,6 +29,9 @@
 	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
 		android:key="@string/pref_defaultMIDIOutputChannel_key"
 		app:iconSpaceReserved="false"
+		android:dialogLayout="@layout/midi_channel_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
 		android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
 		android:summary="@string/pref_defaultMIDIOutputChannel_summary"
 		sf:singleSelect="true"

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<!--    <CheckBoxPreference
 					android:key="@string/pref_useExternalStorage_key"
 					android:title="@string/pref_useExternalStorage_title"
@@ -55,6 +56,7 @@
 					android:defaultValue="false" />-->
 	<EditTextPreference
 		android:key="@string/pref_customComments_key"
+		app:iconSpaceReserved="false"
 		android:title="@string/pref_customComments_title"
 		android:summary="@string/pref_customComments_summary"
 		android:defaultValue="" />
@@ -67,6 +69,7 @@
 					android:defaultValue="@string/pref_scrollingStyle_defaultValue" />-->
 	<ListPreference
 		android:key="@string/pref_bluetoothMode_key"
+		app:iconSpaceReserved="false"
 		android:title="@string/pref_bluetoothMode_title"
 		android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
 		android:summary="@string/pref_bluetoothMode_summary"
@@ -77,13 +80,16 @@
 		android:key="@string/pref_bandLeaderDevice_key"
 		android:title="@string/pref_bandLeaderDevice_title"
 		android:dialogTitle="@string/pref_bandLeaderDevice_dialogTitle"
+		app:iconSpaceReserved="false"
 		android:summary="@string/pref_bandLeaderDevice_summary"/>
 	<CheckBoxPreference
 		android:key="@string/pref_mute_key"
 		android:title="@string/pref_mute_title"
+		app:iconSpaceReserved="false"
 		android:summary="@string/pref_mute_summary"
 		android:defaultValue="false" />
 	<CheckBoxPreference
+		app:iconSpaceReserved="false"
 		android:key="@string/pref_manualMode_key"
 		android:title="@string/pref_manualMode_title"
 		android:summary="@string/pref_manualMode_summary"
