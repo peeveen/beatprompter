@@ -5,13 +5,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 	<Preference
 		app:key="colors_screen_preference"
-		app:summary="Opens the colors settings."
 		android:icon="@drawable/ic_palette"
 		app:title="Colors"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.ColorSettingsFragment"/>
 	<Preference
 		app:key="font-size_screen_preference"
-		app:summary="Opens the font size settings."
 		android:icon="@drawable/ic_fontsize"
 		app:title="Font Sizes"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.FontSizeSettingsFragment"/>

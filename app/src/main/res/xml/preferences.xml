@@ -7,31 +7,26 @@
 	android:key="main">
 	<Preference
 		app:key="files_screen_preference"
-		app:summary="Opens the files settings."
 		android:icon="@drawable/ic_folder"
 		app:title="@string/cloud_sync"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment"/>
 	<Preference
 		app:key="song-list_screen_preference"
-		app:summary="Opens the song list settings."
 		app:title="@string/song_list_options"
 		android:icon="@drawable/ic_document"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.SongListSettingsFragment"/>
 	<Preference
 		app:key="song-display_screen_preference"
-		app:summary="Opens the song display settings."
 		app:title="@string/song_display_options"
 		android:icon="@drawable/ic_musical_notes"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.SongDisplaySettingsFragment"/>
 	<Preference
 		app:key="midi_screen_preference"
-		app:summary="Opens the MIDI settings."
 		app:title="@string/midi"
 		android:icon="@drawable/midi"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.MidiSettingsFragment"/>
 	<Preference
 		app:key="misc_screen_preference"
-		app:summary="Opens the miscellaneous settings."
 		app:title="@string/miscellaneous_options"
 		android:icon="@android:drawable/ic_menu_help"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.MiscSettingsFragment"/>
