@@ -6,7 +6,6 @@
 	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
 		android:key="@string/pref_midiConnectionType_key"
 		android:layout="@layout/image_list_preference_layout"
-		android:dialogLayout="@layout/midi_channel_preference_dialog"
 		android:positiveButtonText="@android:string/ok"
 		android:negativeButtonText="@android:string/cancel"
 		customStyle:entryPreferenceImages="@array/midi_connectiontype_pref_images"
