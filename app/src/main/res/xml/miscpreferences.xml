@@ -1,97 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
-	<!--    <CheckBoxPreference
-					android:key="@string/pref_useExternalStorage_key"
-					android:title="@string/pref_useExternalStorage_title"
-					android:summary="@string/pref_useExternalStorage_summary"
-					android:defaultValue="false" />
-			<CheckBoxPreference
-					android:key="@string/pref_useCustomStorageLocation_key"
-					android:title="@string/pref_useCustomStorageLocation_title"
-					android:summary="@string/pref_useCustomStorageLocation_summary"
-					android:defaultValue="false" />
-			<Preference
-					android:key="@string/pref_storageLocation_key"
-					android:title="@string/pref_storageLocation_title"
-					android:summary="@string/pref_storageLocation_summary" />-->
-	<!--    <com.stevenfrew.beatprompter.SeekBarPreference
-					android:key="@string/pref_minLines_key"
-					android:defaultValue="@string/pref_minLines_default"
-					android:dialogMessage="@string/pref_minLines_message"
-					android:max="@string/pref_minLines_max"
-					sf:offset="@string/pref_minLines_offset"
-					android:text="@string/pref_minLines_text"
-					android:title="@string/pref_minLines_title" /> -->
-
-	<!--    <com.stevenfrew.beatprompter.SeekBarPreference
-					android:key="@string/pref_lyricsHeight_key"
-					android:defaultValue="@string/pref_lyricsHeight_default"
-					android:dialogMessage="@string/pref_lyricsHeight_message"
-					android:max="@string/pref_lyricsHeight_max"
-					sf:offset="@string/pref_lyricsHeight_offset"
-					android:text="@string/pref_lyricsHeight_text"
-					android:title="@string/pref_lyricsHeight_title" />-->
-	<!--    <CheckBoxPreference
-					android:key="@string/pref_fixedLineHeight_key"
-					android:title="@string/pref_fixedLineHeight_title"
-					android:summary="@string/pref_fixedLineHeight_summary"
-					android:defaultValue="false" />-->
-	<!--    <ListPreference
-					android:key="@string/pref_lineJustification_key"
-					android:title="@string/pref_lineJustification_title"
-					android:dialogTitle="@string/pref_lineJustification_dialogTitle"
-					android:entries="@array/pref_lineJustification_entries"
-					android:entryValues="@array/pref_lineJustification_entryValues"
-					android:defaultValue="@string/pref_lineJustification_defaultValue" />-->
-	<!--    <CheckBoxPreference
-					android:key="@string/pref_wordWrap_key"
-					android:title="@string/pref_wordWrap_title"
-					android:summary="@string/pref_wordWrap_summary"
-					android:defaultValue="false" />-->
-	<!--    <CheckBoxPreference
-					android:key="@string/pref_ignoreColorInfo_key"
-					android:title="@string/pref_ignoreColorInfo_title"
-					android:summary="@string/pref_ignoreColorInfo_summary"
-					android:defaultValue="false" />-->
 	<EditTextPreference
+		android:defaultValue=""
 		android:key="@string/pref_customComments_key"
-		app:iconSpaceReserved="false"
-		android:title="@string/pref_customComments_title"
 		android:summary="@string/pref_customComments_summary"
-		android:defaultValue="" />
-	<!--    <ListPreference
-					android:key="@string/pref_scrollingStyle_key"
-					android:title="@string/pref_scrollingStyle_title"
-					android:dialogTitle="@string/pref_scrollingStyle_dialogTitle"
-					android:entries="@array/pref_scrollingStyle_entries"
-					android:entryValues="@array/pref_scrollingStyle_entryValues"
-					android:defaultValue="@string/pref_scrollingStyle_defaultValue" />-->
-	<ListPreference
-		android:key="@string/pref_bluetoothMode_key"
-		app:iconSpaceReserved="false"
-		android:title="@string/pref_bluetoothMode_title"
-		android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
-		android:summary="@string/pref_bluetoothMode_summary"
-		android:entries="@array/pref_bluetoothMode_entries"
-		android:entryValues="@array/pref_bluetoothMode_entryValues"
-		android:defaultValue="@string/pref_bluetoothMode_defaultValue" />
-	<com.stevenfrew.beatprompter.ui.pref.BandLeaderPreference
-		android:key="@string/pref_bandLeaderDevice_key"
-		android:title="@string/pref_bandLeaderDevice_title"
-		android:dialogTitle="@string/pref_bandLeaderDevice_dialogTitle"
-		app:iconSpaceReserved="false"
-		android:summary="@string/pref_bandLeaderDevice_summary"/>
+		android:title="@string/pref_customComments_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_mute_key"
-		android:title="@string/pref_mute_title"
-		app:iconSpaceReserved="false"
 		android:summary="@string/pref_mute_summary"
-		android:defaultValue="false" />
+		android:title="@string/pref_mute_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
-		app:iconSpaceReserved="false"
+		android:defaultValue="false"
 		android:key="@string/pref_manualMode_key"
-		android:title="@string/pref_manualMode_title"
 		android:summary="@string/pref_manualMode_summary"
-		android:defaultValue="false" />
+		android:title="@string/pref_manualMode_title"
+		app:iconSpaceReserved="false" />
 </PreferenceScreen>

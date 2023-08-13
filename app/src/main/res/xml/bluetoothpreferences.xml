@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:customStyle="http://schemas.android.com/apk/res-auto">
+	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
+		android:defaultValue="@string/pref_bluetoothMode_defaultValue"
+		android:layout="@layout/image_list_preference_layout"
+		android:dialogTitle="@string/pref_bluetoothMode_dialogTitle"
+		android:entries="@array/pref_bluetoothMode_entries"
+		android:entryValues="@array/pref_bluetoothMode_entryValues"
+		android:key="@string/pref_bluetoothMode_key"
+		android:summary="@string/pref_bluetoothMode_summary"
+		android:title="@string/pref_bluetoothMode_title"
+		app:iconSpaceReserved="false"
+		customStyle:entryPreferenceImages="@array/bluetoothMode_images" />
+	<com.stevenfrew.beatprompter.ui.pref.BandLeaderPreference
+		android:dialogTitle="@string/pref_bandLeaderDevice_dialogTitle"
+		android:key="@string/pref_bandLeaderDevice_key"
+		android:summary="@string/pref_bandLeaderDevice_summary"
+		android:title="@string/pref_bandLeaderDevice_title"
+		app:iconSpaceReserved="false" />
+</PreferenceScreen>

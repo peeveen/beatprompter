@@ -6,10 +6,10 @@
 	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
 		android:key="@string/pref_cloudStorageSystem_key"
 		android:layout="@layout/image_list_preference_layout"
-		customStyle:entryPreferenceImages="@array/cloudStorageSystem_images"
 		android:title="@string/pref_cloudStorageSystem_title"
 		android:dialogTitle="@string/pref_cloudStorageSystem_dialogTitle"
 		android:summary="@string/pref_cloudStorageSystem_summary"
+		customStyle:entryPreferenceImages="@array/cloudStorageSystem_images"
 		android:entries="@array/pref_cloudStorageSystem_entries"
 		android:entryValues="@array/pref_cloudStorageSystem_entryValues"
 		android:defaultValue="@string/pref_cloudStorageSystem_defaultValue" />

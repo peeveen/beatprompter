@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.stevenfrew.beatprompter.EventRouter
 import com.stevenfrew.beatprompter.Preferences
@@ -24,8 +25,16 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.preferences)
+	}
 
-		Preferences.registerOnSharedPreferenceChangeListener(this)
+	override fun onResume() {
+		val bluetoothPreference = findPreference<Preference>("bluetooth_screen_preference")
+		val context = this.requireContext()
+		bluetoothPreference?.isEnabled = PermissionsPreference.permissionsGranted(
+			context,
+			PermissionsSettingsFragment.getBluetoothPermissions(context)
+		)
+		super.onResume()
 	}
 
 	override fun onDestroy() {

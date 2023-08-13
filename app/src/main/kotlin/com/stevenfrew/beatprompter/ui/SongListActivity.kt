@@ -25,7 +25,6 @@ import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.cache.*
@@ -549,21 +548,6 @@ class SongListActivity
 		return true
 	}
 
-	private fun checkPermissions(permissions: List<String>) {
-		permissions.filter {
-			ContextCompat.checkSelfPermission(
-				this,
-				it
-			) != PackageManager.PERMISSION_GRANTED
-		}.let { missingPermissions ->
-			ActivityCompat.requestPermissions(
-				this,
-				missingPermissions.toTypedArray(),
-				MY_PERMISSIONS_REQUEST
-			)
-		}
-	}
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -574,14 +558,6 @@ class SongListActivity
 		EventRouter.setSongListEventHandler(mSongListEventHandler!!)
 
 		initialiseLocalStorage()
-
-		checkPermissions(
-			listOf(
-				Manifest.permission.GET_ACCOUNTS,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE,
-				Manifest.permission.READ_EXTERNAL_STORAGE
-			)
-		)
 
 		Preferences.registerOnSharedPreferenceChangeListener(this)
 
@@ -1278,24 +1254,6 @@ class SongListActivity
 								)
 							)
 						}
-					}
-				}
-
-				Events.ENABLE_BLUETOOTH -> {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-						val bluetoothPermissions = arrayOf(
-							Manifest.permission.BLUETOOTH_ADVERTISE,
-							Manifest.permission.BLUETOOTH_CONNECT,
-							Manifest.permission.BLUETOOTH_SCAN
-						)
-
-						if (!bluetoothPermissions.all {
-								ContextCompat.checkSelfPermission(
-									mSongList,
-									it
-								) == PackageManager.PERMISSION_GRANTED
-							})
-							ActivityCompat.requestPermissions(mSongList, bluetoothPermissions, 1)
 					}
 				}
 			}

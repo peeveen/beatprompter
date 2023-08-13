@@ -57,6 +57,8 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
 			BeatPrompter.getResourceString(R.string.midi_usb_on_the_go_value) -> R.drawable.ic_usb
 			BeatPrompter.getResourceString(R.string.midi_native_value) -> R.drawable.midi
 			BeatPrompter.getResourceString(R.string.midi_bluetooth_value) -> R.drawable.ic_bluetooth
+			BeatPrompter.getResourceString(R.string.bluetoothModeBandLeaderValue) -> R.drawable.master0
+			BeatPrompter.getResourceString(R.string.bluetoothModeBandMemberValue) -> R.drawable.duncecap
 			else -> R.drawable.blank_icon
 		}
 		imageView.setImageResource(iconResource)
