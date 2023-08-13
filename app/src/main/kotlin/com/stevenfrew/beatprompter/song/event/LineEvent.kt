@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.song.line.Line
 /**
  * A LineEvent tells the event processor to advance the song to the next line.
  */
-class LineEvent(eventTime: Long,
-                val mLine: Line)
-    : BaseEvent(eventTime)
+class LineEvent(
+	eventTime: Long,
+	val mLine: Line
+) : BaseEvent(eventTime)

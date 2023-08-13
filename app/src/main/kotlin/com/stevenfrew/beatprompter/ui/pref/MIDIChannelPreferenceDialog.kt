@@ -8,27 +8,28 @@ import android.widget.ToggleButton
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.stevenfrew.beatprompter.R
 
-class MIDIChannelPreferenceDialog(private val mSingleSelect:Boolean) : PreferenceDialogFragmentCompat(), CompoundButton.OnCheckedChangeListener {
-		private var mCurrentValue:Int=0
-		private var mView:GridLayout?=null
-		override fun onBindDialogView(view: View) {
-				mView=view.findViewById<GridLayout>(R.id.midiGrid)
-				mView!!.apply {
-						useDefaultMargins = false
-						alignmentMode = GridLayout.ALIGN_BOUNDS
-						isRowOrderPreserved = false
-				}
-				mCurrentValue = (this.preference as MIDIChannelPreference).getPreferenceValue()
-				repeat(16) {
-						val tb = view.findViewById<ToggleButton>(toggleIDs[it])
-						val set = mCurrentValue and (1 shl it) != 0
-						tb.isChecked = set
-						if (mSingleSelect && set)
-								tb.isEnabled = false
-						tb.setOnCheckedChangeListener(this)
-				}
-			super.onBindDialogView(view)
+class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
+	PreferenceDialogFragmentCompat(), CompoundButton.OnCheckedChangeListener {
+	private var mCurrentValue: Int = 0
+	private var mView: GridLayout? = null
+	override fun onBindDialogView(view: View) {
+		mView = view.findViewById<GridLayout>(R.id.midiGrid)
+		mView!!.apply {
+			useDefaultMargins = false
+			alignmentMode = GridLayout.ALIGN_BOUNDS
+			isRowOrderPreserved = false
 		}
+		mCurrentValue = (this.preference as MIDIChannelPreference).getPreferenceValue()
+		repeat(16) {
+			val tb = view.findViewById<ToggleButton>(toggleIDs[it])
+			val set = mCurrentValue and (1 shl it) != 0
+			tb.isChecked = set
+			if (mSingleSelect && set)
+				tb.isEnabled = false
+			tb.setOnCheckedChangeListener(this)
+		}
+		super.onBindDialogView(view)
+	}
 
 	override fun onDialogClosed(positiveResult: Boolean) {
 		if (positiveResult) {
@@ -78,11 +79,12 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect:Boolean) : Preferenc
 			R.id.midiChannel13Button,
 			R.id.midiChannel14Button,
 			R.id.midiChannel15Button,
-			R.id.midiChannel16Button)
+			R.id.midiChannel16Button
+		)
 
 		fun newInstance(
 			key: String?,
-			singleSelect:Boolean
+			singleSelect: Boolean
 		): MIDIChannelPreferenceDialog {
 			val fragment = MIDIChannelPreferenceDialog(singleSelect)
 			val b = Bundle(1)

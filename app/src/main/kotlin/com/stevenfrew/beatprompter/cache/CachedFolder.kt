@@ -8,10 +8,12 @@ import org.w3c.dom.Element
  * for filtering purposes.
  */
 class CachedFolder : CachedItem {
-    constructor(id: String,
-                name: String,
-                subfolderIDs: List<String>)
-            : super(id, name, subfolderIDs)
+	constructor(
+		id: String,
+		name: String,
+		subfolderIDs: List<String>
+	)
+		: super(id, name, subfolderIDs)
 
-    constructor(element: Element) : super(element)
+	constructor(element: Element) : super(element)
 }

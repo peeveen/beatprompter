@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.util.Utils
-import java.util.*
+import java.util.Locale
 
 
 class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSeekBarChangeListener {
@@ -31,7 +31,7 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 	override fun onDialogClosed(positiveResult: Boolean) {
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
-			val value=mSeekBar!!.progress
+			val value = mSeekBar!!.progress
 			(this.preference as FontSizePreference).setFontSize(value)
 		}
 	}

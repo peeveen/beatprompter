@@ -12,7 +12,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the end of a highlighted block of text.
  */
-class EndOfChorusTag internal constructor(name: String,
-                                          lineNumber: Int,
-                                          position: Int)
-    : Tag(name, lineNumber, position)
+class EndOfChorusTag internal constructor(
+	name: String,
+	lineNumber: Int,
+	position: Int
+) : Tag(name, lineNumber, position)

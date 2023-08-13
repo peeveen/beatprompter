@@ -4,51 +4,51 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import kotlin.random.Random
 
 internal class Playlist {
-    private val mItems = mutableListOf<PlaylistNode>()
+	private val mItems = mutableListOf<PlaylistNode>()
 
-    private val songFiles: List<SongFile>
-        get() {
-            return mItems.map { it.mSongFile }
-        }
+	private val songFiles: List<SongFile>
+		get() {
+			return mItems.map { it.mSongFile }
+		}
 
-    val nodes: List<PlaylistNode>
-        get() = mItems
+	val nodes: List<PlaylistNode>
+		get() = mItems
 
-    constructor() {
-        buildSongList(ArrayList())
-    }
+	constructor() {
+		buildSongList(ArrayList())
+	}
 
-    constructor(songs: List<SongFile>) {
-        buildSongList(songs)
-    }
+	constructor(songs: List<SongFile>) {
+		buildSongList(songs)
+	}
 
-    fun sortByTitle() {
-        buildSongList(songFiles.sortedBy { it.mSortableTitle })
-    }
+	fun sortByTitle() {
+		buildSongList(songFiles.sortedBy { it.mSortableTitle })
+	}
 
-    fun sortByArtist() {
-        buildSongList(songFiles.sortedBy { it.mSortableArtist })
-    }
+	fun sortByArtist() {
+		buildSongList(songFiles.sortedBy { it.mSortableArtist })
+	}
 
-    fun sortByKey() {
-        buildSongList(songFiles.sortedBy { it.mKey })
-    }
+	fun sortByKey() {
+		buildSongList(songFiles.sortedBy { it.mKey })
+	}
 
-    fun sortByDateModified() {
-        buildSongList(songFiles.sortedByDescending { it.mLastModified })
-    }
+	fun sortByDateModified() {
+		buildSongList(songFiles.sortedByDescending { it.mLastModified })
+	}
 
-    fun shuffle() {
-        val randomizedSongs = songFiles.map { it to Random.Default.nextDouble() }
-        buildSongList(randomizedSongs.sortedBy { it.second }.map { it.first })
-    }
+	fun shuffle() {
+		val randomizedSongs = songFiles.map { it to Random.Default.nextDouble() }
+		buildSongList(randomizedSongs.sortedBy { it.second }.map { it.first })
+	}
 
-    private fun buildSongList(songs: List<SongFile>) {
-        mItems.clear()
-        songs.forEach {
-            val node = PlaylistNode(it)
-            mItems.lastOrNull()?.mNextNode = node
-            mItems.add(node)
-        }
-    }
+	private fun buildSongList(songs: List<SongFile>) {
+		mItems.clear()
+		songs.forEach {
+			val node = PlaylistNode(it)
+			mItems.lastOrNull()?.mNextNode = node
+			mItems.add(node)
+		}
+	}
 }

@@ -7,7 +7,6 @@ import android.os.Message
 import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceScreen
 import com.stevenfrew.beatprompter.EventRouter
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Preferences
@@ -17,7 +16,8 @@ import com.stevenfrew.beatprompter.storage.FolderSelectionListener
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
 
-class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener,
+	SharedPreferences.OnSharedPreferenceChangeListener {
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
 		if (key == getString(R.string.pref_cloudPath_key))
 			onCloudPathChanged(prefs.getString(key, null))
@@ -56,7 +56,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 			Preferences.cloudPath = null
 			Preferences.cloudDisplayPath = null
 			cloudPref.forceUpdate()
-			if(value==StorageType.Local.toString())
+			if (value == StorageType.Local.toString())
 				EventRouter.sendEventToSongList(Events.ENABLE_STORAGE)
 			true
 		}
@@ -75,7 +75,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
 
 		if (cloudPathPref != null)
-			cloudPathPref.summary = if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
+			cloudPathPref.summary =
+				if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
 	}
 
 	internal fun setCloudPath() {
@@ -84,7 +85,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 			val cs = Storage.getInstance(cloudType, requireActivity())
 			cs.selectFolder(requireActivity(), this)
 		} else
-			Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG).show()
+			Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG)
+				.show()
 	}
 
 	override fun onFolderSelected(folderInfo: FolderInfo) {
@@ -104,8 +106,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 		return false
 	}
 
-	class FileSettingsEventHandler internal constructor(private val mFragment: FileSettingsFragment)
-		: Handler(),SettingsEventHandler {
+	class FileSettingsEventHandler internal constructor(private val mFragment: FileSettingsFragment) :
+		Handler(), SettingsEventHandler {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
 				Events.SET_CLOUD_PATH -> mFragment.setCloudPath()

@@ -13,206 +13,226 @@ import android.hardware.usb.UsbManager
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
-import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
 object MIDIController {
-    private var mMidiUsbRegistered = false
-    private var mUsbManager: UsbManager? = null
-    private var mInitialised = false
+	private var mMidiUsbRegistered = false
+	private var mUsbManager: UsbManager? = null
+	private var mInitialised = false
 
-    private var mNativeMidiManager: MidiManager? = null
+	private var mNativeMidiManager: MidiManager? = null
 
-    private var mMidiNativeDeviceListener: MidiNativeDeviceListener? = null
+	private var mMidiNativeDeviceListener: MidiNativeDeviceListener? = null
 
-    private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
-    private var mPermissionIntent: PendingIntent? = null
+	private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
+	private var mPermissionIntent: PendingIntent? = null
 
-    private const val MIDI_QUEUE_SIZE = 4096
+	private const val MIDI_QUEUE_SIZE = 4096
 
-    private var mMIDIOutQueue = MIDIMessageQueue(MIDI_QUEUE_SIZE)
-    private val mSenderTask = SenderTask(mMIDIOutQueue)
-    private val mReceiverTasks = ReceiverTasks()
+	private var mMIDIOutQueue = MIDIMessageQueue(MIDI_QUEUE_SIZE)
+	private val mSenderTask = SenderTask(mMIDIOutQueue)
+	private val mReceiverTasks = ReceiverTasks()
 
-    private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
+	private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
 
-    private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
-        if (Preferences.midiConnectionType == ConnectionType.Native)
-            if (mNativeMidiManager != null)
-                mNativeMidiManager!!.openDevice(nativeDeviceInfo, mMidiNativeDeviceListener, null)
-    }
+	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
+		if (Preferences.midiConnectionType == ConnectionType.Native)
+			if (mNativeMidiManager != null)
+				mNativeMidiManager!!.openDevice(nativeDeviceInfo, mMidiNativeDeviceListener, null)
+	}
 
-    private val mUsbReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
-                attemptUsbMidiConnection()
-            }
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
-                intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)?.apply {
-                    mSenderTask.removeSender(deviceName)
-                    mReceiverTasks.stopAndRemoveReceiver(deviceName)
-                }
-            } else if (ACTION_USB_PERMISSION == action) {
-                synchronized(this) {
-                    val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if (device != null) {
-                            val midiInterface = getDeviceMidiInterface(device)
-                            if (midiInterface != null) {
-                                val conn = mUsbManager!!.openDevice(device)
-                                if (conn != null) {
-                                    if (conn.claimInterface(midiInterface, true)) {
-                                        val endpointCount = midiInterface.endpointCount
-                                        repeat(endpointCount) {
-                                            val endPoint = midiInterface.getEndpoint(it)
-                                            if (endPoint.direction == UsbConstants.USB_DIR_OUT)
-                                                mSenderTask.addSender(device.deviceName, UsbSender(conn, endPoint, device.deviceName))
-                                            else if (endPoint.direction == UsbConstants.USB_DIR_IN)
-                                                mReceiverTasks.addReceiver(device.deviceName, device.deviceName, UsbReceiver(conn, endPoint, device.deviceName))
-                                            EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, device.deviceName)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+	private val mUsbReceiver = object : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			val action = intent.action
+			if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
+				attemptUsbMidiConnection()
+			}
+			if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
+				intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)?.apply {
+					mSenderTask.removeSender(deviceName)
+					mReceiverTasks.stopAndRemoveReceiver(deviceName)
+				}
+			} else if (ACTION_USB_PERMISSION == action) {
+				synchronized(this) {
+					val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
+					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+						if (device != null) {
+							val midiInterface = getDeviceMidiInterface(device)
+							if (midiInterface != null) {
+								val conn = mUsbManager!!.openDevice(device)
+								if (conn != null) {
+									if (conn.claimInterface(midiInterface, true)) {
+										val endpointCount = midiInterface.endpointCount
+										repeat(endpointCount) {
+											val endPoint = midiInterface.getEndpoint(it)
+											if (endPoint.direction == UsbConstants.USB_DIR_OUT)
+												mSenderTask.addSender(
+													device.deviceName,
+													UsbSender(conn, endPoint, device.deviceName)
+												)
+											else if (endPoint.direction == UsbConstants.USB_DIR_IN)
+												mReceiverTasks.addReceiver(
+													device.deviceName,
+													device.deviceName,
+													UsbReceiver(conn, endPoint, device.deviceName)
+												)
+											EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, device.deviceName)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    private fun getDeviceMidiInterface(device: UsbDevice): UsbInterface? {
-        val interfaceCount = device.interfaceCount
-        var fallbackInterface: UsbInterface? = null
-        repeat(interfaceCount) { interfaceIndex ->
-            val face = device.getInterface(interfaceIndex)
-            val mainClass = face.interfaceClass
-            val subclass = face.interfaceSubclass
-            // Oh you f***in beauty, we've got a perfect compliant MIDI interface!
-            if (mainClass == 1 && subclass == 3)
-                return face
-            else if (mainClass == 255 && fallbackInterface == null) {
-                // Basically, go with this if:
-                // It has all endpoints of type "bulk transfer"
-                // and
-                // The endpoints have a max packet size that is a multiplier of 4.
-                val endPointCount = face.endpointCount
-                var allEndpointsCheckout = true
-                repeat(endPointCount) {
-                    val ep = face.getEndpoint(it)
-                    val maxPacket = ep.maxPacketSize
-                    val type = ep.type
-                    allEndpointsCheckout = allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)
-                }
-                if (allEndpointsCheckout)
-                    fallbackInterface = face
-            }
-            // Aw bollocks, we've got some vendor-specific pish.
-            // Still worth trying.
-        }
-        return fallbackInterface
-    }
+	private fun getDeviceMidiInterface(device: UsbDevice): UsbInterface? {
+		val interfaceCount = device.interfaceCount
+		var fallbackInterface: UsbInterface? = null
+		repeat(interfaceCount) { interfaceIndex ->
+			val face = device.getInterface(interfaceIndex)
+			val mainClass = face.interfaceClass
+			val subclass = face.interfaceSubclass
+			// Oh you f***in beauty, we've got a perfect compliant MIDI interface!
+			if (mainClass == 1 && subclass == 3)
+				return face
+			else if (mainClass == 255 && fallbackInterface == null) {
+				// Basically, go with this if:
+				// It has all endpoints of type "bulk transfer"
+				// and
+				// The endpoints have a max packet size that is a multiplier of 4.
+				val endPointCount = face.endpointCount
+				var allEndpointsCheckout = true
+				repeat(endPointCount) {
+					val ep = face.getEndpoint(it)
+					val maxPacket = ep.maxPacketSize
+					val type = ep.type
+					allEndpointsCheckout =
+						allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)
+				}
+				if (allEndpointsCheckout)
+					fallbackInterface = face
+			}
+			// Aw bollocks, we've got some vendor-specific pish.
+			// Still worth trying.
+		}
+		return fallbackInterface
+	}
 
-    private fun attemptUsbMidiConnection() {
-        if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
-            val list = mUsbManager?.deviceList
-            if (list != null && list.size > 0) {
-                val devObjects = list.values
-                for (devObj in devObjects) {
-                    val dev = devObj as UsbDevice
-                    if (getDeviceMidiInterface(dev) != null) {
-                        mUsbManager!!.requestPermission(dev, mPermissionIntent)
-                        break
-                    }
-                }
-            }
-        }
-    }
+	private fun attemptUsbMidiConnection() {
+		if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
+			val list = mUsbManager?.deviceList
+			if (list != null && list.size > 0) {
+				val devObjects = list.values
+				for (devObj in devObjects) {
+					val dev = devObj as UsbDevice
+					if (getDeviceMidiInterface(dev) != null) {
+						mUsbManager!!.requestPermission(dev, mPermissionIntent)
+						break
+					}
+				}
+			}
+		}
+	}
 
-    fun initialise(application: BeatPrompter) {
-        mSenderTaskThread.start()
-        Task.resumeTask(mSenderTask)
+	fun initialise(application: BeatPrompter) {
+		mSenderTaskThread.start()
+		Task.resumeTask(mSenderTask)
 
-        mMidiNativeDeviceListener = MidiNativeDeviceListener()
-        mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as? MidiManager
-        mNativeMidiManager?.apply {
-            registerDeviceCallback(mMidiNativeDeviceListener, null)
-            devices?.forEach {
-                addNativeDevice(it)
-            }
-        }
+		mMidiNativeDeviceListener = MidiNativeDeviceListener()
+		mNativeMidiManager = application.getSystemService(Context.MIDI_SERVICE) as? MidiManager
+		mNativeMidiManager?.apply {
+			registerDeviceCallback(mMidiNativeDeviceListener, null)
+			devices?.forEach {
+				addNativeDevice(it)
+			}
+		}
 
-        mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
-        mPermissionIntent = PendingIntent.getBroadcast(
-            application,
-            0,
-            Intent(ACTION_USB_PERMISSION),
-            PendingIntent.FLAG_IMMUTABLE
-        )
+		mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
+		mPermissionIntent = PendingIntent.getBroadcast(
+			application,
+			0,
+			Intent(ACTION_USB_PERMISSION),
+			PendingIntent.FLAG_IMMUTABLE
+		)
 
-        val filter = IntentFilter().apply {
-            addAction(ACTION_USB_PERMISSION)
-            addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        }
+		val filter = IntentFilter().apply {
+			addAction(ACTION_USB_PERMISSION)
+			addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+			addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+		}
 
-        application.registerReceiver(mUsbReceiver, filter)
-        mMidiUsbRegistered = true
+		application.registerReceiver(mUsbReceiver, filter)
+		mMidiUsbRegistered = true
 
-        attemptUsbMidiConnection()
-        mInitialised = true
-    }
+		attemptUsbMidiConnection()
+		mInitialised = true
+	}
 
-    fun removeReceiver(task: ReceiverTask) {
-        mReceiverTasks.stopAndRemoveReceiver(task.mName)
-    }
+	fun removeReceiver(task: ReceiverTask) {
+		mReceiverTasks.stopAndRemoveReceiver(task.mName)
+	}
 
-    class MidiNativeDeviceListener : MidiManager.OnDeviceOpenedListener, MidiManager.DeviceCallback() {
-        override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) {
-            addNativeDevice(deviceInfo)
-        }
+	class MidiNativeDeviceListener : MidiManager.OnDeviceOpenedListener,
+		MidiManager.DeviceCallback() {
+		override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) {
+			addNativeDevice(deviceInfo)
+		}
 
-        override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
-            deviceInfo.properties[MidiDeviceInfo.PROPERTY_NAME]?.toString()?.also {
-                mSenderTask.removeSender(it)
-                mReceiverTasks.stopAndRemoveReceiver(it)
-            }
-        }
+		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
+			deviceInfo.properties[MidiDeviceInfo.PROPERTY_NAME]?.toString()?.also {
+				mSenderTask.removeSender(it)
+				mReceiverTasks.stopAndRemoveReceiver(it)
+			}
+		}
 
-        override fun onDeviceOpened(openedDevice: MidiDevice?) {
-            try {
-                openedDevice?.apply {
-                    val deviceName = "" + info.properties[MidiDeviceInfo.PROPERTY_NAME]
-                    info.ports.forEach {
-                        if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
-                            mReceiverTasks.addReceiver(deviceName, deviceName, NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName))
-                        else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
-                            mSenderTask.addSender(deviceName, NativeSender(openedDevice.openInputPort(it.portNumber), deviceName))
-                    }
-                    EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
-                }
-            } catch (ioException: Exception) {
-                // Obviously not for us.
-            }
-        }
-    }
+		override fun onDeviceOpened(openedDevice: MidiDevice?) {
+			try {
+				openedDevice?.apply {
+					val deviceName = "" + info.properties[MidiDeviceInfo.PROPERTY_NAME]
+					info.ports.forEach {
+						if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
+							mReceiverTasks.addReceiver(
+								deviceName,
+								deviceName,
+								NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
+							)
+						else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
+							mSenderTask.addSender(
+								deviceName,
+								NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
+							)
+					}
+					EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
+				}
+			} catch (ioException: Exception) {
+				// Obviously not for us.
+			}
+		}
+	}
 
-    internal fun addBeatClockMessages(amount: Int) {
-        if (mInitialised)
-            mMIDIOutQueue.addBeatClockMessages(amount)
-    }
+	internal fun addBeatClockMessages(amount: Int) {
+		if (mInitialised)
+			mMIDIOutQueue.addBeatClockMessages(amount)
+	}
 
-    internal fun putMessage(message: OutgoingMessage) {
-        if (mInitialised)
-            mMIDIOutQueue.putMessage(message)
-    }
+	internal fun putMessage(message: OutgoingMessage) {
+		if (mInitialised)
+			mMIDIOutQueue.putMessage(message)
+	}
 
-    internal fun putMessages(messages: List<OutgoingMessage>) {
-        if (mInitialised)
-            mMIDIOutQueue.putMessages(messages)
-    }
+	internal fun putMessages(messages: List<OutgoingMessage>) {
+		if (mInitialised)
+			mMIDIOutQueue.putMessages(messages)
+	}
 }

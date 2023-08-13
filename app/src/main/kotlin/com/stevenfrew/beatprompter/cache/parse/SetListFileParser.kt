@@ -11,29 +11,29 @@ import com.stevenfrew.beatprompter.set.SetListEntry
 /**
  * Parser for set list files.
  */
-class SetListFileParser(cachedCloudFile: CachedFile)
-    : TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
-    private var mSetName: String = ""
-    private val mSetListEntries = mutableListOf<SetListEntry>()
+class SetListFileParser(cachedCloudFile: CachedFile) :
+	TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
+	private var mSetName: String = ""
+	private val mSetListEntries = mutableListOf<SetListEntry>()
 
-    override fun parseLine(line: TextFileLine<SetListFile>) {
-        val setNameTag = line
-                .mTags
-                .asSequence()
-                .filterIsInstance<SetNameTag>()
-                .firstOrNull()
-        if (setNameTag != null) {
-            if (mSetName.isNotBlank())
-                mErrors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
-            else
-                mSetName = setNameTag.mSetName
-        } else if (line.mLineWithNoTags.isNotEmpty())
-            mSetListEntries.add(SetListEntry(line.mLineWithNoTags))
-    }
+	override fun parseLine(line: TextFileLine<SetListFile>) {
+		val setNameTag = line
+			.mTags
+			.asSequence()
+			.filterIsInstance<SetNameTag>()
+			.firstOrNull()
+		if (setNameTag != null) {
+			if (mSetName.isNotBlank())
+				mErrors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
+			else
+				mSetName = setNameTag.mSetName
+		} else if (line.mLineWithNoTags.isNotEmpty())
+			mSetListEntries.add(SetListEntry(line.mLineWithNoTags))
+	}
 
-    override fun getResult(): SetListFile {
-        if (mSetName.isBlank())
-            throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
-        return SetListFile(mCachedCloudFile, mSetName, mSetListEntries, mErrors)
-    }
+	override fun getResult(): SetListFile {
+		if (mSetName.isBlank())
+			throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
+		return SetListFile(mCachedCloudFile, mSetName, mSetListEntries, mErrors)
+	}
 }

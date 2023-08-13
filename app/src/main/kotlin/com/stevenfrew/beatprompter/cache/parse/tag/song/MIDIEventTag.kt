@@ -23,123 +23,141 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Tag that defines a MIDI event to be output to any connected devices.
  */
-class MIDIEventTag internal constructor(name: String,
-                                        lineNumber: Int,
-                                        position: Int,
-                                        value: String)
-    : Tag(name, lineNumber, position) {
-    val mMessages: List<OutgoingMessage>
-    val mOffset: EventOffset
+class MIDIEventTag internal constructor(
+	name: String,
+	lineNumber: Int,
+	position: Int,
+	value: String
+) : Tag(name, lineNumber, position) {
+	val mMessages: List<OutgoingMessage>
+	val mOffset: EventOffset
 
-    init {
-        val parsedEvent = parseMIDIEvent(name,
-                value, lineNumber, SongListActivity.mCachedCloudItems.midiAliases)
-        mMessages = parsedEvent.first
-        mOffset = parsedEvent.second
-    }
+	init {
+		val parsedEvent = parseMIDIEvent(
+			name,
+			value, lineNumber, SongListActivity.mCachedCloudItems.midiAliases
+		)
+		mMessages = parsedEvent.first
+		mOffset = parsedEvent.second
+	}
 
-    fun toMIDIEvent(time: Long): MIDIEvent {
-        return MIDIEvent(time, mMessages, mOffset)
-    }
+	fun toMIDIEvent(time: Long): MIDIEvent {
+		return MIDIEvent(time, mMessages, mOffset)
+	}
 
-    companion object {
-        fun parseMIDIEvent(name: String,
-                           value: String,
-                           lineNumber: Int,
-                           aliases: List<Alias>): Pair<List<OutgoingMessage>, EventOffset> {
-            val defaultChannel = Message.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
+	companion object {
+		fun parseMIDIEvent(
+			name: String,
+			value: String,
+			lineNumber: Int,
+			aliases: List<Alias>
+		): Pair<List<OutgoingMessage>, EventOffset> {
+			val defaultChannel = Message.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
 
-            val (tagName, tagValue, eventOffset) = normalizeMIDIValues(name, value, lineNumber)
+			val (tagName, tagValue, eventOffset) = normalizeMIDIValues(name, value, lineNumber)
 
-            val firstPassParamValues =
-                    tagValue
-                            .splitAndTrim(",")
-                            .asSequence()
-                            .filter { !it.isBlank() }
-                            .map { bit -> parseValue(bit) }
-                            .toList()
+			val firstPassParamValues =
+				tagValue
+					.splitAndTrim(",")
+					.asSequence()
+					.filter { !it.isBlank() }
+					.map { bit -> parseValue(bit) }
+					.toList()
 
-            val (params, channelValue) =
-                    separateParametersFromChannel(firstPassParamValues, defaultChannel)
+			val (params, channelValue) =
+				separateParametersFromChannel(firstPassParamValues, defaultChannel)
 
-            try {
-                val resolvedBytes = params
-                        .map { it.resolve() }
-                        .toByteArray()
-                val matchedAlias = aliases.firstOrNull { it.mName.equals(tagName, ignoreCase = true) }
-                return when {
-                    tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes)) to eventOffset
-                    matchedAlias != null -> matchedAlias.resolve(aliases, resolvedBytes, channelValue.resolve()) to eventOffset
-                    else -> throw MalformedTagException(R.string.unknown_midi_directive, tagName)
-                }
-            } catch (re: ResolutionException) {
-                throw MalformedTagException(re.message!!)
-            }
-        }
+			try {
+				val resolvedBytes = params
+					.map { it.resolve() }
+					.toByteArray()
+				val matchedAlias = aliases.firstOrNull { it.mName.equals(tagName, ignoreCase = true) }
+				return when {
+					tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes)) to eventOffset
+					matchedAlias != null -> matchedAlias.resolve(
+						aliases,
+						resolvedBytes,
+						channelValue.resolve()
+					) to eventOffset
 
-        private fun separateParametersFromChannel(params: List<Value>,
-                                                  defaultChannel: Byte): Pair<List<Value>, ChannelValue> {
-            val channelValue = params.mapIndexed { index, param ->
-                if (param is ChannelValue)
-                    if (index != params.size - 1)
-                        throw MalformedTagException(R.string.channel_must_be_last_parameter)
-                param
-            }.filterIsInstance<ChannelValue>().firstOrNull()
-            return Pair(if (channelValue == null) params else params.dropLast(1), channelValue
-                    ?: ChannelValue(defaultChannel))
-        }
+					else -> throw MalformedTagException(R.string.unknown_midi_directive, tagName)
+				}
+			} catch (re: ResolutionException) {
+				throw MalformedTagException(re.message!!)
+			}
+		}
 
-        private fun normalizeMIDIValues(name: String,
-                                        value: String,
-                                        lineNumber: Int): Triple<String, String, EventOffset> {
-            return if (value.isEmpty()) {
-                // A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
-                if (name.contains(";")) {
-                    val bits = name.splitAndTrim(";")
-                    if (bits.size > 2)
-                        throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
-                    if (bits.size > 1)
-                        Triple(bits[0], value, parseMIDIEventOffset(bits[1], lineNumber))
-                    else
-                        Triple(name, value, EventOffset(lineNumber))
-                } else
-                    Triple(name, value, EventOffset(lineNumber))
-            } else {
-                val firstSplitBits = value.splitAndTrim(";")
-                if (firstSplitBits.size > 1) {
-                    if (firstSplitBits.size > 2)
-                        throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
-                    Triple(name, firstSplitBits[0], parseMIDIEventOffset(firstSplitBits[1], lineNumber))
-                } else
-                    Triple(name, value, EventOffset(lineNumber))
-            }
-        }
+		private fun separateParametersFromChannel(
+			params: List<Value>,
+			defaultChannel: Byte
+		): Pair<List<Value>, ChannelValue> {
+			val channelValue = params.mapIndexed { index, param ->
+				if (param is ChannelValue)
+					if (index != params.size - 1)
+						throw MalformedTagException(R.string.channel_must_be_last_parameter)
+				param
+			}.filterIsInstance<ChannelValue>().firstOrNull()
+			return Pair(
+				if (channelValue == null) params else params.dropLast(1), channelValue
+					?: ChannelValue(defaultChannel)
+			)
+		}
 
-        private fun parseMIDIEventOffset(offsetString: String, lineNumber: Int): EventOffset {
-            val trimmedOffsetString = offsetString.trim()
-            if (trimmedOffsetString.isNotEmpty()) {
-                try {
-                    return try {
-                        EventOffset(trimmedOffsetString.toInt(),
-                                EventOffsetType.Milliseconds, lineNumber)
-                    } catch (e: NumberFormatException) {
-                        // Might be in the beat format
-                        val offsetChars = trimmedOffsetString.toCharArray()
-                        val upDiff = offsetChars.count { it == '>' }
-                        val downDiff = offsetChars.count { it == '<' }
-                        if (offsetChars.any { it != '<' && it != '>' })
-                            throw MalformedTagException(R.string.non_beat_characters_in_midi_offset)
-                        EventOffset(upDiff - downDiff, EventOffsetType.Beats, lineNumber)
-                    }
-                } catch (badValueEx: IllegalArgumentException) {
-                    throw MalformedTagException(badValueEx.message!!)
-                }
-            }
-            return EventOffset(lineNumber)
-        }
+		private fun normalizeMIDIValues(
+			name: String,
+			value: String,
+			lineNumber: Int
+		): Triple<String, String, EventOffset> {
+			return if (value.isEmpty()) {
+				// A MIDI tag of {blah;+33} ends up with "blah;+33" as the tag name. Fix it here.
+				if (name.contains(";")) {
+					val bits = name.splitAndTrim(";")
+					if (bits.size > 2)
+						throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
+					if (bits.size > 1)
+						Triple(bits[0], value, parseMIDIEventOffset(bits[1], lineNumber))
+					else
+						Triple(name, value, EventOffset(lineNumber))
+				} else
+					Triple(name, value, EventOffset(lineNumber))
+			} else {
+				val firstSplitBits = value.splitAndTrim(";")
+				if (firstSplitBits.size > 1) {
+					if (firstSplitBits.size > 2)
+						throw MalformedTagException(R.string.multiple_semi_colons_in_midi_tag)
+					Triple(name, firstSplitBits[0], parseMIDIEventOffset(firstSplitBits[1], lineNumber))
+				} else
+					Triple(name, value, EventOffset(lineNumber))
+			}
+		}
 
-        private fun parseValue(strVal: String): Value {
-            return TagParsingUtility.parseMIDIValue(strVal, 0, 1)
-        }
-    }
+		private fun parseMIDIEventOffset(offsetString: String, lineNumber: Int): EventOffset {
+			val trimmedOffsetString = offsetString.trim()
+			if (trimmedOffsetString.isNotEmpty()) {
+				try {
+					return try {
+						EventOffset(
+							trimmedOffsetString.toInt(),
+							EventOffsetType.Milliseconds, lineNumber
+						)
+					} catch (e: NumberFormatException) {
+						// Might be in the beat format
+						val offsetChars = trimmedOffsetString.toCharArray()
+						val upDiff = offsetChars.count { it == '>' }
+						val downDiff = offsetChars.count { it == '<' }
+						if (offsetChars.any { it != '<' && it != '>' })
+							throw MalformedTagException(R.string.non_beat_characters_in_midi_offset)
+						EventOffset(upDiff - downDiff, EventOffsetType.Beats, lineNumber)
+					}
+				} catch (badValueEx: IllegalArgumentException) {
+					throw MalformedTagException(badValueEx.message!!)
+				}
+			}
+			return EventOffset(lineNumber)
+		}
+
+		private fun parseValue(strVal: String): Value {
+			return TagParsingUtility.parseMIDIValue(strVal, 0, 1)
+		}
+	}
 }

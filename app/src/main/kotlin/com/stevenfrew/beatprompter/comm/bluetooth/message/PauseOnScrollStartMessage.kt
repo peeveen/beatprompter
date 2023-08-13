@@ -5,4 +5,4 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
  * the display.
  */
 object PauseOnScrollStartMessage
-    : SignalOnlyMessage(PAUSE_ON_SCROLL_START_MESSAGE_ID)
+	: SignalOnlyMessage(PAUSE_ON_SCROLL_START_MESSAGE_ID)

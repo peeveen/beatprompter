@@ -8,38 +8,38 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
  */
 class FileParseError private constructor(val mLineNumber: Int, val mMessage: String) {
 
-    internal constructor(lineNumber: Int, resourceId: Int, vararg args: Any)
-            : this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
+	internal constructor(lineNumber: Int, resourceId: Int, vararg args: Any)
+		: this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
 
-    internal constructor(tag: Tag, t: Throwable)
-            : this(tag.mLineNumber, t.message ?: t.toString())
+	internal constructor(tag: Tag, t: Throwable)
+		: this(tag.mLineNumber, t.message ?: t.toString())
 
-    internal constructor(lineNumber: Int, t: Throwable)
-            : this(lineNumber, t.message ?: t.toString())
+	internal constructor(lineNumber: Int, t: Throwable)
+		: this(lineNumber, t.message ?: t.toString())
 
-    internal constructor(tag: Tag, resourceId: Int, vararg args: Any)
-            : this(tag.mLineNumber, resourceId, *args)
+	internal constructor(tag: Tag, resourceId: Int, vararg args: Any)
+		: this(tag.mLineNumber, resourceId, *args)
 
-    internal constructor(resourceId: Int, vararg args: Any)
-            : this(-1, resourceId, *args)
+	internal constructor(resourceId: Int, vararg args: Any)
+		: this(-1, resourceId, *args)
 
-    override fun toString(): String {
-        return (if (mLineNumber != -1) "$mLineNumber: " else "") + mMessage
-    }
+	override fun toString(): String {
+		return (if (mLineNumber != -1) "$mLineNumber: " else "") + mMessage
+	}
 
-    override fun hashCode(): Int {
-        return 31 * mLineNumber.hashCode() + mMessage.hashCode()
-    }
+	override fun hashCode(): Int {
+		return 31 * mLineNumber.hashCode() + mMessage.hashCode()
+	}
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (javaClass != other?.javaClass) return false
 
-        other as FileParseError
+		other as FileParseError
 
-        if (mMessage != other.mMessage) return false
-        if (mLineNumber != other.mLineNumber) return false
+		if (mMessage != other.mMessage) return false
+		if (mLineNumber != other.mLineNumber) return false
 
-        return true
-    }
+		return true
+	}
 }

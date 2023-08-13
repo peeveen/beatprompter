@@ -7,11 +7,11 @@ package com.stevenfrew.beatprompter.midi.alias
  * or a reference to an argument (ArgumentValue)
  */
 abstract class Value {
-    internal abstract fun resolve(arguments: ByteArray, channel: Byte): Byte
+	internal abstract fun resolve(arguments: ByteArray, channel: Byte): Byte
 
-    internal abstract fun matches(otherValue: Value?): Boolean
+	internal abstract fun matches(otherValue: Value?): Boolean
 
-    fun resolve(): Byte {
-        return resolve(ByteArray(0), 0.toByte())
-    }
+	fun resolve(): Byte {
+		return resolve(ByteArray(0), 0.toByte())
+	}
 }
