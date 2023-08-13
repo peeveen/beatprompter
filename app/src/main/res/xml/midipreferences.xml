@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:sf="http://com.stevenfrew/"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:customStyle="http://schemas.android.com/apk/res-auto">
 	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
 		android:key="@string/pref_midiConnectionType_key"
@@ -15,17 +16,20 @@
 	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
 		android:key="@string/pref_midiIncomingChannels_key"
 		android:defaultValue="@string/pref_midiIncomingChannels_default"
+		app:iconSpaceReserved="false"
 		android:summary="@string/pref_midiIncomingChannels_summary"
 		sf:singleSelect="false"
 		android:title="@string/pref_midiIncomingChannels_title" />
 	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
 		android:key="@string/pref_defaultMIDIOutputChannel_key"
+		app:iconSpaceReserved="false"
 		android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
 		android:summary="@string/pref_defaultMIDIOutputChannel_summary"
 		sf:singleSelect="true"
 		android:title="@string/pref_defaultMIDIOutputChannel_title" />
 	<CheckBoxPreference
 		android:key="@string/pref_sendMidi_key"
+		app:iconSpaceReserved="false"
 		android:title="@string/pref_sendMidi_title"
 		android:summary="@string/pref_sendMidi_summary"
 		android:defaultValue="false" />
@@ -36,11 +40,13 @@
 		android:summary="@string/pref_sendMidiTriggerOnStart_summary"
 		android:entries="@array/pref_sendMidiTriggerOnStart_entries"
 		android:entryValues="@array/pref_sendMidiTriggerOnStart_entryValues"
+		app:iconSpaceReserved="false"
 		android:defaultValue="@string/pref_sendMidiTriggerOnStart_defaultValue" />
 	<ListPreference
 		android:key="@string/pref_midiTriggerSafetyCatch_key"
 		android:title="@string/pref_midiTriggerSafetyCatch_title"
 		android:dialogTitle="@string/pref_midiTriggerSafetyCatch_dialogTitle"
+		app:iconSpaceReserved="false"
 		android:summary="@string/pref_midiTriggerSafetyCatch_summary"
 		android:entries="@array/pref_midiTriggerSafetyCatch_entries"
 		android:entryValues="@array/pref_midiTriggerSafetyCatch_entryValues"
