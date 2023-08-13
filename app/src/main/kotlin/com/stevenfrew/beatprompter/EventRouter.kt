@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.pref.SettingsEventHandler
 import com.stevenfrew.beatprompter.ui.pref.SettingsFragment
 
 object EventRouter {
@@ -10,7 +11,7 @@ object EventRouter {
     private val mSettingsEventHandlerLock = Any()
     private var mSongListEventHandler: SongListActivity.SongListEventHandler? = null
     private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
-    private var mSettingsEventHandler: SettingsFragment.SettingsEventHandler? = null
+    private var mSettingsEventHandler: SettingsEventHandler? = null
 
     fun setSongListEventHandler(songListEventHandler: SongListActivity.SongListEventHandler?) {
         synchronized(mSongListEventHandlerLock) {
@@ -24,7 +25,7 @@ object EventRouter {
         }
     }
 
-    fun setSettingsEventHandler(settingsEventHandler: SettingsFragment.SettingsEventHandler?) {
+    fun setSettingsEventHandler(settingsEventHandler: SettingsEventHandler?) {
         synchronized(mSettingsEventHandlerLock) {
             mSettingsEventHandler = settingsEventHandler
         }

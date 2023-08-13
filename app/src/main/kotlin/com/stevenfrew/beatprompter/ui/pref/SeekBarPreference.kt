@@ -1,13 +1,9 @@
 package com.stevenfrew.beatprompter.ui.pref
 
-import android.app.AlertDialog
 import android.content.Context
-import android.os.Bundle
-import android.preference.DialogPreference
+import androidx.preference.DialogPreference
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 
@@ -38,7 +34,7 @@ class SeekBarPreference(private val mContext: Context,
         return if (resourceID == 0) attrs.getAttributeIntValue(namespace, name, lastResortDefault) else Integer.parseInt(context.getString(resourceID))
 
     }
-
+/*
     override fun onCreateDialogView(): View {
         val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -76,7 +72,7 @@ class SeekBarPreference(private val mContext: Context,
         mSeekBar!!.max = max
         mSeekBar!!.progress = mValue
     }
-
+*/
     override fun onSetInitialValue(restore: Boolean, defaultValue: Any?) {
         super.onSetInitialValue(restore, defaultValue)
         mValue = if (restore)
@@ -92,7 +88,7 @@ class SeekBarPreference(private val mContext: Context,
 
     override fun onStartTrackingTouch(seek: SeekBar) {}
     override fun onStopTrackingTouch(seek: SeekBar) {}
-
+/*
     public override fun showDialog(state: Bundle?) {
         super.showDialog(state)
         val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
@@ -108,7 +104,7 @@ class SeekBarPreference(private val mContext: Context,
 
         dialog.dismiss()
     }
-
+*/
     companion object {
         private const val androidns = "http://schemas.android.com/apk/res/android"
         private const val sfns = "http://com.stevenfrew/"
@@ -121,4 +117,8 @@ class SeekBarPreference(private val mContext: Context,
                 context.getString(resourceId)
         }
     }
+
+	override fun onClick(p0: View?) {
+		TODO("Not yet implemented")
+	}
 }

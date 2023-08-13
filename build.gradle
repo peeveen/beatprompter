@@ -3,8 +3,9 @@
 buildscript {
     ext.kotlin_version = '1.7.10'
     repositories {
-        jcenter()
+				mavenCentral()
         google()
+				jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.0'
@@ -16,16 +17,13 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
         mavenCentral()
-        maven {
-            url "https://maven.google.com"
-        }
+        google()
         maven {
             url "https://jitpack.io"
         }
-        google()
-    }
+				jcenter()
+		}
 }
 
 task clean(type: Delete) {

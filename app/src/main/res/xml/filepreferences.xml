@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:customStyle="http://schemas.android.com/apk/res-auto"	>
+	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
+		android:key="@string/pref_cloudStorageSystem_key"
+		android:layout="@layout/image_list_preference_layout"
+		customStyle:entryPreferenceImages="@array/cloudStorageSystem_images"
+		android:title="@string/pref_cloudStorageSystem_title"
+		android:dialogTitle="@string/pref_cloudStorageSystem_dialogTitle"
+		android:summary="@string/pref_cloudStorageSystem_summary"
+		android:entries="@array/pref_cloudStorageSystem_entries"
+		android:entryValues="@array/pref_cloudStorageSystem_entryValues"
+		android:defaultValue="@string/pref_cloudStorageSystem_defaultValue" />
+	<com.stevenfrew.beatprompter.ui.pref.CloudPathPreference
+		app:iconSpaceReserved="false"
+		android:key="@string/pref_cloudPath_key"
+		android:title="@string/pref_cloudPath_title"
+		android:summary="@string/pref_cloudPath_summary"
+		android:defaultValue="" />
+	<CheckBoxPreference
+		android:key="@string/pref_includeSubfolders_key"
+		app:iconSpaceReserved="false"
+		android:title="@string/pref_includeSubfolders_title"
+		android:summary="@string/pref_includeSubfolders_summary"
+		android:defaultValue="false" />
+	<Preference
+		android:key="@string/pref_clearCache_key"
+		app:iconSpaceReserved="false"
+		android:title="@string/pref_clearCache_title"
+		android:summary="@string/pref_clearCache_summary"/>
+</PreferenceScreen>

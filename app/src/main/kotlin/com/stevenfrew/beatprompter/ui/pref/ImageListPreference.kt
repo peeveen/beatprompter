@@ -2,10 +2,11 @@ package com.stevenfrew.beatprompter.ui.pref
 
 import android.app.AlertDialog
 import android.content.Context
-import android.preference.ListPreference
+import androidx.preference.ListPreference
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
+import androidx.preference.PreferenceViewHolder
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
@@ -42,9 +43,9 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
         }
     }
 
-    public override fun onBindView(view: View) {
-        super.onBindView(view)
-        val imageView = view.findViewById<ImageView>(R.id.iconImageView)
+    public override fun onBindViewHolder(view: PreferenceViewHolder) {
+        super.onBindViewHolder(view)
+        val imageView = view.findViewById(R.id.iconImageView) as ImageView
         val iconResource = when (Preferences.getStringPreference(key, "")) {
             BeatPrompter.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
             BeatPrompter.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
@@ -69,9 +70,7 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+	/*
     override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
         val index = findIndexOfValue(sharedPreferences.getString(
                 key, "1"))
@@ -83,4 +82,5 @@ class ImageListPreference(context: Context, attrs: AttributeSet) : ListPreferenc
         builder.setAdapter(listAdapter, this)
         super.onPrepareDialogBuilder(builder)
     }
+	 */
 }

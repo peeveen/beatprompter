@@ -1,87 +1,45 @@
 package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.Context
-import android.preference.DialogPreference
+import android.content.res.TypedArray
 import android.util.AttributeSet
-import android.util.TypedValue
-import android.view.View
-import android.widget.SeekBar
-import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.util.Utils
-import java.util.*
+import androidx.preference.DialogPreference
 
-class FontSizePreference : DialogPreference, SeekBar.OnSeekBarChangeListener {
+class FontSizePreference : DialogPreference {
+		private var mDefaultValue:Int = 0
 
-    private var mSeekBar: SeekBar? = null
-    private var mTextView: TextView? = null
-    private var mCurrentValue = -1
+		constructor(context: Context?):	this(context, null)
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        dialogLayoutResource = R.layout.font_size_preference_dialog
-        setPositiveButtonText(android.R.string.ok)
-        setNegativeButtonText(android.R.string.cancel)
-    }
+		constructor(context: Context?, attrs: AttributeSet?):this(context, attrs, 0)
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        dialogLayoutResource = R.layout.font_size_preference_dialog
-        setPositiveButtonText(android.R.string.ok)
-        setNegativeButtonText(android.R.string.cancel)
-    }
+		constructor(	context: Context?, attrs: AttributeSet?,	defStyleAttr: Int	):this(context, attrs, defStyleAttr, defStyleAttr)
 
-    override fun onBindDialogView(view: View) {
-        mSeekBar = view.findViewById(R.id.fontSizeSeekBar)
-        mTextView = view.findViewById(R.id.fontSizeTextView)
-        mSeekBar!!.setOnSeekBarChangeListener(this)
-        mCurrentValue = getPersistedInt(FONT_SIZE_MIN)
-        if (mCurrentValue <= 0) {
-            val prefKey = this.key
-            mCurrentValue = when (prefKey) {
-                BeatPrompter.getResourceString(R.string.pref_maxFontSize_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSize_default))
-                BeatPrompter.getResourceString(R.string.pref_minFontSize_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSize_default))
-                BeatPrompter.getResourceString(R.string.pref_maxFontSizeSmooth_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSizeSmooth_default))
-                BeatPrompter.getResourceString(R.string.pref_minFontSizeSmooth_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSizeSmooth_default))
-                BeatPrompter.getResourceString(R.string.pref_maxFontSizeManual_key) -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_maxFontSizeManual_default))
-                else -> Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_minFontSizeManual_default))
-            }
-        }
-        mSeekBar!!.progress = mCurrentValue
-        mTextView!!.text = String.format(Locale.getDefault(), "%d", mCurrentValue)
-        mSeekBar!!.max = FONT_SIZE_MAX
-        super.onBindDialogView(view)
-    }
+		constructor(
+			context: Context?, attrs: AttributeSet?,
+			defStyleAttr: Int, defStyleRes: Int
+		) :	super(context!!, attrs, defStyleAttr, defStyleRes)
 
-    override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
-        if (restorePersistedValue) {
-            // Restore existing state
-            mCurrentValue = this.getPersistedInt(FONT_SIZE_MIN)
-        } else {
-            // Set default state from the XML attribute
-            mCurrentValue = defaultValue as Int
-            persistInt(mCurrentValue)
-        }
-    }
+		override fun onSetInitialValue(defaultValue: Any?) {
+			// Set default state from the XML attribute
+			if(defaultValue is Int)
+				setFontSize(defaultValue)
+		}
 
-    override fun onDialogClosed(positiveResult: Boolean) {
-        // When the user selects "OK", persist the new value
-        if (positiveResult) {
-            persistInt(mSeekBar!!.progress)
-        }
-    }
+		override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+			mDefaultValue=a.getString(index)!!.toInt()
+			return mDefaultValue
+		}
 
-    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        mCurrentValue = progress
-        val size = mCurrentValue + FONT_SIZE_OFFSET
-        mTextView!!.text = String.format(Locale.getDefault(), "%d", size)
-        mTextView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * Utils.FONT_SCALING)
-    }
+		fun setFontSize(fontSize:Int) {
+			persistInt(fontSize)
+		}
 
-    override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-    override fun onStopTrackingTouch(seekBar: SeekBar) {}
+		fun getFontSize():Int{
+			return getPersistedInt(mDefaultValue)
+		}
 
     companion object {
+				// Set by onCreate() in SongListActivity.java
         var FONT_SIZE_OFFSET: Int = 0
         var FONT_SIZE_MAX: Int = 0
         var FONT_SIZE_MIN: Int = 0

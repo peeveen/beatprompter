@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.Context
-import android.preference.DialogPreference
+import androidx.preference.DialogPreference
 import android.util.AttributeSet
 import android.view.View
 import android.widget.CompoundButton
@@ -38,8 +38,8 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
         else
             context.getString(resourceID).toBoolean()
     }
-
-    override fun onBindDialogView(view: View) {
+/*
+    override fun onBindDialogViewHolder(view: PreferenceView) {
         super.onBindDialogView(view)
         mView = view
         view.findViewById<GridLayout>(R.id.midiGrid).apply {
@@ -57,7 +57,7 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
             tb.setOnCheckedChangeListener(this)
         }
     }
-
+*/
     override fun onSetInitialValue(restorePersistedValue: Boolean, defaultValue: Any?) {
         if (restorePersistedValue) {
             // Restore existing state
@@ -68,14 +68,14 @@ class MIDIChannelPreference : DialogPreference, CompoundButton.OnCheckedChangeLi
             persistInt(mCurrentValue)
         }
     }
-
+/*
     override fun onDialogClosed(positiveResult: Boolean) {
         // When the user selects "OK", persist the new value
         if (positiveResult) {
             persistInt(mCurrentValue)
         }
     }
-
+*/
     override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {
         if (mSingleSelect && isNowChecked) {
             repeat(16) {

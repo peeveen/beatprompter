@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<CheckBoxPreference
+		android:key="@string/pref_alwaysUseBeatFontPrefs_key"
+		android:title="@string/pref_alwaysUseBeatFontPrefs_title"
+		android:summary="@string/pref_alwaysUseBeatFontPrefs_summary"
+		app:iconSpaceReserved="false"
+		android:defaultValue="false" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:layout="@layout/preference"
+		android:key="@string/pref_minFontSize_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small.Inverse"
+		android:defaultValue="@string/pref_minFontSize_default"
+		android:summary="@string/pref_minFontSize_summary"
+		android:title="@string/pref_minFontSize_title" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:key="@string/pref_maxFontSize_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:defaultValue="@string/pref_maxFontSize_default"
+		android:summary="@string/pref_maxFontSize_summary"
+		android:title="@string/pref_maxFontSize_title" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:key="@string/pref_minFontSizeSmooth_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:defaultValue="@string/pref_minFontSizeSmooth_default"
+		android:summary="@string/pref_minFontSizeSmooth_summary"
+		android:title="@string/pref_minFontSizeSmooth_title" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:key="@string/pref_maxFontSizeSmooth_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:defaultValue="@string/pref_maxFontSizeSmooth_default"
+		android:summary="@string/pref_maxFontSizeSmooth_summary"
+		android:title="@string/pref_maxFontSizeSmooth_title" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:key="@string/pref_minFontSizeManual_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:defaultValue="@string/pref_minFontSizeManual_default"
+		android:summary="@string/pref_minFontSizeManual_summary"
+		android:title="@string/pref_minFontSizeManual_title" />
+	<com.stevenfrew.beatprompter.ui.pref.FontSizePreference
+		android:key="@string/pref_maxFontSizeManual_key"
+		android:dialogLayout="@layout/font_size_preference_dialog"
+		android:positiveButtonText="@android:string/ok"
+		android:negativeButtonText="@android:string/cancel"
+		android:defaultValue="@string/pref_maxFontSizeManual_default"
+		android:summary="@string/pref_maxFontSizeManual_summary"
+		android:title="@string/pref_maxFontSizeManual_title" />
+</PreferenceScreen>

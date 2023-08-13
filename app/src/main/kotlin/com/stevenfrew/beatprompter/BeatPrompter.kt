@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.multidex.MultiDex
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
@@ -21,6 +21,7 @@ class BeatPrompter : Application() {
     override fun onCreate() {
         super.onCreate()
         mApp = this
+				applyPreferenceDefaults()
         MIDIController.initialise(this)
         BluetoothController.initialise(this)
         mSongLoaderTaskThread.start()
@@ -39,6 +40,17 @@ class BeatPrompter : Application() {
         fun getResourceString(resID: Int, vararg args: Any): String {
             return mApp.getString(resID, *args)
         }
+
+				private fun applyPreferenceDefaults(){
+					PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.fontsizepreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.colorpreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.filepreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.midipreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.miscpreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.songdisplaypreferences, true);
+					PreferenceManager.setDefaultValues(context, R.xml.songlistpreferences, true);
+				}
 
         internal val preferences: SharedPreferences
             get() = PreferenceManager.getDefaultSharedPreferences(mApp)

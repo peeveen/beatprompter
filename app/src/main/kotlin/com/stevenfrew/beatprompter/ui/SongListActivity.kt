@@ -181,9 +181,9 @@ class SongListActivity
         val minimumFontSizeBeat = Preferences.minimumBeatFontSize
         val maximumFontSizeBeat = Preferences.maximumBeatFontSize
         val minimumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumSmoothFontSize
-        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.maximumSmoothFontSize
+        val maximumFontSizeSmooth = if (onlyUseBeatFontSizes) maximumFontSizeBeat else Preferences.maximumSmoothFontSize
         val minimumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumManualFontSize
-        val maximumFontSizeManual = if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.maximumManualFontSize
+        val maximumFontSizeManual = if (onlyUseBeatFontSizes) maximumFontSizeBeat else Preferences.maximumManualFontSize
 
         val minimumFontSize: Int
         val maximumFontSize: Int

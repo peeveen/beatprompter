@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<CheckBoxPreference
+		android:key="@string/pref_showBeatStyleIcons_key"
+		android:title="@string/pref_showBeatStyleIcons_title"
+		android:summary="@string/pref_showBeatStyleIcons_summary"
+		android:defaultValue="true" />
+	<CheckBoxPreference
+		android:key="@string/pref_showMusicIcon_key"
+		android:title="@string/pref_showMusicIcon_title"
+		android:summary="@string/pref_showMusicIcon_summary"
+		android:defaultValue="true" />
+	<CheckBoxPreference
+		android:key="@string/pref_showKeyInList_key"
+		android:title="@string/pref_showKeyInList_title"
+		android:summary="@string/pref_showKeyInList_summary"
+		android:defaultValue="false" />
+	<CheckBoxPreference
+		android:key="@string/pref_largePrintList_key"
+		android:title="@string/pref_largePrintList_title"
+		android:summary="@string/pref_largePrintList_summary"
+		android:defaultValue="false" />
+</PreferenceScreen>
