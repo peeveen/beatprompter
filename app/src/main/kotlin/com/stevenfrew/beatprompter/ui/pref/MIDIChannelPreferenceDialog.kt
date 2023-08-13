@@ -62,7 +62,6 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect:Boolean) : Preferenc
 	}
 
 	companion object {
-		private const val sfns = "http://com.stevenfrew/"
 		private val toggleIDs = intArrayOf(
 			R.id.midiChannel1Button,
 			R.id.midiChannel2Button,

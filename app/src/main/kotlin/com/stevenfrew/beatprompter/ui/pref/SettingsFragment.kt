@@ -55,4 +55,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         : Handler(), SettingsEventHandler {
         override fun handleMessage(msg: Message) { }
     }
+
+	companion object{
+		const val StevenFrewNamespace = "http://com.stevenfrew/"
+	}
 }

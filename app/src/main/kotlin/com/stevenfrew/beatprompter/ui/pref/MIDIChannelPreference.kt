@@ -24,7 +24,7 @@ class MIDIChannelPreference : DialogPreference {
 		context: Context?, attrs: AttributeSet?,
 		defStyleAttr: Int, defStyleRes: Int
 	) :	super(context!!, attrs, defStyleAttr, defStyleRes){
-		singleSelect = attrs?.getAttributeBooleanValue(sfns, "singleSelect", false) ?: false
+		singleSelect = attrs?.getAttributeBooleanValue(SettingsFragment.StevenFrewNamespace, "singleSelect", false) ?: false
 	}
 
 	fun setPreferenceValue(fontSize:Int) {
@@ -44,8 +44,4 @@ class MIDIChannelPreference : DialogPreference {
 				if(defaultValue is Int)
 					setPreferenceValue(defaultValue)
     }
-
-    companion object {
-			private const val sfns = "http://com.stevenfrew/"
-		}
 }
