@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.ui.pref
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -20,7 +19,7 @@ class SettingsActivity : AppCompatActivity(),
 
 		supportFragmentManager
 			.beginTransaction()
-			.replace(R.id.content, mFragment)
+			.replace(android.R.id.content, mFragment)
 			.commit()
 	}
 
@@ -40,9 +39,17 @@ class SettingsActivity : AppCompatActivity(),
 		val args = Bundle()
 		args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.key)
 		mFragment.arguments = args
-		ft.replace(R.id.content, mFragment, preferenceScreen.key)
+		ft.replace(android.R.id.content, mFragment, preferenceScreen.key)
 		ft.addToBackStack(preferenceScreen.key)
 		ft.commit()
 		return true
+	}
+
+	override fun onRequestPermissionsResult(
+		requestCode: Int, permissions: Array<String?>,
+		grantResults: IntArray
+	) {
+		this.supportFragmentManager.popBackStack()
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 	}
 }
