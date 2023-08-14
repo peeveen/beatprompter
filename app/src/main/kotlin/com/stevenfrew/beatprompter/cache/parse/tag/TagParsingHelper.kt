@@ -12,43 +12,43 @@ import kotlin.reflect.full.findAnnotation
  * We could do all this work each time we reach a tag, but this saves a lot of processing.
  */
 class TagParsingHelper<FileResultType>(parser: TextFileParser<FileResultType>) {
-    val mNameToClassMap: Map<Pair<Type, String>, KClass<out Tag>>
-    val mNoNameToClassMap: Map<Type, KClass<out Tag>>
-    val mIgnoreTagNames: List<String>
+	val mNameToClassMap: Map<Pair<Type, String>, KClass<out Tag>>
+	val mNoNameToClassMap: Map<Type, KClass<out Tag>>
+	val mIgnoreTagNames: List<String>
 
-    init {
-        val (unnamedParseClasses, namedParseClasses) = parser::class
-                .annotations
-                .filterIsInstance<ParseTags>()
-                .flatMap { it.mTagClasses.toList() }
-                .partition { it.annotations.filterIsInstance<TagName>().isEmpty() }
-        mNameToClassMap = namedParseClasses.flatMap { tagClass ->
-            tagClass
-                    .annotations
-                    .filterIsInstance<TagName>()
-                    .flatMap {
-                        it
-                                .mNames
-                                .map { tagName ->
-                                    (tagClass.findAnnotation<TagType>()!!.mType to tagName) to tagClass
-                                }
-                    }
-        }.toMap()
-        mNoNameToClassMap = unnamedParseClasses.map { tagClass ->
-            tagClass.findAnnotation<TagType>()!!.mType to tagClass
-        }.toMap()
-        mIgnoreTagNames = parser::class
-                .annotations
-                .filterIsInstance<IgnoreTags>()
-                .flatMap { ignoreAnnotation ->
-                    ignoreAnnotation
-                            .mTagClasses
-                            .flatMap { tagClass ->
-                                tagClass
-                                        .annotations
-                                        .filterIsInstance<TagName>()
-                                        .flatMap { it.mNames.toList() }
-                            }
-                }
-    }
+	init {
+		val (unnamedParseClasses, namedParseClasses) = parser::class
+			.annotations
+			.filterIsInstance<ParseTags>()
+			.flatMap { it.mTagClasses.toList() }
+			.partition { it.annotations.filterIsInstance<TagName>().isEmpty() }
+		mNameToClassMap = namedParseClasses.flatMap { tagClass ->
+			tagClass
+				.annotations
+				.filterIsInstance<TagName>()
+				.flatMap {
+					it
+						.mNames
+						.map { tagName ->
+							(tagClass.findAnnotation<TagType>()!!.mType to tagName) to tagClass
+						}
+				}
+		}.toMap()
+		mNoNameToClassMap = unnamedParseClasses.map { tagClass ->
+			tagClass.findAnnotation<TagType>()!!.mType to tagClass
+		}.toMap()
+		mIgnoreTagNames = parser::class
+			.annotations
+			.filterIsInstance<IgnoreTags>()
+			.flatMap { ignoreAnnotation ->
+				ignoreAnnotation
+					.mTagClasses
+					.flatMap { tagClass ->
+						tagClass
+							.annotations
+							.filterIsInstance<TagName>()
+							.flatMap { it.mNames.toList() }
+					}
+			}
+	}
 }

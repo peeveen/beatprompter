@@ -5,6 +5,6 @@ package com.stevenfrew.beatprompter.storage
  * Returns the selected folder to the user.
  */
 interface FolderSelectionListener : StorageListener {
-    fun onFolderSelected(folderInfo: FolderInfo)
-    fun onFolderSelectedError(t: Throwable)
+	fun onFolderSelected(folderInfo: FolderInfo)
+	fun onFolderSelectedError(t: Throwable)
 }

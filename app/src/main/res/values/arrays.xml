@@ -1,167 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="pref_scrollingStyle_entries">
-        <item>@string/jumpScrollingStyle</item>
-        <item>@string/smoothScrollingStyle</item>
-    </string-array>
-    <string-array name="pref_scrollingStyle_entryValues">
-        <item>@string/jumpScrollingStyleValue</item>
-        <item>@string/smoothScrollingStyleValue</item>
-    </string-array>
-    <string-array name="pref_lineJustification_entries">
-        <item>@string/leftJustified</item>
-        <item>@string/centerJustified</item>
-        <item>@string/rightJustified</item>
-    </string-array>
-    <string-array name="pref_lineJustification_entryValues">
-        <item>@string/leftJustifiedValue</item>
-        <item>@string/centerJustifiedValue</item>
-        <item>@string/rightJustifiedValue</item>
-    </string-array>
-    <string-array name="pref_metronome_entries">
-        <item>@string/metronomeOn</item>
-        <item>@string/metronomeOnWhenNoBackingTrack</item>
-        <item>@string/metronomeOff</item>
-        <item>@string/metronomeDuringCount</item>
-    </string-array>
-    <string-array name="pref_metronome_entryValues">
-        <item>@string/metronomeOnValue</item>
-        <item>@string/metronomeOnWhenNoBackingTrackValue</item>
-        <item>@string/metronomeOffValue</item>
-        <item>@string/metronomeDuringCountValue</item>
-    </string-array>
-    <string-array name="pref_screenAction_entries">
-        <item>@string/screenActionScrollPauseAndRestart</item>
-        <item>@string/screenActionVolume</item>
-        <item>@string/screenActionNone</item>
-    </string-array>
-    <string-array name="pref_screenAction_entryValues">
-        <item>@string/screenActionScrollPauseAndRestartValue</item>
-        <item>@string/screenActionVolumeValue</item>
-        <item>@string/screenActionNoneValue</item>
-    </string-array>
-    <string-array name="pref_playNextSong_entries">
-        <item>@string/playNextSongNever</item>
-        <item>@string/playNextSongAlways</item>
-        <item>@string/playNextSongSetListsOnly</item>
-    </string-array>
-    <string-array name="pref_playNextSong_entryValues">
-        <item>@string/playNextSongNeverValue</item>
-        <item>@string/playNextSongAlwaysValue</item>
-        <item>@string/playNextSongSetListsOnlyValue</item>
-    </string-array>
-    <string-array name="pref_showSongBPM_entries">
-        <item>@string/showBPMYes</item>
-        <item>@string/showBPMYesRounded</item>
-        <item>@string/showBPMNo</item>
-    </string-array>
-    <string-array name="pref_showSongBPM_entryValues">
-        <item>@string/showBPMYesValue</item>
-        <item>@string/showBPMYesRoundedValue</item>
-        <item>@string/showBPMNoValue</item>
-    </string-array>
-    <string-array name="song_options_array">
-        <item>@string/play_submenu</item>
-        <item>@string/force_refresh</item>
-        <item>@string/force_refresh_with_dependencies</item>
-    </string-array>
-    <string-array name="song_options_array_with_add">
-        <item>@string/play_submenu</item>
-        <item>@string/force_refresh</item>
-        <item>@string/force_refresh_with_dependencies</item>
-        <item>@string/add_to_temporary_set</item>
-    </string-array>
-    <string-array name="song_options_array_with_refresh_and_add">
-        <item>@string/play_submenu</item>
-        <item>@string/force_refresh</item>
-        <item>@string/force_refresh_with_dependencies</item>
-        <item>@string/force_refresh_set</item>
-        <item>@string/add_to_temporary_set</item>
-    </string-array>
-    <string-array name="song_options_array_with_refresh">
-        <item>@string/play_submenu</item>
-        <item>@string/force_refresh</item>
-        <item>@string/force_refresh_with_dependencies</item>
-        <item>@string/force_refresh_set</item>
-    </string-array>
-    <string-array name="song_options_array_with_clear">
-        <item>@string/play_submenu</item>
-        <item>@string/force_refresh</item>
-        <item>@string/force_refresh_with_dependencies</item>
-        <item>@string/clear_set</item>
-    </string-array>
-    <string-array name="pref_sendMidiTriggerOnStart_entries">
-        <item>@string/sendMidiTriggerOnStartNever</item>
-        <item>@string/sendMidiTriggerOnStartAlways</item>
-        <item>@string/sendMidiTriggerOnStartManualStartOnly</item>
-    </string-array>
-    <string-array name="pref_sendMidiTriggerOnStart_entryValues">
-        <item>@string/sendMidiTriggerOnStartNeverValue</item>
-        <item>@string/sendMidiTriggerOnStartAlwaysValue</item>
-        <item>@string/sendMidiTriggerOnStartManualStartOnlyValue</item>
-    </string-array>
-    <string-array name="pref_midiTriggerSafetyCatch_entryValues">
-        <item>@string/midiTriggerSafetyCatchNeverValue</item>
-        <item>@string/midiTriggerSafetyCatchTitleScreenValue</item>
-        <item>@string/midiTriggerSafetyCatchPausedValue</item>
-        <item>@string/midiTriggerSafetyCatchPausedOrLastLineValue</item>
-        <item>@string/midiTriggerSafetyCatchAlwaysValue</item>
-    </string-array>
-    <string-array name="pref_midiTriggerSafetyCatch_entries">
-        <item>@string/midiTriggerSafetyCatchNever</item>
-        <item>@string/midiTriggerSafetyCatchTitleScreen</item>
-        <item>@string/midiTriggerSafetyCatchPaused</item>
-        <item>@string/midiTriggerSafetyCatchPausedOrLastLine</item>
-        <item>@string/midiTriggerSafetyCatchAlways</item>
-    </string-array>
-    <string-array name="pref_bluetoothMode_entryValues">
-        <item>@string/bluetoothModeNoneValue</item>
-        <item>@string/bluetoothModeBandLeaderValue</item>
-        <item>@string/bluetoothModeBandMemberValue</item>
-    </string-array>
-    <string-array name="pref_bluetoothMode_entries">
-        <item>@string/bluetoothModeNone</item>
-        <item>@string/bluetoothModeBandLeader</item>
-        <item>@string/bluetoothModeBandMember</item>
-    </string-array>
-    <string-array name="pref_cloudStorageSystem_entries">
-        <item>@string/google_drive_string</item>
-        <item>@string/dropbox_string</item>
-        <item>@string/onedrive_string</item>
-        <item>@string/local_storage_string</item>
-    </string-array>
-    <string-array name="pref_midiConnectionType_entryValues">
-        <item>@string/midi_usb_on_the_go_value</item>
-        <item>@string/midi_native_value</item>
-        <item>@string/midi_bluetooth_value</item>
-    </string-array>
-    <string-array name="pref_midiConnectionType_entries">
-        <item>@string/midi_usb_on_the_go_string</item>
-        <item>@string/midi_native_string</item>
-        <item>@string/midi_bluetooth_string</item>
-    </string-array>
-    <string-array name="pref_cloudStorageSystem_entryValues">
-        <item>@string/googleDriveValue</item>
-        <item>@string/dropboxValue</item>
-        <item>@string/oneDriveValue</item>
-        <item>@string/localStorageValue</item>
-    </string-array>
-    <string-array name="midi_alias_options_array">
-        <item>@string/force_refresh_midi_alias</item>
-    </string-array>
-    <string-array name="midi_alias_options_array_with_show_errors">
-        <item>@string/force_refresh_midi_alias</item>
-        <item>@string/show_midi_alias_errors</item>
-    </string-array>
-    <array name="cloudStorageSystem_images">
-        <item>@drawable/ic_google_drive</item>
-        <item>@drawable/ic_dropbox</item>
-        <item>@drawable/ic_onedrive</item>
-        <item>@drawable/ic_device</item>
-    </array>
-    <array name="midi_connectiontype_pref_images">
-        <item>@drawable/ic_usb</item>
-        <item>@drawable/midi</item>
-        <item>@drawable/ic_bluetooth</item>
-    </array>
+	<string-array name="pref_scrollingStyle_entries">
+		<item>@string/jumpScrollingStyle</item>
+		<item>@string/smoothScrollingStyle</item>
+	</string-array>
+	<string-array name="pref_scrollingStyle_entryValues">
+		<item>@string/jumpScrollingStyleValue</item>
+		<item>@string/smoothScrollingStyleValue</item>
+	</string-array>
+	<string-array name="pref_lineJustification_entries">
+		<item>@string/leftJustified</item>
+		<item>@string/centerJustified</item>
+		<item>@string/rightJustified</item>
+	</string-array>
+	<string-array name="pref_lineJustification_entryValues">
+		<item>@string/leftJustifiedValue</item>
+		<item>@string/centerJustifiedValue</item>
+		<item>@string/rightJustifiedValue</item>
+	</string-array>
+	<string-array name="pref_metronome_entries">
+		<item>@string/metronomeOn</item>
+		<item>@string/metronomeOnWhenNoBackingTrack</item>
+		<item>@string/metronomeOff</item>
+		<item>@string/metronomeDuringCount</item>
+	</string-array>
+	<string-array name="pref_metronome_entryValues">
+		<item>@string/metronomeOnValue</item>
+		<item>@string/metronomeOnWhenNoBackingTrackValue</item>
+		<item>@string/metronomeOffValue</item>
+		<item>@string/metronomeDuringCountValue</item>
+	</string-array>
+	<string-array name="pref_screenAction_entries">
+		<item>@string/screenActionScrollPauseAndRestart</item>
+		<item>@string/screenActionVolume</item>
+		<item>@string/screenActionNone</item>
+	</string-array>
+	<string-array name="pref_screenAction_entryValues">
+		<item>@string/screenActionScrollPauseAndRestartValue</item>
+		<item>@string/screenActionVolumeValue</item>
+		<item>@string/screenActionNoneValue</item>
+	</string-array>
+	<string-array name="pref_playNextSong_entries">
+		<item>@string/playNextSongNever</item>
+		<item>@string/playNextSongAlways</item>
+		<item>@string/playNextSongSetListsOnly</item>
+	</string-array>
+	<string-array name="pref_playNextSong_entryValues">
+		<item>@string/playNextSongNeverValue</item>
+		<item>@string/playNextSongAlwaysValue</item>
+		<item>@string/playNextSongSetListsOnlyValue</item>
+	</string-array>
+	<string-array name="pref_showSongBPM_entries">
+		<item>@string/showBPMYes</item>
+		<item>@string/showBPMYesRounded</item>
+		<item>@string/showBPMNo</item>
+	</string-array>
+	<string-array name="pref_showSongBPM_entryValues">
+		<item>@string/showBPMYesValue</item>
+		<item>@string/showBPMYesRoundedValue</item>
+		<item>@string/showBPMNoValue</item>
+	</string-array>
+	<string-array name="song_options_array">
+		<item>@string/play_submenu</item>
+		<item>@string/force_refresh</item>
+		<item>@string/force_refresh_with_dependencies</item>
+	</string-array>
+	<string-array name="song_options_array_with_add">
+		<item>@string/play_submenu</item>
+		<item>@string/force_refresh</item>
+		<item>@string/force_refresh_with_dependencies</item>
+		<item>@string/add_to_temporary_set</item>
+	</string-array>
+	<string-array name="song_options_array_with_refresh_and_add">
+		<item>@string/play_submenu</item>
+		<item>@string/force_refresh</item>
+		<item>@string/force_refresh_with_dependencies</item>
+		<item>@string/force_refresh_set</item>
+		<item>@string/add_to_temporary_set</item>
+	</string-array>
+	<string-array name="song_options_array_with_refresh">
+		<item>@string/play_submenu</item>
+		<item>@string/force_refresh</item>
+		<item>@string/force_refresh_with_dependencies</item>
+		<item>@string/force_refresh_set</item>
+	</string-array>
+	<string-array name="song_options_array_with_clear">
+		<item>@string/play_submenu</item>
+		<item>@string/force_refresh</item>
+		<item>@string/force_refresh_with_dependencies</item>
+		<item>@string/clear_set</item>
+	</string-array>
+	<string-array name="pref_sendMidiTriggerOnStart_entries">
+		<item>@string/sendMidiTriggerOnStartNever</item>
+		<item>@string/sendMidiTriggerOnStartAlways</item>
+		<item>@string/sendMidiTriggerOnStartManualStartOnly</item>
+	</string-array>
+	<string-array name="pref_sendMidiTriggerOnStart_entryValues">
+		<item>@string/sendMidiTriggerOnStartNeverValue</item>
+		<item>@string/sendMidiTriggerOnStartAlwaysValue</item>
+		<item>@string/sendMidiTriggerOnStartManualStartOnlyValue</item>
+	</string-array>
+	<string-array name="pref_midiTriggerSafetyCatch_entryValues">
+		<item>@string/midiTriggerSafetyCatchNeverValue</item>
+		<item>@string/midiTriggerSafetyCatchTitleScreenValue</item>
+		<item>@string/midiTriggerSafetyCatchPausedValue</item>
+		<item>@string/midiTriggerSafetyCatchPausedOrLastLineValue</item>
+		<item>@string/midiTriggerSafetyCatchAlwaysValue</item>
+	</string-array>
+	<string-array name="pref_midiTriggerSafetyCatch_entries">
+		<item>@string/midiTriggerSafetyCatchNever</item>
+		<item>@string/midiTriggerSafetyCatchTitleScreen</item>
+		<item>@string/midiTriggerSafetyCatchPaused</item>
+		<item>@string/midiTriggerSafetyCatchPausedOrLastLine</item>
+		<item>@string/midiTriggerSafetyCatchAlways</item>
+	</string-array>
+	<string-array name="pref_bluetoothMode_entryValues">
+		<item>@string/bluetoothModeNoneValue</item>
+		<item>@string/bluetoothModeBandLeaderValue</item>
+		<item>@string/bluetoothModeBandMemberValue</item>
+	</string-array>
+	<string-array name="pref_bluetoothMode_entries">
+		<item>@string/bluetoothModeNone</item>
+		<item>@string/bluetoothModeBandLeader</item>
+		<item>@string/bluetoothModeBandMember</item>
+	</string-array>
+	<string-array name="pref_cloudStorageSystem_entries">
+		<item>@string/google_drive_string</item>
+		<item>@string/dropbox_string</item>
+		<item>@string/onedrive_string</item>
+		<item>@string/local_storage_string</item>
+	</string-array>
+	<string-array name="pref_midiConnectionType_entryValues">
+		<item>@string/midi_usb_on_the_go_value</item>
+		<item>@string/midi_native_value</item>
+		<item>@string/midi_bluetooth_value</item>
+	</string-array>
+	<string-array name="pref_midiConnectionType_entries">
+		<item>@string/midi_usb_on_the_go_string</item>
+		<item>@string/midi_native_string</item>
+		<item>@string/midi_bluetooth_string</item>
+	</string-array>
+	<string-array name="pref_cloudStorageSystem_entryValues">
+		<item>@string/googleDriveValue</item>
+		<item>@string/dropboxValue</item>
+		<item>@string/oneDriveValue</item>
+		<item>@string/localStorageValue</item>
+	</string-array>
+	<string-array name="midi_alias_options_array">
+		<item>@string/force_refresh_midi_alias</item>
+	</string-array>
+	<string-array name="midi_alias_options_array_with_show_errors">
+		<item>@string/force_refresh_midi_alias</item>
+		<item>@string/show_midi_alias_errors</item>
+	</string-array>
+	<array name="cloudStorageSystem_images">
+		<item>@drawable/ic_google_drive</item>
+		<item>@drawable/ic_dropbox</item>
+		<item>@drawable/ic_onedrive</item>
+		<item>@drawable/ic_device</item>
+	</array>
+	<array name="bluetoothMode_images">
+		<item>@drawable/blank_icon</item>
+		<item>@drawable/master0</item>
+		<item>@drawable/duncecap</item>
+	</array>
+	<array name="midi_connectiontype_pref_images">
+		<item>@drawable/ic_usb</item>
+		<item>@drawable/midi</item>
+		<item>@drawable/ic_bluetooth</item>
+	</array>
+	<array name="bluetooth_permissions">
+		<item>android.permission.BLUETOOTH</item>
+		<item>android.permission.BLUETOOTH_ADMIN</item>
+	</array>
+	<array name="bluetooth_permissions_12">
+		<item>android.permission.BLUETOOTH_CONNECT</item>
+		<item>android.permission.BLUETOOTH_SCAN</item>
+		<item>android.permission.BLUETOOTH_ADVERTISE</item>
+	</array>
+	<array name="storage_permissions">
+		<item>android.permission.READ_EXTERNAL_STORAGE</item>
+	</array>
 </resources>

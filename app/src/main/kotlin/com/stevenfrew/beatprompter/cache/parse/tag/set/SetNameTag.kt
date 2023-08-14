@@ -1,6 +1,9 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.set
 
-import com.stevenfrew.beatprompter.cache.parse.tag.*
+import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
+import com.stevenfrew.beatprompter.cache.parse.tag.TagName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagType
+import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @OncePerFile
@@ -9,8 +12,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the name of a setlist.
  */
-class SetNameTag internal constructor(name: String,
-                                      lineNumber: Int,
-                                      position: Int,
-                                      val mSetName: String)
-    : ValueTag(name, lineNumber, position, mSetName)
+class SetNameTag internal constructor(
+	name: String,
+	lineNumber: Int,
+	position: Int,
+	val mSetName: String
+) : ValueTag(name, lineNumber, position, mSetName)

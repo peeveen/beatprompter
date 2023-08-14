@@ -12,19 +12,22 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the start of a block of highlighted text.
  */
-class StartOfHighlightTag internal constructor(name: String,
-                                               lineNumber: Int,
-                                               position: Int,
-                                               value: String)
-    : ColorTag(name,
-        lineNumber,
-        position,
-        if (value.isBlank()) getDefaultHighlightColorString() else value) {
-    companion object {
-        fun getDefaultHighlightColorString(): String {
-            return "#" + ((Preferences.defaultHighlightColor and 0x00FFFFFF)
-                    .toString(16)
-                    .padStart(6, '0'))
-        }
-    }
+class StartOfHighlightTag internal constructor(
+	name: String,
+	lineNumber: Int,
+	position: Int,
+	value: String
+) : ColorTag(
+	name,
+	lineNumber,
+	position,
+	if (value.isBlank()) getDefaultHighlightColorString() else value
+) {
+	companion object {
+		fun getDefaultHighlightColorString(): String {
+			return "#" + ((Preferences.defaultHighlightColor and 0x00FFFFFF)
+				.toString(16)
+				.padStart(6, '0'))
+		}
+	}
 }

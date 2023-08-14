@@ -12,9 +12,12 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines the start of a block of highlighted text.
  */
-class StartOfChorusTag internal constructor(name: String,
-                                            lineNumber: Int,
-                                            position: Int)
-    : Tag(name,
-        lineNumber,
-        position)
+class StartOfChorusTag internal constructor(
+	name: String,
+	lineNumber: Int,
+	position: Int
+) : Tag(
+	name,
+	lineNumber,
+	position
+)

@@ -5,6 +5,6 @@ package com.stevenfrew.beatprompter.storage
  * Returns the root path to the user.
  */
 interface RootPathListener : StorageListener {
-    fun onRootPathFound(rootPath: FolderInfo)
-    fun onRootPathError(t: Throwable)
+	fun onRootPathFound(rootPath: FolderInfo)
+	fun onRootPathError(t: Throwable)
 }

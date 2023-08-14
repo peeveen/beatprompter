@@ -1,124 +1,62 @@
 package com.stevenfrew.beatprompter.ui.pref
 
-import android.app.AlertDialog
 import android.content.Context
-import android.os.Bundle
-import android.preference.DialogPreference
+import android.content.res.TypedArray
 import android.util.AttributeSet
-import android.view.Gravity
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.SeekBar
-import android.widget.TextView
+import androidx.preference.DialogPreference
 
-class SeekBarPreference(private val mContext: Context,
-                        attrs: AttributeSet)
-    : DialogPreference(mContext, attrs), SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+class SeekBarPreference : DialogPreference {
+	private var mDefaultValue: Int = 0
 
-    private var mSeekBar: SeekBar? = null
-    private var mValueText: TextView? = null
-    private var mValue: Int = 0
+	val suffix: String
+	val offset: Int
+	val max: Int
 
-    private val mDialogMessage = getResourceString(mContext, attrs, "dialogMessage")
-    private val mSuffix = getResourceString(mContext, attrs, "text")
-    private val mDefault = getAttributeIntValue(attrs, androidns, "defaultValue", 0)
-    val max = getAttributeIntValue(attrs, androidns, "max", 100)
-    private val mOffset = getAttributeIntValue(attrs, sfns, "offset", 0)
+	constructor(context: Context?) : this(context, null)
 
-    var progress: Int
-        get() = mValue
-        set(progress) {
-            mValue = progress
-            if (mSeekBar != null)
-                mSeekBar!!.progress = progress
-        }
+	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
 
-    private fun getAttributeIntValue(attrs: AttributeSet, namespace: String, name: String, lastResortDefault: Int): Int {
-        val resourceID = attrs.getAttributeResourceValue(namespace, name, 0)
-        return if (resourceID == 0) attrs.getAttributeIntValue(namespace, name, lastResortDefault) else Integer.parseInt(context.getString(resourceID))
+	constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
+		context,
+		attrs,
+		defStyleAttr,
+		defStyleAttr
+	)
 
-    }
+	constructor(
+		context: Context?, attrs: AttributeSet?,
+		defStyleAttr: Int, defStyleRes: Int
+	) : super(context!!, attrs, defStyleAttr, defStyleRes) {
+		val suffixResource =
+			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "suffix", 0)
+		val maxResource =
+			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "max", 0)
+		val offsetResource =
+			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "offset", 0)
+		suffix =
+			if (suffixResource == null || suffixResource == 0) "" else context.getString(suffixResource)
+		max = if (maxResource == null || maxResource == 0) 0 else context.getString(maxResource).toInt()
+		offset =
+			if (offsetResource == null || offsetResource == 0) 0 else context.getString(offsetResource)
+				.toInt()
+	}
 
-    override fun onCreateDialogView(): View {
-        val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT)
-        val layout = LinearLayout(mContext)
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(6, 6, 6, 6)
+	override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+		mDefaultValue = a.getString(index)!!.toInt()
+		return mDefaultValue
+	}
 
-        val splashText = TextView(mContext)
-        splashText.setPadding(30, 10, 30, 10)
-        if (mDialogMessage != null)
-            splashText.text = mDialogMessage
-        layout.addView(splashText)
+	override fun onSetInitialValue(defaultValue: Any?) {
+		// Set default state from the XML attribute
+		if (defaultValue is Int)
+			setPreferenceValue(defaultValue)
+	}
 
-        mValueText = TextView(mContext)
-        mValueText!!.gravity = Gravity.CENTER_HORIZONTAL
-        mValueText!!.textSize = 32f
-        layout.addView(mValueText, params)
+	fun setPreferenceValue(value: Int) {
+		persistInt(value)
+	}
 
-        mSeekBar = SeekBar(mContext)
-        mSeekBar!!.setOnSeekBarChangeListener(this)
-        layout.addView(mSeekBar, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-
-        if (shouldPersist())
-            mValue = getPersistedInt(mDefault)
-
-        mSeekBar!!.max = max
-        mSeekBar!!.progress = mValue
-
-        return layout
-    }
-
-    override fun onBindDialogView(v: View) {
-        super.onBindDialogView(v)
-        mSeekBar!!.max = max
-        mSeekBar!!.progress = mValue
-    }
-
-    override fun onSetInitialValue(restore: Boolean, defaultValue: Any?) {
-        super.onSetInitialValue(restore, defaultValue)
-        mValue = if (restore)
-            if (shouldPersist()) getPersistedInt(mDefault) else 0
-        else
-            defaultValue as Int
-    }
-
-    override fun onProgressChanged(seek: SeekBar, value: Int, fromTouch: Boolean) {
-        val t = "${value + mOffset}"
-        mValueText!!.text = if (mSuffix == null) t else "$t $mSuffix"
-    }
-
-    override fun onStartTrackingTouch(seek: SeekBar) {}
-    override fun onStopTrackingTouch(seek: SeekBar) {}
-
-    public override fun showDialog(state: Bundle?) {
-        super.showDialog(state)
-        val positiveButton = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-        positiveButton.setOnClickListener(this)
-    }
-
-    override fun onClick(v: View) {
-        if (shouldPersist()) {
-            mValue = mSeekBar!!.progress
-            persistInt(mValue)
-            callChangeListener(mSeekBar!!.progress)
-        }
-
-        dialog.dismiss()
-    }
-
-    companion object {
-        private const val androidns = "http://schemas.android.com/apk/res/android"
-        private const val sfns = "http://com.stevenfrew/"
-
-        private fun getResourceString(context: Context, attrs: AttributeSet, identifier: String): String? {
-            val resourceId = attrs.getAttributeResourceValue(androidns, identifier, 0)
-            return if (resourceId == 0)
-                attrs.getAttributeValue(androidns, identifier)
-            else
-                context.getString(resourceId)
-        }
-    }
+	fun getPreferenceValue(): Int {
+		return getPersistedInt(mDefaultValue)
+	}
 }

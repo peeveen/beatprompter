@@ -4,7 +4,8 @@ package com.stevenfrew.beatprompter.cache
 /**
  * An image file from our cache.
  */
-class ImageFile internal constructor(cachedFile: CachedFile,
-                                     val mWidth: Int,
-                                     val mHeight: Int)
-    : CachedFile(cachedFile)
+class ImageFile internal constructor(
+	cachedFile: CachedFile,
+	val mWidth: Int,
+	val mHeight: Int
+) : CachedFile(cachedFile)

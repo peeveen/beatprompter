@@ -9,21 +9,19 @@ import com.stevenfrew.beatprompter.util.Utils
 /**
  * "Parses" audio files. Basically validates that the file IS ACTUALLY an audio file.
  */
-class AudioFileParser(cachedCloudFile: CachedFile)
-    : FileParser<AudioFile>(cachedCloudFile) {
-
-    override fun parse(): AudioFile {
-        try {
-            // Try to read the length of the track. If it fails, it's not an audio file.
-            MediaMetadataRetriever().apply {
-                setDataSource(mCachedCloudFile.mFile.absolutePath)
-                extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.also {
-                    return AudioFile(mCachedCloudFile, Utils.milliToNano(it.toLong()))
-                }
-            }
-        } catch (e: Exception) {
-            // Not bothered about what the exception is ... file is obviously shite.
-        }
-        throw InvalidBeatPrompterFileException(R.string.notAnAudioFile, mCachedCloudFile.mName)
-    }
+class AudioFileParser(cachedCloudFile: CachedFile) : FileParser<AudioFile>(cachedCloudFile) {
+	override fun parse(): AudioFile {
+		try {
+			// Try to read the length of the track. If it fails, it's not an audio file.
+			MediaMetadataRetriever().apply {
+				setDataSource(mCachedCloudFile.mFile.absolutePath)
+				extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.also {
+					return AudioFile(mCachedCloudFile, Utils.milliToNano(it.toLong()))
+				}
+			}
+		} catch (e: Exception) {
+			// Not bothered about what the exception is ... file is obviously shite.
+		}
+		throw InvalidBeatPrompterFileException(R.string.notAnAudioFile, mCachedCloudFile.mName)
+	}
 }

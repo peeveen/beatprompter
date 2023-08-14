@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:sf="http://com.stevenfrew/">
+	<com.stevenfrew.beatprompter.ui.pref.PermissionsPreference
+		android:defaultValue="false"
+		android:icon="@drawable/ic_bluetooth"
+		android:key="@string/pref_bluetoothPermission_key"
+		android:summary="@string/pref_bluetoothPermission_summary"
+		android:title="@string/bluetooth"
+		android:layout="@layout/permissions_preference"
+		sf:permissions="@array/bluetooth_permissions" />
+	<com.stevenfrew.beatprompter.ui.pref.PermissionsPreference
+		android:defaultValue="false"
+		android:icon="@drawable/ic_device"
+		android:key="@string/pref_localStoragePermission_key"
+		android:summary="@string/pref_localStoragePermission_summary"
+		android:title="@string/local_storage_string"
+		android:layout="@layout/permissions_preference"
+		sf:permissions="@array/storage_permissions" />
+</PreferenceScreen>

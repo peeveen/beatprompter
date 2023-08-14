@@ -6,11 +6,11 @@ import com.stevenfrew.beatprompter.cache.CachedFile
  * Base class for all file parsers.
  */
 abstract class FileParser<TFileResult>(protected val mCachedCloudFile: CachedFile) {
-    protected val mErrors = mutableListOf<FileParseError>()
+	protected val mErrors = mutableListOf<FileParseError>()
 
-    abstract fun parse(): TFileResult
+	abstract fun parse(): TFileResult
 
-    fun addError(error: FileParseError) {
-        mErrors.add(error)
-    }
+	fun addError(error: FileParseError) {
+		mErrors.add(error)
+	}
 }

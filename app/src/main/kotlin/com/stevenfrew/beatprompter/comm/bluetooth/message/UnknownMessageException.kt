@@ -5,4 +5,4 @@ package com.stevenfrew.beatprompter.comm.bluetooth.message
  * ones.
  */
 internal class UnknownMessageException
-    : Exception()
+	: Exception()

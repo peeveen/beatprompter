@@ -7,8 +7,9 @@ import com.stevenfrew.beatprompter.set.SetListEntry
 /**
  * A set list file in our cache.
  */
-class SetListFile internal constructor(cachedFile: CachedFile,
-                                       val mSetTitle: String,
-                                       val mSetListEntries: MutableList<SetListEntry>,
-                                       errors: List<FileParseError>)
-    : CachedTextFile(cachedFile, errors)
+class SetListFile internal constructor(
+	cachedFile: CachedFile,
+	val mSetTitle: String,
+	val mSetListEntries: MutableList<SetListEntry>,
+	errors: List<FileParseError>
+) : CachedTextFile(cachedFile, errors)

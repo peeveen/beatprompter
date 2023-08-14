@@ -6,14 +6,15 @@ package com.stevenfrew.beatprompter.storage
  * It might be an actual number/hex ID, or it might be a path string.
  * [mDisplayPath] is the path for displaying this in the preferences.
  */
-class FolderInfo(val mParentFolder: FolderInfo?,
-                 id: String,
-                 name: String,
-                 val mDisplayPath: String)
-    : ItemInfo(id, name) {
-    constructor(id: String, folderDisplayName: String, displayPath: String)
-            : this(null, id, folderDisplayName, displayPath)
+class FolderInfo(
+	val mParentFolder: FolderInfo?,
+	id: String,
+	name: String,
+	val mDisplayPath: String
+) : ItemInfo(id, name) {
+	constructor(id: String, folderDisplayName: String, displayPath: String)
+		: this(null, id, folderDisplayName, displayPath)
 
-    internal constructor(rootFolderIdentifier: String)
-            : this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier)
+	internal constructor(rootFolderIdentifier: String)
+		: this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier)
 }

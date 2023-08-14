@@ -11,21 +11,35 @@ import androidx.media3.exoplayer.SeekParameters
 import com.stevenfrew.beatprompter.R
 import java.io.File
 
-class ExoPlayerAudioPlayer:AudioPlayer {
-	private val mInternalPlayer:ExoPlayer
-	@OptIn(UnstableApi::class)
-	constructor(context:Context):this(context,RawResourceDataSource.buildRawResourceUri(R.raw.silence),1,true)
+/**
+ * ExoPlayer implementation of AudioPlayer interface.
+ */
+class ExoPlayerAudioPlayer : AudioPlayer {
+	private val mInternalPlayer: ExoPlayer
 
-	constructor(context:Context, file: File, volume:Int):this(context,Uri.fromFile(file),volume,false)
+	@OptIn(UnstableApi::class)
+	constructor(context: Context) : this(
+		context,
+		RawResourceDataSource.buildRawResourceUri(R.raw.silence),
+		1,
+		true
+	)
+
+	constructor(context: Context, file: File, volume: Int) : this(
+		context,
+		Uri.fromFile(file),
+		volume,
+		false
+	)
 
 	@OptIn(UnstableApi::class)
-	private constructor(context:Context, uri:Uri, vol:Int, looping:Boolean){
-		mInternalPlayer=ExoPlayer.Builder(context).build().apply{
+	private constructor(context: Context, uri: Uri, vol: Int, looping: Boolean) {
+		mInternalPlayer = ExoPlayer.Builder(context).build().apply {
 			setSeekParameters(SeekParameters.CLOSEST_SYNC)
 			setMediaItem(MediaItem.fromUri(uri))
 			seekTo(0)
-			volume=0.01f*vol
-			repeatMode=if(looping)ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
+			volume = 0.01f * vol
+			repeatMode = if (looping) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
 			prepare()
 		}
 	}
@@ -57,6 +71,6 @@ class ExoPlayerAudioPlayer:AudioPlayer {
 	}
 
 	override fun setVolume(volume: Int) {
-		mInternalPlayer.volume=volume*0.01f
+		mInternalPlayer.volume = volume * 0.01f
 	}
 }

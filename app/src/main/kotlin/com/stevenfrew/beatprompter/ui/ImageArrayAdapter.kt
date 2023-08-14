@@ -9,21 +9,22 @@ import android.widget.CheckedTextView
 import android.widget.ImageView
 import com.stevenfrew.beatprompter.R
 
-class ImageArrayAdapter(context: Context, textViewResourceId: Int,
-                        objects: Array<CharSequence>,
-                        private val resourceIds: IntArray,
-                        private val index: Int)
-    : ArrayAdapter<CharSequence>(context, textViewResourceId, objects) {
-    private val mInflater = (context as Activity).layoutInflater
+class ImageArrayAdapter(
+	context: Context, textViewResourceId: Int,
+	objects: Array<CharSequence>,
+	private val resourceIds: IntArray,
+	private val index: Int
+) : ArrayAdapter<CharSequence>(context, textViewResourceId, objects) {
+	private val mInflater = (context as Activity).layoutInflater
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        return (convertView
-                ?: mInflater.inflate(R.layout.imagelistitem, parent, false)).also {
-            it.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
-            it.findViewById<CheckedTextView>(R.id.check).apply {
-                text = getItem(position)
-                isChecked = position == index
-            }
-        }
-    }
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+		return (convertView
+			?: mInflater.inflate(R.layout.imagelistitem, parent, false)).also {
+			it.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
+			it.findViewById<CheckedTextView>(R.id.check).apply {
+				text = getItem(position)
+				isChecked = position == index
+			}
+		}
+	}
 }
