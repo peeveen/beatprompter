@@ -25,15 +25,14 @@
 # The values of this enum are only used in annotations, which ProGuard seems to think makes
 # them fair game for removal. We don't want that.
 -keepclassmembers class com.stevenfrew.beatprompter.cache.parse.tag.find.Type { *; }
-# And the constructors for the tag classes are only executed via reflection, so ProGuard
-# thinks they are never called. We have to tell it otherwise.
--keep class com.stevenfrew.beatprompter.cache.parse.tag.** {*;}
+-keep class com.stevenfrew.beatprompter.** {*;}
+-keep class androidx.core.app.CoreComponentFactory {*;}
 # Cloud storage stuff that ProGuard incorrectly reckons we don't need.
 -keep class com.onedrive.sdk.extensions.** {*;}
 -keep class * extends com.google.api.client.json.GenericJson {*;}
 -keep class com.google.api.services.drive.** {*;}
 -keep class org.apache.** { *; }
--keep class com.google.api.client.googleapis.** {*;}
+-keep class com.google.api.client.** {*;}
 # Kotlin ... still to figure out why this is needed.
 -keep public class kotlin.** { *; }
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
@@ -91,9 +90,52 @@
 -dontwarn javax.naming.directory.Attributes
 -dontwarn javax.naming.ldap.LdapName
 -dontwarn javax.naming.ldap.Rdn
+-dontwarn javax.servlet.ServletContextEvent
+-dontwarn javax.servlet.ServletContextListener
+-dontwarn org.apache.avalon.framework.logger.Logger
+-dontwarn org.apache.log.Hierarchy
+-dontwarn org.apache.log.Logger
+-dontwarn org.apache.log4j.Level
+-dontwarn org.apache.log4j.Logger
+-dontwarn org.apache.log4j.Priority
 -dontwarn org.ietf.jgss.GSSContext
 -dontwarn org.ietf.jgss.GSSCredential
 -dontwarn org.ietf.jgss.GSSException
 -dontwarn org.ietf.jgss.GSSManager
 -dontwarn org.ietf.jgss.GSSName
 -dontwarn org.ietf.jgss.Oid
+
+
+#### CONTENTS OF https://github.com/google/gson/blob/main/examples/android-proguard-example/proguard.cfg
+
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+# Gson specific classes
+-dontwarn sun.misc.**
+#-keep class com.google.gson.stream.** { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.google.gson.examples.android.model.** { <fields>; }
+
+# Prevent proguard from stripping interface information from TypeAdapter, TypeAdapterFactory,
+# JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
+-keep class * extends com.google.gson.TypeAdapter
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Prevent R8 from leaving Data object members always null
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Retain generic signatures of TypeToken and its subclasses with R8 version 3.0 and higher.
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+
+#### END CONTENTS OF https://github.com/google/gson/blob/main/examples/android-proguard-example/proguard.cfg

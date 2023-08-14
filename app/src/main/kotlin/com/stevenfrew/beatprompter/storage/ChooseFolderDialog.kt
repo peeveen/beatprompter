@@ -190,7 +190,7 @@ internal class ChooseFolderDialog(
 	}
 
 	override fun onFolderSearchError(t: Throwable) {
-		Toast.makeText(mActivity, t.message, Toast.LENGTH_LONG).show()
+		mActivity.runOnUiThread { Toast.makeText(mActivity, t.message, Toast.LENGTH_LONG).show() }
 		onFolderSearchComplete()
 	}
 
