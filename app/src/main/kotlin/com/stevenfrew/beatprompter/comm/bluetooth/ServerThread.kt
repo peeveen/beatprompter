@@ -33,6 +33,11 @@ class ServerThread internal constructor(
 							mmServerSocket =
 								mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompter.APP_NAME, mUUID)
 							Logger.logComms("Created the Bluetooth server socket.")
+						} catch (se: SecurityException) {
+							Logger.logComms(
+								"A Bluetooth security exception was thrown, despite the server socket already having been created.",
+								se
+							)
 						} catch (e: IOException) {
 							Logger.logComms("Error creating Bluetooth server socket.", e)
 						}

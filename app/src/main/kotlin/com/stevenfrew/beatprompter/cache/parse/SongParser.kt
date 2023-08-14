@@ -210,7 +210,7 @@ class SongParser constructor(
 
 		val chordTags = line.mTags.filterIsInstance<ChordTag>()
 		val nonChordTags = line.mTags.filter { it !is ChordTag }
-		val chordsFound = mShowChords && chordTags.isNotEmpty()
+		val chordsFound = chordTags.isNotEmpty()
 		val chordsFoundButNotShowingThem = !mShowChords && chordsFound
 		val tags = if (mShowChords) line.mTags.toList() else nonChordTags
 		val tagSequence = tags.asSequence()

@@ -81,7 +81,7 @@ class ScreenString private constructor(
 			face: Typeface,
 			fontSize: Float
 		): Int {
-			if (strIn == null || strIn.isEmpty())
+			if (strIn.isNullOrEmpty())
 				return 0
 			paint.typeface = face
 			paint.textSize = fontSize * Utils.FONT_SCALING

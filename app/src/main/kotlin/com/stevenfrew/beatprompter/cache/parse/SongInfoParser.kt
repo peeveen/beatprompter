@@ -140,7 +140,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 		if (beatStartTag != null || beatStopTag != null)
 			mMixedMode = true
 
-		if (!line.mLineWithNoTags.isBlank() || imageTags.isNotEmpty() || chordTag != null) {
+		if (line.mLineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
 			mBars += mCurrentLineBeatInfo.mBPL
 			mBeats += mCurrentLineBeatInfo.mBeats
 		}

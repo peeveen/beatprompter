@@ -6,6 +6,9 @@ import com.stevenfrew.beatprompter.R
 import java.io.File
 import java.io.FileInputStream
 
+/**
+ * MediaPlayer implementation of AudioPlayer interface.
+ */
 class MediaPlayerAudioPlayer : AudioPlayer {
 	private val mInternalPlayer: MediaPlayer
 

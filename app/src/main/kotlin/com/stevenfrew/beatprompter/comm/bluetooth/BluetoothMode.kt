@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
+/**
+ * Available bluetooth modes: none/server/client.
+ */
 enum class BluetoothMode {
 	// Not listening
 	None,

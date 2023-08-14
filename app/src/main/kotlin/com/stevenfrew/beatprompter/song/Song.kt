@@ -109,7 +109,7 @@ class Song(
 		fun isIntendedFor(audience: String): Boolean {
 			return commentAudience.isEmpty() ||
 				audience.isBlank() ||
-				audience.lowercase().splitAndTrim(",").intersect(commentAudience).any()
+				audience.lowercase().splitAndTrim(",").intersect(commentAudience.toSet()).any()
 		}
 
 		fun draw(canvas: Canvas, paint: Paint, textColor: Int) {

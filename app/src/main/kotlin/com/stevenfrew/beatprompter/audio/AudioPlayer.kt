@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.audio
 
+/**
+ * Interface for audio players.
+ */
 interface AudioPlayer {
 	fun seekTo(ms: Long)
 	fun stop()

@@ -2,12 +2,14 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventRouter
 import com.stevenfrew.beatprompter.Events
@@ -43,7 +45,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 
 	// The device Bluetooth adapter, if one exists.
-	private val mBluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+	private var mBluetoothAdapter: BluetoothAdapter? = null
 
 	private const val BLUETOOTH_QUEUE_SIZE = 4096
 	private val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
@@ -62,6 +64,10 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	 * Called when the app starts. Doing basic Bluetooth setup.
 	 */
 	fun initialise(application: BeatPrompter) {
+		val bluetoothManager =
+			application.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+		mBluetoothAdapter = bluetoothManager.adapter
+
 		if (mBluetoothAdapter != null) {
 			Logger.logComms("Bluetooth adapter found.")
 			Logger.logComms("Starting Bluetooth sender thread.")
@@ -111,12 +117,18 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 		override fun onReceive(context: Context, intent: Intent) {
 			if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
 				// Something has disconnected.
-				(intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice?).apply {
-					if (this != null) {
-						Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
-						mReceiverTasks.stopAndRemoveReceiver(address)
-						mSenderTask.removeSender(address)
-					}
+				(if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+					intent.getParcelableExtra(
+						BluetoothDevice.EXTRA_DEVICE
+					)
+				else
+					intent.getParcelableExtra(
+						BluetoothDevice.EXTRA_DEVICE,
+						BluetoothDevice::class.java
+					))?.apply {
+					Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
+					mReceiverTasks.stopAndRemoveReceiver(address)
+					mSenderTask.removeSender(address)
 				}
 			}
 		}
@@ -225,6 +237,11 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 											ConnectToServerThread(it, BLUETOOTH_UUID) { socket ->
 												setServerConnection(socket)
 											}.apply { start() }
+									} catch (se: SecurityException) {
+										Logger.logComms(
+											"Bluetooth security exception was thrown, despite adapter being enabled.",
+											se
+										)
 									} catch (e: Exception) {
 										Logger.logComms(
 											{ "Failed to create ConnectToServerThread for bluetooth device ${it.name}'." },
@@ -240,7 +257,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 						if (mServerBluetoothThread == null) {
 							Logger.logComms("Starting Bluetooth server thread.")
 							mServerBluetoothThread =
-								ServerThread(mBluetoothAdapter, BLUETOOTH_UUID) { socket ->
+								ServerThread(mBluetoothAdapter!!, BLUETOOTH_UUID) { socket ->
 									handleConnectionFromClient(socket)
 								}.apply { start() }
 						}
@@ -253,15 +270,11 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 		}
 	}
 
-	private fun enableBluetooth() {
-		EventRouter.sendEventToSongList(Events.ENABLE_BLUETOOTH)
-	}
-
 	fun getPairedDevices(): List<BluetoothDevice> {
 		return try {
 			mBluetoothAdapter?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
-			enableBluetooth()
+			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
 			listOf()
 		}
 	}
@@ -278,7 +291,10 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 				EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
 			}
 		} catch (se: SecurityException) {
-			enableBluetooth()
+			Logger.logComms(
+				"A Bluetooth security exception was thrown while handling connection from client.",
+				se
+			)
 		}
 	}
 
@@ -297,7 +313,10 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 				EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
 			}
 		} catch (se: SecurityException) {
-			enableBluetooth()
+			Logger.logComms(
+				"A Bluetooth security exception was thrown while creating a server connection.",
+				se
+			)
 		}
 	}
 

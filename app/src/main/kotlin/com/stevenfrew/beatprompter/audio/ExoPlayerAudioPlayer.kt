@@ -11,6 +11,9 @@ import androidx.media3.exoplayer.SeekParameters
 import com.stevenfrew.beatprompter.R
 import java.io.File
 
+/**
+ * ExoPlayer implementation of AudioPlayer interface.
+ */
 class ExoPlayerAudioPlayer : AudioPlayer {
 	private val mInternalPlayer: ExoPlayer
 

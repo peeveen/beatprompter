@@ -35,6 +35,11 @@ internal class ConnectToServerThread(
 						mOnConnectedFunction(it)
 
 					}
+				} catch (se: SecurityException) {
+					Logger.logComms(
+						"A Bluetooth security exception was thrown, despite the controller being connected to the server.",
+						se
+					)
 				} catch (connectException: Exception) {
 					// There probably isn't a server to connect to. Wait a bit and try again.
 					Logger.logComms { "Failed to connect to a server on '${mDevice.name}'." }

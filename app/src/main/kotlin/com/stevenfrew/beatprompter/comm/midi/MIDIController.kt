@@ -13,6 +13,7 @@ import android.hardware.usb.UsbManager
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
+import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.EventRouter
 import com.stevenfrew.beatprompter.Events
@@ -56,7 +57,15 @@ object MIDIController {
 				attemptUsbMidiConnection()
 			}
 			if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
-				intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)?.apply {
+				(if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+					intent.getParcelableExtra(
+						UsbManager.EXTRA_DEVICE
+					)
+				else
+					intent.getParcelableExtra(
+						UsbManager.EXTRA_DEVICE,
+						UsbDevice::class.java
+					))?.apply {
 					mSenderTask.removeSender(deviceName)
 					mReceiverTasks.stopAndRemoveReceiver(deviceName)
 				}
