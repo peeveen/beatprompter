@@ -564,10 +564,10 @@ class SongParser constructor(
 		val lastLineIsBeat = mLines.lastOrNull()?.mScrollMode == ScrollingMode.Beat
 		if (lastLineIsBeat) {
 			noScrollLines.add(mLines.last())
-			sortedEventList.removeAt(mEvents.indexOfLast { it is LineEvent })
+			sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
 		} else if (smoothMode) {
 			var availableScreenHeight = mNativeDeviceSettings.mUsableScreenHeight - smoothScrollOffset
-			val lineEvents = mEvents.filterIsInstance<LineEvent>()
+			val lineEvents = sortedEventList.filterIsInstance<LineEvent>()
 			for (lineEvent in lineEvents.reversed()) {
 				availableScreenHeight -= lineEvent.mLine.mMeasurements.mLineHeight
 				if (availableScreenHeight >= 0) {
