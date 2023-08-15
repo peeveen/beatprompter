@@ -42,7 +42,7 @@ class SongView
 	private var mMetronomeOn: Boolean = false
 	private var mInitialized = false
 	private var mSkipping = false
-	private var mCurrentVolume = 80
+	private var mCurrentVolume = Preferences.defaultTrackVolume
 	private var mLastCommentEvent: CommentEvent? = null
 	private var mLastCommentTime: Long = 0
 	private var mLastTempMessageTime: Long = 0
@@ -605,10 +605,16 @@ class SongView
 		startToggle(null, false)
 	}
 
+	private fun startAudioPlayer(audioPlayer: AudioPlayer?): AudioPlayer? {
+		return audioPlayer?.apply {
+			Logger.log("Starting AudioPlayer")
+			start()
+			mCurrentVolume = volume
+		}
+	}
+
 	private fun startBackingTrack(): Boolean {
-		val audioPlayer = mAudioPlayers[mSong!!.mBackingTrack]
-		audioPlayer?.start()
-		return audioPlayer != null
+		return startAudioPlayer(mAudioPlayers[mSong!!.mBackingTrack]) != null
 	}
 
 	private fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
@@ -850,7 +856,7 @@ class SongView
 		val audioPlayer = mAudioPlayers[event.mAudioFile] ?: return false
 		Logger.log("Track event hit: starting AudioPlayer")
 		audioPlayer.seekTo(0)
-		audioPlayer.start()
+		startAudioPlayer(audioPlayer)
 		return true
 	}
 
@@ -923,12 +929,10 @@ class SongView
 				val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
 				if (audioEvent != null) {
 					val nTime = Utils.nanoToMilli(nano - audioEvent.mEventTime)
-					val audioPlayer = seekTrack(audioEvent.mAudioFile, nTime)
-					musicPlaying = audioPlayer != null
-					if (mStartState === PlayState.Playing) {
-						Logger.log("Starting AudioPlayer")
-						audioPlayer?.start()
-					}
+					musicPlaying = seekTrack(audioEvent.mAudioFile, nTime)?.apply {
+						if (mStartState === PlayState.Playing)
+							startAudioPlayer(this)
+					} != null
 				}
 			}
 			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
@@ -1025,7 +1029,7 @@ class SongView
 		mCurrentVolume = max(0, mCurrentVolume)
 		mCurrentVolume = min(100, mCurrentVolume)
 		mAudioPlayers.values.forEach {
-			it.setVolume(mCurrentVolume)
+			it.volume = mCurrentVolume
 		}
 		mLastTempMessageTime = System.nanoTime()
 	}

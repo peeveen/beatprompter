@@ -70,7 +70,9 @@ class ExoPlayerAudioPlayer : AudioPlayer {
 		mInternalPlayer.release()
 	}
 
-	override fun setVolume(volume: Int) {
-		mInternalPlayer.volume = volume * 0.01f
-	}
+	override var volume: Int
+		get() = (mInternalPlayer.volume * 100.0).toInt()
+		set(value) {
+			mInternalPlayer.volume = value * 0.01f
+		}
 }

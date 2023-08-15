@@ -11,6 +11,7 @@ import java.io.FileInputStream
  */
 class MediaPlayerAudioPlayer : AudioPlayer {
 	private val mInternalPlayer: MediaPlayer
+	private var mCurrentVolume: Int = 0
 
 	constructor(context: Context) {
 		// Silence player
@@ -61,7 +62,12 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 		mInternalPlayer.release()
 	}
 
-	override fun setVolume(volume: Int) {
-		mInternalPlayer.setVolume(volume * 0.01f, volume * 0.01f)
-	}
+
+	override var volume: Int
+		get() = mCurrentVolume
+		set(value) {
+			mCurrentVolume = value
+			mInternalPlayer.setVolume(value * 0.01f, value * 0.01f)
+		}
+
 }

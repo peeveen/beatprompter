@@ -11,5 +11,5 @@ interface AudioPlayer {
 	val isPlaying: Boolean
 	val duration: Long
 	fun release()
-	fun setVolume(volume: Int)
+	var volume: Int
 }
