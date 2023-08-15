@@ -36,7 +36,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\steve\Desktop\fontsize.png" />
+                                                <entry key="imagePath" value="C:\Users\steve\Desktop\ey.png" />
                                                 <entry key="opacityPercent" value="60" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
@@ -71,8 +71,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\steve\Desktop\fontsize.png" />
-                                      <entry key="outputName" value="ic_fontsize" />
+                                      <entry key="imageAsset" value="C:\Users\steve\Desktop\ey.png" />
+                                      <entry key="outputName" value="ic_eye" />
                                     </map>
                                   </option>
                                 </PersistentState>
