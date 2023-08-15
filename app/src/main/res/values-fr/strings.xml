@@ -389,5 +389,6 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="permissionPref_granted">Accordée</string>
 	<string name="permissionPref_denied">Nié</string>
 	<string name="permissions">Autorisations</string>
+	<string name="audio">Audio</string>
 	<string name="pref_localStoragePermission_summary">Autorisez BeatPrompter à lire les fichiers des dossiers locaux.</string>
 </resources>

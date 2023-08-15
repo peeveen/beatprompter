@@ -18,8 +18,13 @@
 	<Preference
 		app:key="song-display_screen_preference"
 		app:title="@string/song_display_options"
-		android:icon="@drawable/ic_musical_notes"
+		android:icon="@drawable/ic_eye"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.SongDisplaySettingsFragment"/>
+	<Preference
+		app:key="audio_screen_preference"
+		app:title="@string/audio"
+		android:icon="@drawable/ic_musical_notes"
+		app:fragment="com.stevenfrew.beatprompter.ui.pref.AudioSettingsFragment"/>
 	<Preference
 		app:key="midi_screen_preference"
 		app:title="@string/midi"

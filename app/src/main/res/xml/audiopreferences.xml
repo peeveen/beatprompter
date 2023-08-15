@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:sf="http://com.stevenfrew/">
+	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
+		android:defaultValue="@string/pref_defaultTrackVolume_default"
+		android:dialogLayout="@layout/seek_bar_dialog"
+		android:dialogMessage="@string/pref_defaultTrackVolume_message"
+		android:key="@string/pref_defaultTrackVolume_key"
+		android:layout="@layout/preference"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_defaultTrackVolume_message"
+		android:title="@string/pref_defaultTrackVolume_title"
+		sf:max="@string/pref_defaultTrackVolume_max"
+		sf:offset="@string/pref_defaultTrackVolume_offset"
+		sf:suffix="@string/pref_defaultTrackVolume_text" />
+	<ListPreference
+		android:defaultValue="@string/pref_metronome_defaultValue"
+		android:dialogTitle="@string/pref_metronome_dialogTitle"
+		android:entries="@array/pref_metronome_entries"
+		android:entryValues="@array/pref_metronome_entryValues"
+		android:key="@string/pref_metronome_key"
+		android:summary="@string/pref_metronome_summary"
+		android:title="@string/pref_metronome_title"
+		app:iconSpaceReserved="false" />
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:key="@string/pref_mute_key"
+		android:summary="@string/pref_mute_summary"
+		android:title="@string/pref_mute_title"
+		app:iconSpaceReserved="false" />
+</PreferenceScreen>

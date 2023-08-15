@@ -51,6 +51,7 @@ class BeatPrompter : Application() {
 			PreferenceManager.setDefaultValues(context, R.xml.bluetoothpreferences, true);
 			PreferenceManager.setDefaultValues(context, R.xml.permissionpreferences, true);
 			PreferenceManager.setDefaultValues(context, R.xml.songdisplaypreferences, true);
+			PreferenceManager.setDefaultValues(context, R.xml.audiopreferences, true);
 			PreferenceManager.setDefaultValues(context, R.xml.songlistpreferences, true);
 		}
 

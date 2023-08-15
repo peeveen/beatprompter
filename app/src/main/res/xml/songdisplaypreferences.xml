@@ -91,19 +91,6 @@
 	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
 		android:layout="@layout/preference"
 		android:dialogLayout="@layout/seek_bar_dialog"
-		android:key="@string/pref_defaultTrackVolume_key"
-		android:defaultValue="@string/pref_defaultTrackVolume_default"
-		android:dialogMessage="@string/pref_defaultTrackVolume_message"
-		android:summary="@string/pref_defaultTrackVolume_message"
-		android:positiveButtonText="@android:string/ok"
-		android:negativeButtonText="@android:string/cancel"
-		sf:max="@string/pref_defaultTrackVolume_max"
-		sf:offset="@string/pref_defaultTrackVolume_offset"
-		sf:suffix="@string/pref_defaultTrackVolume_text"
-		android:title="@string/pref_defaultTrackVolume_title" />
-	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
-		android:layout="@layout/preference"
-		android:dialogLayout="@layout/seek_bar_dialog"
 		android:key="@string/pref_commentDisplayTime_key"
 		android:defaultValue="@string/pref_commentDisplayTime_default"
 		android:dialogMessage="@string/pref_commentDisplayTime_message"
@@ -114,15 +101,6 @@
 		sf:offset="@string/pref_commentDisplayTime_offset"
 		sf:suffix="@string/pref_commentDisplayTime_text"
 		android:title="@string/pref_commentDisplayTime_title" />
-	<ListPreference
-		android:key="@string/pref_metronome_key"
-		android:title="@string/pref_metronome_title"
-		android:dialogTitle="@string/pref_metronome_dialogTitle"
-		android:summary="@string/pref_metronome_summary"
-		android:entries="@array/pref_metronome_entries"
-		app:iconSpaceReserved="false"
-		android:entryValues="@array/pref_metronome_entryValues"
-		android:defaultValue="@string/pref_metronome_defaultValue" />
 	<ListPreference
 		android:key="@string/pref_screenAction_key"
 		android:title="@string/pref_screenAction_title"
