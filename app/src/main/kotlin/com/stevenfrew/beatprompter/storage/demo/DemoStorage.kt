@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.storage.demo
 
-import android.app.Activity
+import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import io.reactivex.subjects.PublishSubject
 import java.io.BufferedWriter
 import java.io.File
@@ -23,7 +23,7 @@ import java.util.Date
 /**
  * An implementation of a "storage system" that only contains the demo files.
  */
-class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
+class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, "demo") {
 	// No need for region strings here.
 	override val cloudStorageName: String
 		get() = "demo"
@@ -99,7 +99,7 @@ class DemoStorage(parentActivity: Activity) : Storage(parentActivity, "demo") {
 
 	private fun createDemoSongAudioFile(): File {
 		val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
-		SongListActivity.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
+		SongListFragment.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
 		return destinationAudioFile
 	}
 

@@ -14,7 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
@@ -104,7 +104,7 @@ internal class ChooseFolderDialog(
 		if (contents == null)
 			mDialog.dismiss()
 		else {
-			contents.removeAll(SongListActivity.mDefaultDownloads.map { it.mFileInfo })
+			contents.removeAll(SongListFragment.mDefaultDownloads.map { it.mFileInfo })
 			contents.sort()
 
 			mCurrentFolder.mParentFolder?.also {

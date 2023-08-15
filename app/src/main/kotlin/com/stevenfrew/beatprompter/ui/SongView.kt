@@ -862,7 +862,7 @@ class SongView
 	private fun endSong(skipped: Boolean) {
 		if (mSongDisplayActivity != null) {
 			mSkipping = skipped
-			SongListActivity.mSongEndedNaturally = true
+			SongListFragment.mSongEndedNaturally = true
 			mStartState = PlayState.AtTitleScreen
 			mSongDisplayActivity = null
 			if (mSong != null)

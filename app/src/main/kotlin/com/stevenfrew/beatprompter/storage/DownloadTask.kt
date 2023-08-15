@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CacheComparisonResult
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.CachedFolder
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 
 /**
  * Task that downloads files from a storage system.
@@ -55,7 +55,7 @@ class DownloadTask(
 
 	override fun onPreExecute() {
 		super.onPreExecute()
-		mProgressDialog = ProgressDialog(SongListActivity.mSongListInstance).apply {
+		mProgressDialog = ProgressDialog(SongListFragment.mSongListInstance.requireContext()).apply {
 			setTitle(BeatPrompter.getResourceString(R.string.downloadingFiles))
 			setMessage(
 				BeatPrompter.getResourceString(
@@ -95,20 +95,20 @@ class DownloadTask(
 		itemsFound.filterIsInstance<FolderInfo>().forEach {
 			val parentFolderID = it.mParentFolder?.mID
 			val parentFolderIDs = if (parentFolderID == null) listOf() else listOf(parentFolderID)
-			SongListActivity.mCachedCloudItems.add(CachedFolder(it.mID, it.mName, parentFolderIDs))
+			SongListFragment.mCachedCloudItems.add(CachedFolder(it.mID, it.mName, parentFolderIDs))
 		}
 
 		val downloadsAndUpdates =
 			itemsFound
 				.filterIsInstance<FileInfo>()
 				.partition {
-					SongListActivity.mCachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
+					SongListFragment.mCachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
 				}
 		val itemsToDownload = downloadsAndUpdates.first
 		val itemsToUpdate = downloadsAndUpdates.second
 
 		itemsToUpdate.forEach {
-			SongListActivity.mCachedCloudItems.updateLocations(it)
+			SongListFragment.mCachedCloudItems.updateLocations(it)
 		}
 
 		mStorage.downloadFiles(itemsToDownload, this)
@@ -116,10 +116,10 @@ class DownloadTask(
 
 	override fun onItemDownloaded(result: DownloadResult) {
 		if (result is SuccessfulDownloadResult)
-			SongListActivity.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
+			SongListFragment.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
 		else
 		// IMPLICIT if(result is FailedDownloadResult)
-			SongListActivity.mCachedCloudItems.remove(result.mFileInfo)
+			SongListFragment.mCachedCloudItems.remove(result.mFileInfo)
 	}
 
 	override fun onProgressMessageReceived(message: String) {
@@ -134,10 +134,10 @@ class DownloadTask(
 
 	override fun onDownloadComplete() {
 		if (!isRefreshingSelectedFiles)
-			SongListActivity.mCachedCloudItems.removeNonExistent(
+			SongListFragment.mCachedCloudItems.removeNonExistent(
 				mCloudItemsFound.values.asSequence().map { c -> c.mID }.toSet()
 			)
-		mHandler.obtainMessage(Events.CACHE_UPDATED, SongListActivity.mCachedCloudItems).sendToTarget()
+		mHandler.obtainMessage(Events.CACHE_UPDATED, SongListFragment.mCachedCloudItems).sendToTarget()
 		if (mProgressDialog != null)
 			mProgressDialog!!.dismiss()
 	}

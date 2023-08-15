@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.storage.local
 
-import android.app.Activity
 import android.os.Environment
+import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.DownloadResult
@@ -18,7 +18,7 @@ import java.util.Date
 /**
  * Local storage implementation of the storage system.
  */
-class LocalStorage(parentActivity: Activity) : Storage(parentActivity, "local") {
+class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, "local") {
 	// No need for region strings here.
 	override val cloudStorageName: String
 		get() = "local"
@@ -39,7 +39,7 @@ class LocalStorage(parentActivity: Activity) : Storage(parentActivity, "local") 
 		// one. The internal memory is always first, so we'll use the last one to get an
 		// actual EXTERNAL storage path. Sadly it will be suffixed with "/android/our_app_id/blah/blah",
 		// but we can do something about that.
-		val folderPath = mParentActivity.getExternalFilesDirs(null).last().absolutePath
+		val folderPath = mParentFragment.requireContext().getExternalFilesDirs(null).last().absolutePath
 		// If the folderPath starts with "/storage/emulated/0" (the internal storage path), use the internal storage path.
 		// But if it doesn't, then there's an SD card in play, so use that. The SD card path will start with "/storage/" then
 		// the ID of the card, so we can adjust the substring for that.

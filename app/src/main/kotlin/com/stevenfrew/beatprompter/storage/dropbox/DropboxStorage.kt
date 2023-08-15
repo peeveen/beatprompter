@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.storage.dropbox
 
-import android.app.Activity
+import androidx.fragment.app.Fragment
 import com.dropbox.core.DbxException
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.android.Auth
@@ -23,8 +23,8 @@ import java.io.FileOutputStream
 /**
  * DropBox implementation of the storage system.
  */
-class DropboxStorage(parentActivity: Activity) :
-	Storage(parentActivity, DROPBOX_CACHE_FOLDER_NAME) {
+class DropboxStorage(parentFragment: Fragment) :
+	Storage(parentFragment, DROPBOX_CACHE_FOLDER_NAME) {
 
 	override val directorySeparator: String
 		get() = "/"
@@ -187,7 +187,9 @@ class DropboxStorage(parentActivity: Activity) :
 			}
 		if (storedAccessToken == null) {
 			action.onAuthenticationRequired()
-			Auth.startOAuth2Authentication(mParentActivity, DROPBOX_APP_KEY)
+			Auth.startOAuth2Authentication(
+				mParentFragment.requireContext(), DROPBOX_APP_KEY
+			)
 		} else {
 			val requestConfig = DbxRequestConfig.newBuilder(BeatPrompter.APP_NAME)
 				.build()

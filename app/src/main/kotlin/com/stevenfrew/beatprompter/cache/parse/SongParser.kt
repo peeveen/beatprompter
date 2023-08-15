@@ -66,7 +66,7 @@ import com.stevenfrew.beatprompter.song.line.TextLine
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.absoluteValue
@@ -320,7 +320,7 @@ class SongParser constructor(
 				audioTagsToProcess.filterNotNull().forEach { audioTag ->
 					// Make sure file exists.
 					val mappedTracks =
-						SongListActivity.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
+						SongListFragment.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
 					if (mappedTracks.isEmpty())
 						mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
 					else if (mappedTracks.size > 1)
@@ -400,7 +400,7 @@ class SongParser constructor(
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						SongListActivity.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
+						SongListFragment.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(

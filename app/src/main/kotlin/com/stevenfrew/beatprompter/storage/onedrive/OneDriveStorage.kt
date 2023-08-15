@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.storage.onedrive
 
-import android.app.Activity
 import android.os.AsyncTask
+import androidx.fragment.app.Fragment
 import com.onedrive.sdk.authentication.MSAAuthenticator
 import com.onedrive.sdk.concurrency.ICallback
 import com.onedrive.sdk.core.ClientException
@@ -32,8 +32,8 @@ import java.io.FileOutputStream
 /**
  * OneDrive implementation of the storage system.
  */
-class OneDriveStorage(parentActivity: Activity) :
-	Storage(parentActivity, ONEDRIVE_CACHE_FOLDER_NAME) {
+class OneDriveStorage(parentFragment: Fragment) :
+	Storage(parentFragment, ONEDRIVE_CACHE_FOLDER_NAME) {
 
 	private val oneDriveAuthenticator = object : MSAAuthenticator() {
 		override fun getClientId(): String {
@@ -220,7 +220,7 @@ class OneDriveStorage(parentActivity: Activity) :
 		val oneDriveConfig = DefaultClientConfig.createWithAuthenticator(oneDriveAuthenticator)
 		OneDriveClient.Builder()
 			.fromConfig(oneDriveConfig)
-			.loginAndBuildClient(mParentActivity, callback)
+			.loginAndBuildClient(mParentFragment.requireActivity(), callback)
 	}
 
 	private class GetOneDriveRootFolderTask constructor(var mClient: IOneDriveClient) :

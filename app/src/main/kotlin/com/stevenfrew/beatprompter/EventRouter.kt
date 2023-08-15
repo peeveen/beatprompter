@@ -1,18 +1,18 @@
 package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.SettingsEventHandler
 
 object EventRouter {
 	private val mSongListEventHandlerLock = Any()
 	private val mSongDisplayEventHandlerLock = Any()
 	private val mSettingsEventHandlerLock = Any()
-	private var mSongListEventHandler: SongListActivity.SongListEventHandler? = null
+	private var mSongListEventHandler: SongListFragment.SongListEventHandler? = null
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
 	private var mSettingsEventHandler: SettingsEventHandler? = null
 
-	fun setSongListEventHandler(songListEventHandler: SongListActivity.SongListEventHandler?) {
+	fun setSongListEventHandler(songListEventHandler: SongListFragment.SongListEventHandler?) {
 		synchronized(mSongListEventHandlerLock) {
 			mSongListEventHandler = songListEventHandler
 		}

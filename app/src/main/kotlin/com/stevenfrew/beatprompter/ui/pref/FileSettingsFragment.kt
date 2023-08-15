@@ -1,10 +1,14 @@
 package com.stevenfrew.beatprompter.ui.pref
 
+import android.app.Activity
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.stevenfrew.beatprompter.EventRouter
@@ -18,12 +22,24 @@ import com.stevenfrew.beatprompter.storage.StorageType
 
 class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener,
 	SharedPreferences.OnSharedPreferenceChangeListener {
+	public var mGoogleDriveAuthenticator: ActivityResultLauncher<Intent>? = null
+
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
 		if (key == getString(R.string.pref_cloudPath_key))
 			onCloudPathChanged(prefs.getString(key, null))
 	}
 
 	private var mSettingsHandler: FileSettingsEventHandler? = null
+
+	override fun onCreate(savedInstanceState: Bundle?) {
+		mGoogleDriveAuthenticator =
+			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+				if (result.resultCode == Activity.RESULT_OK) {
+					mOnGoogleDriveAuthenticated?.invoke()
+				}
+			}
+		super.onCreate(savedInstanceState)
+	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		mSettingsHandler = FileSettingsEventHandler(this)
@@ -80,7 +96,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 	internal fun setCloudPath() {
 		val cloudType = Preferences.storageSystem
 		if (cloudType !== StorageType.Demo) {
-			val cs = Storage.getInstance(cloudType, requireActivity())
+			val cs = Storage.getInstance(cloudType, this)
 			cs.selectFolder(requireActivity(), this)
 		} else
 			Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG)
@@ -102,6 +118,10 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 
 	override fun shouldCancel(): Boolean {
 		return false
+	}
+
+	companion object {
+		internal var mOnGoogleDriveAuthenticated: (() -> Unit)? = null
 	}
 
 	class FileSettingsEventHandler internal constructor(private val mFragment: FileSettingsFragment) :

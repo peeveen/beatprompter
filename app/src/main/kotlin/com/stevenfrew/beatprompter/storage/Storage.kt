@@ -1,13 +1,14 @@
 package com.stevenfrew.beatprompter.storage
 
 import android.app.Activity
+import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.storage.demo.DemoStorage
 import com.stevenfrew.beatprompter.storage.dropbox.DropboxStorage
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.storage.local.LocalStorage
 import com.stevenfrew.beatprompter.storage.onedrive.OneDriveStorage
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
@@ -15,7 +16,7 @@ import io.reactivex.subjects.PublishSubject
  * Base class for all storage systems that we will support.
  */
 abstract class Storage protected constructor(
-	protected var mParentActivity: Activity,
+	protected var mParentFragment: Fragment,
 	cloudCacheFolderName: String
 ) {
 	// TODO: Figure out when to call dispose on this.
@@ -31,7 +32,7 @@ abstract class Storage protected constructor(
 	abstract val cloudIconResourceId: Int
 
 	init {
-		cacheFolder = CacheFolder(SongListActivity.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
+		cacheFolder = CacheFolder(SongListFragment.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
 		if (!cacheFolder.exists())
 			if (!cacheFolder.mkdir())
 				Logger.log("Failed to create storage cache folder.")
@@ -46,7 +47,7 @@ abstract class Storage protected constructor(
 
 	fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
 		val refreshFiles = filesToRefresh.toMutableList()
-		for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
+		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			if (refreshFiles.contains(defaultCloudDownload.mFileInfo))
 				refreshFiles.remove(defaultCloudDownload.mFileInfo)
 
@@ -60,7 +61,7 @@ abstract class Storage protected constructor(
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
 		// Always include the temporary set list and default midi alias files.
-		for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
+		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			downloadSource.onNext(defaultCloudDownload)
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
 	}
@@ -79,7 +80,7 @@ abstract class Storage protected constructor(
 		)
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
-		for (defaultCloudDownload in SongListActivity.mDefaultDownloads)
+		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubfolders)
 	}
@@ -140,13 +141,13 @@ abstract class Storage protected constructor(
 	)
 
 	companion object {
-		fun getInstance(storageType: StorageType, parentActivity: Activity): Storage {
+		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage {
 			return when {
-				storageType === StorageType.Dropbox -> DropboxStorage(parentActivity)
-				storageType === StorageType.OneDrive -> OneDriveStorage(parentActivity)
-				storageType === StorageType.GoogleDrive -> GoogleDriveStorage(parentActivity)
-				storageType === StorageType.Local -> LocalStorage(parentActivity)
-				else -> DemoStorage(parentActivity)
+				storageType === StorageType.Dropbox -> DropboxStorage(parentFragment)
+				storageType === StorageType.OneDrive -> OneDriveStorage(parentFragment)
+				storageType === StorageType.GoogleDrive -> GoogleDriveStorage(parentFragment)
+				storageType === StorageType.Local -> LocalStorage(parentFragment)
+				else -> DemoStorage(parentFragment)
 			}
 		}
 	}

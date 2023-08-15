@@ -16,7 +16,7 @@ import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException
 import com.stevenfrew.beatprompter.midi.alias.Value
 import com.stevenfrew.beatprompter.song.event.MIDIEvent
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @TagType(Type.Directive)
@@ -35,7 +35,7 @@ class MIDIEventTag internal constructor(
 	init {
 		val parsedEvent = parseMIDIEvent(
 			name,
-			value, lineNumber, SongListActivity.mCachedCloudItems.midiAliases
+			value, lineNumber, SongListFragment.mCachedCloudItems.midiAliases
 		)
 		mMessages = parsedEvent.first
 		mOffset = parsedEvent.second

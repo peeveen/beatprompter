@@ -1,7 +1,8 @@
 package com.stevenfrew.beatprompter.storage.googledrive
 
-import android.app.Activity
+import android.content.Intent
 import android.os.AsyncTask
+import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
@@ -24,7 +25,7 @@ import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
-import com.stevenfrew.beatprompter.ui.SongListActivity
+import com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment
 import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import java.io.File
@@ -35,15 +36,15 @@ import java.util.Date
 /**
  * GoogleDrive implementation of the storage system.
  */
-class GoogleDriveStorage(parentActivity: Activity) :
-	Storage(parentActivity, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
+class GoogleDriveStorage(parentFragment: Fragment) :
+	Storage(parentFragment, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
 
 	private val mGoogleClientSignInOptions =
 		GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 			.requestScopes(Scope(DriveScopes.DRIVE_READONLY), Scope(Scopes.EMAIL))
 			.build()
 	private val mGoogleSignInClient =
-		GoogleSignIn.getClient(mParentActivity, mGoogleClientSignInOptions)
+		GoogleSignIn.getClient(mParentFragment.requireActivity(), mGoogleClientSignInOptions)
 
 	override val cloudStorageName: String
 		get() = BeatPrompter.getResourceString(R.string.google_drive_string)
@@ -59,21 +60,27 @@ class GoogleDriveStorage(parentActivity: Activity) :
 		fun onAuthenticationRequired()
 	}
 
+	private fun authorize(intent: Intent, onAuthenticated: GoogleDriveAction?) {
+		FileSettingsFragment.mOnGoogleDriveAuthenticated = {
+			if (onAuthenticated != null)
+				doGoogleDriveAction(onAuthenticated)
+		}
+		(mParentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
+	}
+
 	private fun doGoogleDriveAction(action: GoogleDriveAction) {
-		var alreadySignedInAccount = GoogleSignIn.getLastSignedInAccount(mParentActivity)
+		val context = mParentFragment.requireContext()
+		var alreadySignedInAccount =
+			GoogleSignIn.getLastSignedInAccount(context)
 		if (alreadySignedInAccount?.email == null) {
 			mGoogleSignInClient.signOut()
 			alreadySignedInAccount = null
 		}
 		if (alreadySignedInAccount == null) {
-			mActionOnHold = action
-			mParentActivity.startActivityForResult(
-				mGoogleSignInClient.signInIntent,
-				REQUEST_CODE_GOOGLE_SIGN_IN
-			)
+			authorize(mGoogleSignInClient.signInIntent, action)
 		} else {
 			val credential = GoogleAccountCredential.usingOAuth2(
-				mParentActivity, listOf(*SCOPES)
+				context, listOf(*SCOPES)
 			)
 				.setSelectedAccount(alreadySignedInAccount.account)
 				.setBackOff(ExponentialBackOff())
@@ -95,7 +102,8 @@ class GoogleDriveStorage(parentActivity: Activity) :
 		val mListener: StorageListener,
 		val mItemSource: PublishSubject<ItemInfo>,
 		val mMessageSource: PublishSubject<String>,
-		val mRecurseFolders: Boolean
+		val mRecurseFolders: Boolean,
+		val mReAuthenticationFn: (Intent) -> Unit
 	) : AsyncTask<Void, Void, Void>() {
 
 		override fun doInBackground(vararg args: Void): Void? {
@@ -174,12 +182,11 @@ class GoogleDriveStorage(parentActivity: Activity) :
 							break
 					} while (request.pageToken != null && request.pageToken.isNotEmpty())
 				} catch (authException: UserRecoverableAuthIOException) {
-					recoverAuthorization(authException)
+					mReAuthenticationFn(authException.intent)
 				} catch (e: Exception) {
 					mItemSource.onError(e)
 					return null
 				}
-
 			}
 			mItemSource.onComplete()
 			return null
@@ -319,7 +326,8 @@ class GoogleDriveStorage(parentActivity: Activity) :
 					listener,
 					itemSource,
 					messageSource,
-					recurseSubfolders
+					recurseSubfolders,
+					{ intent -> authorize(intent, null) }
 				).execute()
 			}
 
@@ -340,24 +348,5 @@ class GoogleDriveStorage(parentActivity: Activity) :
 			"${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},trashed"
 		private const val GOOGLE_DRIVE_FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
 		private val SCOPES = arrayOf(DriveScopes.DRIVE_READONLY, Scopes.EMAIL)
-		private const val COMPLETE_AUTHORIZATION_REQUEST_CODE = 2
-
-		private var mActionOnHold: GoogleDriveAction? = null
-
-		const val REQUEST_CODE_GOOGLE_SIGN_IN = 1541
-
-		internal fun recoverAuthorization(authException: UserRecoverableAuthIOException) {
-			SongListActivity.mSongListInstance.startActivityForResult(
-				authException.intent,
-				COMPLETE_AUTHORIZATION_REQUEST_CODE
-			)
-		}
-
-		fun completeAction(parentActivity: Activity) {
-			val actionOnHold = mActionOnHold
-			mActionOnHold = null
-			if (actionOnHold != null)
-				GoogleDriveStorage(parentActivity).doGoogleDriveAction(actionOnHold)
-		}
 	}
 }
