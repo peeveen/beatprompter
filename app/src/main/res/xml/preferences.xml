@@ -36,11 +36,6 @@
 		android:icon="@drawable/ic_bluetooth"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.BluetoothSettingsFragment"/>
 	<Preference
-		app:key="misc_screen_preference"
-		app:title="@string/miscellaneous_options"
-		android:icon="@android:drawable/ic_menu_help"
-		app:fragment="com.stevenfrew.beatprompter.ui.pref.MiscSettingsFragment"/>
-	<Preference
 		app:key="permission_screen_preference"
 		app:title="@string/permissions"
 		android:icon="@drawable/ic_hand"
