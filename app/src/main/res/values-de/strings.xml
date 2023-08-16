@@ -391,4 +391,6 @@ Em]zeigt den Beat Progression.\n
 	<string name="permissions">Erlaubnisse</string>
 	<string name="audio">Audio</string>
 	<string name="pref_localStoragePermission_summary">Erlauben Sie BeatPrompter, Dateien aus lokalen Ordnern zu lesen.</string>
+	<string name="audio_player">Audio-Player</string>
+	<string name="pref_audioplayer_summary">Welchen Player sollte die App für die Audiowiedergabe verwenden?</string>
 </resources>

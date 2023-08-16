@@ -391,4 +391,6 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="permissions">Autorisations</string>
 	<string name="audio">Audio</string>
 	<string name="pref_localStoragePermission_summary">Autorisez BeatPrompter à lire les fichiers des dossiers locaux.</string>
+	<string name="audio_player">Lecteur audio</string>
+	<string name="pref_audioplayer_summary">Quel lecteur l’application doit-elle utiliser pour la lecture audio?</string>
 </resources>

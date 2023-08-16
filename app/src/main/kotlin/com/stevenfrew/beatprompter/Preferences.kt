@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import android.content.SharedPreferences
 import android.graphics.Color
+import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
@@ -299,6 +300,19 @@ object Preferences {
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
 			SongView.ScreenAction.Scroll
+		}
+
+	val audioPlayer: AudioPlayerType
+		get() = try {
+			AudioPlayerType.valueOf(
+				getStringPreference(
+					R.string.pref_audioplayer_key,
+					R.string.pref_audioplayer_defaultValue
+				)!!
+			)
+		} catch (e: Exception) {
+			// backward compatibility with old shite values.
+			AudioPlayerType.MediaPlayer
 		}
 
 	val showScrollIndicator: Boolean

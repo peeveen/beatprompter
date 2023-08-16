@@ -181,4 +181,12 @@
 	<array name="storage_permissions">
 		<item>android.permission.READ_EXTERNAL_STORAGE</item>
 	</array>
+	<string-array name="pref_audioplayer_entries">
+		<item>@string/mediaplayer_name</item>
+		<item>@string/exoplayer_name</item>
+	</string-array>
+	<string-array name="pref_audioplayer_entryValues">
+		<item>@string/mediaplayer</item>
+		<item>@string/exoplayer</item>
+	</string-array>
 </resources>

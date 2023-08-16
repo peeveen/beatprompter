@@ -2,6 +2,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:sf="http://com.stevenfrew/">
+	<ListPreference
+		android:defaultValue="@string/pref_audioplayer_defaultValue"
+		android:dialogTitle="@string/audio_player"
+		android:entries="@array/pref_audioplayer_entries"
+		android:entryValues="@array/pref_audioplayer_entryValues"
+		android:key="@string/pref_audioplayer_key"
+		android:summary="@string/pref_audioplayer_summary"
+		android:title="@string/audio_player"
+		app:iconSpaceReserved="false" />
 	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
 		android:defaultValue="@string/pref_defaultTrackVolume_default"
 		android:dialogLayout="@layout/seek_bar_dialog"

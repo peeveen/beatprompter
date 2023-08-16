@@ -15,7 +15,6 @@ import androidx.core.view.GestureDetectorCompat
 import com.stevenfrew.beatprompter.*
 import com.stevenfrew.beatprompter.audio.AudioPlayer
 import com.stevenfrew.beatprompter.audio.AudioPlayerFactory
-import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
@@ -72,7 +71,7 @@ class SongView
 	private val mShowSongTitle: Boolean
 	private val mCommentDisplayTimeNanoseconds: Long
 	private val mAudioPlayerFactory: AudioPlayerFactory =
-		AudioPlayerFactory(AudioPlayerType.ExoPlayer, context)
+		AudioPlayerFactory(Preferences.audioPlayer, context)
 	private var mAudioPlayers = mapOf<AudioFile, AudioPlayer>()
 	private val mSilenceAudioPlayer: AudioPlayer = mAudioPlayerFactory.createSilencePlayer()
 

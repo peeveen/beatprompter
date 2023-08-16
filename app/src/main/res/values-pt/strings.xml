@@ -391,4 +391,6 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="permissions">Permissões</string>
 	<string name="audio">Áudio</string>
 	<string name="pref_localStoragePermission_summary">Permita que o BeatPrompter leia arquivos de pastas locais.</string>
+	<string name="audio_player">Leitor de áudio</string>
+	<string name="pref_audioplayer_summary">Qual player o aplicativo deve usar para reprodução de áudio?</string>
 </resources>
