@@ -70,10 +70,9 @@ class SongView
 	private val mShowScrollIndicator: Boolean
 	private val mShowSongTitle: Boolean
 	private val mCommentDisplayTimeNanoseconds: Long
-	private val mAudioPlayerFactory: AudioPlayerFactory =
-		AudioPlayerFactory(Preferences.audioPlayer, context)
+	private val mAudioPlayerFactory: AudioPlayerFactory
 	private var mAudioPlayers = mapOf<AudioFile, AudioPlayer>()
-	private val mSilenceAudioPlayer: AudioPlayer = mAudioPlayerFactory.createSilencePlayer()
+	private val mSilenceAudioPlayer: AudioPlayer
 
 	private var mPulse: Boolean
 	private var mSongPixelPosition = 0
@@ -109,6 +108,9 @@ class SongView
 		mScroller = OverScroller(context)
 		mGestureDetector = GestureDetectorCompat(context, this)
 		mSongPixelPosition = 0
+
+		mAudioPlayerFactory = AudioPlayerFactory(Preferences.audioPlayer, context)
+		mSilenceAudioPlayer = mAudioPlayerFactory.createSilencePlayer()
 
 		mScreenAction = Preferences.screenAction
 		mShowScrollIndicator = Preferences.showScrollIndicator

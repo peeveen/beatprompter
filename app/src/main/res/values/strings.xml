@@ -743,12 +743,12 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="pref_localStoragePermission_key" translatable="false">pref_localStoragePermission</string>
 	<string name="pref_localStoragePermission_summary">Allow BeatPrompter to read files from local folders.</string>
 
-	<string name="mediaplayer" translatable="false">mediaplayer</string>
-	<string name="exoplayer" translatable="false">exoplayer</string>
+	<string name="mediaplayer" translatable="false">MediaPlayer</string>
+	<string name="exoplayer" translatable="false">ExoPlayer</string>
 	<string name="mediaplayer_name" translatable="false">MediaPlayer</string>
 	<string name="exoplayer_name" translatable="false">ExoPlayer</string>
 	<string name="audio_player">Audio Player</string>
 	<string name="pref_audioplayer_key" translatable="false">pref_audioplayer</string>
 	<string name="pref_audioplayer_summary">What player should the app use for audio playback?</string>
-	<string name="pref_audioplayer_defaultValue">mediaplayer</string>
+	<string name="pref_audioplayer_defaultValue">MediaPlayer</string>
 </resources>
