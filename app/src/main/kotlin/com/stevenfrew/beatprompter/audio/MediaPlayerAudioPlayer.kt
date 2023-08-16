@@ -17,8 +17,8 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 		// Silence player
 		mInternalPlayer = MediaPlayer.create(context, R.raw.silence).apply {
 			setVolume(0.01f, 0.01f)
+			seekTo(0)
 			isLooping = true
-			prepare()
 		}
 	}
 
@@ -28,10 +28,10 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 			FileInputStream(file.absolutePath)
 				.use { stream ->
 					setDataSource(stream.fd)
+					prepare()
 					seekTo(0)
 					setVolume(0.01f * volume, 0.01f * volume)
 					isLooping = false
-					prepare()
 				}
 		}
 	}

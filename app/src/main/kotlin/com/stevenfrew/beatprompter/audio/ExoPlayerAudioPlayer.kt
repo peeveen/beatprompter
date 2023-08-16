@@ -35,7 +35,7 @@ class ExoPlayerAudioPlayer : AudioPlayer {
 	@OptIn(UnstableApi::class)
 	private constructor(context: Context, uri: Uri, vol: Int, looping: Boolean) {
 		mInternalPlayer = ExoPlayer.Builder(context).build().apply {
-			setSeekParameters(SeekParameters.CLOSEST_SYNC)
+			setSeekParameters(SeekParameters.EXACT)
 			setMediaItem(MediaItem.fromUri(uri))
 			seekTo(0)
 			volume = 0.01f * vol
