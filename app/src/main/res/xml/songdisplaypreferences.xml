@@ -1,141 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:sf="http://com.stevenfrew/"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:sf="http://com.stevenfrew/">
 	<Preference
-		app:key="colors_screen_preference"
 		android:icon="@drawable/ic_palette"
-		app:title="Colors"
-		app:fragment="com.stevenfrew.beatprompter.ui.pref.ColorSettingsFragment"/>
+		app:fragment="com.stevenfrew.beatprompter.ui.pref.ColorSettingsFragment"
+		app:key="colors_screen_preference"
+		app:title="Colors" />
 	<Preference
-		app:key="font-size_screen_preference"
 		android:icon="@drawable/ic_fontsize"
-		app:title="Font Sizes"
-		app:fragment="com.stevenfrew.beatprompter.ui.pref.FontSizeSettingsFragment"/>
+		app:fragment="com.stevenfrew.beatprompter.ui.pref.FontSizeSettingsFragment"
+		app:key="font-size_screen_preference"
+		app:title="Font Sizes" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_pulse_key"
-		android:title="@string/pref_pulse_title"
-		app:iconSpaceReserved="false"
 		android:summary="@string/pref_pulse_summary"
-		android:defaultValue="true" />
+		android:title="@string/pref_pulse_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showScrollIndicator_key"
-		android:title="@string/pref_showScrollIndicator_title"
 		android:summary="@string/pref_showScrollIndicator_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_showScrollIndicator_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_showSongTitle_key"
-		android:title="@string/pref_showSongTitle_title"
 		android:summary="@string/pref_showSongTitle_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_showSongTitle_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_showSongKey_key"
-		android:title="@string/pref_showSongKey_title"
 		android:summary="@string/pref_showSongKey_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_showSongKey_title"
+		app:iconSpaceReserved="false" />
 	<ListPreference
-		android:key="@string/pref_showSongBPM_key"
-		android:title="@string/pref_showSongBPM_title"
+		android:defaultValue="@string/pref_showSongBPM_defaultValue"
 		android:dialogTitle="@string/pref_showSongBPM_dialogTitle"
-		android:summary="@string/pref_showSongBPM_summary"
 		android:entries="@array/pref_showSongBPM_entries"
 		android:entryValues="@array/pref_showSongBPM_entryValues"
-		app:iconSpaceReserved="false"
-		android:defaultValue="@string/pref_showSongBPM_defaultValue" />
+		android:key="@string/pref_showSongBPM_key"
+		android:summary="@string/pref_showSongBPM_summary"
+		android:title="@string/pref_showSongBPM_title"
+		app:iconSpaceReserved="false" />
 	<!--        <CheckBoxPreference
 							android:key="@string/pref_showFirstBeat_key"
 							android:title="@string/pref_showFirstBeat_title"
 							android:summary="@string/pref_showFirstBeat_summary"
 							android:defaultValue="false" />-->
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showChords_key"
-		android:title="@string/pref_showChords_title"
 		android:summary="@string/pref_showChords_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_showChords_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_highlightCurrentLine_key"
-		android:title="@string/pref_highlightCurrentLine_title"
 		android:summary="@string/pref_highlightCurrentLine_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />s
+		android:title="@string/pref_highlightCurrentLine_title"
+		app:iconSpaceReserved="false" />s
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_highlightPageDownLine_key"
-		android:title="@string/pref_highlightPageDownLine_title"
 		android:summary="@string/pref_highlightPageDownLine_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_highlightPageDownLine_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_highlightBeatSectionStart_key"
-		android:title="@string/pref_highlightBeatSectionStart_title"
 		android:summary="@string/pref_highlightBeatSectionStart_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_highlightBeatSectionStart_title"
+		app:iconSpaceReserved="false" />
 	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
-		android:layout="@layout/preference"
-		android:dialogLayout="@layout/seek_bar_dialog"
-		android:key="@string/pref_countIn_key"
 		android:defaultValue="@string/pref_countIn_default"
+		android:dialogLayout="@layout/seek_bar_dialog"
 		android:dialogMessage="@string/pref_countIn_message"
-		android:summary="@string/pref_countIn_message"
-		android:positiveButtonText="@android:string/ok"
+		android:key="@string/pref_countIn_key"
+		android:layout="@layout/preference"
 		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_countIn_message"
+		android:title="@string/pref_countIn_title"
 		sf:max="@string/pref_countIn_max"
 		sf:offset="@string/pref_countIn_offset"
-		sf:suffix="@string/pref_countIn_text"
-		android:title="@string/pref_countIn_title" />
+		sf:suffix="@string/pref_countIn_text" />
 	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
-		android:layout="@layout/preference"
-		android:dialogLayout="@layout/seek_bar_dialog"
-		android:key="@string/pref_commentDisplayTime_key"
 		android:defaultValue="@string/pref_commentDisplayTime_default"
+		android:dialogLayout="@layout/seek_bar_dialog"
 		android:dialogMessage="@string/pref_commentDisplayTime_message"
-		android:summary="@string/pref_commentDisplayTime_message"
-		android:positiveButtonText="@android:string/ok"
+		android:key="@string/pref_commentDisplayTime_key"
+		android:layout="@layout/preference"
 		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_commentDisplayTime_message"
+		android:title="@string/pref_commentDisplayTime_title"
 		sf:max="@string/pref_commentDisplayTime_max"
 		sf:offset="@string/pref_commentDisplayTime_offset"
-		sf:suffix="@string/pref_commentDisplayTime_text"
-		android:title="@string/pref_commentDisplayTime_title" />
+		sf:suffix="@string/pref_commentDisplayTime_text" />
+	<EditTextPreference
+		android:defaultValue=""
+		android:key="@string/pref_customComments_key"
+		android:summary="@string/pref_customComments_summary"
+		android:title="@string/pref_customComments_title"
+		app:iconSpaceReserved="false" />
 	<ListPreference
-		android:key="@string/pref_screenAction_key"
-		android:title="@string/pref_screenAction_title"
+		android:defaultValue="@string/pref_screenAction_defaultValue"
 		android:dialogTitle="@string/pref_screenAction_dialogTitle"
-		android:summary="@string/pref_screenAction_summary"
 		android:entries="@array/pref_screenAction_entries"
-		app:iconSpaceReserved="false"
 		android:entryValues="@array/pref_screenAction_entryValues"
-		android:defaultValue="@string/pref_screenAction_defaultValue" />
+		android:key="@string/pref_screenAction_key"
+		android:summary="@string/pref_screenAction_summary"
+		android:title="@string/pref_screenAction_title"
+		app:iconSpaceReserved="false" />
 	<ListPreference
-		android:key="@string/pref_automaticallyPlayNextSong_key"
-		android:title="@string/pref_automaticallyPlayNextSong_title"
+		android:defaultValue="@string/pref_automaticallyPlayNextSong_defaultValue"
 		android:dialogTitle="@string/pref_automaticallyPlayNextSong_dialogTitle"
-		android:summary="@string/pref_automaticallyPlayNextSong_summary"
 		android:entries="@array/pref_playNextSong_entries"
 		android:entryValues="@array/pref_playNextSong_entryValues"
-		app:iconSpaceReserved="false"
-		android:defaultValue="@string/pref_automaticallyPlayNextSong_defaultValue" />
+		android:key="@string/pref_automaticallyPlayNextSong_key"
+		android:summary="@string/pref_automaticallyPlayNextSong_summary"
+		android:title="@string/pref_automaticallyPlayNextSong_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_mimicBandLeaderDisplay_key"
-		android:title="@string/pref_mimicBandLeaderDisplay_title"
 		android:summary="@string/pref_mimicBandLeaderDisplay_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_mimicBandLeaderDisplay_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_proximityScroll_key"
-		android:title="@string/pref_proximityScroll_title"
 		android:summary="@string/pref_proximityScroll_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_proximityScroll_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_anyOtherKeyPageDown_key"
-		android:title="@string/pref_anyOtherKeyPageDown_title"
 		android:summary="@string/pref_anyOtherKeyPageDown_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_anyOtherKeyPageDown_title"
+		app:iconSpaceReserved="false" />
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:key="@string/pref_manualMode_key"
+		android:summary="@string/pref_manualMode_summary"
+		android:title="@string/pref_manualMode_title"
+		app:iconSpaceReserved="false" />
 </PreferenceScreen>
 
