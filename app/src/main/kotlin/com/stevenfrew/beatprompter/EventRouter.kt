@@ -8,13 +8,23 @@ object EventRouter {
 	private val mSongListEventHandlerLock = Any()
 	private val mSongDisplayEventHandlerLock = Any()
 	private val mSettingsEventHandlerLock = Any()
-	private var mSongListEventHandler: SongListFragment.SongListEventHandler? = null
+	private var mSongListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
+		HashMap()
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
 	private var mSettingsEventHandler: SettingsEventHandler? = null
 
-	fun setSongListEventHandler(songListEventHandler: SongListFragment.SongListEventHandler?) {
+	fun addSongListEventHandler(
+		key: String,
+		songListEventHandler: SongListFragment.SongListEventHandler
+	) {
 		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandler = songListEventHandler
+			mSongListEventHandlers.put(key, songListEventHandler)
+		}
+	}
+
+	fun removeSongListEventHandler(key: String) {
+		synchronized(mSongListEventHandlerLock) {
+			mSongListEventHandlers.remove(key)
 		}
 	}
 
@@ -32,8 +42,9 @@ object EventRouter {
 
 	fun sendEventToSongList(event: Int) {
 		synchronized(mSongListEventHandlerLock) {
-			if (mSongListEventHandler != null)
-				mSongListEventHandler!!.obtainMessage(event).sendToTarget()
+			mSongListEventHandlers.values.forEach {
+				it.obtainMessage(event).sendToTarget()
+			}
 		}
 	}
 
@@ -53,15 +64,17 @@ object EventRouter {
 
 	fun sendEventToSongList(event: Int, arg: Any) {
 		synchronized(mSongListEventHandlerLock) {
-			if (mSongListEventHandler != null)
-				mSongListEventHandler!!.obtainMessage(event, arg).sendToTarget()
+			mSongListEventHandlers.values.forEach {
+				it.obtainMessage(event, arg).sendToTarget()
+			}
 		}
 	}
 
 	fun sendEventToSongList(event: Int, arg1: Int, arg2: Int) {
 		synchronized(mSongListEventHandlerLock) {
-			if (mSongListEventHandler != null)
-				mSongListEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
+			mSongListEventHandlers.values.forEach {
+				it.obtainMessage(event, arg1, arg2).sendToTarget()
+			}
 		}
 	}
 

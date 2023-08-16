@@ -12,7 +12,11 @@ class SongListActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		val fragmentManager: FragmentManager = supportFragmentManager
 		val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-		fragmentTransaction.replace(android.R.id.content, SongListFragment())
+		fragmentTransaction.replace(
+			android.R.id.content,
+			SongListFragment(),
+			"SongListFragment" + (++mSongListFragmentCounter)
+		)
 		fragmentTransaction.commit()
 
 		supportActionBar?.apply {
@@ -20,5 +24,9 @@ class SongListActivity : AppCompatActivity() {
 			setIcon(R.drawable.ic_beatprompter)
 			title = ""
 		}
+	}
+
+	companion object {
+		var mSongListFragmentCounter: Int = 0
 	}
 }

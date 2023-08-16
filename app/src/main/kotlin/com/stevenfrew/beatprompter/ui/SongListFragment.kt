@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
@@ -201,6 +202,17 @@ class SongListFragment
 
 	override fun onNothingSelected(parent: AdapterView<*>) {
 		//applyFileFilter(null)
+	}
+
+	override fun onConfigurationChanged(newConfig: Configuration) {
+		val beforeListView = requireView().findViewById<ListView>(R.id.listView)
+		val currentPosition = beforeListView.firstVisiblePosition
+		val v = beforeListView.getChildAt(0)
+		val top = if (v == null) 0 else v.top - beforeListView.paddingTop
+
+		super.onConfigurationChanged(newConfig)
+		registerEventHandler()
+		buildList().setSelectionFromTop(currentPosition, top)
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -624,22 +636,23 @@ class SongListFragment
 		return true
 	}
 
+	private fun registerEventHandler() {
+		mSongListInstance = this
+		mSongListEventHandler = SongListEventHandler(this)
+		// Now ready to receive events.
+		EventRouter.addSongListEventHandler(tag!!, mSongListEventHandler!!)
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		mSongLauncher =
 			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-				if (result.resultCode == Activity.RESULT_OK) {
-					// There are no request codes
+				if (result.resultCode == Activity.RESULT_OK)
 					startNextSong()
-				}
 			}
 
 		super.onCreate(savedInstanceState)
 
-		mSongListEventHandler = SongListEventHandler(this)
-		// Now ready to receive events.
-		EventRouter.setSongListEventHandler(mSongListEventHandler!!)
-
-		mSongListInstance = this
+		registerEventHandler()
 
 		initialiseLocalStorage()
 
@@ -682,10 +695,10 @@ class SongListFragment
 
 	private fun initialiseLocalStorage() {
 		val previousSongFilesFolder = mBeatPrompterSongFilesFolder
-		val cntxt = requireContext()
-		val s = cntxt.packageName
+		val fragmentContext = requireContext()
+		val s = fragmentContext.packageName
 		try {
-			val m = cntxt.packageManager
+			val m = fragmentContext.packageManager
 			val p = m.getPackageInfo(s, 0)
 			mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
 		} catch (e: PackageManager.NameNotFoundException) {
@@ -695,7 +708,7 @@ class SongListFragment
 
 		val songFilesFolder: String
 		val useExternalStorage = Preferences.useExternalStorage
-		val externalFilesDir = cntxt.getExternalFilesDir(null)
+		val externalFilesDir = fragmentContext.getExternalFilesDir(null)
 		songFilesFolder = if (useExternalStorage && externalFilesDir != null)
 			externalFilesDir.absolutePath
 		else
@@ -749,7 +762,7 @@ class SongListFragment
 
 	override fun onDestroy() {
 		Preferences.unregisterOnSharedPreferenceChangeListener(this)
-		EventRouter.setSongListEventHandler(null)
+		EventRouter.removeSongListEventHandler(tag!!)
 		super.onDestroy()
 	}
 
@@ -845,13 +858,13 @@ class SongListFragment
 		buildList()
 	}
 
-	private fun buildList() {
+	private fun buildList(): ListView {
 		mListAdapter = if (mSelectedFilter is MIDIAliasFilesFilter)
 			MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles))
 		else
 			SongListAdapter(filterPlaylistNodes(mPlaylist))
 
-		requireView().findViewById<ListView>(R.id.listView).apply {
+		return requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
 			adapter = mListAdapter
@@ -874,8 +887,8 @@ class SongListFragment
 	}
 
 	private fun writeDatabase() {
-		val bpdb = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		if (!bpdb.delete())
+		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
+		if (!database.delete())
 			Logger.log("Failed to delete database file.")
 		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 		val d = docBuilder.newDocument()
@@ -883,13 +896,13 @@ class SongListFragment
 		d.appendChild(root)
 		mCachedCloudItems.writeToXML(d, root)
 		val transformer = TransformerFactory.newInstance().newTransformer()
-		val output = StreamResult(bpdb)
+		val output = StreamResult(database)
 		val input = DOMSource(d)
 		transformer.transform(input, output)
 	}
 
 	private fun buildFilterList() {
-		Logger.log("Building taglist ...")
+		Logger.log("Building tag list ...")
 		val tagAndFolderFilters = mutableListOf<Filter>()
 
 		// Create filters from song tags and sub-folders. Many songs can share the same
@@ -1231,7 +1244,6 @@ class SongListFragment
 				}
 			}
 		}
-
 	}
 
 	class SongListEventHandler internal constructor(private val mSongList: SongListFragment) :
