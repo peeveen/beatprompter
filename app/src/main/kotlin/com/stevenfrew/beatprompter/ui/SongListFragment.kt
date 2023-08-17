@@ -828,14 +828,18 @@ class SongListFragment
 	}
 
 	private fun sortSongList() {
-		if (mSelectedFilter.mCanSort)
-			when (Preferences.sorting) {
-				SortingPreference.Date -> sortSongsByDateModified()
-				SortingPreference.Artist -> sortSongsByArtist()
-				SortingPreference.Title -> sortSongsByTitle()
-				SortingPreference.Mode -> sortSongsByMode()
-				SortingPreference.Key -> sortSongsByKey()
+		if (mSelectedFilter.mCanSort) {
+			val sorting = Preferences.sorting
+			sorting.forEach {
+				when (it) {
+					SortingPreference.Date -> sortSongsByDateModified()
+					SortingPreference.Artist -> sortSongsByArtist()
+					SortingPreference.Title -> sortSongsByTitle()
+					SortingPreference.Mode -> sortSongsByMode()
+					SortingPreference.Key -> sortSongsByKey()
+				}
 			}
+		}
 	}
 
 	private fun sortSongsByTitle() {
@@ -999,13 +1003,15 @@ class SongListFragment
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
-					when (n) {
-						0 -> Preferences.sorting = SortingPreference.Title
-						1 -> Preferences.sorting = SortingPreference.Artist
-						2 -> Preferences.sorting = SortingPreference.Date
-						3 -> Preferences.sorting = SortingPreference.Key
-						4 -> Preferences.sorting = SortingPreference.Mode
-					}
+					Preferences.sorting = arrayOf(
+						when (n) {
+							1 -> SortingPreference.Artist
+							2 -> SortingPreference.Date
+							3 -> SortingPreference.Key
+							4 -> SortingPreference.Mode
+							else -> SortingPreference.Title
+						}
+					)
 					sortSongList()
 					buildList()
 				}

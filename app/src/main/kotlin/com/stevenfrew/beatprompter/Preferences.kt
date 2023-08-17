@@ -86,19 +86,23 @@ object Preferences {
 	val mute: Boolean
 		get() = getBooleanPreference(R.string.pref_mute_key, false)
 
-	var sorting: SortingPreference
+	var sorting: Array<out SortingPreference>
 		get() = try {
-			SortingPreference.valueOf(
-				getStringPreference(
-					R.string.pref_sorting_key,
-					SortingPreference.Title.name
-				)!!
-			)
+			val stringPref = getStringPreference(
+				R.string.pref_sorting_key,
+				SortingPreference.Title.name
+			)!!
+			stringPref.split(",").map { SortingPreference.valueOf(it) }.toTypedArray()
 		} catch (ignored: Exception) {
 			// backward compatibility with old shite values.
-			SortingPreference.Title
+			arrayOf(SortingPreference.Title)
 		}
-		set(value) = setStringPreference(R.string.pref_sorting_key, value.toString())
+		set(value) {
+			val newList = sorting.filter { !value.contains(it) }.toMutableList()
+			newList.addAll(value)
+			val newString = newList.joinToString(",")
+			setStringPreference(R.string.pref_sorting_key, newString)
+		}
 
 	val defaultCountIn: Int
 		get() = getIntPreference(R.string.pref_countIn_key, R.string.pref_countIn_default, 0)
