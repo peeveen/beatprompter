@@ -4,5 +4,6 @@ enum class SortingPreference {
 	Title,
 	Artist,
 	Key,
-	Date
+	Date,
+	Mode
 }

@@ -393,4 +393,6 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_localStoragePermission_summary">Permite que BeatPrompter lea archivos de carpetas locales.</string>
 	<string name="audio_player">Reproductor de audio</string>
 	<string name="pref_audioplayer_summary">¿Qué reproductora debe usar la aplicación para la reproducción de audio?</string>
+	<string name="googleDriveAccessFailed">Error al autenticarse para acceder a Google Drive.</string>
+	<string name="byMode">Por modo</string>
 </resources>

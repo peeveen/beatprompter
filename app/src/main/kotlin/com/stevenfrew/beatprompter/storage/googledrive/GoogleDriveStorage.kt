@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.content.Intent
 import android.os.AsyncTask
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -60,15 +61,26 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		fun onAuthenticationRequired()
 	}
 
-	private fun authorize(intent: Intent, onAuthenticated: GoogleDriveAction?) {
+	private fun <T> authorize(
+		intent: Intent,
+		itemSource: PublishSubject<T>,
+		onAuthenticated: GoogleDriveAction?,
+	) {
 		FileSettingsFragment.mOnGoogleDriveAuthenticated = {
-			if (onAuthenticated != null)
-				doGoogleDriveAction(onAuthenticated)
+			onAuthenticated?.let { doGoogleDriveAction(itemSource, it) }
+		}
+		FileSettingsFragment.mOnGoogleDriveAuthenticationFailed = {
+			itemSource.onError(Exception(mParentFragment.getString(R.string.googleDriveAccessFailed)))
+			Toast.makeText(
+				mParentFragment.requireContext(),
+				mParentFragment.getString(R.string.googleDriveAccessFailed),
+				Toast.LENGTH_LONG
+			).show()
 		}
 		(mParentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
 	}
 
-	private fun doGoogleDriveAction(action: GoogleDriveAction) {
+	private fun <T> doGoogleDriveAction(itemSource: PublishSubject<T>, action: GoogleDriveAction) {
 		val context = mParentFragment.requireContext()
 		var alreadySignedInAccount =
 			GoogleSignIn.getLastSignedInAccount(context)
@@ -77,7 +89,11 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			alreadySignedInAccount = null
 		}
 		if (alreadySignedInAccount == null) {
-			authorize(mGoogleSignInClient.signInIntent, action)
+			authorize(
+				mGoogleSignInClient.signInIntent,
+				itemSource,
+				action
+			)
 		} else {
 			val credential = GoogleAccountCredential.usingOAuth2(
 				context, listOf(*SCOPES)
@@ -182,7 +198,11 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 							break
 					} while (request.pageToken != null && request.pageToken.isNotEmpty())
 				} catch (authException: UserRecoverableAuthIOException) {
-					mReAuthenticationFn(authException.intent)
+					try {
+						mReAuthenticationFn(authException.intent)
+					} catch (reAuthException: Exception) {
+						mItemSource.onError(reAuthException)
+					}
 				} catch (e: Exception) {
 					mItemSource.onError(e)
 					return null
@@ -292,7 +312,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>
 	) {
-		doGoogleDriveAction(object : GoogleDriveAction {
+		doGoogleDriveAction(itemSource, object : GoogleDriveAction {
 			override fun onConnected(client: com.google.api.services.drive.Drive) {
 				DownloadGoogleDriveFilesTask(
 					client,
@@ -317,7 +337,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		messageSource: PublishSubject<String>,
 		recurseSubfolders: Boolean
 	) {
-		doGoogleDriveAction(object : GoogleDriveAction {
+		doGoogleDriveAction(itemSource, object : GoogleDriveAction {
 			override fun onConnected(client: com.google.api.services.drive.Drive) {
 				ReadGoogleDriveFolderContentsTask(
 					client,
@@ -326,9 +346,10 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 					listener,
 					itemSource,
 					messageSource,
-					recurseSubfolders,
-					{ intent -> authorize(intent, null) }
-				).execute()
+					recurseSubfolders
+				) { intent ->
+					authorize(intent, itemSource, null)
+				}.execute()
 			}
 
 			override fun onAuthenticationRequired() {

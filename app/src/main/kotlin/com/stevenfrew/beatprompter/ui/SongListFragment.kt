@@ -833,12 +833,17 @@ class SongListFragment
 				SortingPreference.Date -> sortSongsByDateModified()
 				SortingPreference.Artist -> sortSongsByArtist()
 				SortingPreference.Title -> sortSongsByTitle()
+				SortingPreference.Mode -> sortSongsByMode()
 				SortingPreference.Key -> sortSongsByKey()
 			}
 	}
 
 	private fun sortSongsByTitle() {
 		mPlaylist.sortByTitle()
+	}
+
+	private fun sortSongsByMode() {
+		mPlaylist.sortByMode()
 	}
 
 	private fun sortSongsByArtist() {
@@ -989,7 +994,8 @@ class SongListFragment
 					getString(R.string.byTitle),
 					getString(R.string.byArtist),
 					getString(R.string.byDate),
-					getString(R.string.byKey)
+					getString(R.string.byKey),
+					getString(R.string.byMode)
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
@@ -998,6 +1004,7 @@ class SongListFragment
 						1 -> Preferences.sorting = SortingPreference.Artist
 						2 -> Preferences.sorting = SortingPreference.Date
 						3 -> Preferences.sorting = SortingPreference.Key
+						4 -> Preferences.sorting = SortingPreference.Mode
 					}
 					sortSongList()
 					buildList()

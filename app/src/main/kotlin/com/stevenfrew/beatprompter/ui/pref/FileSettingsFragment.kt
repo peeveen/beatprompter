@@ -22,7 +22,7 @@ import com.stevenfrew.beatprompter.storage.StorageType
 
 class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener,
 	SharedPreferences.OnSharedPreferenceChangeListener {
-	public var mGoogleDriveAuthenticator: ActivityResultLauncher<Intent>? = null
+	var mGoogleDriveAuthenticator: ActivityResultLauncher<Intent>? = null
 
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
 		if (key == getString(R.string.pref_cloudPath_key))
@@ -34,9 +34,10 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 	override fun onCreate(savedInstanceState: Bundle?) {
 		mGoogleDriveAuthenticator =
 			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-				if (result.resultCode == Activity.RESULT_OK) {
+				if (result.resultCode == Activity.RESULT_OK)
 					mOnGoogleDriveAuthenticated?.invoke()
-				}
+				else
+					mOnGoogleDriveAuthenticationFailed?.invoke()
 			}
 		super.onCreate(savedInstanceState)
 	}
@@ -122,6 +123,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 
 	companion object {
 		internal var mOnGoogleDriveAuthenticated: (() -> Unit)? = null
+		internal var mOnGoogleDriveAuthenticationFailed: (() -> Unit)? = null
 	}
 
 	class FileSettingsEventHandler internal constructor(private val mFragment: FileSettingsFragment) :

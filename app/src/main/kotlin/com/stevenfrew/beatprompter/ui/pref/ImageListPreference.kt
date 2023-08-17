@@ -5,6 +5,8 @@ import android.util.AttributeSet
 import android.widget.ImageView
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceViewHolder
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
@@ -20,6 +22,9 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 			attrs,
 			R.styleable.ImageListPreference
 		)
+
+		entries = getFilteredCloudStorageEntries()
+		entryValues = getFilteredCloudStorageEntryValues()
 
 		val indexCount = typedArray.indexCount
 		val resources = context.resources
@@ -54,24 +59,41 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 		)
 	}
 
-	override fun getEntries(): Array<CharSequence> {
-		val entries = super.getEntries()
-		return if (localStoragePermissionGranted()) entries else entries.filter {
-			it != mContext.getString(
-				R.string.local_storage_string
-			)
-		}
-			.toTypedArray()
+	private fun googleServicesAvailable(): Boolean {
+		val result = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+		return result == ConnectionResult.SUCCESS
 	}
 
-	override fun getEntryValues(): Array<CharSequence> {
-		val entryValues = super.getEntryValues()
-		return if (localStoragePermissionGranted()) entryValues else entryValues.filter {
-			it != mContext.getString(
-				R.string.localStorageValue
-			)
-		}
-			.toTypedArray()
+	private fun getFilteredCloudStorageEntries(): Array<CharSequence> {
+		val localStorageFilteredEntries =
+			if (localStoragePermissionGranted()) entries else entries.filter {
+				it != mContext.getString(
+					R.string.local_storage_string
+				)
+			}.toTypedArray()
+		val googleDriveFilteredEntries =
+			if (googleServicesAvailable()) localStorageFilteredEntries else localStorageFilteredEntries.filter {
+				it != mContext.getString(
+					R.string.google_drive_string
+				)
+			}.toTypedArray()
+		return googleDriveFilteredEntries
+	}
+
+	private fun getFilteredCloudStorageEntryValues(): Array<CharSequence> {
+		val localStorageFilteredEntries =
+			if (localStoragePermissionGranted()) entryValues else entryValues.filter {
+				it != mContext.getString(
+					R.string.localStorageValue
+				)
+			}.toTypedArray()
+		val googleDriveFilteredEntries =
+			if (googleServicesAvailable()) localStorageFilteredEntries else localStorageFilteredEntries.filter {
+				it != mContext.getString(
+					R.string.googleDriveValue
+				)
+			}.toTypedArray()
+		return googleDriveFilteredEntries
 	}
 
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
@@ -101,5 +123,9 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 				inForceUpdate = false
 			}
 		}
+	}
+
+	companion object {
+		const val GooglePlayServicesPackageName = "com.android.market"
 	}
 }

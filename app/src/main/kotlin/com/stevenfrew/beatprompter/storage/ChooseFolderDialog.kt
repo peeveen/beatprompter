@@ -28,7 +28,7 @@ internal class ChooseFolderDialog(
 	listener: FolderSelectionListener,
 	private var mCurrentFolder: FolderInfo
 ) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
-
+	private var mFolderSearchError: Throwable? = null
 	private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)
 	private val mFolderSelectionEventSubscription: CompositeDisposable
 	private var mParentFolder: FolderInfo? = null
@@ -128,8 +128,11 @@ internal class ChooseFolderDialog(
 					setTitle(getDisplayPath(folderChosen))
 					refresh(folderChosen)
 				}
-				findViewById<Button>(R.id.chooseFolderOkButton)
-					.setOnClickListener { setNewPath(mCurrentFolder) }
+				val okButton = findViewById<Button>(R.id.chooseFolderOkButton)
+				if (mFolderSearchError == null)
+					okButton.setOnClickListener { setNewPath(mCurrentFolder) }
+				else
+					okButton.isEnabled = false
 			}
 		}
 	}
@@ -191,6 +194,7 @@ internal class ChooseFolderDialog(
 
 	override fun onFolderSearchError(t: Throwable) {
 		mActivity.runOnUiThread { Toast.makeText(mActivity, t.message, Toast.LENGTH_LONG).show() }
+		mFolderSearchError = t
 		onFolderSearchComplete()
 	}
 

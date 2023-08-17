@@ -393,4 +393,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="pref_localStoragePermission_summary">Consentire a BeatPrompter di leggere i file dalle cartelle locali.</string>
 	<string name="audio_player">Lettore audio</string>
 	<string name="pref_audioplayer_summary">Quale lettore deve utilizzare l\'app per la riproduzione audio?</string>
+	<string name="googleDriveAccessFailed">Impossibile eseguire l\'autenticazione per l\'accesso a Google Drive.</string>
+	<string name="byMode">Per modalità</string>
 </resources>
