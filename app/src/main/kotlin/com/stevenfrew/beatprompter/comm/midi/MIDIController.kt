@@ -71,7 +71,15 @@ object MIDIController {
 				}
 			} else if (ACTION_USB_PERMISSION == action) {
 				synchronized(this) {
-					val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
+					val device = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+						intent.getParcelableExtra(
+							UsbManager.EXTRA_DEVICE
+						)
+					else
+						intent.getParcelableExtra(
+							UsbManager.EXTRA_DEVICE,
+							UsbDevice::class.java
+						))
 					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 						if (device != null) {
 							val midiInterface = getDeviceMidiInterface(device)
@@ -181,7 +189,11 @@ object MIDIController {
 			addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
 		}
 
-		application.registerReceiver(mUsbReceiver, filter)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+			application.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+		else
+			application.registerReceiver(mUsbReceiver, filter)
+
 		mMidiUsbRegistered = true
 
 		attemptUsbMidiConnection()
