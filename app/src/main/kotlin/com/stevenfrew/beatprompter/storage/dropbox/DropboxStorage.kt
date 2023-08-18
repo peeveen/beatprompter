@@ -5,6 +5,7 @@ import com.dropbox.core.DbxException
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.android.Auth
 import com.dropbox.core.oauth.DbxCredential
+import com.dropbox.core.oauth.DbxOAuthException
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.FolderMetadata
@@ -183,10 +184,11 @@ class DropboxStorage(parentFragment: Fragment) :
 		itemSource.onComplete()
 	}
 
-	private fun updateDropboxCredentials(cred: DbxCredential) {
+	private fun updateDropboxCredentials(cred: DbxCredential): DbxCredential {
 		Preferences.dropboxAccessToken = cred.accessToken
 		Preferences.dropboxRefreshToken = cred.refreshToken
 		Preferences.dropboxExpiryTime = cred.expiresAt
+		return cred
 	}
 
 	private fun getStoredDropboxCredentials(): DbxCredential? {
@@ -202,16 +204,21 @@ class DropboxStorage(parentFragment: Fragment) :
 				DROPBOX_APP_KEY
 			)
 			return if (cred.aboutToExpire()) {
-				val refreshResult = cred.refresh(requestConfig)
-				val newCred = DbxCredential(
-					refreshResult.accessToken,
-					refreshResult.expiresAt,
-					cred.refreshToken,
-					BeatPrompter.APP_NAME,
-					DROPBOX_APP_KEY
-				)
-				updateDropboxCredentials(newCred)
-				newCred
+				try {
+					val refreshResult = cred.refresh(requestConfig)
+					val newCred = DbxCredential(
+						refreshResult.accessToken,
+						refreshResult.expiresAt,
+						cred.refreshToken,
+						BeatPrompter.APP_NAME,
+						DROPBOX_APP_KEY
+					)
+					updateDropboxCredentials(newCred)
+				} catch (authEx: DbxOAuthException) {
+					return null
+				} catch (ex: DbxException) {
+					return null
+				}
 			} else cred
 		}
 		return null
