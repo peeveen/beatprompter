@@ -424,6 +424,14 @@ object Preferences {
 		get() = getPrivateStringPreference(R.string.pref_dropboxAccessToken_key, null)
 		set(value) = setPrivateStringPreference(R.string.pref_dropboxAccessToken_key, value)
 
+	var dropboxRefreshToken: String?
+		get() = getPrivateStringPreference(R.string.pref_dropboxRefreshToken_key, null)
+		set(value) = setPrivateStringPreference(R.string.pref_dropboxRefreshToken_key, value)
+
+	var dropboxExpiryTime: Long
+		get() = getPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, 0L)
+		set(value) = setPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, value)
+
 	private fun getIntPreference(
 		prefResourceString: Int,
 		prefDefaultResourceString: Int,
@@ -452,6 +460,16 @@ object Preferences {
 		return BeatPrompter
 			.privatePreferences
 			.getString(
+				BeatPrompter.getResourceString(prefResourceString),
+				default
+			)
+	}
+
+	@Suppress("SameParameterValue")
+	private fun getPrivateLongPreference(prefResourceString: Int, default: Long): Long {
+		return BeatPrompter
+			.privatePreferences
+			.getLong(
 				BeatPrompter.getResourceString(prefResourceString),
 				default
 			)
@@ -524,6 +542,14 @@ object Preferences {
 			.privatePreferences
 			.edit()
 			.putString(BeatPrompter.getResourceString(prefResourceString), value)
+			.apply()
+	}
+
+	private fun setPrivateLongPreference(prefResourceString: Int, value: Long) {
+		BeatPrompter
+			.privatePreferences
+			.edit()
+			.putLong(BeatPrompter.getResourceString(prefResourceString), value)
 			.apply()
 	}
 

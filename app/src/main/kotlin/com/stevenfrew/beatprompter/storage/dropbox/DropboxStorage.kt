@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import com.dropbox.core.DbxException
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.android.Auth
+import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.FileMetadata
 import com.dropbox.core.v2.files.FolderMetadata
@@ -25,6 +26,9 @@ import java.io.FileOutputStream
  */
 class DropboxStorage(parentFragment: Fragment) :
 	Storage(parentFragment, DROPBOX_CACHE_FOLDER_NAME) {
+
+	private val requestConfig = DbxRequestConfig.newBuilder(BeatPrompter.APP_NAME)
+		.build()
 
 	override val directorySeparator: String
 		get() = "/"
@@ -179,22 +183,54 @@ class DropboxStorage(parentFragment: Fragment) :
 		itemSource.onComplete()
 	}
 
+	private fun updateDropboxCredentials(cred: DbxCredential) {
+		Preferences.dropboxAccessToken = cred.accessToken
+		Preferences.dropboxRefreshToken = cred.refreshToken
+		Preferences.dropboxExpiryTime = cred.expiresAt
+	}
+
+	private fun getStoredDropboxCredentials(): DbxCredential? {
+		val storedAccessToken = Preferences.dropboxAccessToken
+		val storedRefreshToken = Preferences.dropboxRefreshToken
+		val storedExpiryTime = Preferences.dropboxExpiryTime
+		if (storedAccessToken != null && storedRefreshToken != null && storedExpiryTime != 0L) {
+			val cred = DbxCredential(
+				storedAccessToken,
+				storedExpiryTime,
+				storedRefreshToken,
+				BeatPrompter.APP_NAME,
+				DROPBOX_APP_KEY
+			)
+			return if (cred.aboutToExpire()) {
+				val refreshResult = cred.refresh(requestConfig)
+				val newCred = DbxCredential(
+					refreshResult.accessToken,
+					refreshResult.expiresAt,
+					cred.refreshToken,
+					BeatPrompter.APP_NAME,
+					DROPBOX_APP_KEY
+				)
+				updateDropboxCredentials(newCred)
+				newCred
+			} else cred
+		}
+		return null
+	}
+
 	private fun doDropboxAction(action: DropboxAction) {
 		// Did we authenticate last time it failed?
-		val storedAccessToken = Preferences.dropboxAccessToken
-			?: Auth.getOAuth2Token()?.also {
-				Preferences.dropboxAccessToken = it
-			}
-		if (storedAccessToken == null) {
+		val authCred = Auth.getDbxCredential()
+		val storedCred = getStoredDropboxCredentials()
+		val cred = storedCred ?: authCred
+		if (cred == null) {
 			action.onAuthenticationRequired()
-			Auth.startOAuth2Authentication(
-				mParentFragment.requireContext(), DROPBOX_APP_KEY
+			Auth.startOAuth2PKCE(
+				mParentFragment.requireContext(), DROPBOX_APP_KEY, requestConfig
 			)
-		} else {
-			val requestConfig = DbxRequestConfig.newBuilder(BeatPrompter.APP_NAME)
-				.build()
-			action.onConnected(DbxClientV2(requestConfig, storedAccessToken))
+			return
 		}
+		updateDropboxCredentials(cred)
+		action.onConnected(DbxClientV2(requestConfig, cred.accessToken))
 	}
 
 	override fun downloadFiles(

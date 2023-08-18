@@ -233,6 +233,8 @@
 
 	<string name="pref_oneDriveAccessToken_key" translatable="false">pref_oneDriveAccessToken</string>
 	<string name="pref_dropboxAccessToken_key" translatable="false">pref_dropboxV2AccessToken</string>
+	<string name="pref_dropboxRefreshToken_key" translatable="false">pref_dropboxV2RefreshToken</string>
+	<string name="pref_dropboxExpiryTime_key" translatable="false">pref_dropboxV2ExpiryTime</string>
 	<string name="pref_songSource_key" translatable="false">pref_songSource</string>
 
 	<string name="pref_sorting_key" translatable="false">pref_sorting</string>
