@@ -1024,14 +1024,22 @@ class SongListFragment
 		}
 	}
 
-	private fun openManualURL() {
-		val browserIntent = Intent(Intent.ACTION_VIEW, MANUAL_URL)
+	private fun openBrowser(uri: Uri) {
+		val browserIntent = Intent(Intent.ACTION_VIEW, uri)
 		startActivity(browserIntent)
+
+	}
+
+	private fun openManualURL() {
+		openBrowser(MANUAL_URL)
 	}
 
 	private fun openPrivacyPolicyURL() {
-		val browserIntent = Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL)
-		startActivity(browserIntent)
+		openBrowser(PRIVACY_POLICY_URL)
+	}
+
+	private fun openBuyMeACoffeeURL() {
+		openBrowser(Uri.parse(getString(R.string.buyMeACoffeeUrl)))
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1042,6 +1050,7 @@ class SongListFragment
 			R.id.settings -> startActivity(Intent(context, SettingsActivity::class.java))
 			R.id.manual -> openManualURL()
 			R.id.privacy_policy -> openPrivacyPolicyURL()
+			R.id.buy_me_a_coffee -> openBuyMeACoffeeURL()
 			R.id.about -> showAboutDialog()
 			else -> return super.onOptionsItemSelected(item)
 		}

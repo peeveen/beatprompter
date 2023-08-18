@@ -395,4 +395,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_audioplayer_summary">Welchen Player sollte die App für die Audiowiedergabe verwenden?</string>
 	<string name="googleDriveAccessFailed">Fehler bei der Authentifizierung für den Zugriff auf Google Drive.</string>
 	<string name="byMode">Nach Modus</string>
+	<string name="buyMeACoffee">Kaufen Sie mir einen Kaffee</string>
 </resources>

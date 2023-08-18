@@ -40,4 +40,8 @@
 		app:title="@string/permissions"
 		android:icon="@drawable/ic_hand"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.PermissionsSettingsFragment"/>
+	<Preference
+		app:key="@string/pref_buyMeACoffee_key"
+		app:title="@string/buyMeACoffee"
+		android:icon="@drawable/ic_coffee" />
 </PreferenceScreen>

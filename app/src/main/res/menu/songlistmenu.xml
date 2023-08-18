@@ -1,66 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/btconnectionstatuslayout"
-        android:enabled="true"
-        android:title=""
-        android:visible="true"
-        app:actionLayout="@layout/bluetooth_status_indicator_layout"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/tagspinnerlayout"
-        android:enabled="true"
-        android:title=""
-        android:visible="true"
-        app:actionLayout="@layout/filter_spinner_layout"
-        app:showAsAction="always" />
-    <!--    <item
-            android:id="@+id/tagspinner"
-            android:textColor="#ffffff"
-            android:title="@string/no_tag_selected"
-            app:actionViewClass="android.widget.Spinner"
-            app:showAsAction="always" />-->
-    <item
-        android:id="@+id/search"
-        android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="always"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        android:title=""/>
-    <item
-        android:id="@+id/synchronize"
-        android:orderInCategory="1"
-        app:showAsAction="never"
-        android:title="@string/synchronize_string"/>
-    <item
-        android:id="@+id/shuffle"
-        android:orderInCategory="2"
-        app:showAsAction="never"
-        android:title="@string/shuffle" />
-    <item
-        android:id="@+id/sort_songs"
-        android:orderInCategory="3"
-        app:showAsAction="never"
-        android:title="@string/sort_songs"/>
-    <item
-        android:id="@+id/settings"
-        android:orderInCategory="4"
-        app:showAsAction="never"
-        android:title="@string/settings"/>
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<item
+		android:id="@+id/btconnectionstatuslayout"
+		android:enabled="true"
+		android:title=""
+		android:visible="true"
+		app:actionLayout="@layout/bluetooth_status_indicator_layout"
+		app:showAsAction="always" />
+	<item
+		android:id="@+id/tagspinnerlayout"
+		android:enabled="true"
+		android:title=""
+		android:visible="true"
+		app:actionLayout="@layout/filter_spinner_layout"
+		app:showAsAction="always" />
+	<!--    <item
+					android:id="@+id/tagspinner"
+					android:textColor="#ffffff"
+					android:title="@string/no_tag_selected"
+					app:actionViewClass="android.widget.Spinner"
+					app:showAsAction="always" />-->
+	<item
+		android:id="@+id/search"
+		android:icon="@android:drawable/ic_menu_search"
+		android:title=""
+		app:actionViewClass="androidx.appcompat.widget.SearchView"
+		app:showAsAction="always" />
+	<item
+		android:id="@+id/synchronize"
+		android:orderInCategory="1"
+		android:title="@string/synchronize_string"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/shuffle"
+		android:orderInCategory="2"
+		android:title="@string/shuffle"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/sort_songs"
+		android:orderInCategory="3"
+		android:title="@string/sort_songs"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/settings"
+		android:orderInCategory="4"
+		android:title="@string/settings"
+		app:showAsAction="never" />
 
-    <item
-        android:id="@+id/manual"
-        android:orderInCategory="6"
-        app:showAsAction="never"
-        android:title="@string/instructions"/>
-    <item
-        android:id="@+id/privacy_policy"
-        android:orderInCategory="7"
-        app:showAsAction="never"
-        android:title="@string/privacy_policy"/>
-    <item
-        android:id="@+id/about"
-        android:orderInCategory="8"
-        app:showAsAction="never"
-        android:title="@string/about"/>
+	<item
+		android:id="@+id/manual"
+		android:orderInCategory="6"
+		android:title="@string/instructions"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/privacy_policy"
+		android:orderInCategory="7"
+		android:title="@string/privacy_policy"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/buy_me_a_coffee"
+		android:orderInCategory="8"
+		android:title="@string/buyMeACoffee"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/about"
+		android:orderInCategory="9"
+		android:title="@string/about"
+		app:showAsAction="never" />
 </menu>

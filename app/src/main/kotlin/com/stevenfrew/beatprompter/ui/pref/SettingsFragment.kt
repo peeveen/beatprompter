@@ -1,6 +1,8 @@
 package com.stevenfrew.beatprompter.ui.pref
 
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -25,6 +27,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.preferences)
+
+		val coffeePrefName = getString(R.string.pref_buyMeACoffee_key)
+		val coffeePref = findPreference<Preference>(coffeePrefName)
+		coffeePref?.setOnPreferenceClickListener {
+			val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.buyMeACoffeeUrl)))
+			startActivity(browserIntent)
+			true
+		}
 	}
 
 	override fun onResume() {
