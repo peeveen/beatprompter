@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.content.Intent
 import android.os.AsyncTask
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -71,43 +70,42 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		}
 		FileSettingsFragment.mOnGoogleDriveAuthenticationFailed = {
 			itemSource.onError(Exception(mParentFragment.getString(R.string.googleDriveAccessFailed)))
-			Toast.makeText(
-				mParentFragment.requireContext(),
-				mParentFragment.getString(R.string.googleDriveAccessFailed),
-				Toast.LENGTH_LONG
-			).show()
 		}
 		(mParentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
 	}
 
 	private fun <T> doGoogleDriveAction(itemSource: PublishSubject<T>, action: GoogleDriveAction) {
-		val context = mParentFragment.requireContext()
-		var alreadySignedInAccount =
-			GoogleSignIn.getLastSignedInAccount(context)
-		if (alreadySignedInAccount?.email == null) {
-			mGoogleSignInClient.signOut()
-			alreadySignedInAccount = null
-		}
-		if (alreadySignedInAccount == null) {
-			authorize(
-				mGoogleSignInClient.signInIntent,
-				itemSource,
-				action
-			)
-		} else {
-			val credential = GoogleAccountCredential.usingOAuth2(
-				context, listOf(*SCOPES)
-			)
-				.setSelectedAccount(alreadySignedInAccount.account)
-				.setBackOff(ExponentialBackOff())
-			val transport = NetHttpTransport()
-			val jsonFactory = GsonFactory()
-			val service = com.google.api.services.drive.Drive.Builder(
-				transport, jsonFactory, credential
-			)
-				.setApplicationName(BeatPrompter.APP_NAME)
-				.build()
-			action.onConnected(service)
+		try {
+			val context = mParentFragment.requireContext()
+			var alreadySignedInAccount =
+				GoogleSignIn.getLastSignedInAccount(context)
+			if (alreadySignedInAccount?.email == null) {
+				mGoogleSignInClient.signOut()
+				alreadySignedInAccount = null
+			}
+			if (alreadySignedInAccount == null) {
+				authorize(
+					mGoogleSignInClient.signInIntent,
+					itemSource,
+					action
+				)
+			} else {
+				val credential = GoogleAccountCredential.usingOAuth2(
+					context, listOf(*SCOPES)
+				)
+					.setSelectedAccount(alreadySignedInAccount.account)
+					.setBackOff(ExponentialBackOff())
+				val transport = NetHttpTransport()
+				val jsonFactory = GsonFactory()
+				val service = com.google.api.services.drive.Drive.Builder(
+					transport, jsonFactory, credential
+				)
+					.setApplicationName(BeatPrompter.APP_NAME)
+					.build()
+				action.onConnected(service)
+			}
+		} catch (t: Throwable) {
+			itemSource.onError(t)
 		}
 	}
 
