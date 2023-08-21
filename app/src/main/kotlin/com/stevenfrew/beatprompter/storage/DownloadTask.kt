@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.storage
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
@@ -83,7 +84,7 @@ class DownloadTask(
 
 	}
 
-	override fun onFolderSearchError(t: Throwable) {
+	override fun onFolderSearchError(t: Throwable, context: Context) {
 		mErrorOccurred = true
 		mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
 		if (mProgressDialog != null)

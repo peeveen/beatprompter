@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.ui.pref
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -19,6 +20,7 @@ import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.FolderSelectionListener
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.util.Utils
 
 class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener,
 	SharedPreferences.OnSharedPreferenceChangeListener {
@@ -109,8 +111,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 		Preferences.cloudPath = folderInfo.mID
 	}
 
-	override fun onFolderSelectedError(t: Throwable) {
-		Toast.makeText(activity, t.message, Toast.LENGTH_LONG).show()
+	override fun onFolderSelectedError(t: Throwable, context: Context) {
+		Utils.showExceptionDialog(t, context)
 	}
 
 	override fun onAuthenticationRequired() {

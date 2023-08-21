@@ -16,7 +16,7 @@
 	<string name="midiButton15" translatable="false">15</string>
 	<string name="midiButton16" translatable="false">16</string>
 	<string name="pointlessString" translatable="false">abc</string>
-	<string name="version" translatable="false">v1.45</string>
+	<string name="version" translatable="false">v1.46</string>
 	<string name="app_name">BeatPrompter</string>
 	<string name="author_name" translatable="false">Steven Frew</string>
 	<string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
@@ -760,4 +760,5 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="pref_buyMeACoffee_key" translatable="false">pref_buyMeACoffee</string>
 	<string name="buyMeACoffee">Buy me a coffee …</string>
 	<string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
+	<string name="errorTitle">Error</string>
 </resources>

@@ -69,20 +69,20 @@ abstract class Storage protected constructor(
 	fun readFolderContents(
 		folder: FolderInfo,
 		listener: FolderSearchListener,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		val folderContentsSource = PublishSubject.create<ItemInfo>()
 		mCompositeDisposable.add(
 			folderContentsSource.subscribe(
 				{ listener.onCloudItemFound(it) },
-				{ listener.onFolderSearchError(it) },
+				{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
 				{ listener.onFolderSearchComplete() })
 		)
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
 		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
-		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubfolders)
+		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
 	}
 
 	fun selectFolder(parentActivity: Activity, listener: FolderSelectionListener) {
@@ -94,7 +94,7 @@ abstract class Storage protected constructor(
 				}
 
 				override fun onRootPathError(t: Throwable) {
-					listener.onFolderSelectedError(t)
+					listener.onFolderSelectedError(t, mParentFragment.requireContext())
 				}
 
 				override fun onAuthenticationRequired() {
@@ -106,7 +106,7 @@ abstract class Storage protected constructor(
 				}
 			})
 		} catch (e: Exception) {
-			listener.onFolderSelectedError(e)
+			listener.onFolderSelectedError(e, mParentFragment.requireContext())
 		}
 	}
 

@@ -396,4 +396,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="googleDriveAccessFailed">Error al autenticarse para acceder a Google Drive.</string>
 	<string name="byMode">Por modo</string>
 	<string name="buyMeACoffee">Cómprame un café</string>
+    <string name="errorTitle">Error</string>
 </resources>
