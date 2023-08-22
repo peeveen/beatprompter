@@ -396,4 +396,5 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="googleDriveAccessFailed">Falha ao autenticar para acesso ao Google Drive.</string>
 	<string name="byMode">Por modo</string>
 	<string name="buyMeACoffee">Compre-me um café</string>
+	<string name="errorTitle">Erro</string>
 </resources>

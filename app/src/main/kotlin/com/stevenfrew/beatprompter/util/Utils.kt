@@ -1,6 +1,9 @@
 package com.stevenfrew.beatprompter.util
 
+import android.content.Context
 import android.graphics.Color
+import androidx.appcompat.app.AlertDialog
+import com.stevenfrew.beatprompter.R
 import java.io.*
 import kotlin.math.floor
 import kotlin.math.sin
@@ -24,6 +27,17 @@ object Utils {
 		repeat(91) {
 			val radians = Math.toRadians(it.toDouble())
 			mSineLookup[it] = sin(radians)
+		}
+	}
+
+	fun showExceptionDialog(t: Throwable, context: Context) {
+		AlertDialog.Builder(context).apply { setMessage(t.message) }.create().apply {
+			setCanceledOnTouchOutside(true)
+			setTitle(R.string.errorTitle)
+			setButton(
+				android.app.AlertDialog.BUTTON_NEUTRAL, "OK"
+			) { dialog, _ -> dialog.dismiss() }
+			show()
 		}
 	}
 

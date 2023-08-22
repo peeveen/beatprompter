@@ -396,4 +396,5 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="googleDriveAccessFailed">Impossibile eseguire l\'autenticazione per l\'accesso a Google Drive.</string>
 	<string name="byMode">Per modalità</string>
 	<string name="buyMeACoffee">Comprami un caffè</string>
+	<string name="errorTitle">Errore</string>
 </resources>

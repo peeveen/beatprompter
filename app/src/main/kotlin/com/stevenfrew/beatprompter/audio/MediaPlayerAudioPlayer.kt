@@ -24,6 +24,7 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 
 	constructor(file: File, volume: Int) {
 		// File player
+		mCurrentVolume = volume
 		mInternalPlayer = MediaPlayer().apply {
 			FileInputStream(file.absolutePath)
 				.use { stream ->

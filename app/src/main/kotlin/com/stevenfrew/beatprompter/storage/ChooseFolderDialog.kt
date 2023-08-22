@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.storage
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.AsyncTask
 import android.os.Handler
@@ -11,10 +12,10 @@ import android.view.Window
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
-import android.widget.Toast
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListFragment
+import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import java.util.*
@@ -64,7 +65,7 @@ internal class ChooseFolderDialog(
 			add(
 				mFolderSelectionSource.subscribe(
 					{ listener.onFolderSelected(it) },
-					{ listener.onFolderSelectedError(it) })
+					{ listener.onFolderSelectedError(it, mActivity) })
 			)
 		}
 
@@ -183,7 +184,7 @@ internal class ChooseFolderDialog(
 	) : AsyncTask<FolderInfo, Void, Void>() {
 		override fun doInBackground(vararg args: FolderInfo): Void? {
 			val folderToSearch = args[0]
-			mStorage.readFolderContents(folderToSearch, mFolderSearchListener, recurseSubfolders = false)
+			mStorage.readFolderContents(folderToSearch, mFolderSearchListener, recurseSubFolders = false)
 			return null
 		}
 	}
@@ -192,8 +193,10 @@ internal class ChooseFolderDialog(
 		mDisplayItems.add(item)
 	}
 
-	override fun onFolderSearchError(t: Throwable) {
-		mActivity.runOnUiThread { Toast.makeText(mActivity, t.message, Toast.LENGTH_LONG).show() }
+	override fun onFolderSearchError(t: Throwable, context: Context) {
+		mActivity.runOnUiThread {
+			Utils.showExceptionDialog(t, context)
+		}
 		mFolderSearchError = t
 		onFolderSearchComplete()
 	}
