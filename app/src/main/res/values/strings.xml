@@ -16,7 +16,7 @@
 	<string name="midiButton15" translatable="false">15</string>
 	<string name="midiButton16" translatable="false">16</string>
 	<string name="pointlessString" translatable="false">abc</string>
-	<string name="version" translatable="false">v1.46</string>
+	<string name="version" translatable="false">v1.47</string>
 	<string name="app_name">BeatPrompter</string>
 	<string name="author_name" translatable="false">Steven Frew</string>
 	<string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
