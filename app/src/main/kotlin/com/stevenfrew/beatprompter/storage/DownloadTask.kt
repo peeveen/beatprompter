@@ -38,7 +38,7 @@ class DownloadTask(
 	private val isRefreshingSelectedFiles: Boolean
 		get() = mFilesToUpdate.isNotEmpty()
 
-	fun onError(t: Throwable) {
+	override fun onError(t: Throwable) {
 		mErrorOccurred = true
 		mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
 	}

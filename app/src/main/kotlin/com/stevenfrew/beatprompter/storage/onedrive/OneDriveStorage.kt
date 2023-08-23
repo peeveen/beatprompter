@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.storage.onedrive
 
-import android.os.AsyncTask
 import androidx.fragment.app.Fragment
 import com.onedrive.sdk.authentication.MSAAuthenticator
 import com.onedrive.sdk.concurrency.ICallback
@@ -24,10 +23,14 @@ import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageException
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
+import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.execute
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.coroutines.CoroutineContext
 
 /**
  * OneDrive implementation of the storage system.
@@ -66,14 +69,28 @@ class OneDriveStorage(parentFragment: Fragment) :
 		val mListener: StorageListener,
 		val mItemSource: PublishSubject<ItemInfo>,
 		val mMessageSource: PublishSubject<String>,
-		val mRecurseSubfolders: Boolean
-	) : AsyncTask<Void, Void, Void>() {
-		private fun isSuitableFileToDownload(childItem: Item): Boolean {
-			return childItem.audio != null || childItem.image != null || childItem.name.lowercase()
-				.endsWith(".txt")
+		val mRecurseSubFolders: Boolean
+	) : CoroutineTask<Unit, Unit, Unit> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
+
+		override fun onPreExecute() {
+			// Do nothing.
 		}
 
-		override fun doInBackground(vararg args: Void): Void? {
+		override fun onError(t: Throwable) {
+			mItemSource.onError(t)
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// Do nothing. Listener will receive updates.
+		}
+
+		override fun onPostExecute(result: Unit) {
+			// Do nothing.
+		}
+
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
 			val folders = ArrayList<FolderInfo>()
 			folders.add(mFolder)
 
@@ -89,48 +106,46 @@ class OneDriveStorage(parentFragment: Fragment) :
 					)
 				)
 
-				try {
-					Logger.log("Getting list of everything in OneDrive folder.")
-					var page: IItemCollectionPage? =
-						mClient.drive.getItems(currentFolderID).children.buildRequest().get()
-					while (page != null) {
+				Logger.log("Getting list of everything in OneDrive folder.")
+				var page: IItemCollectionPage? =
+					mClient.drive.getItems(currentFolderID).children.buildRequest().get()
+				while (page != null) {
+					if (mListener.shouldCancel())
+						break
+					val children = page.currentPage
+					for (child in children) {
 						if (mListener.shouldCancel())
 							break
-						val children = page.currentPage
-						for (child in children) {
-							if (mListener.shouldCancel())
-								break
-							if (child.file != null) {
-								if (isSuitableFileToDownload(child))
-									mItemSource.onNext(
-										FileInfo(
-											child.id, child.name, child.lastModifiedDateTime.time,
-											if (nextFolder.mParentFolder == null) "" else nextFolder.mID
-										)
+						if (child.file != null) {
+							if (isSuitableFileToDownload(child))
+								mItemSource.onNext(
+									FileInfo(
+										child.id, child.name, child.lastModifiedDateTime.time,
+										if (nextFolder.mParentFolder == null) "" else nextFolder.mID
 									)
-							} else if (child.folder != null) {
-								val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
-								val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
-								if (mRecurseSubfolders) {
-									Logger.log("Adding folder to list of folders to query ...")
-									folders.add(newFolder)
-								}
-								mItemSource.onNext(newFolder)
+								)
+						} else if (child.folder != null) {
+							val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
+							val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
+							if (mRecurseSubFolders) {
+								Logger.log("Adding folder to list of folders to query ...")
+								folders.add(newFolder)
 							}
+							mItemSource.onNext(newFolder)
 						}
-						if (mListener.shouldCancel())
-							break
-						val builder = page.nextPage
-						page = builder?.buildRequest()?.get()
 					}
-				} catch (e: Exception) {
-					mItemSource.onError(e)
-					return null
+					if (mListener.shouldCancel())
+						break
+					val builder = page.nextPage
+					page = builder?.buildRequest()?.get()
 				}
-
 			}
 			mItemSource.onComplete()
-			return null
+		}
+
+		private fun isSuitableFileToDownload(childItem: Item): Boolean {
+			return childItem.audio != null || childItem.image != null || childItem.name.lowercase()
+				.endsWith(".txt")
 		}
 	}
 
@@ -141,9 +156,27 @@ class OneDriveStorage(parentFragment: Fragment) :
 		var mMessageSource: PublishSubject<String>,
 		var mFilesToDownload: List<FileInfo>,
 		var mDownloadFolder: File
-	) : AsyncTask<Void, Void, Void>() {
+	) : CoroutineTask<Unit, Unit, Unit> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
 
-		override fun doInBackground(vararg args: Void): Void? {
+		override fun onPreExecute() {
+			// Do nothing.
+		}
+
+		override fun onError(t: Throwable) {
+			mItemSource.onError(t)
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// Do nothing.
+		}
+
+		override fun onPostExecute(result: Unit) {
+			// Do nothing.
+		}
+
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
 			for (file in mFilesToDownload) {
 				if (mListener.shouldCancel())
 					break
@@ -180,16 +213,11 @@ class OneDriveStorage(parentFragment: Fragment) :
 						mItemSource.onNext(result)
 					} else {
 						mItemSource.onError(oneDriveException)
-						return null
+						return
 					}
-				} catch (e: Exception) {
-					mItemSource.onError(e)
-					return null
 				}
-
 			}
 			mItemSource.onComplete()
-			return null
 		}
 
 		private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File {
@@ -223,9 +251,31 @@ class OneDriveStorage(parentFragment: Fragment) :
 			.loginAndBuildClient(mParentFragment.requireActivity(), callback)
 	}
 
-	private class GetOneDriveRootFolderTask constructor(var mClient: IOneDriveClient) :
-		AsyncTask<Void, Void, FolderInfo>() {
-		override fun doInBackground(vararg args: Void): FolderInfo {
+	private class GetOneDriveRootFolderTask constructor(
+		var mClient: IOneDriveClient,
+		var mRootPathSource: PublishSubject<FolderInfo>
+	) :
+		CoroutineTask<Unit, Unit, FolderInfo> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
+
+		override fun onPreExecute() {
+			// Do nothing.
+		}
+
+		override fun onPostExecute(result: FolderInfo) {
+			mRootPathSource.onNext(result)
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// Do nothing.
+		}
+
+		override fun onError(t: Throwable) {
+			mRootPathSource.onError(t)
+		}
+
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit): FolderInfo {
 			val rootFolder = mClient.drive.root.buildRequest().get()
 			return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)
 		}
@@ -234,13 +284,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
 		doOneDriveAction(object : OneDriveAction {
 			override fun onConnected(client: IOneDriveClient) {
-				try {
-					val rootFolder = GetOneDriveRootFolderTask(client).execute().get()
-					rootPathSource.onNext(rootFolder)
-				} catch (e: Exception) {
-					rootPathSource.onError(e)
-				}
-
+				GetOneDriveRootFolderTask(client, rootPathSource).execute(Unit)
 			}
 
 			override fun onAuthenticationRequired() {
@@ -265,7 +309,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 						messageSource,
 						filesToRefresh,
 						cacheFolder
-					).execute()
+					).execute(Unit)
 				} catch (e: Exception) {
 					itemSource.onError(e)
 				}
@@ -287,20 +331,15 @@ class OneDriveStorage(parentFragment: Fragment) :
 	) {
 		doOneDriveAction(object : OneDriveAction {
 			override fun onConnected(client: IOneDriveClient) {
-				try {
-					GetOneDriveFolderContentsTask(
-						client,
-						this@OneDriveStorage,
-						folder,
-						listener,
-						itemSource,
-						messageSource,
-						recurseSubFolders
-					).execute()
-				} catch (e: Exception) {
-					itemSource.onError(e)
-				}
-
+				GetOneDriveFolderContentsTask(
+					client,
+					this@OneDriveStorage,
+					folder,
+					listener,
+					itemSource,
+					messageSource,
+					recurseSubFolders
+				).execute(Unit)
 			}
 
 			override fun onAuthenticationRequired() {

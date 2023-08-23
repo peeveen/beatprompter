@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.content.Intent
-import android.os.AsyncTask
 import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -26,12 +25,16 @@ import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment
+import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.execute
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.Date
+import kotlin.coroutines.CoroutineContext
 
 /**
  * GoogleDrive implementation of the storage system.
@@ -118,9 +121,27 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		val mMessageSource: PublishSubject<String>,
 		val mRecurseFolders: Boolean,
 		val mReAuthenticationFn: (Intent) -> Unit
-	) : AsyncTask<Void, Void, Void>() {
+	) : CoroutineTask<Unit, Unit, Unit> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
 
-		override fun doInBackground(vararg args: Void): Void? {
+		override fun onPreExecute() {
+			// Do nothing.
+		}
+
+		override fun onError(t: Throwable) {
+			mItemSource.onError(t)
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// Do nothing.
+		}
+
+		override fun onPostExecute(result: Unit) {
+			// Do nothing.
+		}
+
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
 			val foldersToQuery = ArrayList<FolderInfo>()
 			foldersToQuery.add(mFolder)
 
@@ -201,13 +222,9 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 					} catch (reAuthException: Exception) {
 						mItemSource.onError(reAuthException)
 					}
-				} catch (e: Exception) {
-					mItemSource.onError(e)
-					return null
 				}
 			}
 			mItemSource.onComplete()
-			return null
 		}
 	}
 
@@ -218,8 +235,27 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		val mMessageSource: PublishSubject<String>,
 		val mFilesToDownload: List<FileInfo>,
 		val mDownloadFolder: File
-	) : AsyncTask<Void, Void, Void>() {
-		override fun doInBackground(vararg args: Void): Void? {
+	) : CoroutineTask<Unit, Unit, Unit> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
+
+		override fun onPreExecute() {
+			// Do nothing.
+		}
+
+		override fun onError(t: Throwable) {
+			mItemSource.onError(t)
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// Do nothing.
+		}
+
+		override fun onPostExecute(result: Unit) {
+			// Do nothing.
+		}
+
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
 			for (cloudFile in mFilesToDownload) {
 				if (mListener.shouldCancel())
 					break
@@ -252,16 +288,11 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 						mItemSource.onNext(FailedDownloadResult(cloudFile))
 					} else {
 						mItemSource.onError(jsonException)
-						return null
+						return
 					}
-				} catch (e: Exception) {
-					mItemSource.onError(e)
-					return null
 				}
-
 			}
 			mItemSource.onComplete()
-			return null
 		}
 
 		private fun downloadGoogleDriveFile(
@@ -319,7 +350,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 					messageSource,
 					filesToRefresh,
 					cacheFolder
-				).execute()
+				).execute(Unit)
 			}
 
 			override fun onAuthenticationRequired() {
@@ -347,7 +378,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 					recurseSubFolders
 				) { intent ->
 					authorize(intent, itemSource, null)
-				}.execute()
+				}.execute(Unit)
 			}
 
 			override fun onAuthenticationRequired() {

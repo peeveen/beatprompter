@@ -82,10 +82,14 @@ fun List<Any?>.flattenAll(): List<Any?> {
 fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(params: TParameters) =
 	launch {
 		onPreExecute()
-		val result = withContext(Dispatchers.IO) {
-			doInBackground(params) {
-				withContext(Dispatchers.Main) { onProgressUpdate(it) }
+		withContext(Dispatchers.IO) {
+			try {
+				val result = doInBackground(params) {
+					withContext(Dispatchers.Main) { onProgressUpdate(it) }
+				}
+				withContext(Dispatchers.Main) { onPostExecute(result) }
+			} catch (t: Throwable) {
+				withContext(Dispatchers.Main) { onError(t) }
 			}
 		}
-		onPostExecute(result)
 	}
