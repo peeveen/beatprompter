@@ -9,4 +9,5 @@ import android.content.Context
 interface FolderSelectionListener : StorageListener {
 	fun onFolderSelected(folderInfo: FolderInfo)
 	fun onFolderSelectedError(t: Throwable, context: Context)
+	fun onFolderSelectionComplete()
 }

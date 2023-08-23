@@ -763,4 +763,5 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="errorTitle">Error</string>
 	<string name="instructionsUrl" translatable="false">https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI</string>
 	<string name="privacyPolicyUrl" translatable="false">https://github.com/peeveen/app-policies/blob/4bb1d77d9cb750f236dde266723f06caeb6cf708/beatprompter/privacy-policy.md</string>
+	<string name="gettingRootFolder">Getting root folder …</string>
 </resources>

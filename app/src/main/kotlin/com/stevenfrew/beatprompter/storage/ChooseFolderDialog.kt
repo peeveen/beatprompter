@@ -39,7 +39,7 @@ internal class ChooseFolderDialog(
 	private var mParentFolder: FolderInfo? = null
 	private val mHandler: FolderContentsFetchHandler
 	private var mFolderFetcher: FolderFetcherTask? = null
-	private val mFolderSelectionSource = PublishSubject.create<FolderInfo>()
+	private val mFolderSelectionSource = PublishSubject.create<FolderInfo?>()
 	private val mDisplayItems = ArrayList<ItemInfo>()
 	private var mShouldCancel: Boolean = false
 
@@ -70,7 +70,8 @@ internal class ChooseFolderDialog(
 			add(
 				mFolderSelectionSource.subscribe(
 					{ listener.onFolderSelected(it) },
-					{ listener.onFolderSelectedError(it, mActivity) })
+					{ listener.onFolderSelectedError(it, mActivity) },
+					{ listener.onFolderSelectionComplete() })
 			)
 		}
 
@@ -89,9 +90,8 @@ internal class ChooseFolderDialog(
 		}
 	}
 
-	private fun setNewPath(newFolder: FolderInfo?) {
-		if (newFolder != null)
-			mFolderSelectionSource.onNext(newFolder)
+	private fun setNewPath(newFolder: FolderInfo) {
+		mFolderSelectionSource.onNext(newFolder)
 		mDialog.dismiss()
 	}
 
@@ -172,9 +172,7 @@ internal class ChooseFolderDialog(
 	}
 
 	override fun onCancel(dialog: DialogInterface) {
-		cancelFolderFetcher()
-		mFolderSelectionSource.onComplete()
-		mFolderSelectionEventSubscription.dispose()
+		onDismiss(dialog)
 	}
 
 	private fun cancelFolderFetcher() {

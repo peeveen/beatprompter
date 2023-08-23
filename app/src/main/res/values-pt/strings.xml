@@ -395,6 +395,7 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="pref_audioplayer_summary">Qual player o aplicativo deve usar para reprodução de áudio?</string>
 	<string name="googleDriveAccessFailed">Falha ao autenticar para acesso ao Google Drive.</string>
 	<string name="byMode">Por modo</string>
-	<string name="buyMeACoffee">Compre-me um café</string>
+	<string name="buyMeACoffee">Compre-me um café …</string>
 	<string name="errorTitle">Erro</string>
+	<string name="gettingRootFolder">Obtendo pasta raiz …</string>
 </resources>
