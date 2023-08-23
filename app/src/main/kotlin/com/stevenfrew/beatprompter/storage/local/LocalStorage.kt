@@ -85,7 +85,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, "local") 
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		val foldersToSearch = mutableListOf(folder)
 		while (foldersToSearch.isNotEmpty()) {
@@ -103,7 +103,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, "local") 
 					files.filter { it.isFile }
 						.map { FileInfo(it.absolutePath, it.name, Date(it.lastModified()), it.absolutePath) }
 						.forEach { itemSource.onNext(it) }
-					if (recurseSubfolders)
+					if (recurseSubFolders)
 						foldersToSearch.addAll(files.filter { it.isDirectory }
 							.map { FolderInfo(folderToSearch, it.absolutePath, it.name, it.absolutePath) })
 					files.filter { it.isDirectory }

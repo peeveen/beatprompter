@@ -283,7 +283,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		doOneDriveAction(object : OneDriveAction {
 			override fun onConnected(client: IOneDriveClient) {
@@ -295,7 +295,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 						listener,
 						itemSource,
 						messageSource,
-						recurseSubfolders
+						recurseSubFolders
 					).execute()
 				} catch (e: Exception) {
 					itemSource.onError(e)

@@ -1,5 +1,9 @@
 package com.stevenfrew.beatprompter.util
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 fun String.splitAndTrim(separator: String): List<String> {
 	val bits = split(separator)
 	return bits.mapNotNull()
@@ -74,3 +78,14 @@ fun List<Any?>.flattenAll(): List<Any?> {
 	}
 	return output
 }
+
+fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(params: TParameters) =
+	launch {
+		onPreExecute()
+		val result = withContext(Dispatchers.IO) {
+			doInBackground(params) {
+				withContext(Dispatchers.Main) { onProgressUpdate(it) }
+			}
+		}
+		onPostExecute(result)
+	}

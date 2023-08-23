@@ -206,7 +206,7 @@ internal class ChooseFolderDialog(
 		mHandler.obtainMessage(Events.FOLDER_CONTENTS_FETCHED, mDisplayItems).sendToTarget()
 	}
 
-	override fun onProgressMessageReceived(message: String) {
+	override suspend fun onProgressMessageReceived(message: String) {
 		// Do nothing.
 	}
 

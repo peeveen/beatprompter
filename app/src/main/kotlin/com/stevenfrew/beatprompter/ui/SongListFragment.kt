@@ -45,6 +45,7 @@ import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.beatprompter.util.flattenAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -816,14 +817,13 @@ class SongListFragment
 				.show()
 		else {
 			mPerformingCloudSync = true
-			val cdt = DownloadTask(
+			DownloadTask(
 				cs,
 				mSongListEventHandler!!,
 				cloudPath,
 				includeSubFolders,
 				mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
-			)
-			cdt.execute()
+			).execute(Unit)
 		}
 	}
 

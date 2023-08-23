@@ -333,7 +333,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		doGoogleDriveAction(itemSource, object : GoogleDriveAction {
 			override fun onConnected(client: com.google.api.services.drive.Drive) {
@@ -344,7 +344,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 					listener,
 					itemSource,
 					messageSource,
-					recurseSubfolders
+					recurseSubFolders
 				) { intent ->
 					authorize(intent, itemSource, null)
 				}.execute()
