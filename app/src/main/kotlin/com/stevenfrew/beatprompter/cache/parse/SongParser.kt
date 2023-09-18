@@ -565,7 +565,8 @@ class SongParser constructor(
 		val lastLineIsBeat = mLines.lastOrNull()?.mScrollMode == ScrollingMode.Beat
 		if (lastLineIsBeat) {
 			noScrollLines.add(mLines.last())
-			sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
+			// Why was I removing this? It breaks highlighting the last line ...
+			// sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
 		} else if (smoothMode) {
 			var availableScreenHeight = mNativeDeviceSettings.mUsableScreenHeight - smoothScrollOffset
 			val lineEvents = sortedEventList.filterIsInstance<LineEvent>()
