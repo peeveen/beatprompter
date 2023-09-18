@@ -474,6 +474,7 @@ class SongParser constructor(
 				mCurrentLineBeatInfo.mBPB,
 				mCurrentLineBeatInfo.mBPM,
 				mCurrentLineBeatInfo.mScrollBeat,
+				mCurrentLineBeatInfo.mLastScrollBeatTotalOffset,
 				0, mCurrentLineBeatInfo.mScrollMode
 			)
 
@@ -564,7 +565,8 @@ class SongParser constructor(
 		val lastLineIsBeat = mLines.lastOrNull()?.mScrollMode == ScrollingMode.Beat
 		if (lastLineIsBeat) {
 			noScrollLines.add(mLines.last())
-			sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
+			// Why was I removing this? It breaks highlighting the last line ...
+			// sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
 		} else if (smoothMode) {
 			var availableScreenHeight = mNativeDeviceSettings.mUsableScreenHeight - smoothScrollOffset
 			val lineEvents = sortedEventList.filterIsInstance<LineEvent>()
@@ -747,7 +749,8 @@ class SongParser constructor(
 		}
 
 		val beatsThisLine = mCurrentLineBeatInfo.mBeats - rolloverBeatCount + beatsToAdjustCount
-		val simpleBeatsThisLine = mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL
+		val simpleBeatsThisLine =
+			(mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL) - mCurrentLineBeatInfo.mLastScrollBeatTotalOffset
 		if (beatsThisLine > simpleBeatsThisLine) {
 			// We need to store some information so that the next line can adjust the rollover beats.
 			mBeatsToAdjust = mCurrentLineBeatInfo.mBeats - simpleBeatsThisLine
