@@ -51,8 +51,9 @@ abstract class SongFileParser<TResultType>(
 		val beatsPerMinuteTag = tagSequence.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
 		val scrollBeatTag = tagSequence.filterIsInstance<ScrollBeatTag>().firstOrNull()
 
-		val barsInThisLine = barsTag?.mBars ?: barsPerLineTag?.mBPL
-		?: if (commaBars == 0) mOngoingBeatInfo.mBPL else commaBars
+		// Commas take precedence.
+		val barsInThisLine = if (commaBars == 0) barsTag?.mBars ?: barsPerLineTag?.mBPL
+		?: mOngoingBeatInfo.mBPL else commaBars
 
 		val beatsPerBarInThisLine = beatsPerBarTag?.mBPB ?: mOngoingBeatInfo.mBPB
 		val beatsPerMinuteInThisLine = beatsPerMinuteTag?.mBPM ?: mOngoingBeatInfo.mBPM
@@ -120,6 +121,7 @@ abstract class SongFileParser<TResultType>(
 			beatsPerMinuteInThisLine,
 			scrollBeatInThisLine,
 			thisScrollBeatTotalOffset,
+			lastScrollBeatTotalOffset,
 			newScrollMode
 		)
 	}
@@ -131,6 +133,7 @@ abstract class SongFileParser<TResultType>(
 		val mBPM: Double,
 		val mScrollBeat: Int,
 		val mScrollBeatTotalOffset: Int,
+		val mLastScrollBeatTotalOffset: Int,
 		val mScrollMode: ScrollingMode = ScrollingMode.Beat
 	) {
 		constructor(songBeatInfo: SongBeatInfo) : this(
@@ -140,6 +143,7 @@ abstract class SongFileParser<TResultType>(
 			songBeatInfo.mBPM,
 			songBeatInfo.mScrollBeat,
 			songBeatInfo.mBPB - songBeatInfo.mScrollBeat,
+			0,
 			songBeatInfo.mScrollMode
 		)
 	}

@@ -474,6 +474,7 @@ class SongParser constructor(
 				mCurrentLineBeatInfo.mBPB,
 				mCurrentLineBeatInfo.mBPM,
 				mCurrentLineBeatInfo.mScrollBeat,
+				mCurrentLineBeatInfo.mLastScrollBeatTotalOffset,
 				0, mCurrentLineBeatInfo.mScrollMode
 			)
 
@@ -747,7 +748,8 @@ class SongParser constructor(
 		}
 
 		val beatsThisLine = mCurrentLineBeatInfo.mBeats - rolloverBeatCount + beatsToAdjustCount
-		val simpleBeatsThisLine = mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL
+		val simpleBeatsThisLine =
+			(mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL) - mCurrentLineBeatInfo.mLastScrollBeatTotalOffset
 		if (beatsThisLine > simpleBeatsThisLine) {
 			// We need to store some information so that the next line can adjust the rollover beats.
 			mBeatsToAdjust = mCurrentLineBeatInfo.mBeats - simpleBeatsThisLine
