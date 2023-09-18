@@ -398,4 +398,6 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="buyMeACoffee">Compre-me um café …</string>
 	<string name="errorTitle">Erro</string>
 	<string name="gettingRootFolder">Obtendo pasta raiz …</string>
+	<string name="pref_showRatingInList_title">Mostrar classificação de música</string>
+	<string name="pref_showRatingInList_summary">Na lista de músicas principais, mostre a classificação da música.</string>
 </resources>

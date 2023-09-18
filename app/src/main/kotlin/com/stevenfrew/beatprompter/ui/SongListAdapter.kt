@@ -21,6 +21,7 @@ class SongListAdapter(private val values: List<PlaylistNode>) :
 			R.layout.song_list_item
 	private val mShowBeatIcons = Preferences.showBeatStyleIcons
 	private val mShowKey = Preferences.showKeyInSongList
+	private val mShowRating = Preferences.showRatingInSongList
 	private val mShowMusicIcon = Preferences.showMusicIcon
 	private val mInflater = BeatPrompter.context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -42,9 +43,15 @@ class SongListAdapter(private val values: List<PlaylistNode>) :
 				if (!song.isBeatScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
 			titleView.text = song.mTitle
 			val key = song.mKey
+			val rating = song.mRating
 			val keyString = if (mShowKey && key.isNotBlank()) " - $key" else ""
-			val artist = song.mArtist + keyString
+			val ratingString = if (mShowRating && rating != 0) " - ${STARS[rating]}" else ""
+			val artist = song.mArtist + keyString + ratingString
 			artistView.text = artist
 		}
+	}
+
+	companion object {
+		val STARS = arrayOf("", "★", "★★", "★★★", "★★★★", "⭐⭐⭐⭐⭐")
 	}
 }

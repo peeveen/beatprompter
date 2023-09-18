@@ -32,6 +32,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDIEventTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDIProgramChangeTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDISongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.SendMIDIClockTag
@@ -107,6 +108,7 @@ import kotlin.math.roundToInt
 	TitleTag::class,
 	ArtistTag::class,
 	KeyTag::class,
+	RatingTag::class,
 	TagTag::class,
 	FilterOnlyTag::class
 )

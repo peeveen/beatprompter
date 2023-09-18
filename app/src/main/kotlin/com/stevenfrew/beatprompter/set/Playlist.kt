@@ -30,6 +30,11 @@ internal class Playlist {
 		buildSongList(songFiles.sortedBy { it.bestScrollingMode })
 	}
 
+	fun sortByRating() {
+		// Sort from best to worst
+		buildSongList(songFiles.sortedByDescending { it.mRating })
+	}
+
 	fun sortByArtist() {
 		buildSongList(songFiles.sortedBy { it.mSortableArtist })
 	}

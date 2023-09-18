@@ -398,4 +398,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="buyMeACoffee">Comprami un caffè …</string>
 	<string name="errorTitle">Errore</string>
 	<string name="gettingRootFolder">Ottenere la cartella principale …</string>
+	<string name="pref_showRatingInList_title">Mostra valutazione canzone</string>
+	<string name="pref_showRatingInList_summary">Nell\'elenco dei brani principali, mostra la valutazione del brano.</string>
 </resources>
