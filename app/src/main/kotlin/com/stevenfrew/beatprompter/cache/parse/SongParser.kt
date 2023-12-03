@@ -698,6 +698,7 @@ class SongParser constructor(
 		var beatThatWeWillScrollOn = 0
 		val currentTimePerBeat = Utils.nanosecondsPerBeat(mCurrentLineBeatInfo.mBPM)
 		val rolloverBeatCount = mRolloverBeats.size
+		var rolloverBeatsApplied = 0
 		val beatsToAdjustCount = mBeatsToAdjust
 		// We have N beats to adjust.
 		// For the previous N beatevents, set the BPB to the new BPB.
@@ -730,6 +731,7 @@ class SongParser constructor(
 				beatEvent = mRolloverBeats.removeAt(0)
 				beatEvent.mWillScrollOnBeat = beatThatWeWillScrollOn
 				rolloverBPB = beatEvent.mBPB
+				rolloverBeatsApplied += 1
 				rolloverBeatLength = Utils.nanosecondsPerBeat(beatEvent.mBPM)
 			}
 			beatEvents.add(beatEvent)
@@ -748,7 +750,7 @@ class SongParser constructor(
 			++currentLineBeat
 		}
 
-		val beatsThisLine = mCurrentLineBeatInfo.mBeats - rolloverBeatCount + beatsToAdjustCount
+		val beatsThisLine = mCurrentLineBeatInfo.mBeats - rolloverBeatCount + rolloverBeatsApplied
 		val simpleBeatsThisLine =
 			(mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL) - mCurrentLineBeatInfo.mLastScrollBeatTotalOffset
 		if (beatsThisLine > simpleBeatsThisLine) {
