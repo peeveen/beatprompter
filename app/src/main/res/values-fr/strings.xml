@@ -395,6 +395,9 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="pref_audioplayer_summary">Quel lecteur l’application doit-elle utiliser pour la lecture audio?</string>
 	<string name="googleDriveAccessFailed">Impossible de s’authentifier pour accéder à Google Drive.</string>
 	<string name="byMode">Par mode</string>
-	<string name="buyMeACoffee">Achetez-moi un café</string>
+	<string name="buyMeACoffee">Achetez-moi un café …</string>
 	<string name="errorTitle">Erreur</string>
+	<string name="gettingRootFolder">Obtention du dossier racine …</string>
+	<string name="pref_showRatingInList_title">Afficher la classification de la chanson</string>
+	<string name="pref_showRatingInList_summary">Zeigen Sie in der Hauptsongliste die Bewertung des Songs an.</string>
 </resources>

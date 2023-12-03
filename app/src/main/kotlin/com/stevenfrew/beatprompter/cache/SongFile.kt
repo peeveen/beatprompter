@@ -28,6 +28,7 @@ class SongFile(
 	val mProgramChangeTrigger: SongTrigger,
 	val mSongSelectTrigger: SongTrigger,
 	val mFilterOnly: Boolean,
+	val mRating: Int,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors) {
 	val mNormalizedArtist = mArtist.normalize()

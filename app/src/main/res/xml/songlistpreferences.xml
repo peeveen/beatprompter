@@ -20,6 +20,12 @@
 		app:iconSpaceReserved="false"
 		android:defaultValue="false" />
 	<CheckBoxPreference
+		android:key="@string/pref_showRatingInList_key"
+		android:title="@string/pref_showRatingInList_title"
+		android:summary="@string/pref_showRatingInList_summary"
+		app:iconSpaceReserved="false"
+		android:defaultValue="false" />
+	<CheckBoxPreference
 		android:key="@string/pref_largePrintList_key"
 		android:title="@string/pref_largePrintList_title"
 		android:summary="@string/pref_largePrintList_summary"

@@ -1,12 +1,11 @@
 package com.stevenfrew.beatprompter.ui.pref
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +21,7 @@ import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.util.Utils
 
-class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener,
+class FileSettingsFragment : PreferenceFragmentCompat(),
 	SharedPreferences.OnSharedPreferenceChangeListener {
 	var mGoogleDriveAuthenticator: ActivityResultLauncher<Intent>? = null
 
@@ -30,8 +29,6 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 		if (key == getString(R.string.pref_cloudPath_key))
 			onCloudPathChanged(prefs.getString(key, null))
 	}
-
-	private var mSettingsHandler: FileSettingsEventHandler? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		mGoogleDriveAuthenticator =
@@ -45,9 +42,6 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		mSettingsHandler = FileSettingsEventHandler(this)
-		EventRouter.setSettingsEventHandler(mSettingsHandler)
-
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.filepreferences)
 
@@ -63,7 +57,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 		val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
 		cloudPathPref?.setOnPreferenceClickListener {
-			EventRouter.sendEventToSettings(Events.SET_CLOUD_PATH)
+			setCloudPath()
 			true
 		}
 
@@ -96,44 +90,48 @@ class FileSettingsFragment : PreferenceFragmentCompat(), FolderSelectionListener
 				if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
 	}
 
-	internal fun setCloudPath() {
+	private fun setCloudPath() {
 		val cloudType = Preferences.storageSystem
 		if (cloudType !== StorageType.Demo) {
 			val cs = Storage.getInstance(cloudType, this)
-			cs.selectFolder(requireActivity(), this)
+			val progressDialog =
+				ProgressDialog(requireContext()).apply {
+					setTitle(getString(R.string.accessingCloudStorage, cs.cloudStorageName))
+					setMessage(getString(R.string.gettingRootFolder))
+					setCancelable(false)
+					isIndeterminate = true
+					show()
+				}
+			cs.selectFolder(requireActivity(), object : FolderSelectionListener {
+				override fun onFolderSelected(folderInfo: FolderInfo) {
+					Preferences.cloudDisplayPath = folderInfo.mDisplayPath
+					Preferences.cloudPath = folderInfo.mID
+				}
+
+				override fun onFolderSelectedError(t: Throwable, context: Context) {
+					Utils.showExceptionDialog(t, context)
+				}
+
+				override fun onFolderSelectionComplete() {
+					progressDialog.dismiss()
+				}
+
+				override fun onAuthenticationRequired() {
+					// Don't need to do anything.
+				}
+
+				override fun shouldCancel(): Boolean {
+					return false
+				}
+
+			})
 		} else
 			Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG)
 				.show()
 	}
 
-	override fun onFolderSelected(folderInfo: FolderInfo) {
-		Preferences.cloudDisplayPath = folderInfo.mDisplayPath
-		Preferences.cloudPath = folderInfo.mID
-	}
-
-	override fun onFolderSelectedError(t: Throwable, context: Context) {
-		Utils.showExceptionDialog(t, context)
-	}
-
-	override fun onAuthenticationRequired() {
-		// Don't need to do anything.
-	}
-
-	override fun shouldCancel(): Boolean {
-		return false
-	}
-
 	companion object {
 		internal var mOnGoogleDriveAuthenticated: (() -> Unit)? = null
 		internal var mOnGoogleDriveAuthenticationFailed: (() -> Unit)? = null
-	}
-
-	class FileSettingsEventHandler internal constructor(private val mFragment: FileSettingsFragment) :
-		Handler(), SettingsEventHandler {
-		override fun handleMessage(msg: Message) {
-			when (msg.what) {
-				Events.SET_CLOUD_PATH -> mFragment.setCloudPath()
-			}
-		}
 	}
 }

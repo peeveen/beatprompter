@@ -78,7 +78,7 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, "demo") {
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		itemSource.apply {
 			onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))

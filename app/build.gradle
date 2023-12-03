@@ -11,9 +11,9 @@ android {
 		// Enabling multidex support.
 		multiDexEnabled true
 		targetSdkVersion 34
+        resourceConfigurations += ['en', 'fr', 'pt', 'de', 'es', 'it']
 		versionCode 569
 		versionName "1.55"
-		resConfigs 'en', 'fr', 'pt', 'de', 'es', 'it'
 	}
 	signingConfigs {
 		debug {

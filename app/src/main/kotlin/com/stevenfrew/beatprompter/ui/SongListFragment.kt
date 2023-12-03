@@ -45,6 +45,7 @@ import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.beatprompter.util.flattenAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -816,14 +817,13 @@ class SongListFragment
 				.show()
 		else {
 			mPerformingCloudSync = true
-			val cdt = DownloadTask(
+			DownloadTask(
 				cs,
 				mSongListEventHandler!!,
 				cloudPath,
 				includeSubFolders,
 				mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
-			)
-			cdt.execute()
+			).execute(Unit)
 		}
 	}
 
@@ -836,6 +836,7 @@ class SongListFragment
 					SortingPreference.Artist -> sortSongsByArtist()
 					SortingPreference.Title -> sortSongsByTitle()
 					SortingPreference.Mode -> sortSongsByMode()
+					SortingPreference.Rating -> sortSongsByRating()
 					SortingPreference.Key -> sortSongsByKey()
 				}
 			}
@@ -848,6 +849,10 @@ class SongListFragment
 
 	private fun sortSongsByMode() {
 		mPlaylist.sortByMode()
+	}
+
+	private fun sortSongsByRating() {
+		mPlaylist.sortByRating()
 	}
 
 	private fun sortSongsByArtist() {
@@ -999,7 +1004,8 @@ class SongListFragment
 					getString(R.string.byArtist),
 					getString(R.string.byDate),
 					getString(R.string.byKey),
-					getString(R.string.byMode)
+					getString(R.string.byMode),
+					getString(R.string.byRating),
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
@@ -1009,6 +1015,7 @@ class SongListFragment
 							2 -> SortingPreference.Date
 							3 -> SortingPreference.Key
 							4 -> SortingPreference.Mode
+							5 -> SortingPreference.Rating
 							else -> SortingPreference.Title
 						}
 					)
@@ -1024,22 +1031,21 @@ class SongListFragment
 		}
 	}
 
-	private fun openBrowser(uri: Uri) {
-		val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+	private fun openBrowser(uriResource: Int) {
+		val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(uriResource)))
 		startActivity(browserIntent)
-
 	}
 
 	private fun openManualURL() {
-		openBrowser(MANUAL_URL)
+		openBrowser(R.string.instructionsUrl)
 	}
 
 	private fun openPrivacyPolicyURL() {
-		openBrowser(PRIVACY_POLICY_URL)
+		openBrowser(R.string.privacyPolicyUrl)
 	}
 
 	private fun openBuyMeACoffeeURL() {
-		openBrowser(Uri.parse(getString(R.string.buyMeACoffeeUrl)))
+		openBrowser(R.string.buyMeACoffeeUrl)
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1240,11 +1246,6 @@ class SongListFragment
 		var mBeatPrompterSongFilesFolder: File? = null
 
 		var mSongEndedNaturally = false
-
-		private val MANUAL_URL =
-			Uri.parse("https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI")
-		private val PRIVACY_POLICY_URL =
-			Uri.parse("https://github.com/peeveen/app-policies/blob/269734a07fee937f4e87d69415cd8dc3d4c999d9/beatprompter/privacy-policy.md")
 
 		private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
 		private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Message
 import android.text.TextUtils
@@ -15,10 +14,15 @@ import android.widget.TextView
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.SongListFragment
+import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.execute
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Dialog allowing the user to choose the folder to use as the source for data.
@@ -35,8 +39,9 @@ internal class ChooseFolderDialog(
 	private var mParentFolder: FolderInfo? = null
 	private val mHandler: FolderContentsFetchHandler
 	private var mFolderFetcher: FolderFetcherTask? = null
-	private val mFolderSelectionSource = PublishSubject.create<FolderInfo>()
+	private val mFolderSelectionSource = PublishSubject.create<FolderInfo?>()
 	private val mDisplayItems = ArrayList<ItemInfo>()
+	private var mShouldCancel: Boolean = false
 
 	internal class FolderContentsFetchHandler(private var mChooseFolderDialog: ChooseFolderDialog) :
 		Handler() {
@@ -65,7 +70,8 @@ internal class ChooseFolderDialog(
 			add(
 				mFolderSelectionSource.subscribe(
 					{ listener.onFolderSelected(it) },
-					{ listener.onFolderSelectedError(it, mActivity) })
+					{ listener.onFolderSelectedError(it, mActivity) },
+					{ listener.onFolderSelectionComplete() })
 			)
 		}
 
@@ -84,9 +90,8 @@ internal class ChooseFolderDialog(
 		}
 	}
 
-	private fun setNewPath(newFolder: FolderInfo?) {
-		if (newFolder != null)
-			mFolderSelectionSource.onNext(newFolder)
+	private fun setNewPath(newFolder: FolderInfo) {
+		mFolderSelectionSource.onNext(newFolder)
 		mDialog.dismiss()
 	}
 
@@ -167,25 +172,44 @@ internal class ChooseFolderDialog(
 	}
 
 	override fun onCancel(dialog: DialogInterface) {
-		cancelFolderFetcher()
-		mFolderSelectionSource.onComplete()
-		mFolderSelectionEventSubscription.dispose()
+		onDismiss(dialog)
 	}
 
 	private fun cancelFolderFetcher() {
 		if (mFolderFetcher != null)
-			mFolderFetcher!!.cancel(true)
+			try {
+				mFolderFetcher!!.cancel("Cancelling folder fetcher ...")
+			} catch (e: IllegalStateException) {
+				// Fetcher wasn't running, so nothing to cancel.
+			}
 		mFolderFetcher = null
 	}
 
 	class FolderFetcherTask internal constructor(
 		private val mStorage: Storage,
 		private val mFolderSearchListener: FolderSearchListener
-	) : AsyncTask<FolderInfo, Void, Void>() {
-		override fun doInBackground(vararg args: FolderInfo): Void? {
-			val folderToSearch = args[0]
-			mStorage.readFolderContents(folderToSearch, mFolderSearchListener, recurseSubFolders = false)
-			return null
+	) : CoroutineTask<FolderInfo, Unit, Unit> {
+		override val coroutineContext: CoroutineContext
+			get() = Dispatchers.IO
+
+		override fun onPreExecute() {
+			// Do nothing.
+		}
+
+		override fun onError(t: Throwable) {
+			// Listener will receive error callbacks.
+		}
+
+		override fun onProgressUpdate(progress: Unit) {
+			// No progress updating required.
+		}
+
+		override fun onPostExecute(result: Unit) {
+			// Do nothing. Listener will receive a completion callback.
+		}
+
+		override fun doInBackground(params: FolderInfo, progressUpdater: suspend (Unit) -> Unit) {
+			return mStorage.readFolderContents(params, mFolderSearchListener, recurseSubFolders = false)
 		}
 	}
 
@@ -206,17 +230,18 @@ internal class ChooseFolderDialog(
 		mHandler.obtainMessage(Events.FOLDER_CONTENTS_FETCHED, mDisplayItems).sendToTarget()
 	}
 
-	override fun onProgressMessageReceived(message: String) {
+	override suspend fun onProgressMessageReceived(message: String) {
 		// Do nothing.
 	}
 
 	override fun onAuthenticationRequired() {
 		// Cancel the dialog.
 		mDialog.cancel()
+		mShouldCancel = true
 	}
 
 	override fun shouldCancel(): Boolean {
-		return mFolderFetcher != null && mFolderFetcher!!.isCancelled
+		return mShouldCancel
 	}
 
 	companion object {
