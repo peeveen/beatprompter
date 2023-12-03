@@ -400,4 +400,5 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="gettingRootFolder">Obtendo pasta raiz …</string>
 	<string name="pref_showRatingInList_title">Mostrar classificação de música</string>
 	<string name="pref_showRatingInList_summary">Na lista de músicas principais, mostre a classificação da música.</string>
+    <string name="byRating">Por classificação</string>
 </resources>

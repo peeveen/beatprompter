@@ -400,4 +400,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="gettingRootFolder">Abrufen des Stammordners …</string>
 	<string name="pref_showRatingInList_title">Songbewertung anzeigen</string>
 	<string name="pref_showRatingInList_summary">Zeigen Sie in der Hauptsongliste die Bewertung des Songs an.</string>
+    <string name="byRating">Nach Bewertung</string>
 </resources>

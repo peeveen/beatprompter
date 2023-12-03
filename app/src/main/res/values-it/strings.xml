@@ -400,4 +400,5 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="gettingRootFolder">Ottenere la cartella principale …</string>
 	<string name="pref_showRatingInList_title">Mostra valutazione canzone</string>
 	<string name="pref_showRatingInList_summary">Nell\'elenco dei brani principali, mostra la valutazione del brano.</string>
+    <string name="byRating">Per valutazione</string>
 </resources>

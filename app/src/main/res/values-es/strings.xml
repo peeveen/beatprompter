@@ -400,4 +400,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="gettingRootFolder">Obteniendo carpeta raíz …</string>
 	<string name="pref_showRatingInList_title">Mostrar clasificación de canciones</string>
 	<string name="pref_showRatingInList_summary">En la lista principal de canciones, muestra la calificación de la canción.</string>
+	<string name="byRating">Por valoración</string>
 </resources>
