@@ -23,6 +23,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDIProgramChangeTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDISongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.SendMIDIClockTag
@@ -41,6 +42,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 	TitleTag::class,
 	ArtistTag::class,
 	KeyTag::class,
+	RatingTag::class,
 	PauseTag::class,
 	TagTag::class,
 	FilterOnlyTag::class,
@@ -82,6 +84,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 	private var mMIDISongSelectTrigger: SongTrigger? = null
 	private var mMixedMode: Boolean = false
 	private var mLines = 0
+	private var mRating = 0
 
 	override fun parseLine(line: TextFileLine<SongFile>) {
 		super.parseLine(line)
@@ -105,6 +108,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 		val imageTags = line.mTags.filterIsInstance<ImageTag>()
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
+		val ratingTag = tagSequence.filterIsInstance<RatingTag>().firstOrNull()
 
 		if (titleTag != null)
 			mTitle = titleTag.mTitle
@@ -139,6 +143,9 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 
 		if (beatStartTag != null || beatStopTag != null)
 			mMixedMode = true
+
+		if (ratingTag != null)
+			mRating = ratingTag.mRating
 
 		if (line.mLineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
 			mBars += mCurrentLineBeatInfo.mBPL
@@ -183,6 +190,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 			mMIDISongSelectTrigger
 				?: SongTrigger.DEAD_TRIGGER,
 			mFilterOnly,
+			mRating,
 			mErrors
 		)
 	}

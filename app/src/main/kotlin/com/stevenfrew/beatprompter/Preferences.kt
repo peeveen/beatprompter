@@ -287,6 +287,12 @@ object Preferences {
 			R.string.pref_showKeyInList_defaultValue
 		)
 
+	val showRatingInSongList: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_showRatingInList_key,
+			R.string.pref_showRatingInList_defaultValue
+		)
+
 	val showMusicIcon: Boolean
 		get() = getBooleanPreference(
 			R.string.pref_showMusicIcon_key,

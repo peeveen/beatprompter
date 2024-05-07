@@ -262,11 +262,11 @@ class DropboxStorage(parentFragment: Fragment) :
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	) {
 		doDropboxAction(object : DropboxAction {
 			override fun onConnected(client: DbxClientV2) {
-				readFolderContents(client, folder, listener, itemSource, messageSource, recurseSubfolders)
+				readFolderContents(client, folder, listener, itemSource, messageSource, recurseSubFolders)
 			}
 
 			override fun onAuthenticationRequired() {

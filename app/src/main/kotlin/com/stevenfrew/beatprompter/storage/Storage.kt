@@ -9,8 +9,11 @@ import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.storage.local.LocalStorage
 import com.stevenfrew.beatprompter.storage.onedrive.OneDriveStorage
 import com.stevenfrew.beatprompter.ui.SongListFragment
+import com.stevenfrew.beatprompter.util.ProgressReportingListener
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Base class for all storage systems that we will support.
@@ -59,7 +62,9 @@ abstract class Storage protected constructor(
 				{ listener.onDownloadComplete() })
 		)
 		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
+		mCompositeDisposable.add(messageSource.subscribe {
+			reportProgress(listener, it)
+		})
 		// Always include the temporary set list and default midi alias files.
 		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			downloadSource.onNext(defaultCloudDownload)
@@ -79,7 +84,9 @@ abstract class Storage protected constructor(
 				{ listener.onFolderSearchComplete() })
 		)
 		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(messageSource.subscribe { listener.onProgressMessageReceived(it) })
+		mCompositeDisposable.add(messageSource.subscribe {
+			reportProgress(listener, it)
+		})
 		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
@@ -137,10 +144,18 @@ abstract class Storage protected constructor(
 		listener: StorageListener,
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
-		recurseSubfolders: Boolean
+		recurseSubFolders: Boolean
 	)
 
 	companion object {
+		private fun reportProgress(listener: ProgressReportingListener<String>, message: String) {
+			runBlocking {
+				launch {
+					listener.onProgressMessageReceived(message)
+				}
+			}
+		}
+
 		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage {
 			return when {
 				storageType === StorageType.Dropbox -> DropboxStorage(parentFragment)
