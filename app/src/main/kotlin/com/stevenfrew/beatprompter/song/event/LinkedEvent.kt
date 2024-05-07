@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.song.event
 
+import com.stevenfrew.beatprompter.song.ScrollingMode
+
 /**
  * During song parsing, the other events are finally encapsulated in LinkedEvent objects,
  * creating a linked-list style of collection. This allows us to easily find the previous
@@ -35,13 +37,13 @@ class LinkedEvent(
 						return lastCheckedEvent
 					lastCheckedEvent = e
 					if (e.mPrevEvent == null)
-						return e
+						return e.firstEventWithSameTime
 					e = e.mPrevEvent!!
 				}
 
 				else -> { // e.mEventTime<=time
 					if (lastCheckedEvent.time > time)
-						return e
+						return e.firstEventWithSameTime
 					lastCheckedEvent = e
 					if (e.mNextEvent == null)
 						return e
@@ -50,4 +52,12 @@ class LinkedEvent(
 			}
 		}
 	}
+
+	private val firstEventWithSameTime:LinkedEvent
+		get() {
+			var e=this
+			while(e.mPrevEvent?.time==e.time)
+				e=e.mPrevEvent!!
+			return e
+		}
 }

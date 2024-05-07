@@ -263,18 +263,6 @@ class SongParser constructor(
 					mStartScreenComments.add(it)
 			}
 
-		tags
-			.filterIsInstance<MIDIEventTag>()
-			.forEach {
-				if (mStopAddingStartupItems)
-					mEvents.add(it.toMIDIEvent(mSongTime))
-				else {
-					mInitialMIDIMessages.addAll(it.mMessages)
-					if (it.mOffset.mAmount != 0)
-						mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
-				}
-			}
-
 		mAudioTags.addAll(tags.filterIsInstance<AudioTag>())
 
 		// If a line has a number of bars defined, we really should treat it as a line, even if
@@ -297,7 +285,22 @@ class SongParser constructor(
 		val pauseTag = tagSequence
 			.filterIsInstance<PauseTag>()
 			.firstOrNull()
-		if (createLine || pauseTag != null) {
+
+		val isSongLine = createLine || pauseTag != null
+
+		tags
+			.filterIsInstance<MIDIEventTag>()
+			.forEach {
+				if (mStopAddingStartupItems || isSongLine)
+					mEvents.add(it.toMIDIEvent(mSongTime))
+				else {
+					mInitialMIDIMessages.addAll(it.mMessages)
+					if (it.mOffset.mAmount != 0)
+						mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+				}
+			}
+
+		if (isSongLine) {
 			// We definitely have a line!
 			// So now is when we want to create the count-in (if any)
 			if (mCountIn > 0) {
