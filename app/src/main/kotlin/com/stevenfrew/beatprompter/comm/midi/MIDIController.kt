@@ -176,13 +176,13 @@ object MIDIController {
 		}
 
 		mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
-		val flags =
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_IMMUTABLE
+		val intent=Intent(ACTION_USB_PERMISSION)
+		intent.setPackage(application.packageName)
 		mPermissionIntent = PendingIntent.getBroadcast(
 			application,
 			0,
-			Intent(ACTION_USB_PERMISSION),
-			flags
+			intent,
+			PendingIntent.FLAG_MUTABLE
 		)
 
 		val filter = IntentFilter().apply {
