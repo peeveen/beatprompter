@@ -13,6 +13,7 @@ import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.song.event.AudioEvent
+import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.util.splitAndTrim
@@ -51,13 +52,27 @@ class Song(
 	val mManualMode: Boolean = mLines.all { it.mScrollMode === ScrollingMode.Manual }
 	internal val mBackingTrack = findBackingTrack(firstEvent)
 
+	private fun getProgressLineEvent(event:LinkedEvent):LineEvent? {
+		var nextEvent:LinkedEvent?=event
+		while(nextEvent?.time==event.time) {
+			if (nextEvent.mEvent is LineEvent)
+				return nextEvent.mEvent as LineEvent
+			nextEvent=nextEvent.mNextEvent
+		}
+		return event.mPrevLineEvent
+	}
+
 	internal fun setProgress(nano: Long) {
 		val e = mCurrentEvent
 		val newCurrentEvent = e.findLatestEventOnOrBefore(nano)
 		mCurrentEvent = newCurrentEvent
 		mNextEvent = mCurrentEvent.mNextEvent
-		val newCurrentLineEvent = newCurrentEvent.mPrevLineEvent
-		mCurrentLine = newCurrentLineEvent?.mLine ?: mLines.first()
+		// Annoyingly, mPrevLineEvent is sometimes the line event
+		// BEFORE the current one ... this happens if the progress
+		// event is an Audio or Midi event, which are placed higher
+		// in the priority queue.
+		val lineEvent = getProgressLineEvent(newCurrentEvent)
+		mCurrentLine = lineEvent?.mLine ?: mLines.first()
 	}
 
 	internal fun getNextEvent(time: Long): LinkedEvent? {
