@@ -146,6 +146,7 @@ class SongListFragment
 
 	private var mMenu: Menu? = null
 	private var mFilters = listOf<Filter>()
+	private val mSelectedTagFilters = mutableListOf<TagFilter>()
 	private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
 
 	internal fun updateBluetoothIcon() {
@@ -182,6 +183,8 @@ class SongListFragment
 	}
 
 	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+		if(Preferences.clearTagsOnFolderChange)
+			mSelectedTagFilters.clear()
 		applyFileFilter(mFilters[position])
 		if (mPerformingCloudSync) {
 			mPerformingCloudSync = false
@@ -193,7 +196,7 @@ class SongListFragment
 	private fun applyFileFilter(filter: Filter) {
 		mSelectedFilter = filter
 		mPlaylist = if (filter is SongFilter)
-			Playlist(filter.mSongs)
+			Playlist(filter.mSongs.filter{ if(mSelectedTagFilters.isNotEmpty()) mSelectedTagFilters.any{ filter -> filter.mSongs.contains(it) } else true })
 		else
 			Playlist()
 		sortSongList()
@@ -224,7 +227,7 @@ class SongListFragment
 		val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
 		spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
 			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(mFilters)
+			adapter = FilterListAdapter(mFilters, mSelectedTagFilters) { applyFileFilter(mSelectedFilter) }
 		}
 
 		(menu.findItem(R.id.search).actionView as SearchView).apply {
@@ -982,6 +985,7 @@ class SongListFragment
 		)
 			.flattenAll()
 			.filterIsInstance<Filter>()
+			.sortedWith(FilterComparator.instance)
 
 		// The default selected filter should be "all songs".
 		mSelectedFilter = allSongsFilter

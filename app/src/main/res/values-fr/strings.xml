@@ -283,6 +283,8 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="pref_cloudStorageSystem_summary">Où sont stockés vos fichiers de morceaux?</string>
 	<string name="pref_cloudStorageSystem_title">Système de stockage</string>
 	<string name="synchronize_string">Synchroniser des fichiers …</string>
+    <string name="pref_clearTagFilterOnFolderChange_title">Effacer les balises lorsque le filtre change?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">Si la valeur est true, tous les filtres de tags sélectionnés seront effacés chaque fois que vous changerez de dossier/setlist/etc.</string>
 	<string name="pref_cloudPath_title">Dossier de stockage</string>
 	<string name="pref_cloudPath_summary">C\'est le dossier dans lequel les fichiers de chansons BeatPrompter sont stockés.</string>
 	<string name="itemsFound">%1$d objets trouvés.</string>

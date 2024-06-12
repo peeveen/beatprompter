@@ -283,6 +283,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="pref_cloudStorageSystem_summary">Dove vengono memorizzati i file musicali?</string>
 	<string name="pref_cloudStorageSystem_title">Sistema di archiviazione</string>
 	<string name="synchronize_string">Sincronizza i file …</string>
+    <string name="pref_clearTagFilterOnFolderChange_title">Cancella i tag quando cambia il filtro?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">Se true, tutti i filtri tag selezionati verranno cancellati ogni volta che si cambia cartella/setlist/ecc.</string>
 	<string name="pref_cloudPath_title">Cartella di archiviazione</string>
 	<string name="pref_cloudPath_summary">Questa è la cartella che i file dei brani BeatPrompter sono memorizzati in.</string>
 	<string name="itemsFound">%1$d oggetti trovati.</string>

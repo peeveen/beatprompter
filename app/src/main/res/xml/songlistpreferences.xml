@@ -31,4 +31,10 @@
 		android:summary="@string/pref_largePrintList_summary"
 		app:iconSpaceReserved="false"
 		android:defaultValue="false" />
+	<CheckBoxPreference
+		android:key="@string/pref_clearTagFilterOnFolderChange_key"
+		android:title="@string/pref_clearTagFilterOnFolderChange_title"
+		android:summary="@string/pref_clearTagFilterOnFolderChange_summary"
+		app:iconSpaceReserved="false"
+		android:defaultValue="true" />
 </PreferenceScreen>

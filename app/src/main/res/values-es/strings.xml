@@ -283,6 +283,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_cloudStorageSystem_summary">¿Dónde se almacenan los archivos de canciones?</string>
 	<string name="pref_cloudStorageSystem_title">Sistema de almacenamiento</string>
 	<string name="synchronize_string">Sincronizar archivos …</string>
+    <string name="pref_clearTagFilterOnFolderChange_title">¿Borrar las etiquetas cuando cambia el filtro?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">Si es true, los filtros de etiquetas seleccionados se borrarán cada vez que cambie de carpeta/setlists/etc.</string>
 	<string name="pref_cloudPath_title">Carpeta de almacenamiento</string>
 	<string name="pref_cloudPath_summary">Esta es la carpeta en la que se almacenan los archivos de canciones BeatPrompter.</string>
 	<string name="itemsFound">%1$d artículos encontrados.</string>

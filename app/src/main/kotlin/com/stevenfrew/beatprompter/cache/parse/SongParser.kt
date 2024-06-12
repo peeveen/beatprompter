@@ -372,6 +372,9 @@ class SongParser constructor(
 
 			// Generate pause events if required (may return null)
 			val pauseEvents = generatePauseEvents(mSongTime, pauseTag)
+			val paused = pauseEvents?.any() == true
+			if(paused)
+				mRolloverBeats.clear()
 
 			if (createLine) {
 				// First line should always have a time of zero, so that if the user scrolls
@@ -383,7 +386,11 @@ class SongParser constructor(
 				val addToPause = if (mLines.isEmpty()) mSongTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
-				val beatEvents = generateBeatEvents(mSongTime, metronomeOn)
+				pauseEvents?.maxOf { it.mEventTime }
+				val beatEvents = if(paused)
+					EventBlock(listOf(),pauseEvents?.maxOf { it.mEventTime } ?:0)
+				else
+					generateBeatEvents(mSongTime, metronomeOn)
 
 				// Calculate how long this line will last for
 				val lineDuration = calculateLineDuration(
@@ -597,7 +604,7 @@ class SongParser constructor(
 		sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, mSongTime)))
 
 		// Now build the final event list.
-		val firstEvent = buildLinkedEventList(sortedEventList)
+		val firstEvent = LinkedEvent(sortedEventList)
 
 		// Calculate the last position that we can scroll to.
 		val scrollEndPixel = calculateScrollEndPixel(smoothMode, smoothScrollOffset)
@@ -704,9 +711,8 @@ class SongParser constructor(
 		val currentTimePerBeat = Utils.nanosecondsPerBeat(mCurrentLineBeatInfo.mBPM)
 		val rolloverBeatCount = mRolloverBeats.size
 		var rolloverBeatsApplied = 0
-		val beatsToAdjustCount = mBeatsToAdjust
 		// We have N beats to adjust.
-		// For the previous N beatevents, set the BPB to the new BPB.
+		// For the previous N beat events, set the BPB to the new BPB.
 		if (mBeatsToAdjust > 0)
 			mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach {
 				it.mBPB = mCurrentLineBeatInfo.mBPB
@@ -1149,6 +1155,33 @@ class SongParser constructor(
 		}
 	}
 
+	/**
+	 * An "event block" is simply a list of events, in chronological order, and a time that marks the point
+	 * at which the block ends. Note that the end time is not necessarily the same as the time of the last
+	 * event. For example, a block of five beat events (where each beat last n nanoseconds) will contain
+	 * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
+	 * actually covers the duration of the beat.
+	 */
+	private data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
+
+	private class LineList : ArrayList<Line>() {
+		override fun add(element: Line): Boolean {
+			val lastOrNull = lastOrNull()
+			lastOrNull?.mNextLine = element
+			element.mPrevLine = lastOrNull
+			return super.add(element)
+		}
+	}
+
+	private class CircularGraphicsList : ArrayList<LineGraphic>() {
+		override fun add(element: LineGraphic): Boolean {
+			lastOrNull()?.mNextGraphic = element
+			val result = super.add(element)
+			last().mNextGraphic = first()
+			return result
+		}
+	}
+
 	private fun sortEvents(eventList: List<BaseEvent>): List<BaseEvent> {
 		// Sort all events by time, and by type within that.
 		return eventList.sortedWith { e1, e2 ->
@@ -1186,66 +1219,6 @@ class SongParser constructor(
 						0
 				}
 			}
-		}
-	}
-
-	/**
-	 * Constructs a linked-list of events from the unlinked event list.
-	 */
-	private fun buildLinkedEventList(eventList: List<BaseEvent>): LinkedEvent {
-		// Now build the linked list.
-		var prevEvent: LinkedEvent? = null
-		val linkedEvents = eventList.map {
-			val newEvent = LinkedEvent(it, prevEvent)
-			prevEvent = newEvent
-			newEvent
-		}
-
-		// Since we can't see the future, we now have to traverse the list backwards
-		// setting the mNext... fields.
-		setNextEvents(linkedEvents.last())
-
-		return linkedEvents.first()
-	}
-
-	private fun setNextEvents(finalEvent: LinkedEvent) {
-		var nextEvent: LinkedEvent? = null
-		var nextBeatEvent: BeatEvent? = null
-		var lastEvent: LinkedEvent? = finalEvent
-		while (lastEvent != null) {
-			lastEvent.mNextEvent = nextEvent
-			lastEvent.mNextBeatEvent = nextBeatEvent
-			if (lastEvent.mEvent is BeatEvent)
-				nextBeatEvent = lastEvent.mEvent as BeatEvent
-			nextEvent = lastEvent
-			lastEvent = lastEvent.mPrevEvent
-		}
-	}
-
-	/**
-	 * An "event block" is simply a list of events, in chronological order, and a time that marks the point
-	 * at which the block ends. Note that the end time is not necessarily the same as the time of the last
-	 * event. For example, a block of five beat events (where each beat last n nanoseconds) will contain
-	 * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
-	 * actually covers the duration of the beat.
-	 */
-	private data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
-
-	private class LineList : ArrayList<Line>() {
-		override fun add(element: Line): Boolean {
-			val lastOrNull = lastOrNull()
-			lastOrNull?.mNextLine = element
-			element.mPrevLine = lastOrNull
-			return super.add(element)
-		}
-	}
-
-	private class CircularGraphicsList : ArrayList<LineGraphic>() {
-		override fun add(element: LineGraphic): Boolean {
-			lastOrNull()?.mNextGraphic = element
-			val result = super.add(element)
-			last().mNextGraphic = first()
-			return result
 		}
 	}
 }

@@ -283,6 +283,8 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="pref_cloudStorageSystem_summary">Onde estão os arquivos de músicas armazenados?</string>
 	<string name="pref_cloudStorageSystem_title">Sistema de armazenamento</string>
 	<string name="synchronize_string">Sincronize arquivos …</string>
+    <string name="pref_clearTagFilterOnFolderChange_title">Limpar tags quando o filtro é alterado?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">Se verdadeiro, todos os filtros de tag selecionados serão limpos sempre que você alternar pastas/setlists/etc.</string>
 	<string name="pref_cloudPath_title">Pasta de armazenamento</string>
 	<string name="pref_cloudPath_summary">Esta é a pasta que os arquivos de música BeatPrompter são armazenados.</string>
 	<string name="itemsFound">%1$d itens encontrados.</string>
