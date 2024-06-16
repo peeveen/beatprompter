@@ -47,7 +47,7 @@
 
 		<activity
 			android:name=".ui.SongListActivity"
-			android:configChanges="orientation|screenSize"
+			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
 			android:exported="true"
 			android:launchMode="singleTask">
 			<intent-filter>
@@ -58,6 +58,7 @@
 		<activity
 			android:name="com.stevenfrew.beatprompter.ui.IntroActivity"
 			android:label="@string/title_activity_intro"
+			android:configChanges="keyboard|keyboardHidden"
 			android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
 		<meta-data
@@ -66,18 +67,18 @@
 
 		<activity
 			android:name="com.stevenfrew.beatprompter.ui.SongDisplayActivity"
-			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
 			android:label="@string/title_activity_song_display"
 			android:launchMode="singleTask"
 			android:theme="@style/FullscreenTheme" />
 		<activity
 			android:name="com.stevenfrew.beatprompter.ui.pref.SettingsActivity"
-			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
 			android:label="@string/title_activity_settings"
 			android:launchMode="singleTask" />
 		<activity
 			android:name="com.dropbox.core.android.AuthActivity"
-			android:configChanges="orientation|keyboard"
+			android:configChanges="orientation|keyboard|keyboardHidden"
 			android:exported="true"
 			android:launchMode="singleTask">
 			<intent-filter>
