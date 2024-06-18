@@ -73,12 +73,12 @@
 			android:theme="@style/FullscreenTheme" />
 		<activity
 			android:name="com.stevenfrew.beatprompter.ui.pref.SettingsActivity"
-			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+			android:configChanges="orientation|screenSize"
 			android:label="@string/title_activity_settings"
 			android:launchMode="singleTask" />
 		<activity
 			android:name="com.dropbox.core.android.AuthActivity"
-			android:configChanges="orientation|keyboard|keyboardHidden"
+			android:configChanges="orientation"
 			android:exported="true"
 			android:launchMode="singleTask">
 			<intent-filter>

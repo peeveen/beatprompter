@@ -54,12 +54,6 @@ class SongDisplayActivity
 	private val mMidiClockOutTaskThread =
 		Thread(mMidiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
 
-	override fun onConfigurationChanged(newConfig: Configuration) {
-		super.onConfigurationChanged(newConfig)
-		// Any config change, go back to the song list.
-		finish()
-	}
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
