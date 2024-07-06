@@ -104,7 +104,7 @@ class SongDisplayActivity
 					SongChoiceInfo(
 						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
-						loadedSong.mLoadJob.mSongLoadInfo.mTrack?.mName ?: "",
+						loadedSong.mLoadJob.mSongLoadInfo.mVariation,
 						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,

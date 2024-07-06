@@ -5,7 +5,7 @@ import android.graphics.Rect
 data class SongChoiceInfo(
 	val mNormalizedTitle: String,
 	val mNormalizedArtist: String,
-	val mTrack: String,
+	val mVariation: String,
 	val mOrientation: Int,
 	val mBeatScroll: Boolean,
 	val mSmoothScroll: Boolean,

@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -41,6 +42,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -95,6 +97,7 @@ import kotlin.math.roundToInt
 	BeatStartTag::class,
 	BeatStopTag::class,
 	AudioTag::class,
+	VariationsTag::class,
 	MIDIEventTag::class,
 	ChordTag::class,
 	StartOfChorusTag::class,
@@ -115,7 +118,7 @@ import kotlin.math.roundToInt
 /**
  * Song file parser. This returns the full information for playing the song.
  */
-class SongParser constructor(
+class SongParser(
 	private val mSongLoadInfo: SongLoadInfo,
 	private val mSongLoadCancelEvent: SongLoadCancelEvent,
 	private val mSongLoadHandler: Handler
@@ -144,6 +147,9 @@ class SongParser constructor(
 	private val mDefaultHighlightColor: Int
 	private val mAudioTags = mutableListOf<AudioTag>()
 	private val mTimePerBar: Long
+	private val mVariations:List<String> = mutableListOf()
+	private val mSelectedVariationIndex: Int
+	private val mAudioFiles: List<AudioFile>
 
 	private var mSongHeight = 0
 	private var mMIDIBeatCounter: Int = 0
@@ -185,7 +191,13 @@ class SongParser constructor(
 			0, mSongLoadInfo.mSongFile.mLines
 		).sendToTarget()
 
-		val lengthOfBackingTrack = mSongLoadInfo.mTrack?.mDuration ?: 0L
+		val selectedVariation = mSongLoadInfo.mVariation
+		mSelectedVariationIndex = mVariations.indexOf(selectedVariation)
+		val audioFilenamesForThisVariation = mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
+		mAudioFiles = audioFilenamesForThisVariation.mapNotNull {
+			SongListFragment.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+		}
+		val lengthOfBackingTrack = mAudioFiles.firstOrNull()?.mDuration ?: 0L
 		var songTime =
 			if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE)
 				lengthOfBackingTrack
@@ -316,8 +328,9 @@ class SongParser constructor(
 			val audioTagsToProcess =
 				when {
 					mStopAddingStartupItems -> mAudioTags.toList()
-					mSongLoadInfo.mTrack == null -> listOf(mAudioTags.firstOrNull())
-					else -> listOf(mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack.mNormalizedName })
+					mAudioFiles.isEmpty() -> listOf(mAudioTags.firstOrNull())
+					mAudioTags.size > mSelectedVariationIndex -> listOf(mAudioTags[mSelectedVariationIndex])
+					else -> listOf()
 				}
 			mAudioTags.clear()
 

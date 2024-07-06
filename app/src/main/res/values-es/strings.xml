@@ -403,4 +403,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_showRatingInList_title">Mostrar clasificación de canciones</string>
 	<string name="pref_showRatingInList_summary">En la lista principal de canciones, muestra la calificación de la canción.</string>
 	<string name="byRating">Por valoración</string>
+    <string name="variation">Variación</string>
+	<string name="noAudio">Sin Audio</string>
+	<string name="variationsAlreadyDefined">Los nombres de las variaciones ya se han definido.</string>
+	<string name="tooManyAudioTags">Las etiquetas de audio superan en número a las variaciones.</string>
 </resources>

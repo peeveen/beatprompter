@@ -24,7 +24,7 @@ class ChooseSongMessage(
 				ObjectOutputStream(this).apply {
 					writeObject(choiceInfo.mNormalizedTitle)
 					writeObject(choiceInfo.mNormalizedArtist)
-					writeObject(choiceInfo.mTrack)
+					writeObject(choiceInfo.mVariation)
 					writeBoolean(choiceInfo.mBeatScroll)
 					writeBoolean(choiceInfo.mSmoothScroll)
 					writeInt(choiceInfo.mOrientation)

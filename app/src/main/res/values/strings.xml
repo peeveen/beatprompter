@@ -775,4 +775,8 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="gettingRootFolder">Getting root folder …</string>
 
 	<string name="byRating">By rating</string>
+	<string name="variation">Variation</string>
+	<string name="noAudio">No Audio</string>
+	<string name="variationsAlreadyDefined">Variation names have already been defined.</string>
+	<string name="tooManyAudioTags">Audio tags outnumber variations.</string>
 </resources>

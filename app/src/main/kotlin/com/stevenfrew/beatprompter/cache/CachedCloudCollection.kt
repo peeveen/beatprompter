@@ -155,7 +155,7 @@ class CachedCloudCollection {
 		if (fileToRefresh != null) {
 			filesToRefresh.add(fileToRefresh)
 			if (fileToRefresh is SongFile && includeDependencies) {
-				filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap { getMappedAudioFiles(it) })
+				filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap { it.value.flatMap{ audioFile -> getMappedAudioFiles(audioFile) } })
 				filesToRefresh.addAll(fileToRefresh.mImageFiles.flatMap { getMappedImageFiles(it) })
 			}
 		}

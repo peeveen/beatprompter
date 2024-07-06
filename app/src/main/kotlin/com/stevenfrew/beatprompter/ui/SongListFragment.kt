@@ -267,23 +267,15 @@ class SongListFragment
 	) {
 		val mute = Preferences.mute
 		val manualMode = Preferences.manualMode
-		val startupAudioIsViable =
-			(selectedSong.mAudioFiles.isNotEmpty() && !manualMode && !selectedSong.mMixedMode)
-		val (startupTrackName, startupTrack) =
-			if (startupAudioIsViable)
-				selectedSong.mAudioFiles[0] to mCachedCloudItems.getMappedAudioFiles(selectedSong.mAudioFiles[0])
-					.firstOrNull()
-			else
-				null to null
+		val defaultVariation = selectedSong.mVariations.first()
 		val mode =
 			if (manualMode)
 				ScrollingMode.Manual
 			else
 				selectedSong.bestScrollingMode
 		val sds = getSongDisplaySettings(mode)
-		val noAudioWhatsoever =
-			manualMode || mute || (startupTrackName == null && !selectedSong.mMixedMode)
-		playSong(node, startupTrack, mode, startedByMidiTrigger, sds, sds, noAudioWhatsoever)
+		val noAudioWhatsoever = manualMode || mute
+		playSong(node, defaultVariation, mode, startedByMidiTrigger, sds, sds, noAudioWhatsoever)
 	}
 
 	private fun shouldPlayNextSong(): Boolean {
@@ -341,7 +333,7 @@ class SongListFragment
 
 	private fun playSong(
 		selectedNode: PlaylistNode,
-		track: AudioFile?,
+		variation: String,
 		scrollMode: ScrollingMode,
 		startedByMidiTrigger: Boolean,
 		nativeSettings: DisplaySettings,
@@ -355,7 +347,7 @@ class SongListFragment
 			if (selectedNode.mNextNode != null && shouldPlayNextSong()) selectedNode.mNextNode!!.mSongFile.mTitle else ""
 		val songLoadInfo = SongLoadInfo(
 			selectedNode.mSongFile,
-			track,
+			variation,
 			scrollMode,
 			nextSongName,
 			false,
@@ -412,10 +404,6 @@ class SongListFragment
 		val selectedSong = selectedNode.mSongFile
 		val selectedSet =
 			if (mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
-		val mappedAudioFiles =
-			mCachedCloudItems.getMappedAudioFiles(*selectedSong.mAudioFiles.toTypedArray())
-		val trackNames =
-			listOf(getString(R.string.no_audio), *mappedAudioFiles.map { it.mName }.toTypedArray())
 		val tempSetListFilter =
 			mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
@@ -446,7 +434,7 @@ class SongListFragment
 			setTitle(R.string.song_options)
 			setItems(arrayID) { _, which ->
 				when (which) {
-					0 -> showPlayDialog(selectedNode, selectedSong, trackNames)
+					0 -> showPlayDialog(selectedNode, selectedSong)
 					1 -> performCloudSync(selectedSong, false)
 					2 -> performCloudSync(selectedSong, true)
 					3 -> when {
@@ -467,8 +455,7 @@ class SongListFragment
 
 	private fun showPlayDialog(
 		selectedNode: PlaylistNode,
-		selectedSong: SongFile,
-		trackNames: List<String>
+		selectedSong: SongFile
 	) {
 		// Get the layout inflater
 		val inflater = layoutInflater
@@ -476,16 +463,15 @@ class SongListFragment
 		@SuppressLint("InflateParams")
 		val view = inflater.inflate(R.layout.songlist_long_press_dialog, null)
 
-		val audioSpinner = view
-			.findViewById<Spinner>(R.id.audioSpinner)
-		val audioSpinnerAdapter = ArrayAdapter(
+		val variationSpinner = view
+			.findViewById<Spinner>(R.id.variationSpinner)
+		val variationSpinnerAdapter = ArrayAdapter(
 			requireContext(),
-			android.R.layout.simple_spinner_item, trackNames
+			android.R.layout.simple_spinner_item, selectedSong.mVariations
 		)
-		audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-		audioSpinner.adapter = audioSpinnerAdapter
-		if (trackNames.size > 1)
-			audioSpinner.setSelection(1)
+		val noAudioCheckbox=view.findViewById<CheckBox>(R.id.noAudioCheckbox)
+		variationSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+		variationSpinner.adapter = variationSpinnerAdapter
 
 		val beatScrollable = selectedSong.isBeatScrollable
 		val smoothScrollable = selectedSong.isSmoothScrollable
@@ -556,11 +542,8 @@ class SongListFragment
 			setView(view)
 			// Add action buttons
 			setPositiveButton(R.string.play) { _, _ ->
-				val selectedTrackName =
-					if (audioSpinner.selectedItemPosition == 0)
-						null
-					else
-						audioSpinner.selectedItem as String?
+				val selectedVariation = variationSpinner.selectedItem as String
+				val noAudio = noAudioCheckbox.isChecked
 				val mode =
 					when {
 						beatButton.isChecked -> ScrollingMode.Beat
@@ -568,12 +551,7 @@ class SongListFragment
 						else -> ScrollingMode.Manual
 					}
 				val sds = getSongDisplaySettings(mode)
-				val track =
-					if (selectedTrackName != null)
-						mCachedCloudItems.getMappedAudioFiles(selectedTrackName).firstOrNull()
-					else
-						null
-				playSong(selectedNode, track, mode, false, sds, sds, selectedTrackName == null)
+				playSong(selectedNode, selectedVariation, mode, false, sds, sds, noAudio)
 			}
 			setNegativeButton(R.string.cancel) { _, _ -> }
 			create().apply {
@@ -1135,11 +1113,9 @@ class SongListFragment
 
 		for (sf in mCachedCloudItems.songFiles)
 			if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
-				val track = mCachedCloudItems.getMappedAudioFiles(choiceInfo.mTrack).firstOrNull()
-
 				val songLoadInfo = SongLoadInfo(
 					sf,
-					track,
+					choiceInfo.mVariation,
 					scrollingMode,
 					"",
 					mStartedByBandLeader = true,
@@ -1152,7 +1128,7 @@ class SongListFragment
 				if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
 					playSong(
 						PlaylistNode(sf),
-						track,
+						choiceInfo.mVariation,
 						scrollingMode,
 						true,
 						nativeSettings,

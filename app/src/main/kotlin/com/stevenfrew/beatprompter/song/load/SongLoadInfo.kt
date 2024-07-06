@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.song.load
 
-import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -8,7 +7,7 @@ import java.util.UUID
 
 data class SongLoadInfo(
 	val mSongFile: SongFile,
-	val mTrack: AudioFile?,
+	val mVariation: String,
 	val mSongLoadMode: ScrollingMode,
 	val mNextSong: String,
 	val mStartedByBandLeader: Boolean,

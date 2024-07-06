@@ -31,6 +31,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
@@ -56,6 +57,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 	BeatStartTag::class,
 	BeatStopTag::class,
 	AudioTag::class,
+	VariationsTag::class,
 	ChordTag::class
 )
 @IgnoreTags(
@@ -65,7 +67,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFile: CachedFile) :
+class SongInfoParser(cachedCloudFile: CachedFile) :
 	SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, false) {
 	private var mTitle: String? = null
 	private var mArtist: String? = null
@@ -76,8 +78,10 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 	private var mBeats: Int = 0
 	private var mTotalPause: Long = 0L
 	private var mDuration: Long = 0L
-	private val mAudioFiles = mutableListOf<String>()
+	// Audio files are now a 2D array ... list of audio files per variation.
+	private val mAudioFiles = mutableMapOf<String,MutableList<String>>()
 	private val mImageFiles = mutableListOf<String>()
+	private val mVariations = mutableListOf<String>()
 	private var mFilterOnly = false
 	private val mTags = mutableListOf<String>()
 	private var mMIDIProgramChangeTrigger: SongTrigger? = null
@@ -105,6 +109,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 		val beatStopTag = tagSequence.filterIsInstance<BeatStopTag>().firstOrNull()
 		val timeTag = tagSequence.filterIsInstance<TimeTag>().firstOrNull()
 		val audioTags = tagSequence.filterIsInstance<AudioTag>()
+		val variationsTags = tagSequence.filterIsInstance<VariationsTag>()
 		val imageTags = line.mTags.filterIsInstance<ImageTag>()
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
@@ -152,9 +157,39 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 			mBeats += mCurrentLineBeatInfo.mBeats
 		}
 
-		mAudioFiles.addAll(audioTags.map { it.mFilename })
+		// Variations can only be defined once.
+		if (variationsTags.any()) {
+			if (mVariations.isEmpty()) {
+				mVariations.addAll(variationsTags.flatMap { it.mVariations })
+				mVariations.forEach {
+					mAudioFiles[it] = mutableListOf()
+				}
+			} else
+				mErrors.add(FileParseError(line.mLineNumber, R.string.variationsAlreadyDefined))
+		}
+
+		// Each audio file defined on a line now maps to a variation.
+		// The audio filename itself can be a variation name is no explicitly-named variations
+		// have been defined. Otherwise, they are mapped to variation by index.
+		val noVariationsDefined = mVariations.isEmpty()
+		audioTags.forEachIndexed { index, it ->
+			val variationName = getVariationNameForIndexedAudioFile(index, line.mLineNumber, it.mFilename, noVariationsDefined)
+			if(variationName != null)
+				mAudioFiles[variationName]?.add(it.mFilename)
+		}
 		mImageFiles.addAll(imageTags.map { it.mFilename })
 		mTags.addAll(tagTags.map { it.mTag })
+	}
+
+	private fun getVariationNameForIndexedAudioFile(index:Int, lineNumber:Int, filename:String, canAddVariation: Boolean):String? {
+		if(mVariations.size > index)
+			return mVariations[index]
+		if(canAddVariation) {
+			mVariations.add(filename)
+			return filename
+		}
+		mErrors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
+		return null
 	}
 
 	override fun getResult(): SongFile {
@@ -191,6 +226,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 				?: SongTrigger.DEAD_TRIGGER,
 			mFilterOnly,
 			mRating,
+			if (mVariations.isEmpty()) listOf("Default") else mVariations,
 			mErrors
 		)
 	}
