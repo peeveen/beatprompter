@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.parse.tag.find.ChordFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.ShorthandFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarsPerLineTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarsTag
@@ -14,6 +15,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
 /**
@@ -33,6 +35,9 @@ abstract class SongFileParser<TResultType>(
 ) {
 	protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
 	protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
+	// Audio files are now a 2D array ... list of audio files per variation.
+	protected val mAudioFiles = mutableMapOf<String,MutableList<String>>()
+	protected val mVariations = mutableListOf<String>()
 
 	override fun parseLine(line: TextFileLine<TResultType>) {
 		val lastLineBeatInfo = mCurrentLineBeatInfo
@@ -50,6 +55,28 @@ abstract class SongFileParser<TResultType>(
 		val beatsPerBarTag = tagSequence.filterIsInstance<BeatsPerBarTag>().firstOrNull()
 		val beatsPerMinuteTag = tagSequence.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
 		val scrollBeatTag = tagSequence.filterIsInstance<ScrollBeatTag>().firstOrNull()
+		val audioTags = tagSequence.filterIsInstance<AudioTag>()
+		val variationsTags = tagSequence.filterIsInstance<VariationsTag>()
+
+		// Variations can only be defined once.
+		if (variationsTags.any()) {
+			if (mVariations.isEmpty()) {
+				mVariations.addAll(variationsTags.flatMap { it.mVariations })
+				mVariations.forEach {
+					mAudioFiles[it] = mutableListOf()
+				}
+			} else
+				mErrors.add(FileParseError(line.mLineNumber, R.string.variationsAlreadyDefined))
+		}
+
+		// Each audio file defined on a line now maps to a variation.
+		// The audio filename itself can be a variation name is no explicitly-named variations
+		// have been defined. Otherwise, they are mapped to variation by index.
+		val noVariationsDefined = mVariations.isEmpty()
+		audioTags.forEachIndexed { index, it ->
+			val variationNames = getVariationNamesForIndexedAudioFile(index, line.mLineNumber, it.mFilename, noVariationsDefined)
+			variationNames?.forEach { variationName -> mAudioFiles[variationName]?.add(it.mFilename) }
+		}
 
 		// Commas take precedence.
 		val barsInThisLine = if (commaBars == 0) barsTag?.mBars ?: barsPerLineTag?.mBPL
@@ -124,6 +151,18 @@ abstract class SongFileParser<TResultType>(
 			lastScrollBeatTotalOffset,
 			newScrollMode
 		)
+	}
+
+	private fun getVariationNamesForIndexedAudioFile(index:Int, lineNumber:Int, filename:String, canAddVariation: Boolean):List<String>? {
+		if(mVariations.size > index)
+			return mVariations.takeLast(mVariations.size-index)
+		if(canAddVariation) {
+			mVariations.add(filename)
+			mAudioFiles[filename] = mutableListOf()
+			return listOf(filename)
+		}
+		mErrors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
+		return null
 	}
 
 	protected data class LineBeatInfo(

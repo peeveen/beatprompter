@@ -25,6 +25,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CountTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfChorusTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
@@ -39,6 +40,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.SendMIDIClockTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfChorusTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
@@ -97,10 +99,12 @@ import kotlin.math.roundToInt
 	BeatStartTag::class,
 	BeatStopTag::class,
 	AudioTag::class,
-	VariationsTag::class,
 	MIDIEventTag::class,
 	ChordTag::class,
+	StartOfVariationExclusionTag::class,
+	EndOfVariationExclusionTag::class,
 	StartOfChorusTag::class,
+	VariationsTag::class,
 	EndOfChorusTag::class
 )
 @IgnoreTags(
@@ -145,11 +149,9 @@ class SongParser(
 	private val mPaint = Paint()
 	private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 	private val mDefaultHighlightColor: Int
-	private val mAudioTags = mutableListOf<AudioTag>()
 	private val mTimePerBar: Long
-	private val mVariations:List<String> = mutableListOf()
-	private val mSelectedVariationIndex: Int
-	private val mAudioFiles: List<AudioFile>
+	private val mFlatAudioFiles: List<AudioFile>
+	private val mVariationExclusions:ArrayDeque<List<String>> = ArrayDeque()
 
 	private var mSongHeight = 0
 	private var mMIDIBeatCounter: Int = 0
@@ -161,6 +163,7 @@ class SongParser(
 	private var mSongTime: Long = 0
 	private var mDefaultMIDIOutputChannel: Byte
 	private var mInChorusSection = false
+	private var mPendingAudioTag:AudioTag? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
@@ -192,12 +195,11 @@ class SongParser(
 		).sendToTarget()
 
 		val selectedVariation = mSongLoadInfo.mVariation
-		mSelectedVariationIndex = mVariations.indexOf(selectedVariation)
 		val audioFilenamesForThisVariation = mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
-		mAudioFiles = audioFilenamesForThisVariation.mapNotNull {
+		mFlatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
 			SongListFragment.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
 		}
-		val lengthOfBackingTrack = mAudioFiles.firstOrNull()?.mDuration ?: 0L
+		val lengthOfBackingTrack = mFlatAudioFiles.firstOrNull()?.mDuration ?: 0L
 		var songTime =
 			if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE)
 				lengthOfBackingTrack
@@ -228,6 +230,24 @@ class SongParser(
 		val chordsFoundButNotShowingThem = !mShowChords && chordsFound
 		val tags = if (mShowChords) line.mTags.toList() else nonChordTags
 		val tagSequence = tags.asSequence()
+
+		// We're going to check if we're in a variation exclusion section.
+		// This section MIGHT be defined as a one-line exclusion, with varxstart/varxstop on the same line.
+		// So before we check, we need to look for varxstart tags.
+		val variationExclusionStartTag = tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
+		if(variationExclusionStartTag!=null)
+			mVariationExclusions.add(variationExclusionStartTag.mVariations)
+		// Are we in a variation exclusion section?
+		// Does it instruct us to exclude this line for the current variation?
+		val excludeLine = mVariationExclusions.any{ it.contains(mSongLoadInfo.mVariation) }
+		// Now that we've figured out whether this is an exclusion section, we need to look for varxstop tags
+		// on this line.
+		val variationExclusionEndTag = tagSequence.filterIsInstance<EndOfVariationExclusionTag>().firstOrNull()
+		if(variationExclusionEndTag!=null)
+			mVariationExclusions.removeLast()
+		// If we're in an exclusion section, bail out. We do not process any other tags or text.
+		if(excludeLine)
+			return
 
 		var workLine = line.mLineWithNoTags
 
@@ -275,8 +295,6 @@ class SongParser(
 					mStartScreenComments.add(it)
 			}
 
-		mAudioTags.addAll(tags.filterIsInstance<AudioTag>())
-
 		// If a line has a number of bars defined, we really should treat it as a line, even if
 		// is blank.
 		val shorthandBarTag = tagSequence
@@ -312,6 +330,13 @@ class SongParser(
 				}
 			}
 
+		// An audio tag is only processed when there is actual line content.
+		// But the audio tag can be defined on a line without content.
+		// In which case it is "pending", to be applied when line content is found.
+		val audioTags = tags.filterIsInstance<AudioTag>()
+		val variationIndex = mVariations.indexOf(mSongLoadInfo.mVariation)
+		mPendingAudioTag = if(audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !mSongLoadInfo.mNoAudio) audioTags[variationIndex] else mPendingAudioTag
+
 		if (isSongLine) {
 			// We definitely have a line!
 			// So now is when we want to create the count-in (if any)
@@ -325,51 +350,43 @@ class SongParser(
 				mCountIn = 0
 			}
 
-			val audioTagsToProcess =
-				when {
-					mStopAddingStartupItems -> mAudioTags.toList()
-					mAudioFiles.isEmpty() -> listOf(mAudioTags.firstOrNull())
-					mAudioTags.size > mSelectedVariationIndex -> listOf(mAudioTags[mSelectedVariationIndex])
-					else -> listOf()
-				}
-			mAudioTags.clear()
-
-			if (!mSongLoadInfo.mNoAudio)
-				audioTagsToProcess.filterNotNull().forEach { audioTag ->
-					// Make sure file exists.
-					val mappedTracks =
-						SongListFragment.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
-					if (mappedTracks.isEmpty())
-						mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
-					else if (mappedTracks.size > 1)
+			mPendingAudioTag?.also {
+				// Make sure file exists.
+				val mappedTracks =
+					SongListFragment.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
+				if (mappedTracks.isEmpty())
+					mErrors.add(FileParseError(it, R.string.cannotFindAudioFile, it.mNormalizedFilename))
+				else if (mappedTracks.size > 1)
+					mErrors.add(
+						FileParseError(
+							it,
+							R.string.multipleFilenameMatches,
+							it.mNormalizedFilename
+						)
+					)
+				else {
+					val audioFile = mappedTracks.first()
+					if (!audioFile.mFile.exists())
 						mErrors.add(
 							FileParseError(
-								audioTag,
-								R.string.multipleFilenameMatches,
-								audioTag.mFilename
+								it,
+								R.string.cannotFindAudioFile,
+								it.mNormalizedFilename
 							)
 						)
-					else {
-						val audioFile = mappedTracks.first()
-						if (!audioFile.mFile.exists())
-							mErrors.add(
-								FileParseError(
-									audioTag,
-									R.string.cannotFindAudioFile,
-									audioTag.mFilename
-								)
+					else
+						mEvents.add(
+							AudioEvent(
+								mSongTime,
+								audioFile,
+								it.mVolume,
+								!mStopAddingStartupItems
 							)
-						else
-							mEvents.add(
-								AudioEvent(
-									mSongTime,
-									audioFile,
-									audioTag.mVolume,
-									!mStopAddingStartupItems
-								)
-							)
-					}
+						)
 				}
+			}
+			// Clear the pending tag.
+			mPendingAudioTag = null
 
 			// Any comments or MIDI events from here will be part of the song,
 			// rather than startup events.

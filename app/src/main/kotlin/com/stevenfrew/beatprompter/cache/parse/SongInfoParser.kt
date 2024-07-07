@@ -78,10 +78,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private var mBeats: Int = 0
 	private var mTotalPause: Long = 0L
 	private var mDuration: Long = 0L
-	// Audio files are now a 2D array ... list of audio files per variation.
-	private val mAudioFiles = mutableMapOf<String,MutableList<String>>()
 	private val mImageFiles = mutableListOf<String>()
-	private val mVariations = mutableListOf<String>()
 	private var mFilterOnly = false
 	private val mTags = mutableListOf<String>()
 	private var mMIDIProgramChangeTrigger: SongTrigger? = null
@@ -108,8 +105,6 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
 		val beatStopTag = tagSequence.filterIsInstance<BeatStopTag>().firstOrNull()
 		val timeTag = tagSequence.filterIsInstance<TimeTag>().firstOrNull()
-		val audioTags = tagSequence.filterIsInstance<AudioTag>()
-		val variationsTags = tagSequence.filterIsInstance<VariationsTag>()
 		val imageTags = line.mTags.filterIsInstance<ImageTag>()
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
@@ -157,39 +152,8 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 			mBeats += mCurrentLineBeatInfo.mBeats
 		}
 
-		// Variations can only be defined once.
-		if (variationsTags.any()) {
-			if (mVariations.isEmpty()) {
-				mVariations.addAll(variationsTags.flatMap { it.mVariations })
-				mVariations.forEach {
-					mAudioFiles[it] = mutableListOf()
-				}
-			} else
-				mErrors.add(FileParseError(line.mLineNumber, R.string.variationsAlreadyDefined))
-		}
-
-		// Each audio file defined on a line now maps to a variation.
-		// The audio filename itself can be a variation name is no explicitly-named variations
-		// have been defined. Otherwise, they are mapped to variation by index.
-		val noVariationsDefined = mVariations.isEmpty()
-		audioTags.forEachIndexed { index, it ->
-			val variationName = getVariationNameForIndexedAudioFile(index, line.mLineNumber, it.mFilename, noVariationsDefined)
-			if(variationName != null)
-				mAudioFiles[variationName]?.add(it.mFilename)
-		}
 		mImageFiles.addAll(imageTags.map { it.mFilename })
 		mTags.addAll(tagTags.map { it.mTag })
-	}
-
-	private fun getVariationNameForIndexedAudioFile(index:Int, lineNumber:Int, filename:String, canAddVariation: Boolean):String? {
-		if(mVariations.size > index)
-			return mVariations[index]
-		if(canAddVariation) {
-			mVariations.add(filename)
-			return filename
-		}
-		mErrors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
-		return null
 	}
 
 	override fun getResult(): SongFile {
