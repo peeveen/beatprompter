@@ -7,25 +7,16 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
  * creating a linked-list style of collection. This allows us to easily find the previous
  * beat event, etc.
  */
-class LinkedEvent(
-	val mEvent: BaseEvent,
-	val mPrevEvent: LinkedEvent?
-) {
-	var mNextEvent: LinkedEvent? = null
-	var mNextBeatEvent: BeatEvent? = null
-
+class LinkedEvent	(eventList: List<BaseEvent>, private val mPrevEvent: LinkedEvent? = null) {
+	val mEvent: BaseEvent
+	val mNextBeatEvent: BeatEvent?
 	val mPrevLineEvent: LineEvent?
 	val mPrevAudioEvent: AudioEvent?
 	val mPrevBeatEvent: BeatEvent?
+	val mNextEvent: LinkedEvent?
 
 	val time: Long
 		get() = mEvent.mEventTime
-
-	init {
-		mPrevLineEvent = mEvent as? LineEvent ?: mPrevEvent?.mPrevLineEvent
-		mPrevAudioEvent = mEvent as? AudioEvent ?: mPrevEvent?.mPrevAudioEvent
-		mPrevBeatEvent = mEvent as? BeatEvent ?: mPrevEvent?.mPrevBeatEvent
-	}
 
 	fun findLatestEventOnOrBefore(time: Long): LinkedEvent {
 		var lastCheckedEvent = this
@@ -60,4 +51,16 @@ class LinkedEvent(
 				e=e.mPrevEvent!!
 			return e
 		}
+
+	init {
+		val eventsGroupedByTime = eventList.groupBy { it.mEventTime }.toSortedMap()
+		val firstGroup = eventsGroupedByTime.getValue(eventsGroupedByTime.firstKey())
+		mEvent = firstGroup.first()
+		mPrevLineEvent = firstGroup.firstNotNullOfOrNull { it as? LineEvent } ?: mPrevEvent?.mPrevLineEvent
+		mPrevAudioEvent = firstGroup.firstNotNullOfOrNull { it as? AudioEvent } ?: mPrevEvent?.mPrevAudioEvent
+		mPrevBeatEvent = firstGroup.firstNotNullOfOrNull { it as? BeatEvent } ?: mPrevEvent?.mPrevBeatEvent
+		mNextBeatEvent = eventList.filter { it.mEventTime > mEvent.mEventTime }.firstNotNullOfOrNull{ it as? BeatEvent }
+		val otherEvents = eventList.takeLast(eventList.size - 1)
+		mNextEvent = if (otherEvents.isNotEmpty()) LinkedEvent(otherEvents, this) else null
+	}
 }

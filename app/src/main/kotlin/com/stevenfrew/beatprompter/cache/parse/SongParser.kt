@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -24,6 +25,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CountTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfChorusTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
@@ -38,9 +40,11 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.SendMIDIClockTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfChorusTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -97,7 +101,10 @@ import kotlin.math.roundToInt
 	AudioTag::class,
 	MIDIEventTag::class,
 	ChordTag::class,
+	StartOfVariationExclusionTag::class,
+	EndOfVariationExclusionTag::class,
 	StartOfChorusTag::class,
+	VariationsTag::class,
 	EndOfChorusTag::class
 )
 @IgnoreTags(
@@ -115,7 +122,7 @@ import kotlin.math.roundToInt
 /**
  * Song file parser. This returns the full information for playing the song.
  */
-class SongParser constructor(
+class SongParser(
 	private val mSongLoadInfo: SongLoadInfo,
 	private val mSongLoadCancelEvent: SongLoadCancelEvent,
 	private val mSongLoadHandler: Handler
@@ -142,8 +149,9 @@ class SongParser constructor(
 	private val mPaint = Paint()
 	private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 	private val mDefaultHighlightColor: Int
-	private val mAudioTags = mutableListOf<AudioTag>()
 	private val mTimePerBar: Long
+	private val mFlatAudioFiles: List<AudioFile>
+	private val mVariationExclusions:ArrayDeque<List<String>> = ArrayDeque()
 
 	private var mSongHeight = 0
 	private var mMIDIBeatCounter: Int = 0
@@ -155,6 +163,7 @@ class SongParser constructor(
 	private var mSongTime: Long = 0
 	private var mDefaultMIDIOutputChannel: Byte
 	private var mInChorusSection = false
+	private var mPendingAudioTag:AudioTag? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
@@ -185,7 +194,12 @@ class SongParser constructor(
 			0, mSongLoadInfo.mSongFile.mLines
 		).sendToTarget()
 
-		val lengthOfBackingTrack = mSongLoadInfo.mTrack?.mDuration ?: 0L
+		val selectedVariation = mSongLoadInfo.mVariation
+		val audioFilenamesForThisVariation = mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
+		mFlatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
+			SongListFragment.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+		}
+		val lengthOfBackingTrack = mFlatAudioFiles.firstOrNull()?.mDuration ?: 0L
 		var songTime =
 			if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE)
 				lengthOfBackingTrack
@@ -216,6 +230,24 @@ class SongParser constructor(
 		val chordsFoundButNotShowingThem = !mShowChords && chordsFound
 		val tags = if (mShowChords) line.mTags.toList() else nonChordTags
 		val tagSequence = tags.asSequence()
+
+		// We're going to check if we're in a variation exclusion section.
+		// This section MIGHT be defined as a one-line exclusion, with varxstart/varxstop on the same line.
+		// So before we check, we need to look for varxstart tags.
+		val variationExclusionStartTag = tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
+		if(variationExclusionStartTag!=null)
+			mVariationExclusions.add(variationExclusionStartTag.mVariations)
+		// Are we in a variation exclusion section?
+		// Does it instruct us to exclude this line for the current variation?
+		val excludeLine = mVariationExclusions.any{ it.contains(mSongLoadInfo.mVariation) }
+		// Now that we've figured out whether this is an exclusion section, we need to look for varxstop tags
+		// on this line.
+		val variationExclusionEndTag = tagSequence.filterIsInstance<EndOfVariationExclusionTag>().firstOrNull()
+		if(variationExclusionEndTag!=null)
+			mVariationExclusions.removeLast()
+		// If we're in an exclusion section, bail out. We do not process any other tags or text.
+		if(excludeLine)
+			return
 
 		var workLine = line.mLineWithNoTags
 
@@ -263,8 +295,6 @@ class SongParser constructor(
 					mStartScreenComments.add(it)
 			}
 
-		mAudioTags.addAll(tags.filterIsInstance<AudioTag>())
-
 		// If a line has a number of bars defined, we really should treat it as a line, even if
 		// is blank.
 		val shorthandBarTag = tagSequence
@@ -300,6 +330,13 @@ class SongParser constructor(
 				}
 			}
 
+		// An audio tag is only processed when there is actual line content.
+		// But the audio tag can be defined on a line without content.
+		// In which case it is "pending", to be applied when line content is found.
+		val audioTags = tags.filterIsInstance<AudioTag>()
+		val variationIndex = mVariations.indexOf(mSongLoadInfo.mVariation)
+		mPendingAudioTag = if(audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !mSongLoadInfo.mNoAudio) audioTags[variationIndex] else mPendingAudioTag
+
 		if (isSongLine) {
 			// We definitely have a line!
 			// So now is when we want to create the count-in (if any)
@@ -313,50 +350,43 @@ class SongParser constructor(
 				mCountIn = 0
 			}
 
-			val audioTagsToProcess =
-				when {
-					mStopAddingStartupItems -> mAudioTags.toList()
-					mSongLoadInfo.mTrack == null -> listOf(mAudioTags.firstOrNull())
-					else -> listOf(mAudioTags.firstOrNull { it.mFilename == mSongLoadInfo.mTrack.mNormalizedName })
-				}
-			mAudioTags.clear()
-
-			if (!mSongLoadInfo.mNoAudio)
-				audioTagsToProcess.filterNotNull().forEach { audioTag ->
-					// Make sure file exists.
-					val mappedTracks =
-						SongListFragment.mCachedCloudItems.getMappedAudioFiles(audioTag.mFilename)
-					if (mappedTracks.isEmpty())
-						mErrors.add(FileParseError(audioTag, R.string.cannotFindAudioFile, audioTag.mFilename))
-					else if (mappedTracks.size > 1)
+			mPendingAudioTag?.also {
+				// Make sure file exists.
+				val mappedTracks =
+					SongListFragment.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
+				if (mappedTracks.isEmpty())
+					mErrors.add(FileParseError(it, R.string.cannotFindAudioFile, it.mNormalizedFilename))
+				else if (mappedTracks.size > 1)
+					mErrors.add(
+						FileParseError(
+							it,
+							R.string.multipleFilenameMatches,
+							it.mNormalizedFilename
+						)
+					)
+				else {
+					val audioFile = mappedTracks.first()
+					if (!audioFile.mFile.exists())
 						mErrors.add(
 							FileParseError(
-								audioTag,
-								R.string.multipleFilenameMatches,
-								audioTag.mFilename
+								it,
+								R.string.cannotFindAudioFile,
+								it.mNormalizedFilename
 							)
 						)
-					else {
-						val audioFile = mappedTracks.first()
-						if (!audioFile.mFile.exists())
-							mErrors.add(
-								FileParseError(
-									audioTag,
-									R.string.cannotFindAudioFile,
-									audioTag.mFilename
-								)
+					else
+						mEvents.add(
+							AudioEvent(
+								mSongTime,
+								audioFile,
+								it.mVolume,
+								!mStopAddingStartupItems
 							)
-						else
-							mEvents.add(
-								AudioEvent(
-									mSongTime,
-									audioFile,
-									audioTag.mVolume,
-									!mStopAddingStartupItems
-								)
-							)
-					}
+						)
 				}
+			}
+			// Clear the pending tag.
+			mPendingAudioTag = null
 
 			// Any comments or MIDI events from here will be part of the song,
 			// rather than startup events.
@@ -372,6 +402,9 @@ class SongParser constructor(
 
 			// Generate pause events if required (may return null)
 			val pauseEvents = generatePauseEvents(mSongTime, pauseTag)
+			val paused = pauseEvents?.any() == true
+			if(paused)
+				mRolloverBeats.clear()
 
 			if (createLine) {
 				// First line should always have a time of zero, so that if the user scrolls
@@ -383,7 +416,11 @@ class SongParser constructor(
 				val addToPause = if (mLines.isEmpty()) mSongTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
-				val beatEvents = generateBeatEvents(mSongTime, metronomeOn)
+				pauseEvents?.maxOf { it.mEventTime }
+				val beatEvents = if(paused)
+					EventBlock(listOf(),pauseEvents?.maxOf { it.mEventTime } ?:0)
+				else
+					generateBeatEvents(mSongTime, metronomeOn)
 
 				// Calculate how long this line will last for
 				val lineDuration = calculateLineDuration(
@@ -597,7 +634,7 @@ class SongParser constructor(
 		sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, mSongTime)))
 
 		// Now build the final event list.
-		val firstEvent = buildLinkedEventList(sortedEventList)
+		val firstEvent = LinkedEvent(sortedEventList)
 
 		// Calculate the last position that we can scroll to.
 		val scrollEndPixel = calculateScrollEndPixel(smoothMode, smoothScrollOffset)
@@ -704,9 +741,8 @@ class SongParser constructor(
 		val currentTimePerBeat = Utils.nanosecondsPerBeat(mCurrentLineBeatInfo.mBPM)
 		val rolloverBeatCount = mRolloverBeats.size
 		var rolloverBeatsApplied = 0
-		val beatsToAdjustCount = mBeatsToAdjust
 		// We have N beats to adjust.
-		// For the previous N beatevents, set the BPB to the new BPB.
+		// For the previous N beat events, set the BPB to the new BPB.
 		if (mBeatsToAdjust > 0)
 			mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach {
 				it.mBPB = mCurrentLineBeatInfo.mBPB
@@ -1149,6 +1185,33 @@ class SongParser constructor(
 		}
 	}
 
+	/**
+	 * An "event block" is simply a list of events, in chronological order, and a time that marks the point
+	 * at which the block ends. Note that the end time is not necessarily the same as the time of the last
+	 * event. For example, a block of five beat events (where each beat last n nanoseconds) will contain
+	 * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
+	 * actually covers the duration of the beat.
+	 */
+	private data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
+
+	private class LineList : ArrayList<Line>() {
+		override fun add(element: Line): Boolean {
+			val lastOrNull = lastOrNull()
+			lastOrNull?.mNextLine = element
+			element.mPrevLine = lastOrNull
+			return super.add(element)
+		}
+	}
+
+	private class CircularGraphicsList : ArrayList<LineGraphic>() {
+		override fun add(element: LineGraphic): Boolean {
+			lastOrNull()?.mNextGraphic = element
+			val result = super.add(element)
+			last().mNextGraphic = first()
+			return result
+		}
+	}
+
 	private fun sortEvents(eventList: List<BaseEvent>): List<BaseEvent> {
 		// Sort all events by time, and by type within that.
 		return eventList.sortedWith { e1, e2 ->
@@ -1186,66 +1249,6 @@ class SongParser constructor(
 						0
 				}
 			}
-		}
-	}
-
-	/**
-	 * Constructs a linked-list of events from the unlinked event list.
-	 */
-	private fun buildLinkedEventList(eventList: List<BaseEvent>): LinkedEvent {
-		// Now build the linked list.
-		var prevEvent: LinkedEvent? = null
-		val linkedEvents = eventList.map {
-			val newEvent = LinkedEvent(it, prevEvent)
-			prevEvent = newEvent
-			newEvent
-		}
-
-		// Since we can't see the future, we now have to traverse the list backwards
-		// setting the mNext... fields.
-		setNextEvents(linkedEvents.last())
-
-		return linkedEvents.first()
-	}
-
-	private fun setNextEvents(finalEvent: LinkedEvent) {
-		var nextEvent: LinkedEvent? = null
-		var nextBeatEvent: BeatEvent? = null
-		var lastEvent: LinkedEvent? = finalEvent
-		while (lastEvent != null) {
-			lastEvent.mNextEvent = nextEvent
-			lastEvent.mNextBeatEvent = nextBeatEvent
-			if (lastEvent.mEvent is BeatEvent)
-				nextBeatEvent = lastEvent.mEvent as BeatEvent
-			nextEvent = lastEvent
-			lastEvent = lastEvent.mPrevEvent
-		}
-	}
-
-	/**
-	 * An "event block" is simply a list of events, in chronological order, and a time that marks the point
-	 * at which the block ends. Note that the end time is not necessarily the same as the time of the last
-	 * event. For example, a block of five beat events (where each beat last n nanoseconds) will contain
-	 * five events with the times of n*0, n*1, n*2, n*3, n*4, and the end time will be n*5, as a "beat event"
-	 * actually covers the duration of the beat.
-	 */
-	private data class EventBlock(val mEvents: List<BaseEvent>, val mBlockEndTime: Long)
-
-	private class LineList : ArrayList<Line>() {
-		override fun add(element: Line): Boolean {
-			val lastOrNull = lastOrNull()
-			lastOrNull?.mNextLine = element
-			element.mPrevLine = lastOrNull
-			return super.add(element)
-		}
-	}
-
-	private class CircularGraphicsList : ArrayList<LineGraphic>() {
-		override fun add(element: LineGraphic): Boolean {
-			lastOrNull()?.mNextGraphic = element
-			val result = super.add(element)
-			last().mNextGraphic = first()
-			return result
 		}
 	}
 }

@@ -63,6 +63,7 @@ class SongView
 
 	private val mBackgroundColorLookup = IntArray(101)
 	private val mCommentTextColor: Int
+	private val mPageDownMarkerColor: Int
 	private val mBeatCounterColor: Int
 	private val mDefaultCurrentLineHighlightColor: Int
 	private val mBeatSectionStartHighlightColors: IntArray
@@ -123,6 +124,7 @@ class SongView
 		mHighlightBeatSectionStart = Preferences.highlightBeatSectionStart
 		mBeatCounterColor = Preferences.beatCounterColor
 		mCommentTextColor = Preferences.commentColor
+		mPageDownMarkerColor = Preferences.pageDownMarkerColor
 		mScrollMarkerColor = Preferences.scrollIndicatorColor
 		val mHighlightBeatSectionStartColor = Preferences.beatSectionStartHighlightColor
 		mBeatSectionStartHighlightColors =
@@ -545,7 +547,7 @@ class SongView
 			val lineSize = screenWidth / 10.0f
 
 			mPaint.strokeWidth = (screenWidth + screenHeight) / 200.0f
-			mPaint.color = Color.MAGENTA
+			mPaint.color = mPageDownMarkerColor
 			canvas.drawLine(0.0f, scrollPosition + lineSize, 0.0f, scrollPosition, mPaint)
 			canvas.drawLine(0.0f, scrollPosition, lineSize, scrollPosition, mPaint)
 			canvas.drawLine(screenWidth, scrollPosition + lineSize, screenWidth, scrollPosition, mPaint)

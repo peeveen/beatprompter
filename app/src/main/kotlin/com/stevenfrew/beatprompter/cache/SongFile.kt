@@ -22,13 +22,14 @@ class SongFile(
 	val mDuration: Long,
 	val mMixedMode: Boolean,
 	val mTotalPauses: Long,
-	val mAudioFiles: List<String>,
+	val mAudioFiles: Map<String,List<String>>,
 	val mImageFiles: List<String>,
 	val mTags: Set<String>,
 	val mProgramChangeTrigger: SongTrigger,
 	val mSongSelectTrigger: SongTrigger,
 	val mFilterOnly: Boolean,
 	val mRating: Int,
+	val mVariations: List<String>,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors) {
 	val mNormalizedArtist = mArtist.normalize()

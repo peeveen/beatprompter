@@ -16,7 +16,7 @@
 	<string name="midiButton15" translatable="false">15</string>
 	<string name="midiButton16" translatable="false">16</string>
 	<string name="pointlessString" translatable="false">abc</string>
-	<string name="version" translatable="false">v1.72</string>
+	<string name="version" translatable="false">v1.74</string>
 	<string name="app_name">BeatPrompter</string>
 	<string name="author_name" translatable="false">Steven Frew</string>
 	<string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
@@ -418,6 +418,10 @@
 	<string name="pref_pulse_summary">The background will pulse in time to the rhythm.</string>
 	<string name="pref_pulse_defaultValue" translatable="false">true</string>
 
+	<string name="pref_clearTagFilterOnFolderChange_key" translatable="false">pref_clearTagFilterOnFolderChange</string>
+	<string name="pref_clearTagFilterOnFolderChange_title">Clear tags when filter changes?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">If true, any selected tag filters will be cleared whenever you switch folders/setlists/etc.</string>
+
 	<string name="pref_cloudPath_key" translatable="false">pref_cloudPath</string>
 	<string name="pref_cloudPath_title">Storage Folder</string>
 	<string name="pref_cloudPath_summary">This is the folder that the BeatPrompter song files are stored in.</string>
@@ -771,4 +775,8 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="gettingRootFolder">Getting root folder …</string>
 
 	<string name="byRating">By rating</string>
+	<string name="variation">Variation</string>
+	<string name="noAudio">No Audio</string>
+	<string name="variationsAlreadyDefined">Variation names have already been defined.</string>
+	<string name="tooManyAudioTags">Audio tags outnumber variations.</string>
 </resources>

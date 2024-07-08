@@ -372,6 +372,12 @@ object Preferences {
 			R.string.pref_highlightPageDownLine_defaultValue
 		)
 
+	val clearTagsOnFolderChange: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_clearTagFilterOnFolderChange_key,
+			R.string.pref_highlightPageDownLine_defaultValue
+		)
+
 	val highlightBeatSectionStart: Boolean
 		get() = getBooleanPreference(
 			R.string.pref_highlightBeatSectionStart_key,

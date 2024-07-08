@@ -54,12 +54,6 @@ class SongDisplayActivity
 	private val mMidiClockOutTaskThread =
 		Thread(mMidiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
 
-	override fun onConfigurationChanged(newConfig: Configuration) {
-		super.onConfigurationChanged(newConfig)
-		// Any config change, go back to the song list.
-		finish()
-	}
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
@@ -110,7 +104,7 @@ class SongDisplayActivity
 					SongChoiceInfo(
 						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
-						loadedSong.mLoadJob.mSongLoadInfo.mTrack?.mName ?: "",
+						loadedSong.mLoadJob.mSongLoadInfo.mVariation,
 						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
 						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,

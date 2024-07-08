@@ -31,6 +31,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
@@ -56,6 +57,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 	BeatStartTag::class,
 	BeatStopTag::class,
 	AudioTag::class,
+	VariationsTag::class,
 	ChordTag::class
 )
 @IgnoreTags(
@@ -65,7 +67,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser constructor(cachedCloudFile: CachedFile) :
+class SongInfoParser(cachedCloudFile: CachedFile) :
 	SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, false) {
 	private var mTitle: String? = null
 	private var mArtist: String? = null
@@ -76,7 +78,6 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 	private var mBeats: Int = 0
 	private var mTotalPause: Long = 0L
 	private var mDuration: Long = 0L
-	private val mAudioFiles = mutableListOf<String>()
 	private val mImageFiles = mutableListOf<String>()
 	private var mFilterOnly = false
 	private val mTags = mutableListOf<String>()
@@ -104,7 +105,6 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 		val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
 		val beatStopTag = tagSequence.filterIsInstance<BeatStopTag>().firstOrNull()
 		val timeTag = tagSequence.filterIsInstance<TimeTag>().firstOrNull()
-		val audioTags = tagSequence.filterIsInstance<AudioTag>()
 		val imageTags = line.mTags.filterIsInstance<ImageTag>()
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
@@ -152,7 +152,6 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 			mBeats += mCurrentLineBeatInfo.mBeats
 		}
 
-		mAudioFiles.addAll(audioTags.map { it.mFilename })
 		mImageFiles.addAll(imageTags.map { it.mFilename })
 		mTags.addAll(tagTags.map { it.mTag })
 	}
@@ -191,6 +190,7 @@ class SongInfoParser constructor(cachedCloudFile: CachedFile) :
 				?: SongTrigger.DEAD_TRIGGER,
 			mFilterOnly,
 			mRating,
+			if (mVariations.isEmpty()) listOf("Default") else mVariations,
 			mErrors
 		)
 	}

@@ -16,7 +16,10 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 
-class FilterListAdapter(private val values: List<Filter>) :
+class FilterListAdapter(private val values: List<Filter>,
+												private val selectedTagFilters: MutableList<TagFilter>,
+												private val onSelectedTagsChanged: () -> Unit
+	) :
 	ArrayAdapter<Filter>(BeatPrompter.context, -1, values) {
 	private val mInflater = BeatPrompter.context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -31,12 +34,14 @@ class FilterListAdapter(private val values: List<Filter>) :
 	}
 
 	override fun getDropDownView(
-		position: Int, convertView: View?,
+		position: Int,
+		convertView: View?,
 		parent: ViewGroup
 	): View {
-		return (convertView ?: mInflater.inflate(R.layout.filter_list_item, parent, false)).also {
+		return mInflater.inflate(R.layout.filter_list_item, parent, false).also {
 			val titleView = it.findViewById<TextView>(R.id.filtertitle)
 			val filterIcon = it.findViewById<ImageView>(R.id.filterIcon)
+			val filterSelectedIcon = it.findViewById<ImageView>(R.id.filterSelectedIcon)
 			val filter = values[position]
 			val iconResource = when (filter) {
 				is TagFilter -> R.drawable.tag
@@ -46,6 +51,20 @@ class FilterListAdapter(private val values: List<Filter>) :
 				is FolderFilter -> R.drawable.ic_folder
 				else -> R.drawable.blank_icon
 			}
+			if (filter is TagFilter) {
+				filterSelectedIcon.visibility = View.VISIBLE
+				val selectedIcon = if(selectedTagFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
+				filterSelectedIcon.setImageResource(selectedIcon)
+				it.setOnClickListener {
+					if(selectedTagFilters.contains(filter))
+						selectedTagFilters.remove(filter)
+					else
+						selectedTagFilters.add(filter)
+					notifyDataSetChanged()
+					onSelectedTagsChanged()
+				}
+			} else
+				filterSelectedIcon.visibility = View.GONE
 			filterIcon.setImageResource(iconResource)
 			titleView.text = filter.mName
 		}
