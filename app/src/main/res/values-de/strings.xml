@@ -407,4 +407,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="noAudio">Kein Ton</string>
 	<string name="variationsAlreadyDefined">Variantennamen wurden bereits definiert.</string>
 	<string name="tooManyAudioTags">Es gibt mehr Audio-Tags als Variationen.</string>
+    <string name="darkMode">Dunkelmodus ein-/ausschalten</string>
 </resources>

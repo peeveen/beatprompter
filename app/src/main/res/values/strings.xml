@@ -779,4 +779,8 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="noAudio">No Audio</string>
 	<string name="variationsAlreadyDefined">Variation names have already been defined.</string>
 	<string name="tooManyAudioTags">Audio tags outnumber variations.</string>
+
+	<string name="pref_darkMode_key" translatable="false">pref_darkMode</string>
+	<string name="darkMode">Toggle Dark Mode</string>
+
 </resources>

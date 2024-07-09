@@ -38,7 +38,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\steve\Desktop\tick.png" />
+                                                <entry key="imagePath" value="C:\Users\steve\Desktop\moon-512-2027157348.png" />
                                                 <entry key="opacityPercent" value="60" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
@@ -77,8 +77,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\steve\Desktop\tick.png" />
-                                      <entry key="outputName" value="tick" />
+                                      <entry key="imageAsset" value="C:\Users\steve\Desktop\moon-512-2027157348.png" />
+                                      <entry key="outputName" value="ic_moon" />
                                     </map>
                                   </option>
                                 </PersistentState>

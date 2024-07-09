@@ -80,6 +80,10 @@ class SongListFragment
 	private var mPerformingCloudSync = false
 	private var mSavedListIndex = 0
 	private var mSavedListOffset = 0
+	private var mMenu: Menu? = null
+	private var mFilters = listOf<Filter>()
+	private val mSelectedTagFilters = mutableListOf<TagFilter>()
+	private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
 
 	private val isFirstRun: Boolean
 		get() {
@@ -144,11 +148,6 @@ class SongListFragment
 		)
 	}
 
-	private var mMenu: Menu? = null
-	private var mFilters = listOf<Filter>()
-	private val mSelectedTagFilters = mutableListOf<TagFilter>()
-	private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
-
 	internal fun updateBluetoothIcon() {
 		val bluetoothMode = Preferences.bluetoothMode
 		val slave = bluetoothMode === BluetoothMode.Client
@@ -193,14 +192,16 @@ class SongListFragment
 		}
 	}
 
-	private fun applyFileFilter(filter: Filter) {
+	private fun applyFileFilter(filter: Filter, updateUi:Boolean = true) {
 		mSelectedFilter = filter
 		mPlaylist = if (filter is SongFilter)
 			Playlist(filter.mSongs.filter{ if(mSelectedTagFilters.isNotEmpty()) mSelectedTagFilters.any{ filter -> filter.mSongs.contains(it) } else true })
 		else
 			Playlist()
 		sortSongList()
-		buildList()
+		mListAdapter=buildListAdapter()
+		if(updateUi)
+			updateListView()
 		showSetListMissingSongs()
 	}
 
@@ -216,7 +217,16 @@ class SongListFragment
 
 		super.onConfigurationChanged(newConfig)
 		registerEventHandler()
-		buildList().setSelectionFromTop(currentPosition, top)
+		mListAdapter = buildListAdapter()
+		updateListView().setSelectionFromTop(currentPosition, top)
+	}
+
+	private fun updateListView():ListView {
+		return requireView().findViewById<ListView>(R.id.listView).apply {
+			onItemClickListener = this@SongListFragment
+			onItemLongClickListener = this@SongListFragment
+			adapter = mListAdapter
+		}
 	}
 
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -667,9 +677,8 @@ class SongListFragment
 
 	private fun initialiseList() {
 		try {
-			readDatabase()
-			sortSongList()
-			buildList()
+			if(readDatabase())
+				buildFilterList(false)
 		} catch (e: Exception) {
 			Logger.log(e)
 		}
@@ -850,25 +859,20 @@ class SongListFragment
 
 	private fun shuffleSongList() {
 		mPlaylist.shuffle()
-		buildList()
+		mListAdapter = buildListAdapter()
+		updateListView()
 	}
 
-	private fun buildList(): ListView {
-		mListAdapter = if (mSelectedFilter is MIDIAliasFilesFilter)
+	private fun buildListAdapter():BaseAdapter {
+		return if (mSelectedFilter is MIDIAliasFilesFilter)
 			MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles))
 		else
 			SongListAdapter(filterPlaylistNodes(mPlaylist))
-
-		return requireView().findViewById<ListView>(R.id.listView).apply {
-			onItemClickListener = this@SongListFragment
-			onItemLongClickListener = this@SongListFragment
-			adapter = mListAdapter
-		}
 	}
 
-	private fun readDatabase() {
+	private fun readDatabase():Boolean {
 		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		if (database.exists()) {
+		return if (database.exists()) {
 			mPlaylist = Playlist()
 
 			val xmlDoc = DocumentBuilderFactory
@@ -877,8 +881,8 @@ class SongListFragment
 				.parse(database)
 
 			mCachedCloudItems.readFromXML(xmlDoc)
-			buildFilterList()
-		}
+			true
+		} else false
 	}
 
 	private fun writeDatabase() {
@@ -896,7 +900,7 @@ class SongListFragment
 		transformer.transform(input, output)
 	}
 
-	private fun buildFilterList() {
+	private fun buildFilterList(updateUi:Boolean = true) {
 		Logger.log("Building tag list ...")
 		val tagAndFolderFilters = mutableListOf<Filter>()
 
@@ -967,8 +971,9 @@ class SongListFragment
 
 		// The default selected filter should be "all songs".
 		mSelectedFilter = allSongsFilter
-		applyFileFilter(mSelectedFilter)
-		requireActivity().invalidateOptionsMenu()
+		applyFileFilter(mSelectedFilter, updateUi)
+		if(updateUi)
+			requireActivity().invalidateOptionsMenu()
 	}
 
 	override fun onPrepareOptionsMenu(menu: Menu) {
@@ -1002,7 +1007,8 @@ class SongListFragment
 						}
 					)
 					sortSongList()
-					buildList()
+					mListAdapter=buildListAdapter()
+					updateListView()
 				}
 				setTitle(getString(R.string.sortSongs))
 				create().apply {
@@ -1188,8 +1194,10 @@ class SongListFragment
 			|| key == getString(R.string.pref_showBeatStyleIcons_key)
 			|| key == getString(R.string.pref_showMusicIcon_key)
 			|| key == getString(R.string.pref_showKeyInList_key)
-		)
-			buildList()
+		) {
+			mListAdapter = buildListAdapter()
+			updateListView()
+		}
 	}
 
 	override fun onQueryTextSubmit(searchText: String?): Boolean {
@@ -1198,7 +1206,8 @@ class SongListFragment
 
 	override fun onQueryTextChange(searchText: String?): Boolean {
 		mSearchText = searchText?.lowercase() ?: ""
-		buildList()
+		mListAdapter=buildListAdapter()
+		updateListView()
 		return true
 	}
 

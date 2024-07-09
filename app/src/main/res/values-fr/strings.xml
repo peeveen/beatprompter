@@ -407,4 +407,5 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="noAudio">Pas de son</string>
 	<string name="variationsAlreadyDefined">Les noms de variantes ont déjà été définis.</string>
 	<string name="tooManyAudioTags">Les balises audio sont plus nombreuses que les variations.</string>
+    <string name="darkMode">Activer le mode sombre</string>
 </resources>

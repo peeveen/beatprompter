@@ -407,4 +407,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="noAudio">Sin Audio</string>
 	<string name="variationsAlreadyDefined">Los nombres de las variaciones ya se han definido.</string>
 	<string name="tooManyAudioTags">Las etiquetas de audio superan en número a las variaciones.</string>
+    <string name="darkMode">Alternar modo oscuro</string>
 </resources>
