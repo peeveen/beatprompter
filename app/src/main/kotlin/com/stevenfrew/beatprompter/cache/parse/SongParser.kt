@@ -350,6 +350,14 @@ class SongParser(
 				mCountIn = 0
 			}
 
+			// If there is a beatstart, we add a StartEvent. This functions as a "current event" that
+			// the song can be set to, then advanced from. The "current event" is not processed when we
+			// "press play" to start the song (it is expected that it ALREADY has been processed).
+			// StartEvents function as simply dummy starting-point "current" events.
+			val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
+			if(beatStartTag!=null)
+				mEvents.add(StartEvent(mSongTime))
+
 			mPendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
@@ -600,7 +608,7 @@ class SongParser(
 
 		// Songs need a "first event" to have as their "current event". Without this, the initial
 		// "current event" could be the EndEvent!
-		sortedEventList.add(0, StartEvent)
+		sortedEventList.add(0, StartEvent())
 
 		// Now we need to figure out which lines should NOT scroll offscreen.
 		val noScrollLines = mutableListOf<Line>()
@@ -1219,10 +1227,19 @@ class SongParser(
 				e1.mEventTime > e2.mEventTime -> 1
 				e1.mEventTime < e2.mEventTime -> -1
 				else -> {
+					// StartEvents must appear before anything else, as their
+					// function is a "starting point" for song processing to
+					// continue from.
+					if (e1 is StartEvent && e2 is StartEvent)
+						0
+					else if (e1 is StartEvent)
+						-1
+					else if (e2 is StartEvent)
+						1
 					// MIDI events are most important. We want to
 					// these first at any given time for maximum MIDI
 					// responsiveness
-					if (e1 is MIDIEvent && e2 is MIDIEvent)
+					else if (e1 is MIDIEvent && e2 is MIDIEvent)
 						0
 					else if (e1 is MIDIEvent)
 						-1
