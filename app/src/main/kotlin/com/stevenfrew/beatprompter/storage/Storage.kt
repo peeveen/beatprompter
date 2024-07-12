@@ -96,7 +96,7 @@ abstract class Storage protected constructor(
 		try {
 			getRootPath(object : RootPathListener {
 				override fun onRootPathFound(rootPath: FolderInfo) {
-					val dialog = ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath)
+					val dialog = ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
 					dialog.showDialog()
 				}
 

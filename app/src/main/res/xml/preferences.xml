@@ -41,6 +41,11 @@
 		android:icon="@drawable/ic_hand"
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.PermissionsSettingsFragment"/>
 	<Preference
+		app:key="@string/pref_darkMode_key"
+		app:isPreferenceVisible="true"
+		app:title="@string/darkMode"
+		android:icon="@drawable/ic_moon" />
+	<Preference
 		app:key="@string/pref_buyMeACoffee_key"
 		app:title="@string/buyMeACoffee"
 		android:icon="@drawable/ic_coffee" />

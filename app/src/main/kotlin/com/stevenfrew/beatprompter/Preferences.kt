@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import android.content.SharedPreferences
 import android.graphics.Color
+import androidx.appcompat.app.AppCompatDelegate
 import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
@@ -24,6 +25,16 @@ object Preferences {
 		} catch (e: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
 			ConnectionType.USBOnTheGo
+		}
+
+	var darkMode: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_darkMode_key,
+			false
+		)
+		set(value) {
+			setBooleanPreference(R.string.pref_darkMode_key, value)
+			AppCompatDelegate.setDefaultNightMode(if(value) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		}
 
 	val defaultTrackVolume: Int

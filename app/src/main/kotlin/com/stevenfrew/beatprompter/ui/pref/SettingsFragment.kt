@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.stevenfrew.beatprompter.EventRouter
@@ -33,6 +34,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
 		coffeePref?.setOnPreferenceClickListener {
 			val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.buyMeACoffeeUrl)))
 			startActivity(browserIntent)
+			true
+		}
+
+		val darkModePrefName = getString(R.string.pref_darkMode_key)
+		val darkModePref = findPreference<Preference>(darkModePrefName)
+		darkModePref?.setOnPreferenceClickListener {
+			Preferences.darkMode = !Preferences.darkMode
 			true
 		}
 	}

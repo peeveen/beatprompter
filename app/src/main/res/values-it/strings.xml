@@ -407,4 +407,5 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="noAudio">Nessun Audio</string>
 	<string name="variationsAlreadyDefined">I nomi delle varianti sono già stati definiti.</string>
 	<string name="tooManyAudioTags">I tag audio sono più numerosi delle variazioni.</string>
+    <string name="darkMode">Attiva/disattiva la modalità oscura</string>
 </resources>

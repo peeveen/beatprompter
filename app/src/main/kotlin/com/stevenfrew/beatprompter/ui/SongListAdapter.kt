@@ -12,8 +12,8 @@ import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.set.PlaylistNode
 
-class SongListAdapter(private val values: List<PlaylistNode>) :
-	ArrayAdapter<PlaylistNode>(BeatPrompter.context, -1, values) {
+class SongListAdapter(private val values: List<PlaylistNode>, context:Context) :
+	ArrayAdapter<PlaylistNode>(context, -1, values) {
 	private val mLayoutId =
 		if (Preferences.largePrint)
 			R.layout.song_list_item_large
@@ -23,7 +23,7 @@ class SongListAdapter(private val values: List<PlaylistNode>) :
 	private val mShowKey = Preferences.showKeyInSongList
 	private val mShowRating = Preferences.showRatingInSongList
 	private val mShowMusicIcon = Preferences.showMusicIcon
-	private val mInflater = BeatPrompter.context
+	private val mInflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
