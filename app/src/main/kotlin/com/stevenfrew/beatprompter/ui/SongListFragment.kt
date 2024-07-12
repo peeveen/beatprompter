@@ -237,7 +237,7 @@ class SongListFragment
 		val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
 		spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
 			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(mFilters, mSelectedTagFilters) { applyFileFilter(mSelectedFilter) }
+			adapter = FilterListAdapter(mFilters, mSelectedTagFilters, requireActivity()) { applyFileFilter(mSelectedFilter) }
 		}
 
 		(menu.findItem(R.id.search).actionView as SearchView).apply {
@@ -865,9 +865,9 @@ class SongListFragment
 
 	private fun buildListAdapter():BaseAdapter {
 		return if (mSelectedFilter is MIDIAliasFilesFilter)
-			MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles))
+			MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles), requireActivity())
 		else
-			SongListAdapter(filterPlaylistNodes(mPlaylist))
+			SongListAdapter(filterPlaylistNodes(mPlaylist), this.requireActivity())
 	}
 
 	private fun readDatabase():Boolean {

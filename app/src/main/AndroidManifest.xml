@@ -49,6 +49,7 @@
 			android:name=".ui.SongListActivity"
 			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
 			android:exported="true"
+			android:theme="@style/AppTheme"
 			android:launchMode="singleTask">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

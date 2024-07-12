@@ -31,7 +31,8 @@ internal class ChooseFolderDialog(
 	private val mActivity: Activity,
 	private val mStorage: Storage,
 	listener: FolderSelectionListener,
-	private var mCurrentFolder: FolderInfo
+	private var mCurrentFolder: FolderInfo,
+	private val mContext: Context
 ) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
 	private var mFolderSearchError: Throwable? = null
 	private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)
@@ -122,7 +123,7 @@ internal class ChooseFolderDialog(
 				setContentView(R.layout.choose_folder_dialog)
 				setTitle(getDisplayPath(mCurrentFolder))
 				val list = findViewById<ListView>(R.id.chooseFolderListView)
-				list.adapter = BrowserItemListAdapter(contents)
+				list.adapter = BrowserItemListAdapter(contents, mContext)
 
 				list.setOnItemClickListener { _, _, which, _ ->
 					val folderChosen: FolderInfo = if (which == 0 && mParentFolder != null)

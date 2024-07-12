@@ -18,10 +18,11 @@ import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 
 class FilterListAdapter(private val values: List<Filter>,
 												private val selectedTagFilters: MutableList<TagFilter>,
+												context: Context,
 												private val onSelectedTagsChanged: () -> Unit
 	) :
-	ArrayAdapter<Filter>(BeatPrompter.context, -1, values) {
-	private val mInflater = BeatPrompter.context
+	ArrayAdapter<Filter>(context, -1, values) {
+	private val mInflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

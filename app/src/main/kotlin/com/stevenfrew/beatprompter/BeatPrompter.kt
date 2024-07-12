@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.AssetManager
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
@@ -21,6 +22,7 @@ class BeatPrompter : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		mApp = this
+		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 		applyPreferenceDefaults()
 		MIDIController.initialise(this)
 		BluetoothController.initialise(this)

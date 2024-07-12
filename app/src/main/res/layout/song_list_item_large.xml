@@ -47,7 +47,6 @@
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@id/songlisticonsection"
         android:ellipsize="end"
-        android:textColor="@color/materialLightText"
         android:maxLines="1"
         android:layout_marginTop="0dp"
         android:textSize="24sp" />
@@ -61,7 +60,6 @@
         android:maxLines="1"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:textColor="@color/materialLightText"
         android:layout_marginBottom="0dp"
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"

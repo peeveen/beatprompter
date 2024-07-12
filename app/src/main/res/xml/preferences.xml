@@ -42,7 +42,7 @@
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.PermissionsSettingsFragment"/>
 	<Preference
 		app:key="@string/pref_darkMode_key"
-		app:isPreferenceVisible="false"
+		app:isPreferenceVisible="true"
 		app:title="@string/darkMode"
 		android:icon="@drawable/ic_moon" />
 	<Preference
