@@ -22,8 +22,8 @@ class BeatPrompter : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		mApp = this
-		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 		applyPreferenceDefaults()
+		AppCompatDelegate.setDefaultNightMode(if(Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		MIDIController.initialise(this)
 		BluetoothController.initialise(this)
 		mSongLoaderTaskThread.start()

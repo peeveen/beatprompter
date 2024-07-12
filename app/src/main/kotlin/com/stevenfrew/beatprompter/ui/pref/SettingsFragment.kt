@@ -40,7 +40,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 		val darkModePrefName = getString(R.string.pref_darkMode_key)
 		val darkModePref = findPreference<Preference>(darkModePrefName)
 		darkModePref?.setOnPreferenceClickListener {
-			AppCompatDelegate.setDefaultNightMode(if(AppCompatDelegate.getDefaultNightMode()!=AppCompatDelegate.MODE_NIGHT_YES) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+			Preferences.darkMode = !Preferences.darkMode
 			true
 		}
 	}
