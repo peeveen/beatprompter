@@ -15,8 +15,8 @@ import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.EventRouter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.OutgoingMessage

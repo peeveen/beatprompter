@@ -23,6 +23,7 @@ import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
+import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment
 import com.stevenfrew.beatprompter.util.CoroutineTask
@@ -40,7 +41,7 @@ import kotlin.coroutines.CoroutineContext
  * GoogleDrive implementation of the storage system.
  */
 class GoogleDriveStorage(parentFragment: Fragment) :
-	Storage(parentFragment, GOOGLE_DRIVE_CACHE_FOLDER_NAME) {
+	Storage(parentFragment, StorageType.GoogleDrive) {
 
 	private val mGoogleClientSignInOptions =
 		GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -390,7 +391,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 	companion object {
 		private const val GOOGLE_DRIVE_ROOT_FOLDER_ID = "root"
 		private const val GOOGLE_DRIVE_ROOT_PATH = "/"
-		private const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
+		const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON = "id,name,mimeType,modifiedTime"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN =
 			"${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},shortcutDetails"

@@ -26,7 +26,7 @@ import java.io.FileOutputStream
  * DropBox implementation of the storage system.
  */
 class DropboxStorage(parentFragment: Fragment) :
-	Storage(parentFragment, DROPBOX_CACHE_FOLDER_NAME) {
+	Storage(parentFragment, StorageType.Dropbox) {
 
 	private val requestConfig = DbxRequestConfig.newBuilder(BeatPrompter.APP_NAME)
 		.build()
@@ -281,7 +281,7 @@ class DropboxStorage(parentFragment: Fragment) :
 
 	companion object {
 
-		private const val DROPBOX_CACHE_FOLDER_NAME = "dropbox"
+		const val DROPBOX_CACHE_FOLDER_NAME = "dropbox"
 
 		@Suppress("SpellCheckingInspection")
 		private const val DROPBOX_APP_KEY = "hay1puzmg41f02r"

@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.song.load
 
 import android.os.Handler
 import android.os.Message
-import com.stevenfrew.beatprompter.EventRouter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import kotlinx.coroutines.CoroutineScope

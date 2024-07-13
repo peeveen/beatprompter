@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
+import com.stevenfrew.beatprompter.database.Database
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
@@ -16,7 +17,6 @@ import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException
 import com.stevenfrew.beatprompter.midi.alias.Value
 import com.stevenfrew.beatprompter.song.event.MIDIEvent
-import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @TagType(Type.Directive)
@@ -35,7 +35,7 @@ class MIDIEventTag internal constructor(
 	init {
 		val parsedEvent = parseMIDIEvent(
 			name,
-			value, lineNumber, SongListFragment.mCachedCloudItems.midiAliases
+			value, lineNumber, Database.mCachedCloudItems.midiAliases
 		)
 		mMessages = parsedEvent.first
 		mOffset = parsedEvent.second

@@ -53,6 +53,9 @@ android {
 		main.java.srcDirs += 'src/main/kotlin/'
 	}
 	namespace 'com.stevenfrew.beatprompter'
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -90,6 +93,7 @@ dependencies {
 	implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 	implementation 'androidx.media3:media3-exoplayer:1.2.0'
 	implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-android:2.8.3'
 }
 repositories {
 	mavenCentral()

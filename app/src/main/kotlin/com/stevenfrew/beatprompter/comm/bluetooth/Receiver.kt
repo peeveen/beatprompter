@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
-import com.stevenfrew.beatprompter.EventRouter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase

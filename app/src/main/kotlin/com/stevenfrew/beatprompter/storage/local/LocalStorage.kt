@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
+import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import io.reactivex.subjects.PublishSubject
 import java.io.File
@@ -18,7 +19,7 @@ import java.util.Date
 /**
  * Local storage implementation of the storage system.
  */
-class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, "local") {
+class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageType.Local) {
 	// No need for region strings here.
 	override val cloudStorageName: String
 		get() = "local"
@@ -116,5 +117,9 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, "local") 
 			}
 		}
 		itemSource.onComplete()
+	}
+
+	companion object{
+		const val LOCAL_CACHE_FOLDER_NAME = "local"
 	}
 }

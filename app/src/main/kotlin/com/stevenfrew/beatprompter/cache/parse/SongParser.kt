@@ -7,7 +7,8 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.database.Database
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
@@ -71,7 +72,6 @@ import com.stevenfrew.beatprompter.song.line.TextLine
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
-import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.absoluteValue
@@ -197,7 +197,7 @@ class SongParser(
 		val selectedVariation = mSongLoadInfo.mVariation
 		val audioFilenamesForThisVariation = mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
 		mFlatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
-			SongListFragment.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+			Database.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
 		}
 		val lengthOfBackingTrack = mFlatAudioFiles.firstOrNull()?.mDuration ?: 0L
 		var songTime =
@@ -361,7 +361,7 @@ class SongParser(
 			mPendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
-					SongListFragment.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
+					Database.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
 				if (mappedTracks.isEmpty())
 					mErrors.add(FileParseError(it, R.string.cannotFindAudioFile, it.mNormalizedFilename))
 				else if (mappedTracks.size > 1)
@@ -450,7 +450,7 @@ class SongParser(
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						SongListFragment.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
+						Database.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(

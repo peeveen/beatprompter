@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Message
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.events.EventRouter
 
 open class BaseSettingsFragment constructor(private val mPrefsResourceId: Int) :
 	PreferenceFragmentCompat() {

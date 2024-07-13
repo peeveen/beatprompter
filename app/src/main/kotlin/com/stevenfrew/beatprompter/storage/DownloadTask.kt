@@ -4,7 +4,8 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.database.Database
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CacheComparisonResult
 import com.stevenfrew.beatprompter.cache.CachedFile
@@ -19,6 +20,7 @@ import kotlin.coroutines.CoroutineContext
  * Task that downloads files from a storage system.
  */
 class DownloadTask(
+	private val mContext: Context,
 	private val mStorage: Storage,
 	private val mHandler: Handler,
 	private val mCloudPath: String,
@@ -56,10 +58,10 @@ class DownloadTask(
 		val itemDownloadListener = object : ItemDownloadListener {
 			override fun onItemDownloaded(result: DownloadResult) {
 				if (result is SuccessfulDownloadResult)
-					SongListFragment.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
+					Database.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
 				else
 				// IMPLICIT if(result is FailedDownloadResult)
-					SongListFragment.mCachedCloudItems.remove(result.mFileInfo)
+					Database.mCachedCloudItems.remove(result.mFileInfo)
 			}
 
 			override suspend fun onProgressMessageReceived(message: String) {
@@ -73,10 +75,10 @@ class DownloadTask(
 
 			override fun onDownloadComplete() {
 				if (!isRefreshingSelectedFiles)
-					SongListFragment.mCachedCloudItems.removeNonExistent(
+					Database.mCachedCloudItems.removeNonExistent(
 						mCloudItemsFound.values.asSequence().map { c -> c.mID }.toSet()
 					)
-				mHandler.obtainMessage(Events.CACHE_UPDATED, SongListFragment.mCachedCloudItems)
+				mHandler.obtainMessage(Events.CACHE_UPDATED, Database.mCachedCloudItems)
 					.sendToTarget()
 				closeProgressDialog()
 			}
@@ -113,20 +115,20 @@ class DownloadTask(
 				itemsFound.filterIsInstance<FolderInfo>().forEach {
 					val parentFolderID = it.mParentFolder?.mID
 					val parentFolderIDs = if (parentFolderID == null) listOf() else listOf(parentFolderID)
-					SongListFragment.mCachedCloudItems.add(CachedFolder(it.mID, it.mName, parentFolderIDs))
+					Database.mCachedCloudItems.add(CachedFolder(it.mID, it.mName, parentFolderIDs))
 				}
 
 				val downloadsAndUpdates =
 					itemsFound
 						.filterIsInstance<FileInfo>()
 						.partition {
-							SongListFragment.mCachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
+							Database.mCachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
 						}
 				val itemsToDownload = downloadsAndUpdates.first
 				val itemsToUpdate = downloadsAndUpdates.second
 
 				itemsToUpdate.forEach {
-					SongListFragment.mCachedCloudItems.updateLocations(it)
+					Database.mCachedCloudItems.updateLocations(it)
 				}
 
 				mStorage.downloadFiles(itemsToDownload, itemDownloadListener)
@@ -161,7 +163,7 @@ class DownloadTask(
 	}
 
 	override fun onPreExecute() {
-		mProgressDialog = ProgressDialog(SongListFragment.mSongListInstance.requireContext()).apply {
+		mProgressDialog = ProgressDialog(mContext).apply {
 			setTitle(BeatPrompter.getResourceString(R.string.downloadingFiles))
 			setMessage(
 				BeatPrompter.getResourceString(

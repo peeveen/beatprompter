@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.cache
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
 import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
@@ -54,34 +53,6 @@ class CachedCloudCollection {
 					item.writeToXML(doc, it)
 					root.appendChild(it)
 				}
-		}
-	}
-
-	private fun <TCachedCloudItemType : CachedItem> addToCollection(
-		xmlDoc: Document,
-		tagName: String,
-		parser: (cachedItem: Element) -> TCachedCloudItemType
-	) {
-		val elements = xmlDoc.getElementsByTagName(tagName)
-		repeat(elements.length) {
-			val element = elements.item(it) as Element
-			try {
-				add(parser(element))
-			} catch (exception: InvalidBeatPrompterFileException) {
-				// This should never happen. If we could write out the file info, then it was valid.
-				// So it must still be valid when we come to read it in. Unless some dastardly devious sort
-				// has meddled with files outside of the app ...
-				Logger.log("Failed to parse file.")
-				// File has become irrelevant
-				add(IrrelevantFile(CachedFile(element)))
-			}
-		}
-	}
-
-	fun readFromXML(xmlDoc: Document) {
-		clear()
-		PARSINGS.forEach {
-			addToCollection(xmlDoc, it.first.findAnnotation<CacheXmlTag>()!!.mTag, it.second)
 		}
 	}
 

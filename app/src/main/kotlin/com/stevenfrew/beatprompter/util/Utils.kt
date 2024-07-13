@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AlertDialog
 import com.stevenfrew.beatprompter.R
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.*
 import kotlin.math.floor
 import kotlin.math.sin
@@ -165,6 +167,14 @@ object Utils {
 		try {
 			Thread.sleep(amount)
 		} catch (ie: InterruptedException) {
+		}
+	}
+
+	fun reportProgress(listener: ProgressReportingListener<String>, message: String) {
+		runBlocking {
+			launch {
+				listener.onProgressMessageReceived(message)
+			}
 		}
 	}
 }

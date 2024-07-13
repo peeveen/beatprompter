@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.set.PlaylistNode
 
-class SongListAdapter(private val values: List<PlaylistNode>, context:Context) :
+class SongListAdapter(private val values: List<PlaylistNode>, context: Context) :
 	ArrayAdapter<PlaylistNode>(context, -1, values) {
 	private val mLayoutId =
 		if (Preferences.largePrint)
