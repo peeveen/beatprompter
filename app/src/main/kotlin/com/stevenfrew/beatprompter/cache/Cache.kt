@@ -25,7 +25,6 @@ import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
-import com.stevenfrew.beatprompter.ui.SongListFragment.Companion.mSongListEventHandler
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
 import io.reactivex.disposables.CompositeDisposable
@@ -44,10 +43,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Cache {
+
 	// TODO: Figure out when to call dispose on this.
 	private val mCompositeDisposable = CompositeDisposable()
 
-	object DatabaseEventHandler : Handler() {
+	object CacheEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
 				Events.CLEAR_CACHE -> clearCache(msg.obj as Boolean)
@@ -60,6 +60,7 @@ object Cache {
 	private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
 	private const val TEMPORARY_SET_LIST_FILENAME = "temporary_setlist.txt"
 	private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
+	private const val XML_DATABASE_VERSION_ATTRIBUTE = "version"
 
 	var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
 	var mCachedCloudItems = CachedCloudCollection()
@@ -165,15 +166,16 @@ object Cache {
 	private fun <TCachedCloudItemType : CachedItem> addToCollection(
 		xmlDoc: Document,
 		tagName: String,
-		parser: (cachedItem: Element) -> TCachedCloudItemType,
+		parser: (cachedItem: Element, useXmlData: Boolean) -> TCachedCloudItemType,
 		itemSource: PublishSubject<CachedItem>,
-		messageSource: PublishSubject<String>
+		messageSource: PublishSubject<String>,
+		useXmlData: Boolean
 	) {
 		val elements = xmlDoc.getElementsByTagName(tagName)
 		repeat(elements.length) {
 			val element = elements.item(it) as Element
 			try {
-				val cachedItem = parser(element)
+				val cachedItem = parser(element, useXmlData)
 				itemSource.onNext(cachedItem)
 				messageSource.onNext(cachedItem.mName)
 			} catch (exception: InvalidBeatPrompterFileException) {
@@ -196,6 +198,9 @@ object Cache {
 		itemSource: PublishSubject<CachedItem>,
 		messageSource: PublishSubject<String>
 	) {
+		val xmlDatabaseVersion = xmlDoc.documentElement.getAttribute(XML_DATABASE_VERSION_ATTRIBUTE)
+		val currentAppVersion = BeatPrompter.context.getString(R.string.version)
+		val useXmlData = currentAppVersion == xmlDatabaseVersion
 		mCachedCloudItems.clear()
 		PARSINGS.forEach {
 			addToCollection(
@@ -203,7 +208,8 @@ object Cache {
 				it.first.findAnnotation<CacheXmlTag>()!!.mTag,
 				it.second,
 				itemSource,
-				messageSource
+				messageSource,
+				useXmlData
 			)
 		}
 	}
@@ -242,6 +248,10 @@ object Cache {
 		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 		val d = docBuilder.newDocument()
 		val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
+		root.setAttribute(
+			XML_DATABASE_VERSION_ATTRIBUTE,
+			BeatPrompter.context.getString(R.string.version)
+		)
 		d.appendChild(root)
 		mCachedCloudItems.writeToXML(d, root)
 		val transformer = TransformerFactory.newInstance().newTransformer()
@@ -331,7 +341,7 @@ object Cache {
 			DownloadTask(
 				parentFragment.requireContext(),
 				cs,
-				mSongListEventHandler!!,
+				CacheEventHandler,
 				cloudPath,
 				includeSubFolders,
 				mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
@@ -340,14 +350,35 @@ object Cache {
 		}
 	}
 
-	private val PARSINGS = listOf<Pair<KClass<out CachedItem>, (item: Element) -> CachedItem>>(
-		CachedFolder::class to { element -> CachedFolder(element) },
-		AudioFile::class to { element -> AudioFileParser(CachedFile(element)).parse(element) },
-		ImageFile::class to { element -> ImageFileParser(CachedFile(element)).parse(element) },
-		SongFile::class to { element -> SongInfoParser(CachedFile(element)).parse(element) },
-		SetListFile::class to { element -> SetListFileParser(CachedFile(element)).parse(element) },
-		MIDIAliasFile::class to { element -> MIDIAliasFileParser(CachedFile(element)).parse(element) },
-		IrrelevantFile::class to { element -> IrrelevantFile(CachedFile(element)) }
-	)
+	private val PARSINGS =
+		listOf<Pair<KClass<out CachedItem>, (item: Element, useXmlData: Boolean) -> CachedItem>>(
+			CachedFolder::class to { element, _ -> CachedFolder(element) },
+			AudioFile::class to { element, useXmlData ->
+				AudioFileParser(CachedFile(element)).parse(
+					if (useXmlData) element else null
+				)
+			},
+			ImageFile::class to { element, useXmlData ->
+				ImageFileParser(CachedFile(element)).parse(
+					if (useXmlData) element else null
+				)
+			},
+			SongFile::class to { element, useXmlData ->
+				SongInfoParser(CachedFile(element)).parse(
+					if (useXmlData) element else null
+				)
+			},
+			SetListFile::class to { element, useXmlData ->
+				SetListFileParser(CachedFile(element)).parse(
+					if (useXmlData) element else null
+				)
+			},
+			MIDIAliasFile::class to { element, useXmlData ->
+				MIDIAliasFileParser(CachedFile(element)).parse(
+					if (useXmlData) element else null
+				)
+			},
+			IrrelevantFile::class to { element, _ -> IrrelevantFile(CachedFile(element)) }
+		)
 }
 

@@ -12,7 +12,7 @@ object EventRouter {
 	private var mSongListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
 		HashMap()
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
-	private var mDatabaseEventHandler: Cache.DatabaseEventHandler = Cache.DatabaseEventHandler
+	private var mDatabaseEventHandler: Cache.CacheEventHandler = Cache.CacheEventHandler
 	private var mSettingsEventHandler: SettingsEventHandler? = null
 
 	fun addSongListEventHandler(

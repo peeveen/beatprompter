@@ -663,7 +663,7 @@ class SongListFragment
 
 		ReadCacheTask(
 			requireContext(),
-			Cache.DatabaseEventHandler
+			Cache.CacheEventHandler
 		) { onDatabaseReadCompleted(it) }.execute(Unit)
 	}
 
