@@ -1,8 +1,9 @@
 package com.stevenfrew.beatprompter.database
 
-import android.app.ProgressDialog
+import android.app.Dialog
 import android.content.Context
 import android.os.Handler
+import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedItem
@@ -21,7 +22,7 @@ class ReadDatabaseTask(
 ) : CoroutineTask<Unit, String, Boolean> {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main
-	private var mProgressDialog: ProgressDialog? = null
+	private var mProgressDialog: Dialog? = null
 	private var mErrorOccurred = false
 
 	override fun onError(t: Throwable) {
@@ -69,19 +70,16 @@ class ReadDatabaseTask(
 		if (mInitialDatabaseReadHasBeenPerformed)
 			return
 		val title = BeatPrompter.getResourceString(R.string.readingDatabase)
-		mProgressDialog = ProgressDialog(mContext).apply {
+		mProgressDialog = Dialog(mContext, R.style.ReadingDatabaseDialog).apply {
 			setTitle(title)
-			setMessage(
-				title
-			)
+			setContentView(R.layout.reading_database)
 			setCancelable(false)
-			isIndeterminate = true
 			show()
 		}
 	}
 
 	override fun onProgressUpdate(progress: String) {
-		mProgressDialog!!.setMessage(progress)
+		mProgressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress).text = progress
 	}
 
 	override fun onPostExecute(result: Boolean) {

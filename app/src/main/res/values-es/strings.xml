@@ -283,7 +283,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_cloudStorageSystem_summary">¿Dónde se almacenan los archivos de canciones?</string>
 	<string name="pref_cloudStorageSystem_title">Sistema de almacenamiento</string>
 	<string name="synchronize_string">Sincronizar archivos …</string>
-    <string name="pref_clearTagFilterOnFolderChange_title">¿Borrar las etiquetas cuando cambia el filtro?</string>
+	<string name="pref_clearTagFilterOnFolderChange_title">¿Borrar las etiquetas cuando cambia el filtro?</string>
 	<string name="pref_clearTagFilterOnFolderChange_summary">Si es true, los filtros de etiquetas seleccionados se borrarán cada vez que cambie de carpeta/setlists/etc.</string>
 	<string name="pref_cloudPath_title">Carpeta de almacenamiento</string>
 	<string name="pref_cloudPath_summary">Esta es la carpeta en la que se almacenan los archivos de canciones BeatPrompter.</string>
@@ -403,9 +403,11 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_showRatingInList_title">Mostrar clasificación de canciones</string>
 	<string name="pref_showRatingInList_summary">En la lista principal de canciones, muestra la calificación de la canción.</string>
 	<string name="byRating">Por valoración</string>
-    <string name="variation">Variación</string>
+	<string name="variation">Variación</string>
 	<string name="noAudio">Sin Audio</string>
 	<string name="variationsAlreadyDefined">Los nombres de las variaciones ya se han definido.</string>
 	<string name="tooManyAudioTags">Las etiquetas de audio superan en número a las variaciones.</string>
-    <string name="darkMode">Alternar modo oscuro</string>
+	<string name="darkMode">Alternar modo oscuro</string>
+	<string name="readingDatabase">Leyendo base de datos …</string>
+	<string name="failedToReadDatabaseItem">No se pudo leer el elemento de la base de datos</string>
 </resources>

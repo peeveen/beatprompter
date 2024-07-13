@@ -282,7 +282,7 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_cloudStorageSystem_summary">Wo sind Ihre Song-Dateien gespeichert?</string>
 	<string name="pref_cloudStorageSystem_title">Speichersystem</string>
 	<string name="synchronize_string">Dateien synchronisieren …</string>
-    <string name="pref_clearTagFilterOnFolderChange_title">Tags löschen, wenn sich der Filter ändert?</string>
+	<string name="pref_clearTagFilterOnFolderChange_title">Tags löschen, wenn sich der Filter ändert?</string>
 	<string name="pref_clearTagFilterOnFolderChange_summary">Wenn true, werden alle ausgewählten Tag-Filter gelöscht, wenn Sie Ordner/Setlisten/etc. wechseln.</string>
 	<string name="pref_cloudPath_title">Speicherordner</string>
 	<string name="pref_cloudPath_summary">Dies ist der Ordner, in dem die BeatPrompter-Song-Dateien gespeichert sind.</string>
@@ -402,10 +402,12 @@ Em]zeigt den Beat Progression.\n
 	<string name="gettingRootFolder">Abrufen des Stammordners …</string>
 	<string name="pref_showRatingInList_title">Songbewertung anzeigen</string>
 	<string name="pref_showRatingInList_summary">Zeigen Sie in der Hauptsongliste die Bewertung des Songs an.</string>
-    <string name="byRating">Nach Bewertung</string>
-    <string name="variation">Variation</string>
+	<string name="byRating">Nach Bewertung</string>
+	<string name="variation">Variation</string>
 	<string name="noAudio">Kein Ton</string>
 	<string name="variationsAlreadyDefined">Variantennamen wurden bereits definiert.</string>
 	<string name="tooManyAudioTags">Es gibt mehr Audio-Tags als Variationen.</string>
-    <string name="darkMode">Dunkelmodus ein-/ausschalten</string>
+	<string name="darkMode">Dunkelmodus ein-/ausschalten</string>
+	<string name="readingDatabase">Datenbank wird gelesen …</string>
+	<string name="failedToReadDatabaseItem">Das Lesen des Datenbankelements ist fehlgeschlagen</string>
 </resources>
