@@ -7,11 +7,10 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.database.Database
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -48,6 +47,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
 import com.stevenfrew.beatprompter.graphics.ScreenString
@@ -151,7 +151,7 @@ class SongParser(
 	private val mDefaultHighlightColor: Int
 	private val mTimePerBar: Long
 	private val mFlatAudioFiles: List<AudioFile>
-	private val mVariationExclusions:ArrayDeque<List<String>> = ArrayDeque()
+	private val mVariationExclusions: ArrayDeque<List<String>> = ArrayDeque()
 
 	private var mSongHeight = 0
 	private var mMIDIBeatCounter: Int = 0
@@ -163,7 +163,7 @@ class SongParser(
 	private var mSongTime: Long = 0
 	private var mDefaultMIDIOutputChannel: Byte
 	private var mInChorusSection = false
-	private var mPendingAudioTag:AudioTag? = null
+	private var mPendingAudioTag: AudioTag? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
@@ -195,9 +195,10 @@ class SongParser(
 		).sendToTarget()
 
 		val selectedVariation = mSongLoadInfo.mVariation
-		val audioFilenamesForThisVariation = mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
+		val audioFilenamesForThisVariation =
+			mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
 		mFlatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
-			Database.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+			Cache.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
 		}
 		val lengthOfBackingTrack = mFlatAudioFiles.firstOrNull()?.mDuration ?: 0L
 		var songTime =
@@ -234,19 +235,21 @@ class SongParser(
 		// We're going to check if we're in a variation exclusion section.
 		// This section MIGHT be defined as a one-line exclusion, with varxstart/varxstop on the same line.
 		// So before we check, we need to look for varxstart tags.
-		val variationExclusionStartTag = tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
-		if(variationExclusionStartTag!=null)
+		val variationExclusionStartTag =
+			tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
+		if (variationExclusionStartTag != null)
 			mVariationExclusions.add(variationExclusionStartTag.mVariations)
 		// Are we in a variation exclusion section?
 		// Does it instruct us to exclude this line for the current variation?
-		val excludeLine = mVariationExclusions.any{ it.contains(mSongLoadInfo.mVariation) }
+		val excludeLine = mVariationExclusions.any { it.contains(mSongLoadInfo.mVariation) }
 		// Now that we've figured out whether this is an exclusion section, we need to look for varxstop tags
 		// on this line.
-		val variationExclusionEndTag = tagSequence.filterIsInstance<EndOfVariationExclusionTag>().firstOrNull()
-		if(variationExclusionEndTag!=null)
+		val variationExclusionEndTag =
+			tagSequence.filterIsInstance<EndOfVariationExclusionTag>().firstOrNull()
+		if (variationExclusionEndTag != null)
 			mVariationExclusions.removeLast()
 		// If we're in an exclusion section, bail out. We do not process any other tags or text.
-		if(excludeLine)
+		if (excludeLine)
 			return
 
 		var workLine = line.mLineWithNoTags
@@ -335,7 +338,8 @@ class SongParser(
 		// In which case it is "pending", to be applied when line content is found.
 		val audioTags = tags.filterIsInstance<AudioTag>()
 		val variationIndex = mVariations.indexOf(mSongLoadInfo.mVariation)
-		mPendingAudioTag = if(audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !mSongLoadInfo.mNoAudio) audioTags[variationIndex] else mPendingAudioTag
+		mPendingAudioTag =
+			if (audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !mSongLoadInfo.mNoAudio) audioTags[variationIndex] else mPendingAudioTag
 
 		if (isSongLine) {
 			// We definitely have a line!
@@ -355,13 +359,13 @@ class SongParser(
 			// "press play" to start the song (it is expected that it ALREADY has been processed).
 			// StartEvents function as simply dummy starting-point "current" events.
 			val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
-			if(beatStartTag!=null)
+			if (beatStartTag != null)
 				mEvents.add(StartEvent(mSongTime))
 
 			mPendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
-					Database.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
+					Cache.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
 				if (mappedTracks.isEmpty())
 					mErrors.add(FileParseError(it, R.string.cannotFindAudioFile, it.mNormalizedFilename))
 				else if (mappedTracks.size > 1)
@@ -411,7 +415,7 @@ class SongParser(
 			// Generate pause events if required (may return null)
 			val pauseEvents = generatePauseEvents(mSongTime, pauseTag)
 			val paused = pauseEvents?.any() == true
-			if(paused)
+			if (paused)
 				mRolloverBeats.clear()
 
 			if (createLine) {
@@ -425,8 +429,8 @@ class SongParser(
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.mEventTime }
-				val beatEvents = if(paused)
-					EventBlock(listOf(),pauseEvents?.maxOf { it.mEventTime } ?:0)
+				val beatEvents = if (paused)
+					EventBlock(listOf(), pauseEvents?.maxOf { it.mEventTime } ?: 0)
 				else
 					generateBeatEvents(mSongTime, metronomeOn)
 
@@ -450,7 +454,7 @@ class SongParser(
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						Database.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
+						Cache.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(

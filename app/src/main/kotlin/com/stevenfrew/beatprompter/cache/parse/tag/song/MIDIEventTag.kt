@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.database.Database
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
@@ -35,7 +35,7 @@ class MIDIEventTag internal constructor(
 	init {
 		val parsedEvent = parseMIDIEvent(
 			name,
-			value, lineNumber, Database.mCachedCloudItems.midiAliases
+			value, lineNumber, Cache.mCachedCloudItems.midiAliases
 		)
 		mMessages = parsedEvent.first
 		mOffset = parsedEvent.second

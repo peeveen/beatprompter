@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.database
+package com.stevenfrew.beatprompter.cache
 
 import android.app.Dialog
 import android.content.Context
@@ -6,7 +6,6 @@ import android.os.Handler
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedItem
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Task that reads the song database, and parses the song files.
  */
-class ReadDatabaseTask(
+class ReadCacheTask(
 	private val mContext: Context,
 	private val mHandler: Handler,
 	private val mOnComplete: (Boolean) -> Unit
@@ -36,20 +35,20 @@ class ReadDatabaseTask(
 	}
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
-		val databaseReadListener = object : DatabaseReadListener {
+		val databaseReadListener = object : CacheReadListener {
 			override fun onItemRead(cachedFile: CachedItem) {
-				Database.mCachedCloudItems.add(cachedFile)
+				Cache.mCachedCloudItems.add(cachedFile)
 			}
 
-			override fun onDatabaseReadError(t: Throwable) {
+			override fun onCacheReadError(t: Throwable) {
 				onError(t)
-				onDatabaseReadComplete()
+				onCacheReadComplete()
 			}
 
-			override fun onDatabaseReadComplete() {
+			override fun onCacheReadComplete() {
 				mHandler.obtainMessage(
 					Events.CACHE_UPDATED,
-					Database.mCachedCloudItems
+					Cache.mCachedCloudItems
 				)
 					.sendToTarget()
 				closeProgressDialog()
@@ -60,10 +59,10 @@ class ReadDatabaseTask(
 			}
 		}
 		if (mInitialDatabaseReadHasBeenPerformed) {
-			databaseReadListener.onDatabaseReadComplete()
+			databaseReadListener.onCacheReadComplete()
 			return true
 		}
-		return Database.readDatabase(databaseReadListener)
+		return Cache.readDatabase(databaseReadListener)
 	}
 
 	override fun onPreExecute() {

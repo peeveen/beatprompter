@@ -2,19 +2,16 @@ package com.stevenfrew.beatprompter.storage
 
 import android.app.Activity
 import androidx.fragment.app.Fragment
-import com.stevenfrew.beatprompter.database.Database
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.demo.DemoStorage
 import com.stevenfrew.beatprompter.storage.dropbox.DropboxStorage
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.storage.local.LocalStorage
 import com.stevenfrew.beatprompter.storage.onedrive.OneDriveStorage
-import com.stevenfrew.beatprompter.util.ProgressReportingListener
 import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * Base class for all storage systems that we will support.
@@ -36,7 +33,7 @@ abstract class Storage protected constructor(
 	abstract val cloudIconResourceId: Int
 
 	init {
-		cacheFolder = Database.getCacheFolderForStorage(storageType)
+		cacheFolder = Cache.getCacheFolderForStorage(storageType)
 		if (!cacheFolder.exists())
 			if (!cacheFolder.mkdir())
 				Logger.log("Failed to create storage cache folder.")
@@ -51,7 +48,7 @@ abstract class Storage protected constructor(
 
 	fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
 		val refreshFiles = filesToRefresh.toMutableList()
-		for (defaultCloudDownload in Database.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			if (refreshFiles.contains(defaultCloudDownload.mFileInfo))
 				refreshFiles.remove(defaultCloudDownload.mFileInfo)
 
@@ -67,7 +64,7 @@ abstract class Storage protected constructor(
 			Utils.reportProgress(listener, it)
 		})
 		// Always include the temporary set list and default midi alias files.
-		for (defaultCloudDownload in Database.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			downloadSource.onNext(defaultCloudDownload)
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
 	}
@@ -88,7 +85,7 @@ abstract class Storage protected constructor(
 		mCompositeDisposable.add(messageSource.subscribe {
 			Utils.reportProgress(listener, it)
 		})
-		for (defaultCloudDownload in Database.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
 	}
@@ -97,7 +94,8 @@ abstract class Storage protected constructor(
 		try {
 			getRootPath(object : RootPathListener {
 				override fun onRootPathFound(rootPath: FolderInfo) {
-					val dialog = ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
+					val dialog =
+						ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
 					dialog.showDialog()
 				}
 

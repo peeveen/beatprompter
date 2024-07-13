@@ -34,7 +34,7 @@ class ImageLine internal constructor(
 ) {
 	private val mBitmap =
 		BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
-	private val mSourceRect = Rect(0, 0, mImageFile.mWidth, mImageFile.mHeight)
+	private val mSourceRect = Rect(0, 0, mImageFile.mSize.width, mImageFile.mSize.height)
 	private val mDestinationRect = getDestinationRect(
 		mBitmap,
 		displaySettings.mScreenSize,

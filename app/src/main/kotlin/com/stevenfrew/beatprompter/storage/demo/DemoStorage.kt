@@ -2,9 +2,9 @@ package com.stevenfrew.beatprompter.storage.demo
 
 import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.database.Database
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.DownloadResult
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
@@ -100,7 +100,7 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 
 	private fun createDemoSongAudioFile(): File {
 		val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
-		Database.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
+		Cache.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
 		return destinationAudioFile
 	}
 

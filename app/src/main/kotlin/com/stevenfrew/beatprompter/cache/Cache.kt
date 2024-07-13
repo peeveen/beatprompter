@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.database
+package com.stevenfrew.beatprompter.cache
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -10,13 +10,12 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CacheXmlTag
-import com.stevenfrew.beatprompter.cache.CachedCloudCollection
-import com.stevenfrew.beatprompter.cache.CachedCloudCollection.Companion.PARSINGS
-import com.stevenfrew.beatprompter.cache.CachedFile
-import com.stevenfrew.beatprompter.cache.CachedItem
-import com.stevenfrew.beatprompter.cache.IrrelevantFile
+import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
+import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
+import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
+import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.storage.CacheFolder
@@ -41,9 +40,10 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
-object Database {
+object Cache {
 	// TODO: Figure out when to call dispose on this.
 	private val mCompositeDisposable = CompositeDisposable()
 
@@ -208,15 +208,15 @@ object Database {
 		}
 	}
 
-	fun readDatabase(listener: DatabaseReadListener): Boolean {
+	fun readDatabase(listener: CacheReadListener): Boolean {
 		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
 		val itemSource = PublishSubject.create<CachedItem>()
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(
 			itemSource.subscribe(
 				{ listener.onItemRead(it) },
-				{ listener.onDatabaseReadError(it) },
-				{ listener.onDatabaseReadComplete() })
+				{ listener.onCacheReadError(it) },
+				{ listener.onCacheReadComplete() })
 		)
 		mCompositeDisposable.add(messageSource.subscribe {
 			Utils.reportProgress(listener, it)
@@ -339,4 +339,15 @@ object Database {
 			true
 		}
 	}
+
+	private val PARSINGS = listOf<Pair<KClass<out CachedItem>, (item: Element) -> CachedItem>>(
+		CachedFolder::class to { element -> CachedFolder(element) },
+		AudioFile::class to { element -> AudioFileParser(CachedFile(element)).parse(element) },
+		ImageFile::class to { element -> ImageFileParser(CachedFile(element)).parse(element) },
+		SongFile::class to { element -> SongInfoParser(CachedFile(element)).parse(element) },
+		SetListFile::class to { element -> SetListFileParser(CachedFile(element)).parse(element) },
+		MIDIAliasFile::class to { element -> MIDIAliasFileParser(CachedFile(element)).parse(element) },
+		IrrelevantFile::class to { element -> IrrelevantFile(CachedFile(element)) }
+	)
 }
+
