@@ -73,8 +73,10 @@ class SongFile(
 		writeStringsToElement(doc, element, VARIATION_TAG, mVariations)
 
 		writeAudioFilesToElement(doc, element, mAudioFiles)
-		writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, mSongSelectTrigger)
-		writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, mProgramChangeTrigger)
+		if (!mSongSelectTrigger.isDeadTrigger)
+			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, mSongSelectTrigger)
+		if (!mProgramChangeTrigger.isDeadTrigger)
+			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, mProgramChangeTrigger)
 	}
 
 	companion object {
@@ -136,9 +138,10 @@ class SongFile(
 						element,
 						PROGRAM_CHANGE_TRIGGER_TAG,
 						TriggerType.ProgramChange
-					)
+					) ?: SongTrigger.DEAD_TRIGGER
 					val songSelectTrigger =
 						getSongTriggerFromElement(element, SONG_SELECT_TRIGGER_TAG, TriggerType.SongSelect)
+							?: SongTrigger.DEAD_TRIGGER
 
 					return SongFile(
 						cachedFile,
@@ -154,8 +157,8 @@ class SongFile(
 						audioFiles,
 						imageFiles,
 						tags,
-						programChangeTrigger ?: SongTrigger.DEAD_TRIGGER,
-						songSelectTrigger ?: SongTrigger.DEAD_TRIGGER,
+						programChangeTrigger,
+						songSelectTrigger,
 						filterOnly,
 						rating,
 						variations,

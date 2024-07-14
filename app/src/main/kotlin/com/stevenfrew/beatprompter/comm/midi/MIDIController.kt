@@ -15,14 +15,14 @@ import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 
 object MIDIController {
 	private var mMidiUsbRegistered = false
@@ -176,7 +176,7 @@ object MIDIController {
 		}
 
 		mUsbManager = application.getSystemService(Context.USB_SERVICE) as? UsbManager
-		val intent=Intent(ACTION_USB_PERMISSION)
+		val intent = Intent(ACTION_USB_PERMISSION)
 		intent.setPackage(application.packageName)
 		mPermissionIntent = PendingIntent.getBroadcast(
 			application,

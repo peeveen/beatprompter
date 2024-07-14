@@ -19,11 +19,21 @@ open class OutgoingMessage : Message {
 	protected constructor(
 		bytes: ByteArray,
 		codeIndexPresent: Boolean
-	) : super(if (codeIndexPresent) bytes else appendCodeIndex(bytes))
+	) : super(if (codeIndexPresent) padToFourBytes(bytes) else padToFourBytes(appendCodeIndex(bytes)))
 
-	constructor(bytes: ByteArray) : super(appendCodeIndex(bytes))
+	constructor(bytes: ByteArray) : super(padToFourBytes(appendCodeIndex(bytes)))
 
 	companion object {
+		private fun padToFourBytes(bytes: ByteArray): ByteArray {
+			return if (bytes.size < 4) ByteArray(4).also {
+				it[0] = 0.toByte()
+				it[1] = 0.toByte()
+				it[2] = 0.toByte()
+				it[3] = 0.toByte()
+				System.arraycopy(bytes, 0, it, 0, bytes.size)
+			} else bytes
+		}
+
 		private fun appendCodeIndex(bytes: ByteArray): ByteArray {
 			return ByteArray(bytes.size + 1).also {
 				it[0] = getCodeIndex(bytes[0])
