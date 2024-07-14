@@ -6,10 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.EventRouter
+import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 

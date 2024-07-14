@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	android:padding="10sp">
 
 
 	<ImageView
@@ -57,16 +59,6 @@
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<TextView
-		android:id="@+id/textView11"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:autoLink="email|web"
-		android:linksClickable="true"
-		android:text="@string/buyMeACoffeeUrl"
-		android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	<TextView
 		android:id="@+id/textView8"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -83,5 +75,18 @@
 		android:linksClickable="true"
 		android:text="@string/docs_url"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<ImageView
+		android:id="@+id/buyMeACoffeeIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="64dp"
+		android:layout_gravity="center_horizontal"
+		android:autoLink="email|web"
+		android:clickable="true"
+		android:focusable="true"
+		android:linksClickable="true"
+		android:paddingTop="10sp"
+		android:text="@string/docs_url"
+		app:srcCompat="@drawable/buy_me_a_coffee" />
 
 </LinearLayout>

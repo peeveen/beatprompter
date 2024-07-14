@@ -4,14 +4,15 @@ import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.DownloadResult
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
+import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
-import com.stevenfrew.beatprompter.ui.SongListFragment
 import io.reactivex.subjects.PublishSubject
 import java.io.BufferedWriter
 import java.io.File
@@ -23,7 +24,7 @@ import java.util.Date
 /**
  * An implementation of a "storage system" that only contains the demo files.
  */
-class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, "demo") {
+class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageType.Demo) {
 	// No need for region strings here.
 	override val cloudStorageName: String
 		get() = "demo"
@@ -99,11 +100,12 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, "demo") {
 
 	private fun createDemoSongAudioFile(): File {
 		val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
-		SongListFragment.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
+		Cache.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
 		return destinationAudioFile
 	}
 
 	companion object {
+		const val DEMO_CACHE_FOLDER_NAME = "demo"
 		private const val DEMO_SONG_TEXT_ID = "demoSongText"
 		private const val DEMO_SONG_AUDIO_ID = "demoSongAudio"
 		private const val DEMO_SONG_FILENAME = "demo_song.txt"

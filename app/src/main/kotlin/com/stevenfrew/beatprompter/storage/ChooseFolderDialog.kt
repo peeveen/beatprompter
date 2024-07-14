@@ -11,9 +11,9 @@ import android.view.Window
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.Events
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.ui.SongListFragment
+import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
@@ -21,7 +21,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import java.util.*
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -35,7 +35,7 @@ internal class ChooseFolderDialog(
 	private val mContext: Context
 ) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
 	private var mFolderSearchError: Throwable? = null
-	private val mDialog: Dialog = Dialog(mActivity, R.style.CustomDialog)
+	private val mDialog: Dialog = Dialog(mActivity, R.style.FolderBrowserDialog)
 	private val mFolderSelectionEventSubscription: CompositeDisposable
 	private var mParentFolder: FolderInfo? = null
 	private val mHandler: FolderContentsFetchHandler
@@ -111,7 +111,7 @@ internal class ChooseFolderDialog(
 		if (contents == null)
 			mDialog.dismiss()
 		else {
-			contents.removeAll(SongListFragment.mDefaultDownloads.map { it.mFileInfo })
+			contents.removeAll(Cache.mDefaultDownloads.map { it.mFileInfo })
 			contents.sort()
 
 			mCurrentFolder.mParentFolder?.also {

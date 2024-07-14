@@ -22,6 +22,7 @@ import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageException
 import com.stevenfrew.beatprompter.storage.StorageListener
+import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
@@ -36,7 +37,7 @@ import kotlin.coroutines.CoroutineContext
  * OneDrive implementation of the storage system.
  */
 class OneDriveStorage(parentFragment: Fragment) :
-	Storage(parentFragment, ONEDRIVE_CACHE_FOLDER_NAME) {
+	Storage(parentFragment, StorageType.OneDrive) {
 
 	private val oneDriveAuthenticator = object : MSAAuthenticator() {
 		override fun getClientId(): String {
@@ -349,7 +350,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 	}
 
 	companion object {
-		private const val ONEDRIVE_CACHE_FOLDER_NAME = "onedrive"
+		const val ONEDRIVE_CACHE_FOLDER_NAME = "onedrive"
 		private const val ONEDRIVE_CLIENT_ID =
 			"dc584873-700c-4377-98da-d088cca5c1f5" //This is your client ID
 		private const val ONEDRIVE_ROOT_PATH = "/"

@@ -3,24 +3,22 @@ package com.stevenfrew.beatprompter.storage
 import android.app.Activity
 import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.demo.DemoStorage
 import com.stevenfrew.beatprompter.storage.dropbox.DropboxStorage
 import com.stevenfrew.beatprompter.storage.googledrive.GoogleDriveStorage
 import com.stevenfrew.beatprompter.storage.local.LocalStorage
 import com.stevenfrew.beatprompter.storage.onedrive.OneDriveStorage
-import com.stevenfrew.beatprompter.ui.SongListFragment
-import com.stevenfrew.beatprompter.util.ProgressReportingListener
+import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * Base class for all storage systems that we will support.
  */
 abstract class Storage protected constructor(
 	protected var mParentFragment: Fragment,
-	cloudCacheFolderName: String
+	storageType: StorageType
 ) {
 	// TODO: Figure out when to call dispose on this.
 	private val mCompositeDisposable = CompositeDisposable()
@@ -35,7 +33,7 @@ abstract class Storage protected constructor(
 	abstract val cloudIconResourceId: Int
 
 	init {
-		cacheFolder = CacheFolder(SongListFragment.mBeatPrompterSongFilesFolder!!, cloudCacheFolderName)
+		cacheFolder = Cache.getCacheFolderForStorage(storageType)
 		if (!cacheFolder.exists())
 			if (!cacheFolder.mkdir())
 				Logger.log("Failed to create storage cache folder.")
@@ -50,7 +48,7 @@ abstract class Storage protected constructor(
 
 	fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
 		val refreshFiles = filesToRefresh.toMutableList()
-		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			if (refreshFiles.contains(defaultCloudDownload.mFileInfo))
 				refreshFiles.remove(defaultCloudDownload.mFileInfo)
 
@@ -63,10 +61,10 @@ abstract class Storage protected constructor(
 		)
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(messageSource.subscribe {
-			reportProgress(listener, it)
+			Utils.reportProgress(listener, it)
 		})
 		// Always include the temporary set list and default midi alias files.
-		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			downloadSource.onNext(defaultCloudDownload)
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
 	}
@@ -85,9 +83,9 @@ abstract class Storage protected constructor(
 		)
 		val messageSource = PublishSubject.create<String>()
 		mCompositeDisposable.add(messageSource.subscribe {
-			reportProgress(listener, it)
+			Utils.reportProgress(listener, it)
 		})
-		for (defaultCloudDownload in SongListFragment.mDefaultDownloads)
+		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
 	}
@@ -96,7 +94,8 @@ abstract class Storage protected constructor(
 		try {
 			getRootPath(object : RootPathListener {
 				override fun onRootPathFound(rootPath: FolderInfo) {
-					val dialog = ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
+					val dialog =
+						ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
 					dialog.showDialog()
 				}
 
@@ -148,14 +147,6 @@ abstract class Storage protected constructor(
 	)
 
 	companion object {
-		private fun reportProgress(listener: ProgressReportingListener<String>, message: String) {
-			runBlocking {
-				launch {
-					listener.onProgressMessageReceived(message)
-				}
-			}
-		}
-
 		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage {
 			return when {
 				storageType === StorageType.Dropbox -> DropboxStorage(parentFragment)
@@ -163,6 +154,16 @@ abstract class Storage protected constructor(
 				storageType === StorageType.GoogleDrive -> GoogleDriveStorage(parentFragment)
 				storageType === StorageType.Local -> LocalStorage(parentFragment)
 				else -> DemoStorage(parentFragment)
+			}
+		}
+
+		fun getCacheFolderName(storageType: StorageType): String {
+			return when {
+				storageType === StorageType.Dropbox -> DropboxStorage.DROPBOX_CACHE_FOLDER_NAME
+				storageType === StorageType.OneDrive -> OneDriveStorage.ONEDRIVE_CACHE_FOLDER_NAME
+				storageType === StorageType.GoogleDrive -> GoogleDriveStorage.GOOGLE_DRIVE_CACHE_FOLDER_NAME
+				storageType === StorageType.Local -> LocalStorage.LOCAL_CACHE_FOLDER_NAME
+				else -> DemoStorage.DEMO_CACHE_FOLDER_NAME
 			}
 		}
 	}

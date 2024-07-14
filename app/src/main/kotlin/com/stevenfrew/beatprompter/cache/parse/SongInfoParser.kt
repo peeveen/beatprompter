@@ -34,6 +34,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import org.w3c.dom.Element
 
 @ParseTags(
 	TimeTag::class,
@@ -86,6 +87,18 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private var mMixedMode: Boolean = false
 	private var mLines = 0
 	private var mRating = 0
+
+	override fun parse(element: Element?): SongFile {
+		try {
+			SongFile.readSongInfoFromAttributes(element, mCachedCloudFile)?.also {
+				return it
+			}
+		} catch (exception: Exception) {
+			// Not bothered about what the exception is ... file tags are obviously broken.
+			// So re-parse the whole file.
+		}
+		return super.parse(element)
+	}
 
 	override fun parseLine(line: TextFileLine<SongFile>) {
 		super.parseLine(line)

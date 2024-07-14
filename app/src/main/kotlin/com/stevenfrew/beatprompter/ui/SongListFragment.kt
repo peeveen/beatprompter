@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
@@ -20,16 +19,36 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.BaseAdapter
+import android.widget.CheckBox
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.ProgressBar
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
+import android.widget.ToggleButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import com.stevenfrew.beatprompter.*
-import com.stevenfrew.beatprompter.cache.*
+import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.cache.CachedCloudCollection
+import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.ReadCacheTask
+import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
@@ -37,10 +56,22 @@ import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.song.load.*
-import com.stevenfrew.beatprompter.storage.*
-import com.stevenfrew.beatprompter.ui.filter.*
+import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
+import com.stevenfrew.beatprompter.song.load.SongInterruptResult
+import com.stevenfrew.beatprompter.song.load.SongLoadInfo
+import com.stevenfrew.beatprompter.song.load.SongLoadJob
+import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.filter.AllSongsFilter
 import com.stevenfrew.beatprompter.ui.filter.Filter
+import com.stevenfrew.beatprompter.ui.filter.FilterComparator
+import com.stevenfrew.beatprompter.ui.filter.FolderFilter
+import com.stevenfrew.beatprompter.ui.filter.MIDIAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.SetListFileFilter
+import com.stevenfrew.beatprompter.ui.filter.SetListFilter
+import com.stevenfrew.beatprompter.ui.filter.SongFilter
+import com.stevenfrew.beatprompter.ui.filter.TagFilter
+import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -51,14 +82,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
 class SongListFragment
@@ -72,37 +97,23 @@ class SongListFragment
 	private val mCoRoutineJob = Job()
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main + mCoRoutineJob
-	private var mPlaylist = Playlist()
 	private var mSongLauncher: ActivityResultLauncher<Intent>? = null
-	private var mNowPlayingNode: PlaylistNode? = null
 	private var mListAdapter: BaseAdapter? = null
+	private var mMenu: Menu? = null
+
+	private var mPlaylist = Playlist()
+	private var mNowPlayingNode: PlaylistNode? = null
 	private var mSearchText = ""
 	private var mPerformingCloudSync = false
 	private var mSavedListIndex = 0
 	private var mSavedListOffset = 0
-	private var mMenu: Menu? = null
 	private var mFilters = listOf<Filter>()
 	private val mSelectedTagFilters = mutableListOf<TagFilter>()
 	private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
 
-	private val isFirstRun: Boolean
-		get() {
-			return Preferences.firstRun
-		}
-
-	private val cloudPath: String?
-		get() {
-			return Preferences.cloudPath
-		}
-
-	private val includeSubFolders: Boolean
-		get() {
-			return Preferences.includeSubFolders
-		}
-
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		if (mSelectedFilter is MIDIAliasFilesFilter) {
-			val maf = filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles)[position]
+			val maf = filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles)[position]
 			if (maf.mErrors.isNotEmpty())
 				showMIDIAliasErrors(maf.mErrors)
 		} else {
@@ -182,7 +193,7 @@ class SongListFragment
 	}
 
 	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-		if(Preferences.clearTagsOnFolderChange)
+		if (Preferences.clearTagsOnFolderChange)
 			mSelectedTagFilters.clear()
 		applyFileFilter(mFilters[position])
 		if (mPerformingCloudSync) {
@@ -192,16 +203,21 @@ class SongListFragment
 		}
 	}
 
-	private fun applyFileFilter(filter: Filter, updateUi:Boolean = true) {
+	private fun applyFileFilter(filter: Filter) {
 		mSelectedFilter = filter
 		mPlaylist = if (filter is SongFilter)
-			Playlist(filter.mSongs.filter{ if(mSelectedTagFilters.isNotEmpty()) mSelectedTagFilters.any{ filter -> filter.mSongs.contains(it) } else true })
+			Playlist(filter.mSongs.filter {
+				if (mSelectedTagFilters.isNotEmpty()) mSelectedTagFilters.any { filter ->
+					filter.mSongs.contains(
+						it
+					)
+				} else true
+			})
 		else
 			Playlist()
 		sortSongList()
-		mListAdapter=buildListAdapter()
-		if(updateUi)
-			updateListView()
+		mListAdapter = buildListAdapter()
+		updateListView()
 		showSetListMissingSongs()
 	}
 
@@ -221,7 +237,7 @@ class SongListFragment
 		updateListView().setSelectionFromTop(currentPosition, top)
 	}
 
-	private fun updateListView():ListView {
+	private fun updateListView(): ListView {
 		return requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
@@ -237,7 +253,9 @@ class SongListFragment
 		val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
 		spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
 			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(mFilters, mSelectedTagFilters, requireActivity()) { applyFileFilter(mSelectedFilter) }
+			adapter = FilterListAdapter(mFilters, mSelectedTagFilters, requireActivity()) {
+				applyFileFilter(mSelectedFilter)
+			}
 		}
 
 		(menu.findItem(R.id.search).actionView as SearchView).apply {
@@ -258,7 +276,7 @@ class SongListFragment
 			}
 		// Otherwise, it might be a song that is not currently onscreen.
 		// Still play it though!
-		for (sf in mCachedCloudItems.songFiles)
+		for (sf in Cache.mCachedCloudItems.songFiles)
 			if (sf.matchesTrigger(mst)) {
 				Logger.log { "Found trigger match: '${sf.mTitle}'." }
 				playSongFile(sf, PlaylistNode(sf), true)
@@ -370,40 +388,11 @@ class SongListFragment
 		SongLoadQueueWatcherTask.loadSong(songLoadJob)
 	}
 
-	private fun clearTemporarySetList() {
-		mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
-		for (slf in mCachedCloudItems.setListFiles)
-			if (slf.mFile == mTemporarySetListFile)
-				slf.mSetListEntries.clear()
-		initialiseTemporarySetListFile(true)
-		buildFilterList()
-		try {
-			writeDatabase()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
-		}
-	}
-
 	private fun addToTemporarySet(song: SongFile) {
 		mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
 		try {
-			initialiseTemporarySetListFile(false)
-			Utils.appendToTextFile(mTemporarySetListFile!!, SetListEntry(song).toString())
-		} catch (ioe: IOException) {
-			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
-		}
-	}
-
-	private fun initialiseTemporarySetListFile(deleteExisting: Boolean) {
-		try {
-			if (deleteExisting)
-				if (!mTemporarySetListFile!!.delete())
-					Logger.log("Could not delete temporary set list file.")
-			if (!mTemporarySetListFile!!.exists())
-				Utils.appendToTextFile(
-					mTemporarySetListFile!!,
-					String.format("{set:%1\$s}", getString(R.string.temporary))
-				)
+			Cache.initialiseTemporarySetListFile(false, requireContext())
+			Utils.appendToTextFile(Cache.mTemporarySetListFile!!, SetListEntry(song).toString())
 		} catch (ioe: IOException) {
 			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
 		}
@@ -445,11 +434,17 @@ class SongListFragment
 			setItems(arrayID) { _, which ->
 				when (which) {
 					0 -> showPlayDialog(selectedNode, selectedSong)
-					1 -> performCloudSync(selectedSong, false)
-					2 -> performCloudSync(selectedSong, true)
+					1 -> mPerformingCloudSync =
+						Cache.performCloudSync(selectedSong, false, this@SongListFragment)
+
+					2 -> mPerformingCloudSync =
+						Cache.performCloudSync(selectedSong, true, this@SongListFragment)
+
 					3 -> when {
-						includeRefreshSet -> performCloudSync(selectedSet, false)
-						includeClearSet -> clearTemporarySetList()
+						includeRefreshSet -> mPerformingCloudSync =
+							Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+
+						includeClearSet -> Cache.clearTemporarySetList(requireContext())
 						else -> addToTemporarySet(selectedSong)
 					}
 
@@ -479,7 +474,7 @@ class SongListFragment
 			requireContext(),
 			android.R.layout.simple_spinner_item, selectedSong.mVariations
 		)
-		val noAudioCheckbox=view.findViewById<CheckBox>(R.id.noAudioCheckbox)
+		val noAudioCheckbox = view.findViewById<CheckBox>(R.id.noAudioCheckbox)
 		variationSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 		variationSpinner.adapter = variationSpinnerAdapter
 
@@ -572,7 +567,7 @@ class SongListFragment
 	}
 
 	private fun onMIDIAliasListLongClick(position: Int) {
-		val maf = filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles)[position]
+		val maf = filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles)[position]
 		val showErrors = maf.mErrors.isNotEmpty()
 		val arrayID =
 			if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
@@ -581,7 +576,7 @@ class SongListFragment
 			setTitle(R.string.midi_alias_list_options)
 				.setItems(arrayID) { _, which ->
 					if (which == 0)
-						performCloudSync(maf, false)
+						mPerformingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
 					else if (which == 1)
 						showMIDIAliasErrors(maf.mErrors)
 				}
@@ -646,11 +641,11 @@ class SongListFragment
 
 		registerEventHandler()
 
-		initialiseLocalStorage()
-
 		Preferences.registerOnSharedPreferenceChangeListener(this)
 
 		setHasOptionsMenu(true)
+
+		Cache.initialiseLocalStorage(requireContext())
 
 		// Set font stuff first.
 		val metrics = resources.displayMetrics
@@ -661,10 +656,15 @@ class SongListFragment
 		FontSizePreference.FONT_SIZE_MIN = 0
 		FontSizePreference.FONT_SIZE_OFFSET = Utils.MINIMUM_FONT_SIZE
 
-		if (isFirstRun)
+		if (isFirstRun) {
+			Preferences.firstRun = false
 			showFirstRunMessages()
+		}
 
-		initialiseList()
+		ReadCacheTask(
+			requireContext(),
+			Cache.CacheEventHandler
+		) { onDatabaseReadCompleted(it) }.execute(Unit)
 	}
 
 	override fun onCreateView(
@@ -675,80 +675,23 @@ class SongListFragment
 		return inflater.inflate(R.layout.activity_song_list, container, false)
 	}
 
-	private fun initialiseList() {
-		try {
-			if(readDatabase())
-				buildFilterList(false)
-		} catch (e: Exception) {
-			Logger.log(e)
+	private fun onDatabaseReadCompleted(databaseExists: Boolean) {
+		if (!databaseExists) {
+			Preferences.storageSystem = StorageType.Demo
+			Preferences.cloudPath = "/"
+			Cache.performFullCloudSync(this)
 		}
+		return
 	}
 
-	private fun initialiseLocalStorage() {
-		val previousSongFilesFolder = mBeatPrompterSongFilesFolder
-		val fragmentContext = requireContext()
-		val s = fragmentContext.packageName
-		try {
-			val m = fragmentContext.packageManager
-			val p = m.getPackageInfo(s, 0)
-			mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
-		} catch (e: PackageManager.NameNotFoundException) {
-			// There is no way that this can happen.
-			Logger.log("Package name not found ", e)
+	private val isFirstRun: Boolean
+		get() {
+			return Preferences.firstRun
 		}
 
-		val songFilesFolder: String
-		val useExternalStorage = Preferences.useExternalStorage
-		val externalFilesDir = fragmentContext.getExternalFilesDir(null)
-		songFilesFolder = if (useExternalStorage && externalFilesDir != null)
-			externalFilesDir.absolutePath
-		else
-			mBeatPrompterDataFolder!!.absolutePath
-
-		mBeatPrompterSongFilesFolder =
-			if (songFilesFolder.isEmpty()) mBeatPrompterDataFolder else File(songFilesFolder)
-		if (!mBeatPrompterSongFilesFolder!!.exists())
-			if (!mBeatPrompterSongFilesFolder!!.mkdir())
-				Logger.log("Failed to create song files folder.")
-
-		if (!mBeatPrompterSongFilesFolder!!.exists())
-			mBeatPrompterSongFilesFolder = mBeatPrompterDataFolder
-
-		mTemporarySetListFile = File(mBeatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
-		mDefaultMidiAliasesFile = File(mBeatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
-		initialiseTemporarySetListFile(false)
-		try {
-			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, mDefaultMidiAliasesFile!!)
-		} catch (ioe: IOException) {
-			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
-		}
-
-		mDefaultDownloads.apply {
-			clear()
-			add(
-				SuccessfulDownloadResult(
-					FileInfo(
-						"idBeatPrompterTemporarySetList",
-						"BeatPrompterTemporarySetList",
-						Date()
-					), mTemporarySetListFile!!
-				)
-			)
-			add(
-				SuccessfulDownloadResult(
-					FileInfo(
-						"idBeatPrompterDefaultMidiAliases",
-						getString(R.string.default_alias_set_name),
-						Date()
-					), mDefaultMidiAliasesFile!!
-				)
-			)
-		}
-
-		if (previousSongFilesFolder != null)
-			if (previousSongFilesFolder != mBeatPrompterSongFilesFolder)
-			// Song file storage folder has changed. We need to clear the cache.
-				clearCache(false)
+	private fun initialiseList(cache: CachedCloudCollection) {
+		mPlaylist = Playlist()
+		buildFilterList(cache)
 	}
 
 	override fun onDestroy() {
@@ -765,18 +708,18 @@ class SongListFragment
 		if (mListAdapter != null)
 			mListAdapter!!.notifyDataSetChanged()
 
-		// First run? Install demo files.
-		if (isFirstRun)
-			firstRunSetup()
-		else
-			SongLoadQueueWatcherTask.onResume()
+		SongLoadQueueWatcherTask.onResume()
 	}
 
-	private fun firstRunSetup() {
-		Preferences.firstRun = false
-		Preferences.storageSystem = StorageType.Demo
-		Preferences.cloudPath = "/"
-		performFullCloudSync()
+	private fun showFirstRunMessages() {
+		//  Declare a new thread to do a preference check
+		val t = Thread {
+			val i = Intent(context, IntroActivity::class.java)
+			startActivity(i)
+		}
+
+		// Start the thread
+		t.start()
 	}
 
 	private fun startNextSong(): Boolean {
@@ -787,34 +730,6 @@ class SongListFragment
 		}
 		mNowPlayingNode = null
 		return false
-	}
-
-	private fun canPerformCloudSync(): Boolean {
-		return Preferences.storageSystem !== StorageType.Demo && cloudPath != null
-	}
-
-	private fun performFullCloudSync() {
-		performCloudSync(null, false)
-	}
-
-	private fun performCloudSync(fileToUpdate: CachedFile?, dependenciesToo: Boolean) {
-		if (fileToUpdate == null)
-			clearTemporarySetList()
-		val cs = Storage.getInstance(Preferences.storageSystem, this)
-		val cloudPath = cloudPath
-		if (cloudPath.isNullOrBlank())
-			Toast.makeText(context, getString(R.string.no_cloud_folder_currently_set), Toast.LENGTH_LONG)
-				.show()
-		else {
-			mPerformingCloudSync = true
-			DownloadTask(
-				cs,
-				mSongListEventHandler!!,
-				cloudPath,
-				includeSubFolders,
-				mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
-			).execute(Unit)
-		}
 	}
 
 	private fun sortSongList() {
@@ -863,57 +778,30 @@ class SongListFragment
 		updateListView()
 	}
 
-	private fun buildListAdapter():BaseAdapter {
+	private fun buildListAdapter(): BaseAdapter {
 		return if (mSelectedFilter is MIDIAliasFilesFilter)
-			MIDIAliasListAdapter(filterMIDIAliasFiles(mCachedCloudItems.midiAliasFiles), requireActivity())
+			MIDIAliasListAdapter(
+				filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles),
+				requireActivity()
+			)
 		else
 			SongListAdapter(filterPlaylistNodes(mPlaylist), this.requireActivity())
 	}
 
-	private fun readDatabase():Boolean {
-		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		return if (database.exists()) {
-			mPlaylist = Playlist()
-
-			val xmlDoc = DocumentBuilderFactory
-				.newInstance()
-				.newDocumentBuilder()
-				.parse(database)
-
-			mCachedCloudItems.readFromXML(xmlDoc)
-			true
-		} else false
-	}
-
-	private fun writeDatabase() {
-		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		if (!database.delete())
-			Logger.log("Failed to delete database file.")
-		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-		val d = docBuilder.newDocument()
-		val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
-		d.appendChild(root)
-		mCachedCloudItems.writeToXML(d, root)
-		val transformer = TransformerFactory.newInstance().newTransformer()
-		val output = StreamResult(database)
-		val input = DOMSource(d)
-		transformer.transform(input, output)
-	}
-
-	private fun buildFilterList(updateUi:Boolean = true) {
+	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")
 		val tagAndFolderFilters = mutableListOf<Filter>()
 
 		// Create filters from song tags and sub-folders. Many songs can share the same
 		// tag/subfolder, so a bit of clever collection management is required here.
 		val tagDictionaries = HashMap<String, MutableList<SongFile>>()
-		mCachedCloudItems.songFiles.forEach {
+		cache.songFiles.forEach {
 			it.mTags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
 		}
 
 		val folderDictionaries = HashMap<String, List<SongFile>>()
-		mCachedCloudItems.folders.forEach {
-			mCachedCloudItems.getSongsInFolder(it).let { songList ->
+		cache.folders.forEach {
+			cache.getSongsInFolder(it).let { songList ->
 				if (songList.isNotEmpty())
 					folderDictionaries[it.mName] = songList
 			}
@@ -925,35 +813,35 @@ class SongListFragment
 		folderDictionaries.forEach {
 			tagAndFolderFilters.add(FolderFilter(it.key, it.value))
 		}
-		tagAndFolderFilters.addAll(mCachedCloudItems.setListFiles.mapNotNull {
-			if (it.mFile != mTemporarySetListFile)
-				SetListFileFilter(it, mCachedCloudItems.songFiles)
+		tagAndFolderFilters.addAll(cache.setListFiles.mapNotNull {
+			if (it.mFile != Cache.mTemporarySetListFile)
+				SetListFileFilter(it, cache.songFiles)
 			else
 				null
 		})
 		tagAndFolderFilters.sortBy { it.mName.lowercase() }
 
 		// Now create the basic "all songs" filter, dead easy ...
-		val allSongsFilter = AllSongsFilter(mCachedCloudItems
+		val allSongsFilter = AllSongsFilter(cache
 			.songFiles
 			.asSequence()
-			.filter { !mCachedCloudItems.isFilterOnly(it) }
+			.filter { !cache.isFilterOnly(it) }
 			.toList())
 
 		// Depending on whether we have a temporary set list file, we can create a temporary
 		// set list filter ...
 		val tempSetListFile =
-			mCachedCloudItems.setListFiles.firstOrNull { it.mFile == mTemporarySetListFile }
+			cache.setListFiles.firstOrNull { it.mFile == Cache.mTemporarySetListFile }
 		val tempSetListFilter =
 			if (tempSetListFile != null)
-				TemporarySetListFilter(tempSetListFile, mCachedCloudItems.songFiles)
+				TemporarySetListFilter(tempSetListFile, cache.songFiles)
 			else
 				null
 
 		// Same thing for MIDI alias files ... there's always at least ONE (default aliases), but
 		// if there aren't any more, don't bother creating a filter.
 		val midiAliasFilesFilter =
-			if (mCachedCloudItems.midiAliasFiles.size > 1)
+			if (cache.midiAliasFiles.size > 1)
 				MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
 			else
 				null
@@ -971,15 +859,14 @@ class SongListFragment
 
 		// The default selected filter should be "all songs".
 		mSelectedFilter = allSongsFilter
-		applyFileFilter(mSelectedFilter, updateUi)
-		if(updateUi)
-			requireActivity().invalidateOptionsMenu()
+		applyFileFilter(mSelectedFilter)
+		requireActivity().invalidateOptionsMenu()
 	}
 
 	override fun onPrepareOptionsMenu(menu: Menu) {
 		menu.apply {
 			findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
-			findItem(R.id.synchronize)?.isEnabled = canPerformCloudSync()
+			findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}
 	}
 
@@ -1007,7 +894,7 @@ class SongListFragment
 						}
 					)
 					sortSongList()
-					mListAdapter=buildListAdapter()
+					mListAdapter = buildListAdapter()
 					updateListView()
 				}
 				setTitle(getString(R.string.sortSongs))
@@ -1038,7 +925,7 @@ class SongListFragment
 
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
-			R.id.synchronize -> performFullCloudSync()
+			R.id.synchronize -> Cache.performFullCloudSync(this)
 			R.id.shuffle -> shuffleSongList()
 			R.id.sort_songs -> showSortDialog()
 			R.id.settings -> startActivity(Intent(context, SettingsActivity::class.java))
@@ -1083,25 +970,9 @@ class SongListFragment
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
+				findViewById<ImageView>(R.id.buyMeACoffeeIcon)?.setOnClickListener { openBuyMeACoffeeURL() }
 			}
 		}
-	}
-
-	internal fun clearCache(report: Boolean) {
-		// Clear both cache folders
-		val cs = Storage.getInstance(Preferences.storageSystem, this)
-		cs.cacheFolder.clear()
-		mPlaylist = Playlist()
-		mCachedCloudItems.clear()
-		buildFilterList()
-		try {
-			writeDatabase()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
-		}
-
-		if (report)
-			Toast.makeText(context, getString(R.string.cache_cleared), Toast.LENGTH_LONG).show()
 	}
 
 	fun processBluetoothChooseSongMessage(choiceInfo: SongChoiceInfo) {
@@ -1117,7 +988,7 @@ class SongListFragment
 		val nativeSettings = getSongDisplaySettings(scrollingMode)
 		val sourceSettings = if (mimicDisplay) DisplaySettings(choiceInfo) else nativeSettings
 
-		for (sf in mCachedCloudItems.songFiles)
+		for (sf in Cache.mCachedCloudItems.songFiles)
 			if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
 				val songLoadInfo = SongLoadInfo(
 					sf,
@@ -1145,30 +1016,30 @@ class SongListFragment
 			}
 	}
 
-	private fun showFirstRunMessages() {
-		//  Declare a new thread to do a preference check
-		val t = Thread {
-			val i = Intent(context, IntroActivity::class.java)
-			startActivity(i)
-		}
-
-		// Start the thread
-		t.start()
-	}
-
 	internal fun onCacheUpdated(cache: CachedCloudCollection) {
 		val listView = requireView().findViewById<ListView>(R.id.listView)
 		mSavedListIndex = listView.firstVisiblePosition
 		val v = listView.getChildAt(0)
 		mSavedListOffset = if (v == null) 0 else v.top - listView.paddingTop
+		initialiseList(cache)
+	}
 
-		mCachedCloudItems = cache
-		try {
-			writeDatabase()
-			buildFilterList()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
+	internal fun onCacheCleared(report: Boolean) {
+		mPlaylist = Playlist()
+		buildFilterList(Cache.mCachedCloudItems)
+		val context = requireContext()
+		if (report) {
+			Toast.makeText(
+				context,
+				context.getString(R.string.cache_cleared),
+				Toast.LENGTH_LONG
+			).show()
 		}
+	}
+
+	internal fun onTemporarySetListCleared() {
+		mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
+		buildFilterList(Cache.mCachedCloudItems)
 	}
 
 	private fun showLoadingProgressUI(show: Boolean) {
@@ -1189,7 +1060,7 @@ class SongListFragment
 
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
 		if (key == getString(R.string.pref_storageLocation_key) || key == getString(R.string.pref_useExternalStorage_key))
-			initialiseLocalStorage()
+			Cache.initialiseLocalStorage(requireContext())
 		else if (key == getString(R.string.pref_largePrintList_key)
 			|| key == getString(R.string.pref_showBeatStyleIcons_key)
 			|| key == getString(R.string.pref_showMusicIcon_key)
@@ -1206,14 +1077,14 @@ class SongListFragment
 
 	override fun onQueryTextChange(searchText: String?): Boolean {
 		mSearchText = searchText?.lowercase() ?: ""
-		mListAdapter=buildListAdapter()
+		mListAdapter = buildListAdapter()
 		updateListView()
 		return true
 	}
 
 	private fun filterMIDIAliasFiles(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
 		return fileList.filter {
-			it.mFile != mDefaultMidiAliasesFile &&
+			it.mFile != Cache.mDefaultMidiAliasesFile &&
 				(mSearchText.isBlank() || it.mNormalizedName.contains(mSearchText))
 		}
 	}
@@ -1228,34 +1099,9 @@ class SongListFragment
 
 	companion object {
 		var mSongListEventHandler: SongListEventHandler? = null
-		var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
-		var mCachedCloudItems = CachedCloudCollection()
-
-		private var mBeatPrompterDataFolder: File? = null
-		var mBeatPrompterSongFilesFolder: File? = null
-
 		var mSongEndedNaturally = false
 
-		private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
-		private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
-		private const val TEMPORARY_SET_LIST_FILENAME = "temporary_setlist.txt"
-		private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
-
 		lateinit var mSongListInstance: SongListFragment
-
-		// Fake storage items for temporary set list and default midi aliases
-		var mTemporarySetListFile: File? = null
-		var mDefaultMidiAliasesFile: File? = null
-
-		fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-			val inputStream = BeatPrompter.assetManager.open(filename)
-			inputStream.use { inStream ->
-				val outputStream = FileOutputStream(destination)
-				outputStream.use {
-					Utils.streamToStream(inStream, it)
-				}
-			}
-		}
 	}
 
 	class SongListEventHandler internal constructor(private val mSongList: SongListFragment) :
@@ -1286,7 +1132,7 @@ class SongListFragment
 				}
 
 				Events.MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
-				Events.CLEAR_CACHE -> mSongList.clearCache(true)
+				Events.CLEAR_CACHE -> Cache.clearCache(true)
 				Events.CACHE_UPDATED -> {
 					val cache = msg.obj as CachedCloudCollection
 					mSongList.onCacheUpdated(cache)
@@ -1334,6 +1180,9 @@ class SongListFragment
 				Events.SONG_LOAD_LINE_PROCESSED -> {
 					mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
 				}
+
+				Events.CACHE_CLEARED -> mSongList.onCacheCleared(msg.obj as Boolean)
+				Events.TEMPORARY_SET_LIST_CLEARED -> mSongList.onTemporarySetListCleared()
 			}
 		}
 	}

@@ -10,8 +10,8 @@ import android.os.Message
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.stevenfrew.beatprompter.BuildConfig
-import com.stevenfrew.beatprompter.EventRouter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.R
 
 class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreferences()) {

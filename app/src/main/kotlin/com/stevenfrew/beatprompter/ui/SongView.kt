@@ -22,6 +22,8 @@ import com.stevenfrew.beatprompter.comm.bluetooth.message.QuitSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.SetSongTimeMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song

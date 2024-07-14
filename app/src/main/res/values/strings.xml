@@ -783,4 +783,6 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="pref_darkMode_key" translatable="false">pref_darkMode</string>
 	<string name="darkMode">Toggle Dark Mode</string>
 
+	<string name="readingDatabase">Reading database …</string>
+	<string name="failedToReadDatabaseItem">Failed to read database item</string>
 </resources>

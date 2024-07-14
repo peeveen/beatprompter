@@ -1,12 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
-import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
-import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
-import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
-import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
@@ -14,7 +8,6 @@ import com.stevenfrew.beatprompter.util.flattenAll
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 /**
@@ -54,34 +47,6 @@ class CachedCloudCollection {
 					item.writeToXML(doc, it)
 					root.appendChild(it)
 				}
-		}
-	}
-
-	private fun <TCachedCloudItemType : CachedItem> addToCollection(
-		xmlDoc: Document,
-		tagName: String,
-		parser: (cachedItem: Element) -> TCachedCloudItemType
-	) {
-		val elements = xmlDoc.getElementsByTagName(tagName)
-		repeat(elements.length) {
-			val element = elements.item(it) as Element
-			try {
-				add(parser(element))
-			} catch (exception: InvalidBeatPrompterFileException) {
-				// This should never happen. If we could write out the file info, then it was valid.
-				// So it must still be valid when we come to read it in. Unless some dastardly devious sort
-				// has meddled with files outside of the app ...
-				Logger.log("Failed to parse file.")
-				// File has become irrelevant
-				add(IrrelevantFile(CachedFile(element)))
-			}
-		}
-	}
-
-	fun readFromXML(xmlDoc: Document) {
-		clear()
-		PARSINGS.forEach {
-			addToCollection(xmlDoc, it.first.findAnnotation<CacheXmlTag>()!!.mTag, it.second)
 		}
 	}
 
@@ -155,7 +120,13 @@ class CachedCloudCollection {
 		if (fileToRefresh != null) {
 			filesToRefresh.add(fileToRefresh)
 			if (fileToRefresh is SongFile && includeDependencies) {
-				filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap { it.value.flatMap{ audioFile -> getMappedAudioFiles(audioFile) } })
+				filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap {
+					it.value.flatMap { audioFile ->
+						getMappedAudioFiles(
+							audioFile
+						)
+					}
+				})
 				filesToRefresh.addAll(fileToRefresh.mImageFiles.flatMap { getMappedImageFiles(it) })
 			}
 		}
@@ -213,15 +184,5 @@ class CachedCloudCollection {
 
 	companion object {
 		const val FILTER_ONLY_FILENAME = ".filter_only"
-
-		val PARSINGS = listOf<Pair<KClass<out CachedItem>, (item: Element) -> CachedItem>>(
-			CachedFolder::class to { element -> CachedFolder(element) },
-			AudioFile::class to { element -> AudioFileParser(CachedFile(element)).parse() },
-			ImageFile::class to { element -> ImageFileParser(CachedFile(element)).parse() },
-			SongFile::class to { element -> SongInfoParser(CachedFile(element)).parse() },
-			SetListFile::class to { element -> SetListFileParser(CachedFile(element)).parse() },
-			MIDIAliasFile::class to { element -> MIDIAliasFileParser(CachedFile(element)).parse() },
-			IrrelevantFile::class to { element -> IrrelevantFile(CachedFile(element)) }
-		)
 	}
 }

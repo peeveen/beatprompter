@@ -1,5 +1,6 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.events
 
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.SettingsEventHandler
@@ -11,6 +12,7 @@ object EventRouter {
 	private var mSongListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
 		HashMap()
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
+	private var mDatabaseEventHandler: Cache.CacheEventHandler = Cache.CacheEventHandler
 	private var mSettingsEventHandler: SettingsEventHandler? = null
 
 	fun addSongListEventHandler(

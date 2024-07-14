@@ -2,8 +2,8 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.SharedPreferences
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.EventRouter
-import com.stevenfrew.beatprompter.Events
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.ReceiverBase

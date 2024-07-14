@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter
+package com.stevenfrew.beatprompter.events
 
 object Events {
 	private const val HANDLER_MESSAGE_BASE_ID = 1834739585
@@ -29,4 +29,7 @@ object Events {
 	const val BLUETOOTH_QUIT_SONG = HANDLER_MESSAGE_BASE_ID + 23
 	const val ENABLE_STORAGE = HANDLER_MESSAGE_BASE_ID + 24
 	const val ENABLE_BLUETOOTH = HANDLER_MESSAGE_BASE_ID + 25
+	const val CACHE_CLEARED = HANDLER_MESSAGE_BASE_ID + 26
+	const val TEMPORARY_SET_LIST_CLEARED = HANDLER_MESSAGE_BASE_ID + 27
+	const val DATABASE_READ_ERROR = HANDLER_MESSAGE_BASE_ID + 28
 }

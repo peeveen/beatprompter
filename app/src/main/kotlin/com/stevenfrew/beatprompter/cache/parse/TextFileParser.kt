@@ -15,6 +15,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.FoundTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.TagFinder
 import com.stevenfrew.beatprompter.util.removeControlCharacters
+import org.w3c.dom.Element
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -28,7 +29,7 @@ abstract class TextFileParser<TFileResult>(
 	private val mReportUnexpectedTags: Boolean,
 	private vararg val mTagFinders: TagFinder
 ) : FileParser<TFileResult>(cachedCloudFile) {
-	final override fun parse(): TFileResult {
+	override fun parse(element: Element?): TFileResult {
 		val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
 		var lineNumber = 0
 		val fileTags = mutableSetOf<KClass<out Tag>>()

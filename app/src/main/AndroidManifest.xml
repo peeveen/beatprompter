@@ -46,7 +46,7 @@
 			android:required="false" />
 
 		<activity
-			android:name=".ui.SongListActivity"
+			android:name="com.stevenfrew.beatprompter.ui.SongListActivity"
 			android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
 			android:exported="true"
 			android:theme="@style/AppTheme"
