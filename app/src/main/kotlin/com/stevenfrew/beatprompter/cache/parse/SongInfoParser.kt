@@ -89,8 +89,13 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private var mRating = 0
 
 	override fun parse(element: Element?): SongFile {
-		SongFile.readSongInfoFromAttributes(element, mCachedCloudFile)?.also {
-			return it
+		try {
+			SongFile.readSongInfoFromAttributes(element, mCachedCloudFile)?.also {
+				return it
+			}
+		} catch (exception: Exception) {
+			// Not bothered about what the exception is ... file tags are obviously broken.
+			// So re-parse the whole file.
 		}
 		return super.parse(element)
 	}
