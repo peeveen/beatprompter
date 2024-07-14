@@ -9,13 +9,21 @@ class RecursiveAliasComponent(
 	private val mArguments: List<Value>,
 	private val mChannelValue: ChannelValue?
 ) : AliasComponent {
+	override val parameterCount: Int
+		get() = (mArguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: 0 } ?: -1) + 1
+
 	override fun resolve(
 		aliases: List<Alias>,
 		parameters: ByteArray,
 		channel: Byte
 	): List<OutgoingMessage> {
 		try {
-			return aliases.first { it.mName.equals(mReferencedAliasName, ignoreCase = true) }
+			return aliases.first {
+				it.mName.equals(
+					mReferencedAliasName,
+					ignoreCase = true
+				) && it.parameterCount == mArguments.size
+			}
 				.resolve(aliases, mArguments.map {
 					it.resolve(parameters, mChannelValue?.mValue ?: channel)
 				}.toByteArray(), mChannelValue?.mValue ?: channel)

@@ -78,7 +78,7 @@ class ReadCacheTask(
 	}
 
 	override fun onProgressUpdate(progress: String) {
-		mProgressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress).text = progress
+		mProgressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress)?.text = progress
 	}
 
 	override fun onPostExecute(result: Boolean) {
