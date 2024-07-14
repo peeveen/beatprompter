@@ -970,6 +970,7 @@ class SongListFragment
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
+				findViewById<ImageView>(R.id.buyMeACoffeeIcon)?.setOnClickListener { openBuyMeACoffeeURL() }
 			}
 		}
 	}
