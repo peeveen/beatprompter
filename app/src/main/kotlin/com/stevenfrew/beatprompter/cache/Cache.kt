@@ -52,6 +52,7 @@ object Cache {
 			when (msg.what) {
 				Events.CLEAR_CACHE -> clearCache(msg.obj as Boolean)
 				Events.CACHE_UPDATED -> onCacheUpdated(msg.obj as CachedCloudCollection)
+				Events.CLOUD_SYNC_ERROR -> EventRouter.sendEventToSongList(msg.what, msg.obj)
 			}
 		}
 	}
