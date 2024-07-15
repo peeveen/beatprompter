@@ -215,31 +215,34 @@ object Cache {
 
 	fun readDatabase(listener: CacheReadListener): Boolean {
 		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		val itemSource = PublishSubject.create<CachedItem>()
-		val messageSource = PublishSubject.create<String>()
-		val compositeDisposable = CompositeDisposable()
-		compositeDisposable.add(
-			itemSource.subscribe(
-				{ listener.onItemRead(it) },
-				{ listener.onCacheReadError(it) },
-				{ listener.onCacheReadComplete() })
-		)
-		compositeDisposable.add(messageSource.subscribe {
-			Utils.reportProgress(listener, it)
-		})
+		val databaseExists = database.exists()
+		if (databaseExists) {
+			val itemSource = PublishSubject.create<CachedItem>()
+			val messageSource = PublishSubject.create<String>()
+			val compositeDisposable = CompositeDisposable().apply {
+				add(
+					itemSource.subscribe(
+						{ listener.onItemRead(it) },
+						{ listener.onCacheReadError(it) },
+						{ listener.onCacheReadComplete() })
+				)
+				add(messageSource.subscribe {
+					Utils.reportProgress(listener, it)
+				})
+			}
 
-		val result = if (database.exists()) {
-			val xmlDoc = DocumentBuilderFactory
-				.newInstance()
-				.newDocumentBuilder()
-				.parse(database)
-			readFromXML(xmlDoc, itemSource, messageSource)
-			true
-		} else
-			false
-		itemSource.onComplete()
-		compositeDisposable.dispose()
-		return result
+			readFromXML(
+				DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(database),
+				itemSource,
+				messageSource
+			)
+			itemSource.onComplete()
+			compositeDisposable.dispose()
+		}
+		return databaseExists
 	}
 
 	private fun writeDatabase() {

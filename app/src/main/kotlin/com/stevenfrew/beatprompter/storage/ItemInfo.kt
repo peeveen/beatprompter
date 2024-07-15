@@ -10,9 +10,11 @@ abstract class ItemInfo internal constructor(
 	override operator fun compareTo(other: ItemInfo): Int {
 		val thisIsFolder = this is FolderInfo
 		val otherIsFolder = other is FolderInfo
-		if (thisIsFolder && !otherIsFolder)
-			return -1
-		return if (!thisIsFolder && otherIsFolder) 1
-		else mName.lowercase().compareTo(other.mName.lowercase())
+		return if (thisIsFolder && !otherIsFolder)
+			-1
+		else if (!thisIsFolder && otherIsFolder)
+			1
+		else
+			mName.lowercase().compareTo(other.mName.lowercase())
 	}
 }

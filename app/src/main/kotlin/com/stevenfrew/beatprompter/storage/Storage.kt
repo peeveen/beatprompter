@@ -45,25 +45,26 @@ abstract class Storage protected constructor(
 
 	fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
 		val refreshFiles = filesToRefresh.toMutableList()
-		for (defaultCloudDownload in Cache.mDefaultDownloads)
-			if (refreshFiles.contains(defaultCloudDownload.mFileInfo))
-				refreshFiles.remove(defaultCloudDownload.mFileInfo)
+		Cache.mDefaultDownloads
+			.map { it.mFileInfo }
+			.filter { refreshFiles.contains(it) }
+			.forEach { refreshFiles.remove(it) }
 
 		val downloadSource = PublishSubject.create<DownloadResult>()
-		val compositeDisposable = CompositeDisposable()
-		compositeDisposable.add(
-			downloadSource.subscribe(
-				{ listener.onItemDownloaded(it) },
-				{ listener.onDownloadError(it) },
-				{ listener.onDownloadComplete() })
-		)
 		val messageSource = PublishSubject.create<String>()
-		compositeDisposable.add(messageSource.subscribe {
-			Utils.reportProgress(listener, it)
-		})
+		val compositeDisposable = CompositeDisposable().apply {
+			add(
+				downloadSource.subscribe(
+					{ listener.onItemDownloaded(it) },
+					{ listener.onDownloadError(it) },
+					{ listener.onDownloadComplete() })
+			)
+			add(messageSource.subscribe {
+				Utils.reportProgress(listener, it)
+			})
+		}
 		// Always include the temporary set list and default midi alias files.
-		for (defaultCloudDownload in Cache.mDefaultDownloads)
-			downloadSource.onNext(defaultCloudDownload)
+		Cache.mDefaultDownloads.forEach { downloadSource.onNext(it) }
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
 		compositeDisposable.dispose()
 	}
