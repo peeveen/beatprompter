@@ -8,7 +8,7 @@ import kotlin.experimental.or
 class ChanneledCommandValue internal constructor(value: Byte) : ByteValue(value) {
 	init {
 		if (mValue and 0x0F != 0.toByte())
-			throw ValueException(BeatPrompter.getResourceString(R.string.merge_with_channel_non_zero_lower_nibble))
+			throw ValueException(BeatPrompter.appResources.getString(R.string.merge_with_channel_non_zero_lower_nibble))
 	}
 
 	override fun resolve(arguments: ByteArray, channel: Byte): Byte {

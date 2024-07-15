@@ -50,7 +50,7 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 			try {
 				if (cloudFile.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true)) {
 					messageSource.onNext(
-						BeatPrompter.getResourceString(
+						BeatPrompter.appResources.getString(
 							R.string.downloading,
 							DEMO_SONG_FILENAME
 						)
@@ -58,7 +58,7 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 					itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongTextFile()))
 				} else if (cloudFile.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true)) {
 					messageSource.onNext(
-						BeatPrompter.getResourceString(
+						BeatPrompter.appResources.getString(
 							R.string.downloading,
 							DEMO_SONG_AUDIO_FILENAME
 						)
@@ -90,7 +90,7 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 
 	private fun createDemoSongTextFile(): File {
 		val destinationSongFile = File(cacheFolder, DEMO_SONG_FILENAME)
-		val demoFileText = BeatPrompter.getResourceString(R.string.demo_song)
+		val demoFileText = BeatPrompter.appResources.getString(R.string.demo_song)
 		val bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
 		bw.use {
 			bw.write(demoFileText)

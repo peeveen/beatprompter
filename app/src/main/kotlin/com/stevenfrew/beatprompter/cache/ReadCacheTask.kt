@@ -68,7 +68,7 @@ class ReadCacheTask(
 	override fun onPreExecute() {
 		if (mInitialDatabaseReadHasBeenPerformed)
 			return
-		val title = BeatPrompter.getResourceString(R.string.readingDatabase)
+		val title = BeatPrompter.appResources.getString(R.string.readingDatabase)
 		mProgressDialog = Dialog(mContext, R.style.ReadingDatabaseDialog).apply {
 			setTitle(title)
 			setContentView(R.layout.reading_database)

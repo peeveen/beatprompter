@@ -1112,12 +1112,12 @@ class SongListFragment
 				Events.CLOUD_SYNC_ERROR -> {
 					AlertDialog.Builder(mSongList.context).apply {
 						setMessage(
-							BeatPrompter.getResourceString(
+							BeatPrompter.appResources.getString(
 								R.string.cloudSyncErrorMessage,
 								msg.obj as String
 							)
 						)
-						setTitle(BeatPrompter.getResourceString(R.string.cloudSyncErrorTitle))
+						setTitle(BeatPrompter.appResources.getString(R.string.cloudSyncErrorTitle))
 						setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
 						create().apply {
 							setCanceledOnTouchOutside(true)
@@ -1141,7 +1141,7 @@ class SongListFragment
 				Events.CONNECTION_ADDED -> {
 					Toast.makeText(
 						mSongList.context,
-						BeatPrompter.getResourceString(R.string.connection_added, msg.obj.toString()),
+						BeatPrompter.appResources.getString(R.string.connection_added, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
 					mSongList.updateBluetoothIcon()
@@ -1151,7 +1151,7 @@ class SongListFragment
 					Logger.log("Lost connection to device.")
 					Toast.makeText(
 						mSongList.context,
-						BeatPrompter.getResourceString(R.string.connection_lost, msg.obj.toString()),
+						BeatPrompter.appResources.getString(R.string.connection_lost, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
 					mSongList.updateBluetoothIcon()

@@ -74,7 +74,7 @@ object Cache {
 	var mDefaultMidiAliasesFile: File? = null
 
 	fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-		val inputStream = BeatPrompter.assetManager.open(filename)
+		val inputStream = BeatPrompter.appResources.assetManager.open(filename)
 		inputStream.use { inStream ->
 			val outputStream = FileOutputStream(destination)
 			outputStream.use {
@@ -181,7 +181,8 @@ object Cache {
 				messageSource.onNext(cachedItem.mName)
 			} catch (exception: InvalidBeatPrompterFileException) {
 				messageSource.onNext(
-					exception.message ?: BeatPrompter.getResourceString(R.string.failedToReadDatabaseItem)
+					exception.message
+						?: BeatPrompter.appResources.getString(R.string.failedToReadDatabaseItem)
 				)
 				itemSource.onError(exception)
 				// This should never happen. If we could write out the file info, then it was valid.
@@ -200,7 +201,7 @@ object Cache {
 		messageSource: PublishSubject<String>
 	) {
 		val xmlDatabaseVersion = xmlDoc.documentElement.getAttribute(XML_DATABASE_VERSION_ATTRIBUTE)
-		val currentAppVersion = BeatPrompter.context.getString(R.string.version)
+		val currentAppVersion = BeatPrompter.appResources.getString(R.string.version)
 		val useXmlData = currentAppVersion == xmlDatabaseVersion
 		mCachedCloudItems.clear()
 		PARSINGS.forEach {
@@ -251,7 +252,7 @@ object Cache {
 		val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
 		root.setAttribute(
 			XML_DATABASE_VERSION_ATTRIBUTE,
-			BeatPrompter.context.getString(R.string.version)
+			BeatPrompter.appResources.getString(R.string.version)
 		)
 		d.appendChild(root)
 		mCachedCloudItems.writeToXML(d, root)

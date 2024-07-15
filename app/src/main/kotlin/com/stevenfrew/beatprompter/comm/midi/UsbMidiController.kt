@@ -1,0 +1,170 @@
+package com.stevenfrew.beatprompter.comm.midi
+
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.hardware.usb.UsbConstants
+import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
+import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbInterface
+import android.hardware.usb.UsbManager
+import android.os.Build
+import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.comm.ReceiverTasks
+import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
+
+class UsbMidiController(
+	context: Context,
+	internal val mSenderTask: SenderTask,
+	internal val mReceiverTasks: ReceiverTasks
+) {
+	private lateinit var mManager: UsbManager
+	private var mRegistered = false
+	private var mPermissionIntent: PendingIntent? = null
+
+	private val mUsbReceiver = object : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			val action = intent.action
+			when (action) {
+				UsbManager.ACTION_USB_DEVICE_ATTACHED -> attemptUsbMidiConnection()
+				UsbManager.ACTION_USB_DEVICE_DETACHED -> getDeviceFromIntent(intent)?.apply {
+					mSenderTask.removeSender(deviceName)
+					mReceiverTasks.stopAndRemoveReceiver(deviceName)
+				}
+
+				ACTION_USB_PERMISSION -> {
+					synchronized(this) {
+						getDeviceFromIntent(intent)?.apply {
+							if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+								val midiInterface = getUsbDeviceMidiInterface()
+								if (midiInterface != null) {
+									val conn = mManager.openDevice(this)
+									if (conn != null) {
+										if (conn.claimInterface(midiInterface, true)) {
+											val endpointCount = midiInterface.endpointCount
+											repeat(endpointCount) {
+												val endPoint = midiInterface.getEndpoint(it)
+												if (endPoint.direction == UsbConstants.USB_DIR_OUT)
+													mSenderTask.addSender(
+														deviceName,
+														UsbSender(conn, endPoint, deviceName)
+													)
+												else if (endPoint.direction == UsbConstants.USB_DIR_IN)
+													mReceiverTasks.addReceiver(
+														deviceName,
+														deviceName,
+														UsbReceiver(conn, endPoint, deviceName)
+													)
+												EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	init {
+		@SuppressLint("UnspecifiedRegisterReceiverFlag")
+		if (context.packageManager.hasSystemFeature(Context.USB_SERVICE)) {
+			mManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+			val intent = Intent(ACTION_USB_PERMISSION)
+			intent.setPackage(context.packageName)
+			mPermissionIntent = PendingIntent.getBroadcast(
+				context,
+				0,
+				intent,
+				PendingIntent.FLAG_MUTABLE
+			)
+
+			val filter = IntentFilter().apply {
+				addAction(ACTION_USB_PERMISSION)
+				addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+				addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+				context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+			else
+				context.registerReceiver(mUsbReceiver, filter)
+			mRegistered = true
+
+			attemptUsbMidiConnection()
+		}
+	}
+
+	private fun getDeviceFromIntent(intent: Intent): UsbDevice? {
+		return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+			intent.getParcelableExtra(
+				UsbManager.EXTRA_DEVICE
+			)
+		else
+			intent.getParcelableExtra(
+				UsbManager.EXTRA_DEVICE,
+				UsbDevice::class.java
+			)
+	}
+
+	private fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
+		val interfaceCount = interfaceCount
+		var fallbackInterface: UsbInterface? = null
+		repeat(interfaceCount) { interfaceIndex ->
+			val face = getInterface(interfaceIndex)
+			val mainClass = face.interfaceClass
+			val subclass = face.interfaceSubclass
+			// Oh you f***in beauty, we've got a perfect compliant MIDI interface!
+			if (mainClass == 1 && subclass == 3)
+				return face
+			else if (mainClass == 255 && fallbackInterface == null) {
+				// Basically, go with this if:
+				// It has all endpoints of type "bulk transfer"
+				// and
+				// The endpoints have a max packet size that is a multiplier of 4.
+				val endPointCount = face.endpointCount
+				var allEndpointsCheckout = true
+				repeat(endPointCount) {
+					val ep = face.getEndpoint(it)
+					val maxPacket = ep.maxPacketSize
+					val type = ep.type
+					allEndpointsCheckout =
+						allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)
+				}
+				if (allEndpointsCheckout)
+					fallbackInterface = face
+			}
+			// Aw bollocks, we've got some vendor-specific pish.
+			// Still worth trying.
+		}
+		return fallbackInterface
+	}
+
+	private fun attemptUsbMidiConnection() {
+		if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
+			val list = mManager.deviceList
+			if (list != null && list.size > 0) {
+				val devObjects = list.values
+				for (devObj in devObjects) {
+					val dev = devObj as UsbDevice
+					if (dev.getUsbDeviceMidiInterface() != null) {
+						mManager.requestPermission(dev, mPermissionIntent)
+						break
+					}
+				}
+			}
+		}
+	}
+
+	companion object {
+		private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
+	}
+}
+

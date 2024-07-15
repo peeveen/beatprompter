@@ -37,7 +37,7 @@ class NativeReceiver(
 	}
 
 	override fun unregister(task: ReceiverTask) {
-		MIDIController.removeReceiver(task)
+		MidiController.removeReceiver(task)
 	}
 
 	inner class NativeReceiverReceiver : MidiReceiver() {

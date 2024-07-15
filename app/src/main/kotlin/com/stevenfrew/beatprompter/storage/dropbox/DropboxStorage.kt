@@ -38,7 +38,7 @@ class DropboxStorage(parentFragment: Fragment) :
 		get() = R.drawable.ic_dropbox
 
 	override val cloudStorageName: String
-		get() = BeatPrompter.getResourceString(R.string.dropbox_string)
+		get() = BeatPrompter.appResources.getString(R.string.dropbox_string)
 
 	interface DropboxAction {
 		fun onConnected(client: DbxClientV2)
@@ -64,13 +64,13 @@ class DropboxStorage(parentFragment: Fragment) :
 				val result = if (metadata is FileMetadata) {
 					val title = file.mName
 					Logger.log { "File title: $title" }
-					messageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
+					messageSource.onNext(BeatPrompter.appResources.getString(R.string.checking, title))
 					val safeFilename = Utils.makeSafeFilename(title)
 					val targetFile = File(cacheFolder, safeFilename)
 					Logger.log { "Safe filename: $safeFilename" }
 
 					Logger.log("Downloading now ...")
-					messageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
+					messageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
 					// Don't check lastModified ... ALWAYS download.
 					if (listener.shouldCancel())
 						break
@@ -130,7 +130,7 @@ class DropboxStorage(parentFragment: Fragment) :
 			val currentFolderID = folderToSearch.mID
 			val currentFolderName = folderToSearch.mName
 			messageSource.onNext(
-				BeatPrompter.getResourceString(
+				BeatPrompter.appResources.getString(
 					R.string.scanningFolder,
 					currentFolderName
 				)

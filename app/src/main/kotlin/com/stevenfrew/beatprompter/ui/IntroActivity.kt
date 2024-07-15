@@ -42,8 +42,8 @@ class IntroActivity
 
 		pageInfo.forEach {
 			addSlide(AppIntroFragment.newInstance(SliderPage().apply {
-				title = BeatPrompter.getResourceString(it.caption)
-				description = BeatPrompter.getResourceString(it.description)
+				title = BeatPrompter.appResources.getString(it.caption)
+				description = BeatPrompter.appResources.getString(it.description)
 				imageDrawable = it.image
 				bgColor = backgroundColor
 			}))

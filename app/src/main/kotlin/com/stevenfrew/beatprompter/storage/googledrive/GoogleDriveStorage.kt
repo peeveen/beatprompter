@@ -51,7 +51,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		GoogleSignIn.getClient(mParentFragment.requireActivity(), mGoogleClientSignInOptions)
 
 	override val cloudStorageName: String
-		get() = BeatPrompter.getResourceString(R.string.google_drive_string)
+		get() = BeatPrompter.appResources.getString(R.string.google_drive_string)
 
 	override val directorySeparator: String
 		get() = "/"
@@ -154,7 +154,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				val currentFolderID = currentFolder.mID
 				val currentFolderName = currentFolder.mName
 				mMessageSource.onNext(
-					BeatPrompter.getResourceString(
+					BeatPrompter.appResources.getString(
 						R.string.scanningFolder,
 						if (firstFolder) "..." else currentFolderName
 					)
@@ -269,7 +269,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 						val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
 						Logger.log { "Safe filename: $safeFilename" }
 						Logger.log("Downloading now ...")
-						mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
+						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
 						if (mListener.shouldCancel())
 							break
 						val localFile = downloadGoogleDriveFile(file, safeFilename)

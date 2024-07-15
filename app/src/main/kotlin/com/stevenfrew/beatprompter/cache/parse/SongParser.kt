@@ -473,7 +473,7 @@ class SongParser(
 							mErrors.add(FileParseError(imageTag, t))
 						}
 					else {
-						workLine = BeatPrompter.getResourceString(R.string.missing_image_file_warning)
+						workLine = BeatPrompter.appResources.getString(R.string.missing_image_file_warning)
 						mErrors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
 						imageTag = null
 					}
@@ -1062,7 +1062,7 @@ class SongParser(
 					startScreenStrings.add(
 						ScreenString.create(
 							String.format(
-								BeatPrompter.getResourceString(R.string.otherErrorCount),
+								BeatPrompter.appResources.getString(R.string.otherErrorCount),
 								errorCount
 							),
 							mPaint,
@@ -1090,7 +1090,7 @@ class SongParser(
 				)
 			if (mShowKey) {
 				val keyString =
-					BeatPrompter.getResourceString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
+					BeatPrompter.appResources.getString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
 				startScreenStrings.add(
 					ScreenString.create(
 						keyString,
@@ -1107,7 +1107,7 @@ class SongParser(
 				val rounded =
 					mShowBPM == ShowBPMContext.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt()
 						.toDouble()
-				var bpmString = BeatPrompter.getResourceString(R.string.bpmPrefix) + ": "
+				var bpmString = BeatPrompter.appResources.getString(R.string.bpmPrefix) + ": "
 				bpmString += if (rounded)
 					mSongLoadInfo.mSongFile.mBPM.roundToInt()
 				else
@@ -1128,7 +1128,7 @@ class SongParser(
 		if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
 			startScreenStrings.add(
 				ScreenString.create(
-					BeatPrompter.getResourceString(R.string.tapTwiceToStart),
+					BeatPrompter.appResources.getString(R.string.tapTwiceToStart),
 					mPaint,
 					mNativeDeviceSettings.mScreenSize.width(),
 					tenPercent,

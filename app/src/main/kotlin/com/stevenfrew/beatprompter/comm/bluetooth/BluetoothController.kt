@@ -11,8 +11,6 @@ import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
@@ -23,6 +21,8 @@ import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,9 +63,9 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	/**
 	 * Called when the app starts. Doing basic Bluetooth setup.
 	 */
-	fun initialise(application: BeatPrompter) {
+	fun initialise(context: Context) {
 		val bluetoothManager =
-			application.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+			context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 		mBluetoothAdapter = bluetoothManager.adapter
 
 		if (mBluetoothAdapter != null) {
@@ -82,7 +82,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 				}
 			}
 
-			application.apply {
+			context.apply {
 				registerReceiver(mAdapterReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 				registerReceiver(mDeviceReceiver, IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED))
 			}
@@ -324,13 +324,13 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	 * Called when the user changes pertinent Bluetooth preferences.
 	 */
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-		if (key == BeatPrompter.getResourceString(R.string.pref_bluetoothMode_key)) {
+		if (key == BeatPrompter.appResources.getString(R.string.pref_bluetoothMode_key)) {
 			Logger.logComms("Bluetooth mode changed.")
 			if (Preferences.bluetoothMode === BluetoothMode.None)
 				onStopBluetooth()
 			else
 				onStartBluetooth()
-		} else if (key == BeatPrompter.getResourceString(R.string.pref_bandLeaderDevice_key)) {
+		} else if (key == BeatPrompter.appResources.getString(R.string.pref_bandLeaderDevice_key)) {
 			Logger.logComms("Band leader device changed.")
 			if (Preferences.bluetoothMode === BluetoothMode.Client) {
 				shutDownBluetoothClient()

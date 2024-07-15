@@ -163,9 +163,9 @@ class DownloadTask(
 
 	override fun onPreExecute() {
 		mProgressDialog = ProgressDialog(mContext).apply {
-			setTitle(BeatPrompter.getResourceString(R.string.downloadingFiles))
+			setTitle(BeatPrompter.appResources.getString(R.string.downloadingFiles))
 			setMessage(
-				BeatPrompter.getResourceString(
+				BeatPrompter.appResources.getString(
 					R.string.accessingCloudStorage,
 					mStorage.cloudStorageName
 				)

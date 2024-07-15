@@ -29,7 +29,7 @@ class RecursiveAliasComponent(
 				}.toByteArray(), mChannelValue?.mValue ?: channel)
 		} catch (exception: NoSuchElementException) {
 			throw ResolutionException(
-				BeatPrompter.getResourceString(
+				BeatPrompter.appResources.getString(
 					R.string.unknown_midi_directive,
 					mReferencedAliasName
 				)

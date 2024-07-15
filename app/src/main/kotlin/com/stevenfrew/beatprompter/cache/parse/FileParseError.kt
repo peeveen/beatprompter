@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 class FileParseError private constructor(val mLineNumber: Int, val mMessage: String) {
 
 	internal constructor(lineNumber: Int, resourceId: Int, vararg args: Any)
-		: this(lineNumber, BeatPrompter.getResourceString(resourceId, *args))
+		: this(lineNumber, BeatPrompter.appResources.getString(resourceId, *args))
 
 	internal constructor(tag: Tag, t: Throwable)
 		: this(tag.mLineNumber, t.message ?: t.toString())

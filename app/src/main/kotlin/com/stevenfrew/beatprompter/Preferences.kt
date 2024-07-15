@@ -34,7 +34,7 @@ object Preferences {
 		)
 		set(value) {
 			setBooleanPreference(R.string.pref_darkMode_key, value)
-			AppCompatDelegate.setDefaultNightMode(if(value) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+			AppCompatDelegate.setDefaultNightMode(if (value) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		}
 
 	val defaultTrackVolume: Int
@@ -230,7 +230,7 @@ object Preferences {
 		)
 
 	private val minimumFontSizeOffset =
-		Integer.parseInt(BeatPrompter.getResourceString(R.string.fontSizeMin))
+		Integer.parseInt(BeatPrompter.appResources.getString(R.string.fontSizeMin))
 
 	val minimumBeatFontSize: Int
 		get() = getIntPreference(
@@ -349,7 +349,7 @@ object Preferences {
 		)
 
 	private val commentDisplayTimeOffset =
-		Integer.parseInt(BeatPrompter.getResourceString(R.string.pref_commentDisplayTime_offset))
+		Integer.parseInt(BeatPrompter.appResources.getString(R.string.pref_commentDisplayTime_offset))
 
 	val commentDisplayTime: Int
 		get() = getIntPreference(
@@ -462,18 +462,20 @@ object Preferences {
 	): Int {
 		return getIntPreference(
 			prefResourceString,
-			BeatPrompter.getResourceString(prefDefaultResourceString).toInt()
+			BeatPrompter.appResources.getString(prefDefaultResourceString).toInt()
 		) + offset
 	}
 
 	private fun getIntPreference(prefResourceString: Int, default: Int): Int {
 		return BeatPrompter
+			.appResources
 			.preferences
-			.getInt(BeatPrompter.getResourceString(prefResourceString), default)
+			.getInt(BeatPrompter.appResources.getString(prefResourceString), default)
 	}
 
 	fun getStringPreference(key: String, default: String?): String? {
 		return BeatPrompter
+			.appResources
 			.preferences
 			.getString(key, default)
 	}
@@ -481,9 +483,10 @@ object Preferences {
 	@Suppress("SameParameterValue")
 	private fun getPrivateStringPreference(prefResourceString: Int, default: String?): String? {
 		return BeatPrompter
+			.appResources
 			.privatePreferences
 			.getString(
-				BeatPrompter.getResourceString(prefResourceString),
+				BeatPrompter.appResources.getString(prefResourceString),
 				default
 			)
 	}
@@ -491,18 +494,20 @@ object Preferences {
 	@Suppress("SameParameterValue")
 	private fun getPrivateLongPreference(prefResourceString: Int, default: Long): Long {
 		return BeatPrompter
+			.appResources
 			.privatePreferences
 			.getLong(
-				BeatPrompter.getResourceString(prefResourceString),
+				BeatPrompter.appResources.getString(prefResourceString),
 				default
 			)
 	}
 
 	private fun getStringPreference(prefResourceString: Int, default: String?): String? {
 		return BeatPrompter
+			.appResources
 			.preferences
 			.getString(
-				BeatPrompter.getResourceString(prefResourceString),
+				BeatPrompter.appResources.getString(prefResourceString),
 				default
 			)
 	}
@@ -513,31 +518,34 @@ object Preferences {
 	): String? {
 		return getStringPreference(
 			prefResourceString,
-			BeatPrompter.getResourceString(prefDefaultResourceString)
+			BeatPrompter.appResources.getString(prefDefaultResourceString)
 		)
 	}
 
 	private fun getColorPreference(prefResourceString: Int, prefDefaultResourceString: Int): Int {
 		return BeatPrompter
+			.appResources
 			.preferences
 			.getInt(
-				BeatPrompter.getResourceString(prefResourceString),
-				Color.parseColor(BeatPrompter.getResourceString(prefDefaultResourceString))
+				BeatPrompter.appResources.getString(prefResourceString),
+				Color.parseColor(BeatPrompter.appResources.getString(prefDefaultResourceString))
 			)
 	}
 
 	private fun getBooleanPreference(prefResourceString: Int, default: Boolean): Boolean {
 		return BeatPrompter
+			.appResources
 			.preferences
-			.getBoolean(BeatPrompter.getResourceString(prefResourceString), default)
+			.getBoolean(BeatPrompter.appResources.getString(prefResourceString), default)
 	}
 
 	@Suppress("SameParameterValue")
 	private fun setBooleanPreference(prefResourceString: Int, value: Boolean) {
 		BeatPrompter
+			.appResources
 			.preferences
 			.edit()
-			.putBoolean(BeatPrompter.getResourceString(prefResourceString), value)
+			.putBoolean(BeatPrompter.appResources.getString(prefResourceString), value)
 			.apply()
 	}
 
@@ -547,40 +555,43 @@ object Preferences {
 	): Boolean {
 		return getBooleanPreference(
 			prefResourceString,
-			BeatPrompter.getResourceString(prefDefaultResourceString).toBoolean()
+			BeatPrompter.appResources.getString(prefDefaultResourceString).toBoolean()
 		)
 	}
 
 	private fun setStringPreference(prefResourceString: Int, value: String?) {
 		BeatPrompter
+			.appResources
 			.preferences
 			.edit()
-			.putString(BeatPrompter.getResourceString(prefResourceString), value)
+			.putString(BeatPrompter.appResources.getString(prefResourceString), value)
 			.apply()
 	}
 
 	@Suppress("SameParameterValue")
 	private fun setPrivateStringPreference(prefResourceString: Int, value: String?) {
 		BeatPrompter
+			.appResources
 			.privatePreferences
 			.edit()
-			.putString(BeatPrompter.getResourceString(prefResourceString), value)
+			.putString(BeatPrompter.appResources.getString(prefResourceString), value)
 			.apply()
 	}
 
 	private fun setPrivateLongPreference(prefResourceString: Int, value: Long) {
 		BeatPrompter
+			.appResources
 			.privatePreferences
 			.edit()
-			.putLong(BeatPrompter.getResourceString(prefResourceString), value)
+			.putLong(BeatPrompter.appResources.getString(prefResourceString), value)
 			.apply()
 	}
 
 	fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-		BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(listener)
+		BeatPrompter.appResources.preferences.registerOnSharedPreferenceChangeListener(listener)
 	}
 
 	fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {
-		BeatPrompter.preferences.unregisterOnSharedPreferenceChangeListener(listener)
+		BeatPrompter.appResources.preferences.unregisterOnSharedPreferenceChangeListener(listener)
 	}
 }

@@ -79,7 +79,7 @@ class ClockSignalGeneratorTask : Task(false) {
 			}
 			nanoDiff -= nanoSecondsPerMidiSignal
 		}
-		MIDIController.addBeatClockMessages(signalsNeeded)
+		MidiController.addBeatClockMessages(signalsNeeded)
 		if (signalsNeeded > 0) {
 			lastSignalTime = nanoTime - nanoDiff
 			val nextSignalDue = lastSignalTime + nanoSecondsPerMidiSignal
@@ -114,7 +114,7 @@ class ClockSignalGeneratorTask : Task(false) {
 			resetClockSignalsSent()
 			lastSignalTime = System.nanoTime().toDouble()
 			try {
-				MIDIController.putMessage(StartMessage)
+				MidiController.putMessage(StartMessage)
 			} catch (e: Exception) {
 				Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
 			}
@@ -130,7 +130,7 @@ class ClockSignalGeneratorTask : Task(false) {
 		lastSignalTime = 0.0
 		resetClockSignalsSent()
 		try {
-			MIDIController.putMessage(StopMessage)
+			MidiController.putMessage(StopMessage)
 		} catch (e: Exception) {
 			Logger.logComms({ "Failed to add MIDI stop signal to output queue." }, e)
 		}
