@@ -44,9 +44,6 @@ import kotlin.reflect.full.findAnnotation
 
 object Cache {
 
-	// TODO: Figure out when to call dispose on this.
-	private val mCompositeDisposable = CompositeDisposable()
-
 	object CacheEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
@@ -220,13 +217,14 @@ object Cache {
 		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
 		val itemSource = PublishSubject.create<CachedItem>()
 		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(
+		val compositeDisposable = CompositeDisposable()
+		compositeDisposable.add(
 			itemSource.subscribe(
 				{ listener.onItemRead(it) },
 				{ listener.onCacheReadError(it) },
 				{ listener.onCacheReadComplete() })
 		)
-		mCompositeDisposable.add(messageSource.subscribe {
+		compositeDisposable.add(messageSource.subscribe {
 			Utils.reportProgress(listener, it)
 		})
 
@@ -240,6 +238,7 @@ object Cache {
 		} else
 			false
 		itemSource.onComplete()
+		compositeDisposable.dispose()
 		return result
 	}
 

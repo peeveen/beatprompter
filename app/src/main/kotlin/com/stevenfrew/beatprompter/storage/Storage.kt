@@ -20,9 +20,6 @@ abstract class Storage protected constructor(
 	protected var mParentFragment: Fragment,
 	storageType: StorageType
 ) {
-	// TODO: Figure out when to call dispose on this.
-	private val mCompositeDisposable = CompositeDisposable()
-
 	var cacheFolder: CacheFolder
 		protected set
 
@@ -53,20 +50,22 @@ abstract class Storage protected constructor(
 				refreshFiles.remove(defaultCloudDownload.mFileInfo)
 
 		val downloadSource = PublishSubject.create<DownloadResult>()
-		mCompositeDisposable.add(
+		val compositeDisposable = CompositeDisposable()
+		compositeDisposable.add(
 			downloadSource.subscribe(
 				{ listener.onItemDownloaded(it) },
 				{ listener.onDownloadError(it) },
 				{ listener.onDownloadComplete() })
 		)
 		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(messageSource.subscribe {
+		compositeDisposable.add(messageSource.subscribe {
 			Utils.reportProgress(listener, it)
 		})
 		// Always include the temporary set list and default midi alias files.
 		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			downloadSource.onNext(defaultCloudDownload)
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
+		compositeDisposable.dispose()
 	}
 
 	fun readFolderContents(
@@ -75,14 +74,18 @@ abstract class Storage protected constructor(
 		recurseSubFolders: Boolean
 	) {
 		val folderContentsSource = PublishSubject.create<ItemInfo>()
-		mCompositeDisposable.add(
+		val compositeDisposable = CompositeDisposable()
+		compositeDisposable.add(
 			folderContentsSource.subscribe(
 				{ listener.onCloudItemFound(it) },
 				{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
-				{ listener.onFolderSearchComplete() })
+				{
+					listener.onFolderSearchComplete()
+					compositeDisposable.dispose()
+				})
 		)
 		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(messageSource.subscribe {
+		compositeDisposable.add(messageSource.subscribe {
 			Utils.reportProgress(listener, it)
 		})
 		for (defaultCloudDownload in Cache.mDefaultDownloads)
@@ -118,12 +121,12 @@ abstract class Storage protected constructor(
 
 	private fun getRootPath(listener: RootPathListener) {
 		val rootPathSource = PublishSubject.create<FolderInfo>()
-		mCompositeDisposable.add(
-			rootPathSource.subscribe(
-				{ listener.onRootPathFound(it) },
-				{ listener.onRootPathError(it) })
+		val subscription = rootPathSource.subscribe(
+			{ listener.onRootPathFound(it) },
+			{ listener.onRootPathError(it) }
 		)
 		getRootPath(listener, rootPathSource)
+		subscription.dispose()
 	}
 
 	protected abstract fun getRootPath(

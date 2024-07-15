@@ -28,7 +28,7 @@ class BeatPrompter : Application() {
 			}
 
 			override fun getString(resID: Int, vararg args: Any): String {
-				return applicationContext.getString(resID, args)
+				return applicationContext.getString(resID, *args)
 			}
 
 			override val preferences: SharedPreferences

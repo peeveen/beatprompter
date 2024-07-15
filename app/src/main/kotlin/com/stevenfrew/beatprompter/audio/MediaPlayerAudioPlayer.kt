@@ -63,12 +63,10 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 		mInternalPlayer.release()
 	}
 
-
 	override var volume: Int
 		get() = mCurrentVolume
 		set(value) {
 			mCurrentVolume = value
 			mInternalPlayer.setVolume(value * 0.01f, value * 0.01f)
 		}
-
 }
