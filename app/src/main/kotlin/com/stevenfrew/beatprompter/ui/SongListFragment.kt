@@ -825,7 +825,7 @@ class SongListFragment
 		val allSongsFilter = AllSongsFilter(cache
 			.songFiles
 			.asSequence()
-			.filter { !cache.isFilterOnly(it) }
+			.filterNot { cache.isFilterOnly(it) }
 			.toList())
 
 		// Depending on whether we have a temporary set list file, we can create a temporary

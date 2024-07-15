@@ -52,12 +52,15 @@ abstract class Storage protected constructor(
 
 		val downloadSource = PublishSubject.create<DownloadResult>()
 		val messageSource = PublishSubject.create<String>()
-		val compositeDisposable = CompositeDisposable().apply {
+		CompositeDisposable().apply {
 			add(
 				downloadSource.subscribe(
 					{ listener.onItemDownloaded(it) },
 					{ listener.onDownloadError(it) },
-					{ listener.onDownloadComplete() })
+					{
+						listener.onDownloadComplete()
+						this.dispose()
+					})
 			)
 			add(messageSource.subscribe {
 				Utils.reportProgress(listener, it)
@@ -66,7 +69,6 @@ abstract class Storage protected constructor(
 		// Always include the temporary set list and default midi alias files.
 		Cache.mDefaultDownloads.forEach { downloadSource.onNext(it) }
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
-		compositeDisposable.dispose()
 	}
 
 	fun readFolderContents(
@@ -75,20 +77,20 @@ abstract class Storage protected constructor(
 		recurseSubFolders: Boolean
 	) {
 		val folderContentsSource = PublishSubject.create<ItemInfo>()
-		val compositeDisposable = CompositeDisposable()
-		compositeDisposable.add(
-			folderContentsSource.subscribe(
-				{ listener.onCloudItemFound(it) },
-				{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
-				{
-					listener.onFolderSearchComplete()
-					compositeDisposable.dispose()
-				})
-		)
 		val messageSource = PublishSubject.create<String>()
-		compositeDisposable.add(messageSource.subscribe {
-			Utils.reportProgress(listener, it)
-		})
+		CompositeDisposable().apply {
+			add(
+				folderContentsSource.subscribe(
+					{ listener.onCloudItemFound(it) },
+					{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
+					{
+						listener.onFolderSearchComplete()
+					})
+			)
+			add(messageSource.subscribe {
+				Utils.reportProgress(listener, it)
+			})
+		}
 		for (defaultCloudDownload in Cache.mDefaultDownloads)
 			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
