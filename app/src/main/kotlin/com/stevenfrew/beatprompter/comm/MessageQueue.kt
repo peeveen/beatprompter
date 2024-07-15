@@ -13,8 +13,7 @@ open class MessageQueue(capacity: Int) {
 		mOutBuffer.clear()
 		// This take() will cause a block if empty
 		mOutBuffer.add(mBlockingQueue.take())
-		synchronized(mBlockingQueue)
-		{
+		synchronized(mBlockingQueue) {
 			while (mBlockingQueue.isNotEmpty())
 				mOutBuffer.add(mBlockingQueue.remove())
 			return mOutBuffer
@@ -22,15 +21,13 @@ open class MessageQueue(capacity: Int) {
 	}
 
 	internal fun putMessage(message: OutgoingMessage) {
-		synchronized(mBlockingQueue)
-		{
+		synchronized(mBlockingQueue) {
 			mBlockingQueue.put(message)
 		}
 	}
 
 	internal fun putMessages(messages: List<OutgoingMessage>) {
-		synchronized(mBlockingQueue)
-		{
+		synchronized(mBlockingQueue) {
 			for (f in messages.indices)
 				mBlockingQueue.put(messages[f])
 		}

@@ -8,8 +8,7 @@ class ReceiverTasks {
 	private val mReceiverThreadsLock = Any()
 
 	fun addReceiver(id: String, name: String, receiver: Receiver) {
-		synchronized(mReceiverThreadsLock)
-		{
+		synchronized(mReceiverThreadsLock) {
 			Logger.logComms { "Starting new receiver task '$id:' ($name)" }
 			mReceiverTasks[id] = ReceiverTask(name, receiver).also {
 				mReceiverThreads[id] = Thread(it).also { th ->
@@ -40,8 +39,7 @@ class ReceiverTasks {
 	}
 
 	fun stopAll() {
-		synchronized(mReceiverThreadsLock)
-		{
+		synchronized(mReceiverThreadsLock) {
 			Logger.logComms("Stopping ALL receiver tasks")
 			mReceiverThreads.keys.forEach {
 				stopAndRemoveReceiver(it)

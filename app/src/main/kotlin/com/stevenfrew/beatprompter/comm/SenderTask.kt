@@ -1,9 +1,9 @@
 package com.stevenfrew.beatprompter.comm
 
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 
 class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 	private val mSenders = mutableListOf<Sender>()
@@ -14,8 +14,7 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 			// This take() will block if the queue is empty
 			val messages = mMessageQueue.getMessages()
 
-			synchronized(mSendersLock)
-			{
+			synchronized(mSendersLock) {
 				for (f in mSenders.size - 1 downTo 0) {
 					// Sanity check in case a dead sender was removed.
 					if (f < mSenders.size) {
@@ -35,8 +34,7 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 	}
 
 	fun addSender(id: String, sender: Sender) {
-		synchronized(mSendersLock)
-		{
+		synchronized(mSendersLock) {
 			Logger.logComms { "Adding new sender '$id' (${sender.name}) to the collection" }
 			mSenders.add(sender)
 		}
