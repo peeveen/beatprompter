@@ -56,15 +56,15 @@ class NativeMidiController(
 					info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
 						info.ports.forEach {
 							when (it.type) {
-								MidiDeviceInfo.PortInfo.TYPE_INPUT -> this@NativeMidiController.mReceiverTasks.addReceiver(
+								MidiDeviceInfo.PortInfo.TYPE_INPUT -> this@NativeMidiController.mSenderTask.addSender(
+									deviceName,
+									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
+								)
+
+								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> this@NativeMidiController.mReceiverTasks.addReceiver(
 									deviceName,
 									deviceName,
 									NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
-								)
-
-								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> this@NativeMidiController.mSenderTask.addSender(
-									deviceName,
-									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
 								)
 							}
 						}
