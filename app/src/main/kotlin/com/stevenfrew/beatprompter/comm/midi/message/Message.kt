@@ -6,6 +6,8 @@ import kotlin.experimental.or
 
 open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
 	companion object {
+		internal const val ZERO_BYTE: Byte = 0.toByte()
+
 		internal const val MIDI_SYSEX_START_BYTE = 0xf0.toByte()
 		internal const val MIDI_SONG_POSITION_POINTER_BYTE = 0xf2.toByte()
 		internal const val MIDI_SONG_SELECT_BYTE = 0xf3.toByte()
@@ -17,7 +19,7 @@ open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
 		internal const val MIDI_CONTROL_CHANGE_BYTE = 0xb0.toByte()
 		internal const val MIDI_PROGRAM_CHANGE_BYTE = 0xc0.toByte()
 
-		internal const val MIDI_MSB_BANK_SELECT_CONTROLLER = 0.toByte()
+		internal const val MIDI_MSB_BANK_SELECT_CONTROLLER = ZERO_BYTE
 		internal const val MIDI_LSB_BANK_SELECT_CONTROLLER = 32.toByte()
 
 		internal fun mergeMessageByteWithChannel(message: Byte, channel: Byte): Byte {

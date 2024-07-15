@@ -6,7 +6,7 @@ open class OutgoingMessage : Message {
 			getCodeIndex(byte1),
 			byte1,
 			byte2,
-			0.toByte()
+			ZERO_BYTE
 		)
 	)
 
@@ -25,11 +25,7 @@ open class OutgoingMessage : Message {
 
 	companion object {
 		private fun padToFourBytes(bytes: ByteArray): ByteArray {
-			return if (bytes.size < 4) ByteArray(4).also {
-				it[0] = 0.toByte()
-				it[1] = 0.toByte()
-				it[2] = 0.toByte()
-				it[3] = 0.toByte()
+			return if (bytes.size < 4) ByteArray(4) { _ -> ZERO_BYTE }.also {
 				System.arraycopy(bytes, 0, it, 0, bytes.size)
 			} else bytes
 		}

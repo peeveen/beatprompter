@@ -2,12 +2,12 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.SharedPreferences
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import kotlin.experimental.and
 
 abstract class Receiver(name: String) : ReceiverBase(name) {
@@ -21,7 +21,7 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
 		while (dataStart < dataEnd) {
 			val messageByte = buffer[dataStart]
 			// All interesting MIDI signals have the top bit set.
-			if (messageByte and EIGHT_ZERO_HEX != ZERO_AS_BYTE) {
+			if (messageByte and EIGHT_ZERO_HEX != Message.ZERO_BYTE) {
 				if (mInSysEx) {
 					if (messageByte == Message.MIDI_SYSEX_END_BYTE) {
 						mInSysEx = false
@@ -113,7 +113,6 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
 				setIncomingChannels()
 		}
 
-		private const val ZERO_AS_BYTE = 0.toByte()
 		private const val EIGHT_ZERO_HEX = 0x80.toByte()
 		private const val F_ZERO_HEX = 0xF0.toByte()
 
