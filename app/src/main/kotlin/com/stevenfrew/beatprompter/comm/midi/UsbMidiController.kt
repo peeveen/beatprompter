@@ -22,15 +22,18 @@ class UsbMidiController(
 	internal val mSenderTask: SenderTask,
 	internal val mReceiverTasks: ReceiverTasks
 ) {
-	private lateinit var mManager: UsbManager
-	private var mRegistered = false
-	private var mPermissionIntent: PendingIntent? = null
-
-	private val mUsbReceiver = object : BroadcastReceiver() {
+	private inner class UsbReceiver(
+		private val mManager: UsbManager,
+		private val mPermissionIntent: PendingIntent
+	) : BroadcastReceiver() {
 		override fun onReceive(context: Context, intent: Intent) {
 			val action = intent.action
 			when (action) {
-				UsbManager.ACTION_USB_DEVICE_ATTACHED -> attemptUsbMidiConnection()
+				UsbManager.ACTION_USB_DEVICE_ATTACHED -> attemptUsbMidiConnection(
+					mManager,
+					mPermissionIntent
+				)
+
 				UsbManager.ACTION_USB_DEVICE_DETACHED -> getDeviceFromIntent(intent)?.apply {
 					mSenderTask.removeSender(deviceName)
 					mReceiverTasks.stopAndRemoveReceiver(deviceName)
@@ -75,10 +78,10 @@ class UsbMidiController(
 	init {
 		@SuppressLint("UnspecifiedRegisterReceiverFlag")
 		if (context.packageManager.hasSystemFeature(Context.USB_SERVICE)) {
-			mManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+			val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
 			val intent = Intent(ACTION_USB_PERMISSION)
 			intent.setPackage(context.packageName)
-			mPermissionIntent = PendingIntent.getBroadcast(
+			val permissionIntent = PendingIntent.getBroadcast(
 				context,
 				0,
 				intent,
@@ -91,13 +94,13 @@ class UsbMidiController(
 				addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
 			}
 
+			val receiver = UsbReceiver(manager, permissionIntent)
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-				context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+				context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
 			else
-				context.registerReceiver(mUsbReceiver, filter)
-			mRegistered = true
+				context.registerReceiver(receiver, filter)
 
-			attemptUsbMidiConnection()
+			attemptUsbMidiConnection(manager, permissionIntent)
 		}
 	}
 
@@ -113,15 +116,15 @@ class UsbMidiController(
 			)
 	}
 
-	private fun attemptUsbMidiConnection() {
+	private fun attemptUsbMidiConnection(manager: UsbManager, permissionIntent: PendingIntent) {
 		if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
-			val list = mManager.deviceList
+			val list = manager.deviceList
 			if (list != null && list.size > 0) {
 				val devObjects = list.values
 				for (devObj in devObjects) {
 					val dev = devObj as UsbDevice
 					if (dev.getUsbDeviceMidiInterface() != null) {
-						mManager.requestPermission(dev, mPermissionIntent)
+						manager.requestPermission(dev, permissionIntent)
 						break
 					}
 				}

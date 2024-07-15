@@ -15,32 +15,32 @@ class NativeMidiController(
 	internal val mSenderTask: SenderTask,
 	internal val mReceiverTasks: ReceiverTasks
 ) {
-	private lateinit var mManager: MidiManager
 	private var mDeviceListener: MidiNativeDeviceListener? = null
 
 	init {
 		if (context.packageManager.hasSystemFeature(Context.MIDI_SERVICE)) {
-			mDeviceListener = MidiNativeDeviceListener()
-			mManager =
+			val manager =
 				context.getSystemService(Context.MIDI_SERVICE) as MidiManager
-			mManager.apply {
+			mDeviceListener = MidiNativeDeviceListener(manager)
+			manager.apply {
 				registerDeviceCallback(mDeviceListener, null)
 				devices?.forEach {
-					addNativeDevice(it)
+					addNativeDevice(it, manager)
 				}
 			}
 		}
 	}
 
-	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo) {
+	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo, manager: MidiManager) {
 		if (Preferences.midiConnectionType == ConnectionType.Native)
-			mManager.openDevice(nativeDeviceInfo, mDeviceListener, null)
+			manager.openDevice(nativeDeviceInfo, mDeviceListener, null)
 	}
 
-	inner class MidiNativeDeviceListener : MidiManager.OnDeviceOpenedListener,
+	private inner class MidiNativeDeviceListener(private val mManager: MidiManager) :
+		MidiManager.OnDeviceOpenedListener,
 		MidiManager.DeviceCallback() {
 		override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) {
-			addNativeDevice(deviceInfo)
+			addNativeDevice(deviceInfo, mManager)
 		}
 
 		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
