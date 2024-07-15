@@ -4,6 +4,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 
 internal class ArgumentValue(private val mArgumentIndex: Int) : Value() {
+	val argumentIndex: Int
+		get() = mArgumentIndex
 
 	init {
 		if (mArgumentIndex < 0)

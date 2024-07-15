@@ -1,0 +1,7 @@
+<resources>
+
+	<style name="ReadingDatabaseDialog" parent="Theme.AppCompat.DayNight.Dialog">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowBackground">@color/transparent</item>
+	</style>
+</resources>

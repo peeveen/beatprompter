@@ -7,6 +7,8 @@ class Alias(
 	components: List<AliasComponent>
 ) {
 	val mName = name
+	val parameterCount
+		get() = mComponents.maxOf { it.parameterCount }
 	private val mComponents = components
 
 	fun resolve(aliases: List<Alias>, arguments: ByteArray, channel: Byte): List<OutgoingMessage> {

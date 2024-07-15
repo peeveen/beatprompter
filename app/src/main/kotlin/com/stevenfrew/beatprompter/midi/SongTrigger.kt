@@ -26,6 +26,9 @@ class SongTrigger(
 		type
 	)
 
+	val isDeadTrigger: Boolean
+		get() = mType == TriggerType.SongSelect && mBankSelectMSB is NoValue && mBankSelectLSB is NoValue && mTriggerIndex is NoValue && mChannel is NoValue
+
 	fun writeToXML(element: Element) {
 		element.setAttribute(MSB_ATTRIBUTE, "${mBankSelectMSB.resolve()}")
 		element.setAttribute(LSB_ATTRIBUTE, "${mBankSelectLSB.resolve()}")

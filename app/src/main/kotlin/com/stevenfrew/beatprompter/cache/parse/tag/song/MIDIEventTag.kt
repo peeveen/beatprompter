@@ -60,7 +60,7 @@ class MIDIEventTag internal constructor(
 				tagValue
 					.splitAndTrim(",")
 					.asSequence()
-					.filter { !it.isBlank() }
+					.filter { it.isNotBlank() }
 					.map { bit -> parseValue(bit) }
 					.toList()
 
@@ -71,17 +71,22 @@ class MIDIEventTag internal constructor(
 				val resolvedBytes = params
 					.map { it.resolve() }
 					.toByteArray()
-				val matchedAlias = aliases.firstOrNull { it.mName.equals(tagName, ignoreCase = true) }
+				val matchedAlias = aliases.firstOrNull {
+					it.mName.equals(
+						tagName,
+						ignoreCase = true
+					) && it.parameterCount == resolvedBytes.size
+				}
 				return when {
-					tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes)) to eventOffset
+					tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes))
 					matchedAlias != null -> matchedAlias.resolve(
 						aliases,
 						resolvedBytes,
 						channelValue.resolve()
-					) to eventOffset
+					)
 
 					else -> throw MalformedTagException(R.string.unknown_midi_directive, tagName)
-				}
+				} to eventOffset
 			} catch (re: ResolutionException) {
 				throw MalformedTagException(re.message!!)
 			}
