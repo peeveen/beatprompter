@@ -6,7 +6,7 @@ open class OutgoingMessage : Message {
 			getCodeIndex(byte1),
 			byte1,
 			byte2,
-			ZERO_BYTE
+			0
 		)
 	)
 
@@ -19,15 +19,13 @@ open class OutgoingMessage : Message {
 	protected constructor(
 		bytes: ByteArray,
 		codeIndexPresent: Boolean
-	) : super(if (codeIndexPresent) padToFourBytes(bytes) else padToFourBytes(appendCodeIndex(bytes)))
+	) : super(padToFourBytes(if (codeIndexPresent) bytes else appendCodeIndex(bytes)))
 
-	constructor(bytes: ByteArray) : super(padToFourBytes(appendCodeIndex(bytes)))
+	constructor(bytes: ByteArray) : this(bytes, false)
 
 	companion object {
 		private fun padToFourBytes(bytes: ByteArray): ByteArray {
-			return if (bytes.size < 4) ByteArray(4) { _ -> ZERO_BYTE }.also {
-				System.arraycopy(bytes, 0, it, 0, bytes.size)
-			} else bytes
+			return if (bytes.size < 4) ByteArray(4) { index -> if (index < bytes.size) bytes[index] else 0 } else bytes
 		}
 
 		private fun appendCodeIndex(bytes: ByteArray): ByteArray {

@@ -12,10 +12,10 @@ abstract class Value {
 	internal abstract fun matches(otherValue: Value?): Boolean
 
 	fun resolve(): Byte {
-		return resolve(ByteArray(0), ZERO_BYTE)
+		return resolve(ByteArray(0), 0)
 	}
 
 	companion object {
-		internal const val ZERO_BYTE = 0.toByte()
+		internal const val ZERO_BYTE: Byte = 0
 	}
 }
