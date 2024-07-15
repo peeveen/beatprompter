@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.comm.midi
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -53,38 +54,20 @@ object MIDIController {
 	private val mUsbReceiver = object : BroadcastReceiver() {
 		override fun onReceive(context: Context, intent: Intent) {
 			val action = intent.action
-			if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
+			if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action)
 				attemptUsbMidiConnection()
-			}
 			if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
-				(if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-					intent.getParcelableExtra(
-						UsbManager.EXTRA_DEVICE
-					)
-				else
-					intent.getParcelableExtra(
-						UsbManager.EXTRA_DEVICE,
-						UsbDevice::class.java
-					))?.apply {
+				getDeviceFromIntent(intent)?.apply {
 					mSenderTask.removeSender(deviceName)
 					mReceiverTasks.stopAndRemoveReceiver(deviceName)
 				}
 			} else if (ACTION_USB_PERMISSION == action) {
 				synchronized(this) {
-					val device = (if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-						intent.getParcelableExtra(
-							UsbManager.EXTRA_DEVICE
-						)
-					else
-						intent.getParcelableExtra(
-							UsbManager.EXTRA_DEVICE,
-							UsbDevice::class.java
-						))
-					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-						if (device != null) {
-							val midiInterface = getDeviceMidiInterface(device)
+					getDeviceFromIntent(intent)?.apply {
+						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+							val midiInterface = getUsbDeviceMidiInterface()
 							if (midiInterface != null) {
-								val conn = mUsbManager!!.openDevice(device)
+								val conn = mUsbManager!!.openDevice(this)
 								if (conn != null) {
 									if (conn.claimInterface(midiInterface, true)) {
 										val endpointCount = midiInterface.endpointCount
@@ -92,16 +75,16 @@ object MIDIController {
 											val endPoint = midiInterface.getEndpoint(it)
 											if (endPoint.direction == UsbConstants.USB_DIR_OUT)
 												mSenderTask.addSender(
-													device.deviceName,
-													UsbSender(conn, endPoint, device.deviceName)
+													deviceName,
+													UsbSender(conn, endPoint, deviceName)
 												)
 											else if (endPoint.direction == UsbConstants.USB_DIR_IN)
 												mReceiverTasks.addReceiver(
-													device.deviceName,
-													device.deviceName,
-													UsbReceiver(conn, endPoint, device.deviceName)
+													deviceName,
+													deviceName,
+													UsbReceiver(conn, endPoint, deviceName)
 												)
-											EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, device.deviceName)
+											EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
 										}
 									}
 								}
@@ -113,11 +96,23 @@ object MIDIController {
 		}
 	}
 
-	private fun getDeviceMidiInterface(device: UsbDevice): UsbInterface? {
-		val interfaceCount = device.interfaceCount
+	private fun getDeviceFromIntent(intent: Intent): UsbDevice? {
+		return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+			intent.getParcelableExtra(
+				UsbManager.EXTRA_DEVICE
+			)
+		else
+			intent.getParcelableExtra(
+				UsbManager.EXTRA_DEVICE,
+				UsbDevice::class.java
+			)
+	}
+
+	private fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
+		val interfaceCount = interfaceCount
 		var fallbackInterface: UsbInterface? = null
 		repeat(interfaceCount) { interfaceIndex ->
-			val face = device.getInterface(interfaceIndex)
+			val face = getInterface(interfaceIndex)
 			val mainClass = face.interfaceClass
 			val subclass = face.interfaceSubclass
 			// Oh you f***in beauty, we've got a perfect compliant MIDI interface!
@@ -153,7 +148,7 @@ object MIDIController {
 				val devObjects = list.values
 				for (devObj in devObjects) {
 					val dev = devObj as UsbDevice
-					if (getDeviceMidiInterface(dev) != null) {
+					if (dev.getUsbDeviceMidiInterface() != null) {
 						mUsbManager!!.requestPermission(dev, mPermissionIntent)
 						break
 					}
@@ -162,6 +157,7 @@ object MIDIController {
 		}
 	}
 
+	@SuppressLint("UnspecifiedRegisterReceiverFlag")
 	fun initialise(application: BeatPrompter) {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
