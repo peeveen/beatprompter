@@ -213,7 +213,7 @@ object MIDIController {
 		}
 
 		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
-			deviceInfo.properties[MidiDeviceInfo.PROPERTY_NAME]?.toString()?.also {
+			deviceInfo.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also {
 				mSenderTask.removeSender(it)
 				mReceiverTasks.stopAndRemoveReceiver(it)
 			}
@@ -222,7 +222,7 @@ object MIDIController {
 		override fun onDeviceOpened(openedDevice: MidiDevice?) {
 			try {
 				openedDevice?.apply {
-					val deviceName = "" + info.properties[MidiDeviceInfo.PROPERTY_NAME]
+					val deviceName = "" + info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)
 					info.ports.forEach {
 						if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
 							mReceiverTasks.addReceiver(
