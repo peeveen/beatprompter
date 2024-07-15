@@ -23,7 +23,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Tag that defines a MIDI event to be output to any connected devices.
  */
-class MIDIEventTag internal constructor(
+class MidiEventTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,

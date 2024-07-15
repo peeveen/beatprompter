@@ -13,7 +13,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Base class for MIDI auto-start tags.
  */
-open class MIDITriggerTag protected constructor(
+open class MidiTriggerTag protected constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,

@@ -13,7 +13,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
 import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
+import com.stevenfrew.beatprompter.cache.parse.MidiAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.events.EventRouter
@@ -376,7 +376,7 @@ object Cache {
 				)
 			},
 			MIDIAliasFile::class to { element, useXmlData ->
-				MIDIAliasFileParser(CachedFile(element)).parse(
+				MidiAliasFileParser(CachedFile(element)).parse(
 					if (useXmlData) element else null
 				)
 			},

@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Tag that defines a MIDI alias set name.
  */
-class MIDIAliasSetNameTag internal constructor(
+class MidiAliasSetNameTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
