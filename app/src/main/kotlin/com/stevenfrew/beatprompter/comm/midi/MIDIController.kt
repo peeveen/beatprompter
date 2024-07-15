@@ -222,21 +222,22 @@ object MIDIController {
 		override fun onDeviceOpened(openedDevice: MidiDevice?) {
 			try {
 				openedDevice?.apply {
-					val deviceName = "" + info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)
-					info.ports.forEach {
-						if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
-							mReceiverTasks.addReceiver(
-								deviceName,
-								deviceName,
-								NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
-							)
-						else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
-							mSenderTask.addSender(
-								deviceName,
-								NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
-							)
+					info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
+						info.ports.forEach {
+							if (it.type == MidiDeviceInfo.PortInfo.TYPE_INPUT)
+								mReceiverTasks.addReceiver(
+									deviceName,
+									deviceName,
+									NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
+								)
+							else if (it.type == MidiDeviceInfo.PortInfo.TYPE_OUTPUT)
+								mSenderTask.addSender(
+									deviceName,
+									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
+								)
+						}
+						EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
 					}
-					EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
 				}
 			} catch (ioException: Exception) {
 				// Obviously not for us.
