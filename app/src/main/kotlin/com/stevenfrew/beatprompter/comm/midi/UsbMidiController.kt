@@ -7,9 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
-import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.os.Build
 import com.stevenfrew.beatprompter.Preferences
@@ -17,6 +15,7 @@ import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
+import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
 class UsbMidiController(
 	context: Context,
@@ -112,39 +111,6 @@ class UsbMidiController(
 				UsbManager.EXTRA_DEVICE,
 				UsbDevice::class.java
 			)
-	}
-
-	private fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
-		val interfaceCount = interfaceCount
-		var fallbackInterface: UsbInterface? = null
-		repeat(interfaceCount) { interfaceIndex ->
-			val face = getInterface(interfaceIndex)
-			val mainClass = face.interfaceClass
-			val subclass = face.interfaceSubclass
-			// Oh you f***in beauty, we've got a perfect compliant MIDI interface!
-			if (mainClass == 1 && subclass == 3)
-				return face
-			else if (mainClass == 255 && fallbackInterface == null) {
-				// Basically, go with this if:
-				// It has all endpoints of type "bulk transfer"
-				// and
-				// The endpoints have a max packet size that is a multiplier of 4.
-				val endPointCount = face.endpointCount
-				var allEndpointsCheckout = true
-				repeat(endPointCount) {
-					val ep = face.getEndpoint(it)
-					val maxPacket = ep.maxPacketSize
-					val type = ep.type
-					allEndpointsCheckout =
-						allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)
-				}
-				if (allEndpointsCheckout)
-					fallbackInterface = face
-			}
-			// Aw bollocks, we've got some vendor-specific pish.
-			// Still worth trying.
-		}
-		return fallbackInterface
 	}
 
 	private fun attemptUsbMidiConnection() {

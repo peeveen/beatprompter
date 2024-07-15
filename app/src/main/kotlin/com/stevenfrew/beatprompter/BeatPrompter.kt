@@ -10,15 +10,7 @@ import androidx.preference.PreferenceManager
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
 import com.stevenfrew.beatprompter.comm.midi.MidiController
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
-
-interface GlobalAppResources {
-	fun getString(resID: Int): String
-	fun getString(resID: Int, vararg args: Any): String
-	val preferences: SharedPreferences
-	val privatePreferences: SharedPreferences
-	val assetManager: AssetManager
-	val context: Context
-}
+import com.stevenfrew.beatprompter.util.GlobalAppResources
 
 class BeatPrompter : Application() {
 	private val mSongLoaderTaskThread = Thread(SongLoadQueueWatcherTask)

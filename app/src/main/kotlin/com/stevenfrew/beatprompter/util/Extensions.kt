@@ -1,5 +1,8 @@
 package com.stevenfrew.beatprompter.util
 
+import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
+import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,3 +96,36 @@ fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TRes
 			}
 		}
 	}
+
+fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
+	val interfaceCount = interfaceCount
+	var fallbackInterface: UsbInterface? = null
+	repeat(interfaceCount) { interfaceIndex ->
+		val face = getInterface(interfaceIndex)
+		val mainClass = face.interfaceClass
+		val subclass = face.interfaceSubclass
+		// Oh you f***in beauty, we've got a perfect compliant MIDI interface!
+		if (mainClass == 1 && subclass == 3)
+			return face
+		else if (mainClass == 255 && fallbackInterface == null) {
+			// Basically, go with this if:
+			// It has all endpoints of type "bulk transfer"
+			// and
+			// The endpoints have a max packet size that is a multiplier of 4.
+			val endPointCount = face.endpointCount
+			var allEndpointsCheckout = true
+			repeat(endPointCount) {
+				val ep = face.getEndpoint(it)
+				val maxPacket = ep.maxPacketSize
+				val type = ep.type
+				allEndpointsCheckout =
+					allEndpointsCheckout and (type == USB_ENDPOINT_XFER_BULK && (maxPacket and 3) == 0)
+			}
+			if (allEndpointsCheckout)
+				fallbackInterface = face
+		}
+		// Aw bollocks, we've got some vendor-specific pish.
+		// Still worth trying.
+	}
+	return fallbackInterface
+}
