@@ -85,6 +85,7 @@ abstract class Storage protected constructor(
 					{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
 					{
 						listener.onFolderSearchComplete()
+						this.dispose()
 					})
 			)
 			add(messageSource.subscribe {

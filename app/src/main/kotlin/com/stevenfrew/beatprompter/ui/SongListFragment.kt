@@ -245,6 +245,7 @@ class SongListFragment
 		}
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		mMenu = menu
@@ -923,6 +924,7 @@ class SongListFragment
 		openBrowser(R.string.buyMeACoffeeUrl)
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.synchronize -> Cache.performFullCloudSync(this)
