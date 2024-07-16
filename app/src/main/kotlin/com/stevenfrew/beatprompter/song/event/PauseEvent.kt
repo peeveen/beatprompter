@@ -8,4 +8,7 @@ class PauseEvent(
 	eventTime: Long,
 	val mBeats: Int,
 	val mBeat: Int
-) : BaseEvent(eventTime)
+) : BaseEvent(eventTime) {
+	override fun offset(nanoseconds: Long): BaseEvent =
+		PauseEvent(mEventTime + nanoseconds, mBeats, mBeat)
+}

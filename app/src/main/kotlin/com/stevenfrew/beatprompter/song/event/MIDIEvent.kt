@@ -10,4 +10,7 @@ class MIDIEvent(
 	time: Long,
 	val mMessages: List<OutgoingMessage>,
 	val mOffset: EventOffset = EventOffset(0)
-) : BaseEvent(time)
+) : BaseEvent(time) {
+	override fun offset(nanoseconds: Long): BaseEvent =
+		MIDIEvent(mEventTime + nanoseconds, mMessages, mOffset)
+}

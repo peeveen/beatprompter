@@ -59,6 +59,7 @@ import com.stevenfrew.beatprompter.song.Song
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.BaseEvent
 import com.stevenfrew.beatprompter.song.event.BeatEvent
+import com.stevenfrew.beatprompter.song.event.ClickEvent
 import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
@@ -135,6 +136,7 @@ class SongParser(
 	private val mMetronomeContext: MetronomeContext
 	private val mCustomCommentsUser: String
 	private val mShowChords: Boolean
+	private val mAudioLatency: Int
 	private val mShowKey: Boolean
 	private val mShowBPM: ShowBPMContext
 	private val mTriggerContext: TriggerOutputContext
@@ -170,6 +172,7 @@ class SongParser(
 		mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
 
 		mSendMidiClock = Preferences.sendMIDIClock
+		mAudioLatency = Preferences.audioLatency
 		mCountIn = Preferences.defaultCountIn
 		mMetronomeContext = Preferences.metronomeContext
 		mDefaultHighlightColor = Preferences.defaultHighlightColor
@@ -604,11 +607,18 @@ class SongParser(
 		val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
-		// First of all, offset any MIDI events that have an offset.
-		val offsetEventList = offsetMIDIEvents()
+		// First of all, find beat events that have the "click" flag set and
+		// add a click event (necessary because we want to offset the click by
+		// the audio latency without offsetting the beat).
+		val eventsWithClicks = generateClickEvents(mEvents)
+		// Now offset any MIDI events that have an offset.
+		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, mErrors)
+		// And offset non-audio events by the audio latency offset.
+		val audioLatencyCompensatedEventList =
+			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(mAudioLatency))
 
 		// OK, now sort all events by time, and type within time
-		val sortedEventList = sortEvents(offsetEventList).toMutableList()
+		val sortedEventList = sortEvents(audioLatencyCompensatedEventList).toMutableList()
 
 		// Songs need a "first event" to have as their "current event". Without this, the initial
 		// "current event" could be the EndEvent!
@@ -881,62 +891,6 @@ class SongParser(
 	}
 
 	/**
-	 * Each MIDIEvent might have an offset. Process that here.
-	 */
-	private fun offsetMIDIEvents(): List<BaseEvent> {
-		val beatEvents =
-			mEvents.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }.toList()
-		return mEvents.map {
-			if (it is MIDIEvent)
-				offsetMIDIEvent(it, beatEvents)
-			else
-				it
-		}
-	}
-
-	/**
-	 * Each MIDIEvent might have an offset. Process that here.
-	 */
-	private fun offsetMIDIEvent(midiEvent: MIDIEvent, beatEvents: List<BeatEvent>): MIDIEvent {
-		if (midiEvent.mOffset.mAmount != 0) {
-			// OK, this event needs moved.
-			var newTime: Long = -1
-			if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-				val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-				newTime = midiEvent.mEventTime + offset
-			} else {
-				// Offset by beat count.
-				val beatCount = midiEvent.mOffset.mAmount
-				val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
-					if (beatCount >= 0)
-						it.mEventTime > midiEvent.mEventTime
-					else
-						it.mEventTime < midiEvent.mEventTime
-				}
-				val beatsInOrder =
-					if (beatCount < 0)
-						beatsBeforeOrAfterThisMIDIEvent.reversed()
-					else
-						beatsBeforeOrAfterThisMIDIEvent
-				val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
-				if (beatWeWant != null)
-					newTime = beatWeWant.mEventTime
-			}
-			if (newTime < 0) {
-				mErrors.add(
-					FileParseError(
-						midiEvent.mOffset.mSourceFileLineNumber,
-						R.string.midi_offset_is_before_start_of_song
-					)
-				)
-				newTime = 0
-			}
-			return MIDIEvent(newTime, midiEvent.mMessages)
-		}
-		return midiEvent
-	}
-
-	/**
 	 * Based on the difference in screen size/resolution/orientation, we will alter the min/max font size of our native settings.
 	 */
 	private fun translateSourceDeviceSettingsToNative(
@@ -1175,7 +1129,13 @@ class SongParser(
 				// (Manual mode ignores these values)
 			}
 
-		return Pair(startScrollTime, stopScrollTime)
+		// Events are going to be offset later to compensate for audio latency.
+		// Lines, however, won't be. So we need to compensate NOW.
+		val audioLatencyOffset = Utils.milliToNano(Preferences.audioLatency)
+		return Pair(
+			startScrollTime + audioLatencyOffset,
+			stopScrollTime + audioLatencyOffset
+		)
 	}
 
 	private fun calculateLineDuration(
@@ -1271,5 +1231,98 @@ class SongParser(
 				}
 			}
 		}
+	}
+
+	companion object {
+		/**
+		 * Each MIDIEvent might have an offset. Process that here.
+		 */
+		private fun offsetMIDIEvents(
+			events: List<BaseEvent>,
+			errors: MutableList<FileParseError>
+		): List<BaseEvent> {
+			val beatEvents =
+				events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }.toList()
+			return events.map {
+				if (it is MIDIEvent)
+					offsetMIDIEvent(it, beatEvents, errors)
+				else
+					it
+			}
+		}
+
+		/**
+		 * Each MIDIEvent might have an offset. Process that here.
+		 */
+		private fun offsetMIDIEvent(
+			midiEvent: MIDIEvent,
+			beatEvents: List<BeatEvent>,
+			errors: MutableList<FileParseError>
+		): MIDIEvent =
+			if (midiEvent.mOffset.mAmount != 0) {
+				// OK, this event needs moved.
+				var newTime: Long = -1
+				if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
+					val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
+					newTime = midiEvent.mEventTime + offset
+				} else {
+					// Offset by beat count.
+					val beatCount = midiEvent.mOffset.mAmount
+					val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
+						if (beatCount >= 0)
+							it.mEventTime > midiEvent.mEventTime
+						else
+							it.mEventTime < midiEvent.mEventTime
+					}
+					val beatsInOrder =
+						if (beatCount < 0)
+							beatsBeforeOrAfterThisMIDIEvent.reversed()
+						else
+							beatsBeforeOrAfterThisMIDIEvent
+					val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
+					if (beatWeWant != null)
+						newTime = beatWeWant.mEventTime
+				}
+				if (newTime < 0) {
+					errors.add(
+						FileParseError(
+							midiEvent.mOffset.mSourceFileLineNumber,
+							R.string.midi_offset_is_before_start_of_song
+						)
+					)
+					newTime = 0
+				}
+				MIDIEvent(newTime, midiEvent.mMessages)
+			} else
+				midiEvent
+
+		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =
+			!(this is AudioEvent || this is StartEvent || this is ClickEvent || (this is LineEvent && !lineEventFound))
+
+		private fun compensateForAudioLatency(
+			events: List<BaseEvent>,
+			nanoseconds: Long
+		): List<BaseEvent> {
+			// First line event should NOT be offset.
+			var lineEventFound = false
+			return events.map {
+				(if (it.shouldCompensateForAudioLatency(lineEventFound))
+					it.offset(nanoseconds)
+				else
+					it).also {
+					lineEventFound = lineEventFound || it is LineEvent
+				}
+			}
+		}
+
+		private fun generateClickEvents(
+			events: List<BaseEvent>
+		): List<BaseEvent> =
+			events.flatMap {
+				if (it is BeatEvent && it.mClick)
+					listOf(it, ClickEvent(it.mEventTime))
+				else
+					listOf(it)
+			}
 	}
 }

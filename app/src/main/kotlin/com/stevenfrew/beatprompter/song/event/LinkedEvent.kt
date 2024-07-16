@@ -1,13 +1,11 @@
 package com.stevenfrew.beatprompter.song.event
 
-import com.stevenfrew.beatprompter.song.ScrollingMode
-
 /**
  * During song parsing, the other events are finally encapsulated in LinkedEvent objects,
  * creating a linked-list style of collection. This allows us to easily find the previous
  * beat event, etc.
  */
-class LinkedEvent	(eventList: List<BaseEvent>, private val mPrevEvent: LinkedEvent? = null) {
+class LinkedEvent(eventList: List<BaseEvent>, private val mPrevEvent: LinkedEvent? = null) {
 	val mEvent: BaseEvent
 	val mNextBeatEvent: BeatEvent?
 	val mPrevLineEvent: LineEvent?
@@ -44,11 +42,11 @@ class LinkedEvent	(eventList: List<BaseEvent>, private val mPrevEvent: LinkedEve
 		}
 	}
 
-	private val firstEventWithSameTime:LinkedEvent
+	private val firstEventWithSameTime: LinkedEvent
 		get() {
-			var e=this
-			while(e.mPrevEvent?.time==e.time)
-				e=e.mPrevEvent!!
+			var e = this
+			while (e.mPrevEvent?.time == e.time)
+				e = e.mPrevEvent!!
 			return e
 		}
 
@@ -56,10 +54,14 @@ class LinkedEvent	(eventList: List<BaseEvent>, private val mPrevEvent: LinkedEve
 		val eventsGroupedByTime = eventList.groupBy { it.mEventTime }.toSortedMap()
 		val firstGroup = eventsGroupedByTime.getValue(eventsGroupedByTime.firstKey())
 		mEvent = firstGroup.first()
-		mPrevLineEvent = firstGroup.firstNotNullOfOrNull { it as? LineEvent } ?: mPrevEvent?.mPrevLineEvent
-		mPrevAudioEvent = firstGroup.firstNotNullOfOrNull { it as? AudioEvent } ?: mPrevEvent?.mPrevAudioEvent
-		mPrevBeatEvent = firstGroup.firstNotNullOfOrNull { it as? BeatEvent } ?: mPrevEvent?.mPrevBeatEvent
-		mNextBeatEvent = eventList.filter { it.mEventTime > mEvent.mEventTime }.firstNotNullOfOrNull{ it as? BeatEvent }
+		mPrevLineEvent =
+			firstGroup.firstNotNullOfOrNull { it as? LineEvent } ?: mPrevEvent?.mPrevLineEvent
+		mPrevAudioEvent =
+			firstGroup.firstNotNullOfOrNull { it as? AudioEvent } ?: mPrevEvent?.mPrevAudioEvent
+		mPrevBeatEvent =
+			firstGroup.firstNotNullOfOrNull { it as? BeatEvent } ?: mPrevEvent?.mPrevBeatEvent
+		mNextBeatEvent = eventList.filter { it.mEventTime > mEvent.mEventTime }
+			.firstNotNullOfOrNull { it as? BeatEvent }
 		val otherEvents = eventList.takeLast(eventList.size - 1)
 		mNextEvent = if (otherEvents.isNotEmpty()) LinkedEvent(otherEvents, this) else null
 	}

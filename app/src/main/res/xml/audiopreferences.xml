@@ -39,4 +39,17 @@
 		android:summary="@string/pref_mute_summary"
 		android:title="@string/pref_mute_title"
 		app:iconSpaceReserved="false" />
+	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
+		android:defaultValue="@string/pref_audioLatency_default"
+		android:dialogLayout="@layout/seek_bar_dialog"
+		android:dialogMessage="@string/pref_audioLatency_message"
+		android:key="@string/pref_audioLatency_key"
+		android:layout="@layout/preference"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_audioLatency_message"
+		android:title="@string/pref_audioLatency_title"
+		sf:max="@string/pref_audioLatency_max"
+		sf:offset="@string/pref_audioLatency_offset"
+		sf:suffix="@string/pref_audioLatency_text" />
 </PreferenceScreen>

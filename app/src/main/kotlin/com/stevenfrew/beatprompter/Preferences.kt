@@ -118,6 +118,9 @@ object Preferences {
 	val defaultCountIn: Int
 		get() = getIntPreference(R.string.pref_countIn_key, R.string.pref_countIn_default, 0)
 
+	val audioLatency: Int
+		get() = getIntPreference(R.string.pref_audioLatency_key, R.string.pref_countIn_default, 0)
+
 	val sendMIDIClock: Boolean
 		get() = getBooleanPreference(R.string.pref_sendMidi_key, false)
 

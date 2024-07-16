@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.Typeface
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
@@ -16,6 +17,7 @@ import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
 import com.stevenfrew.beatprompter.song.line.Line
+import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.UUID
 
@@ -52,13 +54,20 @@ class Song(
 	val mManualMode: Boolean = mLines.all { it.mScrollMode === ScrollingMode.Manual }
 	internal val mBackingTrack = findBackingTrack(firstEvent)
 
-	private fun getProgressLineEvent(event:LinkedEvent):LineEvent? {
-		var nextEvent:LinkedEvent?=event
-		while(nextEvent?.time==event.time) {
+	private fun getProgressLineEvent(event: LinkedEvent): LineEvent? {
+		var nextEvent: LinkedEvent? = event
+		val latencyCompensatedEventTime = event.time + Utils.milliToNano(Preferences.audioLatency)
+		// Look at events where the time is the SAME as the progress event, or
+		// the same with audio latency compensation.
+		while (nextEvent != null) {
 			if (nextEvent.mEvent is LineEvent)
-				return nextEvent.mEvent as LineEvent
-			nextEvent=nextEvent.mNextEvent
+				if (nextEvent.time == latencyCompensatedEventTime) // This is the line
+					return nextEvent.mEvent as LineEvent
+				else // Found a line event with a daft time
+					break
+			nextEvent = nextEvent.mNextEvent
 		}
+		// Nothing else for it, use the previous line
 		return event.mPrevLineEvent
 	}
 
