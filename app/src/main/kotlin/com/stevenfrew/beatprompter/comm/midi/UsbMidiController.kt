@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
@@ -77,7 +78,7 @@ class UsbMidiController(
 
 	init {
 		@SuppressLint("UnspecifiedRegisterReceiverFlag")
-		if (context.packageManager.hasSystemFeature(Context.USB_SERVICE)) {
+		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_USB_HOST)) {
 			val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
 			val intent = Intent(ACTION_USB_PERMISSION)
 			intent.setPackage(context.packageName)

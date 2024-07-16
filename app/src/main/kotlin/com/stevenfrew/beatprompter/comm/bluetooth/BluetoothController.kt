@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
@@ -223,7 +224,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 					BluetoothMode.Client -> {
 						shutDownBluetoothServer()
 						if (mConnectToServerThread == null) {
-							getPairedDevices(bluetoothAdapter)
+							getPairedDevices()
 								.firstOrNull { it.address == Preferences.bandLeaderDevice }
 								?.also {
 									try {
@@ -265,9 +266,9 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 		}
 	}
 
-	fun getPairedDevices(bluetoothAdapter: BluetoothAdapter): List<BluetoothDevice> {
+	fun getPairedDevices(): List<BluetoothDevice> {
 		return try {
-			bluetoothAdapter.bondedDevices?.toList() ?: listOf()
+			getBluetoothAdapter(BeatPrompter.appResources.context)?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
 			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
 			listOf()
@@ -357,7 +358,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	}
 
 	private fun getBluetoothAdapter(context: Context): BluetoothAdapter? {
-		return if (context.packageManager.hasSystemFeature(Context.BLUETOOTH_SERVICE)) {
+		return if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
 			val bluetoothManager =
 				context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 			bluetoothManager.adapter

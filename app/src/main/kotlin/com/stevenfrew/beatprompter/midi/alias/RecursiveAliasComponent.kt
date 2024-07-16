@@ -10,7 +10,7 @@ class RecursiveAliasComponent(
 	private val mChannelValue: ChannelValue?
 ) : AliasComponent {
 	override val parameterCount: Int
-		get() = (mArguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: 0 } ?: -1) + 1
+		get() = (mArguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
 
 	override fun resolve(
 		aliases: List<Alias>,

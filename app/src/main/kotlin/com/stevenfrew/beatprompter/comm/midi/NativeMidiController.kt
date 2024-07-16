@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
@@ -18,7 +19,7 @@ class NativeMidiController(
 	private var mDeviceListener: MidiNativeDeviceListener? = null
 
 	init {
-		if (context.packageManager.hasSystemFeature(Context.MIDI_SERVICE)) {
+		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 			val manager =
 				context.getSystemService(Context.MIDI_SERVICE) as MidiManager
 			mDeviceListener = MidiNativeDeviceListener(manager)
@@ -56,12 +57,12 @@ class NativeMidiController(
 					info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
 						info.ports.forEach {
 							when (it.type) {
-								MidiDeviceInfo.PortInfo.TYPE_INPUT -> this@NativeMidiController.mSenderTask.addSender(
+								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> this@NativeMidiController.mSenderTask.addSender(
 									deviceName,
 									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
 								)
 
-								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> this@NativeMidiController.mReceiverTasks.addReceiver(
+								MidiDeviceInfo.PortInfo.TYPE_INPUT -> this@NativeMidiController.mReceiverTasks.addReceiver(
 									deviceName,
 									deviceName,
 									NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
