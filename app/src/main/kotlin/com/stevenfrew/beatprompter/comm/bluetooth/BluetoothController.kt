@@ -15,65 +15,33 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.MessageQueue
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
-import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.UUID
-import kotlin.coroutines.CoroutineContext
 
-/**
- * General Bluetooth management singleton object.
- */
-object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener, CoroutineScope {
-	private val mCoRoutineJob = Job()
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + mCoRoutineJob
-
-	private var mInitialised = false
-
-	// Our unique app Bluetooth ID.
-	private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
-
-	private const val BLUETOOTH_QUEUE_SIZE = 4096
-	private val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
-	private val mSenderTask = SenderTask(mBluetoothOutQueue)
-	private val mReceiverTasks = ReceiverTasks()
-	private val mSenderTaskThread = Thread(mSenderTask)
-
+class BluetoothController(
+	context: Context,
+	internal val mSenderTask: SenderTask,
+	internal val mReceiverTasks: ReceiverTasks
+) : SharedPreferences.OnSharedPreferenceChangeListener {
 	// Threads that watch for client/server connections, and an object to synchronize their
 	// use.
 	private val mBluetoothThreadsLock = Any()
 	private var mServerBluetoothThread: ServerThread? = null
 	private var mConnectToServerThread: ConnectToServerThread? = null
+	private var mBluetoothAdapter: BluetoothAdapter? = null
 
-	/**
-	 * Called when the app starts. Doing basic Bluetooth setup.
-	 */
-	fun initialise(context: Context) {
+	internal val isActive: Boolean
+		get() = mBluetoothAdapter != null
+
+	init {
 		getBluetoothAdapter(context)?.also {
+			mBluetoothAdapter = it
 			Logger.logComms("Bluetooth adapter found.")
 			Logger.logComms("Starting Bluetooth sender thread.")
-			mSenderTaskThread.start()
-			Task.resumeTask(mSenderTask)
 			Logger.logComms("Bluetooth sender thread started.")
-
-			launch {
-				while (true) {
-					mBluetoothOutQueue.putMessage(HeartbeatMessage)
-					delay(1000)
-				}
-			}
 
 			context.apply {
 				registerReceiver(
@@ -84,7 +52,6 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 			}
 			Preferences.registerOnSharedPreferenceChangeListener(this)
 			onBluetoothActivation(it)
-			mInitialised = true
 		}
 	}
 
@@ -92,7 +59,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 	 * User could switch Bluetooth functionality on/off at any time.
 	 * We need to keep an eye on that.
 	 */
-	private class AdapterReceiver(private val mBluetoothAdapter: BluetoothAdapter) :
+	private inner class AdapterReceiver(private val mBluetoothAdapter: BluetoothAdapter) :
 		BroadcastReceiver() {
 		override fun onReceive(context: Context, intent: Intent) {
 			if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
@@ -130,18 +97,6 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 			}
 		}
 	}
-
-	/**
-	 * Do we have a connection to a band leader?
-	 */
-	val isConnectedToServer: Boolean
-		get() = mReceiverTasks.taskCount > 0
-
-	/**
-	 * As a band leader, how many band members are we connected to?
-	 */
-	val bluetoothClientCount: Int
-		get() = mSenderTask.senderCount
 
 	/**
 	 * Called when Bluetooth is switched off.
@@ -259,7 +214,8 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 						}
 					}
 
-					else -> {
+					BluetoothMode.None -> {
+						// Don't do anything!
 					}
 				}
 			}
@@ -268,7 +224,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 
 	fun getPairedDevices(): List<BluetoothDevice> {
 		return try {
-			getBluetoothAdapter(BeatPrompter.appResources.context)?.bondedDevices?.toList() ?: listOf()
+			mBluetoothAdapter?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
 			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
 			listOf()
@@ -325,7 +281,7 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 			BeatPrompter.appResources.getString(R.string.pref_bandLeaderDevice_key)
 		when (key) {
 			bluetoothModeKey, bandLeaderDeviceKey -> {
-				getBluetoothAdapter(BeatPrompter.appResources.context)?.also {
+				mBluetoothAdapter?.also {
 					when (key) {
 						bluetoothModeKey -> {
 							Logger.logComms("Bluetooth mode changed.")
@@ -348,20 +304,16 @@ object BluetoothController : SharedPreferences.OnSharedPreferenceChangeListener,
 		}
 	}
 
-	fun removeReceiver(task: ReceiverTask) {
-		mReceiverTasks.stopAndRemoveReceiver(task.mName)
-	}
-
-	internal fun putMessage(message: OutgoingMessage) {
-		if (mInitialised)
-			mBluetoothOutQueue.putMessage(message)
-	}
-
 	private fun getBluetoothAdapter(context: Context): BluetoothAdapter? {
 		return if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
 			val bluetoothManager =
 				context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 			bluetoothManager.adapter
 		} else null
+	}
+
+	companion object {
+		// Our unique app Bluetooth ID.
+		private val BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
 	}
 }

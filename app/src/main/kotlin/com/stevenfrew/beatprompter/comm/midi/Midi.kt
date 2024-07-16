@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
-object MidiController {
+object Midi {
 	private const val MIDI_QUEUE_SIZE = 4096
 
 	private var mInitialised = false

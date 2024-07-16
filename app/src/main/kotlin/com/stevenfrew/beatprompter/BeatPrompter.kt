@@ -7,8 +7,8 @@ import android.content.res.AssetManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
-import com.stevenfrew.beatprompter.comm.midi.MidiController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
+import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 import com.stevenfrew.beatprompter.util.GlobalAppResources
 
@@ -45,8 +45,8 @@ class BeatPrompter : Application() {
 		}
 		applyPreferenceDefaults()
 		AppCompatDelegate.setDefaultNightMode(if (Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
-		MidiController.initialize(applicationContext)
-		BluetoothController.initialise(applicationContext)
+		Midi.initialize(applicationContext)
+		Bluetooth.initialize(applicationContext)
 		mSongLoaderTaskThread.start()
 		Task.resumeTask(SongLoadQueueWatcherTask)
 	}

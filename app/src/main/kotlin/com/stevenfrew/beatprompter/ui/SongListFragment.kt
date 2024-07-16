@@ -45,7 +45,7 @@ import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.ReadCacheTask
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
@@ -162,9 +162,9 @@ class SongListFragment
 	internal fun updateBluetoothIcon() {
 		val bluetoothMode = Preferences.bluetoothMode
 		val slave = bluetoothMode === BluetoothMode.Client
-		val connectedToServer = BluetoothController.isConnectedToServer
+		val connectedToServer = Bluetooth.isConnectedToServer
 		val master = bluetoothMode === BluetoothMode.Server
-		val connectedClients = BluetoothController.bluetoothClientCount
+		val connectedClients = Bluetooth.bluetoothClientCount
 		val resourceID =
 			if (slave)
 				if (connectedToServer)

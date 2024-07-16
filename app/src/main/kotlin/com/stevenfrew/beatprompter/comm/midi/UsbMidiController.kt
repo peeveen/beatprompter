@@ -20,8 +20,8 @@ import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
 class UsbMidiController(
 	context: Context,
-	internal val mSenderTask: SenderTask,
-	internal val mReceiverTasks: ReceiverTasks
+	private val mSenderTask: SenderTask,
+	private val mReceiverTasks: ReceiverTasks
 ) {
 	private inner class UsbReceiver(
 		private val mManager: UsbManager,

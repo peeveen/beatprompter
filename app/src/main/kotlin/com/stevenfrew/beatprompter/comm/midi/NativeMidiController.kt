@@ -13,8 +13,8 @@ import com.stevenfrew.beatprompter.events.Events
 
 class NativeMidiController(
 	context: Context,
-	internal val mSenderTask: SenderTask,
-	internal val mReceiverTasks: ReceiverTasks
+	private val mSenderTask: SenderTask,
+	private val mReceiverTasks: ReceiverTasks
 ) {
 	private var mDeviceListener: MidiNativeDeviceListener? = null
 
@@ -46,8 +46,8 @@ class NativeMidiController(
 
 		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
 			deviceInfo.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also {
-				this@NativeMidiController.mSenderTask.removeSender(it)
-				this@NativeMidiController.mReceiverTasks.stopAndRemoveReceiver(it)
+				mSenderTask.removeSender(it)
+				mReceiverTasks.stopAndRemoveReceiver(it)
 			}
 		}
 
@@ -57,12 +57,12 @@ class NativeMidiController(
 					info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
 						info.ports.forEach {
 							when (it.type) {
-								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> this@NativeMidiController.mSenderTask.addSender(
+								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> mSenderTask.addSender(
 									deviceName,
 									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
 								)
 
-								MidiDeviceInfo.PortInfo.TYPE_INPUT -> this@NativeMidiController.mReceiverTasks.addReceiver(
+								MidiDeviceInfo.PortInfo.TYPE_INPUT -> mReceiverTasks.addReceiver(
 									deviceName,
 									deviceName,
 									NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
