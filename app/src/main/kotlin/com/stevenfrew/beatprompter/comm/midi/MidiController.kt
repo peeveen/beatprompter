@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.comm.midi
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
@@ -17,7 +16,6 @@ object MidiController {
 	private val mReceiverTasks = ReceiverTasks()
 	private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
 
-	@SuppressLint("UnspecifiedRegisterReceiverFlag")
 	fun initialize(context: Context) {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
