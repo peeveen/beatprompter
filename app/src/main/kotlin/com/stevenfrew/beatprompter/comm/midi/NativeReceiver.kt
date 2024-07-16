@@ -14,23 +14,30 @@ class NativeReceiver(
 	private val mInnerBufferLock = Any()
 	private var mInnerBuffer = ByteArray(INITIAL_INNER_BUFFER_SIZE)
 	private var mInnerBufferPosition = 0
+	private var mClosed: Boolean = false
 
 	init {
 		mPort.connect(mInnerReceiver)
 	}
 
 	override fun close() {
-		mPort.disconnect(mInnerReceiver)
-		mPort.close()
+		try {
+			mPort.disconnect(mInnerReceiver)
+			mPort.close()
+		} finally {
+			mClosed = true
+		}
 	}
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
-		synchronized(mInnerBufferLock)
-		{
+		synchronized(mInnerBufferLock) {
 			return min(maximumAmount, mInnerBufferPosition).also {
 				if (it != 0) {
 					System.arraycopy(mInnerBuffer, 0, buffer, offset, it)
 					mInnerBufferPosition -= it
+				} else {
+					if (mClosed)
+						throw Exception("Cannot read data, MIDI connection is closed.")
 				}
 			}
 		}
@@ -43,8 +50,7 @@ class NativeReceiver(
 	inner class NativeReceiverReceiver : MidiReceiver() {
 		override fun onSend(msg: ByteArray?, offset: Int, count: Int, timestamp: Long) {
 			if (msg != null) {
-				synchronized(mInnerBufferLock)
-				{
+				synchronized(mInnerBufferLock) {
 					// If we exceed the available space, we have to increase space.
 					// There is no second-chance to get this data.
 					if (mInnerBufferPosition + count > mInnerBuffer.size) {
