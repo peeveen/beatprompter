@@ -51,17 +51,15 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		}
 	}
 
-	override fun getResult(): MIDIAliasFile {
-		return MIDIAliasFile(mCachedCloudFile, getAliasSet(), mErrors)
-	}
+	override fun getResult(): MIDIAliasFile = MIDIAliasFile(mCachedCloudFile, getAliasSet(), mErrors)
 
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (mAliasSetName.isNullOrBlank())
 			mErrors.add(FileParseError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
-		else {
+		else
 			if (mCurrentAliasName == null)
 				mCurrentAliasName = aliasNameTag.mAliasName
-			else {
+			else
 				if (mCurrentAliasComponents.isNotEmpty()) {
 					mAliases.add(Alias(mCurrentAliasName!!, mCurrentAliasComponents))
 					mCurrentAliasComponents = mutableListOf()
@@ -72,8 +70,6 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 					}
 				} else
 					mErrors.add(FileParseError(aliasNameTag, R.string.midi_alias_has_no_components))
-			}
-		}
 	}
 
 	private fun addInstructionToCurrentAlias(instructionTag: MidiAliasInstructionTag) {
@@ -96,14 +92,13 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		val name = tag.mName
 		val componentArgs = mutableListOf<Value>()
 		val paramBits = tag.mInstructions.splitAndTrim(",")
-		for ((paramCounter, paramBit) in paramBits.withIndex()) {
+		for ((paramCounter, paramBit) in paramBits.withIndex())
 			try {
 				val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
 				componentArgs.add(aliasValue)
 			} catch (mte: MalformedTagException) {
 				mErrors.add(FileParseError(tag, mte))
 			}
-		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
 		val channelArg = when (channelArgs.size) {
 			0 -> null

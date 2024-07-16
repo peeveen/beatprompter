@@ -21,13 +21,12 @@ class StartOfHighlightTag internal constructor(
 	name,
 	lineNumber,
 	position,
-	if (value.isBlank()) getDefaultHighlightColorString() else value
+	value.ifBlank { getDefaultHighlightColorString() }
 ) {
 	companion object {
-		fun getDefaultHighlightColorString(): String {
-			return "#" + ((Preferences.defaultHighlightColor and 0x00FFFFFF)
+		fun getDefaultHighlightColorString(): String =
+			"#" + ((Preferences.defaultHighlightColor and 0x00FFFFFF)
 				.toString(16)
 				.padStart(6, '0'))
-		}
 	}
 }

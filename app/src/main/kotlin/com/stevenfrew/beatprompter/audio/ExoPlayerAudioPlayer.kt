@@ -44,31 +44,18 @@ class ExoPlayerAudioPlayer : AudioPlayer {
 		}
 	}
 
-	override fun seekTo(ms: Long) {
-		mInternalPlayer.seekTo(ms)
-	}
+	override fun seekTo(ms: Long) = mInternalPlayer.seekTo(ms)
+	override fun stop() = mInternalPlayer.stop()
+	override fun start() = mInternalPlayer.play()
+	override fun pause() = mInternalPlayer.pause()
 
-	override fun stop() {
-		mInternalPlayer.stop()
-	}
-
-	override fun start() {
-		mInternalPlayer.play()
-	}
-
-	override fun pause() {
-		mInternalPlayer.pause()
-	}
+	override fun release() = mInternalPlayer.release()
 
 	override val isPlaying: Boolean
 		get() = mInternalPlayer.isPlaying
 
 	override val duration: Long
 		get() = mInternalPlayer.duration
-
-	override fun release() {
-		mInternalPlayer.release()
-	}
 
 	override var volume: Int
 		get() = (mInternalPlayer.volume * 100.0).toInt()

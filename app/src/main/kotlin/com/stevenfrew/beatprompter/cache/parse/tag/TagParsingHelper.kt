@@ -34,9 +34,9 @@ class TagParsingHelper<FileResultType>(parser: TextFileParser<FileResultType>) {
 						}
 				}
 		}.toMap()
-		mNoNameToClassMap = unnamedParseClasses.map { tagClass ->
-			tagClass.findAnnotation<TagType>()!!.mType to tagClass
-		}.toMap()
+		mNoNameToClassMap = unnamedParseClasses.associateBy { tagClass ->
+			tagClass.findAnnotation<TagType>()!!.mType
+		}
 		mIgnoreTagNames = parser::class
 			.annotations
 			.filterIsInstance<IgnoreTags>()

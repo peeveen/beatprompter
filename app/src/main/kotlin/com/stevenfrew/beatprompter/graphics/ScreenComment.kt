@@ -38,8 +38,7 @@ class ScreenComment(
 	}
 
 	fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
-		with(paint)
-		{
+		paint.apply {
 			textSize = mScreenString.mFontSize * Utils.FONT_SCALING
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = Color.BLACK

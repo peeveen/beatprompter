@@ -11,7 +11,5 @@ abstract class FileParser<TFileResult>(protected val mCachedCloudFile: CachedFil
 
 	abstract fun parse(element: Element? = null): TFileResult
 
-	fun addError(error: FileParseError) {
-		mErrors.add(error)
-	}
+	fun addError(error: FileParseError) = mErrors.add(error)
 }

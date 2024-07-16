@@ -145,8 +145,7 @@ class BluetoothController(
 		synchronized(mBluetoothThreadsLock) {
 			if (mConnectToServerThread != null)
 				try {
-					with(mConnectToServerThread!!)
-					{
+					mConnectToServerThread?.apply {
 						Logger.logComms("Stopping listening on a Bluetooth client thread.")
 						stopTrying()
 						Logger.logComms("Interrupting a Bluetooth client thread.")

@@ -491,7 +491,7 @@ class SongView
 			val nextSongY =
 				mSong!!.mDisplaySettings.mScreenSize.height() - (nextSongSS.mDescenderOffset + halfDiff).toInt()
 			startY -= (fifteenPercent / 2.0f).toInt()
-			with(mPaint) {
+			mPaint.apply {
 				color = nextSongSS.mColor
 				textSize = nextSongSS.mFontSize * Utils.FONT_SCALING
 				typeface = nextSongSS.mFace
@@ -506,7 +506,7 @@ class SongView
 		}
 		for (ss in mSong!!.mStartScreenStrings) {
 			startY += ss.mHeight
-			with(mPaint) {
+			mPaint.apply {
 				color = ss.mColor
 				textSize = ss.mFontSize * Utils.FONT_SCALING
 				typeface = ss.mFace
@@ -580,8 +580,7 @@ class SongView
 		if (mSong == null)
 			return
 
-		with(mPaint)
-		{
+		mPaint.apply {
 			textSize = mSong!!.mSongTitleHeader.mFontSize * Utils.FONT_SCALING
 			typeface = mSong!!.mSongTitleHeader.mFace
 			flags = Paint.ANTI_ALIAS_FLAG

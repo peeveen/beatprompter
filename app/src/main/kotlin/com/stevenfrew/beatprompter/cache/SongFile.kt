@@ -50,9 +50,8 @@ class SongFile(
 			else -> ScrollingMode.Manual
 		}
 
-	fun matchesTrigger(trigger: SongTrigger): Boolean {
-		return mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
-	}
+	fun matchesTrigger(trigger: SongTrigger): Boolean =
+		mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
 
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
@@ -105,7 +104,7 @@ class SongFile(
 		private const val PROGRAM_CHANGE_TRIGGER_TAG = "programChangeTrigger"
 		private const val SONG_SELECT_TRIGGER_TAG = "songSelectTrigger"
 
-		fun readSongInfoFromAttributes(element: Element?, cachedFile: CachedFile): SongFile? {
+		fun readSongInfoFromAttributes(element: Element?, cachedFile: CachedFile): SongFile? =
 			if (element?.hasAttribute(TITLE_ATTRIBUTE) == true && element.hasAttribute(ARTIST_ATTRIBUTE)) {
 				val title = element.getAttribute(TITLE_ATTRIBUTE)
 				val artist = element.getAttribute(ARTIST_ATTRIBUTE)
@@ -143,7 +142,7 @@ class SongFile(
 						getSongTriggerFromElement(element, SONG_SELECT_TRIGGER_TAG, TriggerType.SongSelect)
 							?: SongTrigger.DEAD_TRIGGER
 
-					return SongFile(
+					SongFile(
 						cachedFile,
 						lines,
 						bars,
@@ -166,10 +165,9 @@ class SongFile(
 					)
 				} catch (numberFormatException: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
+					null
 				}
-			}
-			return null
-		}
+			} else null
 
 		private fun getAudioFilesFromElement(element: Element): Map<String, List<String>> {
 			val tagElements = element.getElementsByTagName(AUDIO_FILES_FOR_VARIATION_TAG)
@@ -247,8 +245,6 @@ class SongFile(
 			element.appendChild(newElement)
 		}
 
-		fun sortableString(inStr: String?): String {
-			return inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
-		}
+		fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
 	}
 }

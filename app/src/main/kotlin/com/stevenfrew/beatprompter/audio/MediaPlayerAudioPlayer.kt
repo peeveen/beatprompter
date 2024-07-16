@@ -37,31 +37,17 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 		}
 	}
 
-	override fun seekTo(ms: Long) {
-		mInternalPlayer.seekTo(ms.toInt())
-	}
-
-	override fun stop() {
-		mInternalPlayer.stop()
-	}
-
-	override fun start() {
-		mInternalPlayer.start()
-	}
-
-	override fun pause() {
-		mInternalPlayer.pause()
-	}
+	override fun seekTo(ms: Long) = mInternalPlayer.seekTo(ms.toInt())
+	override fun stop() = mInternalPlayer.stop()
+	override fun start() = mInternalPlayer.start()
+	override fun pause() = mInternalPlayer.pause()
+	override fun release() = mInternalPlayer.release()
 
 	override val isPlaying: Boolean
 		get() = mInternalPlayer.isPlaying
 
 	override val duration: Long
 		get() = mInternalPlayer.duration.toLong()
-
-	override fun release() {
-		mInternalPlayer.release()
-	}
 
 	override var volume: Int
 		get() = mCurrentVolume

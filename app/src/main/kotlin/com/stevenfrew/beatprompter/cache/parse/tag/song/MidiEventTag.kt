@@ -97,9 +97,8 @@ class MidiEventTag internal constructor(
 			defaultChannel: Byte
 		): Pair<List<Value>, ChannelValue> {
 			val channelValue = params.mapIndexed { index, param ->
-				if (param is ChannelValue)
-					if (index != params.size - 1)
-						throw MalformedTagException(R.string.channel_must_be_last_parameter)
+				if (param is ChannelValue && index != params.size - 1)
+					throw MalformedTagException(R.string.channel_must_be_last_parameter)
 				param
 			}.filterIsInstance<ChannelValue>().firstOrNull()
 			return Pair(

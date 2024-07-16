@@ -134,9 +134,8 @@ abstract class TextFileParser<TFileResult>(
 		return null
 	}
 
-	fun findFirstTag(text: String): FoundTag? {
-		return mTagFinders
+	fun findFirstTag(text: String): FoundTag? =
+		mTagFinders
 			.mapNotNull { it.findTag(text) }
 			.minByOrNull { it.mStart }
-	}
 }

@@ -26,8 +26,8 @@ object DirectiveFinder
 		.map { it + CommentTag.AUDIENCE_SEPARATOR }
 		.toList()
 
-	override fun findTag(text: String): FoundTag? {
-		return super.findTag(text)?.let { foundTag ->
+	override fun findTag(text: String): FoundTag? =
+		super.findTag(text)?.let { foundTag ->
 			if (mCommentTagNamesWithAudienceMarkers.any { foundTag.mName.startsWith(it) }) {
 				val newAudience = foundTag
 					.mName
@@ -44,5 +44,4 @@ object DirectiveFinder
 				)
 			} else foundTag
 		}
-	}
 }

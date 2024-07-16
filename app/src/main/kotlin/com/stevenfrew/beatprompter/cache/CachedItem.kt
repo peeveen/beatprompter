@@ -49,11 +49,11 @@ abstract class CachedItem {
 		}
 	}
 
-	fun isInSubfolder(subfolder: String?): Boolean {
+	fun isInSubfolder(subfolder: String?): Boolean =
 		if (subfolder.isNullOrBlank() || mSubfolderIDs.isEmpty())
-			return subfolder.isNullOrBlank() && mSubfolderIDs.isEmpty()
-		return mSubfolderIDs.contains(subfolder)
-	}
+			subfolder.isNullOrBlank() && mSubfolderIDs.isEmpty()
+		else
+			mSubfolderIDs.contains(subfolder)
 
 	companion object {
 		private const val CACHED_ITEM_ID_ATTRIBUTE_NAME = "id"

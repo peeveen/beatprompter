@@ -264,10 +264,8 @@ object Cache {
 		transformer.transform(input, output)
 	}
 
-	fun getCacheFolderForStorage(storage: StorageType): CacheFolder {
-		val cacheFolderName = Storage.getCacheFolderName(storage)
-		return CacheFolder(mBeatPrompterSongFilesFolder!!, cacheFolderName)
-	}
+	fun getCacheFolderForStorage(storage: StorageType): CacheFolder =
+		CacheFolder(mBeatPrompterSongFilesFolder!!, Storage.getCacheFolderName(storage))
 
 	fun clearCache(report: Boolean) {
 		// Clear both cache folders
@@ -293,22 +291,16 @@ object Cache {
 	}
 
 	private val cloudPath: String?
-		get() {
-			return Preferences.cloudPath
-		}
+		get() = Preferences.cloudPath
 
 	private val includeSubFolders: Boolean
-		get() {
-			return Preferences.includeSubFolders
-		}
+		get() = Preferences.includeSubFolders
 
-	fun canPerformCloudSync(): Boolean {
-		return Preferences.storageSystem !== StorageType.Demo && cloudPath != null
-	}
+	fun canPerformCloudSync(): Boolean =
+		Preferences.storageSystem !== StorageType.Demo && cloudPath != null
 
-	fun performFullCloudSync(parentFragment: Fragment): Boolean {
-		return performCloudSync(null, false, parentFragment)
-	}
+	fun performFullCloudSync(parentFragment: Fragment): Boolean =
+		performCloudSync(null, false, parentFragment)
 
 	fun clearTemporarySetList(context: Context) {
 		for (slf in mCachedCloudItems.setListFiles)
