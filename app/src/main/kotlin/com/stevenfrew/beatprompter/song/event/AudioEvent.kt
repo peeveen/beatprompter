@@ -10,4 +10,7 @@ class AudioEvent(
 	val mAudioFile: AudioFile,
 	val mVolume: Int,
 	val mBackingTrack: Boolean
-) : BaseEvent(eventTime)
+) : BaseEvent(eventTime) {
+	override fun offset(nanoseconds: Long): BaseEvent =
+		AudioEvent(mEventTime + nanoseconds, mAudioFile, mVolume, mBackingTrack)
+}

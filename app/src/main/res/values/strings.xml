@@ -654,6 +654,15 @@
 	<string name="pref_defaultTrackVolume_text" translatable="false">%</string>
 	<string name="pref_defaultTrackVolume_title">Default track volume</string>
 
+	<string name="pref_audioLatency_key" translatable="false">pref_audioLatency</string>
+	<string name="pref_audioLatency_offset" translatable="false">0</string>
+	<string name="pref_audioLatency_min" translatable="false">0</string>
+	<string name="pref_audioLatency_max" translatable="false">1000</string>
+	<string name="pref_audioLatency_default" translatable="false">0</string>
+	<string name="pref_audioLatency_message">Amount of latency to compensate for in audio playback.</string>
+	<string name="pref_audioLatency_text" translatable="false">ms</string>
+	<string name="pref_audioLatency_title">Audio latency</string>
+
 	<string name="pref_fixedLineHeight_key" translatable="false">pref_fixedLineHeight</string>
 	<string name="pref_fixedLineHeight_default" translatable="false">false</string>
 	<string name="pref_fixedLineHeight_title">Fixed line height</string>

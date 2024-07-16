@@ -36,6 +36,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.BeatEvent
+import com.stevenfrew.beatprompter.song.event.ClickEvent
 import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
@@ -57,7 +58,7 @@ class SongView
 	GestureDetector.OnGestureListener {
 
 	private val mDestinationGraphicRect = Rect(0, 0, 0, 0)
-	private val mCurrentBeatCountRect = Rect()
+	private var mCurrentBeatCountRect = Rect()
 	private var mEndSongByPedalCounter = 0
 	private var mMetronomeOn: Boolean = false
 	private var mInitialized = false
@@ -221,12 +222,7 @@ class SongView
 		mAudioPlayers = audioPlayerMap.filterValues { it != null } as Map<AudioFile, AudioPlayer>
 
 		mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
-		mCurrentBeatCountRect.apply {
-			left = song.mBeatCounterRect.left
-			top = song.mBeatCounterRect.top
-			right = song.mBeatCounterRect.right
-			bottom = song.mBeatCounterRect.bottom
-		}
+		mCurrentBeatCountRect = song.mBeatCounterRect
 		mSong = song
 
 		calculateManualScrollPositions()
@@ -414,7 +410,8 @@ class SongView
 			if (event != null) {
 				when (val innerEvent = event.mEvent) {
 					is CommentEvent -> processCommentEvent(innerEvent, time)
-					is BeatEvent -> processBeatEvent(innerEvent, true)
+					is BeatEvent -> mCurrentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
+					is ClickEvent -> processClickEvent(innerEvent)
 					is MIDIEvent -> processMIDIEvent(innerEvent)
 					is PauseEvent -> processPauseEvent(innerEvent)
 					is LineEvent -> processLineEvent(innerEvent)
@@ -636,9 +633,8 @@ class SongView
 		}
 	}
 
-	private fun startBackingTrack(): Boolean {
-		return startAudioPlayer(mAudioPlayers[mSong!!.mBackingTrack]) != null
-	}
+	private fun startBackingTrack(): Boolean =
+		startAudioPlayer(mAudioPlayers[mSong!!.mBackingTrack]) != null
 
 	private fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
 		if (mSong == null)
@@ -785,9 +781,13 @@ class SongView
 		mLastCommentEvent = event
 	}
 
-	private fun processBeatEvent(event: BeatEvent, allowClick: Boolean) {
-		val playClick =
-			allowClick && (mMetronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying())
+	private fun processClickEvent(event: ClickEvent) {
+		val playClick = mMetronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
+		if (mStartState === PlayState.Playing && mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual && playClick)
+			mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
+	}
+
+	private fun processBeatEvent(event: BeatEvent): Rect {
 		mNanosecondsPerBeat = Utils.nanosecondsPerBeat(event.mBPM)
 		val beatWidth = mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / event.mBPB.toDouble()
 		val currentBeatCounterWidth = (beatWidth * (event.mBeat + 1).toDouble()).toInt()
@@ -804,24 +804,18 @@ class SongView
 			}
 		} else
 			clearScrollIndicatorRect()
-		mCurrentBeatCountRect.apply {
-			if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Beat) {
+		mLastBeatTime = mSongStartTime + event.mEventTime
+		if (mSongDisplayActivity != null/*&&(!event.mCount)*/)
+			mSongDisplayActivity!!.onSongBeat(event.mBPM)
+		return if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Beat)
+			Rect().apply {
 				left = (currentBeatCounterWidth - beatWidth).toInt()
 				top = 0
 				right = currentBeatCounterWidth
 				bottom = mSong!!.mBeatCounterRect.height()
-			} else {
-				left = mSong!!.mBeatCounterRect.left
-				top = mSong!!.mBeatCounterRect.top
-				right = mSong!!.mBeatCounterRect.right
-				bottom = mSong!!.mBeatCounterRect.bottom
 			}
-		}
-		mLastBeatTime = mSongStartTime + event.mEventTime
-		if (event.mClick && mStartState === PlayState.Playing && mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual && playClick)
-			mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
-		if (mSongDisplayActivity != null/*&&(!event.mCount)*/)
-			mSongDisplayActivity!!.onSongBeat(event.mBPM)
+		else
+			mSong!!.mBeatCounterRect
 	}
 
 	private fun isTrackPlaying(): Boolean {
@@ -865,12 +859,7 @@ class SongView
 			return
 		mSong!!.mCurrentLine = event.mLine
 		if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Manual) {
-			mCurrentBeatCountRect.apply {
-				left = mSong!!.mBeatCounterRect.left
-				top = mSong!!.mBeatCounterRect.top
-				right = mSong!!.mBeatCounterRect.right
-				bottom = mSong!!.mBeatCounterRect.bottom
-			}
+			mCurrentBeatCountRect = mSong!!.mBeatCounterRect
 			calculateManualScrollPositions()
 		}
 	}
@@ -947,31 +936,26 @@ class SongView
 			if (broadcast)
 				Bluetooth.putMessage(SetSongTimeMessage(nano))
 			mSong!!.setProgress(nano)
-			var musicPlaying = false
+			//var musicPlaying = false
 			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
 				val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
 				if (audioEvent != null) {
 					val nTime = Utils.nanoToMilli(nano - audioEvent.mEventTime)
-					musicPlaying = seekTrack(audioEvent.mAudioFile, nTime)?.apply {
+					/*musicPlaying = */
+					seekTrack(
+						audioEvent.mAudioFile,
+						nTime
+					)?.apply {
 						if (mStartState === PlayState.Playing)
 							startAudioPlayer(this)
 					} != null
 				}
 			}
-			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
-				val prevBeatEvent = mSong!!.mCurrentEvent.mPrevBeatEvent
-				if (prevBeatEvent != null) {
-					val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
-					processBeatEvent(prevBeatEvent, nextBeatEvent != null && !musicPlaying)
-				}
-			} else {
-				mCurrentBeatCountRect.apply {
-					left = mSong!!.mBeatCounterRect.left
-					top = mSong!!.mBeatCounterRect.top
-					right = mSong!!.mBeatCounterRect.right
-					bottom = mSong!!.mBeatCounterRect.bottom
-				}
-			}
+			val prevBeatEvent =
+				if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) mSong!!.mCurrentEvent.mPrevBeatEvent else null
+			mCurrentBeatCountRect =
+				//val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
+				if (prevBeatEvent == null) mSong!!.mBeatCounterRect else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
 			mSongStartTime = System.nanoTime() - nano
 			if (redraw)
 				invalidate()

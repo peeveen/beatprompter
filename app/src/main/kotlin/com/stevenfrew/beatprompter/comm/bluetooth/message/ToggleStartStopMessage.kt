@@ -21,7 +21,7 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) :
 	companion object {
 		private fun asBytes(toggleInfo: StartStopToggleInfo): ByteArray {
 			return ByteArrayOutputStream().apply {
-				write(byteArrayOf(TOGGLE_START_STOP_MESSAGE_ID, toggleInfo.mStartState.asValue().toByte()))
+				write(byteArrayOf(TOGGLE_START_STOP_MESSAGE_ID, toggleInfo.mStartState.mValue.toByte()))
 				val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
 				var time = toggleInfo.mTime
 				repeat(Utils.LONG_BUFFER_SIZE) {
