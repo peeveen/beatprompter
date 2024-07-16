@@ -410,4 +410,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="darkMode">Attiva/disattiva la modalità oscura</string>
 	<string name="readingDatabase">Lettura del database …</string>
 	<string name="failedToReadDatabaseItem">Impossibile leggere l\'elemento del database</string>
+	<string name="pref_audioLatency_message">Quantità di latenza da compensare nella riproduzione audio.</string>
+	<string name="pref_audioLatency_title">Latenza audio</string>
 </resources>

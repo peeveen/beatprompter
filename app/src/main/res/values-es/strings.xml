@@ -410,4 +410,6 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="darkMode">Alternar modo oscuro</string>
 	<string name="readingDatabase">Leyendo base de datos …</string>
 	<string name="failedToReadDatabaseItem">No se pudo leer el elemento de la base de datos</string>
+	<string name="pref_audioLatency_message">Cantidad de latencia a compensar en la reproducción de audio.</string>
+	<string name="pref_audioLatency_title">Latencia de audio</string>
 </resources>
