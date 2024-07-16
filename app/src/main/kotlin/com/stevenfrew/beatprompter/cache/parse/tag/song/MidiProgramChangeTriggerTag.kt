@@ -7,15 +7,15 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.midi.TriggerType
 
 @OncePerFile
-@TagName("midi_song_select_trigger")
+@TagName("midi_program_change_trigger")
 @TagType(Type.Directive)
 /**
- * Tag that defines a MIDI song select event that, if received, will cause this song to be
+ * Tag that defines a MIDI program change event that, if received, will cause this song to be
  * automatically started.
  */
-class MIDISongSelectTriggerTag internal constructor(
+class MidiProgramChangeTriggerTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
 	triggerDescriptor: String
-) : MIDITriggerTag(name, lineNumber, position, triggerDescriptor, TriggerType.SongSelect)
+) : MidiTriggerTag(name, lineNumber, position, triggerDescriptor, TriggerType.ProgramChange)

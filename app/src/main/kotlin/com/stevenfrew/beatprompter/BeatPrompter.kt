@@ -7,9 +7,10 @@ import android.content.res.AssetManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
-import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
+import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.util.GlobalAppResources
 
 class BeatPrompter : Application() {
 	private val mSongLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
@@ -21,51 +22,51 @@ class BeatPrompter : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
-		mApp = this
+		appResources = object : GlobalAppResources {
+			override fun getString(resID: Int): String {
+				return applicationContext.getString(resID)
+			}
+
+			override fun getString(resID: Int, vararg args: Any): String {
+				return applicationContext.getString(resID, *args)
+			}
+
+			override val preferences: SharedPreferences
+				get() = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+
+			override val privatePreferences: SharedPreferences
+				get() = applicationContext.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE)
+
+			override val assetManager: AssetManager
+				get() = applicationContext.assets
+
+			override val context: Context
+				get() = applicationContext
+		}
 		applyPreferenceDefaults()
-		AppCompatDelegate.setDefaultNightMode(if(Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
-		MIDIController.initialise(this)
-		BluetoothController.initialise(this)
+		AppCompatDelegate.setDefaultNightMode(if (Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+		Midi.initialize(applicationContext)
+		Bluetooth.initialize(applicationContext)
 		mSongLoaderTaskThread.start()
 		Task.resumeTask(SongLoadQueueWatcherTask)
 	}
 
+	private fun applyPreferenceDefaults() {
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.preferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.fontsizepreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.colorpreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.filepreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.midipreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.bluetoothpreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.permissionpreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.songdisplaypreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.audiopreferences, true)
+		PreferenceManager.setDefaultValues(applicationContext, R.xml.songlistpreferences, true)
+	}
+
 	companion object {
 		const val APP_NAME = "BeatPrompter"
-		private lateinit var mApp: Application
 		private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
-
-		fun getResourceString(resID: Int): String {
-			return mApp.getString(resID)
-		}
-
-		fun getResourceString(resID: Int, vararg args: Any): String {
-			return mApp.getString(resID, *args)
-		}
-
-		private fun applyPreferenceDefaults() {
-			PreferenceManager.setDefaultValues(context, R.xml.preferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.fontsizepreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.colorpreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.filepreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.midipreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.bluetoothpreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.permissionpreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.songdisplaypreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.audiopreferences, true);
-			PreferenceManager.setDefaultValues(context, R.xml.songlistpreferences, true);
-		}
-
-		internal val preferences: SharedPreferences
-			get() = PreferenceManager.getDefaultSharedPreferences(mApp)
-
-		internal val privatePreferences: SharedPreferences
-			get() = mApp.getSharedPreferences(SHARED_PREFERENCES_ID, Context.MODE_PRIVATE)
-
-		val assetManager: AssetManager
-			get() = mApp.assets
-
-		val context: Context
-			get() = mApp.applicationContext
+		lateinit var appResources: GlobalAppResources
 	}
 }

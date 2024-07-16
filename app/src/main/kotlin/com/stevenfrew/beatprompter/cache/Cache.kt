@@ -13,7 +13,7 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
 import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
+import com.stevenfrew.beatprompter.cache.parse.MidiAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.events.EventRouter
@@ -44,9 +44,6 @@ import kotlin.reflect.full.findAnnotation
 
 object Cache {
 
-	// TODO: Figure out when to call dispose on this.
-	private val mCompositeDisposable = CompositeDisposable()
-
 	object CacheEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
@@ -74,7 +71,7 @@ object Cache {
 	var mDefaultMidiAliasesFile: File? = null
 
 	fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-		val inputStream = BeatPrompter.assetManager.open(filename)
+		val inputStream = BeatPrompter.appResources.assetManager.open(filename)
 		inputStream.use { inStream ->
 			val outputStream = FileOutputStream(destination)
 			outputStream.use {
@@ -181,7 +178,8 @@ object Cache {
 				messageSource.onNext(cachedItem.mName)
 			} catch (exception: InvalidBeatPrompterFileException) {
 				messageSource.onNext(
-					exception.message ?: BeatPrompter.getResourceString(R.string.failedToReadDatabaseItem)
+					exception.message
+						?: BeatPrompter.appResources.getString(R.string.failedToReadDatabaseItem)
 				)
 				itemSource.onError(exception)
 				// This should never happen. If we could write out the file info, then it was valid.
@@ -200,7 +198,7 @@ object Cache {
 		messageSource: PublishSubject<String>
 	) {
 		val xmlDatabaseVersion = xmlDoc.documentElement.getAttribute(XML_DATABASE_VERSION_ATTRIBUTE)
-		val currentAppVersion = BeatPrompter.context.getString(R.string.version)
+		val currentAppVersion = BeatPrompter.appResources.getString(R.string.version)
 		val useXmlData = currentAppVersion == xmlDatabaseVersion
 		mCachedCloudItems.clear()
 		PARSINGS.forEach {
@@ -217,29 +215,34 @@ object Cache {
 
 	fun readDatabase(listener: CacheReadListener): Boolean {
 		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		val itemSource = PublishSubject.create<CachedItem>()
-		val messageSource = PublishSubject.create<String>()
-		mCompositeDisposable.add(
-			itemSource.subscribe(
-				{ listener.onItemRead(it) },
-				{ listener.onCacheReadError(it) },
-				{ listener.onCacheReadComplete() })
-		)
-		mCompositeDisposable.add(messageSource.subscribe {
-			Utils.reportProgress(listener, it)
-		})
+		val databaseExists = database.exists()
+		if (databaseExists) {
+			val itemSource = PublishSubject.create<CachedItem>()
+			val messageSource = PublishSubject.create<String>()
+			val compositeDisposable = CompositeDisposable().apply {
+				add(
+					itemSource.subscribe(
+						{ listener.onItemRead(it) },
+						{ listener.onCacheReadError(it) },
+						{ listener.onCacheReadComplete() })
+				)
+				add(messageSource.subscribe {
+					Utils.reportProgress(listener, it)
+				})
+			}
 
-		val result = if (database.exists()) {
-			val xmlDoc = DocumentBuilderFactory
-				.newInstance()
-				.newDocumentBuilder()
-				.parse(database)
-			readFromXML(xmlDoc, itemSource, messageSource)
-			true
-		} else
-			false
-		itemSource.onComplete()
-		return result
+			readFromXML(
+				DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(database),
+				itemSource,
+				messageSource
+			)
+			itemSource.onComplete()
+			compositeDisposable.dispose()
+		}
+		return databaseExists
 	}
 
 	private fun writeDatabase() {
@@ -251,7 +254,7 @@ object Cache {
 		val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
 		root.setAttribute(
 			XML_DATABASE_VERSION_ATTRIBUTE,
-			BeatPrompter.context.getString(R.string.version)
+			BeatPrompter.appResources.getString(R.string.version)
 		)
 		d.appendChild(root)
 		mCachedCloudItems.writeToXML(d, root)
@@ -375,7 +378,7 @@ object Cache {
 				)
 			},
 			MIDIAliasFile::class to { element, useXmlData ->
-				MIDIAliasFileParser(CachedFile(element)).parse(
+				MidiAliasFileParser(CachedFile(element)).parse(
 					if (useXmlData) element else null
 				)
 			},

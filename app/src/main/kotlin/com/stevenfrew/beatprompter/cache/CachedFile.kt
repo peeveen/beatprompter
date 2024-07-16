@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
 import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
-import com.stevenfrew.beatprompter.cache.parse.MIDIAliasFileParser
+import com.stevenfrew.beatprompter.cache.parse.MidiAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
@@ -64,7 +64,7 @@ open class CachedFile : CachedItem {
 					ImageFileParser(result.cachedCloudFile).parse()
 				} catch (exception1: InvalidBeatPrompterFileException) {
 					try {
-						MIDIAliasFileParser(result.cachedCloudFile).parse()
+						MidiAliasFileParser(result.cachedCloudFile).parse()
 					} catch (exception2: InvalidBeatPrompterFileException) {
 						try {
 							SongInfoParser(result.cachedCloudFile).parse()

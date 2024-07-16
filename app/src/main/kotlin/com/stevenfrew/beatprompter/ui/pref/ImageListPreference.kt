@@ -100,15 +100,15 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 		super.onBindViewHolder(view)
 		val imageView = view.findViewById(R.id.iconImageView) as ImageView
 		val iconResource = when (Preferences.getStringPreference(key, "")) {
-			BeatPrompter.getResourceString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
-			BeatPrompter.getResourceString(R.string.dropboxValue) -> R.drawable.ic_dropbox
-			BeatPrompter.getResourceString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
-			BeatPrompter.getResourceString(R.string.localStorageValue) -> R.drawable.ic_device
-			BeatPrompter.getResourceString(R.string.midi_usb_on_the_go_value) -> R.drawable.ic_usb
-			BeatPrompter.getResourceString(R.string.midi_native_value) -> R.drawable.midi
-			BeatPrompter.getResourceString(R.string.midi_bluetooth_value) -> R.drawable.ic_bluetooth
-			BeatPrompter.getResourceString(R.string.bluetoothModeBandLeaderValue) -> R.drawable.master0
-			BeatPrompter.getResourceString(R.string.bluetoothModeBandMemberValue) -> R.drawable.duncecap
+			BeatPrompter.appResources.getString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
+			BeatPrompter.appResources.getString(R.string.dropboxValue) -> R.drawable.ic_dropbox
+			BeatPrompter.appResources.getString(R.string.oneDriveValue) -> R.drawable.ic_onedrive
+			BeatPrompter.appResources.getString(R.string.localStorageValue) -> R.drawable.ic_device
+			BeatPrompter.appResources.getString(R.string.midi_usb_on_the_go_value) -> R.drawable.ic_usb
+			BeatPrompter.appResources.getString(R.string.midi_native_value) -> R.drawable.midi
+			BeatPrompter.appResources.getString(R.string.midi_bluetooth_value) -> R.drawable.ic_bluetooth
+			BeatPrompter.appResources.getString(R.string.bluetoothModeBandLeaderValue) -> R.drawable.master0
+			BeatPrompter.appResources.getString(R.string.bluetoothModeBandMemberValue) -> R.drawable.duncecap
 			else -> R.drawable.blank_icon
 		}
 		imageView.setImageResource(iconResource)

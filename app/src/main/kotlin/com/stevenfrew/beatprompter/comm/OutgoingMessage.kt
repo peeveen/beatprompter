@@ -6,8 +6,7 @@ open class OutgoingMessage(val mBytes: ByteArray) {
 
 	override fun toString(): String {
 		return StringBuilder().apply {
-			for (mMessageByte in mBytes)
-				append(String.format("%02X ", mMessageByte))
+			mBytes.forEach { append(String.format("%02X ", it)) }
 		}.toString().trim()
 	}
 }

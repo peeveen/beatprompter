@@ -45,7 +45,7 @@ import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.ReadCacheTask
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
@@ -162,9 +162,9 @@ class SongListFragment
 	internal fun updateBluetoothIcon() {
 		val bluetoothMode = Preferences.bluetoothMode
 		val slave = bluetoothMode === BluetoothMode.Client
-		val connectedToServer = BluetoothController.isConnectedToServer
+		val connectedToServer = Bluetooth.isConnectedToServer
 		val master = bluetoothMode === BluetoothMode.Server
-		val connectedClients = BluetoothController.bluetoothClientCount
+		val connectedClients = Bluetooth.bluetoothClientCount
 		val resourceID =
 			if (slave)
 				if (connectedToServer)
@@ -245,6 +245,7 @@ class SongListFragment
 		}
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		mMenu = menu
@@ -825,7 +826,7 @@ class SongListFragment
 		val allSongsFilter = AllSongsFilter(cache
 			.songFiles
 			.asSequence()
-			.filter { !cache.isFilterOnly(it) }
+			.filterNot { cache.isFilterOnly(it) }
 			.toList())
 
 		// Depending on whether we have a temporary set list file, we can create a temporary
@@ -923,6 +924,7 @@ class SongListFragment
 		openBrowser(R.string.buyMeACoffeeUrl)
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.synchronize -> Cache.performFullCloudSync(this)
@@ -1112,12 +1114,12 @@ class SongListFragment
 				Events.CLOUD_SYNC_ERROR -> {
 					AlertDialog.Builder(mSongList.context).apply {
 						setMessage(
-							BeatPrompter.getResourceString(
+							BeatPrompter.appResources.getString(
 								R.string.cloudSyncErrorMessage,
 								msg.obj as String
 							)
 						)
-						setTitle(BeatPrompter.getResourceString(R.string.cloudSyncErrorTitle))
+						setTitle(BeatPrompter.appResources.getString(R.string.cloudSyncErrorTitle))
 						setPositiveButton("OK") { dialog, _ -> dialog.cancel() }
 						create().apply {
 							setCanceledOnTouchOutside(true)
@@ -1141,7 +1143,7 @@ class SongListFragment
 				Events.CONNECTION_ADDED -> {
 					Toast.makeText(
 						mSongList.context,
-						BeatPrompter.getResourceString(R.string.connection_added, msg.obj.toString()),
+						BeatPrompter.appResources.getString(R.string.connection_added, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
 					mSongList.updateBluetoothIcon()
@@ -1151,7 +1153,7 @@ class SongListFragment
 					Logger.log("Lost connection to device.")
 					Toast.makeText(
 						mSongList.context,
-						BeatPrompter.getResourceString(R.string.connection_lost, msg.obj.toString()),
+						BeatPrompter.appResources.getString(R.string.connection_lost, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
 					mSongList.updateBluetoothIcon()

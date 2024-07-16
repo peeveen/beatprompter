@@ -20,7 +20,7 @@ internal class ConnectToServerThread(
 
 	override fun run() {
 		while (!mStop) {
-			if (!BluetoothController.isConnectedToServer)
+			if (!Bluetooth.isConnectedToServer)
 				try {
 					// Connect the device through the socket. This will block
 					// until it succeeds or throws an exception, which can happen

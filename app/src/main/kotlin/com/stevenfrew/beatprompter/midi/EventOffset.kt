@@ -13,12 +13,12 @@ data class EventOffset(
 
 	init {
 		require(!(abs(mAmount) > 16 && mOffsetType == EventOffsetType.Beats)) {
-			BeatPrompter.getResourceString(
+			BeatPrompter.appResources.getString(
 				R.string.max_midi_offset_exceeded
 			)
 		}
 		require(!(abs(mAmount) > 10000 && mOffsetType == EventOffsetType.Milliseconds)) {
-			BeatPrompter.getResourceString(
+			BeatPrompter.appResources.getString(
 				R.string.max_midi_offset_exceeded
 			)
 		}

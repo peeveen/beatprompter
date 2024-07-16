@@ -9,12 +9,12 @@ internal class ArgumentValue(private val mArgumentIndex: Int) : Value() {
 
 	init {
 		if (mArgumentIndex < 0)
-			throw ValueException(BeatPrompter.getResourceString(R.string.not_a_valid_argument_index))
+			throw ValueException(BeatPrompter.appResources.getString(R.string.not_a_valid_argument_index))
 	}
 
 	override fun resolve(arguments: ByteArray, channel: Byte): Byte {
 		if (mArgumentIndex >= arguments.size)
-			throw ResolutionException(BeatPrompter.getResourceString(R.string.not_enough_parameters_supplied))
+			throw ResolutionException(BeatPrompter.appResources.getString(R.string.not_enough_parameters_supplied))
 		return arguments[mArgumentIndex]
 	}
 

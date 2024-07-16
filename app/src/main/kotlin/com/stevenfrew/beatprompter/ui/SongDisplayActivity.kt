@@ -15,18 +15,18 @@ import android.os.ParcelUuid
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ChooseSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
-import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.midi.Midi
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
@@ -114,7 +114,7 @@ class SongDisplayActivity
 						loadedSong.mLoadJob.mSongLoadInfo.mNoAudio
 					)
 				)
-				BluetoothController.putMessage(csm)
+				Bluetooth.putMessage(csm)
 			}
 		}
 
@@ -126,7 +126,7 @@ class SongDisplayActivity
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 		requestedOrientation = mOrientation
 
-		MIDIController.putMessages(song.mInitialMIDIMessages)
+		Midi.putMessages(song.mInitialMIDIMessages)
 
 		window.setFlags(
 			WindowManager.LayoutParams.FLAG_FULLSCREEN,

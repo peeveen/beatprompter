@@ -16,27 +16,17 @@ open class SetListFileFilter(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
 		): List<SongFile> {
-			val matches = getMatches(setListEntries, songFiles)
-			val matchedSongs = matches.map {
-				when {
-					it.second != null -> it.second
-					else -> it.third
-				}
-			}
-			return matchedSongs.filterNotNull()
+			return getMatches(setListEntries, songFiles).mapNotNull { it.second ?: it.third }
 		}
 
 		private fun getMissingSetListEntries(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
 		): MutableList<SetListEntry> {
-			val matches = getMatches(setListEntries, songFiles)
-			val invalidEntries = matches.map {
-				if (it.second == null && it.third == null)
-					it.first
-				else null
-			}
-			return invalidEntries.filterNotNull().toMutableList()
+			return getMatches(setListEntries, songFiles)
+				.filter { it.second == null && it.third == null }
+				.map { it.first }
+				.toMutableList()
 		}
 
 		private fun getMatches(

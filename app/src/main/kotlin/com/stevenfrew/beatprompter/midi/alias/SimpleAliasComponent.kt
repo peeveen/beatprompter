@@ -10,7 +10,7 @@ class SimpleAliasComponent(
 	private val mChannelValue: ChannelValue?
 ) : AliasComponent {
 	override val parameterCount: Int
-		get() = (mValues.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: 0 } ?: -1) + 1
+		get() = (mValues.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
 
 	override fun resolve(
 		aliases: List<Alias>,

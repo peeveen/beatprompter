@@ -2,7 +2,11 @@ package com.stevenfrew.beatprompter.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.util.AttributeSet
@@ -12,26 +16,41 @@ import android.widget.OverScroller
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.GestureDetectorCompat
-import com.stevenfrew.beatprompter.*
+import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.audio.AudioPlayer
 import com.stevenfrew.beatprompter.audio.AudioPlayerFactory
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothController
+import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.message.PauseOnScrollStartMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.QuitSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.SetSongTimeMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
-import com.stevenfrew.beatprompter.comm.midi.MIDIController
+import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
-import com.stevenfrew.beatprompter.song.event.*
+import com.stevenfrew.beatprompter.song.event.AudioEvent
+import com.stevenfrew.beatprompter.song.event.BeatEvent
+import com.stevenfrew.beatprompter.song.event.CommentEvent
+import com.stevenfrew.beatprompter.song.event.EndEvent
+import com.stevenfrew.beatprompter.song.event.LineEvent
+import com.stevenfrew.beatprompter.song.event.LinkedEvent
+import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 
 class SongView
 	: AppCompatImageView,
@@ -671,7 +690,7 @@ class SongView
 							recalculateManualPositions = true
 						)
 					}
-					BluetoothController.putMessage(
+					Bluetooth.putMessage(
 						ToggleStartStopMessage(
 							ToggleStartStopMessage.StartStopToggleInfo(
 								oldPlayState,
@@ -681,7 +700,7 @@ class SongView
 					)
 				}
 			} else
-				BluetoothController.putMessage(
+				Bluetooth.putMessage(
 					ToggleStartStopMessage(
 						ToggleStartStopMessage.StartStopToggleInfo(
 							oldPlayState,
@@ -718,7 +737,7 @@ class SongView
 			return
 		val nanoTime = System.nanoTime()
 		mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
-		BluetoothController.putMessage(
+		Bluetooth.putMessage(
 			ToggleStartStopMessage(
 				ToggleStartStopMessage.StartStopToggleInfo(
 					mStartState,
@@ -741,7 +760,7 @@ class SongView
 			pause(false)
 		if (destroyed) {
 			if (mSong != null) {
-				BluetoothController.putMessage(
+				Bluetooth.putMessage(
 					QuitSongMessage(
 						mSong!!.mSongFile.mNormalizedTitle,
 						mSong!!.mSongFile.mNormalizedArtist
@@ -838,7 +857,7 @@ class SongView
 
 	private fun processMIDIEvent(event: MIDIEvent) {
 		event.mMessages.forEach {
-			MIDIController.putMessage(it)
+			Midi.putMessage(it)
 		}
 	}
 
@@ -927,7 +946,7 @@ class SongView
 			if (mStartState !== PlayState.Playing)
 				mPauseTime = nano
 			if (broadcast)
-				BluetoothController.putMessage(SetSongTimeMessage(nano))
+				Bluetooth.putMessage(SetSongTimeMessage(nano))
 			mSong!!.setProgress(nano)
 			var musicPlaying = false
 			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
@@ -1018,7 +1037,7 @@ class SongView
 			return
 		if (mScreenAction != ScreenAction.Scroll)
 			return
-		BluetoothController.putMessage(PauseOnScrollStartMessage)
+		Bluetooth.putMessage(PauseOnScrollStartMessage)
 		mUserHasScrolled = true
 		mStartState = PlayState.Paused
 		mAudioPlayers.values.forEach {
@@ -1367,7 +1386,7 @@ class SongView
 		}
 	}
 
-	data class ManualScrollPositions constructor(
+	data class ManualScrollPositions(
 		var mPageUpPosition: Int,
 		var mPageDownPosition: Int,
 		var mBeatJumpScrollLine: Line?

@@ -71,3 +71,6 @@ fastlane/test_output
 fastlane/readme.md
 
 /projectFilesBackup
+
+*.dm
+*.patch

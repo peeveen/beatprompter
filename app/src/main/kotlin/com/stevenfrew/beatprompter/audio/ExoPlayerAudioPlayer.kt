@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.audio
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.SeekParameters
 import com.stevenfrew.beatprompter.R
@@ -17,10 +17,10 @@ import java.io.File
 class ExoPlayerAudioPlayer : AudioPlayer {
 	private val mInternalPlayer: ExoPlayer
 
-	@OptIn(UnstableApi::class)
 	constructor(context: Context) : this(
 		context,
-		RawResourceDataSource.buildRawResourceUri(R.raw.silence),
+		Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE).path(R.raw.silence.toString())
+			.build(),
 		1,
 		true
 	)

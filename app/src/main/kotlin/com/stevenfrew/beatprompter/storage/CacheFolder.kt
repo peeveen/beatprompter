@@ -15,7 +15,7 @@ class CacheFolder internal constructor(
 	fun clear() {
 		try {
 			if (this.exists()) {
-				listFiles()?.filter { !it.isDirectory }?.forEach {
+				listFiles()?.filterNot { it.isDirectory }?.forEach {
 					Logger.log { "Deleting ${it.absolutePath}" }
 					if (!it.delete())
 						Logger.log { "Failed to delete ${it.absolutePath}" }

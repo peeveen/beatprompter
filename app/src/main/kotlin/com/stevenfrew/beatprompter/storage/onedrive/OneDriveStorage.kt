@@ -56,7 +56,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 		get() = R.drawable.ic_onedrive
 
 	override val cloudStorageName: String
-		get() = BeatPrompter.getResourceString(R.string.onedrive_string)
+		get() = BeatPrompter.appResources.getString(R.string.onedrive_string)
 
 	interface OneDriveAction {
 		fun onConnected(client: IOneDriveClient)
@@ -101,7 +101,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 				val nextFolder = folders.removeAt(0)
 				val currentFolderID = nextFolder.mID
 				mMessageSource.onNext(
-					BeatPrompter.getResourceString(
+					BeatPrompter.appResources.getString(
 						R.string.scanningFolder,
 						nextFolder.mName
 					)
@@ -187,13 +187,13 @@ class OneDriveStorage(parentFragment: Fragment) :
 					if (driveFile != null) {
 						val title = file.mName
 						Logger.log { "File title: $title" }
-						mMessageSource.onNext(BeatPrompter.getResourceString(R.string.checking, title))
+						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.checking, title))
 						val safeFilename = Utils.makeSafeFilename(title)
 						val targetFile = File(mDownloadFolder, safeFilename)
 						Logger.log { "Safe filename: $safeFilename" }
 
 						Logger.log("Downloading now ...")
-						mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
+						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
 						// Don't check lastModified ... ALWAYS download.
 						if (mListener.shouldCancel())
 							break
@@ -289,7 +289,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 			}
 
 			override fun onAuthenticationRequired() {
-				rootPathSource.onError(StorageException(BeatPrompter.getResourceString(R.string.could_not_find_cloud_root_error)))
+				rootPathSource.onError(StorageException(BeatPrompter.appResources.getString(R.string.could_not_find_cloud_root_error)))
 			}
 		})
 	}

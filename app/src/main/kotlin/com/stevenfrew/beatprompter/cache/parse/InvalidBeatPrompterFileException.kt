@@ -8,4 +8,4 @@ import com.stevenfrew.beatprompter.BeatPrompter
 internal class InvalidBeatPrompterFileException internal constructor(
 	resourceId: Int,
 	vararg args: Any
-) : Exception(BeatPrompter.getResourceString(resourceId, *args))
+) : Exception(BeatPrompter.appResources.getString(resourceId, *args))

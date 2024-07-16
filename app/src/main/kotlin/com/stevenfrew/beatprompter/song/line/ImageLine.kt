@@ -90,7 +90,7 @@ class ImageLine internal constructor(
 					imageWidth
 
 			if (scaledImageHeight > 8192 || scaledImageWidth > 8192)
-				throw SongParserException(BeatPrompter.getResourceString(R.string.image_too_large))
+				throw SongParserException(BeatPrompter.appResources.getString(R.string.image_too_large))
 
 			return Rect(0, 0, scaledImageWidth, scaledImageHeight)
 		}

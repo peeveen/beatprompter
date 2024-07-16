@@ -20,8 +20,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDIProgramChangeTriggerTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MIDISongSelectTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiProgramChangeTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
@@ -39,8 +39,8 @@ import org.w3c.dom.Element
 @ParseTags(
 	TimeTag::class,
 	ImageTag::class,
-	MIDISongSelectTriggerTag::class,
-	MIDIProgramChangeTriggerTag::class,
+	MidiSongSelectTriggerTag::class,
+	MidiProgramChangeTriggerTag::class,
 	TitleTag::class,
 	ArtistTag::class,
 	KeyTag::class,
@@ -110,9 +110,9 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val keyTag = tagSequence.filterIsInstance<KeyTag>().firstOrNull()
 		val chordTag = tagSequence.filterIsInstance<ChordTag>().firstOrNull()
 		val midiSongSelectTriggerTag =
-			tagSequence.filterIsInstance<MIDISongSelectTriggerTag>().firstOrNull()
+			tagSequence.filterIsInstance<MidiSongSelectTriggerTag>().firstOrNull()
 		val midiProgramChangeTriggerTag =
-			tagSequence.filterIsInstance<MIDIProgramChangeTriggerTag>().firstOrNull()
+			tagSequence.filterIsInstance<MidiProgramChangeTriggerTag>().firstOrNull()
 		val bpmTag = tagSequence.filterIsInstance<BeatsPerMinuteTag>().firstOrNull()
 		val filterOnlyTag = tagSequence.filterIsInstance<FilterOnlyTag>().firstOrNull()
 		val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()

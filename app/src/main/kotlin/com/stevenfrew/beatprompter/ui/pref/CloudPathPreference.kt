@@ -16,7 +16,7 @@ class CloudPathPreference(context: Context, attrs: AttributeSet) : Preference(co
 		val path = Preferences.cloudPath
 		var displayPath = Preferences.cloudDisplayPath
 		if (path == null)
-			displayPath = BeatPrompter.getResourceString(R.string.no_cloud_folder_currently_set)
+			displayPath = BeatPrompter.appResources.getString(R.string.no_cloud_folder_currently_set)
 		textView.text = displayPath
 	}
 }

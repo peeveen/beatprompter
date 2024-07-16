@@ -51,7 +51,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		GoogleSignIn.getClient(mParentFragment.requireActivity(), mGoogleClientSignInOptions)
 
 	override val cloudStorageName: String
-		get() = BeatPrompter.getResourceString(R.string.google_drive_string)
+		get() = BeatPrompter.appResources.getString(R.string.google_drive_string)
 
 	override val directorySeparator: String
 		get() = "/"
@@ -113,7 +113,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		}
 	}
 
-	private class ReadGoogleDriveFolderContentsTask constructor(
+	private class ReadGoogleDriveFolderContentsTask(
 		val mClient: com.google.api.services.drive.Drive,
 		val mStorage: GoogleDriveStorage,
 		val mFolder: FolderInfo,
@@ -154,7 +154,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				val currentFolderID = currentFolder.mID
 				val currentFolderName = currentFolder.mName
 				mMessageSource.onNext(
-					BeatPrompter.getResourceString(
+					BeatPrompter.appResources.getString(
 						R.string.scanningFolder,
 						if (firstFolder) "..." else currentFolderName
 					)
@@ -178,12 +178,11 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 							if (mListener.shouldCancel())
 								break
 							// Ignore shortcuts
-							val resolvedChild = if (child.shortcutDetails != null) {
+							val resolvedChild = if (child.shortcutDetails != null)
 								mClient.files().get(child.shortcutDetails.targetId)
 									.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
-							} else {
+							else
 								child
-							}
 							val fileID = resolvedChild.id
 							val title = resolvedChild.name
 							val mimeType = resolvedChild.mimeType
@@ -229,7 +228,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		}
 	}
 
-	private class DownloadGoogleDriveFilesTask constructor(
+	private class DownloadGoogleDriveFilesTask(
 		val mClient: com.google.api.services.drive.Drive,
 		val mListener: StorageListener,
 		val mItemSource: PublishSubject<DownloadResult>,
@@ -269,7 +268,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 						val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
 						Logger.log { "Safe filename: $safeFilename" }
 						Logger.log("Downloading now ...")
-						mMessageSource.onNext(BeatPrompter.getResourceString(R.string.downloading, title))
+						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
 						if (mListener.shouldCancel())
 							break
 						val localFile = downloadGoogleDriveFile(file, safeFilename)
@@ -285,9 +284,9 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 						break
 				} catch (jsonException: GoogleJsonResponseException) {
 					// You get a 404 if the document has been 100% deleted.
-					if (jsonException.statusCode == 404) {
+					if (jsonException.statusCode == 404)
 						mItemSource.onNext(FailedDownloadResult(cloudFile))
-					} else {
+					else {
 						mItemSource.onError(jsonException)
 						return
 					}

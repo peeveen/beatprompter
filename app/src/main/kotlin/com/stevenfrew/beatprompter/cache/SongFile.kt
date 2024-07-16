@@ -80,7 +80,7 @@ class SongFile(
 	}
 
 	companion object {
-		private var thePrefix = "${BeatPrompter.getResourceString(R.string.lowerCaseThe)} "
+		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
 
 		private const val TITLE_ATTRIBUTE = "title"
 		private const val ARTIST_ATTRIBUTE = "artist"

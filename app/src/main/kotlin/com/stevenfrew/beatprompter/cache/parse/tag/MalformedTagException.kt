@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
  */
 class MalformedTagException : Exception {
 	internal constructor(resourceId: Int, vararg args: Any)
-		: this(BeatPrompter.getResourceString(resourceId, *args))
+		: this(BeatPrompter.appResources.getString(resourceId, *args))
 
 	internal constructor(message: String) : super(message)
 	internal constructor(ex: Exception) : super(ex)

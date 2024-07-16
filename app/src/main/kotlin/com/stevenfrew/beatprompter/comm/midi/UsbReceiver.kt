@@ -67,6 +67,6 @@ class UsbReceiver(
 	}
 
 	override fun unregister(task: ReceiverTask) {
-		MIDIController.removeReceiver(task)
+		Midi.removeReceiver(task)
 	}
 }

@@ -71,7 +71,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 			}
 			.forEach {
 				messageSource.onNext(
-					BeatPrompter.getResourceString(
+					BeatPrompter.appResources.getString(
 						R.string.downloading,
 						it.cachedCloudFile.mName
 					)
@@ -93,7 +93,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 			val folderToSearch = foldersToSearch.removeAt(0)
 			val localFolder = File(folderToSearch.mID)
 			messageSource.onNext(
-				BeatPrompter.getResourceString(
+				BeatPrompter.appResources.getString(
 					R.string.scanningFolder,
 					localFolder.name
 				)
@@ -119,7 +119,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 		itemSource.onComplete()
 	}
 
-	companion object{
+	companion object {
 		const val LOCAL_CACHE_FOLDER_NAME = "local"
 	}
 }
