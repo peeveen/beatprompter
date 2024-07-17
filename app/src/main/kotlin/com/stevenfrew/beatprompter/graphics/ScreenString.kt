@@ -102,8 +102,8 @@ class ScreenString private constructor(
 			maxWidth: Int,
 			maxHeight: Int,
 			face: Typeface
-		): Int {
-			return getBestFontSize(
+		): Int =
+			getBestFontSize(
 				text,
 				paint,
 				minimumFontSize,
@@ -113,7 +113,6 @@ class ScreenString private constructor(
 				face,
 				false
 			)
-		}
 
 		fun create(
 			text: String,

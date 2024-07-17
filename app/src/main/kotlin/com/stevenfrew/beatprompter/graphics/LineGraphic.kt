@@ -16,13 +16,12 @@ class LineGraphic(private val mSize: Rect) {
 			return mBitmap
 		}
 
-	private fun createBitmap(): Bitmap {
-		return Bitmap.createBitmap(
+	private fun createBitmap(): Bitmap =
+		Bitmap.createBitmap(
 			mSize.width(),
 			mSize.height(),
 			Bitmap.Config.ARGB_8888
 		)
-	}
 
 	fun recycle() {
 		if (!mBitmap.isRecycled)

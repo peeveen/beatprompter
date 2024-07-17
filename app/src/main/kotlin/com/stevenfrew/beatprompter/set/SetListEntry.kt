@@ -20,33 +20,29 @@ class SetListEntry private constructor(
 	constructor(setListFileLine: String)
 		: this(getTitleAndArtistFromSetListLine(setListFileLine))
 
-	fun matches(songFile: SongFile): SetListMatch {
+	fun matches(songFile: SongFile): SetListMatch =
 		if (songFile.mNormalizedTitle.equals(mNormalizedTitle, true)) {
 			if (songFile.mNormalizedArtist.equals(mNormalizedArtist, true))
-				return SetListMatch.TitleAndArtistMatch
-			return SetListMatch.TitleMatch
+				SetListMatch.TitleAndArtistMatch
+			SetListMatch.TitleMatch
 		} else
-			return SetListMatch.NoMatch
-	}
+			SetListMatch.NoMatch
 
-	fun toDisplayString(): String {
-		return if (mNormalizedArtist.isBlank()) mNormalizedTitle
+	fun toDisplayString(): String =
+		if (mNormalizedArtist.isBlank()) mNormalizedTitle
 		else "$mNormalizedArtist - $mNormalizedTitle"
-	}
 
-	override fun toString(): String {
-		return mNormalizedTitle + SET_LIST_ENTRY_DELIMITER + mNormalizedArtist
-	}
+	override fun toString(): String = mNormalizedTitle + SET_LIST_ENTRY_DELIMITER + mNormalizedArtist
 
 	companion object {
 		private const val SET_LIST_ENTRY_DELIMITER = "==="
 
-		private fun getTitleAndArtistFromSetListLine(setListFileLine: String): Pair<String, String> {
-			val bits = setListFileLine.splitAndTrim(SET_LIST_ENTRY_DELIMITER)
-			return if (bits.size > 1)
-				bits[0] to bits[1]
-			else
-				bits[0] to ""
-		}
+		private fun getTitleAndArtistFromSetListLine(setListFileLine: String): Pair<String, String> =
+			setListFileLine.splitAndTrim(SET_LIST_ENTRY_DELIMITER).let {
+				if (it.size > 1)
+					it[0] to it[1]
+				else
+					it[0] to ""
+			}
 	}
 }

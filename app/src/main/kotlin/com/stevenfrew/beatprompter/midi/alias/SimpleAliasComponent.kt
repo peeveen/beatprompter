@@ -16,9 +16,8 @@ class SimpleAliasComponent(
 		aliases: List<Alias>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<OutgoingMessage> {
-		return listOf(OutgoingMessage(mValues.map {
+	): List<OutgoingMessage> =
+		listOf(OutgoingMessage(mValues.map {
 			it.resolve(parameters, mChannelValue?.mValue ?: channel)
 		}.toByteArray()))
-	}
 }

@@ -11,7 +11,6 @@ class Alias(
 		get() = mComponents.maxOf { it.parameterCount }
 	private val mComponents = components
 
-	fun resolve(aliases: List<Alias>, arguments: ByteArray, channel: Byte): List<OutgoingMessage> {
-		return mComponents.flatMap { it.resolve(aliases, arguments, channel) }
-	}
+	fun resolve(aliases: List<Alias>, arguments: ByteArray, channel: Byte): List<OutgoingMessage> =
+		mComponents.flatMap { it.resolve(aliases, arguments, channel) }
 }

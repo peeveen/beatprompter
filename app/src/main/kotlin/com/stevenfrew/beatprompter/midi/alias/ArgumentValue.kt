@@ -18,7 +18,6 @@ internal class ArgumentValue(private val mArgumentIndex: Int) : Value() {
 		return arguments[mArgumentIndex]
 	}
 
-	override fun matches(otherValue: Value?): Boolean {
-		return if (otherValue is ArgumentValue) otherValue.mArgumentIndex == mArgumentIndex else otherValue is WildcardValue
-	}
+	override fun matches(otherValue: Value?): Boolean =
+		if (otherValue is ArgumentValue) otherValue.mArgumentIndex == mArgumentIndex else otherValue is WildcardValue
 }

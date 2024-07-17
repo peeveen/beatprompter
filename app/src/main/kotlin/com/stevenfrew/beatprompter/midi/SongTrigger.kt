@@ -36,26 +36,23 @@ class SongTrigger(
 		element.setAttribute(CHANNEL_ATTRIBUTE, "${mChannel.resolve()}")
 	}
 
-	override fun equals(other: Any?): Boolean {
+	override fun equals(other: Any?): Boolean =
 		if (other is SongTrigger) {
 			val mst = other as SongTrigger?
-			if (mst!!.mBankSelectMSB.matches(mBankSelectMSB))
-				if (mst.mBankSelectLSB.matches(mBankSelectLSB))
-					if (mst.mType == mType)
-						if (mst.mTriggerIndex.matches(mTriggerIndex))
-							return mst.mChannel.matches(mChannel)
-		}
-		return false
-	}
+			mst!!.mBankSelectMSB.matches(mBankSelectMSB) &&
+				mst.mBankSelectLSB.matches(mBankSelectLSB) &&
+				mst.mType == mType &&
+				mst.mTriggerIndex.matches(mTriggerIndex) &&
+				mst.mChannel.matches(mChannel)
+		} else false
 
-	private fun canSend(): Boolean {
-		return (mTriggerIndex is CommandValue
+	private fun canSend(): Boolean =
+		mTriggerIndex is CommandValue
 			&& mBankSelectLSB is CommandValue
-			&& mBankSelectMSB is CommandValue)
-	}
+			&& mBankSelectMSB is CommandValue
 
-	fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> {
-		return mutableListOf<OutgoingMessage>().apply {
+	fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> =
+		mutableListOf<OutgoingMessage>().apply {
 			if (canSend())
 				if (mType == TriggerType.SongSelect)
 					add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
@@ -82,7 +79,6 @@ class SongTrigger(
 					add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
 				}
 		}
-	}
 
 	override fun hashCode(): Int {
 		var result = mBankSelectMSB.hashCode()

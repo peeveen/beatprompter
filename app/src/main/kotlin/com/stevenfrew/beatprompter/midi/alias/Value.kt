@@ -11,9 +11,7 @@ abstract class Value {
 
 	internal abstract fun matches(otherValue: Value?): Boolean
 
-	fun resolve(): Byte {
-		return resolve(ByteArray(0), 0)
-	}
+	fun resolve(): Byte = resolve(ByteArray(0), 0)
 
 	companion object {
 		internal const val ZERO_BYTE: Byte = 0

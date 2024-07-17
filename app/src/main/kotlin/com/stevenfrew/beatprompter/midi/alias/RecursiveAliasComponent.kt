@@ -16,9 +16,9 @@ class RecursiveAliasComponent(
 		aliases: List<Alias>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<OutgoingMessage> {
+	): List<OutgoingMessage> =
 		try {
-			return aliases.first {
+			aliases.first {
 				it.mName.equals(
 					mReferencedAliasName,
 					ignoreCase = true
@@ -35,5 +35,4 @@ class RecursiveAliasComponent(
 				)
 			)
 		}
-	}
 }

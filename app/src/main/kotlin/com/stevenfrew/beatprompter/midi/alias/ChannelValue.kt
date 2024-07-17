@@ -9,7 +9,5 @@ class ChannelValue internal constructor(channel: Byte) : ByteValue(channel) {
 			throw ValueException(BeatPrompter.appResources.getString(R.string.invalid_channel_value))
 	}
 
-	override fun toString(): String {
-		return "#$mValue"
-	}
+	override fun toString(): String = "#$mValue"
 }

@@ -7,9 +7,7 @@ internal class Playlist {
 	private val mItems = mutableListOf<PlaylistNode>()
 
 	private val songFiles: List<SongFile>
-		get() {
-			return mItems.map { it.mSongFile }
-		}
+		get() = mItems.map { it.mSongFile }
 
 	val nodes: List<PlaylistNode>
 		get() = mItems
@@ -22,30 +20,14 @@ internal class Playlist {
 		buildSongList(songs)
 	}
 
-	fun sortByTitle() {
-		buildSongList(songFiles.sortedBy { it.mSortableTitle })
-	}
+	fun sortByTitle() = buildSongList(songFiles.sortedBy { it.mSortableTitle })
+	fun sortByMode() = buildSongList(songFiles.sortedBy { it.bestScrollingMode })
+	fun sortByRating() =
+		buildSongList(songFiles.sortedByDescending { it.mRating })  // Sort from best to worst
 
-	fun sortByMode() {
-		buildSongList(songFiles.sortedBy { it.bestScrollingMode })
-	}
-
-	fun sortByRating() {
-		// Sort from best to worst
-		buildSongList(songFiles.sortedByDescending { it.mRating })
-	}
-
-	fun sortByArtist() {
-		buildSongList(songFiles.sortedBy { it.mSortableArtist })
-	}
-
-	fun sortByKey() {
-		buildSongList(songFiles.sortedBy { it.mKey })
-	}
-
-	fun sortByDateModified() {
-		buildSongList(songFiles.sortedByDescending { it.mLastModified })
-	}
+	fun sortByArtist() = buildSongList(songFiles.sortedBy { it.mSortableArtist })
+	fun sortByKey() = buildSongList(songFiles.sortedBy { it.mKey })
+	fun sortByDateModified() = buildSongList(songFiles.sortedByDescending { it.mLastModified })
 
 	fun shuffle() {
 		val randomizedSongs = songFiles.map { it to Random.Default.nextDouble() }
