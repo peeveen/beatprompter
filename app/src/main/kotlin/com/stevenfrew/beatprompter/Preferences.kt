@@ -20,7 +20,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_midiConnectionType_key,
 					R.string.pref_midiConnectionType_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
@@ -58,7 +58,7 @@ object Preferences {
 		)
 
 	val bandLeaderDevice: String
-		get() = getStringPreference(R.string.pref_bandLeaderDevice_key, "") ?: ""
+		get() = getStringPreference(R.string.pref_bandLeaderDevice_key, "")
 
 	val bluetoothMode: BluetoothMode
 		get() = try {
@@ -66,7 +66,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_bluetoothMode_key,
 					R.string.pref_bluetoothMode_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
@@ -76,12 +76,12 @@ object Preferences {
 	val incomingMIDIChannels: Int
 		get() = getIntPreference(R.string.pref_midiIncomingChannels_key, 65535)
 
-	var cloudDisplayPath: String?
-		get() = getStringPreference(R.string.pref_cloudDisplayPath_key, null)
+	var cloudDisplayPath: String
+		get() = getStringPreference(R.string.pref_cloudDisplayPath_key, "")
 		set(value) = setStringPreference(R.string.pref_cloudDisplayPath_key, value)
 
-	var cloudPath: String?
-		get() = getStringPreference(R.string.pref_cloudPath_key, null)
+	var cloudPath: String
+		get() = getStringPreference(R.string.pref_cloudPath_key, "")
 		set(value) = setStringPreference(R.string.pref_cloudPath_key, value)
 
 	val includeSubFolders: Boolean
@@ -103,7 +103,7 @@ object Preferences {
 				R.string.pref_sorting_key,
 				SortingPreference.Title.name
 			)
-			stringPref?.split(",")?.map { SortingPreference.valueOf(it) }?.toTypedArray() ?: arrayOf()
+			stringPref.split(",").map { SortingPreference.valueOf(it) }.toTypedArray()
 		} catch (ignored: Exception) {
 			// backward compatibility with old shite values.
 			arrayOf(SortingPreference.Title)
@@ -129,7 +129,6 @@ object Preferences {
 			R.string.pref_customComments_key,
 			R.string.pref_customComments_defaultValue
 		)
-			?: ""
 
 	val showChords: Boolean
 		get() = getBooleanPreference(
@@ -149,7 +148,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_showSongBPM_key,
 					R.string.pref_showSongBPM_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -162,7 +161,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_sendMidiTriggerOnStart_key,
 					R.string.pref_sendMidiTriggerOnStart_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -175,7 +174,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_metronome_key,
 					R.string.pref_metronome_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -218,7 +217,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_cloudStorageSystem_key,
 					R.string.pref_cloudStorageSystem_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -287,7 +286,7 @@ object Preferences {
 		get() = getStringPreference(
 			R.string.pref_automaticallyPlayNextSong_key,
 			R.string.pref_automaticallyPlayNextSong_defaultValue
-		)!!
+		)
 
 	val showBeatStyleIcons: Boolean
 		get() = getBooleanPreference(
@@ -319,7 +318,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_screenAction_key,
 					R.string.pref_screenAction_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -332,7 +331,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_audioplayer_key,
 					R.string.pref_audioplayer_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -367,7 +366,7 @@ object Preferences {
 				getStringPreference(
 					R.string.pref_midiTriggerSafetyCatch_key,
 					R.string.pref_midiTriggerSafetyCatch_defaultValue
-				)!!
+				)
 			)
 		} catch (e: Exception) {
 			// backward compatibility with old shite values.
@@ -446,12 +445,12 @@ object Preferences {
 	val pulseColor: Int
 		get() = getColorPreference(R.string.pref_pulseColor_key, R.string.pref_pulseColor_default)
 
-	var dropboxAccessToken: String?
-		get() = getPrivateStringPreference(R.string.pref_dropboxAccessToken_key, null)
+	var dropboxAccessToken: String
+		get() = getPrivateStringPreference(R.string.pref_dropboxAccessToken_key, "")
 		set(value) = setPrivateStringPreference(R.string.pref_dropboxAccessToken_key, value)
 
-	var dropboxRefreshToken: String?
-		get() = getPrivateStringPreference(R.string.pref_dropboxRefreshToken_key, null)
+	var dropboxRefreshToken: String
+		get() = getPrivateStringPreference(R.string.pref_dropboxRefreshToken_key, "")
 		set(value) = setPrivateStringPreference(R.string.pref_dropboxRefreshToken_key, value)
 
 	var dropboxExpiryTime: Long
@@ -476,23 +475,22 @@ object Preferences {
 			.getInt(BeatPrompter.appResources.getString(prefResourceString), default)
 	}
 
-	fun getStringPreference(key: String, default: String?): String? {
-		return BeatPrompter
+	fun getStringPreference(key: String, default: String): String =
+		BeatPrompter
 			.appResources
 			.preferences
-			.getString(key, default)
-	}
+			.getString(key, default) ?: default
 
 	@Suppress("SameParameterValue")
-	private fun getPrivateStringPreference(prefResourceString: Int, default: String?): String? {
-		return BeatPrompter
+	private fun getPrivateStringPreference(prefResourceString: Int, default: String): String =
+		BeatPrompter
 			.appResources
 			.privatePreferences
 			.getString(
 				BeatPrompter.appResources.getString(prefResourceString),
 				default
-			)
-	}
+			) ?: default
+
 
 	@Suppress("SameParameterValue")
 	private fun getPrivateLongPreference(prefResourceString: Int, default: Long): Long {
@@ -505,23 +503,22 @@ object Preferences {
 			)
 	}
 
-	private fun getStringPreference(prefResourceString: Int, default: String?): String? {
-		return BeatPrompter
+	private fun getStringPreference(prefResourceString: Int, default: String): String =
+		BeatPrompter
 			.appResources
 			.preferences
 			.getString(
 				BeatPrompter.appResources.getString(prefResourceString),
 				default
-			)
-	}
+			) ?: default
 
 	private fun getStringPreference(
 		prefResourceString: Int,
 		prefDefaultResourceString: Int
-	): String? {
-		return getStringPreference(
+	): String = BeatPrompter.appResources.getString(prefDefaultResourceString).let {
+		getStringPreference(
 			prefResourceString,
-			BeatPrompter.appResources.getString(prefDefaultResourceString)
+			it
 		)
 	}
 
@@ -562,7 +559,7 @@ object Preferences {
 		)
 	}
 
-	private fun setStringPreference(prefResourceString: Int, value: String?) {
+	private fun setStringPreference(prefResourceString: Int, value: String) {
 		BeatPrompter
 			.appResources
 			.preferences
@@ -572,7 +569,7 @@ object Preferences {
 	}
 
 	@Suppress("SameParameterValue")
-	private fun setPrivateStringPreference(prefResourceString: Int, value: String?) {
+	private fun setPrivateStringPreference(prefResourceString: Int, value: String) {
 		BeatPrompter
 			.appResources
 			.privatePreferences
@@ -581,6 +578,7 @@ object Preferences {
 			.apply()
 	}
 
+	@Suppress("SameParameterValue")
 	private fun setPrivateLongPreference(prefResourceString: Int, value: Long) {
 		BeatPrompter
 			.appResources

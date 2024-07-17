@@ -23,9 +23,7 @@ class BeatPrompter : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		appResources = object : GlobalAppResources {
-			override fun getString(resID: Int): String {
-				return applicationContext.getString(resID)
-			}
+			override fun getString(resID: Int): String = applicationContext.getString(resID)
 
 			override fun getString(resID: Int, vararg args: Any): String =
 				applicationContext.getString(resID, *args)

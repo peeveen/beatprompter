@@ -36,7 +36,7 @@ class QuitSongMessage(
 					if (dataRead == 1) {
 						val availableStart = available()
 						val songInfo =
-							with(ObjectInputStream(this)) {
+							ObjectInputStream(this).run {
 								val title = readObject() as String
 								val artist = readObject() as String
 								title to artist

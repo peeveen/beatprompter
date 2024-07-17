@@ -53,12 +53,13 @@ class DownloadTask(
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val itemDownloadListener = object : ItemDownloadListener {
-			override fun onItemDownloaded(result: DownloadResult) =
+			override fun onItemDownloaded(result: DownloadResult) {
 				if (result is SuccessfulDownloadResult)
 					Cache.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
 				else
 				// IMPLICIT if(result is FailedDownloadResult)
 					Cache.mCachedCloudItems.remove(result.mFileInfo)
+			}
 
 			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
 

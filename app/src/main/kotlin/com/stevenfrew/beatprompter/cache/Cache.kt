@@ -70,15 +70,14 @@ object Cache {
 	var mTemporarySetListFile: File? = null
 	var mDefaultMidiAliasesFile: File? = null
 
-	fun copyAssetsFileToLocalFolder(filename: String, destination: File) {
-		val inputStream = BeatPrompter.appResources.assetManager.open(filename)
-		inputStream.use { inStream ->
+	fun copyAssetsFileToLocalFolder(filename: String, destination: File) =
+		BeatPrompter.appResources.assetManager.open(filename).use { inStream ->
 			val outputStream = FileOutputStream(destination)
 			outputStream.use {
 				Utils.streamToStream(inStream, it)
 			}
 		}
-	}
+
 
 	fun initialiseTemporarySetListFile(deleteExisting: Boolean, context: Context) {
 		try {
@@ -290,7 +289,7 @@ object Cache {
 		}
 	}
 
-	private val cloudPath: String?
+	private val cloudPath: String
 		get() = Preferences.cloudPath
 
 	private val includeSubFolders: Boolean

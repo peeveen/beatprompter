@@ -826,7 +826,7 @@ class SongListFragment
 	}
 
 	override fun onPrepareOptionsMenu(menu: Menu) =
-		with(menu) {
+		menu.run {
 			findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
 			findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}

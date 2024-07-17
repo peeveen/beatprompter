@@ -26,14 +26,12 @@ open class CachedFile : CachedItem {
 		name: String,
 		lastModified: Date,
 		subfolderIDs: List<String>
-	)
-		: super(id, name, subfolderIDs) {
+	) : super(id, name, subfolderIDs) {
 		mFile = file
 		mLastModified = lastModified
 	}
 
-	constructor(cachedFile: CachedFile)
-		: this(
+	constructor(cachedFile: CachedFile) : this(
 		cachedFile.mFile,
 		cachedFile.mID,
 		cachedFile.mName,
@@ -56,8 +54,8 @@ open class CachedFile : CachedItem {
 		private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
 		private const val CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME = "lastModified"
 
-		fun createCachedCloudFile(result: SuccessfulDownloadResult): CachedFile {
-			return try {
+		fun createCachedCloudFile(result: SuccessfulDownloadResult): CachedFile =
+			try {
 				AudioFileParser(result.cachedCloudFile).parse()
 			} catch (ioe: InvalidBeatPrompterFileException) {
 				try {
@@ -78,6 +76,5 @@ open class CachedFile : CachedItem {
 					}
 				}
 			}
-		}
 	}
 }

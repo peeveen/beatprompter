@@ -66,8 +66,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		cloudPref?.setOnPreferenceChangeListener { _, value ->
 			EventRouter.sendEventToSongList(Events.CLEAR_CACHE)
 			Preferences.storageSystem = StorageType.valueOf(value.toString())
-			Preferences.cloudPath = null
-			Preferences.cloudDisplayPath = null
+			Preferences.cloudPath = ""
+			Preferences.cloudDisplayPath = ""
 			cloudPref.forceUpdate()
 			true
 		}

@@ -45,7 +45,7 @@ class ChooseSongMessage(
 					if (dataRead == 1) {
 						val availableStart = available()
 						val songChoiceInfo =
-							with(ObjectInputStream(this)) {
+							ObjectInputStream(this).run {
 								val title = readObject() as String
 								val artist = readObject() as String
 								val track = readObject() as String

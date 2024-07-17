@@ -6,7 +6,8 @@ import com.stevenfrew.beatprompter.cache.SongFile
 
 class AllSongsFilter(songs: List<SongFile>) : SongFilter(
 	BeatPrompter.appResources.getString(R.string.no_tag_selected),
-	songs, true
+	songs,
+	true
 ) {
 	override fun equals(other: Any?): Boolean = other == null || other is AllSongsFilter
 

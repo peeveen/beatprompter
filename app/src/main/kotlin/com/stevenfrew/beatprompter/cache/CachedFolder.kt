@@ -12,8 +12,7 @@ class CachedFolder : CachedItem {
 		id: String,
 		name: String,
 		subfolderIDs: List<String>
-	)
-		: super(id, name, subfolderIDs)
+	) : super(id, name, subfolderIDs)
 
 	constructor(element: Element) : super(element)
 }

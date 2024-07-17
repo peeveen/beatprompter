@@ -14,9 +14,9 @@ class CloudPathPreference(context: Context, attrs: AttributeSet) : Preference(co
 		super.onBindViewHolder(view)
 		val textView = view.findViewById(android.R.id.summary) as TextView
 		val path = Preferences.cloudPath
-		var displayPath = Preferences.cloudDisplayPath
-		if (path == null)
-			displayPath = BeatPrompter.appResources.getString(R.string.no_cloud_folder_currently_set)
-		textView.text = displayPath
+		textView.text = if (path.isBlank())
+			BeatPrompter.appResources.getString(R.string.no_cloud_folder_currently_set)
+		else
+			Preferences.cloudDisplayPath
 	}
 }

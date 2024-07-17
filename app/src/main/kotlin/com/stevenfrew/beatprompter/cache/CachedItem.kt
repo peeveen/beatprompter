@@ -37,23 +37,19 @@ abstract class CachedItem {
 		mSubfolderIDs = subfolderIDs
 	}
 
-	open fun writeToXML(doc: Document, element: Element) {
-		element.apply {
+	open fun writeToXML(doc: Document, element: Element) =
+		element.run {
 			setAttribute(CACHED_ITEM_NAME_ATTRIBUTE_NAME, mName)
 			setAttribute(CACHED_ITEM_ID_ATTRIBUTE_NAME, mID)
+			mSubfolderIDs.forEach {
+				val subfolderElement = doc.createElement(CACHED_ITEM_SUBFOLDER_ELEMENT_NAME)
+				subfolderElement.textContent = it
+				appendChild(subfolderElement)
+			}
 		}
-		mSubfolderIDs.forEach {
-			val subfolderElement = doc.createElement(CACHED_ITEM_SUBFOLDER_ELEMENT_NAME)
-			subfolderElement.textContent = it
-			element.appendChild(subfolderElement)
-		}
-	}
 
 	fun isInSubfolder(subfolder: String?): Boolean =
-		if (subfolder.isNullOrBlank() || mSubfolderIDs.isEmpty())
-			subfolder.isNullOrBlank() && mSubfolderIDs.isEmpty()
-		else
-			mSubfolderIDs.contains(subfolder)
+		(subfolder.isNullOrBlank() && mSubfolderIDs.isEmpty()) || mSubfolderIDs.contains(subfolder)
 
 	companion object {
 		private const val CACHED_ITEM_ID_ATTRIBUTE_NAME = "id"

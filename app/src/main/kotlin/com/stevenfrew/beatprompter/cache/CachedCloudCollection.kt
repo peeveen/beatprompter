@@ -40,40 +40,35 @@ class CachedCloudCollection {
 		get() =
 			mItems.values.filterIsInstance<ImageFile>()
 
-	fun writeToXML(doc: Document, root: Element) {
-		for (item in mItems.values) {
-			doc.createElement(item::class.findAnnotation<CacheXmlTag>()!!.mTag)
-				.also {
-					item.writeToXML(doc, it)
-					root.appendChild(it)
-				}
+	fun writeToXML(doc: Document, root: Element) =
+		mItems.values.forEach { item ->
+			doc.createElement(item::class.findAnnotation<CacheXmlTag>()!!.mTag).also {
+				item.writeToXML(doc, it)
+				root.appendChild(it)
+			}
 		}
-	}
 
 	fun add(cachedItem: CachedItem) {
 		mItems[cachedItem.mID] = cachedItem
 	}
 
 	fun updateLocations(fileInfo: FileInfo) {
-		val existingItem = mItems[fileInfo.mID]
-		existingItem?.mSubfolderIDs = fileInfo.mSubfolderIDs
+		mItems[fileInfo.mID]?.mSubfolderIDs = fileInfo.mSubfolderIDs
 	}
 
-	fun remove(file: ItemInfo) {
-		mItems.remove(file.mID)
-	}
+	fun remove(file: ItemInfo) = mItems.remove(file.mID)
 
-	fun compareWithCacheVersion(file: FileInfo): CacheComparisonResult {
-		val matchedItem = mItems[file.mID] ?: return CacheComparisonResult.Newer
-		if (matchedItem is CachedFile && matchedItem.mLastModified != file.mLastModified)
-			return CacheComparisonResult.Newer
-		if (file.mSubfolderIDs.size != matchedItem.mSubfolderIDs.size || !file.mSubfolderIDs.containsAll(
-				matchedItem.mSubfolderIDs
+	fun compareWithCacheVersion(file: FileInfo): CacheComparisonResult =
+		mItems[file.mID]?.let { matchedItem ->
+			if (matchedItem is CachedFile && matchedItem.mLastModified != file.mLastModified)
+				CacheComparisonResult.Newer
+			else if (file.mSubfolderIDs.size != matchedItem.mSubfolderIDs.size ||
+				!file.mSubfolderIDs.containsAll(matchedItem.mSubfolderIDs)
 			)
-		)
-			return CacheComparisonResult.Relocated
-		return CacheComparisonResult.Same
-	}
+				CacheComparisonResult.Relocated
+			else
+				CacheComparisonResult.Same
+		} ?: CacheComparisonResult.Newer
 
 	fun removeNonExistent(storageIDs: Set<String>) {
 		// Delete no-longer-existing files.
@@ -86,101 +81,93 @@ class CachedCloudCollection {
 		mItems = mItems.filter { storageIDs.contains(it.value.mID) }.toMutableMap()
 	}
 
-	fun clear() {
-		mItems.clear()
-	}
+	fun clear() = mItems.clear()
 
 	private inline fun <reified TCachedFileType : CachedFile> getMappedFiles(
 		files: List<CachedFile>,
 		filenames: Array<out String>
-	): List<TCachedFileType> {
-		return filenames
-			.map {
-				files.filter { file ->
-					file.mNormalizedName.equals(it.normalize(), ignoreCase = true)
-				}
-			}
-			.flattenAll()
-			.filterIsInstance<TCachedFileType>()
+	): List<TCachedFileType> = filenames.map {
+		files.filter { file ->
+			file.mNormalizedName.equals(it.normalize(), ignoreCase = true)
+		}
 	}
+		.flattenAll()
+		.filterIsInstance<TCachedFileType>()
 
-	fun getMappedAudioFiles(vararg filenames: String): List<AudioFile> {
-		return getMappedFiles(audioFiles, filenames)
-	}
+	fun getMappedAudioFiles(vararg filenames: String): List<AudioFile> =
+		getMappedFiles(audioFiles, filenames)
 
-	fun getMappedImageFiles(vararg filenames: String): List<ImageFile> {
-		return getMappedFiles(imageFiles, filenames)
-	}
+	fun getMappedImageFiles(vararg filenames: String): List<ImageFile> =
+		getMappedFiles(imageFiles, filenames)
 
 	fun getFilesToRefresh(
 		fileToRefresh: CachedFile?,
 		includeDependencies: Boolean
-	): List<CachedFile> {
-		val filesToRefresh = mutableListOf<CachedFile>()
-		if (fileToRefresh != null) {
-			filesToRefresh.add(fileToRefresh)
-			if (fileToRefresh is SongFile && includeDependencies) {
-				filesToRefresh.addAll(fileToRefresh.mAudioFiles.flatMap {
-					it.value.flatMap { audioFile ->
-						getMappedAudioFiles(
-							audioFile
-						)
-					}
-				})
-				filesToRefresh.addAll(fileToRefresh.mImageFiles.flatMap { getMappedImageFiles(it) })
+	): List<CachedFile> =
+		mutableListOf<CachedFile>().apply {
+			if (fileToRefresh != null) {
+				add(fileToRefresh)
+				if (fileToRefresh is SongFile && includeDependencies) {
+					addAll(fileToRefresh.mAudioFiles.flatMap {
+						it.value.flatMap { audioFile ->
+							getMappedAudioFiles(
+								audioFile
+							)
+						}
+					})
+					addAll(fileToRefresh.mImageFiles.flatMap { getMappedImageFiles(it) })
+				}
 			}
 		}
-		return filesToRefresh
-	}
 
-	private fun getParentFolderIDs(subfolderID: String): Set<String> {
-		val subfolderIDs = (mItems[subfolderID] as? CachedFolder)?.mSubfolderIDs ?: listOf()
-		return subfolderIDs.toMutableSet().also { resultSet ->
-			resultSet.toSet().forEach {
-				resultSet.addAll(getParentFolderIDs(it))
+	private fun getParentFolderIDs(subfolderID: String): Set<String> =
+		// Get subfolder IDs ...
+		((mItems[subfolderID] as? CachedFolder)?.mSubfolderIDs ?: listOf())
+			.toMutableSet().also { resultSet ->
+				resultSet.toSet().forEach {
+					resultSet.addAll(getParentFolderIDs(it))
+				}
 			}
-		}
-	}
 
-	fun isFilterOnly(file: SongFile): Boolean {
+
+	fun isFilterOnly(file: SongFile): Boolean =
 		if (file.mFilterOnly)
-			return true
+			true
+		else
 		// Now ... if any of the folders that the file is in contain a file called ".filter_only"
 		// then we treat this file as "filter only". This also applies to any parent folders of
 		// those folders.
-		val folderIDs = file.mSubfolderIDs.toMutableSet()
-		folderIDs.toSet().forEach {
-			folderIDs.addAll(getParentFolderIDs(it))
-		}
-		return mItems.values.any {
-			it.mName.equals(
-				FILTER_ONLY_FILENAME,
-				true
-			) && it.mSubfolderIDs.intersect(folderIDs).isNotEmpty()
-		}
-	}
+			file.mSubfolderIDs.toMutableSet().apply {
+				toSet().forEach {
+					addAll(getParentFolderIDs(it))
+				}
+			}.let { folderIDs ->
+				mItems.values.any {
+					it.mName.equals(
+						FILTER_ONLY_FILENAME,
+						true
+					) && it.mSubfolderIDs.intersect(folderIDs).isNotEmpty()
+				}
+			}
 
-	private fun getSubfolderIDs(folderID: String): Set<String> {
-		val subfolderIDs =
-			folders.filter { it.mSubfolderIDs.contains(folderID) }.map { it.mID }.toMutableSet()
-		subfolderIDs.toSet().forEach {
-			subfolderIDs.addAll(getSubfolderIDs(it))
+	private fun getSubfolderIDs(folderID: String): Set<String> =
+		folders.filter { it.mSubfolderIDs.contains(folderID) }.map { it.mID }.toMutableSet().apply {
+			toSet().forEach {
+				addAll(getSubfolderIDs(it))
+			}
 		}
-		return subfolderIDs
-	}
 
-	fun getSongsInFolder(folder: CachedFolder): List<SongFile> {
-		val subfolderIDs = mutableSetOf(folder.mID)
-		subfolderIDs.toSet().forEach {
-			subfolderIDs.addAll(getSubfolderIDs(it))
+	fun getSongsInFolder(folder: CachedFolder): List<SongFile> =
+		mutableSetOf(folder.mID).apply {
+			toSet().forEach {
+				addAll(getSubfolderIDs(it))
+			}
+		}.let { folderIDs ->
+			songFiles.filter { it.mSubfolderIDs.intersect(folderIDs).isNotEmpty() }
 		}
-		return songFiles.filter { it.mSubfolderIDs.intersect(subfolderIDs).isNotEmpty() }
-	}
 
 	internal val midiAliases: List<Alias>
-		get() {
-			return midiAliasFiles.flatMap { it.mAliasSet.aliases }.toList()
-		}
+		get() = midiAliasFiles.flatMap { it.mAliasSet.aliases }.toList()
 
 	companion object {
 		const val FILTER_ONLY_FILENAME = ".filter_only"

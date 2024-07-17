@@ -36,9 +36,8 @@ class ReadCacheTask(
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val databaseReadListener = object : CacheReadListener {
-			override fun onItemRead(cachedFile: CachedItem) {
+			override fun onItemRead(cachedFile: CachedItem) =
 				Cache.mCachedCloudItems.add(cachedFile)
-			}
 
 			override fun onCacheReadError(t: Throwable) {
 				onError(t)
@@ -49,31 +48,27 @@ class ReadCacheTask(
 				mHandler.obtainMessage(
 					Events.CACHE_UPDATED,
 					Cache.mCachedCloudItems
-				)
-					.sendToTarget()
+				).sendToTarget()
 				closeProgressDialog()
 			}
 
-			override suspend fun onProgressMessageReceived(message: String) {
-				progressUpdater(message)
-			}
+			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
 		}
-		if (mInitialDatabaseReadHasBeenPerformed) {
+		return if (mInitialDatabaseReadHasBeenPerformed) {
 			databaseReadListener.onCacheReadComplete()
-			return true
-		}
-		return Cache.readDatabase(databaseReadListener)
+			true
+		} else Cache.readDatabase(databaseReadListener)
 	}
 
 	override fun onPreExecute() {
-		if (mInitialDatabaseReadHasBeenPerformed)
-			return
-		val title = BeatPrompter.appResources.getString(R.string.readingDatabase)
-		mProgressDialog = Dialog(mContext, R.style.ReadingDatabaseDialog).apply {
-			setTitle(title)
-			setContentView(R.layout.reading_database)
-			setCancelable(false)
-			show()
+		if (!mInitialDatabaseReadHasBeenPerformed) {
+			val title = BeatPrompter.appResources.getString(R.string.readingDatabase)
+			mProgressDialog = Dialog(mContext, R.style.ReadingDatabaseDialog).apply {
+				setTitle(title)
+				setContentView(R.layout.reading_database)
+				setCancelable(false)
+				show()
+			}
 		}
 	}
 

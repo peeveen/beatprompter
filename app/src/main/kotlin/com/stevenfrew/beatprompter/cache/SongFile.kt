@@ -187,37 +187,31 @@ class SongFile(
 			element: Element,
 			tag: String,
 			type: TriggerType
-		): SongTrigger? {
-			val tagElements = element.getElementsByTagName(tag)
-			if (tagElements.length > 0) {
-				val tagElement = tagElements.item(0) as Element
+		): SongTrigger? =
+			element.getElementsByTagName(tag).takeIf { it.length > 0 }?.let {
+				val tagElement = it.item(0) as Element
 				return SongTrigger.readFromXml(tagElement, type)
 			}
-			return null
-		}
 
-		private fun getStringsFromElement(element: Element, tag: String): List<String> {
-			val tagElements = element.getElementsByTagName(tag)
-			var counter = 0
-			val result = mutableListOf<String>()
-			while (counter < tagElements.length) {
-				val tagElement = tagElements.item(counter)
-				result.add(tagElement.textContent)
-				counter += 1
+		private fun getStringsFromElement(element: Element, tag: String): List<String> =
+			mutableListOf<String>().apply {
+				element.getElementsByTagName(tag).run {
+					repeat(length) {
+						val tagElement = item(it)
+						add(tagElement.textContent)
+					}
+				}
 			}
-			return result
-		}
 
 		private fun writeStringsToElement(
 			doc: Document,
 			element: Element,
 			tag: String,
 			values: Iterable<String>
-		) {
-			values.forEach {
-				val newElement = doc.createElement(tag)
-				newElement.textContent = it
-				element.appendChild(newElement)
+		) = values.forEach {
+			doc.createElement(tag).apply {
+				textContent = it
+				element.appendChild(this)
 			}
 		}
 
@@ -225,12 +219,11 @@ class SongFile(
 			doc: Document,
 			element: Element,
 			audioFiles: Map<String, List<String>>
-		) {
-			audioFiles.forEach {
-				val newElement = doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG)
-				newElement.setAttribute(VARIATION_TAG, it.key)
+		) = audioFiles.forEach {
+			doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG).apply {
+				setAttribute(VARIATION_TAG, it.key)
 				writeStringsToElement(doc, element, AUDIO_FILE_TAG, it.value)
-				element.appendChild(newElement)
+				element.appendChild(this)
 			}
 		}
 
@@ -239,10 +232,9 @@ class SongFile(
 			element: Element,
 			tag: String,
 			songTrigger: SongTrigger
-		) {
-			val newElement = doc.createElement(tag)
-			songTrigger.writeToXML(newElement)
-			element.appendChild(newElement)
+		) = doc.createElement(tag).run {
+			songTrigger.writeToXML(this)
+			element.appendChild(this)
 		}
 
 		fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""

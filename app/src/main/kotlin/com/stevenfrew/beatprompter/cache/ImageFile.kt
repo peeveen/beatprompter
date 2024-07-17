@@ -22,19 +22,18 @@ class ImageFile internal constructor(
 		private const val WIDTH_ATTRIBUTE = "imageWidth"
 		private const val HEIGHT_ATTRIBUTE = "imageHeight"
 
-		fun readDimensionsFromAttributes(element: Element?): Size? {
+		fun readDimensionsFromAttributes(element: Element?): Size? =
 			if (element?.hasAttribute(WIDTH_ATTRIBUTE) == true && element.hasAttribute(HEIGHT_ATTRIBUTE)) {
 				val widthString = element.getAttribute(WIDTH_ATTRIBUTE)
 				val heightString = element.getAttribute(HEIGHT_ATTRIBUTE)
 				try {
 					val width = widthString.toInt()
 					val height = heightString.toInt()
-					return Size(width, height)
+					Size(width, height)
 				} catch (numberFormatException: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
+					null
 				}
-			}
-			return null
-		}
+			} else null
 	}
 }
