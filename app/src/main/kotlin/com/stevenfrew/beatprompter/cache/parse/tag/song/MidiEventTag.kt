@@ -44,6 +44,8 @@ class MidiEventTag internal constructor(
 	fun toMIDIEvent(time: Long): MIDIEvent = MIDIEvent(time, mMessages, mOffset)
 
 	companion object {
+		const val MIDI_SEND_TAG = "midi_send"
+
 		fun parseMIDIEvent(
 			name: String,
 			value: String,
@@ -76,7 +78,7 @@ class MidiEventTag internal constructor(
 						) && it.parameterCount == resolvedBytes.size
 					}
 					when {
-						tagName == "midi_send" -> listOf(OutgoingMessage(resolvedBytes))
+						tagName == MIDI_SEND_TAG -> listOf(OutgoingMessage(resolvedBytes))
 						matchedAlias != null -> matchedAlias.resolve(
 							aliases,
 							resolvedBytes,

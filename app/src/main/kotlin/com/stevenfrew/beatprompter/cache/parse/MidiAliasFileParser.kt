@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiEventTag
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.AliasComponent
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
@@ -114,7 +115,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				null
 			}
 		}
-		return if (name.equals("midi_send", ignoreCase = true))
+		return if (name.equals(MidiEventTag.MIDI_SEND_TAG, ignoreCase = true))
 			SimpleAliasComponent(componentArgs, channelArg)
 		else
 			RecursiveAliasComponent(name, componentArgs, channelArg)
