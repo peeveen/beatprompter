@@ -84,32 +84,23 @@ class Song(
 		mCurrentLine = lineEvent?.mLine ?: mLines.first()
 	}
 
-	internal fun getNextEvent(time: Long): LinkedEvent? {
+	internal fun getNextEvent(time: Long): LinkedEvent? =
 		if (mNextEvent != null && mNextEvent!!.time <= time) {
 			mCurrentEvent = mNextEvent!!
 			mNextEvent = mNextEvent!!.mNextEvent
-			return mCurrentEvent
-		}
-		return null
-	}
+			mCurrentEvent
+		} else null
 
-	internal fun getTimeFromPixel(pixel: Int): Long {
-		if (pixel == 0)
-			return 0
-		return mCurrentLine.getTimeFromPixel(pixel)
-	}
+	internal fun getTimeFromPixel(pixel: Int): Long =
+		if (pixel == 0) 0 else mCurrentLine.getTimeFromPixel(pixel)
 
-	internal fun getPixelFromTime(time: Long): Int {
-		if (time == 0L)
-			return 0
-		return mCurrentLine.getPixelFromTime(time)
-	}
+	internal fun getPixelFromTime(time: Long): Int =
+		if (time == 0L) 0 else mCurrentLine.getPixelFromTime(time)
 
-	internal fun recycleGraphics() {
+	internal fun recycleGraphics() =
 		mLines.forEach {
 			it.recycleGraphics()
 		}
-	}
 
 	internal fun getMIDIBeatTime(beat: Int): Long {
 		repeat(mNumberOfMIDIBeatBlocks) {
@@ -130,15 +121,13 @@ class Song(
 		private val commentAudience = audience
 		private val mCommentGraphic = ScreenComment(mText, screenSize, paint, font)
 
-		fun isIntendedFor(audience: String): Boolean {
-			return commentAudience.isEmpty() ||
+		fun isIntendedFor(audience: String): Boolean =
+			commentAudience.isEmpty() ||
 				audience.isBlank() ||
 				audience.lowercase().splitAndTrim(",").intersect(commentAudience.toSet()).any()
-		}
 
-		fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
+		fun draw(canvas: Canvas, paint: Paint, textColor: Int) =
 			mCommentGraphic.draw(canvas, paint, textColor)
-		}
 	}
 
 	companion object {

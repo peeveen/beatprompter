@@ -51,7 +51,7 @@ class ImageLine internal constructor(
 		scrollMode
 	)
 
-	override fun renderGraphics(paint: Paint) {
+	override fun renderGraphics(paint: Paint) =
 		repeat(mMeasurements.mLines) {
 			val graphic = mGraphics[it]
 			val canvas = mCanvasses[it]
@@ -60,7 +60,6 @@ class ImageLine internal constructor(
 				graphic.mLastDrawnLine = this
 			}
 		}
-	}
 
 	override fun recycleGraphics() {
 		mBitmap.recycle()

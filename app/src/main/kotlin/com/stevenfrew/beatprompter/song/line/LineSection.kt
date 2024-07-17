@@ -112,12 +112,8 @@ class LineSection(
 		return highlightColour
 	}
 
-	fun hasChord(): Boolean {
-		return mChordText.isNotBlank()
-	}
+	fun hasChord(): Boolean = mChordText.isNotBlank()
 
-	fun hasText(): Boolean {
-		// Even a space can be valid as a section.
-		return mLineText.isNotEmpty()
-	}
+	// Even a space can be valid as a section.
+	fun hasText(): Boolean = mLineText.isNotEmpty()
 }

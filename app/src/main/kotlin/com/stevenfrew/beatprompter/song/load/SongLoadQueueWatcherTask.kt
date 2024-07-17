@@ -11,32 +11,27 @@ object SongLoadQueueWatcherTask : Task(true) {
 	private var mSongToLoad: SongLoadJob? = null
 	private var mSongToLoadOnResume: SongLoadJob? = null
 	private val nextSongToLoad: SongLoadJob?
-		get() = synchronized(mSongLoadLock)
-		{
+		get() = synchronized(mSongLoadLock) {
 			val stl = mSongToLoad
 			mSongToLoad = null
 			stl
 		}
 	val hasASongToLoad: Boolean
-		get() = synchronized(mSongLoadLock)
-		{
+		get() = synchronized(mSongLoadLock) {
 			mSongToLoad != null || mSongToLoadOnResume != null
 		}
 	val isLoadingASong: Boolean
-		get() = synchronized(mSongLoadLock)
-		{
+		get() = synchronized(mSongLoadLock) {
 			mLoadingSong != null
 		}
 
-	fun isAlreadyLoadingSong(songFile: SongFile): Boolean {
-		return mSongToLoad?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
+	fun isAlreadyLoadingSong(songFile: SongFile): Boolean =
+		mSongToLoad?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
 			|| mLoadingSong?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
 			|| SongLoadJob.mLoadedSong?.mLoadJob?.mSongLoadInfo?.mSongFile?.mID == songFile.mID
-	}
 
 	override fun doWork() {
-		synchronized(mSongLoadLock)
-		{
+		synchronized(mSongLoadLock) {
 			val songToLoad = nextSongToLoad
 			if (songToLoad != null) {
 				mLoadingSong = songToLoad
@@ -51,21 +46,18 @@ object SongLoadQueueWatcherTask : Task(true) {
 		Thread.sleep(250)
 	}
 
-	fun onSongLoadFinished() {
-		synchronized(mSongLoadLock)
-		{
+	fun onSongLoadFinished() =
+		synchronized(mSongLoadLock) {
 			mLoadingSong = null
 		}
-	}
 
 	override fun stop() {
 		stopCurrentLoads()
 		super.stop()
 	}
 
-	private fun stopCurrentLoads() {
-		synchronized(mSongLoadLock)
-		{
+	private fun stopCurrentLoads() =
+		synchronized(mSongLoadLock) {
 			if (mSongToLoadOnResume != null) {
 				Logger.logLoader { "Removing an unstarted load-on-resume from the queue: ${mSongToLoadOnResume!!.mSongLoadInfo.mSongFile.mTitle}" }
 				mSongToLoadOnResume = null
@@ -80,7 +72,6 @@ object SongLoadQueueWatcherTask : Task(true) {
 				mLoadingSong = null
 			}
 		}
-	}
 
 	fun loadSong(loadJob: SongLoadJob) {
 		stopCurrentLoads()
@@ -109,7 +100,7 @@ object SongLoadQueueWatcherTask : Task(true) {
 		}
 	}
 
-	fun onResume() {
+	fun onResume() =
 		synchronized(mSongLoadLock)
 		{
 			if (mSongToLoadOnResume != null) {
@@ -118,12 +109,9 @@ object SongLoadQueueWatcherTask : Task(true) {
 				loadSong(loadJob)
 			}
 		}
-	}
 
-	fun setSongToLoadOnResume(songToLoadOnResume: SongLoadJob?) {
-		synchronized(mSongLoadLock)
-		{
+	fun setSongToLoadOnResume(songToLoadOnResume: SongLoadJob?) =
+		synchronized(mSongLoadLock) {
 			mSongToLoadOnResume = songToLoadOnResume
 		}
-	}
 }

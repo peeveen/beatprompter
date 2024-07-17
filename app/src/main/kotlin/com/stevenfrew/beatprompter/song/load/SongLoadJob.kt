@@ -2,10 +2,10 @@ package com.stevenfrew.beatprompter.song.load
 
 import android.os.Handler
 import android.os.Message
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.cache.parse.SongParser
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +20,7 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo) : CoroutineScope {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Default + mCoRoutineJob
 
-	fun startLoading() {
+	fun startLoading() =
 		synchronized(this)
 		{
 			val thisSongLoadJob = this
@@ -48,11 +48,8 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo) : CoroutineScope {
 				}
 			}
 		}
-	}
 
-	fun stopLoading() {
-		mCancelEvent.set()
-	}
+	fun stopLoading() = mCancelEvent.set()
 
 	class SongLoadJobEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {

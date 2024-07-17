@@ -437,9 +437,7 @@ class TextLine internal constructor(
 	}
 
 	private val totalXSplits: Int
-		get() {
-			return mXSplits.sum()
-		}
+		get() = mXSplits.sum()
 
 	private fun calculateSections(songLoadCancelEvent: SongLoadCancelEvent): List<LineSection> {
 		val sections = mutableListOf<LineSection>()
@@ -491,9 +489,8 @@ class TextLine internal constructor(
 		}
 	}
 
-	private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int {
-		return max(vTotalLineWidth - totalXSplits, mLineWidths.maxOrNull() ?: 0)
-	}
+	private fun calculateWidestLineWidth(vTotalLineWidth: Int): Int =
+		max(vTotalLineWidth - totalXSplits, mLineWidths.maxOrNull() ?: 0)
 
 	override fun renderGraphics(paint: Paint) {
 		val backgroundColor = if (mInChorusSection) mChorusHighlightColor else 0x0000ffff
