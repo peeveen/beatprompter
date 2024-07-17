@@ -15,7 +15,15 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.storage.*
+import com.stevenfrew.beatprompter.storage.DownloadResult
+import com.stevenfrew.beatprompter.storage.FailedDownloadResult
+import com.stevenfrew.beatprompter.storage.FileInfo
+import com.stevenfrew.beatprompter.storage.FolderInfo
+import com.stevenfrew.beatprompter.storage.ItemInfo
+import com.stevenfrew.beatprompter.storage.Storage
+import com.stevenfrew.beatprompter.storage.StorageListener
+import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.Utils
 import io.reactivex.subjects.PublishSubject
 import org.apache.commons.io.FilenameUtils
@@ -45,9 +53,8 @@ class DropboxStorage(parentFragment: Fragment) :
 		fun onAuthenticationRequired()
 	}
 
-	private fun isSuitableFileToDownload(filename: String): Boolean {
-		return EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename))
-	}
+	private fun isSuitableFileToDownload(filename: String): Boolean =
+		EXTENSIONS_TO_DOWNLOAD.contains(FilenameUtils.getExtension(filename))
 
 	private fun downloadFiles(
 		client: DbxClientV2,
@@ -101,16 +108,14 @@ class DropboxStorage(parentFragment: Fragment) :
 		itemSource.onComplete()
 	}
 
-	private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localFile: File): File {
-		val fos = FileOutputStream(localFile)
-		fos.use { stream ->
-			val downloader = client.files().download(file.id)
-			downloader.use {
-				it.download(stream)
+	private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localFile: File): File =
+		localFile.also {
+			FileOutputStream(it).use { stream ->
+				client.files().download(file.id).use { downloader ->
+					downloader.download(stream)
+				}
 			}
 		}
-		return localFile
-	}
 
 	private fun readFolderContents(
 		client: DbxClientV2,
@@ -179,17 +184,16 @@ class DropboxStorage(parentFragment: Fragment) :
 				itemSource.onError(de)
 				return
 			}
-
 		}
 		itemSource.onComplete()
 	}
 
-	private fun updateDropboxCredentials(cred: DbxCredential): DbxCredential {
-		Preferences.dropboxAccessToken = cred.accessToken
-		Preferences.dropboxRefreshToken = cred.refreshToken
-		Preferences.dropboxExpiryTime = cred.expiresAt
-		return cred
-	}
+	private fun updateDropboxCredentials(cred: DbxCredential): DbxCredential =
+		cred.also {
+			Preferences.dropboxAccessToken = it.accessToken
+			Preferences.dropboxRefreshToken = it.refreshToken
+			Preferences.dropboxExpiryTime = it.expiresAt
+		}
 
 	private fun getStoredDropboxCredentials(): DbxCredential? {
 		val storedAccessToken = Preferences.dropboxAccessToken
@@ -247,13 +251,10 @@ class DropboxStorage(parentFragment: Fragment) :
 		messageSource: PublishSubject<String>
 	) {
 		doDropboxAction(object : DropboxAction {
-			override fun onConnected(client: DbxClientV2) {
+			override fun onConnected(client: DbxClientV2) =
 				downloadFiles(client, storageListener, itemSource, messageSource, filesToRefresh)
-			}
 
-			override fun onAuthenticationRequired() {
-				storageListener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
 		})
 	}
 
@@ -265,13 +266,10 @@ class DropboxStorage(parentFragment: Fragment) :
 		recurseSubFolders: Boolean
 	) {
 		doDropboxAction(object : DropboxAction {
-			override fun onConnected(client: DbxClientV2) {
+			override fun onConnected(client: DbxClientV2) =
 				readFolderContents(client, folder, listener, itemSource, messageSource, recurseSubFolders)
-			}
 
-			override fun onAuthenticationRequired() {
-				listener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 		})
 	}
 
@@ -280,7 +278,6 @@ class DropboxStorage(parentFragment: Fragment) :
 	}
 
 	companion object {
-
 		const val DROPBOX_CACHE_FOLDER_NAME = "dropbox"
 
 		@Suppress("SpellCheckingInspection")

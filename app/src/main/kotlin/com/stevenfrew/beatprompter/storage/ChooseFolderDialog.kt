@@ -209,9 +209,8 @@ internal class ChooseFolderDialog(
 			// Do nothing. Listener will receive a completion callback.
 		}
 
-		override fun doInBackground(params: FolderInfo, progressUpdater: suspend (Unit) -> Unit) {
-			return mStorage.readFolderContents(params, mFolderSearchListener, recurseSubFolders = false)
-		}
+		override fun doInBackground(params: FolderInfo, progressUpdater: suspend (Unit) -> Unit) =
+			mStorage.readFolderContents(params, mFolderSearchListener, recurseSubFolders = false)
 	}
 
 	override fun onCloudItemFound(item: ItemInfo) {
@@ -241,9 +240,7 @@ internal class ChooseFolderDialog(
 		mShouldCancel = true
 	}
 
-	override fun shouldCancel(): Boolean {
-		return mShouldCancel
-	}
+	override fun shouldCancel(): Boolean = mShouldCancel
 
 	companion object {
 		private const val PARENT_DIR = ".."

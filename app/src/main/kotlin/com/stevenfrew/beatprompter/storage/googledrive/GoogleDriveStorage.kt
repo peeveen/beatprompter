@@ -130,9 +130,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun onError(t: Throwable) {
-			mItemSource.onError(t)
-		}
+		override fun onError(t: Throwable) = mItemSource.onError(t)
 
 		override fun onProgressUpdate(progress: Unit) {
 			// Do nothing.
@@ -243,9 +241,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun onError(t: Throwable) {
-			mItemSource.onError(t)
-		}
+		override fun onError(t: Throwable) = mItemSource.onError(t)
 
 		override fun onProgressUpdate(progress: Unit) {
 			// Do nothing.
@@ -325,7 +321,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		}
 	}
 
-	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
+	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) =
 		rootPathSource.onNext(
 			FolderInfo(
 				GOOGLE_DRIVE_ROOT_FOLDER_ID,
@@ -333,7 +329,6 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				GOOGLE_DRIVE_ROOT_PATH
 			)
 		)
-	}
 
 	override fun downloadFiles(
 		filesToRefresh: List<FileInfo>,
@@ -353,9 +348,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				).execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() {
-				storageListener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
 		})
 	}
 
@@ -381,9 +374,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				}.execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() {
-				listener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 		})
 	}
 

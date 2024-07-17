@@ -17,4 +17,6 @@ class FolderInfo(
 
 	internal constructor(rootFolderIdentifier: String)
 		: this(null, rootFolderIdentifier, rootFolderIdentifier, rootFolderIdentifier)
+	
+	override val isFolder: Boolean = true
 }

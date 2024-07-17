@@ -24,9 +24,7 @@ abstract class Storage protected constructor(
 		protected set
 
 	abstract val cloudStorageName: String
-
 	abstract val directorySeparator: String
-
 	abstract val cloudIconResourceId: Int
 
 	init {
@@ -97,7 +95,7 @@ abstract class Storage protected constructor(
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
 	}
 
-	fun selectFolder(parentActivity: Activity, listener: FolderSelectionListener) {
+	fun selectFolder(parentActivity: Activity, listener: FolderSelectionListener) =
 		try {
 			getRootPath(object : RootPathListener {
 				override fun onRootPathFound(rootPath: FolderInfo) {
@@ -121,7 +119,6 @@ abstract class Storage protected constructor(
 		} catch (e: Exception) {
 			listener.onFolderSelectedError(e, mParentFragment.requireContext())
 		}
-	}
 
 	private fun getRootPath(listener: RootPathListener) {
 		val rootPathSource = PublishSubject.create<FolderInfo>()
@@ -154,25 +151,22 @@ abstract class Storage protected constructor(
 	)
 
 	companion object {
-		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage {
-			return when {
+		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage =
+			when {
 				storageType === StorageType.Dropbox -> DropboxStorage(parentFragment)
 				storageType === StorageType.OneDrive -> OneDriveStorage(parentFragment)
 				storageType === StorageType.GoogleDrive -> GoogleDriveStorage(parentFragment)
 				storageType === StorageType.Local -> LocalStorage(parentFragment)
 				else -> DemoStorage(parentFragment)
 			}
-		}
 
-		fun getCacheFolderName(storageType: StorageType): String {
-			return when {
+		fun getCacheFolderName(storageType: StorageType): String =
+			when {
 				storageType === StorageType.Dropbox -> DropboxStorage.DROPBOX_CACHE_FOLDER_NAME
 				storageType === StorageType.OneDrive -> OneDriveStorage.ONEDRIVE_CACHE_FOLDER_NAME
 				storageType === StorageType.GoogleDrive -> GoogleDriveStorage.GOOGLE_DRIVE_CACHE_FOLDER_NAME
 				storageType === StorageType.Local -> LocalStorage.LOCAL_CACHE_FOLDER_NAME
 				else -> DemoStorage.DEMO_CACHE_FOLDER_NAME
 			}
-		}
 	}
-
 }

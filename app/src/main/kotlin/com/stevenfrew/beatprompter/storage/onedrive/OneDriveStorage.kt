@@ -40,13 +40,8 @@ class OneDriveStorage(parentFragment: Fragment) :
 	Storage(parentFragment, StorageType.OneDrive) {
 
 	private val oneDriveAuthenticator = object : MSAAuthenticator() {
-		override fun getClientId(): String {
-			return ONEDRIVE_CLIENT_ID
-		}
-
-		override fun getScopes(): Array<String> {
-			return arrayOf("onedrive.readonly", "wl.offline_access")
-		}
+		override fun getClientId(): String = ONEDRIVE_CLIENT_ID
+		override fun getScopes(): Array<String> = arrayOf("onedrive.readonly", "wl.offline_access")
 	}
 
 	override val directorySeparator: String
@@ -63,7 +58,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 		fun onAuthenticationRequired()
 	}
 
-	private class GetOneDriveFolderContentsTask constructor(
+	private class GetOneDriveFolderContentsTask(
 		val mClient: IOneDriveClient,
 		val mStorage: OneDriveStorage,
 		val mFolder: FolderInfo,
@@ -79,9 +74,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun onError(t: Throwable) {
-			mItemSource.onError(t)
-		}
+		override fun onError(t: Throwable) = mItemSource.onError(t)
 
 		override fun onProgressUpdate(progress: Unit) {
 			// Do nothing. Listener will receive updates.
@@ -144,13 +137,12 @@ class OneDriveStorage(parentFragment: Fragment) :
 			mItemSource.onComplete()
 		}
 
-		private fun isSuitableFileToDownload(childItem: Item): Boolean {
-			return childItem.audio != null || childItem.image != null || childItem.name.lowercase()
+		private fun isSuitableFileToDownload(childItem: Item): Boolean =
+			childItem.audio != null || childItem.image != null || childItem.name.lowercase()
 				.endsWith(".txt")
-		}
 	}
 
-	private class DownloadOneDriveFilesTask constructor(
+	private class DownloadOneDriveFilesTask(
 		var mClient: IOneDriveClient,
 		var mListener: StorageListener,
 		var mItemSource: PublishSubject<DownloadResult>,
@@ -165,9 +157,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun onError(t: Throwable) {
-			mItemSource.onError(t)
-		}
+		override fun onError(t: Throwable) = mItemSource.onError(t)
 
 		override fun onProgressUpdate(progress: Unit) {
 			// Do nothing.
@@ -221,16 +211,14 @@ class OneDriveStorage(parentFragment: Fragment) :
 			mItemSource.onComplete()
 		}
 
-		private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File {
-			val fos = FileOutputStream(localFile)
-			fos.use {
-				val inputStream = client.drive.getItems(file.id).content.buildRequest().get()
-				inputStream.use { inStream ->
-					Utils.streamToStream(inStream, fos)
+		private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File =
+			localFile.also {
+				FileOutputStream(it).use {
+					client.drive.getItems(file.id).content.buildRequest().get().use { inStream ->
+						Utils.streamToStream(inStream, it)
+					}
 				}
 			}
-			return localFile
-		}
 	}
 
 	private fun doOneDriveAction(action: OneDriveAction) {
@@ -241,7 +229,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 			}
 
 			override fun failure(error: ClientException) {
-				Logger.log("Nae luck signing in to OneDrive")
+				Logger.log("Failed to sign in to OneDrive")
 				action.onAuthenticationRequired()
 			}
 		}
@@ -252,7 +240,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 			.loginAndBuildClient(mParentFragment.requireActivity(), callback)
 	}
 
-	private class GetOneDriveRootFolderTask constructor(
+	private class GetOneDriveRootFolderTask(
 		var mClient: IOneDriveClient,
 		var mRootPathSource: PublishSubject<FolderInfo>
 	) :
@@ -264,22 +252,18 @@ class OneDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun onPostExecute(result: FolderInfo) {
-			mRootPathSource.onNext(result)
-		}
+		override fun onPostExecute(result: FolderInfo) = mRootPathSource.onNext(result)
 
 		override fun onProgressUpdate(progress: Unit) {
 			// Do nothing.
 		}
 
-		override fun onError(t: Throwable) {
-			mRootPathSource.onError(t)
-		}
+		override fun onError(t: Throwable) = mRootPathSource.onError(t)
 
-		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit): FolderInfo {
-			val rootFolder = mClient.drive.root.buildRequest().get()
-			return FolderInfo(rootFolder.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)
-		}
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit): FolderInfo =
+			mClient.drive.root.buildRequest().get().let {
+				FolderInfo(it.id, ONEDRIVE_ROOT_PATH, ONEDRIVE_ROOT_PATH)
+			}
 	}
 
 	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
@@ -288,9 +272,8 @@ class OneDriveStorage(parentFragment: Fragment) :
 				GetOneDriveRootFolderTask(client, rootPathSource).execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() {
+			override fun onAuthenticationRequired() =
 				rootPathSource.onError(StorageException(BeatPrompter.appResources.getString(R.string.could_not_find_cloud_root_error)))
-			}
 		})
 	}
 
@@ -314,12 +297,9 @@ class OneDriveStorage(parentFragment: Fragment) :
 				} catch (e: Exception) {
 					itemSource.onError(e)
 				}
-
 			}
 
-			override fun onAuthenticationRequired() {
-				storageListener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
 		})
 	}
 
@@ -343,9 +323,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 				).execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() {
-				listener.onAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 		})
 	}
 

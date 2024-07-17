@@ -15,27 +15,31 @@ import com.stevenfrew.beatprompter.R
 internal class BrowserItemListAdapter(items: List<ItemInfo>, context: Context) :
 	ArrayAdapter<ItemInfo>(context, -1, items) {
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		val inflater =
-			context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-		val rowView = convertView ?: inflater.inflate(R.layout.cloud_browser_item, parent, false)
-		val textView = rowView.findViewById<TextView>(R.id.file_or_folder_name)
-		val imageView = rowView.findViewById<ImageView>(R.id.file_or_folder_icon)
-		this.getItem(position)?.also {
-			val isFolder = it is FolderInfo
-			textView.apply {
-				text = it.mName
-				isEnabled = isFolder
-			}
-			imageView.apply {
-				isEnabled = isFolder
-				imageView.setImageResource(if (isFolder) R.drawable.ic_folder else R.drawable.ic_document)
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+		(context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).let { inflater ->
+			(convertView ?: inflater.inflate(
+				R.layout.cloud_browser_item,
+				parent,
+				false
+			)).apply {
+				val textView = findViewById<TextView>(R.id.file_or_folder_name)
+				val imageView = findViewById<ImageView>(R.id.file_or_folder_icon)
+				this@BrowserItemListAdapter.getItem(position)?.also {
+					textView.apply {
+						text = it.mName
+						isEnabled = it.isFolder
+					}
+					imageView.apply {
+						isEnabled = it.isFolder
+						imageView.setImageResource(it.icon)
+					}
+				}
 			}
 		}
-		return rowView
-	}
 
-	override fun isEnabled(position: Int): Boolean {
-		return getItem(position) is FolderInfo
+	override fun isEnabled(position: Int): Boolean = getItem(position)?.isFolder ?: false
+
+	companion object {
+		private val ItemInfo.icon: Int get() = if (this.isFolder) R.drawable.ic_folder else R.drawable.ic_document
 	}
 }

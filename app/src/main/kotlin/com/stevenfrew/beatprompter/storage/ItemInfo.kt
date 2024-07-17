@@ -8,8 +8,8 @@ abstract class ItemInfo internal constructor(
 	val mName: String
 ) : Comparable<ItemInfo> {
 	override operator fun compareTo(other: ItemInfo): Int {
-		val thisIsFolder = this is FolderInfo
-		val otherIsFolder = other is FolderInfo
+		val thisIsFolder = isFolder
+		val otherIsFolder = other.isFolder
 		return if (thisIsFolder && !otherIsFolder)
 			-1
 		else if (!thisIsFolder && otherIsFolder)
@@ -17,4 +17,6 @@ abstract class ItemInfo internal constructor(
 		else
 			mName.lowercase().compareTo(other.mName.lowercase())
 	}
+
+	abstract val isFolder: Boolean
 }

@@ -36,9 +36,8 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 	override val cloudIconResourceId: Int
 		get() = R.drawable.ic_dropbox
 
-	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) {
+	override fun getRootPath(listener: StorageListener, rootPathSource: PublishSubject<FolderInfo>) =
 		rootPathSource.onNext(FolderInfo(null, "/", "", ""))
-	}
 
 	override fun downloadFiles(
 		filesToRefresh: List<FileInfo>,
@@ -80,29 +79,24 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 		itemSource: PublishSubject<ItemInfo>,
 		messageSource: PublishSubject<String>,
 		recurseSubFolders: Boolean
-	) {
-		itemSource.apply {
-			onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))
-			onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date()))
-			onComplete()
-		}
+	) = with(itemSource) {
+		onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))
+		onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date()))
+		onComplete()
 	}
 
-	private fun createDemoSongTextFile(): File {
-		val destinationSongFile = File(cacheFolder, DEMO_SONG_FILENAME)
-		val demoFileText = BeatPrompter.appResources.getString(R.string.demo_song)
-		val bw = BufferedWriter(OutputStreamWriter(FileOutputStream(destinationSongFile)))
-		bw.use {
-			bw.write(demoFileText)
+	private fun createDemoSongTextFile(): File =
+		File(cacheFolder, DEMO_SONG_FILENAME).apply {
+			val demoFileText = BeatPrompter.appResources.getString(R.string.demo_song)
+			BufferedWriter(OutputStreamWriter(FileOutputStream(this))).use {
+				it.write(demoFileText)
+			}
 		}
-		return destinationSongFile
-	}
 
-	private fun createDemoSongAudioFile(): File {
-		val destinationAudioFile = File(cacheFolder, DEMO_SONG_AUDIO_FILENAME)
-		Cache.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, destinationAudioFile)
-		return destinationAudioFile
-	}
+	private fun createDemoSongAudioFile(): File =
+		File(cacheFolder, DEMO_SONG_AUDIO_FILENAME).apply {
+			Cache.copyAssetsFileToLocalFolder(DEMO_SONG_AUDIO_FILENAME, this)
+		}
 
 	companion object {
 		const val DEMO_CACHE_FOLDER_NAME = "demo"

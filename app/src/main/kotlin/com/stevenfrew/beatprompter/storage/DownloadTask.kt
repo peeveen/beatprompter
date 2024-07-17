@@ -44,9 +44,7 @@ class DownloadTask(
 		mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
 	}
 
-	private fun cancelWhenAuthenticationRequired() {
-		cancel("Authentication required.")
-	}
+	private fun cancelWhenAuthenticationRequired() = cancel("Authentication required.")
 
 	private fun closeProgressDialog() {
 		if (mProgressDialog != null)
@@ -55,17 +53,14 @@ class DownloadTask(
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val itemDownloadListener = object : ItemDownloadListener {
-			override fun onItemDownloaded(result: DownloadResult) {
+			override fun onItemDownloaded(result: DownloadResult) =
 				if (result is SuccessfulDownloadResult)
 					Cache.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
 				else
 				// IMPLICIT if(result is FailedDownloadResult)
 					Cache.mCachedCloudItems.remove(result.mFileInfo)
-			}
 
-			override suspend fun onProgressMessageReceived(message: String) {
-				progressUpdater(message)
-			}
+			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
 
 			override fun onDownloadError(t: Throwable) {
 				onError(t)
@@ -82,13 +77,9 @@ class DownloadTask(
 				closeProgressDialog()
 			}
 
-			override fun onAuthenticationRequired() {
-				cancelWhenAuthenticationRequired()
-			}
+			override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
 
-			override fun shouldCancel(): Boolean {
-				return mErrorOccurred
-			}
+			override fun shouldCancel(): Boolean = mErrorOccurred
 		}
 		val folderSearchListener = object : FolderSearchListener {
 			override fun onCloudItemFound(item: ItemInfo) {
@@ -133,18 +124,9 @@ class DownloadTask(
 				mStorage.downloadFiles(itemsToDownload, itemDownloadListener)
 			}
 
-			override suspend fun onProgressMessageReceived(message: String) {
-				progressUpdater(message)
-			}
-
-			override fun onAuthenticationRequired() {
-				cancelWhenAuthenticationRequired()
-			}
-
-			override fun shouldCancel(): Boolean {
-				return mErrorOccurred
-			}
-
+			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
+			override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
+			override fun shouldCancel(): Boolean = mErrorOccurred
 		}
 		if (isRefreshingSelectedFiles)
 			updateSelectedFiles(itemDownloadListener)
@@ -153,13 +135,11 @@ class DownloadTask(
 		return true
 	}
 
-	private fun updateEntireCache(listener: FolderSearchListener) {
+	private fun updateEntireCache(listener: FolderSearchListener) =
 		mStorage.readFolderContents(FolderInfo(mCloudPath), listener, mIncludeSubFolders)
-	}
 
-	private fun updateSelectedFiles(listener: ItemDownloadListener) {
+	private fun updateSelectedFiles(listener: ItemDownloadListener) =
 		mStorage.downloadFiles(mFilesToUpdate, listener)
-	}
 
 	override fun onPreExecute() {
 		mProgressDialog = ProgressDialog(mContext).apply {
@@ -176,9 +156,7 @@ class DownloadTask(
 		}
 	}
 
-	override fun onProgressUpdate(progress: String) {
-		mProgressDialog!!.setMessage(progress)
-	}
+	override fun onProgressUpdate(progress: String) = mProgressDialog!!.setMessage(progress)
 
 	override fun onPostExecute(result: Boolean) {
 		// Don't care.

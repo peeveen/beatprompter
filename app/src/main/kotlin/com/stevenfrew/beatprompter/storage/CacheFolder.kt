@@ -11,7 +11,6 @@ class CacheFolder internal constructor(
 	parentFolder: File,
 	name: String
 ) : File(parentFolder, name) {
-
 	fun clear() {
 		try {
 			if (this.exists()) {
