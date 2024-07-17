@@ -92,13 +92,14 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		val name = tag.mName
 		val componentArgs = mutableListOf<Value>()
 		val paramBits = tag.mInstructions.splitAndTrim(",")
-		for ((paramCounter, paramBit) in paramBits.withIndex())
+		paramBits.forEachIndexed { paramCounter, paramBit ->
 			try {
 				val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
 				componentArgs.add(aliasValue)
 			} catch (mte: MalformedTagException) {
 				mErrors.add(FileParseError(tag, mte))
 			}
+		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
 		val channelArg = when (channelArgs.size) {
 			0 -> null
@@ -121,11 +122,11 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private fun getAliasSet(): AliasSet {
 		finishCurrentAlias()
-		if (mAliasSetName == null)
-			throw InvalidBeatPrompterFileException(
-				R.string.not_a_valid_midi_alias_file,
-				mCachedCloudFile.mName
-			)
-		return AliasSet(mAliasSetName!!, mAliases)
+		return mAliasSetName?.let {
+			AliasSet(it, mAliases)
+		} ?: throw InvalidBeatPrompterFileException(
+			R.string.not_a_valid_midi_alias_file,
+			mCachedCloudFile.mName
+		)
 	}
 }
