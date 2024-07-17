@@ -77,7 +77,7 @@ class CachedCloudCollection {
 
 	fun removeNonExistent(storageIDs: Set<String>) {
 		// Delete no-longer-existing files.
-		mItems.values.filterIsInstance<CachedFile>().filter { !storageIDs.contains(it.mID) }
+		mItems.values.filterIsInstance<CachedFile>().filterNot { storageIDs.contains(it.mID) }
 			.forEach { f ->
 				if (!f.mFile.delete())
 					Logger.log { "Failed to delete file: ${f.mFile.name}" }

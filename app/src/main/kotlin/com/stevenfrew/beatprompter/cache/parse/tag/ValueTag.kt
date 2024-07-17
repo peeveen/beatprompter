@@ -12,7 +12,6 @@ open class ValueTag internal constructor(
 	value: String
 ) : Tag(name, lineNumber, position) {
 	init {
-		if (value.isBlank())
-			throw MalformedTagException(R.string.tag_has_blank_value, name)
+		value.ifBlank { throw MalformedTagException(R.string.tag_has_blank_value, name) }
 	}
 }

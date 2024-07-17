@@ -11,14 +11,12 @@ import java.io.FileInputStream
  */
 class MediaPlayerAudioPlayer : AudioPlayer {
 	private val mInternalPlayer: MediaPlayer
-	private var mCurrentVolume: Int = 0
+	private var mCurrentVolume: Int = 1
 
 	constructor(context: Context) {
 		// Silence player
 		mInternalPlayer = MediaPlayer.create(context, R.raw.silence).apply {
-			setVolume(0.01f, 0.01f)
-			seekTo(0)
-			isLooping = true
+			initialize(1, true)
 		}
 	}
 
@@ -30,9 +28,7 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 				.use { stream ->
 					setDataSource(stream.fd)
 					prepare()
-					seekTo(0)
-					setVolume(0.01f * volume, 0.01f * volume)
-					isLooping = false
+					initialize(volume, false)
 				}
 		}
 	}
@@ -55,4 +51,12 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 			mCurrentVolume = value
 			mInternalPlayer.setVolume(value * 0.01f, value * 0.01f)
 		}
+
+	companion object {
+		private fun MediaPlayer.initialize(volume: Int, looping: Boolean) {
+			setVolume(0.01f * volume, 0.01f * volume)
+			seekTo(0)
+			isLooping = looping
+		}
+	}
 }

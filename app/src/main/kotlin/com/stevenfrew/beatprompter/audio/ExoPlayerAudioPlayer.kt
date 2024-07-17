@@ -14,8 +14,21 @@ import java.io.File
 /**
  * ExoPlayer implementation of AudioPlayer interface.
  */
-class ExoPlayerAudioPlayer : AudioPlayer {
-	private val mInternalPlayer: ExoPlayer
+class ExoPlayerAudioPlayer private constructor(
+	context: Context,
+	uri: Uri,
+	vol: Int,
+	looping: Boolean
+) : AudioPlayer {
+	@OptIn(UnstableApi::class)
+	private val mInternalPlayer: ExoPlayer = ExoPlayer.Builder(context).build().apply {
+		setSeekParameters(SeekParameters.EXACT)
+		setMediaItem(MediaItem.fromUri(uri))
+		seekTo(0)
+		volume = 0.01f * vol
+		repeatMode = if (looping) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
+		prepare()
+	}
 
 	constructor(context: Context) : this(
 		context,
@@ -31,18 +44,6 @@ class ExoPlayerAudioPlayer : AudioPlayer {
 		volume,
 		false
 	)
-
-	@OptIn(UnstableApi::class)
-	private constructor(context: Context, uri: Uri, vol: Int, looping: Boolean) {
-		mInternalPlayer = ExoPlayer.Builder(context).build().apply {
-			setSeekParameters(SeekParameters.EXACT)
-			setMediaItem(MediaItem.fromUri(uri))
-			seekTo(0)
-			volume = 0.01f * vol
-			repeatMode = if (looping) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
-			prepare()
-		}
-	}
 
 	override fun seekTo(ms: Long) = mInternalPlayer.seekTo(ms)
 	override fun stop() = mInternalPlayer.stop()

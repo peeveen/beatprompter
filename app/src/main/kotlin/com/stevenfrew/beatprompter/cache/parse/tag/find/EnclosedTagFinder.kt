@@ -10,33 +10,24 @@ open class EnclosedTagFinder(
 	private val mRetainCase: Boolean,
 	private val mValued: Boolean
 ) : TagFinder {
-	override fun findTag(text: String): FoundTag? {
-		val directiveStart = text.indexOf(mStartChar)
-		if (directiveStart != -1) {
-			val directiveEnd = text.indexOf(mEndChar, directiveStart + 1)
-			if (directiveEnd != -1) {
-				val enclosedText = text.substring(directiveStart + 1, directiveEnd).trim()
-				val (name, value) =
-					if (mValued) {
+	override fun findTag(text: String): FoundTag? =
+		text.indexOf(mStartChar).takeIf { it != -1 }?.let { directiveStart ->
+			text.indexOf(mEndChar, directiveStart + 1).takeIf { it != -1 }?.let { directiveEnd ->
+				text.substring(directiveStart + 1, directiveEnd).trim().let { enclosedText ->
+					val (name, value) =
 						// Can't use splitAndTrim in case of something like {time:5:00}
-						val colonIndex = enclosedText.indexOf(":")
-						if (colonIndex == -1)
-							enclosedText to ""
-						else {
-							enclosedText.substring(0, colonIndex).trim() to
-								enclosedText.substring(colonIndex + 1).trim()
-						}
-					} else
-						enclosedText to ""
-				return FoundTag(
-					directiveStart,
-					directiveEnd,
-					if (mRetainCase) name else name.lowercase(),
-					value,
-					mTagType
-				)
+						enclosedText.indexOf(":").takeIf { mValued && it != -1 }?.let {
+							enclosedText.substring(0, it).trim() to enclosedText.substring(it + 1).trim()
+						} ?: (enclosedText to "")
+
+					FoundTag(
+						directiveStart,
+						directiveEnd,
+						if (mRetainCase) name else name.lowercase(),
+						value,
+						mTagType
+					)
+				}
 			}
 		}
-		return null
-	}
 }

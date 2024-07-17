@@ -102,14 +102,14 @@ object Preferences {
 			val stringPref = getStringPreference(
 				R.string.pref_sorting_key,
 				SortingPreference.Title.name
-			)!!
-			stringPref.split(",").map { SortingPreference.valueOf(it) }.toTypedArray()
+			)
+			stringPref?.split(",")?.map { SortingPreference.valueOf(it) }?.toTypedArray() ?: arrayOf()
 		} catch (ignored: Exception) {
 			// backward compatibility with old shite values.
 			arrayOf(SortingPreference.Title)
 		}
 		set(value) {
-			val newList = sorting.filter { !value.contains(it) }.toMutableList()
+			val newList = sorting.filterNot { value.contains(it) }.toMutableList()
 			newList.addAll(value)
 			val newString = newList.joinToString(",")
 			setStringPreference(R.string.pref_sorting_key, newString)

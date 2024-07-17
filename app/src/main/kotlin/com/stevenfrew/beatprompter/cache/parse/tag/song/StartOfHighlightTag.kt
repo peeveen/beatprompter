@@ -25,8 +25,6 @@ class StartOfHighlightTag internal constructor(
 ) {
 	companion object {
 		fun getDefaultHighlightColorString(): String =
-			"#" + ((Preferences.defaultHighlightColor and 0x00FFFFFF)
-				.toString(16)
-				.padStart(6, '0'))
+			"#${((Preferences.defaultHighlightColor and 0x00FFFFFF).toString(16).padStart(6, '0'))}"
 	}
 }

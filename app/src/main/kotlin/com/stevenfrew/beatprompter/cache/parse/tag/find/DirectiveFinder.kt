@@ -23,7 +23,7 @@ object DirectiveFinder
 		.filterIsInstance<TagName>()
 		.map { it.mNames.toList() }
 		.flatMap { it.asSequence() }
-		.map { it + CommentTag.AUDIENCE_SEPARATOR }
+		.map { "$it${CommentTag.AUDIENCE_SEPARATOR}" }
 		.toList()
 
 	override fun findTag(text: String): FoundTag? =

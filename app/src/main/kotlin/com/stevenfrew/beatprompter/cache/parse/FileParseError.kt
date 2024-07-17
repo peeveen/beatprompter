@@ -27,15 +27,15 @@ class FileParseError private constructor(val mLineNumber: Int, val mMessage: Str
 
 	override fun hashCode(): Int = 31 * mLineNumber.hashCode() + mMessage.hashCode()
 
-	override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (javaClass != other?.javaClass) return false
-
-		other as FileParseError
-
-		if (mMessage != other.mMessage) return false
-		if (mLineNumber != other.mLineNumber) return false
-
-		return true
-	}
+	override fun equals(other: Any?): Boolean =
+		if (this === other) true
+		else if (javaClass != other?.javaClass) false
+		else (other as FileParseError).let {
+			if (mMessage != other.mMessage)
+				false
+			else if (mLineNumber != other.mLineNumber)
+				false
+			else
+				true
+		}
 }

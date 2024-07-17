@@ -39,15 +39,13 @@ class AudioTag internal constructor(
 	}
 
 	companion object {
-		fun parseVolume(value: String, defaultTrackVolume: Int): Int {
+		fun parseVolume(value: String, defaultTrackVolume: Int): Int =
 			try {
-				val tryVolume = value.toInt()
-				if (tryVolume in 0..100)
-					return (defaultTrackVolume.toDouble() * (tryVolume.toDouble() / 100.0)).toInt()
-				throw MalformedTagException(R.string.badAudioVolume)
+				value.toInt().takeIf { it in 0..100 }?.let {
+					(defaultTrackVolume.toDouble() * (it.toDouble() / 100.0)).toInt()
+				} ?: throw MalformedTagException(R.string.badAudioVolume)
 			} catch (nfe: NumberFormatException) {
 				throw MalformedTagException(R.string.badAudioVolume)
 			}
-		}
 	}
 }

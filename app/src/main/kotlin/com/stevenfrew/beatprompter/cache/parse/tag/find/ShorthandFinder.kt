@@ -5,33 +5,32 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
  */
 object ShorthandFinder
 	: TagFinder {
-	override fun findTag(text: String): FoundTag? {
+	override fun findTag(text: String): FoundTag? =
 		// TODO: dynamic BPB changing with + and _ chars?
-		val markerPos =
-			when {
-				text.startsWith(',') -> 0
-				text.isEmpty() -> return null
-				else -> {
-					val lastIndex = text.length - 1
-					// Look for the FIRST ending chevron
-					when (val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
-						text[it] != '<' && text[it] != '>'
-					}) {
-						// Entire string was chevrons
-						null -> 0
-						// Last character was NOT a chevron
-						lastIndex -> return null
-						// Normal scenario
-						else -> firstNonChevronIndex + 1
-					}
+		when {
+			text.startsWith(',') -> 0
+			text.isEmpty() -> null
+			else -> {
+				val lastIndex = text.length - 1
+				// Look for the FIRST ending chevron
+				when (val firstNonChevronIndex = (lastIndex downTo 0).firstOrNull {
+					text[it] != '<' && text[it] != '>'
+				}) {
+					// Entire string was chevrons
+					null -> 0
+					// Last character was NOT a chevron
+					lastIndex -> null
+					// Normal scenario
+					else -> firstNonChevronIndex + 1
 				}
 			}
-		return FoundTag(
-			markerPos,
-			markerPos,
-			text[markerPos].toString(),
-			"",
-			Type.Shorthand
-		)
-	}
+		}?.let {
+			FoundTag(
+				it,
+				it,
+				text[it].toString(),
+				"",
+				Type.Shorthand
+			)
+		}
 }

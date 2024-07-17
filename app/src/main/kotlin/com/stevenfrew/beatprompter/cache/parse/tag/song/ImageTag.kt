@@ -38,14 +38,13 @@ class ImageTag internal constructor(
 	}
 
 	companion object {
-		fun parseImageScalingMode(value: String): ImageScalingMode {
+		fun parseImageScalingMode(value: String): ImageScalingMode =
 			try {
 				val locale = Locale.getDefault()
-				return ImageScalingMode.valueOf(value.lowercase()
+				ImageScalingMode.valueOf(value.lowercase()
 					.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() })
 			} catch (e: Exception) {
 				throw MalformedTagException(R.string.unknown_image_scaling_mode)
 			}
-		}
 	}
 }
