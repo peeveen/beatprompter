@@ -13,13 +13,13 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 	private var mCurrentValue: Int = 0
 	private var mView: GridLayout? = null
 	override fun onBindDialogView(view: View) {
-		mView = view.findViewById<GridLayout>(R.id.midiGrid)
+		mView = view.findViewById(R.id.midiGrid)
 		mView!!.apply {
 			useDefaultMargins = false
 			alignmentMode = GridLayout.ALIGN_BOUNDS
 			isRowOrderPreserved = false
 		}
-		mCurrentValue = (this.preference as MIDIChannelPreference).getPreferenceValue()
+		mCurrentValue = (this.preference as MIDIChannelPreference).channelMask
 		repeat(16) {
 			val tb = view.findViewById<ToggleButton>(toggleIDs[it])
 			val set = mCurrentValue and (1 shl it) != 0
@@ -32,9 +32,8 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 	}
 
 	override fun onDialogClosed(positiveResult: Boolean) {
-		if (positiveResult) {
-			(this.preference as MIDIChannelPreference).setPreferenceValue(mCurrentValue)
-		}
+		if (positiveResult)
+			(this.preference as MIDIChannelPreference).channelMask = mCurrentValue
 	}
 
 	override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {

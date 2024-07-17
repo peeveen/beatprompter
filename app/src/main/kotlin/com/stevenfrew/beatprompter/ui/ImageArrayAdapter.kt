@@ -17,14 +17,12 @@ class ImageArrayAdapter(
 ) : ArrayAdapter<CharSequence>(context, textViewResourceId, objects) {
 	private val mInflater = (context as Activity).layoutInflater
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		return (convertView
-			?: mInflater.inflate(R.layout.imagelistitem, parent, false)).also {
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+		(convertView ?: mInflater.inflate(R.layout.imagelistitem, parent, false)).also {
 			it.findViewById<ImageView>(R.id.image).setImageResource(resourceIds[position])
 			it.findViewById<CheckedTextView>(R.id.check).apply {
 				text = getItem(position)
 				isChecked = position == index
 			}
 		}
-	}
 }

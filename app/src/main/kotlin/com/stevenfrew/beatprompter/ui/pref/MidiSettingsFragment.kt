@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.R
 
 class MidiSettingsFragment : BaseSettingsFragment(R.xml.midipreferences) {
 
-	override fun onDisplayPreferenceDialog(preference: Preference) {
+	override fun onDisplayPreferenceDialog(preference: Preference) =
 		if (preference is MIDIChannelPreference) {
 			val f: MIDIChannelPreferenceDialog =
 				MIDIChannelPreferenceDialog.newInstance(preference.key, preference.singleSelect)
@@ -14,5 +14,4 @@ class MidiSettingsFragment : BaseSettingsFragment(R.xml.midipreferences) {
 		} else {
 			super.onDisplayPreferenceDialog(preference)
 		}
-	}
 }

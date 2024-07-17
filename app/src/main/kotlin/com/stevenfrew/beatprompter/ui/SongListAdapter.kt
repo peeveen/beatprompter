@@ -25,9 +25,8 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 	private val mInflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		return (convertView
-			?: mInflater.inflate(mLayoutId, parent, false)).also {
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+		(convertView ?: mInflater.inflate(mLayoutId, parent, false)).also {
 			val artistView = it.findViewById<TextView>(R.id.songartist)
 			val titleView = it.findViewById<TextView>(R.id.songtitle)
 			val beatIcon = it.findViewById<ImageView>(R.id.beaticon)
@@ -48,7 +47,6 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 			val artist = song.mArtist + keyString + ratingString
 			artistView.text = artist
 		}
-	}
 
 	companion object {
 		val STARS = arrayOf("", "★", "★★", "★★★", "★★★★", "⭐⭐⭐⭐⭐")

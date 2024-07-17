@@ -426,8 +426,8 @@ class SongView
 		return false
 	}
 
-	private fun calculateScrolling(): Boolean {
-		return if (mStartState === PlayState.AtTitleScreen)
+	private fun calculateScrolling(): Boolean =
+		if (mStartState === PlayState.AtTitleScreen)
 			false
 		else if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
 			mSongPixelPosition = mScroller.currY
@@ -466,7 +466,6 @@ class SongView
 			}
 			false
 		}
-	}
 
 	private fun drawTitleScreen(canvas: Canvas) {
 		canvas.drawColor(Color.BLACK)
@@ -625,13 +624,12 @@ class SongView
 		startToggle(null, false)
 	}
 
-	private fun startAudioPlayer(audioPlayer: AudioPlayer?): AudioPlayer? {
-		return audioPlayer?.apply {
+	private fun startAudioPlayer(audioPlayer: AudioPlayer?): AudioPlayer? =
+		audioPlayer?.apply {
 			Logger.log("Starting AudioPlayer")
 			start()
 			mCurrentVolume = volume
 		}
-	}
 
 	private fun startBackingTrack(): Boolean =
 		startAudioPlayer(mAudioPlayers[mSong!!.mBackingTrack]) != null
@@ -818,13 +816,10 @@ class SongView
 			mSong!!.mBeatCounterRect
 	}
 
-	private fun isTrackPlaying(): Boolean {
-		return mAudioPlayers.values.any { it.isPlaying }
-	}
+	private fun isTrackPlaying(): Boolean = mAudioPlayers.values.any { it.isPlaying }
 
-	fun hasSong(title: String, artist: String): Boolean {
-		return mSong?.mSongFile?.mNormalizedArtist == artist && mSong?.mSongFile?.mNormalizedTitle == title
-	}
+	fun hasSong(title: String, artist: String): Boolean =
+		mSong?.mSongFile?.mNormalizedArtist == artist && mSong?.mSongFile?.mNormalizedTitle == title
 
 	private fun processPauseEvent(event: PauseEvent) {
 		mLastBeatTime = -1
@@ -848,11 +843,10 @@ class SongView
 		}
 	}
 
-	private fun processMIDIEvent(event: MIDIEvent) {
+	private fun processMIDIEvent(event: MIDIEvent) =
 		event.mMessages.forEach {
 			Midi.putMessage(it)
 		}
-	}
 
 	private fun processLineEvent(event: LineEvent) {
 		if (mSong == null)
@@ -872,10 +866,8 @@ class SongView
 		return true
 	}
 
-	private fun processEndEvent() {
-		// Only end the song in non-manual mode.
-		endSong(false)
-	}
+	// Only end the song in non-manual mode.
+	private fun processEndEvent() = endSong(false)
 
 	private fun endSong(skipped: Boolean) {
 		if (mSongDisplayActivity != null) {
@@ -989,11 +981,7 @@ class SongView
 		distanceX: Float,
 		distanceY: Float
 	): Boolean {
-		if (mScreenAction == ScreenAction.None)
-			return false
-		if (mStartState === PlayState.AtTitleScreen)
-			return false
-		if (mSong == null)
+		if (mScreenAction == ScreenAction.None || mStartState === PlayState.AtTitleScreen || mSong == null)
 			return false
 		if (mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) {
 			clearScrollTarget()
@@ -1325,15 +1313,14 @@ class SongView
 			startToggle(null, midiInitiated)
 	}
 
-	internal fun canYieldToExternalTrigger(): Boolean {
-		return when (mExternalTriggerSafetyCatch) {
+	internal fun canYieldToExternalTrigger(): Boolean =
+		when (mExternalTriggerSafetyCatch) {
 			TriggerSafetyCatch.Always -> true
 			TriggerSafetyCatch.WhenAtTitleScreen -> mStartState === PlayState.AtTitleScreen
 			TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual
 			TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine.mNextLine == null || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual
 			TriggerSafetyCatch.Never -> false
 		}
-	}
 
 	private fun getLineHighlightColor(line: Line, time: Long): Int? {
 		if (line == mSong!!.mCurrentLine && mHighlightCurrentLine && line.mScrollMode == ScrollingMode.Beat)

@@ -8,9 +8,9 @@ import android.os.Handler
 import android.os.Message
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.events.EventRouter
 
 class SettingsFragment : PreferenceFragmentCompat(),
 	SharedPreferences.OnSharedPreferenceChangeListener {
@@ -77,6 +77,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 	}
 
 	companion object {
-		const val StevenFrewNamespace = "http://com.stevenfrew/"
+		const val STEVEN_FREW_NAMESPACE = "http://com.stevenfrew/"
 	}
 }

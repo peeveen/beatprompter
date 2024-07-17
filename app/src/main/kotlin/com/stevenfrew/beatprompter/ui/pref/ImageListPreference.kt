@@ -52,17 +52,14 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 		}
 	}
 
-	private fun localStoragePermissionGranted(): Boolean {
-		return PermissionsPreference.permissionsGranted(
+	private fun localStoragePermissionGranted(): Boolean =
+		PermissionsPreference.permissionsGranted(
 			mContext,
 			mContext.resources.getStringArray(R.array.storage_permissions)
 		)
-	}
 
-	private fun googleServicesAvailable(): Boolean {
-		val result = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
-		return result == ConnectionResult.SUCCESS
-	}
+	private fun googleServicesAvailable(): Boolean = GoogleApiAvailability.getInstance()
+		.isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
 
 	private fun getFilteredCloudStorageEntries(): Array<CharSequence> {
 		val localStorageFilteredEntries =

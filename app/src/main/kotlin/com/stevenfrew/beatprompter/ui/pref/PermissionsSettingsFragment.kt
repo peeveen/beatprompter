@@ -10,12 +10,11 @@ import android.os.Message
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.stevenfrew.beatprompter.BuildConfig
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
-import com.stevenfrew.beatprompter.R
 
 class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreferences()) {
-
 	private var mSettingsHandler: PermissionsSettingsEventHandler? = null
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -46,15 +45,13 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 
 	companion object {
 
-		fun getPermissionPreferences(): Int {
-			return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.xml.permissionpreferences12 else R.xml.permissionpreferences
-		}
+		fun getPermissionPreferences(): Int =
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.xml.permissionpreferences12 else R.xml.permissionpreferences
 
-		fun getBluetoothPermissions(context: Context): Array<out String> {
-			return context.resources.getStringArray(
+		fun getBluetoothPermissions(context: Context): Array<out String> =
+			context.resources.getStringArray(
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.array.bluetooth_permissions_12 else R.array.bluetooth_permissions
 			)
-		}
 
 		fun getStoragePermissions(context: Context): Array<out String> {
 			return context.resources.getStringArray(

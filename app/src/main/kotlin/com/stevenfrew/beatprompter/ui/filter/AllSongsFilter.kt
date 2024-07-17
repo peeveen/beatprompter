@@ -8,11 +8,7 @@ class AllSongsFilter(songs: List<SongFile>) : SongFilter(
 	BeatPrompter.appResources.getString(R.string.no_tag_selected),
 	songs, true
 ) {
-	override fun equals(other: Any?): Boolean {
-		return other == null || other is AllSongsFilter
-	}
+	override fun equals(other: Any?): Boolean = other == null || other is AllSongsFilter
 
-	override fun hashCode(): Int {
-		return javaClass.hashCode()
-	}
+	override fun hashCode(): Int = javaClass.hashCode()
 }

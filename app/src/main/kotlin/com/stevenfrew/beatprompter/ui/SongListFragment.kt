@@ -135,29 +135,25 @@ class SongListFragment
 		bankLSB: Byte,
 		program: Byte,
 		channel: Byte
-	) {
-		startSongViaMidiSongTrigger(
-			SongTrigger(
-				bankMSB,
-				bankLSB,
-				program,
-				channel,
-				TriggerType.ProgramChange
-			)
+	) = startSongViaMidiSongTrigger(
+		SongTrigger(
+			bankMSB,
+			bankLSB,
+			program,
+			channel,
+			TriggerType.ProgramChange
 		)
-	}
+	)
 
-	internal fun startSongViaMidiSongSelect(song: Byte) {
-		startSongViaMidiSongTrigger(
-			SongTrigger(
-				0.toByte(),
-				0.toByte(),
-				song,
-				0.toByte(),
-				TriggerType.SongSelect
-			)
+	internal fun startSongViaMidiSongSelect(song: Byte) = startSongViaMidiSongTrigger(
+		SongTrigger(
+			0.toByte(),
+			0.toByte(),
+			song,
+			0.toByte(),
+			TriggerType.SongSelect
 		)
-	}
+	)
 
 	internal fun updateBluetoothIcon() {
 		val bluetoothMode = Preferences.bluetoothMode
@@ -237,13 +233,12 @@ class SongListFragment
 		updateListView().setSelectionFromTop(currentPosition, top)
 	}
 
-	private fun updateListView(): ListView {
-		return requireView().findViewById<ListView>(R.id.listView).apply {
+	private fun updateListView(): ListView =
+		requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
 			adapter = mListAdapter
 		}
-	}
 
 	@Deprecated("Deprecated in Java")
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -307,13 +302,12 @@ class SongListFragment
 		playSong(node, defaultVariation, mode, startedByMidiTrigger, sds, sds, noAudioWhatsoever)
 	}
 
-	private fun shouldPlayNextSong(): Boolean {
-		return when (Preferences.playNextSong) {
+	private fun shouldPlayNextSong(): Boolean =
+		when (Preferences.playNextSong) {
 			getString(R.string.playNextSongAlwaysValue) -> true
 			getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
 			else -> false
 		}
-	}
 
 	private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
 		val onlyUseBeatFontSizes = Preferences.onlyUseBeatFontSizes
@@ -657,7 +651,7 @@ class SongListFragment
 		FontSizePreference.FONT_SIZE_MIN = 0
 		FontSizePreference.FONT_SIZE_OFFSET = Utils.MINIMUM_FONT_SIZE
 
-		if (isFirstRun) {
+		if (Preferences.firstRun) {
 			Preferences.firstRun = false
 			showFirstRunMessages()
 		}
@@ -672,9 +666,7 @@ class SongListFragment
 		inflater: LayoutInflater,
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
-	): View? {
-		return inflater.inflate(R.layout.activity_song_list, container, false)
-	}
+	): View? = inflater.inflate(R.layout.activity_song_list, container, false)
 
 	private fun onDatabaseReadCompleted(databaseExists: Boolean) {
 		if (!databaseExists) {
@@ -682,13 +674,7 @@ class SongListFragment
 			Preferences.cloudPath = "/"
 			Cache.performFullCloudSync(this)
 		}
-		return
 	}
-
-	private val isFirstRun: Boolean
-		get() {
-			return Preferences.firstRun
-		}
 
 	private fun initialiseList(cache: CachedCloudCollection) {
 		mPlaylist = Playlist()
@@ -738,39 +724,15 @@ class SongListFragment
 			val sorting = Preferences.sorting
 			sorting.forEach {
 				when (it) {
-					SortingPreference.Date -> sortSongsByDateModified()
-					SortingPreference.Artist -> sortSongsByArtist()
-					SortingPreference.Title -> sortSongsByTitle()
-					SortingPreference.Mode -> sortSongsByMode()
-					SortingPreference.Rating -> sortSongsByRating()
-					SortingPreference.Key -> sortSongsByKey()
+					SortingPreference.Date -> mPlaylist.sortByDateModified()
+					SortingPreference.Artist -> mPlaylist.sortByArtist()
+					SortingPreference.Title -> mPlaylist.sortByTitle()
+					SortingPreference.Mode -> mPlaylist.sortByMode()
+					SortingPreference.Rating -> mPlaylist.sortByRating()
+					SortingPreference.Key -> mPlaylist.sortByKey()
 				}
 			}
 		}
-	}
-
-	private fun sortSongsByTitle() {
-		mPlaylist.sortByTitle()
-	}
-
-	private fun sortSongsByMode() {
-		mPlaylist.sortByMode()
-	}
-
-	private fun sortSongsByRating() {
-		mPlaylist.sortByRating()
-	}
-
-	private fun sortSongsByArtist() {
-		mPlaylist.sortByArtist()
-	}
-
-	private fun sortSongsByDateModified() {
-		mPlaylist.sortByDateModified()
-	}
-
-	private fun sortSongsByKey() {
-		mPlaylist.sortByKey()
 	}
 
 	private fun shuffleSongList() {
@@ -779,15 +741,14 @@ class SongListFragment
 		updateListView()
 	}
 
-	private fun buildListAdapter(): BaseAdapter {
-		return if (mSelectedFilter is MIDIAliasFilesFilter)
+	private fun buildListAdapter(): BaseAdapter =
+		if (mSelectedFilter is MIDIAliasFilesFilter)
 			MIDIAliasListAdapter(
 				filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles),
 				requireActivity()
 			)
 		else
 			SongListAdapter(filterPlaylistNodes(mPlaylist), this.requireActivity())
-	}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")
@@ -864,12 +825,11 @@ class SongListFragment
 		requireActivity().invalidateOptionsMenu()
 	}
 
-	override fun onPrepareOptionsMenu(menu: Menu) {
-		menu.apply {
+	override fun onPrepareOptionsMenu(menu: Menu) =
+		with(menu) {
 			findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
 			findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}
-	}
 
 	private fun showSortDialog() {
 		if (mSelectedFilter.mCanSort) {
@@ -912,17 +872,9 @@ class SongListFragment
 		startActivity(browserIntent)
 	}
 
-	private fun openManualURL() {
-		openBrowser(R.string.instructionsUrl)
-	}
-
-	private fun openPrivacyPolicyURL() {
-		openBrowser(R.string.privacyPolicyUrl)
-	}
-
-	private fun openBuyMeACoffeeURL() {
-		openBrowser(R.string.buyMeACoffeeUrl)
-	}
+	private fun openManualURL() = openBrowser(R.string.instructionsUrl)
+	private fun openPrivacyPolicyURL() = openBrowser(R.string.privacyPolicyUrl)
+	private fun openBuyMeACoffeeURL() = openBrowser(R.string.buyMeACoffeeUrl)
 
 	@Deprecated("Deprecated in Java")
 	override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1051,14 +1003,13 @@ class SongListFragment
 			updateLoadingProgress(0, 1)
 	}
 
-	private fun updateLoadingProgress(currentProgress: Int, maxProgress: Int) {
+	private fun updateLoadingProgress(currentProgress: Int, maxProgress: Int) =
 		launch {
 			requireView().findViewById<ProgressBar>(R.id.loadingProgress).apply {
 				max = maxProgress
 				progress = currentProgress
 			}
 		}
-	}
 
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
 		if (key == getString(R.string.pref_storageLocation_key) || key == getString(R.string.pref_useExternalStorage_key))
@@ -1073,9 +1024,7 @@ class SongListFragment
 		}
 	}
 
-	override fun onQueryTextSubmit(searchText: String?): Boolean {
-		return true
-	}
+	override fun onQueryTextSubmit(searchText: String?): Boolean = true
 
 	override fun onQueryTextChange(searchText: String?): Boolean {
 		mSearchText = searchText?.lowercase() ?: ""
@@ -1091,13 +1040,12 @@ class SongListFragment
 		}
 	}
 
-	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> {
-		return playlist.nodes.filter {
+	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
+		playlist.nodes.filter {
 			mSearchText.isBlank() ||
 				it.mSongFile.mNormalizedArtist.contains(mSearchText) ||
 				it.mSongFile.mNormalizedTitle.contains(mSearchText)
 		}
-	}
 
 	companion object {
 		var mSongListEventHandler: SongListEventHandler? = null

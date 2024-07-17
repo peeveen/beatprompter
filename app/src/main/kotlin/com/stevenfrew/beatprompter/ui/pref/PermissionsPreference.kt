@@ -9,28 +9,23 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.stevenfrew.beatprompter.R
 
-class PermissionsPreference : Preference {
+class PermissionsPreference(
+	context: Context?,
+	attrs: AttributeSet?,
+	defStyleAttr: Int,
+	defStyleRes: Int
+) : Preference(context!!, attrs, defStyleAttr, defStyleRes) {
+	// Don't be fooled by the IDE. This constructor is REQUIRED!!!!!
+	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+
 	private val mPermissions: Array<out String>
 	private var inForceUpdate = false
 
-	constructor(context: Context?) : this(context, null)
-
-	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-
-	constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
-		context,
-		attrs,
-		defStyleAttr,
-		defStyleAttr
-	)
-
-	constructor(
-		context: Context?, attrs: AttributeSet?,
-		defStyleAttr: Int, defStyleRes: Int
-	) : super(context!!, attrs, defStyleAttr, defStyleRes) {
+	init {
 		val arrayResource =
-			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "permissions", 0) ?: 0
-		mPermissions = context.resources.getStringArray(arrayResource)
+			attrs?.getAttributeResourceValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "permissions", 0)
+				?: 0
+		mPermissions = context?.resources?.getStringArray(arrayResource) ?: arrayOf()
 	}
 
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
@@ -56,13 +51,12 @@ class PermissionsPreference : Preference {
 	}
 
 	companion object {
-		fun permissionsGranted(context: Context, permissions: Array<out String>): Boolean {
-			return permissions.all {
+		fun permissionsGranted(context: Context, permissions: Array<out String>): Boolean =
+			permissions.all {
 				ContextCompat.checkSelfPermission(
 					context,
 					it
 				) == PackageManager.PERMISSION_GRANTED
 			}
-		}
 	}
 }

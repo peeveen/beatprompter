@@ -11,10 +11,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.FolderSelectionListener
 import com.stevenfrew.beatprompter.storage.Storage
@@ -108,22 +108,16 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 					Preferences.cloudPath = folderInfo.mID
 				}
 
-				override fun onFolderSelectedError(t: Throwable, context: Context) {
+				override fun onFolderSelectedError(t: Throwable, context: Context) =
 					Utils.showExceptionDialog(t, context)
-				}
 
-				override fun onFolderSelectionComplete() {
-					progressDialog.dismiss()
-				}
+				override fun onFolderSelectionComplete() = progressDialog.dismiss()
 
 				override fun onAuthenticationRequired() {
 					// Don't need to do anything.
 				}
 
-				override fun shouldCancel(): Boolean {
-					return false
-				}
-
+				override fun shouldCancel(): Boolean = false
 			})
 		} else
 			Toast.makeText(activity, getString(R.string.no_cloud_storage_system_set), Toast.LENGTH_LONG)

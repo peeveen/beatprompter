@@ -5,29 +5,21 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
 
-class FontSizePreference : DialogPreference {
+class FontSizePreference(
+	context: Context?,
+	attrs: AttributeSet?,
+	defStyleAttr: Int,
+	defStyleRes: Int
+) : DialogPreference(context!!, attrs, defStyleAttr, defStyleRes) {
+	// Don't be fooled by the IDE. This constructor is REQUIRED!!!
+	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+
 	private var mDefaultValue: Int = 0
-
-	constructor(context: Context?) : this(context, null)
-
-	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-
-	constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
-		context,
-		attrs,
-		defStyleAttr,
-		defStyleAttr
-	)
-
-	constructor(
-		context: Context?, attrs: AttributeSet?,
-		defStyleAttr: Int, defStyleRes: Int
-	) : super(context!!, attrs, defStyleAttr, defStyleRes)
 
 	override fun onSetInitialValue(defaultValue: Any?) {
 		// Set default state from the XML attribute
 		if (defaultValue is Int)
-			setFontSize(defaultValue)
+			fontSize = defaultValue
 	}
 
 	override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
@@ -35,13 +27,11 @@ class FontSizePreference : DialogPreference {
 		return mDefaultValue
 	}
 
-	fun setFontSize(fontSize: Int) {
-		persistInt(fontSize)
-	}
-
-	fun getFontSize(): Int {
-		return getPersistedInt(mDefaultValue)
-	}
+	var fontSize: Int
+		get() = getPersistedInt(mDefaultValue)
+		set(value) {
+			persistInt(value)
+		}
 
 	companion object {
 		// Set by onCreate() in SongListActivity.java

@@ -155,9 +155,8 @@ class SongDisplayActivity
 		mSongView!!.setOnClickListener { }
 	}
 
-	fun canYieldToExternalTrigger(): Boolean {
-		return mSongView == null || mSongView!!.canYieldToExternalTrigger()
-	}
+	fun canYieldToExternalTrigger(): Boolean =
+		mSongView == null || mSongView!!.canYieldToExternalTrigger()
 
 	override fun onPause() {
 		mSongDisplayActive = false
@@ -246,9 +245,8 @@ class SongDisplayActivity
 	}
 
 	override fun onSensorChanged(sensorEvent: SensorEvent) {
-		if (mScrollOnProximity)
-			if (mSongView != null)
-				activateOtherPageDown(sensorEvent.timestamp)
+		if (mScrollOnProximity && mSongView != null)
+			activateOtherPageDown(sensorEvent.timestamp)
 	}
 
 	private fun activateOtherPageDown(eventTime: Long) {
@@ -269,9 +267,7 @@ class SongDisplayActivity
 			mMidiClockOutTask.setBPM(bpm)
 	}
 
-	fun onSongStop() {
-		Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
-	}
+	fun onSongStop() = Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
 
 	class SongDisplayEventHandler internal constructor(
 		private val mActivity: SongDisplayActivity,

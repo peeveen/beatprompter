@@ -15,31 +15,27 @@ open class SetListFileFilter(
 		private fun getSongList(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
-		): List<SongFile> {
-			return getMatches(setListEntries, songFiles).mapNotNull { it.second ?: it.third }
-		}
+		): List<SongFile> = getMatches(setListEntries, songFiles).mapNotNull { it.second ?: it.third }
 
 		private fun getMissingSetListEntries(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
-		): MutableList<SetListEntry> {
-			return getMatches(setListEntries, songFiles)
+		): MutableList<SetListEntry> =
+			getMatches(setListEntries, songFiles)
 				.filter { it.second == null && it.third == null }
 				.map { it.first }
 				.toMutableList()
-		}
 
 		private fun getMatches(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
-		): List<Triple<SetListEntry, SongFile?, SongFile?>> {
-			return setListEntries.map { entry ->
+		): List<Triple<SetListEntry, SongFile?, SongFile?>> =
+			setListEntries.map { entry ->
 				val exactMatch =
 					songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleAndArtistMatch }
 				val inexactMatch =
 					songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleMatch }
 				Triple(entry, exactMatch, inexactMatch)
 			}
-		}
 	}
 }

@@ -5,37 +5,25 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
 
-class MIDIChannelPreference : DialogPreference {
+class MIDIChannelPreference(
+	context: Context?,
+	attrs: AttributeSet?,
+	defStyleAttr: Int,
+	defStyleRes: Int
+) : DialogPreference(context!!, attrs, defStyleAttr, defStyleRes) {
+	// Don't be fooled by the IDE. This constructor is REQUIRED!!!
+	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+
 	private var mDefaultValue: Int = 0
-	val singleSelect: Boolean
+	val singleSelect: Boolean =
+		attrs?.getAttributeBooleanValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "singleSelect", false)
+			?: false
 
-	constructor(context: Context?) : this(context, null)
-
-	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-
-	constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
-		context,
-		attrs,
-		defStyleAttr,
-		defStyleAttr
-	)
-
-	constructor(
-		context: Context?, attrs: AttributeSet?,
-		defStyleAttr: Int, defStyleRes: Int
-	) : super(context!!, attrs, defStyleAttr, defStyleRes) {
-		singleSelect =
-			attrs?.getAttributeBooleanValue(SettingsFragment.StevenFrewNamespace, "singleSelect", false)
-				?: false
-	}
-
-	fun setPreferenceValue(fontSize: Int) {
-		persistInt(fontSize)
-	}
-
-	fun getPreferenceValue(): Int {
-		return getPersistedInt(mDefaultValue)
-	}
+	var channelMask: Int
+		get() = getPersistedInt(mDefaultValue)
+		set(value) {
+			persistInt(value)
+		}
 
 	override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
 		mDefaultValue = a.getString(index)!!.toInt()
@@ -44,6 +32,6 @@ class MIDIChannelPreference : DialogPreference {
 
 	override fun onSetInitialValue(defaultValue: Any?) {
 		if (defaultValue is Int)
-			setPreferenceValue(defaultValue)
+			channelMask = defaultValue
 	}
 }

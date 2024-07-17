@@ -20,7 +20,7 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		mSeekBar = view.findViewById(R.id.fontSizeSeekBar)
 		mTextView = view.findViewById(R.id.fontSizeTextView)
 		mSeekBar!!.setOnSeekBarChangeListener(this)
-		mCurrentValue = (this.preference as FontSizePreference).getFontSize()
+		mCurrentValue = (this.preference as FontSizePreference).fontSize
 		mSeekBar!!.progress = mCurrentValue
 		mTextView!!.text = String.format(Locale.getDefault(), "%d", mCurrentValue)
 		//mSeekBar!!.min= FontSizePreference.FONT_SIZE_MIN
@@ -32,7 +32,7 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
 			val value = mSeekBar!!.progress
-			(this.preference as FontSizePreference).setFontSize(value)
+			(this.preference as FontSizePreference).fontSize = value
 		}
 	}
 
@@ -44,7 +44,6 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 	}
 
 	override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
 	override fun onStopTrackingTouch(seekBar: SeekBar) {}
 
 	companion object {

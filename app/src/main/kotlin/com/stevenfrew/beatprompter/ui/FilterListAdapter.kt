@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
@@ -16,30 +15,29 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 
-class FilterListAdapter(private val values: List<Filter>,
-												private val selectedTagFilters: MutableList<TagFilter>,
-												context: Context,
-												private val onSelectedTagsChanged: () -> Unit
-	) :
+class FilterListAdapter(
+	private val values: List<Filter>,
+	private val selectedTagFilters: MutableList<TagFilter>,
+	context: Context,
+	private val onSelectedTagsChanged: () -> Unit
+) :
 	ArrayAdapter<Filter>(context, -1, values) {
 	private val mInflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		return (convertView
-			?: mInflater.inflate(R.layout.filter_item_selected, parent, false)).also {
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+		(convertView ?: mInflater.inflate(R.layout.filter_item_selected, parent, false)).also {
 			val titleView = it.findViewById<TextView>(R.id.filtertitleselected)
 			val filter = values[position]
 			titleView.text = filter.mName
 		}
-	}
 
 	override fun getDropDownView(
 		position: Int,
 		convertView: View?,
 		parent: ViewGroup
-	): View {
-		return mInflater.inflate(R.layout.filter_list_item, parent, false).also {
+	): View =
+		mInflater.inflate(R.layout.filter_list_item, parent, false).also {
 			val titleView = it.findViewById<TextView>(R.id.filtertitle)
 			val filterIcon = it.findViewById<ImageView>(R.id.filterIcon)
 			val filterSelectedIcon = it.findViewById<ImageView>(R.id.filterSelectedIcon)
@@ -54,10 +52,11 @@ class FilterListAdapter(private val values: List<Filter>,
 			}
 			if (filter is TagFilter) {
 				filterSelectedIcon.visibility = View.VISIBLE
-				val selectedIcon = if(selectedTagFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
+				val selectedIcon =
+					if (selectedTagFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
 				filterSelectedIcon.setImageResource(selectedIcon)
 				it.setOnClickListener {
-					if(selectedTagFilters.contains(filter))
+					if (selectedTagFilters.contains(filter))
 						selectedTagFilters.remove(filter)
 					else
 						selectedTagFilters.add(filter)
@@ -69,5 +68,4 @@ class FilterListAdapter(private val values: List<Filter>,
 			filterIcon.setImageResource(iconResource)
 			titleView.text = filter.mName
 		}
-	}
 }

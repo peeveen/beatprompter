@@ -7,7 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.stevenfrew.beatprompter.events.EventRouter
 
-open class BaseSettingsFragment constructor(private val mPrefsResourceId: Int) :
+open class BaseSettingsFragment(private val mPrefsResourceId: Int) :
 	PreferenceFragmentCompat() {
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		EventRouter.setSettingsEventHandler(NoOpSettingsEventHandler(this))
@@ -21,7 +21,7 @@ open class BaseSettingsFragment constructor(private val mPrefsResourceId: Int) :
 		super.onDestroy()
 	}
 
-	override fun onDisplayPreferenceDialog(preference: Preference) {
+	override fun onDisplayPreferenceDialog(preference: Preference) =
 		if (preference is SeekBarPreference) {
 			val f: SeekBarPreferenceDialog = SeekBarPreferenceDialog.newInstance(
 				preference.key,
@@ -34,7 +34,6 @@ open class BaseSettingsFragment constructor(private val mPrefsResourceId: Int) :
 		} else {
 			super.onDisplayPreferenceDialog(preference)
 		}
-	}
 
 	class NoOpSettingsEventHandler internal constructor(private val mFragment: PreferenceFragmentCompat) :
 		Handler(), SettingsEventHandler {

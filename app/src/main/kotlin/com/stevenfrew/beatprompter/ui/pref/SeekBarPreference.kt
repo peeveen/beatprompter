@@ -5,40 +5,37 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
 
-class SeekBarPreference : DialogPreference {
+class SeekBarPreference(
+	context: Context?,
+	attrs: AttributeSet?,
+	defStyleAttr: Int,
+	defStyleRes: Int
+) : DialogPreference(context!!, attrs, defStyleAttr, defStyleRes) {
+	// Don't be fooled by the IDE. This constructor is REQUIRED!!!!!
+	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
+
 	private var mDefaultValue: Int = 0
 
 	val suffix: String
 	val offset: Int
 	val max: Int
 
-	constructor(context: Context?) : this(context, null)
-
-	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-
-	constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
-		context,
-		attrs,
-		defStyleAttr,
-		defStyleAttr
-	)
-
-	constructor(
-		context: Context?, attrs: AttributeSet?,
-		defStyleAttr: Int, defStyleRes: Int
-	) : super(context!!, attrs, defStyleAttr, defStyleRes) {
+	init {
 		val suffixResource =
-			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "suffix", 0)
+			attrs?.getAttributeResourceValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "suffix", 0)
 		val maxResource =
-			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "max", 0)
+			attrs?.getAttributeResourceValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "max", 0)
 		val offsetResource =
-			attrs?.getAttributeResourceValue(SettingsFragment.StevenFrewNamespace, "offset", 0)
+			attrs?.getAttributeResourceValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "offset", 0)
 		suffix =
-			if (suffixResource == null || suffixResource == 0) "" else context.getString(suffixResource)
-		max = if (maxResource == null || maxResource == 0) 0 else context.getString(maxResource).toInt()
+			if (suffixResource == null || suffixResource == 0) "" else context?.getString(suffixResource)
+				?: ""
+		max =
+			if (maxResource == null || maxResource == 0) 0 else context?.getString(maxResource)?.toInt()
+				?: 0
 		offset =
-			if (offsetResource == null || offsetResource == 0) 0 else context.getString(offsetResource)
-				.toInt()
+			if (offsetResource == null || offsetResource == 0) 0 else context?.getString(offsetResource)
+				?.toInt() ?: 0
 	}
 
 	override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
@@ -49,14 +46,12 @@ class SeekBarPreference : DialogPreference {
 	override fun onSetInitialValue(defaultValue: Any?) {
 		// Set default state from the XML attribute
 		if (defaultValue is Int)
-			setPreferenceValue(defaultValue)
+			preferenceValue = defaultValue
 	}
 
-	fun setPreferenceValue(value: Int) {
-		persistInt(value)
-	}
-
-	fun getPreferenceValue(): Int {
-		return getPersistedInt(mDefaultValue)
-	}
+	var preferenceValue: Int
+		get() = getPersistedInt(mDefaultValue)
+		set(value) {
+			persistInt(value)
+		}
 }
