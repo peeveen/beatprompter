@@ -27,9 +27,8 @@ class BeatPrompter : Application() {
 				return applicationContext.getString(resID)
 			}
 
-			override fun getString(resID: Int, vararg args: Any): String {
-				return applicationContext.getString(resID, *args)
-			}
+			override fun getString(resID: Int, vararg args: Any): String =
+				applicationContext.getString(resID, *args)
 
 			override val preferences: SharedPreferences
 				get() = PreferenceManager.getDefaultSharedPreferences(applicationContext)
@@ -39,9 +38,6 @@ class BeatPrompter : Application() {
 
 			override val assetManager: AssetManager
 				get() = applicationContext.assets
-
-			override val context: Context
-				get() = applicationContext
 		}
 		applyPreferenceDefaults()
 		AppCompatDelegate.setDefaultNightMode(if (Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)

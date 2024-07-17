@@ -6,7 +6,12 @@ import androidx.appcompat.app.AlertDialog
 import com.stevenfrew.beatprompter.R
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.*
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.PrintWriter
 import kotlin.math.floor
 import kotlin.math.sin
 
@@ -43,25 +48,11 @@ object Utils {
 		}
 	}
 
-	fun nanosecondsPerBeat(bpm: Double): Long {
-		return (60000000000.0 / bpm).toLong()
-	}
-
-	fun nanoToMilli(nano: Long): Int {
-		return (nano / 1000000).toInt()
-	}
-
-	fun milliToNano(milli: Int): Long {
-		return milli.toLong() * 1000000
-	}
-
-	fun milliToNano(milli: Long): Long {
-		return milli * 1000000
-	}
-
-	fun bpmToMIDIClockNanoseconds(bpm: Double): Double {
-		return 60000000000.0 / (bpm * 24.0)
-	}
+	fun nanosecondsPerBeat(bpm: Double): Long = (60000000000.0 / bpm).toLong()
+	fun nanoToMilli(nano: Long): Int = (nano / 1000000).toInt()
+	fun milliToNano(milli: Int): Long = milli.toLong() * 1000000
+	fun milliToNano(milli: Long): Long = milli * 1000000
+	fun bpmToMIDIClockNanoseconds(bpm: Double): Double = 60000000000.0 / (bpm * 24.0)
 
 	fun makeHighlightColour(vColour: Int): Int {
 		var colour = vColour
@@ -84,9 +75,7 @@ object Utils {
 		return if (r * 0.299 + g * 0.587 + b * 0.114 > 186) Color.BLACK else Color.WHITE
 	}
 
-	fun countWords(words: List<String>): Int {
-		return words.count { !splitters.contains(it) }
-	}
+	fun countWords(words: List<String>): Int = words.count { !splitters.contains(it) }
 
 	fun stitchBits(bits: List<String>, nonWhitespaceBitsToJoin: Int): String {
 		val result = StringBuilder()
@@ -102,9 +91,7 @@ object Utils {
 		return result.toString()
 	}
 
-	fun splitText(strIn: String): List<String> {
-		return strIn.split(Regex("(?<=[ -])|(?=[ -])"))
-	}
+	fun splitText(strIn: String): List<String> = strIn.split(Regex("(?<=[ -])|(?=[ -])"))
 
 	/**
 	 * Returns milliseconds value
@@ -138,43 +125,30 @@ object Utils {
 		}
 	}
 
-	fun makeSafeFilename(str: String): String {
-		@Suppress("RegExpRedundantEscape")
-		return str.replace(Regex("[|\\?*<\":>+\\[\\]/']"), "_")
-	}
+	@Suppress("RegExpRedundantEscape")
+	fun makeSafeFilename(str: String): String = str.replace(Regex("[|\\?*<\":>+\\[\\]/']"), "_")
 
-	fun appendToTextFile(file: File, str: String) {
+	fun appendToTextFile(file: File, str: String) =
 		FileWriter(
 			file.absolutePath,
 			true
 		).use { fw -> BufferedWriter(fw).use { bw -> PrintWriter(bw).use { out -> out.println(str) } } }
-	}
 
-	fun parseHexByte(str: String): Byte {
-		return parseByte(str.stripHexSignifiers(), 16)
-	}
+	fun parseHexByte(str: String): Byte = parseByte(str.stripHexSignifiers(), 16)
+	fun parseByte(str: String): Byte = parseByte(str, 10)
+	private fun parseByte(str: String, radix: Int): Byte = (str.toInt(radix) and 0x000000FF).toByte()
 
-	fun parseByte(str: String): Byte {
-		return parseByte(str, 10)
-	}
-
-	private fun parseByte(str: String, radix: Int): Byte {
-		val byteVal = str.toInt(radix)
-		return (byteVal and 0x000000FF).toByte()
-	}
-
-	fun safeThreadWait(amount: Long) {
+	fun safeThreadWait(amount: Long) =
 		try {
 			Thread.sleep(amount)
 		} catch (ie: InterruptedException) {
+			// Ignore
 		}
-	}
 
-	fun reportProgress(listener: ProgressReportingListener<String>, message: String) {
+	fun reportProgress(listener: ProgressReportingListener<String>, message: String) =
 		runBlocking {
 			launch {
 				listener.onProgressMessageReceived(message)
 			}
 		}
-	}
 }

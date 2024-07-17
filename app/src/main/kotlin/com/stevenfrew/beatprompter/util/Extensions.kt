@@ -7,31 +7,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun String.splitAndTrim(separator: String): List<String> {
-	val bits = split(separator)
-	return bits.mapNotNull()
-	{
-		val trimmed = it.trim()
-		if (trimmed.isEmpty())
-			null
-		else
-			trimmed
+fun String.splitAndTrim(separator: String): List<String> =
+	split(separator).run {
+		mapNotNull {
+			it.trim().ifEmpty { null }
+		}
 	}
-}
 
 /**
  * Remove stupid BOF character
  */
-fun String.removeControlCharacters(): String {
-	return replace("\uFEFF", "")
-}
+fun String.removeControlCharacters(): String = replace("\uFEFF", "")
 
 /**
  * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
  */
-fun String.normalize(): String {
-	return replace('’', '\'').removeControlCharacters().lowercase()
-}
+fun String.normalize(): String = replace('’', '\'').removeControlCharacters().lowercase()
 
 fun String?.looksLikeHex(): Boolean {
 	if (this == null)
@@ -58,29 +49,27 @@ fun String?.looksLikeDecimal(): Boolean {
 	}
 }
 
-fun String.stripHexSignifiers(): String {
-	val str = lowercase()
-	if (str.startsWith("0x"))
-		return str.substringAfter("0x")
-	else if (str.endsWith("h"))
-		return str.substring(0, str.length - 1)
-	return str
-}
+fun String.stripHexSignifiers(): String =
+	lowercase().run {
+		if (startsWith("0x"))
+			substringAfter("0x")
+		else if (endsWith("h"))
+			substring(0, length - 1)
+		else
+			this
+	}
 
-fun String.characters(): List<String> {
-	return toCharArray().map { it.toString() }
-}
+fun String.characters(): List<String> = toCharArray().map { it.toString() }
 
-fun List<Any?>.flattenAll(): List<Any?> {
-	val output = mutableListOf<Any?>()
-	forEach { e ->
-		when (e) {
-			!is List<Any?> -> output.add(e)
-			else -> output.addAll(e.flattenAll())
+fun List<Any?>.flattenAll(): List<Any?> =
+	mutableListOf<Any?>().also {
+		forEach { e ->
+			when (e) {
+				!is List<Any?> -> it.add(e)
+				else -> it.addAll(e.flattenAll())
+			}
 		}
 	}
-	return output
-}
 
 fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(params: TParameters) =
 	launch {

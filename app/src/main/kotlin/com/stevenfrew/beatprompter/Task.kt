@@ -18,11 +18,10 @@ abstract class Task(private var mRunning: Boolean) : Runnable {
 			return mStop
 		}
 
-	private fun setShouldStop() {
+	private fun setShouldStop() =
 		synchronized(stopSync) {
 			mStop = true
 		}
-	}
 
 	override fun run() {
 		Log.d(TASKTAG, "Task initialising.")
@@ -59,7 +58,6 @@ abstract class Task(private var mRunning: Boolean) : Runnable {
 	abstract fun doWork()
 
 	companion object {
-
 		private const val TASKTAG = "task"
 
 		fun pauseTask(task: Task?, thread: Thread?) {
@@ -69,9 +67,7 @@ abstract class Task(private var mRunning: Boolean) : Runnable {
 			}
 		}
 
-		fun resumeTask(task: Task?) {
-			task?.resume()
-		}
+		fun resumeTask(task: Task?) = task?.resume()
 
 		fun stopTask(task: Task?, thread: Thread?) {
 			if (task != null) {

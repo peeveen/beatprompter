@@ -9,9 +9,7 @@ object Logger {
 	private const val TAG_COMMS = "beatprompter_comms"
 
 	@Suppress("unused")
-	fun logAlways(message: String) {
-		Log.d(TAG, message)
-	}
+	fun logAlways(message: String) = Log.d(TAG, message)
 
 	private fun log(tag: String, message: () -> String, t: Throwable? = null) {
 		if (LOGGING)
@@ -26,46 +24,20 @@ object Logger {
 				Log.e(tag, message, t)
 	}
 
-	fun log(message: () -> String, t: Throwable? = null) {
-		log(TAG, message, t)
-	}
-
-	fun log(message: () -> String) {
-		log(message, null)
-	}
-
-	fun log(message: String, t: Throwable? = null) {
-		log(TAG, message, t)
-	}
-
-	fun log(t: Throwable) {
-		log(TAG, { t.message ?: "" }, t)
-	}
+	fun log(message: () -> String, t: Throwable? = null) = log(TAG, message, t)
+	fun log(message: () -> String) = log(message, null)
+	fun log(message: String, t: Throwable? = null) = log(TAG, message, t)
+	fun log(t: Throwable) = log(TAG, { t.message ?: "" }, t)
 
 	private fun logLoader(
 		message: () -> String,
 		@Suppress("SameParameterValue") t: Throwable? = null
-	) {
-		log(TAG_LOAD, message, t)
-	}
+	) = log(TAG_LOAD, message, t)
 
-	fun logLoader(message: () -> String) {
-		logLoader(message, null)
-	}
+	fun logLoader(message: () -> String) = logLoader(message, null)
+	fun logLoader(message: String, t: Throwable? = null) = log(TAG_LOAD, message, t)
 
-	fun logLoader(message: String, t: Throwable? = null) {
-		log(TAG_LOAD, message, t)
-	}
-
-	fun logComms(message: () -> String, t: Throwable? = null) {
-		log(TAG_COMMS, message, t)
-	}
-
-	fun logComms(message: () -> String) {
-		logComms(message, null)
-	}
-
-	fun logComms(message: String, t: Throwable? = null) {
-		log(TAG_COMMS, message, t)
-	}
+	fun logComms(message: () -> String, t: Throwable? = null) = log(TAG_COMMS, message, t)
+	fun logComms(message: () -> String) = logComms(message, null)
+	fun logComms(message: String, t: Throwable? = null) = log(TAG_COMMS, message, t)
 }
