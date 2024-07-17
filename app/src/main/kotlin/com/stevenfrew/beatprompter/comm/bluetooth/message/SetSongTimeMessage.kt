@@ -12,8 +12,8 @@ class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
 	var mTime = time
 
 	companion object {
-		private fun asBytes(t: Long): ByteArray {
-			return ByteArrayOutputStream().apply {
+		private fun asBytes(t: Long): ByteArray =
+			ByteArrayOutputStream().apply {
 				write(byteArrayOf(SET_SONG_TIME_MESSAGE_ID))
 				val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
 				var time = t
@@ -24,7 +24,6 @@ class SetSongTimeMessage(time: Long) : BluetoothMessage(asBytes(time)) {
 				write(longBytes)
 				flush()
 			}.toByteArray()
-		}
 
 		internal fun fromBytes(bytes: ByteArray): SetSongTimeMessage {
 			ByteArrayInputStream(bytes).apply {

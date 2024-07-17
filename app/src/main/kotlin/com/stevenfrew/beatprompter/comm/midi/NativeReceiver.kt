@@ -20,16 +20,15 @@ class NativeReceiver(
 		mPort.connect(mInnerReceiver)
 	}
 
-	override fun close() {
+	override fun close() =
 		try {
 			mPort.disconnect(mInnerReceiver)
 			mPort.close()
 		} finally {
 			mClosed = true
 		}
-	}
 
-	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
+	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int =
 		synchronized(mInnerBufferLock) {
 			return min(maximumAmount, mInnerBufferPosition).also {
 				if (it != 0) {
@@ -41,11 +40,8 @@ class NativeReceiver(
 				}
 			}
 		}
-	}
 
-	override fun unregister(task: ReceiverTask) {
-		Midi.removeReceiver(task)
-	}
+	override fun unregister(task: ReceiverTask) = Midi.removeReceiver(task)
 
 	inner class NativeReceiverReceiver : MidiReceiver() {
 		override fun onSend(msg: ByteArray?, offset: Int, count: Int, timestamp: Long) {

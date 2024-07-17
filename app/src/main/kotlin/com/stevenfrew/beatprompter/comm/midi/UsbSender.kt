@@ -8,9 +8,7 @@ class UsbSender(
 	private val mConnection: UsbDeviceConnection,
 	private val mEndpoint: UsbEndpoint, name: String
 ) : SenderBase(name) {
-	override fun close() {
-		mConnection.close()
-	}
+	override fun close() = mConnection.close()
 
 	override fun sendMessageData(bytes: ByteArray, length: Int) {
 		mConnection.bulkTransfer(mEndpoint, bytes, length, 5000)

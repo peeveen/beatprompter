@@ -65,15 +65,11 @@ object Bluetooth : CoroutineScope {
 	val bluetoothClientCount: Int
 		get() = mSenderTask.senderCount
 
-	fun getPairedDevices(): List<BluetoothDevice> {
-		return mController?.getPairedDevices() ?: listOf()
-	}
+	fun getPairedDevices(): List<BluetoothDevice> = mController?.getPairedDevices() ?: listOf()
 
 	internal fun putMessage(message: OutgoingMessage) {
 		if (mInitialised) mBluetoothOutQueue.putMessage(message)
 	}
 
-	fun removeReceiver(task: ReceiverTask) {
-		mReceiverTasks.stopAndRemoveReceiver(task.mName)
-	}
+	fun removeReceiver(task: ReceiverTask) = mReceiverTasks.stopAndRemoveReceiver(task.mName)
 }

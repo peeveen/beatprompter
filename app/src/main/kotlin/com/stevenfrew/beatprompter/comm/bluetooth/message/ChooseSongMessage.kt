@@ -18,8 +18,8 @@ class ChooseSongMessage(
 	constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 
 	companion object {
-		private fun asBytes(choiceInfo: SongChoiceInfo): ByteArray {
-			return ByteArrayOutputStream().apply {
+		private fun asBytes(choiceInfo: SongChoiceInfo): ByteArray =
+			ByteArrayOutputStream().apply {
 				write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
 				ObjectOutputStream(this).apply {
 					writeObject(choiceInfo.mNormalizedTitle)
@@ -37,7 +37,6 @@ class ChooseSongMessage(
 					close()
 				}
 			}.toByteArray()
-		}
 
 		internal fun fromBytes(bytes: ByteArray): ChooseSongMessage {
 			try {

@@ -164,9 +164,8 @@ class BluetoothController(
 	/**
 	 * Called when Bluetooth functionality is switched on.
 	 */
-	private fun onStartBluetooth(bluetoothAdapter: BluetoothAdapter) {
+	private fun onStartBluetooth(bluetoothAdapter: BluetoothAdapter) =
 		startBluetoothWatcherThreads(bluetoothAdapter)
-	}
 
 	/**
 	 * Starts up all the Bluetooth connection-watcher threads.
@@ -221,14 +220,13 @@ class BluetoothController(
 		}
 	}
 
-	fun getPairedDevices(): List<BluetoothDevice> {
-		return try {
+	fun getPairedDevices(): List<BluetoothDevice> =
+		try {
 			mBluetoothAdapter?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
 			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
 			listOf()
 		}
-	}
 
 	/**
 	 * Adds a new connection to the pool of connected clients, and informs the user about the
@@ -303,13 +301,12 @@ class BluetoothController(
 		}
 	}
 
-	private fun getBluetoothAdapter(context: Context): BluetoothAdapter? {
-		return if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
+	private fun getBluetoothAdapter(context: Context): BluetoothAdapter? =
+		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
 			val bluetoothManager =
 				context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 			bluetoothManager.adapter
 		} else null
-	}
 
 	companion object {
 		// Our unique app Bluetooth ID.

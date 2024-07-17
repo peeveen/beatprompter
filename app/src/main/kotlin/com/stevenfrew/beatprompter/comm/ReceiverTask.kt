@@ -1,9 +1,9 @@
 package com.stevenfrew.beatprompter.comm
 
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 
 class ReceiverTask(
 	val mName: String,
@@ -11,7 +11,7 @@ class ReceiverTask(
 ) : Task(true) {
 	private var mUnregistered = false
 
-	override fun doWork() {
+	override fun doWork() =
 		try {
 			mReceiver.receive()
 		} catch (t: Throwable) {
@@ -24,17 +24,15 @@ class ReceiverTask(
 			Logger.logComms("Receiver is now stopped.")
 			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, mName)
 		}
-	}
 
-	override fun stop() {
-		// Receivers often block when trying to receive data, so closing the socket or whatever behind
+	override fun stop() =
+	// Receivers often block when trying to receive data, so closing the socket or whatever behind
 		// the scenes will usually kickstart it into action.
 		try {
 			mReceiver.close()
 		} catch (exception: Exception) {
 			// At least we tried ...
 		}
-	}
 
 	fun setUnregistered() {
 		mUnregistered = true

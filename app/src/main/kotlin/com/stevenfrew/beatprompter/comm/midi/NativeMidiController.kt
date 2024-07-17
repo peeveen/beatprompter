@@ -40,9 +40,7 @@ class NativeMidiController(
 	private inner class MidiNativeDeviceListener(private val mManager: MidiManager) :
 		MidiManager.OnDeviceOpenedListener,
 		MidiManager.DeviceCallback() {
-		override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) {
-			addNativeDevice(deviceInfo, mManager)
-		}
+		override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) = addNativeDevice(deviceInfo, mManager)
 
 		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
 			deviceInfo.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also {

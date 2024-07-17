@@ -20,16 +20,14 @@ open class MessageQueue(capacity: Int) {
 		}
 	}
 
-	internal fun putMessage(message: OutgoingMessage) {
+	internal fun putMessage(message: OutgoingMessage) =
 		synchronized(mBlockingQueue) {
 			mBlockingQueue.put(message)
 		}
-	}
 
-	internal fun putMessages(messages: List<OutgoingMessage>) {
+	internal fun putMessages(messages: List<OutgoingMessage>) =
 		synchronized(mBlockingQueue) {
 			for (f in messages.indices)
 				mBlockingQueue.put(messages[f])
 		}
-	}
 }

@@ -7,7 +7,7 @@ class ReceiverTasks {
 	private val mReceiverTasks = mutableMapOf<String, ReceiverTask>()
 	private val mReceiverThreadsLock = Any()
 
-	fun addReceiver(id: String, name: String, receiver: Receiver) {
+	fun addReceiver(id: String, name: String, receiver: Receiver) =
 		synchronized(mReceiverThreadsLock) {
 			Logger.logComms { "Starting new receiver task '$id:' ($name)" }
 			mReceiverTasks[id] = ReceiverTask(name, receiver).also {
@@ -17,7 +17,6 @@ class ReceiverTasks {
 			}
 			Logger.logComms { "Started new receiver task '$id:' ($name)" }
 		}
-	}
 
 	fun stopAndRemoveReceiver(id: String) {
 		val (receiverTask, receiverThread) = synchronized(mReceiverThreadsLock) {
@@ -38,7 +37,7 @@ class ReceiverTasks {
 		Logger.logComms { "Stopped receiver task '$id'" }
 	}
 
-	fun stopAll() {
+	fun stopAll() =
 		synchronized(mReceiverThreadsLock) {
 			Logger.logComms("Stopping ALL receiver tasks")
 			mReceiverThreads.keys.forEach {
@@ -46,7 +45,6 @@ class ReceiverTasks {
 			}
 			Logger.logComms("Stopped ALL receiver tasks")
 		}
-	}
 
 	val taskCount: Int
 		get() = synchronized(mReceiverThreadsLock) { mReceiverTasks.size }

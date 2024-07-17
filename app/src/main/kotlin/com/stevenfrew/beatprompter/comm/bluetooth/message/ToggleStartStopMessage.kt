@@ -12,15 +12,14 @@ import java.io.ByteArrayOutputStream
 class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) :
 	BluetoothMessage(asBytes(mToggleInfo)) {
 
-	override fun toString(): String {
-		return "ToggleStartStopMessage(${mToggleInfo.mStartState},${mToggleInfo.mTime})"
-	}
+	override fun toString(): String =
+		"ToggleStartStopMessage(${mToggleInfo.mStartState},${mToggleInfo.mTime})"
 
 	data class StartStopToggleInfo(val mStartState: PlayState, val mTime: Long)
 
 	companion object {
-		private fun asBytes(toggleInfo: StartStopToggleInfo): ByteArray {
-			return ByteArrayOutputStream().apply {
+		private fun asBytes(toggleInfo: StartStopToggleInfo): ByteArray =
+			ByteArrayOutputStream().apply {
 				write(byteArrayOf(TOGGLE_START_STOP_MESSAGE_ID, toggleInfo.mStartState.mValue.toByte()))
 				val longBytes = ByteArray(Utils.LONG_BUFFER_SIZE)
 				var time = toggleInfo.mTime
@@ -31,7 +30,6 @@ class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) :
 				write(longBytes)
 				flush()
 			}.toByteArray()
-		}
 
 		internal fun fromBytes(bytes: ByteArray): ToggleStartStopMessage {
 			ByteArrayInputStream(bytes).apply {

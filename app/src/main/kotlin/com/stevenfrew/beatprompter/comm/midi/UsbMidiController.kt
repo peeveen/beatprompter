@@ -105,8 +105,8 @@ class UsbMidiController(
 		}
 	}
 
-	private fun getDeviceFromIntent(intent: Intent): UsbDevice? {
-		return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+	private fun getDeviceFromIntent(intent: Intent): UsbDevice? =
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
 			intent.getParcelableExtra(
 				UsbManager.EXTRA_DEVICE
 			)
@@ -115,7 +115,6 @@ class UsbMidiController(
 				UsbManager.EXTRA_DEVICE,
 				UsbDevice::class.java
 			)
-	}
 
 	private fun attemptUsbMidiConnection(manager: UsbManager, permissionIntent: PendingIntent) {
 		if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {

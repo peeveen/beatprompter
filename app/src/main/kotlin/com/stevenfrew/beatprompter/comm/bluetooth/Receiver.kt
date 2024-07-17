@@ -2,8 +2,6 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
@@ -17,16 +15,15 @@ import com.stevenfrew.beatprompter.comm.bluetooth.message.QuitSongMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.SetSongTimeMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.UnknownMessageException
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
 class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.remoteDevice.name) {
-	override fun unregister(task: ReceiverTask) {
-		Bluetooth.removeReceiver(task)
-	}
+	override fun unregister(task: ReceiverTask) = Bluetooth.removeReceiver(task)
 
-	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
-		return mmSocket.inputStream.read(buffer, offset, maximumAmount)
-	}
+	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int =
+		mmSocket.inputStream.read(buffer, offset, maximumAmount)
 
 	override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
 		var bufferCopy = buffer
@@ -37,20 +34,19 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
 		var lastChooseSongMessage: ChooseSongMessage? = null
 		while (dataRemaining > 0) {
 			try {
-				val btm = try {
+				val messageLength = try {
 					fromBytes(bufferCopy).also {
 						if (it is SetSongTimeMessage)
 							lastSetTimeMessage = it
 						else if (it is ChooseSongMessage)
 							lastChooseSongMessage = it
 						receivedMessages.add(it)
-					}
+					}.length
 				} catch (exception: UnknownMessageException) {
 					Logger.logComms("Unknown Bluetooth message received.")
-					null
+					// If bad message, skip the byte that doesn't match any known message type
+					1
 				}
-				// If bad message, skip the byte that doesn't match any known message type
-				val messageLength = btm?.length ?: 1
 
 				dataParsed += messageLength
 				bufferCopy = bufferCopy.copyOfRange(messageLength, dataRemaining)
@@ -71,9 +67,7 @@ class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.re
 		return dataParsed
 	}
 
-	override fun close() {
-		mmSocket.close()
-	}
+	override fun close() = mmSocket.close()
 
 	private fun routeBluetoothMessage(msg: OutgoingMessage) {
 		when (msg) {

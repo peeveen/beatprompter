@@ -24,20 +24,17 @@ open class OutgoingMessage : Message {
 	constructor(bytes: ByteArray) : this(bytes, false)
 
 	companion object {
-		private fun padToFourBytes(bytes: ByteArray): ByteArray {
-			return if (bytes.size < 4) ByteArray(4) { index -> if (index < bytes.size) bytes[index] else 0 } else bytes
-		}
+		private fun padToFourBytes(bytes: ByteArray): ByteArray =
+			if (bytes.size < 4) ByteArray(4) { index -> if (index < bytes.size) bytes[index] else 0 } else bytes
 
-		private fun appendCodeIndex(bytes: ByteArray): ByteArray {
-			return ByteArray(bytes.size + 1).also {
+		private fun appendCodeIndex(bytes: ByteArray): ByteArray =
+			ByteArray(bytes.size + 1).also {
 				it[0] = getCodeIndex(bytes[0])
 				System.arraycopy(bytes, 0, it, 1, bytes.size)
 			}
-		}
 
-		private fun getCodeIndex(messageType: Byte): Byte {
+		private fun getCodeIndex(messageType: Byte): Byte =
 			// TODO: support more messages.
-			return ((messageType.toInt() shr 4) and 0x0F).toByte()
-		}
+			((messageType.toInt() shr 4) and 0x0F).toByte()
 	}
 }

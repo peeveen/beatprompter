@@ -26,9 +26,7 @@ object Midi {
 		mInitialised = true
 	}
 
-	fun removeReceiver(task: ReceiverTask) {
-		mReceiverTasks.stopAndRemoveReceiver(task.mName)
-	}
+	fun removeReceiver(task: ReceiverTask) = mReceiverTasks.stopAndRemoveReceiver(task.mName)
 
 	internal fun addBeatClockMessages(amount: Int) {
 		if (mInitialised) mMIDIOutQueue.addBeatClockMessages(amount)

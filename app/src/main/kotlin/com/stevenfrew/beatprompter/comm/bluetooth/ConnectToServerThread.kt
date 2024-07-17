@@ -19,7 +19,7 @@ internal class ConnectToServerThread(
 	private var mStop = false
 
 	override fun run() {
-		while (!mStop) {
+		while (!mStop)
 			if (!Bluetooth.isConnectedToServer)
 				try {
 					// Connect the device through the socket. This will block
@@ -49,7 +49,6 @@ internal class ConnectToServerThread(
 				// Already connected. Wait a bit and try/check again.
 				Utils.safeThreadWait(2000)
 			}
-		}
 	}
 
 	/**
@@ -63,7 +62,7 @@ internal class ConnectToServerThread(
 	/**
 	 * Closes the watching socket.
 	 */
-	private fun closeSocket() {
+	private fun closeSocket() =
 		try {
 			Logger.logComms("Closing the server searching socket.")
 			mmSocket?.close()
@@ -71,5 +70,4 @@ internal class ConnectToServerThread(
 		} catch (e: IOException) {
 			Logger.logComms("Error closing Bluetooth socket.", e)
 		}
-	}
 }

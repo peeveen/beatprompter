@@ -18,8 +18,8 @@ class QuitSongMessage(
 		: this(asBytes(songTitle, songArtist), songTitle, songArtist)
 
 	companion object {
-		private fun asBytes(songTitle: String, songArtist: String): ByteArray {
-			return ByteArrayOutputStream().apply {
+		private fun asBytes(songTitle: String, songArtist: String): ByteArray =
+			ByteArrayOutputStream().apply {
 				write(byteArrayOf(QUIT_SONG_MESSAGE_ID), 0, 1)
 				ObjectOutputStream(this).apply {
 					writeObject(songTitle)
@@ -28,7 +28,6 @@ class QuitSongMessage(
 					close()
 				}
 			}.toByteArray()
-		}
 
 		internal fun fromBytes(bytes: ByteArray): QuitSongMessage {
 			try {

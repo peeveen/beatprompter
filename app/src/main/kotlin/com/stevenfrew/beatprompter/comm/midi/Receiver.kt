@@ -120,21 +120,17 @@ abstract class Receiver(name: String) : ReceiverBase(name) {
 		private var mIncomingChannels = getIncomingChannelsPrefValue()
 		private val mIncomingChannelsLock = Any()
 
-		private fun getIncomingChannelsPrefValue(): Int {
-			return Preferences.incomingMIDIChannels
-		}
+		private fun getIncomingChannelsPrefValue(): Int = Preferences.incomingMIDIChannels
 
-		private fun getIncomingChannels(): Int {
+		private fun getIncomingChannels(): Int =
 			synchronized(mIncomingChannelsLock) {
 				return mIncomingChannels
 			}
-		}
 
-		private fun setIncomingChannels() {
+		private fun setIncomingChannels() =
 			synchronized(mIncomingChannelsLock) {
 				mIncomingChannels = getIncomingChannelsPrefValue()
 			}
-		}
 
 		private fun calculateMidiBeat(byte1: Byte, byte2: Byte): Int {
 			var firstHalf = byte2.toInt()

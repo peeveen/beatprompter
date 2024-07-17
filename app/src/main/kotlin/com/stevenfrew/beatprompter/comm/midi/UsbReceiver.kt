@@ -36,13 +36,12 @@ class UsbReceiver(
 		}
 	}
 
-	override fun close() {
+	override fun close() =
 		try {
 			mConnection.close()
 		} finally {
 			mClosed = true
 		}
-	}
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
 		val maxRead = maximumAmount - offset
@@ -66,7 +65,5 @@ class UsbReceiver(
 		}
 	}
 
-	override fun unregister(task: ReceiverTask) {
-		Midi.removeReceiver(task)
-	}
+	override fun unregister(task: ReceiverTask) = Midi.removeReceiver(task)
 }

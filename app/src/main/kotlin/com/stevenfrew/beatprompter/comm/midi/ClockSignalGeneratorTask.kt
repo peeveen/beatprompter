@@ -41,17 +41,15 @@ class ClockSignalGeneratorTask : Task(false) {
 			return mClockSignalsSent
 		}
 
-	private fun incrementClockSignalsSent(): Int {
+	private fun incrementClockSignalsSent(): Int =
 		synchronized(clockSignalsSentSync) {
 			return ++mClockSignalsSent
 		}
-	}
 
-	private fun resetClockSignalsSent() {
+	private fun resetClockSignalsSent() =
 		synchronized(clockSignalsSentSync) {
 			mClockSignalsSent = 0
 		}
-	}
 
 	override fun doWork() {
 		val vNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
@@ -103,26 +101,24 @@ class ClockSignalGeneratorTask : Task(false) {
 	}
 
 	fun setBPM(bpm: Double) {
-		if (bpm == 0.0)
-			return
-		if (shouldStop)
-			return
-		val oldNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
-		val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm)
-		if (oldNanoSecondsPerMidiSignal == 0.0) {
-			// This is the first BPM value being set.
-			resetClockSignalsSent()
-			lastSignalTime = System.nanoTime().toDouble()
-			try {
-				Midi.putMessage(StartMessage)
-			} catch (e: Exception) {
-				Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
-			}
+		if (bpm != 0.0 && !shouldStop) {
+			val oldNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
+			val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm)
+			if (oldNanoSecondsPerMidiSignal == 0.0) {
+				// This is the first BPM value being set.
+				resetClockSignalsSent()
+				lastSignalTime = System.nanoTime().toDouble()
+				try {
+					Midi.putMessage(StartMessage)
+				} catch (e: Exception) {
+					Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
+				}
 
-			nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
-			nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
-		} else
-			nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+				nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+				nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+			} else
+				nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+		}
 	}
 
 	override fun stop() {
