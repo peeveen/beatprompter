@@ -381,7 +381,7 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="pref_chorusSectionHighlightColor_summary">Mettez en surbrillance la couleur pour les refrains.</string>
 	<string name="pref_midiConnectionTypes_title">Type de Connexion</string>
 	<string name="pref_midiConnectionTypes_dialogTitle">Type de Cconnexion</string>
-	<string name="pref_midiConnectionTyps_summary">Quel type de connexion MIDI utilisez-vous?</string>
+	<string name="pref_midiConnectionTypes_summary">Quel type de connexion MIDI utilisez-vous?</string>
 	<string name="pref_mute_title">Muet</string>
 	<string name="pref_mute_summary">Ne jamais jouer de l\'audio</string>
 	<string name="shuffle">Mélanger</string>
