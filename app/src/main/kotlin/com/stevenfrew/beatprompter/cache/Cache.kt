@@ -43,7 +43,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Cache {
-
 	object CacheEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
@@ -296,7 +295,7 @@ object Cache {
 		get() = Preferences.includeSubFolders
 
 	fun canPerformCloudSync(): Boolean =
-		Preferences.storageSystem !== StorageType.Demo && cloudPath != null
+		Preferences.storageSystem !== StorageType.Demo && cloudPath.isNotBlank()
 
 	fun performFullCloudSync(parentFragment: Fragment): Boolean =
 		performCloudSync(null, false, parentFragment)

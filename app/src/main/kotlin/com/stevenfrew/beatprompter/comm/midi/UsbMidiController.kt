@@ -117,7 +117,7 @@ class UsbMidiController(
 			)
 
 	private fun attemptUsbMidiConnection(manager: UsbManager, permissionIntent: PendingIntent) {
-		if (Preferences.midiConnectionType == ConnectionType.USBOnTheGo) {
+		if (Preferences.midiConnectionTypes.contains(ConnectionType.USBOnTheGo)) {
 			val list = manager.deviceList
 			if (list != null && list.size > 0) {
 				val devObjects = list.values

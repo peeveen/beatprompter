@@ -29,10 +29,7 @@ class ReadCacheTask(
 		mHandler.obtainMessage(Events.DATABASE_READ_ERROR, t.message).sendToTarget()
 	}
 
-	private fun closeProgressDialog() {
-		if (mProgressDialog != null)
-			mProgressDialog!!.dismiss()
-	}
+	private fun closeProgressDialog() = mProgressDialog?.dismiss()
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val databaseReadListener = object : CacheReadListener {
@@ -79,6 +76,7 @@ class ReadCacheTask(
 	override fun onPostExecute(result: Boolean) {
 		mInitialDatabaseReadHasBeenPerformed = true
 		mOnComplete(result)
+		closeProgressDialog()
 	}
 
 	companion object {

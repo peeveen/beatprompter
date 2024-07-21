@@ -1,62 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:sf="http://com.stevenfrew/"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:customStyle="http://schemas.android.com/apk/res-auto">
-	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
-		android:key="@string/pref_midiConnectionType_key"
-		android:layout="@layout/image_list_preference_layout"
-		android:positiveButtonText="@android:string/ok"
+	xmlns:sf="http://com.stevenfrew/">
+	<com.stevenfrew.beatprompter.ui.pref.MidiConnectionsPreference
+		android:defaultValue="@array/pref_midiConnectionTypes_defaultValues"
+		android:dialogTitle="@string/pref_midiConnectionTypes_dialogTitle"
+		android:entries="@array/pref_midiConnectionTypes_entries"
+		android:entryValues="@array/pref_midiConnectionTypes_entryValues"
+		android:key="@string/pref_midiConnectionTypes_key"
+		android:layout="@layout/midi_connections_preference_layout"
 		android:negativeButtonText="@android:string/cancel"
-		customStyle:entryPreferenceImages="@array/midi_connectiontype_pref_images"
-		android:title="@string/pref_midiConnectionType_title"
-		android:dialogTitle="@string/pref_midiConnectionType_dialogTitle"
-		android:summary="@string/pref_midiConnectionType_summary"
-		android:entries="@array/pref_midiConnectionType_entries"
-		android:entryValues="@array/pref_midiConnectionType_entryValues"
-		android:defaultValue="@string/pref_midiConnectionType_defaultValue" />
-	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
-		android:key="@string/pref_midiIncomingChannels_key"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_midiConnectionTypes_summary"
+		android:title="@string/pref_midiConnectionTypes_title" />
+	<com.stevenfrew.beatprompter.ui.pref.MidiChannelPreference
 		android:defaultValue="@string/pref_midiIncomingChannels_default"
 		android:dialogLayout="@layout/midi_channel_preference_dialog"
-		android:positiveButtonText="@android:string/ok"
+		android:key="@string/pref_midiIncomingChannels_key"
 		android:negativeButtonText="@android:string/cancel"
-		app:iconSpaceReserved="false"
+		android:positiveButtonText="@android:string/ok"
 		android:summary="@string/pref_midiIncomingChannels_summary"
-		sf:singleSelect="false"
-		android:title="@string/pref_midiIncomingChannels_title" />
-	<com.stevenfrew.beatprompter.ui.pref.MIDIChannelPreference
-		android:key="@string/pref_defaultMIDIOutputChannel_key"
+		android:title="@string/pref_midiIncomingChannels_title"
 		app:iconSpaceReserved="false"
-		android:dialogLayout="@layout/midi_channel_preference_dialog"
-		android:positiveButtonText="@android:string/ok"
-		android:negativeButtonText="@android:string/cancel"
+		sf:singleSelect="false" />
+	<com.stevenfrew.beatprompter.ui.pref.MidiChannelPreference
 		android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
+		android:dialogLayout="@layout/midi_channel_preference_dialog"
+		android:key="@string/pref_defaultMIDIOutputChannel_key"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
 		android:summary="@string/pref_defaultMIDIOutputChannel_summary"
-		sf:singleSelect="true"
-		android:title="@string/pref_defaultMIDIOutputChannel_title" />
-	<CheckBoxPreference
-		android:key="@string/pref_sendMidi_key"
+		android:title="@string/pref_defaultMIDIOutputChannel_title"
 		app:iconSpaceReserved="false"
-		android:title="@string/pref_sendMidi_title"
+		sf:singleSelect="true" />
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:key="@string/pref_sendMidi_key"
 		android:summary="@string/pref_sendMidi_summary"
-		android:defaultValue="false" />
+		android:title="@string/pref_sendMidi_title"
+		app:iconSpaceReserved="false" />
 	<ListPreference
-		android:key="@string/pref_sendMidiTriggerOnStart_key"
-		android:title="@string/pref_sendMidiTriggerOnStart_title"
+		android:defaultValue="@string/pref_sendMidiTriggerOnStart_defaultValue"
 		android:dialogTitle="@string/pref_sendMidiTriggerOnStart_dialogTitle"
-		android:summary="@string/pref_sendMidiTriggerOnStart_summary"
 		android:entries="@array/pref_sendMidiTriggerOnStart_entries"
 		android:entryValues="@array/pref_sendMidiTriggerOnStart_entryValues"
-		app:iconSpaceReserved="false"
-		android:defaultValue="@string/pref_sendMidiTriggerOnStart_defaultValue" />
+		android:key="@string/pref_sendMidiTriggerOnStart_key"
+		android:summary="@string/pref_sendMidiTriggerOnStart_summary"
+		android:title="@string/pref_sendMidiTriggerOnStart_title"
+		app:iconSpaceReserved="false" />
 	<ListPreference
-		android:key="@string/pref_midiTriggerSafetyCatch_key"
-		android:title="@string/pref_midiTriggerSafetyCatch_title"
+		android:defaultValue="@string/pref_midiTriggerSafetyCatch_defaultValue"
 		android:dialogTitle="@string/pref_midiTriggerSafetyCatch_dialogTitle"
-		app:iconSpaceReserved="false"
-		android:summary="@string/pref_midiTriggerSafetyCatch_summary"
 		android:entries="@array/pref_midiTriggerSafetyCatch_entries"
 		android:entryValues="@array/pref_midiTriggerSafetyCatch_entryValues"
-		android:defaultValue="@string/pref_midiTriggerSafetyCatch_defaultValue" />
+		android:key="@string/pref_midiTriggerSafetyCatch_key"
+		android:summary="@string/pref_midiTriggerSafetyCatch_summary"
+		android:title="@string/pref_midiTriggerSafetyCatch_title"
+		app:iconSpaceReserved="false" />
 </PreferenceScreen>

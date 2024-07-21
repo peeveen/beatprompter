@@ -5,7 +5,7 @@ import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
 
-class MIDIChannelPreference(
+class MidiChannelPreference(
 	context: Context?,
 	attrs: AttributeSet?,
 	defStyleAttr: Int,

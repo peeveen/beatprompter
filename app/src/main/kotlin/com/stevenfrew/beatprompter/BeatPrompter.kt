@@ -28,6 +28,9 @@ class BeatPrompter : Application() {
 			override fun getString(resID: Int, vararg args: Any): String =
 				applicationContext.getString(resID, *args)
 
+			override fun getStringSet(resID: Int): Set<String> =
+				applicationContext.resources.getStringArray(resID).toSet()
+
 			override val preferences: SharedPreferences
 				get() = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 

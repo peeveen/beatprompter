@@ -379,9 +379,9 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="midi_native_string">Nativo</string>
 	<string name="pref_chorusSectionHighlightColor_title">Color de resaltado de sección de coro</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Resaltar el color para los coros.</string>
-	<string name="pref_midiConnectionType_title">Tipo de Conección</string>
-	<string name="pref_midiConnectionType_dialogTitle">Tipo de Conección</string>
-	<string name="pref_midiConnectionType_summary">¿Qué tipo de conexión MIDI usas?</string>
+	<string name="pref_midiConnectionTypes_title">Tipo de Conección</string>
+	<string name="pref_midiConnectionTypes_dialogTitle">Tipo de Conección</string>
+	<string name="pref_midiConnectionTypes_summary">¿Qué tipo de conexión MIDI usas?</string>
 	<string name="pref_mute_title">Mudo</string>
 	<string name="pref_mute_summary">Nunca reproducir audio</string>
 	<string name="shuffle">Barajar</string>

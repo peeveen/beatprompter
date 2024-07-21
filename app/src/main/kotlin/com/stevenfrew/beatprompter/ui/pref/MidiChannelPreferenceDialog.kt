@@ -8,7 +8,7 @@ import android.widget.ToggleButton
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.stevenfrew.beatprompter.R
 
-class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
+class MidiChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 	PreferenceDialogFragmentCompat(), CompoundButton.OnCheckedChangeListener {
 	private var mCurrentValue: Int = 0
 	private var mView: GridLayout? = null
@@ -19,7 +19,7 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 			alignmentMode = GridLayout.ALIGN_BOUNDS
 			isRowOrderPreserved = false
 		}
-		mCurrentValue = (this.preference as MIDIChannelPreference).channelMask
+		mCurrentValue = (this.preference as MidiChannelPreference).channelMask
 		repeat(16) {
 			val tb = view.findViewById<ToggleButton>(toggleIDs[it])
 			val set = mCurrentValue and (1 shl it) != 0
@@ -33,7 +33,7 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 
 	override fun onDialogClosed(positiveResult: Boolean) {
 		if (positiveResult)
-			(this.preference as MIDIChannelPreference).channelMask = mCurrentValue
+			(this.preference as MidiChannelPreference).channelMask = mCurrentValue
 	}
 
 	override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {
@@ -84,8 +84,8 @@ class MIDIChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 		fun newInstance(
 			key: String?,
 			singleSelect: Boolean
-		): MIDIChannelPreferenceDialog {
-			val fragment = MIDIChannelPreferenceDialog(singleSelect)
+		): MidiChannelPreferenceDialog {
+			val fragment = MidiChannelPreferenceDialog(singleSelect)
 			val b = Bundle(1)
 			b.putString(ARG_KEY, key)
 			fragment.arguments = b

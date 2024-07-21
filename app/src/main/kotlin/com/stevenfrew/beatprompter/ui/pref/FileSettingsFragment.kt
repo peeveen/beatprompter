@@ -50,7 +50,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		val clearCachePrefName = getString(R.string.pref_clearCache_key)
 		val clearCachePref = findPreference<Preference>(clearCachePrefName)
 		clearCachePref?.setOnPreferenceClickListener {
-			EventRouter.sendEventToSongList(Events.CLEAR_CACHE)
+			EventRouter.sendEventToCache(Events.CLEAR_CACHE, true)
 			true
 		}
 
@@ -64,7 +64,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		val cloudPrefName = getString(R.string.pref_cloudStorageSystem_key)
 		val cloudPref = findPreference<ImageListPreference>(cloudPrefName)
 		cloudPref?.setOnPreferenceChangeListener { _, value ->
-			EventRouter.sendEventToSongList(Events.CLEAR_CACHE)
+			EventRouter.sendEventToCache(Events.CLEAR_CACHE, true)
 			Preferences.storageSystem = StorageType.valueOf(value.toString())
 			Preferences.cloudPath = ""
 			Preferences.cloudDisplayPath = ""

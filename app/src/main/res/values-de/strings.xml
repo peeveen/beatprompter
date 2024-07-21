@@ -379,9 +379,9 @@ Em]zeigt den Beat Progression.\n
 	<string name="midi_native_string">Native</string>
 	<string name="pref_chorusSectionHighlightColor_title">Farbe des Chorus-Abschnitts</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Hervorhebungsfarbe für Refrains.</string>
-	<string name="pref_midiConnectionType_title">Verbindungstyp</string>
-	<string name="pref_midiConnectionType_dialogTitle">Verbindungstyp</string>
-	<string name="pref_midiConnectionType_summary">Welche Art von MIDI-Verbindung verwenden Sie?</string>
+	<string name="pref_midiConnectionTypes_title">Verbindungstyp</string>
+	<string name="pref_midiConnectionTypes_dialogTitle">Verbindungstyp</string>
+	<string name="pref_midiConnectionTypes_summary">Welche Art von MIDI-Verbindung verwenden Sie?</string>
 	<string name="pref_mute_title">Stumm</string>
 	<string name="pref_mute_summary">Spielen Sie niemals Audio ab</string>
 	<string name="shuffle">Mischen</string>

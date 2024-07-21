@@ -1084,7 +1084,6 @@ class SongListFragment
 				}
 
 				Events.MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
-				Events.CLEAR_CACHE -> Cache.clearCache(true)
 				Events.CACHE_UPDATED -> {
 					val cache = msg.obj as CachedCloudCollection
 					mSongList.onCacheUpdated(cache)

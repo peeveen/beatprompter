@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.events
 
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.ui.SongDisplayActivity
 import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.SettingsEventHandler
@@ -8,10 +9,13 @@ object EventRouter {
 	private val mSongListEventHandlerLock = Any()
 	private val mSongDisplayEventHandlerLock = Any()
 	private val mSettingsEventHandlerLock = Any()
+	private val mCacheEventHandlerLock = Any()
+
 	private var mSongListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
 		HashMap()
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
 	private var mSettingsEventHandler: SettingsEventHandler? = null
+	private var mCacheEventHandler: Cache.CacheEventHandler = Cache.CacheEventHandler
 
 	fun addSongListEventHandler(
 		key: String,
@@ -43,16 +47,19 @@ object EventRouter {
 			}
 		}
 
+	fun sendEventToCache(event: Int, arg: Any) =
+		synchronized(mCacheEventHandlerLock) {
+			mCacheEventHandler.obtainMessage(event, arg).sendToTarget()
+		}
+
 	fun sendEventToSongDisplay(event: Int) =
 		synchronized(mSongDisplayEventHandlerLock) {
-			if (mSongDisplayEventHandler != null)
-				mSongDisplayEventHandler!!.obtainMessage(event).sendToTarget()
+			mSongDisplayEventHandler?.obtainMessage(event)?.sendToTarget()
 		}
 
 	fun sendEventToSettings(event: Int) =
 		synchronized(mSettingsEventHandlerLock) {
-			if (mSettingsEventHandler != null)
-				mSettingsEventHandler!!.obtainMessage(event).sendToTarget()
+			mSettingsEventHandler?.obtainMessage(event)?.sendToTarget()
 		}
 
 	fun sendEventToSongList(event: Int, arg: Any) =

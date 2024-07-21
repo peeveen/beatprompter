@@ -33,7 +33,7 @@ class NativeMidiController(
 	}
 
 	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo, manager: MidiManager) {
-		if (Preferences.midiConnectionType == ConnectionType.Native)
+		if (Preferences.midiConnectionTypes.contains(ConnectionType.Native))
 			manager.openDevice(nativeDeviceInfo, mDeviceListener, null)
 	}
 

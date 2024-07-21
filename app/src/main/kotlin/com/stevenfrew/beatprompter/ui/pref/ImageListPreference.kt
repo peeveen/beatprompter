@@ -121,8 +121,4 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 			}
 		}
 	}
-
-	companion object {
-		const val GooglePlayServicesPackageName = "com.android.market"
-	}
 }

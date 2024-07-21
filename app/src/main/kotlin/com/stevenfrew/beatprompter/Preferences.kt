@@ -14,17 +14,15 @@ import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 
 object Preferences {
-	val midiConnectionType: ConnectionType
+	val midiConnectionTypes: Set<ConnectionType>
 		get() = try {
-			ConnectionType.valueOf(
-				getStringPreference(
-					R.string.pref_midiConnectionType_key,
-					R.string.pref_midiConnectionType_defaultValue
-				)
-			)
+			getStringSetPreference(
+				R.string.pref_midiConnectionTypes_key,
+				BeatPrompter.appResources.getStringSet(R.array.pref_midiConnectionTypes_defaultValues)
+			).map { ConnectionType.valueOf(it) }.toSet()
 		} catch (e: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
-			ConnectionType.USBOnTheGo
+			setOf(ConnectionType.USBOnTheGo)
 		}
 
 	var darkMode: Boolean
@@ -481,6 +479,12 @@ object Preferences {
 			.preferences
 			.getString(key, default) ?: default
 
+	fun getStringSetPreference(key: String, default: Set<String>): Set<String> =
+		BeatPrompter
+			.appResources
+			.preferences
+			.getStringSet(key, default) ?: default
+
 	@Suppress("SameParameterValue")
 	private fun getPrivateStringPreference(prefResourceString: Int, default: String): String =
 		BeatPrompter
@@ -508,6 +512,15 @@ object Preferences {
 			.appResources
 			.preferences
 			.getString(
+				BeatPrompter.appResources.getString(prefResourceString),
+				default
+			) ?: default
+
+	private fun getStringSetPreference(prefResourceString: Int, default: Set<String>): Set<String> =
+		BeatPrompter
+			.appResources
+			.preferences
+			.getStringSet(
 				BeatPrompter.appResources.getString(prefResourceString),
 				default
 			) ?: default
