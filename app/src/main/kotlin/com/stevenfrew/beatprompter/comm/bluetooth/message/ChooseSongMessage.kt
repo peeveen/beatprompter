@@ -33,6 +33,7 @@ class ChooseSongMessage(
 					writeInt(choiceInfo.mScreenSize.width())
 					writeInt(choiceInfo.mScreenSize.height())
 					writeBoolean(choiceInfo.mNoAudio)
+					writeInt(choiceInfo.mAudioLatency)
 					flush()
 					close()
 				}
@@ -57,6 +58,7 @@ class ChooseSongMessage(
 								val screenWidth = readInt()
 								val screenHeight = readInt()
 								val noAudio = readBoolean()
+								val audioLatency = readInt()
 								SongChoiceInfo(
 									title,
 									artist,
@@ -67,7 +69,8 @@ class ChooseSongMessage(
 									minFontSize,
 									maxFontSize,
 									Rect(0, 0, screenWidth, screenHeight),
-									noAudio
+									noAudio,
+									audioLatency
 								)
 							}
 						val availableEnd = available()

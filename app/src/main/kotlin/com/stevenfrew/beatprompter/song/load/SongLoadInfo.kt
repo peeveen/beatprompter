@@ -14,7 +14,8 @@ data class SongLoadInfo(
 	val mStartedByMIDITrigger: Boolean,
 	val mNativeDisplaySettings: DisplaySettings,
 	val mSourceDisplaySettings: DisplaySettings,
-	val mNoAudio: Boolean
+	val mNoAudio: Boolean,
+	val mAudioLatency: Int
 ) {
 	val mLoadID = UUID.randomUUID()!!
 	val initialScrollMode

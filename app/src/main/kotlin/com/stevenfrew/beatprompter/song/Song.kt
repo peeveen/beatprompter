@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.Typeface
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
@@ -42,7 +41,8 @@ class Song(
 	val mBeatCounterRect: Rect,
 	val mSongTitleHeader: ScreenString,
 	val mSongTitleHeaderLocation: PointF,
-	val mLoadID: UUID
+	val mLoadID: UUID,
+	private val mAudioLatency: Int
 ) {
 	internal var mCurrentLine: Line = mLines.first()
 	internal var mCurrentEvent = firstEvent // Last event that executed.
@@ -56,7 +56,7 @@ class Song(
 
 	private fun getProgressLineEvent(event: LinkedEvent): LineEvent? {
 		var nextEvent: LinkedEvent? = event
-		val latencyCompensatedEventTime = event.time + Utils.milliToNano(Preferences.audioLatency)
+		val latencyCompensatedEventTime = event.time + Utils.milliToNano(mAudioLatency)
 		// Look at events where the time is the SAME as the progress event, or
 		// the same with audio latency compensation.
 		while (nextEvent != null) {

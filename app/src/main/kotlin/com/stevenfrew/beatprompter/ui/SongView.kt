@@ -411,7 +411,7 @@ class SongView
 				when (val innerEvent = event.mEvent) {
 					is CommentEvent -> processCommentEvent(innerEvent, time)
 					is BeatEvent -> mCurrentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
-					is ClickEvent -> processClickEvent(innerEvent)
+					is ClickEvent -> processClickEvent()
 					is MIDIEvent -> processMIDIEvent(innerEvent)
 					is PauseEvent -> processPauseEvent(innerEvent)
 					is LineEvent -> processLineEvent(innerEvent)
@@ -779,7 +779,7 @@ class SongView
 		mLastCommentEvent = event
 	}
 
-	private fun processClickEvent(event: ClickEvent) {
+	private fun processClickEvent() {
 		val playClick = mMetronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
 		if (mStartState === PlayState.Playing && mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual && playClick)
 			mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)

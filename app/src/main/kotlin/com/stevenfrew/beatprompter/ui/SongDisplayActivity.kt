@@ -111,7 +111,8 @@ class SongDisplayActivity
 						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
 						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
 						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
-						loadedSong.mLoadJob.mSongLoadInfo.mNoAudio
+						loadedSong.mLoadJob.mSongLoadInfo.mNoAudio,
+						loadedSong.mLoadJob.mSongLoadInfo.mAudioLatency
 					)
 				)
 				Bluetooth.putMessage(csm)

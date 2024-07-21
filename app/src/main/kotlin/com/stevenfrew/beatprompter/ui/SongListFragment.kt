@@ -377,7 +377,8 @@ class SongListFragment
 			startedByMidiTrigger,
 			nativeSettings,
 			sourceSettings,
-			noAudio
+			noAudio,
+			Preferences.audioLatency
 		)
 		val songLoadJob = SongLoadJob(songLoadInfo)
 		SongLoadQueueWatcherTask.loadSong(songLoadJob)
@@ -951,9 +952,10 @@ class SongListFragment
 					"",
 					mStartedByBandLeader = true,
 					mStartedByMIDITrigger = false,
-					mNativeDisplaySettings = nativeSettings,
-					mSourceDisplaySettings = sourceSettings,
-					mNoAudio = choiceInfo.mNoAudio
+					nativeSettings,
+					sourceSettings,
+					choiceInfo.mNoAudio,
+					choiceInfo.mAudioLatency
 				)
 				val songLoadJob = SongLoadJob(songLoadInfo)
 				if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)

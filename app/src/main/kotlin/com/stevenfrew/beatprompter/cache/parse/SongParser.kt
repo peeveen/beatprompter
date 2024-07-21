@@ -136,7 +136,6 @@ class SongParser(
 	private val mMetronomeContext: MetronomeContext
 	private val mCustomCommentsUser: String
 	private val mShowChords: Boolean
-	private val mAudioLatency: Int
 	private val mShowKey: Boolean
 	private val mShowBPM: ShowBPMContext
 	private val mTriggerContext: TriggerOutputContext
@@ -172,7 +171,6 @@ class SongParser(
 		mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
 
 		mSendMidiClock = Preferences.sendMIDIClock
-		mAudioLatency = Preferences.audioLatency
 		mCountIn = Preferences.defaultCountIn
 		mMetronomeContext = Preferences.metronomeContext
 		mDefaultHighlightColor = Preferences.defaultHighlightColor
@@ -615,7 +613,7 @@ class SongParser(
 		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, mErrors)
 		// And offset non-audio events by the audio latency offset.
 		val audioLatencyCompensatedEventList =
-			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(mAudioLatency))
+			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(mSongLoadInfo.mAudioLatency))
 
 		// OK, now sort all events by time, and type within time
 		val sortedEventList = sortEvents(audioLatencyCompensatedEventList).toMutableList()
@@ -697,7 +695,8 @@ class SongParser(
 			mNativeDeviceSettings.mBeatCounterRect,
 			songTitleHeader,
 			songTitleHeaderLocation,
-			mSongLoadInfo.mLoadID
+			mSongLoadInfo.mLoadID,
+			mSongLoadInfo.mAudioLatency
 		)
 	}
 

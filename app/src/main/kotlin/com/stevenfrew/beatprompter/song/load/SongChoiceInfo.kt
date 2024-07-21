@@ -12,5 +12,6 @@ data class SongChoiceInfo(
 	val mMinFontSize: Float,
 	val mMaxFontSize: Float,
 	val mScreenSize: Rect,
-	val mNoAudio: Boolean
+	val mNoAudio: Boolean,
+	val mAudioLatency: Int
 )
