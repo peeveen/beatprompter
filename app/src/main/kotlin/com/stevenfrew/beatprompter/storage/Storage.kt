@@ -122,12 +122,18 @@ abstract class Storage protected constructor(
 
 	private fun getRootPath(listener: RootPathListener) {
 		val rootPathSource = PublishSubject.create<FolderInfo>()
-		val subscription = rootPathSource.subscribe(
-			{ listener.onRootPathFound(it) },
-			{ listener.onRootPathError(it) }
-		)
+		CompositeDisposable().apply {
+			add(
+				rootPathSource.subscribe({
+					listener.onRootPathFound(it)
+					this.dispose()
+				}, {
+					listener.onRootPathError(it)
+					this.dispose()
+				})
+			)
+		}
 		getRootPath(listener, rootPathSource)
-		subscription.dispose()
 	}
 
 	protected abstract fun getRootPath(
