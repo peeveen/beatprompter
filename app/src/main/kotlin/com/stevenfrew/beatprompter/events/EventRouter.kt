@@ -15,7 +15,6 @@ object EventRouter {
 		HashMap()
 	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
 	private var mSettingsEventHandler: SettingsEventHandler? = null
-	private var mCacheEventHandler: Cache.CacheEventHandler = Cache.CacheEventHandler
 
 	fun addSongListEventHandler(
 		key: String,
@@ -49,7 +48,7 @@ object EventRouter {
 
 	fun sendEventToCache(event: Int, arg: Any) =
 		synchronized(mCacheEventHandlerLock) {
-			mCacheEventHandler.obtainMessage(event, arg).sendToTarget()
+			Cache.CacheEventHandler.obtainMessage(event, arg).sendToTarget()
 		}
 
 	fun sendEventToSongDisplay(event: Int) =
