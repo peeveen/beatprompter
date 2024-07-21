@@ -448,7 +448,8 @@ class SongParser(
 					pauseTag,
 					lineStartTime + addToPause,
 					lineDuration,
-					beatEvents
+					beatEvents,
+					mSongLoadInfo.mAudioLatency
 				)
 
 				// Create the line
@@ -1097,7 +1098,8 @@ class SongParser(
 		pauseTag: PauseTag?,
 		lineStartTime: Long,
 		lineDuration: Long,
-		currentBeatEvents: EventBlock?
+		currentBeatEvents: EventBlock?,
+		audioLatency: Int
 	): Pair<Long, Long> {
 		// Calculate when this line should start scrolling
 		val startScrollTime =
@@ -1130,7 +1132,7 @@ class SongParser(
 
 		// Events are going to be offset later to compensate for audio latency.
 		// Lines, however, won't be. So we need to compensate NOW.
-		val audioLatencyOffset = Utils.milliToNano(Preferences.audioLatency)
+		val audioLatencyOffset = Utils.milliToNano(audioLatency)
 		return Pair(
 			startScrollTime + audioLatencyOffset,
 			stopScrollTime + audioLatencyOffset
