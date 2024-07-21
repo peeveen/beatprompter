@@ -98,23 +98,21 @@ abstract class Storage protected constructor(
 	fun selectFolder(parentActivity: Activity, listener: FolderSelectionListener) =
 		try {
 			getRootPath(object : RootPathListener {
-				override fun onRootPathFound(rootPath: FolderInfo) {
-					val dialog =
-						ChooseFolderDialog(parentActivity, this@Storage, listener, rootPath, parentActivity)
-					dialog.showDialog()
-				}
+				override fun onRootPathFound(rootPath: FolderInfo) =
+					ChooseFolderDialog(
+						parentActivity,
+						this@Storage,
+						listener,
+						rootPath,
+						parentActivity
+					).showDialog()
 
-				override fun onRootPathError(t: Throwable) {
+				override fun onRootPathError(t: Throwable) =
 					listener.onFolderSelectedError(t, mParentFragment.requireContext())
-				}
 
-				override fun onAuthenticationRequired() {
-					listener.onAuthenticationRequired()
-				}
+				override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 
-				override fun shouldCancel(): Boolean {
-					return listener.shouldCancel()
-				}
+				override fun shouldCancel(): Boolean = listener.shouldCancel()
 			})
 		} catch (e: Exception) {
 			listener.onFolderSelectedError(e, mParentFragment.requireContext())
