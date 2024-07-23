@@ -169,19 +169,17 @@ class SongFile(
 				}
 			} else null
 
-		private fun getAudioFilesFromElement(element: Element): Map<String, List<String>> {
-			val tagElements = element.getElementsByTagName(AUDIO_FILES_FOR_VARIATION_TAG)
-			val map = mutableMapOf<String, List<String>>()
-			var counter = 0
-			while (counter < tagElements.length) {
-				val tagElement = tagElements.item(counter) as Element
-				val variationName = tagElement.getAttribute(VARIATION_ATTRIBUTE)
-				val audioFiles = getStringsFromElement(tagElement, AUDIO_FILE_TAG)
-				map[variationName] = audioFiles
-				counter += 1
+		private fun getAudioFilesFromElement(element: Element): Map<String, List<String>> =
+			mutableMapOf<String, List<String>>().apply {
+				element.getElementsByTagName(AUDIO_FILES_FOR_VARIATION_TAG).also {
+					repeat(it.length) { index ->
+						val tagElement = it.item(index) as Element
+						val variationName = tagElement.getAttribute(VARIATION_ATTRIBUTE)
+						val audioFiles = getStringsFromElement(tagElement, AUDIO_FILE_TAG)
+						this[variationName] = audioFiles
+					}
+				}
 			}
-			return map
-		}
 
 		private fun getSongTriggerFromElement(
 			element: Element,
