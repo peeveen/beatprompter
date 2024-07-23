@@ -375,7 +375,7 @@ Em]zeigt den Beat Progression.\n
 	<string name="instructions">Anweisungen …</string>
 	<string name="pref_anyOtherKeyPageDown_title">Jede andere Taste ist eine Seite nach unten.</string>
 	<string name="pref_anyOtherKeyPageDown_summary">Jede andere Taste, die auf einer angeschlossenen Tastatur gedrückt wird, wirkt wie ein Abblättern.</string>
-	<string name="midi_bluetooth_string">Bluetooth (derzeit nicht unterstützt)</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 	<string name="midi_native_string">Native</string>
 	<string name="pref_chorusSectionHighlightColor_title">Farbe des Chorus-Abschnitts</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Hervorhebungsfarbe für Refrains.</string>

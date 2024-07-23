@@ -375,7 +375,7 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="instructions">Istruzioni …</string>
 	<string name="pref_anyOtherKeyPageDown_title">Qualsiasi altro tasto è page-down.</string>
 	<string name="pref_anyOtherKeyPageDown_summary">Qualsiasi altro tasto premuto su una tastiera collegata si comporterà come pagina-giù.</string>
-	<string name="midi_bluetooth_string">Bluetooth (attualmente non supportato)</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 	<string name="midi_native_string">Nativo</string>
 	<string name="pref_chorusSectionHighlightColor_title">Colore di evidenziazione della sezione del coro</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Evidenzia il colore per i cori.</string>

@@ -22,6 +22,7 @@ object Midi {
 
 		NativeMidiController(context, mSenderTask, mReceiverTasks)
 		UsbMidiController(context, mSenderTask, mReceiverTasks)
+		BluetoothMidiController(context, mSenderTask, mReceiverTasks)
 
 		mInitialised = true
 	}

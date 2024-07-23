@@ -2,19 +2,16 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 
 class NativeMidiController(
 	context: Context,
-	private val mSenderTask: SenderTask,
-	private val mReceiverTasks: ReceiverTasks
+	senderTask: SenderTask,
+	receiverTasks: ReceiverTasks
 ) {
 	private var mDeviceListener: MidiNativeDeviceListener? = null
 
@@ -22,7 +19,12 @@ class NativeMidiController(
 		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 			val manager =
 				context.getSystemService(Context.MIDI_SERVICE) as MidiManager
-			mDeviceListener = MidiNativeDeviceListener(manager)
+			mDeviceListener =
+				MidiNativeDeviceListener(
+					manager,
+					senderTask,
+					receiverTasks
+				) { deviceInfo, midiManager -> addNativeDevice(deviceInfo, midiManager) }
 			manager.apply {
 				registerDeviceCallback(mDeviceListener, null)
 				devices?.forEach {
@@ -35,44 +37,5 @@ class NativeMidiController(
 	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo, manager: MidiManager) {
 		if (Preferences.midiConnectionTypes.contains(ConnectionType.Native))
 			manager.openDevice(nativeDeviceInfo, mDeviceListener, null)
-	}
-
-	private inner class MidiNativeDeviceListener(private val mManager: MidiManager) :
-		MidiManager.OnDeviceOpenedListener,
-		MidiManager.DeviceCallback() {
-		override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) = addNativeDevice(deviceInfo, mManager)
-
-		override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
-			deviceInfo.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also {
-				mSenderTask.removeSender(it)
-				mReceiverTasks.stopAndRemoveReceiver(it)
-			}
-		}
-
-		override fun onDeviceOpened(openedDevice: MidiDevice?) {
-			try {
-				openedDevice?.apply {
-					info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
-						info.ports.forEach {
-							when (it.type) {
-								MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> mSenderTask.addSender(
-									deviceName,
-									NativeSender(openedDevice.openInputPort(it.portNumber), deviceName)
-								)
-
-								MidiDeviceInfo.PortInfo.TYPE_INPUT -> mReceiverTasks.addReceiver(
-									deviceName,
-									deviceName,
-									NativeReceiver(openedDevice.openOutputPort(it.portNumber), deviceName)
-								)
-							}
-						}
-						EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
-					}
-				}
-			} catch (ioException: Exception) {
-				// Obviously not for us.
-			}
-		}
 	}
 }

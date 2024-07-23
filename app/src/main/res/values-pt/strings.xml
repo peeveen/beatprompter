@@ -375,7 +375,7 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="instructions">Instruções …</string>
 	<string name="pref_anyOtherKeyPageDown_title">Qualquer outra chave é page-down.</string>
 	<string name="pref_anyOtherKeyPageDown_summary">Qualquer outra tecla pressionada em um teclado conectado atuará como page-down.</string>
-	<string name="midi_bluetooth_string">Bluetooth ( 23/5000 atualmente não suportado)</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 	<string name="midi_native_string">Nativo</string>
 	<string name="pref_chorusSectionHighlightColor_title">Cor de destaque de seção de coro</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Destaque cor para refrões.</string>

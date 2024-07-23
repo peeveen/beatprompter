@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.comm.midi
 
+import android.media.midi.MidiDevice
 import android.media.midi.MidiOutputPort
 import android.media.midi.MidiReceiver
 import com.stevenfrew.beatprompter.comm.ReceiverTask
@@ -7,6 +8,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 class NativeReceiver(
+	// Annoyingly, if we don't keep a hold of the MIDI device reference for Bluetooth MIDI, then
+	// it automatically closes. So I'm storing it here.
+	private val mDevice: MidiDevice,
 	private val mPort: MidiOutputPort,
 	name: String
 ) : Receiver(name) {
@@ -34,10 +38,8 @@ class NativeReceiver(
 				if (it != 0) {
 					System.arraycopy(mInnerBuffer, 0, buffer, offset, it)
 					mInnerBufferPosition -= it
-				} else {
-					if (mClosed)
-						throw Exception("Cannot read data, MIDI connection is closed.")
-				}
+				} else if (mClosed)
+					throw Exception("Cannot read data, MIDI connection is closed.")
 			}
 		}
 
