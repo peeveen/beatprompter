@@ -37,7 +37,7 @@ class ReceiverTasks {
 		Logger.logComms { "Stopped receiver task '$id'" }
 	}
 
-	fun stopAll() =
+	fun stopAndRemoveAll() =
 		synchronized(mReceiverThreadsLock) {
 			Logger.logComms("Stopping ALL receiver tasks")
 			mReceiverThreads.keys.forEach {

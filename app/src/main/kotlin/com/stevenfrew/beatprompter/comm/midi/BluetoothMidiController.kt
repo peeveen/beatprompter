@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.IntentFilter
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.media.midi.MidiManager
 import com.stevenfrew.beatprompter.BeatPrompter
@@ -26,8 +27,10 @@ class BluetoothMidiController(
 	// Threads that watch for client/server connections, and an object to synchronize their
 	// use.
 	private var mBluetoothAdapter: BluetoothAdapter? = null
+	private val mPrefsListener: OnSharedPreferenceChangeListener?
 
 	init {
+		var prefsListener: OnSharedPreferenceChangeListener? = null
 		Bluetooth.getBluetoothAdapter(context)?.also {
 			if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 				val manager =
@@ -57,23 +60,31 @@ class BluetoothMidiController(
 						IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED)
 					)
 				}
-				Preferences.registerOnSharedPreferenceChangeListener { _, key ->
-					val midiBluetoothKey =
-						BeatPrompter.appResources.getString(R.string.pref_midiConnectionTypes_key)
-					val bluetoothMidiDevicesKey =
-						BeatPrompter.appResources.getString(R.string.pref_bluetoothMidiDevices_key)
-					when (key) {
-						bluetoothMidiDevicesKey, midiBluetoothKey -> {
-							Logger.logComms("Bluetooth MIDI connection types changed.")
-							if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth))
-								attemptMidiConnections(context, manager)
-							else
-								onStopBluetooth()
+				prefsListener =
+					OnSharedPreferenceChangeListener { prefs, key ->
+						val midiBluetoothKey =
+							BeatPrompter.appResources.getString(R.string.pref_midiConnectionTypes_key)
+						val bluetoothMidiDevicesKey =
+							BeatPrompter.appResources.getString(R.string.pref_bluetoothMidiDevices_key)
+						when (key) {
+							bluetoothMidiDevicesKey, midiBluetoothKey -> {
+								Logger.logComms("Removing all Bluetooth MIDI senders & receivers.")
+								senderTask.removeAll()
+								receiverTasks.stopAndRemoveAll()
+								Logger.logComms("Bluetooth MIDI connection types or target devices changed ... restarting connections.")
+								if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth))
+									attemptMidiConnections(context, manager)
+								else
+									onStopBluetooth()
+							}
 						}
 					}
-				}
 				attemptMidiConnections(context, manager)
 			}
+		}
+		mPrefsListener = prefsListener
+		mPrefsListener?.also {
+			Preferences.registerOnSharedPreferenceChangeListener(it)
 		}
 	}
 

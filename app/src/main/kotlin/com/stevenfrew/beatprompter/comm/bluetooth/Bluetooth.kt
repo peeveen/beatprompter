@@ -24,6 +24,7 @@ object Bluetooth {
 	private val mSenderTask = SenderTask(mBluetoothOutQueue)
 	private val mReceiverTasks = ReceiverTasks()
 	private val mSenderTaskThread = Thread(mSenderTask)
+	private var mBandBluetoothController: BandBluetoothController? = null
 
 	/**
 	 * Called when the app starts. Doing basic Bluetooth setup.
@@ -32,7 +33,7 @@ object Bluetooth {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
 
-		BandBluetoothController(context, mSenderTask, mReceiverTasks)
+		mBandBluetoothController = BandBluetoothController(context, mSenderTask, mReceiverTasks)
 
 		mInitialised = true
 	}

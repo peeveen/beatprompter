@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.IntentFilter
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
@@ -37,8 +38,10 @@ class BandBluetoothController(
 	private var mServerBluetoothThread: ServerThread? = null
 	private var mConnectToBandLeaderThread: ConnectToServerThread? = null
 	private var mBluetoothAdapter: BluetoothAdapter? = null
+	private val mPrefsListener: OnSharedPreferenceChangeListener?
 
 	init {
+		var prefsListener: OnSharedPreferenceChangeListener? = null
 		Bluetooth.getBluetoothAdapter(context)?.also {
 			mBluetoothAdapter = it
 			Logger.logComms("Bluetooth adapter found.")
@@ -62,29 +65,30 @@ class BandBluetoothController(
 					IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED)
 				)
 			}
-			Preferences.registerOnSharedPreferenceChangeListener { _, key ->
-				val bluetoothModeKey =
-					BeatPrompter.appResources.getString(R.string.pref_bluetoothMode_key)
-				val bandLeaderDeviceKey =
-					BeatPrompter.appResources.getString(R.string.pref_bandLeaderDevice_key)
-				when (key) {
-					bluetoothModeKey -> {
-						Logger.logComms("Bluetooth mode changed.")
-						if (Preferences.bluetoothMode === BluetoothMode.None)
-							onStopBluetooth()
-						else
-							onStartBluetooth(context, it)
-					}
+			prefsListener =
+				OnSharedPreferenceChangeListener { _, key ->
+					val bluetoothModeKey =
+						BeatPrompter.appResources.getString(R.string.pref_bluetoothMode_key)
+					val bandLeaderDeviceKey =
+						BeatPrompter.appResources.getString(R.string.pref_bandLeaderDevice_key)
+					when (key) {
+						bluetoothModeKey -> {
+							Logger.logComms("Bluetooth mode changed.")
+							if (Preferences.bluetoothMode === BluetoothMode.None)
+								onStopBluetooth()
+							else
+								onStartBluetooth(context, it)
+						}
 
-					bandLeaderDeviceKey -> {
-						Logger.logComms("Band leader device changed.")
-						if (Preferences.bluetoothMode === BluetoothMode.Client) {
-							shutDownBluetoothClient()
-							startBluetoothWatcherThreads(context, it)
+						bandLeaderDeviceKey -> {
+							Logger.logComms("Band leader device changed.")
+							if (Preferences.bluetoothMode === BluetoothMode.Client) {
+								shutDownBluetoothClient()
+								startBluetoothWatcherThreads(context, it)
+							}
 						}
 					}
 				}
-			}
 			onBluetoothActivation(context, it)
 
 			launch {
@@ -93,6 +97,10 @@ class BandBluetoothController(
 					delay(1000)
 				}
 			}
+		}
+		mPrefsListener = prefsListener
+		mPrefsListener?.also {
+			Preferences.registerOnSharedPreferenceChangeListener(it)
 		}
 	}
 
@@ -144,7 +152,7 @@ class BandBluetoothController(
 	 * the server.
 	 */
 	private fun shutDownBluetoothClient() {
-		mReceiverTasks.stopAll()
+		mReceiverTasks.stopAndRemoveAll()
 		Logger.logComms("Shutting down the Bluetooth client threads.")
 		synchronized(mBluetoothThreadsLock) {
 			if (mConnectToBandLeaderThread != null)
