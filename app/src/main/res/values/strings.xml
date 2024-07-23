@@ -576,7 +576,7 @@
 	<string name="pref_cloudStorageSystem_summary">Where are your song files stored?</string>
 	<string name="pref_cloudStorageSystem_dialogTitle">Storage System</string>
 
-	<string name="pref_midiConnectionTypes_key" translatable="false">pref_midiConnectionType</string>
+	<string name="pref_midiConnectionTypes_key" translatable="false">pref_midiConnectionTypes</string>
 	<string name="pref_midiConnectionTypes_title">Connection Type</string>
 	<string name="pref_midiConnectionTypes_defaultValue" translatable="false">USBOnTheGo,Native,Bluetooth</string>
 	<string name="pref_midiConnectionTypes_summary">What type of MIDI connection do you use?</string>
