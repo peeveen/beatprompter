@@ -412,4 +412,5 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="failedToReadDatabaseItem">Échec de la lecture de l\'élément de base de données</string>
 	<string name="pref_audioLatency_message">Quantité de latence à compenser lors de la lecture audio.</string>
 	<string name="pref_audioLatency_title">Latence audio</string>
+	<string name="retryingDownload">Synchronisation %1$s (recommencez %2$d/%3$d)</string>
 </resources>

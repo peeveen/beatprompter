@@ -794,4 +794,6 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="readingDatabase">Reading database …</string>
 	<string name="failedToReadDatabaseItem">Failed to read database item</string>
+
+	<string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
 </resources>

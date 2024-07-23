@@ -226,7 +226,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		}
 	}
 
-	private class DownloadGoogleDriveFilesTask(
+	private inner class DownloadGoogleDriveFilesTask(
 		val mClient: com.google.api.services.drive.Drive,
 		val mListener: StorageListener,
 		val mItemSource: PublishSubject<DownloadResult>,
@@ -251,45 +251,41 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
-			for (cloudFile in mFilesToDownload) {
-				if (mListener.shouldCancel())
-					break
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) =
+			this@GoogleDriveStorage.downloadFiles(
+				mFilesToDownload,
+				mListener,
+				mItemSource,
+				mMessageSource
+			) {
 				try {
-					val file = mClient.files().get(cloudFile.mID)
+					val file = mClient.files().get(it.mID)
 						.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD).execute()
-					val result = if (!file.trashed) {
+					if (!file.trashed) {
 						val title = file.name
 						Logger.log { "File title: $title" }
-						val safeFilename = Utils.makeSafeFilename(cloudFile.mID)
+						val safeFilename = Utils.makeSafeFilename(it.mID)
 						Logger.log { "Safe filename: $safeFilename" }
 						Logger.log("Downloading now ...")
-						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
-						if (mListener.shouldCancel())
-							break
-						val localFile = downloadGoogleDriveFile(file, safeFilename)
-						val updatedCloudFile = FileInfo(
-							cloudFile.mID, file.name, Date(file.modifiedTime.value),
-							cloudFile.mSubfolderIDs
-						)
-						SuccessfulDownloadResult(updatedCloudFile, localFile)
+						if (!mListener.shouldCancel()) {
+							val localFile = downloadGoogleDriveFile(file, safeFilename)
+							val updatedCloudFile = FileInfo(
+								it.mID, file.name, Date(file.modifiedTime.value),
+								it.mSubfolderIDs
+							)
+							SuccessfulDownloadResult(updatedCloudFile, localFile)
+						} else
+							FailedDownloadResult(it)
 					} else
-						FailedDownloadResult(cloudFile)
-					mItemSource.onNext(result)
-					if (mListener.shouldCancel())
-						break
+						FailedDownloadResult(it)
 				} catch (jsonException: GoogleJsonResponseException) {
 					// You get a 404 if the document has been 100% deleted.
 					if (jsonException.statusCode == 404)
-						mItemSource.onNext(FailedDownloadResult(cloudFile))
-					else {
-						mItemSource.onError(jsonException)
-						return
-					}
+						FailedDownloadResult(it)
+					else
+						throw jsonException
 				}
 			}
-			mItemSource.onComplete()
-		}
 
 		private fun downloadGoogleDriveFile(
 			file: com.google.api.services.drive.model.File,

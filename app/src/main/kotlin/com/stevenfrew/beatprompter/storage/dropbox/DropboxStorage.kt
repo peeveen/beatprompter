@@ -62,50 +62,35 @@ class DropboxStorage(parentFragment: Fragment) :
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>,
 		filesToDownload: List<FileInfo>
-	) {
-		for (file in filesToDownload) {
-			if (listener.shouldCancel())
-				break
-			try {
-				val metadata = client.files().getMetadata(file.mID)
-				val result = if (metadata is FileMetadata) {
-					val title = file.mName
-					Logger.log { "File title: $title" }
-					messageSource.onNext(BeatPrompter.appResources.getString(R.string.checking, title))
-					val safeFilename = Utils.makeSafeFilename(title)
-					val targetFile = File(cacheFolder, safeFilename)
-					Logger.log { "Safe filename: $safeFilename" }
+	) = downloadFiles(filesToDownload, listener, itemSource, messageSource) {
+		try {
+			val metadata = client.files().getMetadata(it.mID)
+			if (metadata is FileMetadata) {
+				val title = it.mName
+				Logger.log { "File title: $title" }
+				val safeFilename = Utils.makeSafeFilename(title)
+				val targetFile = File(cacheFolder, safeFilename)
+				Logger.log { "Safe filename: $safeFilename" }
 
-					Logger.log("Downloading now ...")
-					messageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
-					// Don't check lastModified ... ALWAYS download.
-					if (listener.shouldCancel())
-						break
+				Logger.log("Downloading now ...")
+				// Don't check lastModified ... ALWAYS download.
+				if (!listener.shouldCancel()) {
 					val localFile = downloadDropboxFile(client, metadata, targetFile)
 					val updatedCloudFile = FileInfo(
-						file.mID, metadata.name, metadata.serverModified,
-						file.mSubfolderIDs
+						it.mID, metadata.name, metadata.serverModified,
+						it.mSubfolderIDs
 					)
 					SuccessfulDownloadResult(updatedCloudFile, localFile)
 				} else
-					FailedDownloadResult(file)
-				itemSource.onNext(result)
-				if (listener.shouldCancel())
-					break
-			} catch (metadataException: GetMetadataErrorException) {
-				if (metadataException.errorValue.pathValue.isNotFound)
-					itemSource.onNext(FailedDownloadResult(file))
-				else {
-					itemSource.onError(metadataException)
-					return
-				}
-			} catch (e: Exception) {
-				itemSource.onError(e)
-				return
-			}
-
+					FailedDownloadResult(it)
+			} else
+				FailedDownloadResult(it)
+		} catch (metadataException: GetMetadataErrorException) {
+			if (metadataException.errorValue.pathValue.isNotFound)
+				FailedDownloadResult(it)
+			else
+				throw metadataException
 		}
-		itemSource.onComplete()
 	}
 
 	private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localFile: File): File =

@@ -412,4 +412,5 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="failedToReadDatabaseItem">Falha ao ler o item da base de dados</string>
 	<string name="pref_audioLatency_message">Quantidade de latência a ser compensada na reprodução de áudio.</string>
 	<string name="pref_audioLatency_title">Latência de áudio</string>
+	<string name="retryingDownload">Sincronizando %1$s (tente novamente %2$d/%3$d)</string>
 </resources>

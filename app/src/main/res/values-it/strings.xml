@@ -412,4 +412,5 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="failedToReadDatabaseItem">Impossibile leggere l\'elemento del database</string>
 	<string name="pref_audioLatency_message">Quantità di latenza da compensare nella riproduzione audio.</string>
 	<string name="pref_audioLatency_title">Latenza audio</string>
+	<string name="retryingDownload">Sincronizzazione %1$s (riprovare %2$d/%3$d)</string>
 </resources>

@@ -412,4 +412,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="failedToReadDatabaseItem">Das Lesen des Datenbankelements ist fehlgeschlagen</string>
 	<string name="pref_audioLatency_message">Zu kompensierende Latenzmenge bei der Audiowiedergabe.</string>
 	<string name="pref_audioLatency_title">Audio-Latenz</string>
+	<string name="retryingDownload">" Synchronisieren %1$s (wiederholen %2$d/%3$d)"</string>
 </resources>

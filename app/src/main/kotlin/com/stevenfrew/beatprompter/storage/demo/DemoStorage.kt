@@ -2,10 +2,10 @@ package com.stevenfrew.beatprompter.storage.demo
 
 import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.DownloadResult
+import com.stevenfrew.beatprompter.storage.FailedDownloadResult
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
@@ -17,7 +17,6 @@ import io.reactivex.subjects.PublishSubject
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStreamWriter
 import java.util.Date
 
@@ -44,33 +43,13 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 		storageListener: StorageListener,
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>
-	) {
-		for (cloudFile in filesToRefresh) {
-			try {
-				if (cloudFile.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true)) {
-					messageSource.onNext(
-						BeatPrompter.appResources.getString(
-							R.string.downloading,
-							DEMO_SONG_FILENAME
-						)
-					)
-					itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongTextFile()))
-				} else if (cloudFile.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true)) {
-					messageSource.onNext(
-						BeatPrompter.appResources.getString(
-							R.string.downloading,
-							DEMO_SONG_AUDIO_FILENAME
-						)
-					)
-					itemSource.onNext(SuccessfulDownloadResult(cloudFile, createDemoSongAudioFile()))
-				}
-			} catch (ioe: IOException) {
-				Logger.log("Failed to create demo file", ioe)
-				itemSource.onError(ioe)
-				return
-			}
-		}
-		itemSource.onComplete()
+	) = downloadFiles(filesToRefresh, storageListener, itemSource, messageSource) {
+		if (it.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true))
+			SuccessfulDownloadResult(it, createDemoSongTextFile())
+		else if (it.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true))
+			SuccessfulDownloadResult(it, createDemoSongAudioFile())
+		else
+			FailedDownloadResult(it)
 	}
 
 	override fun readFolderContents(
