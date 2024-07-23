@@ -60,8 +60,10 @@ class BluetoothMidiController(
 				Preferences.registerOnSharedPreferenceChangeListener { _, key ->
 					val midiBluetoothKey =
 						BeatPrompter.appResources.getString(R.string.pref_midiConnectionTypes_key)
+					val bluetoothMidiDevicesKey =
+						BeatPrompter.appResources.getString(R.string.pref_bluetoothMidiDevices_key)
 					when (key) {
-						midiBluetoothKey -> {
+						bluetoothMidiDevicesKey, midiBluetoothKey -> {
 							Logger.logComms("Bluetooth MIDI connection types changed.")
 							if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth))
 								attemptMidiConnections(context, manager)
@@ -83,7 +85,10 @@ class BluetoothMidiController(
 	}
 
 	private fun attemptMidiConnections(context: Context, manager: MidiManager) =
-		Bluetooth.getPairedDevices(context).forEach { attemptMidiConnection(manager, it) }
+		Preferences.bluetoothMidiDevices.run {
+			Bluetooth.getPairedDevices(context).filter { contains(it.address) }
+				.forEach { attemptMidiConnection(manager, it) }
+		}
 
 	private fun attemptMidiConnection(
 		manager: MidiManager,

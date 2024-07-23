@@ -25,6 +25,12 @@ object Preferences {
 			setOf(ConnectionType.USBOnTheGo)
 		}
 
+	val bluetoothMidiDevices: Set<String>
+		get() = getStringSetPreference(
+			R.string.pref_bluetoothMidiDevices_key,
+			BeatPrompter.appResources.getStringSet(R.array.pref_bluetoothMidiDevices_defaultValues)
+		).toSet()
+
 	var darkMode: Boolean
 		get() = getBooleanPreference(
 			R.string.pref_darkMode_key,

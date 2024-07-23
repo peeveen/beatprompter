@@ -13,6 +13,16 @@
 		android:positiveButtonText="@android:string/ok"
 		android:summary="@string/pref_midiConnectionTypes_summary"
 		android:title="@string/pref_midiConnectionTypes_title" />
+	<com.stevenfrew.beatprompter.ui.pref.BluetoothMidiDevicesPreference
+		android:defaultValue="@array/pref_bluetoothMidiDevices_defaultValues"
+		android:dialogTitle="@string/pref_bluetoothMidiDevices_dialogTitle"
+		android:key="@string/pref_bluetoothMidiDevices_key"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_bluetoothMidiDevices_summary"
+		android:title="@string/pref_bluetoothMidiDevices_title"
+		app:iconSpaceReserved="false"
+		sf:singleSelect="false" />
 	<com.stevenfrew.beatprompter.ui.pref.MidiChannelPreference
 		android:defaultValue="@string/pref_midiIncomingChannels_default"
 		android:dialogLayout="@layout/midi_channel_preference_dialog"
