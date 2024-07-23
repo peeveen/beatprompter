@@ -323,7 +323,7 @@ object Cache {
 			clearTemporarySetList(context)
 		val cs = Storage.getInstance(Preferences.storageSystem, parentFragment)
 		val cloudPath = cloudPath
-		return if (cloudPath.isNullOrBlank()) {
+		return if (cloudPath.isBlank()) {
 			Toast.makeText(
 				context,
 				context.getString(R.string.no_cloud_folder_currently_set),

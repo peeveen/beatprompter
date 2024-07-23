@@ -652,7 +652,8 @@ class SongListFragment
 		FontSizePreference.FONT_SIZE_MIN = 0
 		FontSizePreference.FONT_SIZE_OFFSET = Utils.MINIMUM_FONT_SIZE
 
-		if (Preferences.firstRun) {
+		val firstRun = Preferences.firstRun
+		if (firstRun) {
 			Preferences.firstRun = false
 			showFirstRunMessages()
 		}
@@ -660,7 +661,7 @@ class SongListFragment
 		ReadCacheTask(
 			requireContext(),
 			Cache.CacheEventHandler
-		) { onDatabaseReadCompleted(it) }.execute(Unit)
+		) { onDatabaseReadCompleted(it, firstRun) }.execute(Unit)
 	}
 
 	override fun onCreateView(
@@ -669,8 +670,8 @@ class SongListFragment
 		savedInstanceState: Bundle?
 	): View? = inflater.inflate(R.layout.activity_song_list, container, false)
 
-	private fun onDatabaseReadCompleted(databaseExists: Boolean) {
-		if (!databaseExists) {
+	private fun onDatabaseReadCompleted(databaseExists: Boolean, firstRun: Boolean) {
+		if (!databaseExists && firstRun) {
 			Preferences.storageSystem = StorageType.Demo
 			Preferences.cloudPath = "/"
 			Cache.performFullCloudSync(this)
