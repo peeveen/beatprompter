@@ -8,31 +8,31 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
  * Represents one entry from a set list file.
  */
 class SetListEntry private constructor(
-	private val mNormalizedTitle: String,
-	private val mNormalizedArtist: String
+	private val normalizedTitle: String,
+	private val normalizedArtist: String
 ) {
 	private constructor(titleAndArtist: Pair<String, String>)
 		: this(titleAndArtist.first, titleAndArtist.second)
 
 	constructor(songFile: SongFile)
-		: this(songFile.mNormalizedTitle, songFile.mNormalizedArtist)
+		: this(songFile.normalizedTitle, songFile.normalizedArtist)
 
 	constructor(setListFileLine: String)
 		: this(getTitleAndArtistFromSetListLine(setListFileLine))
 
 	fun matches(songFile: SongFile): SetListMatch =
-		if (songFile.mNormalizedTitle.equals(mNormalizedTitle, true)) {
-			if (songFile.mNormalizedArtist.equals(mNormalizedArtist, true))
+		if (songFile.normalizedTitle.equals(normalizedTitle, true)) {
+			if (songFile.normalizedArtist.equals(normalizedArtist, true))
 				SetListMatch.TitleAndArtistMatch
 			SetListMatch.TitleMatch
 		} else
 			SetListMatch.NoMatch
 
 	fun toDisplayString(): String =
-		if (mNormalizedArtist.isBlank()) mNormalizedTitle
-		else "$mNormalizedArtist - $mNormalizedTitle"
+		if (normalizedArtist.isBlank()) normalizedTitle
+		else "$normalizedArtist - $normalizedTitle"
 
-	override fun toString(): String = mNormalizedTitle + SET_LIST_ENTRY_DELIMITER + mNormalizedArtist
+	override fun toString(): String = normalizedTitle + SET_LIST_ENTRY_DELIMITER + normalizedArtist
 
 	companion object {
 		private const val SET_LIST_ENTRY_DELIMITER = "==="

@@ -16,33 +16,33 @@ import org.w3c.dom.Element
  */
 class SongFile(
 	cachedFile: CachedFile,
-	val mLines: Int,
-	val mBars: Int,
-	val mTitle: String,
-	val mArtist: String,
-	val mKey: String,
-	val mBPM: Double,
-	val mDuration: Long,
-	val mMixedMode: Boolean,
-	val mTotalPauses: Long,
-	val mAudioFiles: Map<String, List<String>>,
-	val mImageFiles: List<String>,
-	val mTags: Set<String>,
-	val mProgramChangeTrigger: SongTrigger,
-	val mSongSelectTrigger: SongTrigger,
-	val mFilterOnly: Boolean,
-	val mRating: Int,
-	val mVariations: List<String>,
+	val lines: Int,
+	val bars: Int,
+	val title: String,
+	val artist: String,
+	val key: String,
+	val bpm: Double,
+	val duration: Long,
+	val isMixedMode: Boolean,
+	val totalPauseDuration: Long,
+	val audioFiles: Map<String, List<String>>,
+	val imageFiles: List<String>,
+	val tags: Set<String>,
+	val programChangeTrigger: SongTrigger,
+	val songSelectTrigger: SongTrigger,
+	val isFilterOnly: Boolean,
+	val rating: Int,
+	val variations: List<String>,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors) {
-	val mNormalizedArtist = mArtist.normalize()
-	val mNormalizedTitle = mTitle.normalize()
-	val mSortableArtist = sortableString(mArtist)
-	val mSortableTitle = sortableString(mTitle)
+	val normalizedArtist = artist.normalize()
+	val normalizedTitle = title.normalize()
+	val sortableArtist = sortableString(artist)
+	val sortableTitle = sortableString(title)
 	val isSmoothScrollable
-		get() = mDuration > 0
+		get() = duration > 0
 	val isBeatScrollable
-		get() = mBPM > 0.0
+		get() = bpm > 0.0
 	val bestScrollingMode
 		get() = when {
 			isBeatScrollable -> ScrollingMode.Beat
@@ -51,31 +51,31 @@ class SongFile(
 		}
 
 	fun matchesTrigger(trigger: SongTrigger): Boolean =
-		mSongSelectTrigger == trigger || mProgramChangeTrigger == trigger
+		songSelectTrigger == trigger || programChangeTrigger == trigger
 
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
-		element.setAttribute(TITLE_ATTRIBUTE, mTitle)
-		element.setAttribute(ARTIST_ATTRIBUTE, mArtist)
-		element.setAttribute(LINES_ATTRIBUTE, "$mLines")
-		element.setAttribute(BARS_ATTRIBUTE, "$mBars")
-		element.setAttribute(KEY_ATTRIBUTE, mKey)
-		element.setAttribute(BPM_ATTRIBUTE, "$mBPM")
-		element.setAttribute(DURATION_ATTRIBUTE, "$mDuration")
-		element.setAttribute(MIXED_MODE_ATTRIBUTE, "$mMixedMode")
-		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$mTotalPauses")
-		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$mFilterOnly")
-		element.setAttribute(RATING_ATTRIBUTE, "$mRating")
+		element.setAttribute(TITLE_ATTRIBUTE, title)
+		element.setAttribute(ARTIST_ATTRIBUTE, artist)
+		element.setAttribute(LINES_ATTRIBUTE, "$lines")
+		element.setAttribute(BARS_ATTRIBUTE, "$bars")
+		element.setAttribute(KEY_ATTRIBUTE, key)
+		element.setAttribute(BPM_ATTRIBUTE, "$bpm")
+		element.setAttribute(DURATION_ATTRIBUTE, "$duration")
+		element.setAttribute(MIXED_MODE_ATTRIBUTE, "$isMixedMode")
+		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
+		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
+		element.setAttribute(RATING_ATTRIBUTE, "$rating")
 
-		writeStringsToElement(doc, element, TAG_TAG, mTags)
-		writeStringsToElement(doc, element, IMAGE_FILE_TAG, mImageFiles)
-		writeStringsToElement(doc, element, VARIATION_TAG, mVariations)
+		writeStringsToElement(doc, element, TAG_TAG, tags)
+		writeStringsToElement(doc, element, IMAGE_FILE_TAG, imageFiles)
+		writeStringsToElement(doc, element, VARIATION_TAG, variations)
 
-		writeAudioFilesToElement(doc, element, mAudioFiles)
-		if (!mSongSelectTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, mSongSelectTrigger)
-		if (!mProgramChangeTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, mProgramChangeTrigger)
+		writeAudioFilesToElement(doc, element, audioFiles)
+		if (!songSelectTrigger.isDeadTrigger)
+			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
+		if (!programChangeTrigger.isDeadTrigger)
+			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
 	}
 
 	companion object {

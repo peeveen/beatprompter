@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
 object NativeMidiController {
-	private var mDeviceListener: MidiNativeDeviceListener? = null
+	private var deviceListener: MidiNativeDeviceListener? = null
 
 	fun initialize(
 		context: Context,
@@ -20,7 +20,7 @@ object NativeMidiController {
 		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 			val manager =
 				context.getSystemService(Context.MIDI_SERVICE) as MidiManager
-			mDeviceListener =
+			deviceListener =
 				MidiNativeDeviceListener(
 					CommunicationType.Midi,
 					manager,
@@ -28,7 +28,7 @@ object NativeMidiController {
 					receiverTasks
 				) { deviceInfo, midiManager -> addNativeDevice(deviceInfo, midiManager) }
 			manager.apply {
-				registerDeviceCallback(mDeviceListener, null)
+				registerDeviceCallback(deviceListener, null)
 				devices?.forEach {
 					addNativeDevice(it, manager)
 				}
@@ -38,6 +38,6 @@ object NativeMidiController {
 
 	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo, manager: MidiManager) {
 		if (Preferences.midiConnectionTypes.contains(ConnectionType.Native))
-			manager.openDevice(nativeDeviceInfo, mDeviceListener, null)
+			manager.openDevice(nativeDeviceInfo, deviceListener, null)
 	}
 }

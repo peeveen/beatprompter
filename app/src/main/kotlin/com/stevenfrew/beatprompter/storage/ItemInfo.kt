@@ -4,8 +4,8 @@ package com.stevenfrew.beatprompter.storage
  * Base class for all items stored in a storage system.
  */
 abstract class ItemInfo internal constructor(
-	val mID: String,
-	val mName: String
+	val id: String,
+	val name: String
 ) : Comparable<ItemInfo> {
 	override operator fun compareTo(other: ItemInfo): Int {
 		val thisIsFolder = isFolder
@@ -15,7 +15,7 @@ abstract class ItemInfo internal constructor(
 		else if (!thisIsFolder && otherIsFolder)
 			1
 		else
-			mName.lowercase().compareTo(other.mName.lowercase())
+			name.lowercase().compareTo(other.name.lowercase())
 	}
 
 	abstract val isFolder: Boolean

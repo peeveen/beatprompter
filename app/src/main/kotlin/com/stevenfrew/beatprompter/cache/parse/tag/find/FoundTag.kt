@@ -4,9 +4,9 @@ package com.stevenfrew.beatprompter.cache.parse.tag.find
  * Describes a found tag.
  */
 data class FoundTag(
-	val mStart: Int,
-	val mEnd: Int,
-	val mName: String,
-	val mValue: String,
-	val mType: Type
+	val start: Int,
+	val end: Int,
+	val name: String,
+	val value: String,
+	val type: Type
 )

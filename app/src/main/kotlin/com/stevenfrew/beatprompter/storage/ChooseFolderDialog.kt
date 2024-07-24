@@ -28,55 +28,54 @@ import kotlin.coroutines.CoroutineContext
  * Dialog allowing the user to choose the folder to use as the source for data.
  */
 internal class ChooseFolderDialog(
-	private val mActivity: Activity,
-	private val mStorage: Storage,
+	private val activity: Activity,
+	private val storage: Storage,
 	listener: FolderSelectionListener,
-	private var mCurrentFolder: FolderInfo,
-	private val mContext: Context
+	private var currentFolder: FolderInfo
 ) : DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, FolderSearchListener {
-	private var mFolderSearchError: Throwable? = null
-	private val mDialog: Dialog = Dialog(mActivity, R.style.FolderBrowserDialog)
-	private val mFolderSelectionEventSubscription: CompositeDisposable
-	private var mParentFolder: FolderInfo? = null
-	private val mHandler: FolderContentsFetchHandler
-	private var mFolderFetcher: FolderFetcherTask? = null
-	private val mFolderSelectionSource = PublishSubject.create<FolderInfo?>()
-	private val mDisplayItems = ArrayList<ItemInfo>()
-	private var mShouldCancel: Boolean = false
+	private var folderSearchError: Throwable? = null
+	private val dialog: Dialog = Dialog(activity, R.style.FolderBrowserDialog)
+	private val folderSelectionEventSubscription: CompositeDisposable
+	private var parentFolder: FolderInfo? = null
+	private val handler: FolderContentsFetchHandler
+	private var folderFetcher: FolderFetcherTask? = null
+	private val folderSelectionSource = PublishSubject.create<FolderInfo?>()
+	private val displayItems = ArrayList<ItemInfo>()
+	private var shouldCancel: Boolean = false
 
-	internal class FolderContentsFetchHandler(private var mChooseFolderDialog: ChooseFolderDialog) :
+	internal class FolderContentsFetchHandler(private var chooseFolderDialog: ChooseFolderDialog) :
 		Handler() {
 		override fun handleMessage(msg: Message) {
 			@Suppress("UNCHECKED_CAST")
 			when (msg.what) {
-				Events.FOLDER_CONTENTS_FETCHED -> mChooseFolderDialog.populateBrowser(msg.obj as MutableList<ItemInfo>)
-				Events.FOLDER_CONTENTS_FETCHING -> mChooseFolderDialog.updateProgress(msg.arg1, msg.arg2)
+				Events.FOLDER_CONTENTS_FETCHED -> chooseFolderDialog.populateBrowser(msg.obj as MutableList<ItemInfo>)
+				Events.FOLDER_CONTENTS_FETCHING -> chooseFolderDialog.updateProgress(msg.arg1, msg.arg2)
 			}
 		}
 	}
 
 	init {
 		val thisDialog = this
-		mDialog.apply {
+		dialog.apply {
 			requestWindowFeature(Window.FEATURE_LEFT_ICON)
 			setContentView(R.layout.choose_folder_dialog_loading)
 			setCanceledOnTouchOutside(false)
-			setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, mStorage.cloudIconResourceId)
-			mDialog.setOnCancelListener(thisDialog)
-			mDialog.setOnDismissListener(thisDialog)
+			setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, storage.cloudIconResourceId)
+			dialog.setOnCancelListener(thisDialog)
+			dialog.setOnDismissListener(thisDialog)
 		}
 
-		mHandler = FolderContentsFetchHandler(this)
-		mFolderSelectionEventSubscription = CompositeDisposable().apply {
+		handler = FolderContentsFetchHandler(this)
+		folderSelectionEventSubscription = CompositeDisposable().apply {
 			add(
-				mFolderSelectionSource.subscribe(
+				folderSelectionSource.subscribe(
 					{ listener.onFolderSelected(it) },
-					{ listener.onFolderSelectedError(it, mActivity) },
+					{ listener.onFolderSelectedError(it, activity) },
 					{ listener.onFolderSelectionComplete() })
 			)
 		}
 
-		mDialog.findViewById<TextView>(android.R.id.title).apply {
+		dialog.findViewById<TextView>(android.R.id.title).apply {
 			ellipsize = TextUtils.TruncateAt.END
 			setLines(1)
 			setHorizontallyScrolling(true)
@@ -84,50 +83,50 @@ internal class ChooseFolderDialog(
 	}
 
 	fun showDialog() {
-		refresh(mCurrentFolder)
-		mDialog.apply {
-			setTitle(getDisplayPath(mCurrentFolder))
+		refresh(currentFolder)
+		dialog.apply {
+			setTitle(getDisplayPath(currentFolder))
 			show()
 		}
 	}
 
 	private fun setNewPath(newFolder: FolderInfo) {
-		mFolderSelectionSource.onNext(newFolder)
-		mDialog.dismiss()
+		folderSelectionSource.onNext(newFolder)
+		dialog.dismiss()
 	}
 
 	private fun refresh(folder: FolderInfo?) {
 		if (folder == null)
 			return
-		mCurrentFolder = folder
-		mParentFolder = folder.mParentFolder
+		currentFolder = folder
+		parentFolder = folder.parentFolder
 		cancelFolderFetcher()
-		mDisplayItems.clear()
-		mFolderFetcher = FolderFetcherTask(mStorage, this)
-		mFolderFetcher!!.execute(mCurrentFolder)
+		displayItems.clear()
+		folderFetcher = FolderFetcherTask(storage, this)
+		folderFetcher!!.execute(currentFolder)
 	}
 
 	private fun populateBrowser(contents: MutableList<ItemInfo>?) {
 		if (contents == null)
-			mDialog.dismiss()
+			dialog.dismiss()
 		else {
-			contents.removeAll(Cache.mDefaultDownloads.map { it.mFileInfo })
+			contents.removeAll(Cache.defaultDownloads.map { it.fileInfo })
 			contents.sort()
 
-			mCurrentFolder.mParentFolder?.also {
-				contents.add(0, FolderInfo(it.mParentFolder, it.mID, PARENT_DIR, it.mDisplayPath))
+			currentFolder.parentFolder?.also {
+				contents.add(0, FolderInfo(it.parentFolder, it.id, PARENT_DIR, it.displayPath))
 			}
 
 			// refresh the user interface
-			mDialog.apply {
+			dialog.apply {
 				setContentView(R.layout.choose_folder_dialog)
-				setTitle(getDisplayPath(mCurrentFolder))
+				setTitle(getDisplayPath(currentFolder))
 				val list = findViewById<ListView>(R.id.chooseFolderListView)
-				list.adapter = BrowserItemListAdapter(contents, mContext)
+				list.adapter = BrowserItemListAdapter(contents, context)
 
 				list.setOnItemClickListener { _, _, which, _ ->
-					val folderChosen: FolderInfo = if (which == 0 && mParentFolder != null)
-						mParentFolder as FolderInfo
+					val folderChosen: FolderInfo = if (which == 0 && parentFolder != null)
+						parentFolder as FolderInfo
 					else
 						list.getItemAtPosition(which) as FolderInfo
 
@@ -136,8 +135,8 @@ internal class ChooseFolderDialog(
 					refresh(folderChosen)
 				}
 				val okButton = findViewById<Button>(R.id.chooseFolderOkButton)
-				if (mFolderSearchError == null)
-					okButton.setOnClickListener { setNewPath(mCurrentFolder) }
+				if (folderSearchError == null)
+					okButton.setOnClickListener { setNewPath(currentFolder) }
 				else
 					okButton.isEnabled = false
 			}
@@ -145,31 +144,31 @@ internal class ChooseFolderDialog(
 	}
 
 	private fun getDisplayPath(folder: FolderInfo): String {
-		if (folder.mParentFolder != null) {
-			var parentPath = getDisplayPath(folder.mParentFolder)
-			if (!parentPath.endsWith(mStorage.directorySeparator))
-				parentPath += mStorage.directorySeparator
-			return parentPath + folder.mName
+		if (folder.parentFolder != null) {
+			var parentPath = getDisplayPath(folder.parentFolder)
+			if (!parentPath.endsWith(storage.directorySeparator))
+				parentPath += storage.directorySeparator
+			return parentPath + folder.name
 		}
-		return folder.mName
+		return folder.name
 	}
 
 	private fun updateProgress(found: Int, max: Int) {
-		val progressText = mDialog.findViewById<TextView>(R.id.loading_count)
+		val progressText = dialog.findViewById<TextView>(R.id.loading_count)
 		if (progressText != null)
 			if (max == 0) {
-				val itemsFound = mActivity.getString(R.string.itemsFound)
+				val itemsFound = activity.getString(R.string.itemsFound)
 				progressText.text = String.format(Locale.getDefault(), itemsFound, found)
 			} else {
-				val itemsFound = mActivity.getString(R.string.itemsFoundWithMax)
+				val itemsFound = activity.getString(R.string.itemsFoundWithMax)
 				progressText.text = String.format(Locale.getDefault(), itemsFound, found, max)
 			}
 	}
 
 	override fun onDismiss(dialog: DialogInterface) {
 		cancelFolderFetcher()
-		mFolderSelectionSource.onComplete()
-		mFolderSelectionEventSubscription.dispose()
+		folderSelectionSource.onComplete()
+		folderSelectionEventSubscription.dispose()
 	}
 
 	override fun onCancel(dialog: DialogInterface) {
@@ -177,18 +176,18 @@ internal class ChooseFolderDialog(
 	}
 
 	private fun cancelFolderFetcher() {
-		if (mFolderFetcher != null)
+		if (folderFetcher != null)
 			try {
-				mFolderFetcher!!.cancel("Cancelling folder fetcher ...")
+				folderFetcher!!.cancel("Cancelling folder fetcher ...")
 			} catch (e: IllegalStateException) {
 				// Fetcher wasn't running, so nothing to cancel.
 			}
-		mFolderFetcher = null
+		folderFetcher = null
 	}
 
 	class FolderFetcherTask internal constructor(
-		private val mStorage: Storage,
-		private val mFolderSearchListener: FolderSearchListener
+		private val storage: Storage,
+		private val folderSearchListener: FolderSearchListener
 	) : CoroutineTask<FolderInfo, Unit, Unit> {
 		override val coroutineContext: CoroutineContext
 			get() = Dispatchers.IO
@@ -210,24 +209,24 @@ internal class ChooseFolderDialog(
 		}
 
 		override fun doInBackground(params: FolderInfo, progressUpdater: suspend (Unit) -> Unit) =
-			mStorage.readFolderContents(params, mFolderSearchListener, recurseSubFolders = false)
+			storage.readFolderContents(params, folderSearchListener, recurseSubFolders = false)
 	}
 
 	override fun onCloudItemFound(item: ItemInfo) {
-		mDisplayItems.add(item)
+		displayItems.add(item)
 	}
 
 	override fun onFolderSearchError(t: Throwable, context: Context) {
-		mActivity.runOnUiThread {
+		activity.runOnUiThread {
 			Utils.showExceptionDialog(t, context)
 		}
-		mFolderSearchError = t
+		folderSearchError = t
 		onFolderSearchComplete()
 	}
 
 	override fun onFolderSearchComplete() {
-		mDisplayItems.sort()
-		mHandler.obtainMessage(Events.FOLDER_CONTENTS_FETCHED, mDisplayItems).sendToTarget()
+		displayItems.sort()
+		handler.obtainMessage(Events.FOLDER_CONTENTS_FETCHED, displayItems).sendToTarget()
 	}
 
 	override suspend fun onProgressMessageReceived(message: String) {
@@ -236,11 +235,11 @@ internal class ChooseFolderDialog(
 
 	override fun onAuthenticationRequired() {
 		// Cancel the dialog.
-		mDialog.cancel()
-		mShouldCancel = true
+		dialog.cancel()
+		shouldCancel = true
 	}
 
-	override fun shouldCancel(): Boolean = mShouldCancel
+	override fun shouldCancel(): Boolean = shouldCancel
 
 	companion object {
 		private const val PARENT_DIR = ".."

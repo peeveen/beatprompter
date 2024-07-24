@@ -16,5 +16,5 @@ class TitleTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mTitle: String
-) : ValueTag(name, lineNumber, position, mTitle)
+	val title: String
+) : ValueTag(name, lineNumber, position, title)

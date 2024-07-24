@@ -18,18 +18,18 @@ class PermissionsPreference(
 	// Don't be fooled by the IDE. This constructor is REQUIRED!!!!!
 	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
 
-	private val mPermissions: Array<out String>
+	private val permissions: Array<out String>
 	private var inForceUpdate = false
 
 	init {
 		val arrayResource =
 			attrs?.getAttributeResourceValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "permissions", 0)
 				?: 0
-		mPermissions = context?.resources?.getStringArray(arrayResource) ?: arrayOf()
+		permissions = context?.resources?.getStringArray(arrayResource) ?: arrayOf()
 	}
 
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
-		if (permissionsGranted(context, mPermissions)) {
+		if (permissionsGranted(context, permissions)) {
 			view.findViewById(R.id.permissionDenied).visibility = View.GONE
 			view.findViewById(R.id.permissionGranted).visibility = View.VISIBLE
 		} else {

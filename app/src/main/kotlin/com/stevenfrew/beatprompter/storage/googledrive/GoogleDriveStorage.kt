@@ -43,12 +43,12 @@ import kotlin.coroutines.CoroutineContext
 class GoogleDriveStorage(parentFragment: Fragment) :
 	Storage(parentFragment, StorageType.GoogleDrive) {
 
-	private val mGoogleClientSignInOptions =
+	private val googleClientSignInOptions =
 		GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 			.requestScopes(Scope(DriveScopes.DRIVE_READONLY), Scope(Scopes.EMAIL))
 			.build()
-	private val mGoogleSignInClient =
-		GoogleSignIn.getClient(mParentFragment.requireActivity(), mGoogleClientSignInOptions)
+	private val googleSignInClient =
+		GoogleSignIn.getClient(this.parentFragment.requireActivity(), googleClientSignInOptions)
 
 	override val cloudStorageName: String
 		get() = BeatPrompter.appResources.getString(R.string.google_drive_string)
@@ -73,23 +73,23 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			onAuthenticated?.let { doGoogleDriveAction(itemSource, it) }
 		}
 		FileSettingsFragment.mOnGoogleDriveAuthenticationFailed = {
-			itemSource.onError(Exception(mParentFragment.getString(R.string.googleDriveAccessFailed)))
+			itemSource.onError(Exception(parentFragment.getString(R.string.googleDriveAccessFailed)))
 		}
-		(mParentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
+		(parentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
 	}
 
 	private fun <T> doGoogleDriveAction(itemSource: PublishSubject<T>, action: GoogleDriveAction) {
 		try {
-			val context = mParentFragment.requireContext()
+			val context = parentFragment.requireContext()
 			var alreadySignedInAccount =
 				GoogleSignIn.getLastSignedInAccount(context)
 			if (alreadySignedInAccount?.email == null) {
-				mGoogleSignInClient.signOut()
+				googleSignInClient.signOut()
 				alreadySignedInAccount = null
 			}
 			if (alreadySignedInAccount == null) {
 				authorize(
-					mGoogleSignInClient.signInIntent,
+					googleSignInClient.signInIntent,
 					itemSource,
 					action
 				)
@@ -149,8 +149,8 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				if (mListener.shouldCancel())
 					break
 				val currentFolder = foldersToQuery.removeAt(0)
-				val currentFolderID = currentFolder.mID
-				val currentFolderName = currentFolder.mName
+				val currentFolderID = currentFolder.id
+				val currentFolderName = currentFolder.name
 				mMessageSource.onNext(
 					BeatPrompter.appResources.getString(
 						R.string.scanningFolder,
@@ -191,7 +191,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 									fileID,
 									title,
 									mStorage.constructFullPath(
-										currentFolder.mDisplayPath,
+										currentFolder.displayPath,
 										title
 									)
 								)
@@ -205,7 +205,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								val modifiedTime = Date(resolvedChild.modifiedTime.value)
 								val newFile = FileInfo(
 									fileID, title, modifiedTime,
-									if (currentFolder.mParentFolder == null) "" else currentFolderID
+									if (currentFolder.parentFolder == null) "" else currentFolderID
 								)
 								mItemSource.onNext(newFile)
 							}
@@ -259,19 +259,19 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				mMessageSource
 			) {
 				try {
-					val file = mClient.files().get(it.mID)
+					val file = mClient.files().get(it.id)
 						.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD).execute()
 					if (!file.trashed) {
 						val title = file.name
 						Logger.log { "File title: $title" }
-						val safeFilename = Utils.makeSafeFilename(it.mID)
+						val safeFilename = Utils.makeSafeFilename(it.id)
 						Logger.log { "Safe filename: $safeFilename" }
 						Logger.log("Downloading now ...")
 						if (!mListener.shouldCancel()) {
 							val localFile = downloadGoogleDriveFile(file, safeFilename)
 							val updatedCloudFile = FileInfo(
-								it.mID, file.name, Date(file.modifiedTime.value),
-								it.mSubfolderIDs
+								it.id, file.name, Date(file.modifiedTime.value),
+								it.subfolderIds
 							)
 							SuccessfulDownloadResult(updatedCloudFile, localFile)
 						} else

@@ -14,24 +14,24 @@ import java.util.UUID
  * of the app will be sent to all output sockets.
  */
 class ServerThread internal constructor(
-	private val mBluetoothAdapter: BluetoothAdapter,
-	private val mUUID: UUID,
-	private val mOnConnectedFunction: (socket: BluetoothSocket) -> Unit
+	private val bluetoothAdapter: BluetoothAdapter,
+	private val uuid: UUID,
+	private val onConnectedFunction: (socket: BluetoothSocket) -> Unit
 ) : Thread() {
-	private var mmServerSocket: BluetoothServerSocket? = null
-	private var mStop = false
-	private val mSocketNullLock = Any()
+	private var serverSocket: BluetoothServerSocket? = null
+	private var stop = false
+	private val socketNullLock = Any()
 
 	override fun run() {
 		// Keep listening until exception occurs or a socket is returned
-		while (!mStop) {
+		while (!stop) {
 			try {
-				val serverSocket = synchronized(mSocketNullLock) {
-					mmServerSocket ?: run {
+				val serverSocket = synchronized(socketNullLock) {
+					serverSocket ?: run {
 						try {
 							// MY_UUID is the app's UUID string, also used by the server code
-							mmServerSocket =
-								mBluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompter.APP_NAME, mUUID)
+							serverSocket =
+								bluetoothAdapter.listenUsingRfcommWithServiceRecord(BeatPrompter.APP_NAME, uuid)
 							Logger.logComms("Created the Bluetooth server socket.")
 						} catch (se: SecurityException) {
 							Logger.logComms(
@@ -41,7 +41,7 @@ class ServerThread internal constructor(
 						} catch (e: IOException) {
 							Logger.logComms("Error creating Bluetooth server socket.", e)
 						}
-						mmServerSocket
+						serverSocket
 					}
 				}
 
@@ -50,7 +50,7 @@ class ServerThread internal constructor(
 				Logger.logComms("Looking for a client connection.")
 				serverSocket?.accept(5000)?.also {
 					Logger.logComms("Found a client connection.")
-					mOnConnectedFunction(it)
+					onConnectedFunction(it)
 				}
 			} catch (e: Exception) {
 				//Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);
@@ -60,16 +60,16 @@ class ServerThread internal constructor(
 
 	/** Will cancel the listening socket, and cause the thread to finish  */
 	fun stopListening() {
-		mStop = true
-		synchronized(mSocketNullLock) {
+		stop = true
+		synchronized(socketNullLock) {
 			try {
 				Logger.logComms("Closing Bluetooth server socket.")
-				mmServerSocket?.close()
+				serverSocket?.close()
 				Logger.logComms("Closed Bluetooth server socket.")
 			} catch (e: IOException) {
 				Logger.logComms("Failed to close Bluetooth listener socket.", e)
 			} finally {
-				mmServerSocket = null
+				serverSocket = null
 			}
 		}
 	}

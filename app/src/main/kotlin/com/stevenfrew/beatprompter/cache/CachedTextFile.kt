@@ -7,5 +7,5 @@ import com.stevenfrew.beatprompter.cache.parse.FileParseError
  */
 abstract class CachedTextFile internal constructor(
 	cachedFile: CachedFile,
-	val mErrors: List<FileParseError>
+	val errors: List<FileParseError>
 ) : CachedFile(cachedFile)

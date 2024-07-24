@@ -12,13 +12,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SongLoadJob(val mSongLoadInfo: SongLoadInfo) : CoroutineScope {
-	private val mHandler = SongLoadJobEventHandler()
-	private val mCancelEvent = SongLoadCancelEvent(mSongLoadInfo.mSongFile.mTitle)
-	private val mCoRoutineJob = Job()
+class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
+	private val handler = SongLoadJobEventHandler()
+	private val cancelEvent = SongLoadCancelEvent(songLoadInfo.songFile.title)
+	private val coRoutineJob = Job()
 
 	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + mCoRoutineJob
+		get() = Dispatchers.Default + coRoutineJob
 
 	fun startLoading() =
 		synchronized(this)
@@ -27,29 +27,29 @@ class SongLoadJob(val mSongLoadInfo: SongLoadInfo) : CoroutineScope {
 			launch {
 				System.gc()
 				try {
-					Logger.logLoader { "Starting to load '${mSongLoadInfo.mSongFile.mTitle}'." }
-					val loadedSong = SongParser(mSongLoadInfo, mCancelEvent, mHandler).parse()
-					if (mCancelEvent.isCancelled)
+					Logger.logLoader { "Starting to load '${songLoadInfo.songFile.title}'." }
+					val loadedSong = SongParser(songLoadInfo, cancelEvent, handler).parse()
+					if (cancelEvent.isCancelled)
 						throw SongLoadCancelledException()
 					Logger.logLoader("Song was loaded successfully.")
 					SongLoadQueueWatcherTask.onSongLoadFinished()
 					mLoadedSong = LoadedSong(loadedSong, thisSongLoadJob)
-					mHandler.obtainMessage(Events.SONG_LOAD_COMPLETED, mSongLoadInfo.mLoadID).sendToTarget()
+					handler.obtainMessage(Events.SONG_LOAD_COMPLETED, songLoadInfo.loadId).sendToTarget()
 				} catch (e: SongLoadCancelledException) {
 					Logger.logLoader("Song load was cancelled.")
 					SongLoadQueueWatcherTask.onSongLoadFinished()
-					mHandler.obtainMessage(Events.SONG_LOAD_CANCELLED).sendToTarget()
+					handler.obtainMessage(Events.SONG_LOAD_CANCELLED).sendToTarget()
 				} catch (e: Exception) {
 					Logger.logLoader("Song load failed.")
 					SongLoadQueueWatcherTask.onSongLoadFinished()
-					mHandler.obtainMessage(Events.SONG_LOAD_FAILED, e.message).sendToTarget()
+					handler.obtainMessage(Events.SONG_LOAD_FAILED, e.message).sendToTarget()
 				} finally {
 					System.gc()
 				}
 			}
 		}
 
-	fun stopLoading() = mCancelEvent.set()
+	fun stopLoading() = cancelEvent.set()
 
 	class SongLoadJobEventHandler : Handler() {
 		override fun handleMessage(msg: Message) {

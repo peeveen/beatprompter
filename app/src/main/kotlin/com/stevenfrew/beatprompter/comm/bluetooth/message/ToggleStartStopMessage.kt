@@ -9,11 +9,11 @@ import java.io.ByteArrayOutputStream
 /**
  * Bluetooth message that instructs the receiver to change the current play mode.
  */
-class ToggleStartStopMessage(val mToggleInfo: StartStopToggleInfo) :
-	BluetoothMessage(asBytes(mToggleInfo)) {
+class ToggleStartStopMessage(val toggleInfo: StartStopToggleInfo) :
+	BluetoothMessage(asBytes(toggleInfo)) {
 
 	override fun toString(): String =
-		"ToggleStartStopMessage(${mToggleInfo.mStartState},${mToggleInfo.mTime})"
+		"ToggleStartStopMessage(${toggleInfo.mStartState},${toggleInfo.mTime})"
 
 	data class StartStopToggleInfo(val mStartState: PlayState, val mTime: Long)
 

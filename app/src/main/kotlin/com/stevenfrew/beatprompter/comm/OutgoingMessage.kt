@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.comm
 
-open class OutgoingMessage(val mBytes: ByteArray) {
+open class OutgoingMessage(val bytes: ByteArray) {
 	val length: Int
-		get() = mBytes.size
+		get() = bytes.size
 
 	override fun toString(): String =
 		StringBuilder().apply {
-			mBytes.forEach { append(String.format("%02X ", it)) }
+			bytes.forEach { append(String.format("%02X ", it)) }
 		}.toString().trim()
 }

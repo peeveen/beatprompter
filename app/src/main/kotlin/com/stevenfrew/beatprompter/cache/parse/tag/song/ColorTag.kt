@@ -13,5 +13,5 @@ open class ColorTag protected constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mColor = Utils.makeHighlightColour(TagParsingUtility.parseColourValue(value))
+	val color = Utils.makeHighlightColour(TagParsingUtility.parseColourValue(value))
 }

@@ -6,4 +6,4 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 /**
  * Annotation for tag classes. Tells the parser what type of tag it is.
  */
-annotation class TagType(val mType: Type)
+annotation class TagType(val type: Type)

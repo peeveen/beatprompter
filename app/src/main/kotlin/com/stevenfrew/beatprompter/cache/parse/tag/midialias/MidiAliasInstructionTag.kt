@@ -12,5 +12,5 @@ class MidiAliasInstructionTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mInstructions: String
+	val instructions: String
 ) : Tag(name, lineNumber, position)

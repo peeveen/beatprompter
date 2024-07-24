@@ -5,9 +5,9 @@ import com.stevenfrew.beatprompter.R
 
 class ChannelValue internal constructor(channel: Byte) : ByteValue(channel) {
 	init {
-		if (mValue !in 0..15)
+		if (value !in 0..15)
 			throw ValueException(BeatPrompter.appResources.getString(R.string.invalid_channel_value))
 	}
 
-	override fun toString(): String = "#$mValue"
+	override fun toString(): String = "#$value"
 }

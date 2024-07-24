@@ -6,38 +6,38 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 class ReceiverTask(
-	val mName: String,
-	private val mReceiver: Receiver
+	val name: String,
+	private val receiver: Receiver
 ) : Task(true) {
-	private var mUnregistered = false
+	private var unregistered = false
 
 	val type: CommunicationType
-		get() = mReceiver.type
+		get() = receiver.type
 
 	override fun doWork() =
 		try {
-			mReceiver.receive()
+			receiver.receive()
 		} catch (t: Throwable) {
 			// Any I/O error means this receiver is dead to us.
 			Logger.logComms("Unexpected IO exception from receiver.", t)
-			Logger.logComms { "Receiver '$mName' threw an exception. Assuming it to be dead." }
-			if (!mUnregistered)
-				mReceiver.unregister(this)
+			Logger.logComms { "Receiver '$name' threw an exception. Assuming it to be dead." }
+			if (!unregistered)
+				receiver.unregister(this)
 			super.stop()
 			Logger.logComms("Receiver is now stopped.")
-			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, mName)
+			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, name)
 		}
 
 	// Receivers often block when trying to receive data, so closing the socket or whatever behind
 	// the scenes will usually kickstart it into action.
 	override fun stop() =
 		try {
-			mReceiver.close()
+			receiver.close()
 		} catch (exception: Exception) {
 			// At least we tried ...
 		}
 
 	fun setUnregistered() {
-		mUnregistered = true
+		unregistered = true
 	}
 }

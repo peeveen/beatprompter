@@ -64,9 +64,9 @@ class DropboxStorage(parentFragment: Fragment) :
 		filesToDownload: List<FileInfo>
 	) = downloadFiles(filesToDownload, listener, itemSource, messageSource) {
 		try {
-			val metadata = client.files().getMetadata(it.mID)
+			val metadata = client.files().getMetadata(it.id)
 			if (metadata is FileMetadata) {
-				val title = it.mName
+				val title = it.name
 				Logger.log { "File title: $title" }
 				val safeFilename = Utils.makeSafeFilename(title)
 				val targetFile = File(cacheFolder, safeFilename)
@@ -77,8 +77,8 @@ class DropboxStorage(parentFragment: Fragment) :
 				if (!listener.shouldCancel()) {
 					val localFile = downloadDropboxFile(client, metadata, targetFile)
 					val updatedCloudFile = FileInfo(
-						it.mID, metadata.name, metadata.serverModified,
-						it.mSubfolderIDs
+						it.id, metadata.name, metadata.serverModified,
+						it.subfolderIds
 					)
 					SuccessfulDownloadResult(updatedCloudFile, localFile)
 				} else
@@ -117,8 +117,8 @@ class DropboxStorage(parentFragment: Fragment) :
 			if (listener.shouldCancel())
 				break
 			val folderToSearch = foldersToSearch.removeAt(0)
-			val currentFolderID = folderToSearch.mID
-			val currentFolderName = folderToSearch.mName
+			val currentFolderID = folderToSearch.id
+			val currentFolderName = folderToSearch.name
 			messageSource.onNext(
 				BeatPrompter.appResources.getString(
 					R.string.scanningFolder,
@@ -142,7 +142,7 @@ class DropboxStorage(parentFragment: Fragment) :
 								itemSource.onNext(
 									FileInfo(
 										metadata.id, metadata.name, metadata.serverModified,
-										if (folderToSearch.mParentFolder == null) "" else currentFolderID
+										if (folderToSearch.parentFolder == null) "" else currentFolderID
 									)
 								)
 						} else if (metadata is FolderMetadata) {
@@ -221,7 +221,7 @@ class DropboxStorage(parentFragment: Fragment) :
 		if (cred == null) {
 			action.onAuthenticationRequired()
 			Auth.startOAuth2PKCE(
-				mParentFragment.requireContext(), DROPBOX_APP_KEY, requestConfig
+				parentFragment.requireContext(), DROPBOX_APP_KEY, requestConfig
 			)
 			return
 		}

@@ -15,15 +15,15 @@ class AudioFileParser(cachedCloudFile: CachedFile) : FileParser<AudioFile>(cache
 		try {
 			// Try to read the length of the track. If it fails, it's not an audio file.
 			AudioFile.readAudioFileLengthFromAttribute(element)?.let {
-				AudioFile(mCachedCloudFile, it)
+				AudioFile(cachedCloudFile, it)
 			} ?: MediaMetadataRetriever().run {
-				setDataSource(mCachedCloudFile.mFile.absolutePath)
+				setDataSource(cachedCloudFile.file.absolutePath)
 				extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.let {
-					AudioFile(mCachedCloudFile, Utils.milliToNano(it.toLong()))
+					AudioFile(cachedCloudFile, Utils.milliToNano(it.toLong()))
 				}
 			}
 		} catch (e: Exception) {
 			// Not bothered about what the exception is ... file is obviously shite.
 			null
-		} ?: throw InvalidBeatPrompterFileException(R.string.notAnAudioFile, mCachedCloudFile.mName)
+		} ?: throw InvalidBeatPrompterFileException(R.string.notAnAudioFile, cachedCloudFile.name)
 }

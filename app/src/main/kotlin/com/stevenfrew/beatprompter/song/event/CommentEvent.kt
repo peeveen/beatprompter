@@ -7,8 +7,8 @@ import com.stevenfrew.beatprompter.song.Song
  */
 class CommentEvent(
 	eventTime: Long,
-	val mComment: Song.Comment
+	val comment: Song.Comment
 ) : BaseEvent(eventTime) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		CommentEvent(mEventTime + nanoseconds, mComment)
+		CommentEvent(eventTime + nanoseconds, comment)
 }

@@ -21,7 +21,7 @@ class ExoPlayerAudioPlayer private constructor(
 	looping: Boolean
 ) : AudioPlayer {
 	@OptIn(UnstableApi::class)
-	private val mInternalPlayer: ExoPlayer = ExoPlayer.Builder(context).build().apply {
+	private val internalPlayer: ExoPlayer = ExoPlayer.Builder(context).build().apply {
 		setSeekParameters(SeekParameters.EXACT)
 		setMediaItem(MediaItem.fromUri(uri))
 		seekTo(0)
@@ -45,22 +45,22 @@ class ExoPlayerAudioPlayer private constructor(
 		false
 	)
 
-	override fun seekTo(ms: Long) = mInternalPlayer.seekTo(ms)
-	override fun stop() = mInternalPlayer.stop()
-	override fun start() = mInternalPlayer.play()
-	override fun pause() = mInternalPlayer.pause()
+	override fun seekTo(ms: Long) = internalPlayer.seekTo(ms)
+	override fun stop() = internalPlayer.stop()
+	override fun start() = internalPlayer.play()
+	override fun pause() = internalPlayer.pause()
 
-	override fun release() = mInternalPlayer.release()
+	override fun release() = internalPlayer.release()
 
 	override val isPlaying: Boolean
-		get() = mInternalPlayer.isPlaying
+		get() = internalPlayer.isPlaying
 
 	override val duration: Long
-		get() = mInternalPlayer.duration
+		get() = internalPlayer.duration
 
 	override var volume: Int
-		get() = (mInternalPlayer.volume * 100.0).toInt()
+		get() = (internalPlayer.volume * 100.0).toInt()
 		set(value) {
-			mInternalPlayer.volume = value * 0.01f
+			internalPlayer.volume = value * 0.01f
 		}
 }

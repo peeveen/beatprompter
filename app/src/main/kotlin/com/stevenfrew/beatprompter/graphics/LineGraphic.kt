@@ -4,27 +4,28 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import com.stevenfrew.beatprompter.song.line.Line
 
-class LineGraphic(private val mSize: Rect) {
-	var mLastDrawnLine: Line? = null
-	private var mBitmap = createBitmap()
-	var mNextGraphic = this
+class LineGraphic(private val size: Rect) {
+	var lastDrawnLine: Line? = null
+	var nextGraphic = this
+
+	private var _bitmap = createBitmap()
 
 	val bitmap: Bitmap
 		get() {
-			if (mBitmap.isRecycled)
-				mBitmap = createBitmap()
-			return mBitmap
+			if (_bitmap.isRecycled)
+				_bitmap = createBitmap()
+			return _bitmap
 		}
 
 	private fun createBitmap(): Bitmap =
 		Bitmap.createBitmap(
-			mSize.width(),
-			mSize.height(),
+			size.width(),
+			size.height(),
 			Bitmap.Config.ARGB_8888
 		)
 
 	fun recycle() {
-		if (!mBitmap.isRecycled)
-			mBitmap.recycle()
+		if (!_bitmap.isRecycled)
+			_bitmap.recycle()
 	}
 }

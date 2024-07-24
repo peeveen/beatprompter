@@ -6,9 +6,9 @@ package com.stevenfrew.beatprompter.song.event
  */
 class PauseEvent(
 	eventTime: Long,
-	val mBeats: Int,
-	val mBeat: Int
+	val beats: Int,
+	val beat: Int
 ) : BaseEvent(eventTime) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		PauseEvent(mEventTime + nanoseconds, mBeats, mBeat)
+		PauseEvent(eventTime + nanoseconds, beats, beat)
 }

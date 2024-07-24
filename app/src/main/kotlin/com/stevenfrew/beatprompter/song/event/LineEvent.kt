@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.song.line.Line
  */
 class LineEvent(
 	eventTime: Long,
-	val mLine: Line
+	val line: Line
 ) : BaseEvent(eventTime) {
-	override fun offset(nanoseconds: Long): BaseEvent = LineEvent(mEventTime + nanoseconds, mLine)
+	override fun offset(nanoseconds: Long): BaseEvent = LineEvent(eventTime + nanoseconds, line)
 }

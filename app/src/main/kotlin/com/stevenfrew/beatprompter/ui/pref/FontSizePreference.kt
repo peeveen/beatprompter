@@ -14,7 +14,7 @@ class FontSizePreference(
 	// Don't be fooled by the IDE. This constructor is REQUIRED!!!
 	constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
 
-	private var mDefaultValue: Int = 0
+	private var defaultValue: Int = 0
 
 	override fun onSetInitialValue(defaultValue: Any?) {
 		// Set default state from the XML attribute
@@ -23,12 +23,12 @@ class FontSizePreference(
 	}
 
 	override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
-		mDefaultValue = a.getString(index)!!.toInt()
-		return mDefaultValue
+		defaultValue = a.getString(index)!!.toInt()
+		return defaultValue
 	}
 
 	var fontSize: Int
-		get() = getPersistedInt(mDefaultValue)
+		get() = getPersistedInt(defaultValue)
 		set(value) {
 			persistInt(value)
 		}

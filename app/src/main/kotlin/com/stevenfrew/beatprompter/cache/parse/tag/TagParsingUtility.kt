@@ -22,11 +22,11 @@ import kotlin.reflect.KClass
  * Should only construct one TagParsingHelper per file type, instead of one per file.
  */
 object TagParsingUtility {
-	private val mHelperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
+	private val helperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
 
 	@Suppress("UNCHECKED_CAST")
 	fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T> =
-		mHelperMap.getOrPut(parser::class) {
+		helperMap.getOrPut(parser::class) {
 			TagParsingHelper(parser) as TagParsingHelper<Any>
 		} as TagParsingHelper<T>
 

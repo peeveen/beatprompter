@@ -94,31 +94,31 @@ class SongListFragment
 	AdapterView.OnItemLongClickListener,
 	SharedPreferences.OnSharedPreferenceChangeListener,
 	CoroutineScope {
-	private val mCoRoutineJob = Job()
+	private val coroutineJob = Job()
 	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Main + mCoRoutineJob
-	private var mSongLauncher: ActivityResultLauncher<Intent>? = null
-	private var mListAdapter: BaseAdapter? = null
-	private var mMenu: Menu? = null
+		get() = Dispatchers.Main + coroutineJob
+	private var songLauncher: ActivityResultLauncher<Intent>? = null
+	private var listAdapter: BaseAdapter? = null
+	private var menu: Menu? = null
 
-	private var mPlaylist = Playlist()
-	private var mNowPlayingNode: PlaylistNode? = null
-	private var mSearchText = ""
-	private var mPerformingCloudSync = false
-	private var mSavedListIndex = 0
-	private var mSavedListOffset = 0
-	private var mFilters = listOf<Filter>()
-	private val mSelectedTagFilters = mutableListOf<TagFilter>()
-	private var mSelectedFilter: Filter = AllSongsFilter(mutableListOf())
+	private var playlist = Playlist()
+	private var nowPlayingNode: PlaylistNode? = null
+	private var searchText = ""
+	private var performingCloudSync = false
+	private var savedListIndex = 0
+	private var savedListOffset = 0
+	private var filters = listOf<Filter>()
+	private val selectedTagFilters = mutableListOf<TagFilter>()
+	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-		if (mSelectedFilter is MIDIAliasFilesFilter) {
-			val maf = filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles)[position]
-			if (maf.mErrors.isNotEmpty())
-				showMIDIAliasErrors(maf.mErrors)
+		if (selectedFilter is MIDIAliasFilesFilter) {
+			val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+			if (maf.errors.isNotEmpty())
+				showMIDIAliasErrors(maf.errors)
 		} else {
-			val songToLoad = filterPlaylistNodes(mPlaylist)[position]
-			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.mSongFile))
+			val songToLoad = filterPlaylistNodes(playlist)[position]
+			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songFile))
 				playPlaylistNode(songToLoad, false)
 		}
 	}
@@ -127,7 +127,7 @@ class SongListFragment
 		val intent = Intent(context, SongDisplayActivity::class.java)
 		intent.putExtra("loadID", ParcelUuid(loadID))
 		Logger.logLoader { "Starting SongDisplayActivity for $loadID!" }
-		mSongLauncher?.launch(intent)
+		songLauncher?.launch(intent)
 	}
 
 	internal fun startSongViaMidiProgramChange(
@@ -181,8 +181,8 @@ class SongListFragment
 					else -> R.drawable.master9plus
 				}
 			else R.drawable.blank_icon
-		if (mMenu != null) {
-			val btLayout = mMenu!!.findItem(R.id.btconnectionstatuslayout).actionView as LinearLayout
+		if (menu != null) {
+			val btLayout = menu!!.findItem(R.id.btconnectionstatuslayout).actionView as LinearLayout
 			val btIcon = btLayout.findViewById<ImageView>(R.id.btconnectionstatus)
 			btIcon?.setImageResource(resourceID)
 		}
@@ -190,21 +190,21 @@ class SongListFragment
 
 	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
 		if (Preferences.clearTagsOnFolderChange)
-			mSelectedTagFilters.clear()
-		applyFileFilter(mFilters[position])
-		if (mPerformingCloudSync) {
-			mPerformingCloudSync = false
+			selectedTagFilters.clear()
+		applyFileFilter(filters[position])
+		if (performingCloudSync) {
+			performingCloudSync = false
 			val listView = requireView().findViewById<ListView>(R.id.listView)
-			listView.setSelectionFromTop(mSavedListIndex, mSavedListOffset)
+			listView.setSelectionFromTop(savedListIndex, savedListOffset)
 		}
 	}
 
 	private fun applyFileFilter(filter: Filter) {
-		mSelectedFilter = filter
-		mPlaylist = if (filter is SongFilter)
-			Playlist(filter.mSongs.filter {
-				if (mSelectedTagFilters.isNotEmpty()) mSelectedTagFilters.any { filter ->
-					filter.mSongs.contains(
+		selectedFilter = filter
+		playlist = if (filter is SongFilter)
+			Playlist(filter.songs.filter {
+				if (selectedTagFilters.isNotEmpty()) selectedTagFilters.any { filter ->
+					filter.songs.contains(
 						it
 					)
 				} else true
@@ -212,7 +212,7 @@ class SongListFragment
 		else
 			Playlist()
 		sortSongList()
-		mListAdapter = buildListAdapter()
+		listAdapter = buildListAdapter()
 		updateListView()
 		showSetListMissingSongs()
 	}
@@ -229,7 +229,7 @@ class SongListFragment
 
 		super.onConfigurationChanged(newConfig)
 		registerEventHandler()
-		mListAdapter = buildListAdapter()
+		listAdapter = buildListAdapter()
 		updateListView().setSelectionFromTop(currentPosition, top)
 	}
 
@@ -237,20 +237,20 @@ class SongListFragment
 		requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
-			adapter = mListAdapter
+			adapter = listAdapter
 		}
 
 	@Deprecated("Deprecated in Java")
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		mMenu = menu
+		this.menu = menu
 		inflater.inflate(R.menu.songlistmenu, menu)
 
 		val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
 		spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
 			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(mFilters, mSelectedTagFilters, requireActivity()) {
-				applyFileFilter(mSelectedFilter)
+			adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
+				applyFileFilter(selectedFilter)
 			}
 		}
 
@@ -264,23 +264,23 @@ class SongListFragment
 	}
 
 	private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
-		for (node in mPlaylist.nodes)
-			if (node.mSongFile.matchesTrigger(mst)) {
-				Logger.log { "Found trigger match: '${node.mSongFile.mTitle}'." }
+		for (node in playlist.nodes)
+			if (node.songFile.matchesTrigger(mst)) {
+				Logger.log { "Found trigger match: '${node.songFile.title}'." }
 				playPlaylistNode(node, true)
 				return
 			}
 		// Otherwise, it might be a song that is not currently onscreen.
 		// Still play it though!
-		for (sf in Cache.mCachedCloudItems.songFiles)
+		for (sf in Cache.cachedCloudItems.songFiles)
 			if (sf.matchesTrigger(mst)) {
-				Logger.log { "Found trigger match: '${sf.mTitle}'." }
+				Logger.log { "Found trigger match: '${sf.title}'." }
 				playSongFile(sf, PlaylistNode(sf), true)
 			}
 	}
 
 	private fun playPlaylistNode(node: PlaylistNode, startedByMidiTrigger: Boolean) {
-		val selectedSong = node.mSongFile
+		val selectedSong = node.songFile
 		playSongFile(selectedSong, node, startedByMidiTrigger)
 	}
 
@@ -291,7 +291,7 @@ class SongListFragment
 	) {
 		val mute = Preferences.mute
 		val manualMode = Preferences.manualMode
-		val defaultVariation = selectedSong.mVariations.first()
+		val defaultVariation = selectedSong.variations.first()
 		val mode =
 			if (manualMode)
 				ScrollingMode.Manual
@@ -305,7 +305,7 @@ class SongListFragment
 	private fun shouldPlayNextSong(): Boolean =
 		when (Preferences.playNextSong) {
 			getString(R.string.playNextSongAlwaysValue) -> true
-			getString(R.string.playNextSongSetListsOnlyValue) -> mSelectedFilter is SetListFilter
+			getString(R.string.playNextSongSetListsOnlyValue) -> selectedFilter is SetListFilter
 			else -> false
 		}
 
@@ -364,12 +364,12 @@ class SongListFragment
 		noAudio: Boolean
 	) {
 		showLoadingProgressUI(true)
-		mNowPlayingNode = selectedNode
+		nowPlayingNode = selectedNode
 
 		val nextSongName =
-			if (selectedNode.mNextNode != null && shouldPlayNextSong()) selectedNode.mNextNode!!.mSongFile.mTitle else ""
+			if (selectedNode.nextSong != null && shouldPlayNextSong()) selectedNode.nextSong.songFile.title else ""
 		val songLoadInfo = SongLoadInfo(
-			selectedNode.mSongFile,
+			selectedNode.songFile,
 			variation,
 			scrollMode,
 			nextSongName,
@@ -385,33 +385,33 @@ class SongListFragment
 	}
 
 	private fun addToTemporarySet(song: SongFile) {
-		mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
+		filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
 		try {
 			Cache.initialiseTemporarySetListFile(false, requireContext())
-			Utils.appendToTextFile(Cache.mTemporarySetListFile!!, SetListEntry(song).toString())
+			Utils.appendToTextFile(Cache.temporarySetListFile!!, SetListEntry(song).toString())
 		} catch (ioe: IOException) {
 			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
 		}
 	}
 
 	private fun onSongListLongClick(position: Int) {
-		val selectedNode = filterPlaylistNodes(mPlaylist)[position]
-		val selectedSong = selectedNode.mSongFile
+		val selectedNode = filterPlaylistNodes(playlist)[position]
+		val selectedSong = selectedNode.songFile
 		val selectedSet =
-			if (mSelectedFilter is SetListFileFilter) (mSelectedFilter as SetListFileFilter).mSetListFile else null
+			if (selectedFilter is SetListFileFilter) (selectedFilter as SetListFileFilter).setListFile else null
 		val tempSetListFilter =
-			mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
+			filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
 
 		val addAllowed =
 			if (tempSetListFilter != null)
-				if (mSelectedFilter !== tempSetListFilter)
+				if (selectedFilter !== tempSetListFilter)
 					!tempSetListFilter.containsSong(selectedSong)
 				else
 					false
 			else
 				true
-		val includeRefreshSet = selectedSet != null && mSelectedFilter !== tempSetListFilter
-		val includeClearSet = mSelectedFilter === tempSetListFilter
+		val includeRefreshSet = selectedSet != null && selectedFilter !== tempSetListFilter
+		val includeClearSet = selectedFilter === tempSetListFilter
 
 		val arrayID: Int = if (includeRefreshSet)
 			if (addAllowed)
@@ -430,14 +430,14 @@ class SongListFragment
 			setItems(arrayID) { _, which ->
 				when (which) {
 					0 -> showPlayDialog(selectedNode, selectedSong)
-					1 -> mPerformingCloudSync =
+					1 -> performingCloudSync =
 						Cache.performCloudSync(selectedSong, false, this@SongListFragment)
 
-					2 -> mPerformingCloudSync =
+					2 -> performingCloudSync =
 						Cache.performCloudSync(selectedSong, true, this@SongListFragment)
 
 					3 -> when {
-						includeRefreshSet -> mPerformingCloudSync =
+						includeRefreshSet -> performingCloudSync =
 							Cache.performCloudSync(selectedSet, false, this@SongListFragment)
 
 						includeClearSet -> Cache.clearTemporarySetList(requireContext())
@@ -468,7 +468,7 @@ class SongListFragment
 			.findViewById<Spinner>(R.id.variationSpinner)
 		val variationSpinnerAdapter = ArrayAdapter(
 			requireContext(),
-			android.R.layout.simple_spinner_item, selectedSong.mVariations
+			android.R.layout.simple_spinner_item, selectedSong.variations
 		)
 		val noAudioCheckbox = view.findViewById<CheckBox>(R.id.noAudioCheckbox)
 		variationSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -563,8 +563,8 @@ class SongListFragment
 	}
 
 	private fun onMIDIAliasListLongClick(position: Int) {
-		val maf = filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles)[position]
-		val showErrors = maf.mErrors.isNotEmpty()
+		val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+		val showErrors = maf.errors.isNotEmpty()
 		val arrayID =
 			if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
@@ -572,9 +572,9 @@ class SongListFragment
 			setTitle(R.string.midi_alias_list_options)
 				.setItems(arrayID) { _, which ->
 					if (which == 0)
-						mPerformingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
+						performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
 					else if (which == 1)
-						showMIDIAliasErrors(maf.mErrors)
+						showMIDIAliasErrors(maf.errors)
 				}
 			create().apply {
 				setCanceledOnTouchOutside(true)
@@ -612,7 +612,7 @@ class SongListFragment
 		position: Int,
 		id: Long
 	): Boolean {
-		if (mSelectedFilter is MIDIAliasFilesFilter)
+		if (selectedFilter is MIDIAliasFilesFilter)
 			onMIDIAliasListLongClick(position)
 		else
 			onSongListLongClick(position)
@@ -627,7 +627,7 @@ class SongListFragment
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		mSongLauncher =
+		songLauncher =
 			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
 				if (result.resultCode == Activity.RESULT_OK)
 					startNextSong()
@@ -679,7 +679,7 @@ class SongListFragment
 	}
 
 	private fun initialiseList(cache: CachedCloudCollection) {
-		mPlaylist = Playlist()
+		playlist = Playlist()
 		buildFilterList(cache)
 	}
 
@@ -694,8 +694,8 @@ class SongListFragment
 
 		updateBluetoothIcon()
 
-		if (mListAdapter != null)
-			mListAdapter!!.notifyDataSetChanged()
+		if (listAdapter != null)
+			listAdapter!!.notifyDataSetChanged()
 
 		SongLoadQueueWatcherTask.onResume()
 	}
@@ -713,44 +713,44 @@ class SongListFragment
 
 	private fun startNextSong(): Boolean {
 		mSongEndedNaturally = false
-		if (mNowPlayingNode != null && mNowPlayingNode!!.mNextNode != null && shouldPlayNextSong()) {
-			playPlaylistNode(mNowPlayingNode!!.mNextNode!!, false)
+		if (nowPlayingNode != null && nowPlayingNode!!.nextSong != null && shouldPlayNextSong()) {
+			playPlaylistNode(nowPlayingNode!!.nextSong!!, false)
 			return true
 		}
-		mNowPlayingNode = null
+		nowPlayingNode = null
 		return false
 	}
 
 	private fun sortSongList() {
-		if (mSelectedFilter.mCanSort) {
+		if (selectedFilter.canSort) {
 			val sorting = Preferences.sorting
 			sorting.forEach {
 				when (it) {
-					SortingPreference.Date -> mPlaylist.sortByDateModified()
-					SortingPreference.Artist -> mPlaylist.sortByArtist()
-					SortingPreference.Title -> mPlaylist.sortByTitle()
-					SortingPreference.Mode -> mPlaylist.sortByMode()
-					SortingPreference.Rating -> mPlaylist.sortByRating()
-					SortingPreference.Key -> mPlaylist.sortByKey()
+					SortingPreference.Date -> playlist = playlist.sortByDateModified()
+					SortingPreference.Artist -> playlist = playlist.sortByArtist()
+					SortingPreference.Title -> playlist = playlist.sortByTitle()
+					SortingPreference.Mode -> playlist = playlist.sortByMode()
+					SortingPreference.Rating -> playlist = playlist.sortByRating()
+					SortingPreference.Key -> playlist = playlist.sortByKey()
 				}
 			}
 		}
 	}
 
 	private fun shuffleSongList() {
-		mPlaylist.shuffle()
-		mListAdapter = buildListAdapter()
+		playlist = playlist.shuffle()
+		listAdapter = buildListAdapter()
 		updateListView()
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
-		if (mSelectedFilter is MIDIAliasFilesFilter)
+		if (selectedFilter is MIDIAliasFilesFilter)
 			MIDIAliasListAdapter(
-				filterMIDIAliasFiles(Cache.mCachedCloudItems.midiAliasFiles),
+				filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
 				requireActivity()
 			)
 		else
-			SongListAdapter(filterPlaylistNodes(mPlaylist), this.requireActivity())
+			SongListAdapter(filterPlaylistNodes(playlist), this.requireActivity())
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")
@@ -760,14 +760,14 @@ class SongListFragment
 		// tag/subfolder, so a bit of clever collection management is required here.
 		val tagDictionaries = HashMap<String, MutableList<SongFile>>()
 		cache.songFiles.forEach {
-			it.mTags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
+			it.tags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
 		}
 
 		val folderDictionaries = HashMap<String, List<SongFile>>()
 		cache.folders.forEach {
 			cache.getSongsInFolder(it).let { songList ->
 				if (songList.isNotEmpty())
-					folderDictionaries[it.mName] = songList
+					folderDictionaries[it.name] = songList
 			}
 		}
 
@@ -778,12 +778,12 @@ class SongListFragment
 			tagAndFolderFilters.add(FolderFilter(it.key, it.value))
 		}
 		tagAndFolderFilters.addAll(cache.setListFiles.mapNotNull {
-			if (it.mFile != Cache.mTemporarySetListFile)
+			if (it.file != Cache.temporarySetListFile)
 				SetListFileFilter(it, cache.songFiles)
 			else
 				null
 		})
-		tagAndFolderFilters.sortBy { it.mName.lowercase() }
+		tagAndFolderFilters.sortBy { it.name.lowercase() }
 
 		// Now create the basic "all songs" filter, dead easy ...
 		val allSongsFilter = AllSongsFilter(cache
@@ -795,7 +795,7 @@ class SongListFragment
 		// Depending on whether we have a temporary set list file, we can create a temporary
 		// set list filter ...
 		val tempSetListFile =
-			cache.setListFiles.firstOrNull { it.mFile == Cache.mTemporarySetListFile }
+			cache.setListFiles.firstOrNull { it.file == Cache.temporarySetListFile }
 		val tempSetListFilter =
 			if (tempSetListFile != null)
 				TemporarySetListFilter(tempSetListFile, cache.songFiles)
@@ -811,7 +811,7 @@ class SongListFragment
 				null
 
 		// Now bundle them altogether into one list.
-		mFilters = listOf(
+		filters = listOf(
 			allSongsFilter,
 			tempSetListFilter,
 			tagAndFolderFilters,
@@ -822,19 +822,19 @@ class SongListFragment
 			.sortedWith(FilterComparator.instance)
 
 		// The default selected filter should be "all songs".
-		mSelectedFilter = allSongsFilter
-		applyFileFilter(mSelectedFilter)
+		selectedFilter = allSongsFilter
+		applyFileFilter(selectedFilter)
 		requireActivity().invalidateOptionsMenu()
 	}
 
 	override fun onPrepareOptionsMenu(menu: Menu) =
 		menu.run {
-			findItem(R.id.sort_songs)?.isEnabled = mSelectedFilter.mCanSort
+			findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
 			findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}
 
 	private fun showSortDialog() {
-		if (mSelectedFilter.mCanSort) {
+		if (selectedFilter.canSort) {
 			AlertDialog.Builder(context).apply {
 				val items = arrayOf<CharSequence>(
 					getString(R.string.byTitle),
@@ -857,7 +857,7 @@ class SongListFragment
 						}
 					)
 					sortSongList()
-					mListAdapter = buildListAdapter()
+					listAdapter = buildListAdapter()
 					updateListView()
 				}
 				setTitle(getString(R.string.sortSongs))
@@ -895,8 +895,8 @@ class SongListFragment
 	}
 
 	private fun showSetListMissingSongs() {
-		if (mSelectedFilter is SetListFileFilter) {
-			val slf = mSelectedFilter as SetListFileFilter
+		if (selectedFilter is SetListFileFilter) {
+			val slf = selectedFilter as SetListFileFilter
 			val missing = slf.mMissingSetListEntries.take(3)
 			if (missing.isNotEmpty() && !slf.mWarned) {
 				slf.mWarned = true
@@ -932,8 +932,8 @@ class SongListFragment
 	}
 
 	fun processBluetoothChooseSongMessage(choiceInfo: SongChoiceInfo) {
-		val beat = choiceInfo.mBeatScroll
-		val smooth = choiceInfo.mSmoothScroll
+		val beat = choiceInfo.isBeatScroll
+		val smooth = choiceInfo.isSmoothScroll
 		val scrollingMode =
 			if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
@@ -944,30 +944,30 @@ class SongListFragment
 		val nativeSettings = getSongDisplaySettings(scrollingMode)
 		val sourceSettings = if (mimicDisplay) DisplaySettings(choiceInfo) else nativeSettings
 
-		for (sf in Cache.mCachedCloudItems.songFiles)
-			if (sf.mNormalizedTitle == choiceInfo.mNormalizedTitle && sf.mNormalizedArtist == choiceInfo.mNormalizedArtist) {
+		for (sf in Cache.cachedCloudItems.songFiles)
+			if (sf.normalizedTitle == choiceInfo.normalizedTitle && sf.normalizedArtist == choiceInfo.normalizedArtist) {
 				val songLoadInfo = SongLoadInfo(
 					sf,
-					choiceInfo.mVariation,
+					choiceInfo.variation,
 					scrollingMode,
 					"",
-					mStartedByBandLeader = true,
-					mStartedByMIDITrigger = false,
+					wasStartedByBandLeader = true,
+					wasStartedByMidiTrigger = false,
 					nativeSettings,
 					sourceSettings,
-					choiceInfo.mNoAudio,
-					choiceInfo.mAudioLatency
+					choiceInfo.noAudio,
+					choiceInfo.audioLatency
 				)
 				val songLoadJob = SongLoadJob(songLoadInfo)
 				if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
 					playSong(
 						PlaylistNode(sf),
-						choiceInfo.mVariation,
+						choiceInfo.variation,
 						scrollingMode,
 						true,
 						nativeSettings,
 						sourceSettings,
-						choiceInfo.mNoAudio
+						choiceInfo.noAudio
 					)
 				break
 			}
@@ -975,15 +975,15 @@ class SongListFragment
 
 	internal fun onCacheUpdated(cache: CachedCloudCollection) {
 		val listView = requireView().findViewById<ListView>(R.id.listView)
-		mSavedListIndex = listView.firstVisiblePosition
+		savedListIndex = listView.firstVisiblePosition
 		val v = listView.getChildAt(0)
-		mSavedListOffset = if (v == null) 0 else v.top - listView.paddingTop
+		savedListOffset = if (v == null) 0 else v.top - listView.paddingTop
 		initialiseList(cache)
 	}
 
 	internal fun onCacheCleared(report: Boolean) {
-		mPlaylist = Playlist()
-		buildFilterList(Cache.mCachedCloudItems)
+		playlist = Playlist()
+		buildFilterList(Cache.cachedCloudItems)
 		val context = requireContext()
 		if (report) {
 			Toast.makeText(
@@ -995,8 +995,8 @@ class SongListFragment
 	}
 
 	internal fun onTemporarySetListCleared() {
-		mFilters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
-		buildFilterList(Cache.mCachedCloudItems)
+		filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.clear()
+		buildFilterList(Cache.cachedCloudItems)
 	}
 
 	private fun showLoadingProgressUI(show: Boolean) {
@@ -1022,7 +1022,7 @@ class SongListFragment
 			|| key == getString(R.string.pref_showMusicIcon_key)
 			|| key == getString(R.string.pref_showKeyInList_key)
 		) {
-			mListAdapter = buildListAdapter()
+			listAdapter = buildListAdapter()
 			updateListView()
 		}
 	}
@@ -1030,24 +1030,24 @@ class SongListFragment
 	override fun onQueryTextSubmit(searchText: String?): Boolean = true
 
 	override fun onQueryTextChange(searchText: String?): Boolean {
-		mSearchText = searchText?.lowercase() ?: ""
-		mListAdapter = buildListAdapter()
+		this.searchText = searchText?.lowercase() ?: ""
+		listAdapter = buildListAdapter()
 		updateListView()
 		return true
 	}
 
 	private fun filterMIDIAliasFiles(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
 		return fileList.filter {
-			it.mFile != Cache.mDefaultMidiAliasesFile &&
-				(mSearchText.isBlank() || it.mNormalizedName.contains(mSearchText))
+			it.file != Cache.defaultMidiAliasesFile &&
+				(searchText.isBlank() || it.normalizedName.contains(searchText))
 		}
 	}
 
 	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
 		playlist.nodes.filter {
-			mSearchText.isBlank() ||
-				it.mSongFile.mNormalizedArtist.contains(mSearchText) ||
-				it.mSongFile.mNormalizedTitle.contains(mSearchText)
+			searchText.isBlank() ||
+				it.songFile.normalizedArtist.contains(searchText) ||
+				it.songFile.normalizedTitle.contains(searchText)
 		}
 
 	companion object {
@@ -1057,13 +1057,13 @@ class SongListFragment
 		lateinit var mSongListInstance: SongListFragment
 	}
 
-	class SongListEventHandler internal constructor(private val mSongList: SongListFragment) :
+	class SongListEventHandler internal constructor(private val songList: SongListFragment) :
 		Handler() {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
-				Events.BLUETOOTH_CHOOSE_SONG -> mSongList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
+				Events.BLUETOOTH_CHOOSE_SONG -> songList.processBluetoothChooseSongMessage(msg.obj as SongChoiceInfo)
 				Events.CLOUD_SYNC_ERROR -> {
-					AlertDialog.Builder(mSongList.context).apply {
+					AlertDialog.Builder(songList.context).apply {
 						setMessage(
 							BeatPrompter.appResources.getString(
 								R.string.cloudSyncErrorMessage,
@@ -1081,60 +1081,60 @@ class SongListFragment
 
 				Events.MIDI_PROGRAM_CHANGE -> {
 					val bytes = msg.obj as ByteArray
-					mSongList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
+					songList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
 				}
 
-				Events.MIDI_SONG_SELECT -> mSongList.startSongViaMidiSongSelect(msg.arg1.toByte())
+				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())
 				Events.CACHE_UPDATED -> {
 					val cache = msg.obj as CachedCloudCollection
-					mSongList.onCacheUpdated(cache)
+					songList.onCacheUpdated(cache)
 				}
 
 				Events.CONNECTION_ADDED -> {
 					Toast.makeText(
-						mSongList.context,
+						songList.context,
 						BeatPrompter.appResources.getString(R.string.connection_added, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
-					mSongList.updateBluetoothIcon()
+					songList.updateBluetoothIcon()
 				}
 
 				Events.CONNECTION_LOST -> {
 					Logger.log("Lost connection to device.")
 					Toast.makeText(
-						mSongList.context,
+						songList.context,
 						BeatPrompter.appResources.getString(R.string.connection_lost, msg.obj.toString()),
 						Toast.LENGTH_LONG
 					).show()
-					mSongList.updateBluetoothIcon()
+					songList.updateBluetoothIcon()
 				}
 
 				Events.SONG_LOAD_CANCELLED -> {
 					if (!SongLoadQueueWatcherTask.isLoadingASong && !SongLoadQueueWatcherTask.hasASongToLoad)
-						mSongList.showLoadingProgressUI(false)
+						songList.showLoadingProgressUI(false)
 				}
 
 				Events.SONG_LOAD_FAILED -> {
-					mSongList.showLoadingProgressUI(false)
-					Toast.makeText(mSongList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
+					songList.showLoadingProgressUI(false)
+					Toast.makeText(songList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
 				}
 
 				Events.SONG_LOAD_COMPLETED -> {
 					Logger.logLoader { "Song ${msg.obj} was fully loaded successfully." }
-					mSongList.showLoadingProgressUI(false)
+					songList.showLoadingProgressUI(false)
 					// No point starting up the activity if there are songs in the load queue
 					if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
 						Logger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
 					else
-						mSongList.startSongActivity(msg.obj as UUID)
+						songList.startSongActivity(msg.obj as UUID)
 				}
 
 				Events.SONG_LOAD_LINE_PROCESSED -> {
-					mSongList.updateLoadingProgress(msg.arg1, msg.arg2)
+					songList.updateLoadingProgress(msg.arg1, msg.arg2)
 				}
 
-				Events.CACHE_CLEARED -> mSongList.onCacheCleared(msg.obj as Boolean)
-				Events.TEMPORARY_SET_LIST_CLEARED -> mSongList.onTemporarySetListCleared()
+				Events.CACHE_CLEARED -> songList.onCacheCleared(msg.obj as Boolean)
+				Events.TEMPORARY_SET_LIST_CLEARED -> songList.onTemporarySetListCleared()
 			}
 		}
 	}

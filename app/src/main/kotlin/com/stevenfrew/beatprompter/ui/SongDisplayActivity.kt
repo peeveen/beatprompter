@@ -36,32 +36,32 @@ import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 class SongDisplayActivity
 	: AppCompatActivity(),
 	SensorEventListener {
-	private var mSongView: SongView? = null
-	private var mStartedByBandLeader = false
-	private var mPreferredOrientation: Int = 0
-	private var mOrientation: Int = 0
+	private var songView: SongView? = null
+	private var wasStartedByBandLeader = false
+	private var preferredOrientation: Int = 0
+	private var orientation: Int = 0
 
-	private var mSensorManager: SensorManager? = null
-	private var mProximitySensor: Sensor? = null
-	private var mScrollOnProximity: Boolean = false
+	private var sensorManager: SensorManager? = null
+	private var proximitySensor: Sensor? = null
+	private var scrollOnProximity: Boolean = false
 
-	private var mLastOtherPageDownEvent: Long = 0
-	private var mAnyOtherKeyPageDown = false
+	private var lastOtherPageDownEvent: Long = 0
+	private var anyOtherKeyPageDown = false
 
-	private lateinit var mSongDisplayEventHandler: SongDisplayEventHandler
+	private lateinit var songDisplayEventHandler: SongDisplayEventHandler
 
-	private val mMidiClockOutTask = ClockSignalGeneratorTask()
-	private val mMidiClockOutTaskThread =
-		Thread(mMidiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
+	private val midiClockOutTask = ClockSignalGeneratorTask()
+	private val midiClockOutTaskThread =
+		Thread(midiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
-		mSongDisplayInstance = this
+		songDisplayInstance = this
 
 		val sendMidiClockPref = Preferences.sendMIDIClock
-		mScrollOnProximity = Preferences.proximityScroll
-		mAnyOtherKeyPageDown = Preferences.anyOtherKeyPageDown
+		scrollOnProximity = Preferences.proximityScroll
+		anyOtherKeyPageDown = Preferences.anyOtherKeyPageDown
 
 		setContentView(R.layout.activity_song_display)
 		val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
@@ -70,7 +70,7 @@ class SongDisplayActivity
 			System.gc()
 			return
 		}
-		mSongView = potentiallyNullSongView
+		songView = potentiallyNullSongView
 
 		val loadedSong = SongLoadJob.mLoadedSong
 		if (loadedSong == null) {
@@ -78,7 +78,7 @@ class SongDisplayActivity
 			System.gc()
 			return
 		}
-		val song = loadedSong.mSong
+		val song = loadedSong.song
 		val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
 		// For a song to load successfully, all three IDs must match:
 		// 1) The ID passed in the startActivityForResult parcelable
@@ -89,62 +89,62 @@ class SongDisplayActivity
 		// happen in the split second between this SongDisplay activity being launched, and
 		// us reaching this code here. If we don't finish() in the event of a mismatch, we
 		// can end up with multiple SongDisplay activities running.
-		if (song.mLoadID != loadID.uuid) {
+		if (song.loadId != loadID.uuid) {
 			Logger.logLoader("*** Load ID Mismatch ***")
 			Logger.logLoader { "Parcelable Load ID = ${loadID.uuid}" }
-			Logger.logLoader { "SongLoadJob ID = ${song.mLoadID}" }
+			Logger.logLoader { "SongLoadJob ID = ${song.loadId}" }
 			finish()
 			System.gc()
 			return
 		} else {
-			Logger.logLoader { "Successful load ID match: ${song.mLoadID}" }
+			Logger.logLoader { "Successful load ID match: ${song.loadId}" }
 			if (Preferences.bluetoothMode == BluetoothMode.Server) {
-				Logger.logLoader { "Sending ChooseSongMessage for \"${loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle}\"" }
+				Logger.logLoader { "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle}\"" }
 				val csm = ChooseSongMessage(
 					SongChoiceInfo(
-						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedTitle,
-						loadedSong.mLoadJob.mSongLoadInfo.mSongFile.mNormalizedArtist,
-						loadedSong.mLoadJob.mSongLoadInfo.mVariation,
-						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mOrientation,
-						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Beat,
-						loadedSong.mLoadJob.mSongLoadInfo.mSongLoadMode === ScrollingMode.Smooth,
-						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMinFontSize,
-						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mMaxFontSize,
-						loadedSong.mLoadJob.mSongLoadInfo.mNativeDisplaySettings.mScreenSize,
-						loadedSong.mLoadJob.mSongLoadInfo.mNoAudio,
-						loadedSong.mLoadJob.mSongLoadInfo.mAudioLatency
+						loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle,
+						loadedSong.loadJob.songLoadInfo.songFile.normalizedArtist,
+						loadedSong.loadJob.songLoadInfo.variation,
+						loadedSong.loadJob.songLoadInfo.nativeDisplaySettings.orientation,
+						loadedSong.loadJob.songLoadInfo.songLoadMode === ScrollingMode.Beat,
+						loadedSong.loadJob.songLoadInfo.songLoadMode === ScrollingMode.Smooth,
+						loadedSong.loadJob.songLoadInfo.nativeDisplaySettings.minimumFontSize,
+						loadedSong.loadJob.songLoadInfo.nativeDisplaySettings.maximumFontSize,
+						loadedSong.loadJob.songLoadInfo.nativeDisplaySettings.screenSize,
+						loadedSong.loadJob.songLoadInfo.noAudio,
+						loadedSong.loadJob.songLoadInfo.audioLatency
 					)
 				)
 				Bluetooth.putMessage(csm)
 			}
 		}
 
-		mStartedByBandLeader = song.mStartedByBandLeader
-		val orientation = song.mDisplaySettings.mOrientation
-		mOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
+		wasStartedByBandLeader = song.wasStartedByBandLeader
+		val orientation = song.displaySettings.orientation
+		this.orientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE)
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 		else
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-		requestedOrientation = mOrientation
+		requestedOrientation = this.orientation
 
-		Midi.putMessages(song.mInitialMIDIMessages)
+		Midi.putMessages(song.initialMidiMessages)
 
 		window.setFlags(
 			WindowManager.LayoutParams.FLAG_FULLSCREEN,
 			WindowManager.LayoutParams.FLAG_FULLSCREEN
 		)
 
-		mSongDisplayEventHandler = SongDisplayEventHandler(this, mSongView)
-		EventRouter.setSongDisplayEventHandler(mSongDisplayEventHandler)
-		mSongView!!.init(this, song)
+		songDisplayEventHandler = SongDisplayEventHandler(this, songView)
+		EventRouter.setSongDisplayEventHandler(songDisplayEventHandler)
+		songView!!.init(this, song)
 
-		if (sendMidiClockPref || song.mSendMIDIClock)
-			mMidiClockOutTaskThread.start()
+		if (sendMidiClockPref || song.sendMidiClock)
+			midiClockOutTaskThread.start()
 
 		try {
-			mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-			if (mSensorManager != null) {
-				mProximitySensor = mSensorManager!!.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+			sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+			if (sensorManager != null) {
+				proximitySensor = sensorManager!!.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 			}
 		} catch (e: Exception) {
 			// Nae sensors.
@@ -153,91 +153,91 @@ class SongDisplayActivity
 		System.gc()
 
 		// Set up the user interaction to manually show or hide the system UI.
-		mSongView!!.setOnClickListener { }
+		songView!!.setOnClickListener { }
 	}
 
 	fun canYieldToExternalTrigger(): Boolean =
-		mSongView == null || mSongView!!.canYieldToExternalTrigger()
+		songView == null || songView!!.canYieldToExternalTrigger()
 
 	override fun onPause() {
-		mSongDisplayActive = false
+		songDisplayActive = false
 		super.onPause()
-		Task.pauseTask(mMidiClockOutTask, mMidiClockOutTaskThread)
-		if (mSongView != null)
-			mSongView!!.stop(false)
-		if (mSensorManager != null && mProximitySensor != null)
-			mSensorManager!!.unregisterListener(this)
+		Task.pauseTask(midiClockOutTask, midiClockOutTaskThread)
+		if (songView != null)
+			songView!!.stop(false)
+		if (sensorManager != null && proximitySensor != null)
+			sensorManager!!.unregisterListener(this)
 	}
 
 	override fun onDestroy() {
-		requestedOrientation = mPreferredOrientation
+		requestedOrientation = preferredOrientation
 		super.onDestroy()
-		if (!mSongDisplayActive)
+		if (!songDisplayActive)
 			SongLoadJob.mLoadedSong = null
 
-		Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
+		Task.stopTask(midiClockOutTask, midiClockOutTaskThread)
 
-		if (mSongView != null) {
-			mSongView!!.stop(true)
-			mSongView = null
+		if (songView != null) {
+			songView!!.stop(true)
+			songView = null
 		}
 	}
 
 	override fun onStop() {
 		super.onStop()
-		if (mSongView != null)
-			mSongView!!.stop(false)
+		if (songView != null)
+			songView!!.stop(false)
 	}
 
 	override fun onResume() {
-		mSongDisplayActive = true
+		songDisplayActive = true
 		super.onResume()
-		requestedOrientation = mOrientation
-		Task.resumeTask(mMidiClockOutTask)
-		requestedOrientation = mOrientation
-		if (mSensorManager != null && mProximitySensor != null)
-			mSensorManager!!.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+		requestedOrientation = orientation
+		Task.resumeTask(midiClockOutTask)
+		requestedOrientation = orientation
+		if (sensorManager != null && proximitySensor != null)
+			sensorManager!!.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
 	}
 
 	override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
 		when (keyCode) {
 			KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_PAGE_DOWN -> {
-				if (mSongView != null)
-					mSongView!!.onPageDownKeyPressed()
+				if (songView != null)
+					songView!!.onPageDownKeyPressed()
 				return true
 			}
 
 			KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_PAGE_UP -> {
-				if (mSongView != null)
-					mSongView!!.onPageUpKeyPressed()
+				if (songView != null)
+					songView!!.onPageUpKeyPressed()
 				return true
 			}
 
 			KeyEvent.KEYCODE_DPAD_DOWN -> {
-				if (mSongView != null)
-					mSongView!!.onLineDownKeyPressed()
+				if (songView != null)
+					songView!!.onLineDownKeyPressed()
 				return true
 			}
 
 			KeyEvent.KEYCODE_DPAD_UP -> {
-				if (mSongView != null)
-					mSongView!!.onLineUpKeyPressed()
+				if (songView != null)
+					songView!!.onLineUpKeyPressed()
 				return true
 			}
 
 			KeyEvent.KEYCODE_DPAD_LEFT -> {
-				if (mSongView != null)
-					mSongView!!.onLeftKeyPressed()
+				if (songView != null)
+					songView!!.onLeftKeyPressed()
 				return true
 			}
 
 			KeyEvent.KEYCODE_DPAD_RIGHT -> {
-				if (mSongView != null)
-					mSongView!!.onRightKeyPressed()
+				if (songView != null)
+					songView!!.onRightKeyPressed()
 				return true
 			}
 
-			else -> return if (mAnyOtherKeyPageDown) {
+			else -> return if (anyOtherKeyPageDown) {
 				activateOtherPageDown(System.nanoTime())
 				true
 			} else
@@ -246,16 +246,16 @@ class SongDisplayActivity
 	}
 
 	override fun onSensorChanged(sensorEvent: SensorEvent) {
-		if (mScrollOnProximity && mSongView != null)
+		if (scrollOnProximity && songView != null)
 			activateOtherPageDown(sensorEvent.timestamp)
 	}
 
 	private fun activateOtherPageDown(eventTime: Long) {
 		// Don't allow two of these events to happen within the same second.
 		// A foot on a keyboard can generate a lot of events!
-		if (eventTime - mLastOtherPageDownEvent > 1000000000) {
-			mLastOtherPageDownEvent = eventTime
-			mSongView!!.onOtherPageDownActivated()
+		if (eventTime - lastOtherPageDownEvent > 1000000000) {
+			lastOtherPageDownEvent = eventTime
+			songView!!.onOtherPageDownActivated()
 		}
 	}
 
@@ -265,30 +265,30 @@ class SongDisplayActivity
 
 	fun onSongBeat(bpm: Double) {
 		if (bpm != 0.0)
-			mMidiClockOutTask.setBPM(bpm)
+			midiClockOutTask.setBPM(bpm)
 	}
 
-	fun onSongStop() = Task.stopTask(mMidiClockOutTask, mMidiClockOutTaskThread)
+	fun onSongStop() = Task.stopTask(midiClockOutTask, midiClockOutTaskThread)
 
 	class SongDisplayEventHandler internal constructor(
-		private val mActivity: SongDisplayActivity,
-		private val mSongView: SongView?
+		private val activity: SongDisplayActivity,
+		private val songView: SongView?
 	) : Handler() {
 		override fun handleMessage(msg: Message) {
-			if (mSongDisplayActive)
+			if (songDisplayActive)
 				when (msg.what) {
-					Events.BLUETOOTH_PAUSE_ON_SCROLL_START -> mSongView?.pauseOnScrollStart()
+					Events.BLUETOOTH_PAUSE_ON_SCROLL_START -> songView?.pauseOnScrollStart()
 					Events.BLUETOOTH_QUIT_SONG -> {
 						Logger.logLoader("Quit song Bluetooth message received. Finishing activity.")
 						val songInfo = msg.obj as Pair<*, *>
 						val title = songInfo.first as String
 						val artist = songInfo.second as String
-						if (mSongView != null)
-							if (mSongView.hasSong(title, artist))
-								mActivity.finish()
+						if (songView != null)
+							if (songView.hasSong(title, artist))
+								activity.finish()
 					}
 
-					Events.BLUETOOTH_SET_SONG_TIME -> mSongView?.setSongTime(
+					Events.BLUETOOTH_SET_SONG_TIME -> songView?.setSongTime(
 						msg.obj as Long,
 						redraw = true,
 						broadcast = false,
@@ -296,45 +296,45 @@ class SongDisplayActivity
 						recalculateManualPositions = true
 					)
 
-					Events.BLUETOOTH_TOGGLE_START_STOP -> mSongView?.processBluetoothToggleStartStopMessage(
+					Events.BLUETOOTH_TOGGLE_START_STOP -> songView?.processBluetoothToggleStartStopMessage(
 						msg.obj as ToggleStartStopMessage.StartStopToggleInfo
 					)
 
-					Events.MIDI_SET_SONG_POSITION -> mSongView?.setSongBeatPosition(msg.arg1, true)
+					Events.MIDI_SET_SONG_POSITION -> songView?.setSongBeatPosition(msg.arg1, true)
 						?: Logger.log("MIDI song position pointer received by SongDisplay before view was created.")
 
-					Events.MIDI_START_SONG -> mSongView?.startSong(midiInitiated = true, fromStart = true)
+					Events.MIDI_START_SONG -> songView?.startSong(midiInitiated = true, fromStart = true)
 						?: Logger.log("MIDI start signal received by SongDisplay before view was created.")
 
-					Events.MIDI_CONTINUE_SONG -> mSongView?.startSong(midiInitiated = true, fromStart = false)
+					Events.MIDI_CONTINUE_SONG -> songView?.startSong(midiInitiated = true, fromStart = false)
 						?: Logger.log("MIDI continue signal received by SongDisplay before view was created.")
 
-					Events.MIDI_STOP_SONG -> mSongView?.stopSong(true)
+					Events.MIDI_STOP_SONG -> songView?.stopSong(true)
 						?: Logger.log("MIDI stop signal received by SongDisplay before view was created.")
 
 					Events.END_SONG -> {
-						mActivity.setResult(Activity.RESULT_OK)
+						activity.setResult(Activity.RESULT_OK)
 						Logger.logLoader("End song message received. Finishing activity.")
-						mActivity.finish()
+						activity.finish()
 					}
 				}
 		}
 	}
 
 	companion object {
-		var mSongDisplayActive = false
-		private lateinit var mSongDisplayInstance: SongDisplayActivity
+		var songDisplayActive = false
+		private lateinit var songDisplayInstance: SongDisplayActivity
 
 		fun interruptCurrentSong(interruptJob: SongLoadJob): SongInterruptResult {
-			if (mSongDisplayActive) {
+			if (songDisplayActive) {
 				val loadedSong = SongLoadJob.mLoadedSong
 					?: return SongInterruptResult.NoSongToInterrupt
 
 				return when {
 					// Trying to interrupt a song with itself is pointless!
-					loadedSong.mSong.mSongFile.mID == interruptJob.mSongLoadInfo.mSongFile.mID -> SongInterruptResult.SongAlreadyLoaded
-					mSongDisplayInstance.canYieldToExternalTrigger() -> {
-						loadedSong.mSong.mCancelled = true
+					loadedSong.song.songFile.id == interruptJob.songLoadInfo.songFile.id -> SongInterruptResult.SongAlreadyLoaded
+					songDisplayInstance.canYieldToExternalTrigger() -> {
+						loadedSong.song.cancelled = true
 						SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)
 						EventRouter.sendEventToSongDisplay(Events.END_SONG)
 						SongInterruptResult.CanInterrupt

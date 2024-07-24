@@ -25,5 +25,5 @@ class StartOfVariationExclusionTag internal constructor(
 	lineNumber,
 	position,
 ) {
-	val mVariations: List<String> = value.splitAndTrim(",").filter { it.isNotBlank() }
+	val variations: List<String> = value.splitAndTrim(",").filter { it.isNotBlank() }
 }

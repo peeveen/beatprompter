@@ -13,7 +13,7 @@ import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 import com.stevenfrew.beatprompter.util.GlobalAppResources
 
 class BeatPrompter : Application() {
-	private val mSongLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
+	private val songLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
 
 	override fun attachBaseContext(base: Context) {
 		super.attachBaseContext(base)
@@ -44,7 +44,7 @@ class BeatPrompter : Application() {
 		AppCompatDelegate.setDefaultNightMode(if (Preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		Midi.initialize(applicationContext)
 		Bluetooth.initialize(applicationContext)
-		mSongLoaderTaskThread.start()
+		songLoaderTaskThread.start()
 		Task.resumeTask(SongLoadQueueWatcherTask)
 	}
 

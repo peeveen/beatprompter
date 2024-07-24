@@ -70,27 +70,27 @@ import org.w3c.dom.Element
  */
 class SongInfoParser(cachedCloudFile: CachedFile) :
 	SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, false) {
-	private var mTitle: String? = null
-	private var mArtist: String? = null
-	private var mKey: String? = null
-	private var mFirstChord: String? = null
-	private var mBPM: Double = 0.0
-	private var mBars: Int = 0
-	private var mBeats: Int = 0
-	private var mTotalPause: Long = 0L
-	private var mDuration: Long = 0L
-	private val mImageFiles = mutableListOf<String>()
-	private var mFilterOnly = false
-	private val mTags = mutableListOf<String>()
-	private var mMIDIProgramChangeTrigger: SongTrigger? = null
-	private var mMIDISongSelectTrigger: SongTrigger? = null
-	private var mMixedMode: Boolean = false
-	private var mLines = 0
-	private var mRating = 0
+	private var title: String? = null
+	private var artist: String? = null
+	private var key: String? = null
+	private var firstChord: String? = null
+	private var bpm: Double = 0.0
+	private var bars: Int = 0
+	private var beats: Int = 0
+	private var totalPauseDuration: Long = 0L
+	private var duration: Long = 0L
+	private val imageFiles = mutableListOf<String>()
+	private var isFilterOnly = false
+	private val tags = mutableListOf<String>()
+	private var midiProgramChangeTriggerr: SongTrigger? = null
+	private var midiSongSelectTrigger: SongTrigger? = null
+	private var isMixedMode: Boolean = false
+	private var lines = 0
+	private var rating = 0
 
 	override fun parse(element: Element?): SongFile {
 		try {
-			SongFile.readSongInfoFromAttributes(element, mCachedCloudFile)?.also {
+			SongFile.readSongInfoFromAttributes(element, cachedCloudFile)?.also {
 				return it
 			}
 		} catch (exception: Exception) {
@@ -102,9 +102,9 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 
 	override fun parseLine(line: TextFileLine<SongFile>) {
 		super.parseLine(line)
-		++mLines
+		++lines
 
-		val tagSequence = line.mTags.asSequence()
+		val tagSequence = line.tags.asSequence()
 		val titleTag = tagSequence.filterIsInstance<TitleTag>().firstOrNull()
 		val artistTag = tagSequence.filterIsInstance<ArtistTag>().firstOrNull()
 		val keyTag = tagSequence.filterIsInstance<KeyTag>().firstOrNull()
@@ -118,93 +118,93 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
 		val beatStopTag = tagSequence.filterIsInstance<BeatStopTag>().firstOrNull()
 		val timeTag = tagSequence.filterIsInstance<TimeTag>().firstOrNull()
-		val imageTags = line.mTags.filterIsInstance<ImageTag>()
+		val imageTags = line.tags.filterIsInstance<ImageTag>()
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
 		val ratingTag = tagSequence.filterIsInstance<RatingTag>().firstOrNull()
 
 		if (titleTag != null)
-			mTitle = titleTag.mTitle
+			title = titleTag.title
 
 		if (artistTag != null)
-			mArtist = artistTag.mArtist
+			artist = artistTag.artist
 
 		if (keyTag != null)
-			mKey = keyTag.mKey
+			key = keyTag.key
 
 		if (filterOnlyTag != null)
-			mFilterOnly = true
+			isFilterOnly = true
 
 		if (chordTag != null)
-			if (mFirstChord == null && chordTag.mValidChord)
-				mFirstChord = chordTag.mName
+			if (firstChord == null && chordTag.isValidChord)
+				firstChord = chordTag.name
 
 		if (midiSongSelectTriggerTag != null)
-			mMIDISongSelectTrigger = midiSongSelectTriggerTag.mTrigger
+			midiSongSelectTrigger = midiSongSelectTriggerTag.trigger
 
 		if (midiProgramChangeTriggerTag != null)
-			mMIDIProgramChangeTrigger = midiProgramChangeTriggerTag.mTrigger
+			midiProgramChangeTriggerr = midiProgramChangeTriggerTag.trigger
 
 		if (bpmTag != null)
-			mBPM = bpmTag.mBPM
+			bpm = bpmTag.bpm
 
 		if (pauseTag != null)
-			mTotalPause += pauseTag.mDuration
+			totalPauseDuration += pauseTag.duration
 
 		if (timeTag != null)
-			mDuration = timeTag.mDuration
+			duration = timeTag.duration
 
 		if (beatStartTag != null || beatStopTag != null)
-			mMixedMode = true
+			isMixedMode = true
 
 		if (ratingTag != null)
-			mRating = ratingTag.mRating
+			rating = ratingTag.rating
 
-		if (line.mLineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
-			mBars += mCurrentLineBeatInfo.mBPL
-			mBeats += mCurrentLineBeatInfo.mBeats
+		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
+			bars += currentLineBeatInfo.mBPL
+			beats += currentLineBeatInfo.mBeats
 		}
 
-		mImageFiles.addAll(imageTags.map { it.mFilename })
-		mTags.addAll(tagTags.map { it.mTag })
+		imageFiles.addAll(imageTags.map { it.filename })
+		tags.addAll(tagTags.map { it.tag })
 	}
 
 	override fun getResult(): SongFile {
-		if (mTitle.isNullOrBlank())
-			throw InvalidBeatPrompterFileException(R.string.noTitleFound, mCachedCloudFile.mName)
-		if (mArtist.isNullOrBlank())
-			mArtist = ""
+		if (title.isNullOrBlank())
+			throw InvalidBeatPrompterFileException(R.string.noTitleFound, cachedCloudFile.name)
+		if (artist.isNullOrBlank())
+			artist = ""
 		val key =
-			if (mKey.isNullOrBlank())
-				if (mFirstChord.isNullOrBlank())
+			if (key.isNullOrBlank())
+				if (firstChord.isNullOrBlank())
 					""
 				else
-					mFirstChord!!
+					firstChord!!
 			else
-				mKey!!
+				key!!
 
 		return SongFile(
-			mCachedCloudFile,
-			mLines,
-			mBars,
-			mTitle!!,
-			mArtist!!,
+			cachedCloudFile,
+			lines,
+			bars,
+			title!!,
+			artist!!,
 			key,
-			mBPM,
-			mDuration,
-			mMixedMode,
-			mTotalPause,
-			mAudioFiles,
-			mImageFiles,
-			mTags.toSet(),
-			mMIDIProgramChangeTrigger
+			bpm,
+			duration,
+			isMixedMode,
+			totalPauseDuration,
+			audioFiles,
+			imageFiles,
+			tags.toSet(),
+			midiProgramChangeTriggerr
 				?: SongTrigger.DEAD_TRIGGER,
-			mMIDISongSelectTrigger
+			midiSongSelectTrigger
 				?: SongTrigger.DEAD_TRIGGER,
-			mFilterOnly,
-			mRating,
-			if (mVariations.isEmpty()) listOf("Default") else mVariations,
-			mErrors
+			isFilterOnly,
+			rating,
+			if (variations.isEmpty()) listOf("Default") else variations,
+			errors
 		)
 	}
 }

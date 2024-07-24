@@ -22,9 +22,8 @@ open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
 		internal const val MIDI_MSB_BANK_SELECT_CONTROLLER: Byte = 0
 		internal const val MIDI_LSB_BANK_SELECT_CONTROLLER = 32.toByte()
 
-		internal fun mergeMessageByteWithChannel(message: Byte, channel: Byte): Byte {
-			return (message and 0xf0.toByte()) or (channel and 0x0f)
-		}
+		internal fun mergeMessageByteWithChannel(message: Byte, channel: Byte): Byte =
+			(message and 0xf0.toByte()) or (channel and 0x0f)
 
 		fun getChannelFromBitmask(bitmask: Int): Byte {
 			var n = 1
@@ -39,11 +38,9 @@ open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
 		}
 	}
 
-	private fun isSystemCommonMessage(message: Byte): Boolean {
-		return mBytes.isNotEmpty() && mBytes[0] == message
-	}
+	private fun isSystemCommonMessage(message: Byte): Boolean =
+		bytes.isNotEmpty() && bytes[0] == message
 
-	private fun isChannelVoiceMessage(message: Byte): Boolean {
-		return mBytes.isNotEmpty() && (mBytes[0] and 0xF0.toByte() == message)
-	}
+	private fun isChannelVoiceMessage(message: Byte): Boolean =
+		bytes.isNotEmpty() && (bytes[0] and 0xF0.toByte() == message)
 }

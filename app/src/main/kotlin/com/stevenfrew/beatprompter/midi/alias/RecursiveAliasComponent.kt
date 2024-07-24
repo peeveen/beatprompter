@@ -5,12 +5,12 @@ import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
 
 class RecursiveAliasComponent(
-	private val mReferencedAliasName: String,
-	private val mArguments: List<Value>,
-	private val mChannelValue: ChannelValue?
+	private val referencedAliasName: String,
+	private val arguments: List<Value>,
+	private val channelValue: ChannelValue?
 ) : AliasComponent {
 	override val parameterCount: Int
-		get() = (mArguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
+		get() = (arguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
 
 	override fun resolve(
 		aliases: List<Alias>,
@@ -19,19 +19,19 @@ class RecursiveAliasComponent(
 	): List<OutgoingMessage> =
 		try {
 			aliases.first {
-				it.mName.equals(
-					mReferencedAliasName,
+				it.name.equals(
+					referencedAliasName,
 					ignoreCase = true
-				) && it.parameterCount == mArguments.size
+				) && it.parameterCount == arguments.size
 			}
-				.resolve(aliases, mArguments.map {
-					it.resolve(parameters, mChannelValue?.mValue ?: channel)
-				}.toByteArray(), mChannelValue?.mValue ?: channel)
+				.resolve(aliases, arguments.map {
+					it.resolve(parameters, channelValue?.value ?: channel)
+				}.toByteArray(), channelValue?.value ?: channel)
 		} catch (exception: NoSuchElementException) {
 			throw ResolutionException(
 				BeatPrompter.appResources.getString(
 					R.string.unknown_midi_directive,
-					mReferencedAliasName
+					referencedAliasName
 				)
 			)
 		}

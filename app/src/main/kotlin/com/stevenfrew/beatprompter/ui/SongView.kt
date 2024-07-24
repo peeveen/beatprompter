@@ -57,112 +57,112 @@ class SongView
 	: AppCompatImageView,
 	GestureDetector.OnGestureListener {
 
-	private val mDestinationGraphicRect = Rect(0, 0, 0, 0)
-	private var mCurrentBeatCountRect = Rect()
-	private var mEndSongByPedalCounter = 0
-	private var mMetronomeOn: Boolean = false
-	private var mInitialized = false
-	private var mSkipping = false
-	private var mCurrentVolume = Preferences.defaultTrackVolume
-	private var mLastCommentEvent: CommentEvent? = null
-	private var mLastCommentTime: Long = 0
-	private var mLastTempMessageTime: Long = 0
-	private var mLastBeatTime: Long = 0
-	private val mPaint = Paint()
-	private val mScroller: OverScroller
-	private val mMetronomePref: MetronomeContext
+	private val destinationGraphicRect = Rect(0, 0, 0, 0)
+	private var currentBeatCountRect = Rect()
+	private var endSongByPedalCounter = 0
+	private var metronomeOn: Boolean = false
+	private var initialized = false
+	private var skipping = false
+	private var currentVolume = Preferences.defaultTrackVolume
+	private var lastCommentEvent: CommentEvent? = null
+	private var lastCommentTime: Long = 0
+	private var lastTempMessageTime: Long = 0
+	private var lastBeatTime: Long = 0
+	private val paint = Paint()
+	private val scroller: OverScroller
+	private val metronomePref: MetronomeContext
 
-	private var mManualMetronomeTask: ManualMetronomeTask? = null
-	private var mManualMetronomeThread: Thread? = null
+	private var manualMetronomeTask: ManualMetronomeTask? = null
+	private var manualMetronomeThread: Thread? = null
 
-	private var mSong: Song? = null
+	private var song: Song? = null
 
-	private var mSongStartTime: Long = 0
-	private var mStartState = PlayState.AtTitleScreen
-	private var mUserHasScrolled = false
-	private var mPauseTime: Long = 0
-	private var mNanosecondsPerBeat = Utils.nanosecondsPerBeat(120.0)
+	private var songStartTime: Long = 0
+	private var startState = PlayState.AtTitleScreen
+	private var userHasScrolled = false
+	private var pauseTime: Long = 0
+	private var nanosecondsPerBeat = Utils.nanosecondsPerBeat(120.0)
 
-	private val mBackgroundColorLookup = IntArray(101)
-	private val mCommentTextColor: Int
-	private val mPageDownMarkerColor: Int
-	private val mBeatCounterColor: Int
-	private val mDefaultCurrentLineHighlightColor: Int
-	private val mBeatSectionStartHighlightColors: IntArray
-	private val mDefaultPageDownLineHighlightColor: Int
-	private val mShowScrollIndicator: Boolean
-	private val mShowSongTitle: Boolean
-	private val mCommentDisplayTimeNanoseconds: Long
-	private val mAudioPlayerFactory: AudioPlayerFactory
-	private var mAudioPlayers = mapOf<AudioFile, AudioPlayer>()
-	private val mSilenceAudioPlayer: AudioPlayer
+	private val backgroundColorLookup = IntArray(101)
+	private val commentTextColor: Int
+	private val pageDownMarkerColor: Int
+	private val beatCounterColor: Int
+	private val defaultCurrentLineHighlightColor: Int
+	private val beatSectionStartHighlightColors: IntArray
+	private val defaultPageDownLineHighlightColor: Int
+	private val showScrollIndicator: Boolean
+	private val showSongTitle: Boolean
+	private val commentDisplayTimeNanoseconds: Long
+	private val audioPlayerFactory: AudioPlayerFactory
+	private var audioPlayers = mapOf<AudioFile, AudioPlayer>()
+	private val silenceAudioPlayer: AudioPlayer
 
-	private var mPulse: Boolean
-	private var mSongPixelPosition = 0
-	private var mTargetPixelPosition = -1
-	private var mTargetAcceleration = 1
-	private val mHighlightCurrentLine: Boolean
-	private val mHighlightBeatSectionStart: Boolean
-	private val mShowPageDownMarker: Boolean
-	private var mSongTitleContrastBackground: Int = 0
-	private var mSongTitleContrastBeatCounter: Int = 0
-	private val mScrollIndicatorRect = Rect()
-	private var mGestureDetector: GestureDetectorCompat? = null
-	private var mScreenAction = ScreenAction.Scroll
-	private val mScrollMarkerColor: Int
-	private var mSongDisplayActivity: SongDisplayActivity? = null
-	private val mExternalTriggerSafetyCatch: TriggerSafetyCatch
-	private val mSendMidiClockPreference: Boolean
-	private var mSendMidiClock = false
-	private val mManualScrollPositions: ManualScrollPositions = ManualScrollPositions()
+	private var pulse: Boolean
+	private var songPixelPosition = 0
+	private var targetPixelPosition = -1
+	private var targetAcceleration = 1
+	private val highlightCurrentLine: Boolean
+	private val highlightBeatSectionStart: Boolean
+	private val showPageDownMarker: Boolean
+	private var songTitleContrastBackground: Int = 0
+	private var songTitleContrastBeatCounter: Int = 0
+	private val scrollIndicatorRect = Rect()
+	private var gestureDetector: GestureDetectorCompat? = null
+	private var screenAction = ScreenAction.Scroll
+	private val scrollMarkerColor: Int
+	private var songDisplayActivity: SongDisplayActivity? = null
+	private val externalTriggerSafetyCatch: TriggerSafetyCatch
+	private val sendMidiClockPreference: Boolean
+	private var sendMidiClock = false
+	private val manualScrollPositions: ManualScrollPositions = ManualScrollPositions()
 
-	private val mClickSoundPool: SoundPool = SoundPool
+	private val clickSoundPool: SoundPool = SoundPool
 		.Builder()
 		.setMaxStreams(16)
 		.setAudioAttributes(SongViewAudioAttributes)
 		.build()
-	private val mClickAudioID = mClickSoundPool.load(this.context, R.raw.click, 0)
+	private val clickAudioId = clickSoundPool.load(this.context, R.raw.click, 0)
 
 	enum class ScreenAction {
 		Scroll, Volume, None
 	}
 
 	constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-		mScroller = OverScroller(context)
-		mGestureDetector = GestureDetectorCompat(context, this)
-		mSongPixelPosition = 0
+		scroller = OverScroller(context)
+		gestureDetector = GestureDetectorCompat(context, this)
+		songPixelPosition = 0
 
-		mAudioPlayerFactory = AudioPlayerFactory(Preferences.audioPlayer, context)
-		mSilenceAudioPlayer = mAudioPlayerFactory.createSilencePlayer()
+		audioPlayerFactory = AudioPlayerFactory(Preferences.audioPlayer, context)
+		silenceAudioPlayer = audioPlayerFactory.createSilencePlayer()
 
-		mScreenAction = Preferences.screenAction
-		mShowScrollIndicator = Preferences.showScrollIndicator
-		mShowSongTitle = Preferences.showSongTitle
+		screenAction = Preferences.screenAction
+		showScrollIndicator = Preferences.showScrollIndicator
+		showSongTitle = Preferences.showSongTitle
 		val commentDisplayTimeSeconds = Preferences.commentDisplayTime
-		mCommentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-		mExternalTriggerSafetyCatch = Preferences.midiTriggerSafetyCatch
-		mHighlightCurrentLine = Preferences.highlightCurrentLine
-		mShowPageDownMarker = Preferences.showPageDownMarker
-		mHighlightBeatSectionStart = Preferences.highlightBeatSectionStart
-		mBeatCounterColor = Preferences.beatCounterColor
-		mCommentTextColor = Preferences.commentColor
-		mPageDownMarkerColor = Preferences.pageDownMarkerColor
-		mScrollMarkerColor = Preferences.scrollIndicatorColor
+		commentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
+		externalTriggerSafetyCatch = Preferences.midiTriggerSafetyCatch
+		highlightCurrentLine = Preferences.highlightCurrentLine
+		showPageDownMarker = Preferences.showPageDownMarker
+		highlightBeatSectionStart = Preferences.highlightBeatSectionStart
+		beatCounterColor = Preferences.beatCounterColor
+		commentTextColor = Preferences.commentColor
+		pageDownMarkerColor = Preferences.pageDownMarkerColor
+		scrollMarkerColor = Preferences.scrollIndicatorColor
 		val mHighlightBeatSectionStartColor = Preferences.beatSectionStartHighlightColor
-		mBeatSectionStartHighlightColors =
+		beatSectionStartHighlightColors =
 			createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
-		mDefaultCurrentLineHighlightColor =
+		defaultCurrentLineHighlightColor =
 			Utils.makeHighlightColour(Preferences.currentLineHighlightColor)
-		mDefaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
-		mPulse = Preferences.pulseDisplay
-		mSendMidiClockPreference = Preferences.sendMIDIClock
-		mMetronomePref = if (Preferences.mute) MetronomeContext.Off else Preferences.metronomeContext
+		defaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
+		pulse = Preferences.pulseDisplay
+		sendMidiClockPreference = Preferences.sendMIDIClock
+		metronomePref = if (Preferences.mute) MetronomeContext.Off else Preferences.metronomeContext
 
-		mSongTitleContrastBeatCounter = Utils.makeContrastingColour(mBeatCounterColor)
+		songTitleContrastBeatCounter = Utils.makeContrastingColour(beatCounterColor)
 		val backgroundColor = Preferences.backgroundColor
 		val pulseColor =
-			if (mPulse)
+			if (pulse)
 				Preferences.pulseColor
 			else
 				backgroundColor
@@ -181,34 +181,34 @@ class SongView
 			val green = pG - (sineLookup * gDiff.toDouble()).toInt()
 			val blue = pB - (sineLookup * bDiff.toDouble()).toInt()
 			val color = Color.rgb(red, green, blue)
-			mBackgroundColorLookup[it] = color
+			backgroundColorLookup[it] = color
 		}
-		mSongTitleContrastBackground = Utils.makeContrastingColour(mBackgroundColorLookup[100])
+		songTitleContrastBackground = Utils.makeContrastingColour(backgroundColorLookup[100])
 	}
 
 	// Constructor
 	constructor(context: Context) : this(context, null)
 
 	fun init(songDisplayActivity: SongDisplayActivity, song: Song) {
-		mSongDisplayActivity = songDisplayActivity
+		this.songDisplayActivity = songDisplayActivity
 
-		if (song.mSongFile.mBPM > 0.0) {
-			val metronomeOnPref = mMetronomePref == MetronomeContext.On
-			val metronomeOnWhenNoBackingTrackPref = mMetronomePref == MetronomeContext.OnWhenNoTrack
+		if (song.songFile.bpm > 0.0) {
+			val metronomeOnPref = metronomePref == MetronomeContext.On
+			val metronomeOnWhenNoBackingTrackPref = metronomePref == MetronomeContext.OnWhenNoTrack
 			// We switch the metronome on (full time) if the pref says "on"
 			// or if it says "when no audio track" and there are no audio events.
-			mMetronomeOn =
-				metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.mAudioEvents.any())
+			metronomeOn =
+				metronomeOnPref || (metronomeOnWhenNoBackingTrackPref && !song.audioEvents.any())
 		}
 
-		if (song.mAudioEvents.any())
-			mSilenceAudioPlayer.start()
+		if (song.audioEvents.any())
+			silenceAudioPlayer.start()
 
-		val audioPlayerMap = song.mAudioEvents.associateBy(
-			{ it.mAudioFile },
+		val audioPlayerMap = song.audioEvents.associateBy(
+			{ it.audioFile },
 			{
 				try {
-					mAudioPlayerFactory.create(it.mAudioFile.mFile, it.mVolume)
+					audioPlayerFactory.create(it.audioFile.file, it.volume)
 				} catch (e: Exception) {
 					null
 				}
@@ -219,26 +219,26 @@ class SongView
 			Toast.makeText(context, R.string.crap_audio_file_warning, Toast.LENGTH_LONG).show()
 
 		@Suppress("UNCHECKED_CAST")
-		mAudioPlayers = audioPlayerMap.filterValues { it != null } as Map<AudioFile, AudioPlayer>
+		audioPlayers = audioPlayerMap.filterValues { it != null } as Map<AudioFile, AudioPlayer>
 
-		mSendMidiClock = song.mSendMIDIClock || mSendMidiClockPreference
-		mCurrentBeatCountRect = song.mBeatCounterRect
-		mSong = song
+		sendMidiClock = song.sendMidiClock || sendMidiClockPreference
+		currentBeatCountRect = song.beatCounterRect
+		this.song = song
 
 		calculateManualScrollPositions()
 	}
 
 	private fun ensureInitialised() {
-		if (mSong == null)
+		if (song == null)
 			return
-		if (!mInitialized) {
-			if (mSong!!.mSmoothMode)
-				mPulse = false
-			mInitialized = true
-			if (mSong!!.mManualMode) {
-				if (mMetronomeOn) {
-					mManualMetronomeTask = ManualMetronomeTask(mSong!!.mSongFile.mBPM)
-					mManualMetronomeThread = Thread(mManualMetronomeTask).apply { start() }
+		if (!initialized) {
+			if (song!!.smoothMode)
+				pulse = false
+			initialized = true
+			if (song!!.manualMode) {
+				if (metronomeOn) {
+					manualMetronomeTask = ManualMetronomeTask(song!!.songFile.bpm)
+					manualMetronomeThread = Thread(manualMetronomeTask).apply { start() }
 				}
 			}
 		}
@@ -246,7 +246,7 @@ class SongView
 
 	// Called back to draw the view. Also called by invalidate().
 	override fun onDraw(canvas: Canvas) {
-		if (mSong == null)
+		if (song == null)
 			return
 		ensureInitialised()
 		val scrolling = calculateScrolling()
@@ -256,161 +256,161 @@ class SongView
 		var showComment = false
 		val time = System.nanoTime()
 
-		if (mStartState === PlayState.Playing && !scrolling) {
-			timePassed = max(0, time - mSongStartTime)
-			if (mLastBeatTime > 0) {
-				val beatTimePassed = max(0, time - mLastBeatTime)
-				val beatTime = (beatTimePassed % mNanosecondsPerBeat).toDouble()
-				beatPercent = beatTime / mNanosecondsPerBeat
+		if (startState === PlayState.Playing && !scrolling) {
+			timePassed = max(0, time - songStartTime)
+			if (lastBeatTime > 0) {
+				val beatTimePassed = max(0, time - lastBeatTime)
+				val beatTime = (beatTimePassed % nanosecondsPerBeat).toDouble()
+				beatPercent = beatTime / nanosecondsPerBeat
 			}
 
-			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual)
+			if (song!!.currentLine.scrollMode !== ScrollingMode.Manual)
 				if (processSongEvents(time, timePassed))
 					return
 
-			showTempMessage = time - mLastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
-			if (mLastCommentEvent != null)
-				if (time - mLastCommentTime < mCommentDisplayTimeNanoseconds)
+			showTempMessage = time - lastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
+			if (lastCommentEvent != null)
+				if (time - lastCommentTime < commentDisplayTimeNanoseconds)
 					showComment = true
 		}
-		var currentY = mSong!!.mBeatCounterRect.height() + mSong!!.mDisplayOffset
-		var currentLine = mSong!!.mCurrentLine
+		var currentY = song!!.beatCounterRect.height() + song!!.displayOffset
+		var currentLine = song!!.currentLine
 		var yScrollOffset = 0
-		if (currentLine.mScrollMode !== ScrollingMode.Beat)
+		if (currentLine.scrollMode !== ScrollingMode.Beat)
 			beatPercent = 1.0
-		val color = mBackgroundColorLookup[(beatPercent * 100.0).toInt()]
+		val color = backgroundColorLookup[(beatPercent * 100.0).toInt()]
 		canvas.drawColor(color, PorterDuff.Mode.SRC)
-		if (mStartState !== PlayState.AtTitleScreen) {
+		if (startState !== PlayState.AtTitleScreen) {
 			var scrollPercentage = 0.0
 			// If a scroll event in underway, move currentY up
-			if (mStartState !== PlayState.Playing || currentLine.mScrollMode === ScrollingMode.Manual) {
-				yScrollOffset = mSongPixelPosition - currentLine.mSongPixelPosition
-				if (currentLine.mScrollMode === ScrollingMode.Smooth)
+			if (startState !== PlayState.Playing || currentLine.scrollMode === ScrollingMode.Manual) {
+				yScrollOffset = songPixelPosition - currentLine.songPixelPosition
+				if (currentLine.scrollMode === ScrollingMode.Smooth)
 					scrollPercentage =
-						yScrollOffset.toDouble() / currentLine.mMeasurements.mLineHeight.toDouble()
+						yScrollOffset.toDouble() / currentLine.measurements.lineHeight.toDouble()
 			} else {
 				if (!scrolling) {
-					if (!mSong!!.mNoScrollLines.contains(currentLine)) {
-						if (currentLine.mYStopScrollTime > timePassed && currentLine.mYStartScrollTime <= timePassed)
+					if (!song!!.noScrollLines.contains(currentLine)) {
+						if (currentLine.yStopScrollTime > timePassed && currentLine.yStartScrollTime <= timePassed)
 							scrollPercentage =
-								(timePassed - currentLine.mYStartScrollTime).toDouble() / (currentLine.mYStopScrollTime - currentLine.mYStartScrollTime).toDouble()
-						else if (currentLine.mYStopScrollTime <= timePassed)
+								(timePassed - currentLine.yStartScrollTime).toDouble() / (currentLine.yStopScrollTime - currentLine.yStartScrollTime).toDouble()
+						else if (currentLine.yStopScrollTime <= timePassed)
 							scrollPercentage = 1.0
 						// In smooth mode, if we're on the last line, prevent it scrolling up more than necessary ... i.e. keep as much song onscreen as possible.
-						if (currentLine.mScrollMode === ScrollingMode.Smooth) {
-							val remainingSongHeight = mSong!!.mHeight - currentLine.mSongPixelPosition
-							val remainingScreenHeight = mSong!!.mDisplaySettings.mScreenSize.height() - currentY
+						if (currentLine.scrollMode === ScrollingMode.Smooth) {
+							val remainingSongHeight = song!!.height - currentLine.songPixelPosition
+							val remainingScreenHeight = song!!.displaySettings.screenSize.height() - currentY
 							yScrollOffset = min(
-								(currentLine.mMeasurements.mLineHeight * scrollPercentage).toInt(),
+								(currentLine.measurements.lineHeight * scrollPercentage).toInt(),
 								remainingSongHeight - remainingScreenHeight
 							)
-						} else if (currentLine.mScrollMode === ScrollingMode.Beat)
+						} else if (currentLine.scrollMode === ScrollingMode.Beat)
 							yScrollOffset =
-								currentLine.mMeasurements.mJumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
+								currentLine.measurements.jumpScrollIntervals[(scrollPercentage * 100.0).toInt()]
 					}
 				}
 			}
 
 			currentY -= yScrollOffset
-			if (mStartState === PlayState.Playing)
-				mSongPixelPosition = currentLine.mSongPixelPosition + yScrollOffset
+			if (startState === PlayState.Playing)
+				songPixelPosition = currentLine.songPixelPosition + yScrollOffset
 
 			val startY = currentY
 			var firstLineOnscreen: Line? = null
-			while (currentY < mSong!!.mDisplaySettings.mScreenSize.height()) {
-				if (currentY > mSong!!.mBeatCounterRect.height() - currentLine.mMeasurements.mLineHeight) {
+			while (currentY < song!!.displaySettings.screenSize.height()) {
+				if (currentY > song!!.beatCounterRect.height() - currentLine.measurements.lineHeight) {
 					if (firstLineOnscreen == null)
 						firstLineOnscreen = currentLine
-					val graphics = currentLine.getGraphics(mPaint)
+					val graphics = currentLine.getGraphics(paint)
 					val lineTop = currentY
 					for (f in graphics.indices) {
 						val graphic = graphics[f]
-						val sourceRect = currentLine.mMeasurements.mGraphicRectangles[f]
-						mDestinationGraphicRect.set(sourceRect)
-						mDestinationGraphicRect.offset(0, currentY)
-						canvas.drawBitmap(graphic.bitmap, sourceRect, mDestinationGraphicRect, mPaint)
-						currentY += currentLine.mMeasurements.mGraphicHeights[f]
+						val sourceRect = currentLine.measurements.graphicRectangles[f]
+						destinationGraphicRect.set(sourceRect)
+						destinationGraphicRect.offset(0, currentY)
+						canvas.drawBitmap(graphic.bitmap, sourceRect, destinationGraphicRect, paint)
+						currentY += currentLine.measurements.graphicHeights[f]
 					}
 					val highlightColor = getLineHighlightColor(currentLine, time)
 					if (highlightColor != null) {
-						mPaint.color = highlightColor
+						paint.color = highlightColor
 						canvas.drawRect(
 							0f,
 							lineTop.toFloat(),
-							mSong!!.mDisplaySettings.mScreenSize.width().toFloat(),
-							(lineTop + currentLine.mMeasurements.mLineHeight).toFloat(),
-							mPaint
+							song!!.displaySettings.screenSize.width().toFloat(),
+							(lineTop + currentLine.measurements.lineHeight).toFloat(),
+							paint
 						)
-						mPaint.alpha = 255
+						paint.alpha = 255
 					}
 
 				} else
-					currentY += currentLine.mMeasurements.mLineHeight
-				if (currentLine.mNextLine == null)
+					currentY += currentLine.measurements.lineHeight
+				if (currentLine.nextLine == null)
 					break
-				currentLine = currentLine.mNextLine!!
+				currentLine = currentLine.nextLine!!
 			}
 
-			if (mSong!!.mSmoothMode) {
-				val prevLine = mSong!!.mCurrentLine.mPrevLine
+			if (song!!.smoothMode) {
+				val prevLine = song!!.currentLine.previousLine
 				if (prevLine != null && startY > 0) {
-					mPaint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
-					currentY = startY - prevLine.mMeasurements.mLineHeight
-					val graphics = prevLine.getGraphics(mPaint)
+					paint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
+					currentY = startY - prevLine.measurements.lineHeight
+					val graphics = prevLine.getGraphics(paint)
 					for (f in graphics.indices) {
 						val graphic = graphics[f]
-						canvas.drawBitmap(graphic.bitmap, 0f, currentY.toFloat(), mPaint)
-						currentY += prevLine.mMeasurements.mGraphicHeights[f]
+						canvas.drawBitmap(graphic.bitmap, 0f, currentY.toFloat(), paint)
+						currentY += prevLine.measurements.graphicHeights[f]
 					}
-					mPaint.alpha = 255
+					paint.alpha = 255
 				}
 			}
 		}
-		mPaint.color = mBackgroundColorLookup[100]
-		canvas.drawRect(mSong!!.mBeatCounterRect, mPaint)
-		mPaint.color = mScrollMarkerColor
-		if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Beat && mShowScrollIndicator)
-			canvas.drawRect(mScrollIndicatorRect, mPaint)
-		mPaint.color = mBeatCounterColor
-		mPaint.strokeWidth = 1.0f
-		canvas.drawRect(mCurrentBeatCountRect, mPaint)
+		paint.color = backgroundColorLookup[100]
+		canvas.drawRect(song!!.beatCounterRect, paint)
+		paint.color = scrollMarkerColor
+		if (song!!.currentLine.scrollMode === ScrollingMode.Beat && showScrollIndicator)
+			canvas.drawRect(scrollIndicatorRect, paint)
+		paint.color = beatCounterColor
+		paint.strokeWidth = 1.0f
+		canvas.drawRect(currentBeatCountRect, paint)
 		canvas.drawLine(
 			0f,
-			mSong!!.mBeatCounterRect.height().toFloat(),
-			mSong!!.mDisplaySettings.mScreenSize.width().toFloat(),
-			mSong!!.mBeatCounterRect.height().toFloat(),
-			mPaint
+			song!!.beatCounterRect.height().toFloat(),
+			song!!.displaySettings.screenSize.width().toFloat(),
+			song!!.beatCounterRect.height().toFloat(),
+			paint
 		)
-		if (mShowPageDownMarker)
+		if (showPageDownMarker)
 			showPageDownMarkers(canvas)
-		if (mShowSongTitle)
+		if (showSongTitle)
 			showSongTitle(canvas)
 		if (showTempMessage) {
-			if (mEndSongByPedalCounter == 0)
-				showTempMessage("$mCurrentVolume%", 80, Color.BLACK, canvas)
+			if (endSongByPedalCounter == 0)
+				showTempMessage("$currentVolume%", 80, Color.BLACK, canvas)
 			else {
 				val message =
-					"Press pedal " + (SONG_END_PEDAL_PRESSES - mEndSongByPedalCounter) + " more times to end song."
+					"Press pedal " + (SONG_END_PEDAL_PRESSES - endSongByPedalCounter) + " more times to end song."
 				showTempMessage(message, 20, Color.BLUE, canvas)
 			}
 		} else
-			mEndSongByPedalCounter = 0
+			endSongByPedalCounter = 0
 		if (showComment)
 			showComment(canvas)
-		if (mStartState !== PlayState.AtTitleScreen)
+		if (startState !== PlayState.AtTitleScreen)
 			invalidate()  // Force a re-draw
-		else if (mSong != null)
+		else if (song != null)
 			drawTitleScreen(canvas)
 	}
 
 	private fun processSongEvents(time: Long, timePassed: Long): Boolean {
 		var event: LinkedEvent?
 		do {
-			event = mSong!!.getNextEvent(timePassed)
+			event = song!!.getNextEvent(timePassed)
 			if (event != null) {
-				when (val innerEvent = event.mEvent) {
+				when (val innerEvent = event.event) {
 					is CommentEvent -> processCommentEvent(innerEvent, time)
-					is BeatEvent -> mCurrentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
+					is BeatEvent -> currentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
 					is ClickEvent -> processClickEvent()
 					is MIDIEvent -> processMIDIEvent(innerEvent)
 					is PauseEvent -> processPauseEvent(innerEvent)
@@ -427,38 +427,38 @@ class SongView
 	}
 
 	private fun calculateScrolling(): Boolean =
-		if (mStartState === PlayState.AtTitleScreen)
+		if (startState === PlayState.AtTitleScreen)
 			false
-		else if ((mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) && mScroller.computeScrollOffset()) {
-			mSongPixelPosition = mScroller.currY
-			val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
+		else if ((screenAction == ScreenAction.Scroll || song!!.currentLine.scrollMode === ScrollingMode.Manual) && scroller.computeScrollOffset()) {
+			songPixelPosition = scroller.currY
+			val songTime = song!!.currentLine.getTimeFromPixel(songPixelPosition)
 			setSongTime(
 				songTime,
-				mStartState === PlayState.Paused,
+				startState === PlayState.Paused,
 				broadcast = true,
 				setPixelPosition = false,
 				recalculateManualPositions = true
 			)
 			true
 		} else {
-			if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition) {
-				val diff = min(2048, max(-2048, mTargetPixelPosition - mSongPixelPosition))
+			if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition) {
+				val diff = min(2048, max(-2048, targetPixelPosition - songPixelPosition))
 				val absDiff = abs(diff)
-				val targetAcceleration = min(mAccelerations[absDiff - 1], absDiff)
-				if (mTargetAcceleration * 2 < targetAcceleration)
-					mTargetAcceleration *= 2
+				val targetAcceleration = min(accelerations[absDiff - 1], absDiff)
+				if (this.targetAcceleration * 2 < targetAcceleration)
+					this.targetAcceleration *= 2
 				else
-					mTargetAcceleration = targetAcceleration
+					this.targetAcceleration = targetAcceleration
 				if (diff > 0)
-					mSongPixelPosition += mTargetAcceleration
+					songPixelPosition += this.targetAcceleration
 				else
-					mSongPixelPosition -= mTargetAcceleration
-				if (mSongPixelPosition == mTargetPixelPosition)
+					songPixelPosition -= this.targetAcceleration
+				if (songPixelPosition == targetPixelPosition)
 					clearScrollTarget()
-				val songTime = mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition)
+				val songTime = song!!.currentLine.getTimeFromPixel(songPixelPosition)
 				setSongTime(
 					songTime,
-					mStartState === PlayState.Paused,
+					startState === PlayState.Paused,
 					broadcast = true,
 					setPixelPosition = false,
 					recalculateManualPositions = false
@@ -469,158 +469,158 @@ class SongView
 
 	private fun drawTitleScreen(canvas: Canvas) {
 		canvas.drawColor(Color.BLACK)
-		val midX = mSong!!.mDisplaySettings.mScreenSize.width() shr 1
-		val fifteenPercent = mSong!!.mDisplaySettings.mScreenSize.height() * 0.15f
+		val midX = song!!.displaySettings.screenSize.width() shr 1
+		val fifteenPercent = song!!.displaySettings.screenSize.height() * 0.15f
 		var startY =
-			floor(((mSong!!.mDisplaySettings.mScreenSize.height() - mSong!!.mTotalStartScreenTextHeight) / 2).toDouble()).toInt()
-		val nextSongSS = mSong!!.mNextSongString
+			floor(((song!!.displaySettings.screenSize.height() - song!!.totalStartScreenTextHeight) / 2).toDouble()).toInt()
+		val nextSongSS = song!!.nextSongString
 		if (nextSongSS != null) {
-			mPaint.color = if (mSkipping) Color.RED else Color.WHITE
-			val halfDiff = (fifteenPercent - nextSongSS.mHeight) / 2.0f
+			paint.color = if (skipping) Color.RED else Color.WHITE
+			val halfDiff = (fifteenPercent - nextSongSS.height) / 2.0f
 			canvas.drawRect(
 				0f,
-				mSong!!.mDisplaySettings.mScreenSize.height() - fifteenPercent,
-				mSong!!.mDisplaySettings.mScreenSize.width().toFloat(),
-				mSong!!.mDisplaySettings.mScreenSize.height().toFloat(),
-				mPaint
+				song!!.displaySettings.screenSize.height() - fifteenPercent,
+				song!!.displaySettings.screenSize.width().toFloat(),
+				song!!.displaySettings.screenSize.height().toFloat(),
+				paint
 			)
 			val nextSongY =
-				mSong!!.mDisplaySettings.mScreenSize.height() - (nextSongSS.mDescenderOffset + halfDiff).toInt()
+				song!!.displaySettings.screenSize.height() - (nextSongSS.descenderOffset + halfDiff).toInt()
 			startY -= (fifteenPercent / 2.0f).toInt()
-			mPaint.apply {
-				color = nextSongSS.mColor
-				textSize = nextSongSS.mFontSize * Utils.FONT_SCALING
-				typeface = nextSongSS.mFace
+			paint.apply {
+				color = nextSongSS.color
+				textSize = nextSongSS.fontSize * Utils.FONT_SCALING
+				typeface = nextSongSS.typeface
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
-				nextSongSS.mText,
-				(midX - (nextSongSS.mWidth shr 1)).toFloat(),
+				nextSongSS.text,
+				(midX - (nextSongSS.width shr 1)).toFloat(),
 				nextSongY.toFloat(),
-				mPaint
+				paint
 			)
 		}
-		for (ss in mSong!!.mStartScreenStrings) {
-			startY += ss.mHeight
-			mPaint.apply {
-				color = ss.mColor
-				textSize = ss.mFontSize * Utils.FONT_SCALING
-				typeface = ss.mFace
+		for (ss in song!!.startScreenStrings) {
+			startY += ss.height
+			paint.apply {
+				color = ss.color
+				textSize = ss.fontSize * Utils.FONT_SCALING
+				typeface = ss.typeface
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
-				ss.mText,
-				(midX - (ss.mWidth shr 1)).toFloat(),
-				(startY - ss.mDescenderOffset).toFloat(),
-				mPaint
+				ss.text,
+				(midX - (ss.width shr 1)).toFloat(),
+				(startY - ss.descenderOffset).toFloat(),
+				paint
 			)
 		}
 	}
 
 	private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
 		val popupMargin = 25
-		mPaint.strokeWidth = 2.0f
-		mPaint.textSize = textSize * Utils.FONT_SCALING
-		mPaint.flags = Paint.ANTI_ALIAS_FLAG
+		paint.strokeWidth = 2.0f
+		paint.textSize = textSize * Utils.FONT_SCALING
+		paint.flags = Paint.ANTI_ALIAS_FLAG
 		val outRect = Rect()
-		mPaint.getTextBounds(message, 0, message.length, outRect)
-		val textWidth = mPaint.measureText(message)
+		paint.getTextBounds(message, 0, message.length, outRect)
+		val textWidth = paint.measureText(message)
 		val textHeight = outRect.height()
 		val volumeControlWidth = textWidth + popupMargin * 2.0f
 		val volumeControlHeight = textHeight + popupMargin * 2
-		val x = (mSong!!.mDisplaySettings.mScreenSize.width() - volumeControlWidth) / 2.0f
-		val y = (mSong!!.mDisplaySettings.mScreenSize.height() - volumeControlHeight) / 2
-		mPaint.color = Color.BLACK
+		val x = (song!!.displaySettings.screenSize.width() - volumeControlWidth) / 2.0f
+		val y = (song!!.displaySettings.screenSize.height() - volumeControlHeight) / 2
+		paint.color = Color.BLACK
 		canvas.drawRect(
 			x,
 			y.toFloat(),
 			x + volumeControlWidth,
 			(y + volumeControlHeight).toFloat(),
-			mPaint
+			paint
 		)
-		mPaint.color = Color.rgb(255, 255, 200)
+		paint.color = Color.rgb(255, 255, 200)
 		canvas.drawRect(
 			x + 1,
 			(y + 1).toFloat(),
 			x + (volumeControlWidth - 2),
 			(y + (volumeControlHeight - 2)).toFloat(),
-			mPaint
+			paint
 		)
-		mPaint.color = textColor
+		paint.color = textColor
 		canvas.drawText(
 			message,
-			(mSong!!.mDisplaySettings.mScreenSize.width() - textWidth) / 2,
-			((mSong!!.mDisplaySettings.mScreenSize.height() - textHeight) / 2 + textHeight).toFloat(),
-			mPaint
+			(song!!.displaySettings.screenSize.width() - textWidth) / 2,
+			((song!!.displaySettings.screenSize.height() - textHeight) / 2 + textHeight).toFloat(),
+			paint
 		)
 	}
 
 	private fun showPageDownMarkers(canvas: Canvas) {
-		if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Manual && mSongPixelPosition < mSong!!.mScrollEndPixel) {
+		if (song!!.currentLine.scrollMode == ScrollingMode.Manual && songPixelPosition < song!!.scrollEndPixel) {
 			val scrollPosition =
-				((mManualScrollPositions.mPageDownPosition - mSongPixelPosition) + mSong!!.mDisplaySettings.mBeatCounterRect.height()).toFloat()
-			val screenHeight = mSong!!.mDisplaySettings.mScreenSize.height().toFloat()
-			val screenWidth = mSong!!.mDisplaySettings.mScreenSize.width().toFloat()
+				((manualScrollPositions.mPageDownPosition - songPixelPosition) + song!!.displaySettings.beatCounterRect.height()).toFloat()
+			val screenHeight = song!!.displaySettings.screenSize.height().toFloat()
+			val screenWidth = song!!.displaySettings.screenSize.width().toFloat()
 			val lineSize = screenWidth / 10.0f
 
-			mPaint.strokeWidth = (screenWidth + screenHeight) / 200.0f
-			mPaint.color = mPageDownMarkerColor
-			canvas.drawLine(0.0f, scrollPosition + lineSize, 0.0f, scrollPosition, mPaint)
-			canvas.drawLine(0.0f, scrollPosition, lineSize, scrollPosition, mPaint)
-			canvas.drawLine(screenWidth, scrollPosition + lineSize, screenWidth, scrollPosition, mPaint)
-			canvas.drawLine(screenWidth, scrollPosition, screenWidth - lineSize, scrollPosition, mPaint)
+			paint.strokeWidth = (screenWidth + screenHeight) / 200.0f
+			paint.color = pageDownMarkerColor
+			canvas.drawLine(0.0f, scrollPosition + lineSize, 0.0f, scrollPosition, paint)
+			canvas.drawLine(0.0f, scrollPosition, lineSize, scrollPosition, paint)
+			canvas.drawLine(screenWidth, scrollPosition + lineSize, screenWidth, scrollPosition, paint)
+			canvas.drawLine(screenWidth, scrollPosition, screenWidth - lineSize, scrollPosition, paint)
 		}
 	}
 
 	private fun showSongTitle(canvas: Canvas) {
-		if (mSong == null)
+		if (song == null)
 			return
 
-		mPaint.apply {
-			textSize = mSong!!.mSongTitleHeader.mFontSize * Utils.FONT_SCALING
-			typeface = mSong!!.mSongTitleHeader.mFace
+		paint.apply {
+			textSize = song!!.songTitleHeader.fontSize * Utils.FONT_SCALING
+			typeface = song!!.songTitleHeader.typeface
 			flags = Paint.ANTI_ALIAS_FLAG
-			color = mSongTitleContrastBackground
+			color = songTitleContrastBackground
 		}
 
 		canvas.drawText(
-			mSong!!.mSongTitleHeader.mText,
-			mSong!!.mSongTitleHeaderLocation.x,
-			mSong!!.mSongTitleHeaderLocation.y,
-			mPaint
+			song!!.songTitleHeader.text,
+			song!!.songTitleHeaderLocation.x,
+			song!!.songTitleHeaderLocation.y,
+			paint
 		)
 
 		canvas.save()
-		canvas.clipRect(mCurrentBeatCountRect)
-		mPaint.color = mSongTitleContrastBeatCounter
+		canvas.clipRect(currentBeatCountRect)
+		paint.color = songTitleContrastBeatCounter
 		canvas.drawText(
-			mSong!!.mSongTitleHeader.mText,
-			mSong!!.mSongTitleHeaderLocation.x,
-			mSong!!.mSongTitleHeaderLocation.y,
-			mPaint
+			song!!.songTitleHeader.text,
+			song!!.songTitleHeaderLocation.x,
+			song!!.songTitleHeaderLocation.y,
+			paint
 		)
 		canvas.restore()
 
 		canvas.save()
-		canvas.clipRect(mScrollIndicatorRect)
+		canvas.clipRect(scrollIndicatorRect)
 		canvas.drawText(
-			mSong!!.mSongTitleHeader.mText,
-			mSong!!.mSongTitleHeaderLocation.x,
-			mSong!!.mSongTitleHeaderLocation.y,
-			mPaint
+			song!!.songTitleHeader.text,
+			song!!.songTitleHeaderLocation.x,
+			song!!.songTitleHeaderLocation.y,
+			paint
 		)
 		canvas.restore()
 
-		mPaint.alpha = 255
+		paint.alpha = 255
 	}
 
 	private fun showComment(canvas: Canvas) {
-		if (mLastCommentEvent != null)
-			mLastCommentEvent!!.mComment.draw(canvas, mPaint, mCommentTextColor)
+		if (lastCommentEvent != null)
+			lastCommentEvent!!.comment.draw(canvas, paint, commentTextColor)
 	}
 
 	private fun startToggle(playState: PlayState) {
-		mStartState = playState
+		startState = playState
 		startToggle(null, false)
 	}
 
@@ -628,32 +628,32 @@ class SongView
 		audioPlayer?.apply {
 			Logger.log("Starting AudioPlayer")
 			start()
-			mCurrentVolume = volume
+			currentVolume = volume
 		}
 
 	private fun startBackingTrack(): Boolean =
-		startAudioPlayer(mAudioPlayers[mSong!!.mBackingTrack]) != null
+		startAudioPlayer(audioPlayers[song!!.backingTrack]) != null
 
 	private fun startToggle(e: MotionEvent?, midiInitiated: Boolean): Boolean {
-		if (mSong == null)
+		if (song == null)
 			return true
-		if (mStartState !== PlayState.Playing) {
-			if (mStartState === PlayState.AtTitleScreen)
+		if (startState !== PlayState.Playing) {
+			if (startState === PlayState.AtTitleScreen)
 				if (e != null)
-					if (e.y > mSong!!.mDisplaySettings.mScreenSize.height() * 0.85f)
-						if (mSong!!.mNextSong.isNotBlank()) {
+					if (e.y > song!!.displaySettings.screenSize.height() * 0.85f)
+						if (song!!.nextSong.isNotBlank()) {
 							endSong(true)
 							return true
 						}
-			val oldPlayState = mStartState
-			mStartState = PlayState.increase(mStartState)
-			if (mStartState === PlayState.Playing) {
-				if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) {
+			val oldPlayState = startState
+			startState = PlayState.increase(startState)
+			if (startState === PlayState.Playing) {
+				if (song!!.currentLine.scrollMode === ScrollingMode.Manual) {
 					// Start the count in.
-					if (mManualMetronomeThread != null) {
-						if (!mManualMetronomeThread!!.isAlive) {
-							return if (mMetronomeOn) {
-								mManualMetronomeThread!!.start()
+					if (manualMetronomeThread != null) {
+						if (!manualMetronomeThread!!.isAlive) {
+							return if (metronomeOn) {
+								manualMetronomeThread!!.start()
 								true
 							} else
 								startBackingTrack()
@@ -662,9 +662,9 @@ class SongView
 						return startBackingTrack()
 				} else {
 					val time: Long
-					if (mUserHasScrolled) {
-						mUserHasScrolled = false
-						time = mSong!!.getTimeFromPixel(mSongPixelPosition)
+					if (userHasScrolled) {
+						userHasScrolled = false
+						time = song!!.getTimeFromPixel(songPixelPosition)
 						setSongTime(
 							time,
 							redraw = false,
@@ -673,8 +673,8 @@ class SongView
 							recalculateManualPositions = true
 						)
 					} else {
-						Logger.log { "Resuming, pause time=$mPauseTime" }
-						time = mPauseTime
+						Logger.log { "Resuming, pause time=$pauseTime" }
+						time = pauseTime
 						setSongTime(
 							time,
 							redraw = false,
@@ -702,15 +702,15 @@ class SongView
 					)
 				)
 		} else {
-			if (mScreenAction == ScreenAction.Volume) {
+			if (screenAction == ScreenAction.Volume) {
 				if (e != null) {
-					if (e.y < mSong!!.mDisplaySettings.mScreenSize.height() * 0.5)
+					if (e.y < song!!.displaySettings.screenSize.height() * 0.5)
 						changeVolume(+5)
-					else if (e.y > mSong!!.mDisplaySettings.mScreenSize.height() * 0.5)
+					else if (e.y > song!!.displaySettings.screenSize.height() * 0.5)
 						changeVolume(-5)
 				}
-			} else if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
-				if (mScreenAction == ScreenAction.Scroll)
+			} else if (song!!.currentLine.scrollMode !== ScrollingMode.Manual) {
+				if (screenAction == ScreenAction.Scroll)
 					pause(midiInitiated)
 			}
 		}
@@ -719,82 +719,82 @@ class SongView
 	}
 
 	private fun changeVolume(amount: Int) {
-		if (mStartState === PlayState.Paused)
+		if (startState === PlayState.Paused)
 			return
-		mCurrentVolume += amount
+		currentVolume += amount
 		onVolumeChanged()
 	}
 
 	fun pause(midiInitiated: Boolean) {
-		if (mScreenAction != ScreenAction.Scroll)
+		if (screenAction != ScreenAction.Scroll)
 			return
 		val nanoTime = System.nanoTime()
-		mPauseTime = nanoTime - if (mSongStartTime == 0L) nanoTime else mSongStartTime
+		pauseTime = nanoTime - if (songStartTime == 0L) nanoTime else songStartTime
 		Bluetooth.putMessage(
 			ToggleStartStopMessage(
 				ToggleStartStopMessage.StartStopToggleInfo(
-					mStartState,
-					mPauseTime
+					startState,
+					pauseTime
 				)
 			)
 		)
-		mStartState = PlayState.reduce(mStartState)
-		mAudioPlayers.values.forEach {
+		startState = PlayState.reduce(startState)
+		audioPlayers.values.forEach {
 			if (it.isPlaying)
 				it.pause()
 		}
 		if (!midiInitiated)
-			if (mSongDisplayActivity != null)
-				mSongDisplayActivity!!.onSongStop()
+			if (songDisplayActivity != null)
+				songDisplayActivity!!.onSongStop()
 	}
 
 	fun stop(destroyed: Boolean) {
-		if (mStartState === PlayState.Playing)
+		if (startState === PlayState.Playing)
 			pause(false)
 		if (destroyed) {
-			if (mSong != null) {
+			if (song != null) {
 				Bluetooth.putMessage(
 					QuitSongMessage(
-						mSong!!.mSongFile.mNormalizedTitle,
-						mSong!!.mSongFile.mNormalizedArtist
+						song!!.songFile.normalizedTitle,
+						song!!.songFile.normalizedArtist
 					)
 				)
-				mSong!!.recycleGraphics()
+				song!!.recycleGraphics()
 			}
-			mSong = null
-			Task.stopTask(mManualMetronomeTask, mManualMetronomeThread)
-			mAudioPlayers.values.forEach {
+			song = null
+			Task.stopTask(manualMetronomeTask, manualMetronomeThread)
+			audioPlayers.values.forEach {
 				it.stop()
 				it.release()
 			}
-			mSilenceAudioPlayer.stop()
-			mSilenceAudioPlayer.release()
-			mClickSoundPool.release()
+			silenceAudioPlayer.stop()
+			silenceAudioPlayer.release()
+			clickSoundPool.release()
 			System.gc()
 		}
 	}
 
 	private fun processCommentEvent(event: CommentEvent, systemTime: Long) {
-		mLastCommentTime = systemTime
-		mLastCommentEvent = event
+		lastCommentTime = systemTime
+		lastCommentEvent = event
 	}
 
 	private fun processClickEvent() {
-		val playClick = mMetronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
-		if (mStartState === PlayState.Playing && mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual && playClick)
-			mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
+		val playClick = metronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
+		if (startState === PlayState.Playing && song!!.currentLine.scrollMode !== ScrollingMode.Manual && playClick)
+			clickSoundPool.play(clickAudioId, 1.0f, 1.0f, 1, 0, 1.0f)
 	}
 
 	private fun processBeatEvent(event: BeatEvent): Rect {
-		mNanosecondsPerBeat = Utils.nanosecondsPerBeat(event.mBPM)
-		val beatWidth = mSong!!.mDisplaySettings.mScreenSize.width().toDouble() / event.mBPB.toDouble()
-		val currentBeatCounterWidth = (beatWidth * (event.mBeat + 1).toDouble()).toInt()
-		if (event.mWillScrollOnBeat != -1) {
+		nanosecondsPerBeat = Utils.nanosecondsPerBeat(event.bpm)
+		val beatWidth = song!!.displaySettings.screenSize.width().toDouble() / event.bpb.toDouble()
+		val currentBeatCounterWidth = (beatWidth * (event.beat + 1).toDouble()).toInt()
+		if (event.willScrollOnBeat != -1) {
 			val thirdWidth = beatWidth / 3
-			val thirdHeight = mSong!!.mBeatCounterRect.height() / 3.0
-			val scrollIndicatorStart = (beatWidth * event.mWillScrollOnBeat + thirdWidth).toInt()
-			val scrollIndicatorEnd = (beatWidth * (event.mWillScrollOnBeat + 1) - thirdWidth).toInt()
-			mScrollIndicatorRect.apply {
+			val thirdHeight = song!!.beatCounterRect.height() / 3.0
+			val scrollIndicatorStart = (beatWidth * event.willScrollOnBeat + thirdWidth).toInt()
+			val scrollIndicatorEnd = (beatWidth * (event.willScrollOnBeat + 1) - thirdWidth).toInt()
+			scrollIndicatorRect.apply {
 				left = scrollIndicatorStart
 				top = thirdHeight.toInt()
 				right = scrollIndicatorEnd
@@ -802,40 +802,40 @@ class SongView
 			}
 		} else
 			clearScrollIndicatorRect()
-		mLastBeatTime = mSongStartTime + event.mEventTime
-		if (mSongDisplayActivity != null/*&&(!event.mCount)*/)
-			mSongDisplayActivity!!.onSongBeat(event.mBPM)
-		return if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Beat)
+		lastBeatTime = songStartTime + event.eventTime
+		if (songDisplayActivity != null/*&&(!event.mCount)*/)
+			songDisplayActivity!!.onSongBeat(event.bpm)
+		return if (song!!.currentLine.scrollMode == ScrollingMode.Beat)
 			Rect().apply {
 				left = (currentBeatCounterWidth - beatWidth).toInt()
 				top = 0
 				right = currentBeatCounterWidth
-				bottom = mSong!!.mBeatCounterRect.height()
+				bottom = song!!.beatCounterRect.height()
 			}
 		else
-			mSong!!.mBeatCounterRect
+			song!!.beatCounterRect
 	}
 
-	private fun isTrackPlaying(): Boolean = mAudioPlayers.values.any { it.isPlaying }
+	private fun isTrackPlaying(): Boolean = audioPlayers.values.any { it.isPlaying }
 
 	fun hasSong(title: String, artist: String): Boolean =
-		mSong?.mSongFile?.mNormalizedArtist == artist && mSong?.mSongFile?.mNormalizedTitle == title
+		song?.songFile?.normalizedArtist == artist && song?.songFile?.normalizedTitle == title
 
 	private fun processPauseEvent(event: PauseEvent) {
-		mLastBeatTime = -1
-		val currentBeatCounterWidth = (mSong!!.mDisplaySettings.mScreenSize.width()
-			.toDouble() / (event.mBeats - 1).toDouble() * event.mBeat.toDouble()).toInt()
-		mCurrentBeatCountRect.apply {
+		lastBeatTime = -1
+		val currentBeatCounterWidth = (song!!.displaySettings.screenSize.width()
+			.toDouble() / (event.beats - 1).toDouble() * event.beat.toDouble()).toInt()
+		currentBeatCountRect.apply {
 			left = 0
 			top = 0
 			right = currentBeatCounterWidth
-			bottom = mSong!!.mBeatCounterRect.height()
+			bottom = song!!.beatCounterRect.height()
 		}
 		clearScrollIndicatorRect()
 	}
 
 	private fun clearScrollIndicatorRect() {
-		mScrollIndicatorRect.apply {
+		scrollIndicatorRect.apply {
 			left = -1
 			top = -1
 			right = -1
@@ -844,22 +844,22 @@ class SongView
 	}
 
 	private fun processMIDIEvent(event: MIDIEvent) =
-		event.mMessages.forEach {
+		event.messages.forEach {
 			Midi.putMessage(it)
 		}
 
 	private fun processLineEvent(event: LineEvent) {
-		if (mSong == null)
+		if (song == null)
 			return
-		mSong!!.mCurrentLine = event.mLine
-		if (mSong!!.mCurrentLine.mScrollMode == ScrollingMode.Manual) {
-			mCurrentBeatCountRect = mSong!!.mBeatCounterRect
+		song!!.currentLine = event.line
+		if (song!!.currentLine.scrollMode == ScrollingMode.Manual) {
+			currentBeatCountRect = song!!.beatCounterRect
 			calculateManualScrollPositions()
 		}
 	}
 
 	private fun processAudioEvent(event: AudioEvent): Boolean {
-		val audioPlayer = mAudioPlayers[event.mAudioFile] ?: return false
+		val audioPlayer = audioPlayers[event.audioFile] ?: return false
 		Logger.log("Track event hit: starting AudioPlayer")
 		audioPlayer.seekTo(0)
 		startAudioPlayer(audioPlayer)
@@ -870,14 +870,14 @@ class SongView
 	private fun processEndEvent() = endSong(false)
 
 	private fun endSong(skipped: Boolean) {
-		if (mSongDisplayActivity != null) {
-			mSkipping = skipped
+		if (songDisplayActivity != null) {
+			skipping = skipped
 			SongListFragment.mSongEndedNaturally = true
-			mStartState = PlayState.AtTitleScreen
-			mSongDisplayActivity = null
-			if (mSong != null)
-				mSong!!.recycleGraphics()
-			mSong = null
+			startState = PlayState.AtTitleScreen
+			songDisplayActivity = null
+			if (song != null)
+				song!!.recycleGraphics()
+			song = null
 			EventRouter.sendEventToSongDisplay(Events.END_SONG)
 			System.gc()
 		}
@@ -885,7 +885,7 @@ class SongView
 
 	@SuppressLint("ClickableViewAccessibility")
 	override fun onTouchEvent(event: MotionEvent): Boolean {
-		this.mGestureDetector!!.onTouchEvent(event)
+		this.gestureDetector!!.onTouchEvent(event)
 		return super.onTouchEvent(event)
 	}
 
@@ -902,7 +902,7 @@ class SongView
 	}
 
 	private fun seekTrack(audioFile: AudioFile, time: Int): AudioPlayer? {
-		val audioPlayer = mAudioPlayers[audioFile]
+		val audioPlayer = audioPlayers[audioFile]
 		if (audioPlayer != null && audioPlayer.duration > time) {
 			audioPlayer.seekTo(time.toLong())
 			return audioPlayer
@@ -917,38 +917,38 @@ class SongView
 		setPixelPosition: Boolean,
 		recalculateManualPositions: Boolean
 	) {
-		if (mSong == null)
+		if (song == null)
 			return
 		// No time context in Manual mode.
 		if (setPixelPosition)
-			mSongPixelPosition = mSong!!.getPixelFromTime(nano)
+			songPixelPosition = song!!.getPixelFromTime(nano)
 		run {
-			if (mStartState !== PlayState.Playing)
-				mPauseTime = nano
+			if (startState !== PlayState.Playing)
+				pauseTime = nano
 			if (broadcast)
 				Bluetooth.putMessage(SetSongTimeMessage(nano))
-			mSong!!.setProgress(nano)
+			song!!.setProgress(nano)
 			//var musicPlaying = false
-			if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) {
-				val audioEvent = mSong!!.mCurrentEvent.mPrevAudioEvent
+			if (song!!.currentLine.scrollMode !== ScrollingMode.Manual) {
+				val audioEvent = song!!.currentEvent.previousAudioEvent
 				if (audioEvent != null) {
-					val nTime = Utils.nanoToMilli(nano - audioEvent.mEventTime)
+					val nTime = Utils.nanoToMilli(nano - audioEvent.eventTime)
 					/*musicPlaying = */
 					seekTrack(
-						audioEvent.mAudioFile,
+						audioEvent.audioFile,
 						nTime
 					)?.apply {
-						if (mStartState === PlayState.Playing)
+						if (startState === PlayState.Playing)
 							startAudioPlayer(this)
 					} != null
 				}
 			}
 			val prevBeatEvent =
-				if (mSong!!.mCurrentLine.mScrollMode !== ScrollingMode.Manual) mSong!!.mCurrentEvent.mPrevBeatEvent else null
-			mCurrentBeatCountRect =
+				if (song!!.currentLine.scrollMode !== ScrollingMode.Manual) song!!.currentEvent.previousBeatEvent else null
+			currentBeatCountRect =
 				//val nextBeatEvent = mSong!!.mCurrentEvent.mNextBeatEvent
-				if (prevBeatEvent == null) mSong!!.mBeatCounterRect else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
-			mSongStartTime = System.nanoTime() - nano
+				if (prevBeatEvent == null) song!!.beatCounterRect else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
+			songStartTime = System.nanoTime() - nano
 			if (redraw)
 				invalidate()
 		}
@@ -957,14 +957,14 @@ class SongView
 	}
 
 	override fun onDown(e: MotionEvent): Boolean {
-		if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
-			if (mManualMetronomeThread != null)
-				if (mStartState === PlayState.Playing)
-					mManualMetronomeThread!!.interrupt()
+		if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
+			if (manualMetronomeThread != null)
+				if (startState === PlayState.Playing)
+					manualMetronomeThread!!.interrupt()
 		// Abort any active scroll animations and invalidate.
-		if (mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (screenAction == ScreenAction.Scroll || song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			clearScrollTarget()
-		mScroller.forceFinished(true)
+		scroller.forceFinished(true)
 		return true
 	}
 
@@ -981,52 +981,52 @@ class SongView
 		distanceX: Float,
 		distanceY: Float
 	): Boolean {
-		if (mScreenAction == ScreenAction.None || mStartState === PlayState.AtTitleScreen || mSong == null)
+		if (screenAction == ScreenAction.None || startState === PlayState.AtTitleScreen || song == null)
 			return false
-		if (mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) {
+		if (screenAction == ScreenAction.Scroll || song!!.currentLine.scrollMode === ScrollingMode.Manual) {
 			clearScrollTarget()
-			mSongPixelPosition += distanceY.toInt()
-			mSongPixelPosition = max(0, mSongPixelPosition)
-			mSongPixelPosition = min(mSong!!.mScrollEndPixel, mSongPixelPosition)
+			songPixelPosition += distanceY.toInt()
+			songPixelPosition = max(0, songPixelPosition)
+			songPixelPosition = min(song!!.scrollEndPixel, songPixelPosition)
 			pauseOnScrollStart()
 			setSongTime(
-				mSong!!.mCurrentLine.getTimeFromPixel(mSongPixelPosition),
+				song!!.currentLine.getTimeFromPixel(songPixelPosition),
 				redraw = true,
 				broadcast = true,
 				setPixelPosition = false,
 				recalculateManualPositions = true
 			)
-		} else if (mScreenAction == ScreenAction.Volume) {
-			mCurrentVolume += (distanceY / 10.0).toInt()
+		} else if (screenAction == ScreenAction.Volume) {
+			currentVolume += (distanceY / 10.0).toInt()
 			onVolumeChanged()
 		}
 		return true
 	}
 
 	fun pauseOnScrollStart() {
-		if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			return
-		if (mScreenAction != ScreenAction.Scroll)
+		if (screenAction != ScreenAction.Scroll)
 			return
 		Bluetooth.putMessage(PauseOnScrollStartMessage)
-		mUserHasScrolled = true
-		mStartState = PlayState.Paused
-		mAudioPlayers.values.forEach {
+		userHasScrolled = true
+		startState = PlayState.Paused
+		audioPlayers.values.forEach {
 			Logger.log("Pausing AudioPlayers")
 			if (it.isPlaying)
 				it.pause()
 		}
-		if (mSongDisplayActivity != null)
-			mSongDisplayActivity!!.onSongStop()
+		if (songDisplayActivity != null)
+			songDisplayActivity!!.onSongStop()
 	}
 
 	private fun onVolumeChanged() {
-		mCurrentVolume = max(0, mCurrentVolume)
-		mCurrentVolume = min(100, mCurrentVolume)
-		mAudioPlayers.values.forEach {
-			it.volume = mCurrentVolume
+		currentVolume = max(0, currentVolume)
+		currentVolume = min(100, currentVolume)
+		audioPlayers.values.forEach {
+			it.volume = currentVolume
 		}
-		mLastTempMessageTime = System.nanoTime()
+		lastTempMessageTime = System.nanoTime()
 	}
 
 	override fun onLongPress(e: MotionEvent) {}
@@ -1037,156 +1037,156 @@ class SongView
 		velocityX: Float,
 		velocityY: Float
 	): Boolean {
-		if (mScreenAction == ScreenAction.None)
+		if (screenAction == ScreenAction.None)
 			return false
-		if (mStartState === PlayState.AtTitleScreen)
+		if (startState === PlayState.AtTitleScreen)
 			return false
-		if (mSong == null)
+		if (song == null)
 			return false
-		if (mScreenAction == ScreenAction.Scroll || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual) {
+		if (screenAction == ScreenAction.Scroll || song!!.currentLine.scrollMode === ScrollingMode.Manual) {
 			clearScrollTarget()
 			pauseOnScrollStart()
-			mScroller.fling(
+			scroller.fling(
 				0,
-				mSongPixelPosition,
+				songPixelPosition,
 				0,
 				(-velocityY).toInt(),
 				0,
 				0,
 				0,
-				mSong!!.mScrollEndPixel
+				song!!.scrollEndPixel
 			)
-		} else if (mScreenAction == ScreenAction.Volume)
-			mScroller.fling(0, mCurrentVolume, 0, velocityY.toInt(), 0, 0, 0, 1000)
+		} else if (screenAction == ScreenAction.Volume)
+			scroller.fling(0, currentVolume, 0, velocityY.toInt(), 0, 0, 0, 1000)
 		return true
 	}
 
 	private fun changeThePageDown() {
-		if (mSongPixelPosition == mSong!!.mScrollEndPixel)
-			if (++mEndSongByPedalCounter == SONG_END_PEDAL_PRESSES)
+		if (songPixelPosition == song!!.scrollEndPixel)
+			if (++endSongByPedalCounter == SONG_END_PEDAL_PRESSES)
 				endSong(false)
 			else
-				mLastTempMessageTime = System.nanoTime()
+				lastTempMessageTime = System.nanoTime()
 		else
 			changePage(true)
 	}
 
 	fun onOtherPageDownActivated() {
-		if (mStartState !== PlayState.AtTitleScreen)
+		if (startState !== PlayState.AtTitleScreen)
 			onPageDownKeyPressed()
 	}
 
 	fun onPageDownKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changeThePageDown()
-		} else if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		} else if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			changeThePageDown()
 		else
 			changeVolume(+5)
 	}
 
 	fun onPageUpKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changePage(false)
-		} else if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		} else if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			changePage(false)
 		else
 			changeVolume(-5)
 	}
 
 	private fun changeTheLineDown() {
-		if (mSongPixelPosition == mSong!!.mScrollEndPixel)
-			if (++mEndSongByPedalCounter == SONG_END_PEDAL_PRESSES)
+		if (songPixelPosition == song!!.scrollEndPixel)
+			if (++endSongByPedalCounter == SONG_END_PEDAL_PRESSES)
 				endSong(false)
 			else
-				mLastTempMessageTime = System.nanoTime()
+				lastTempMessageTime = System.nanoTime()
 		else
 			changeLine(true)
 	}
 
 	fun onLineDownKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changeTheLineDown()
-		} else if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		} else if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			changeTheLineDown()
 		else
 			changeVolume(+5)
 	}
 
 	fun onLineUpKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changeLine(false)
-		} else if (mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		} else if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
 			changeLine(false)
 		else
 			changeVolume(-5)
 	}
 
 	fun onLeftKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changeVolume(-5)
 		} else
 			changeVolume(-5)
 	}
 
 	fun onRightKeyPressed() {
-		if (mStartState !== PlayState.Playing) {
-			if (!startToggle(null, false) && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual)
+		if (startState !== PlayState.Playing) {
+			if (!startToggle(null, false) && song!!.currentLine.scrollMode === ScrollingMode.Manual)
 				changeVolume(+5)
 		} else
 			changeVolume(+5)
 	}
 
 	private fun changePage(down: Boolean) {
-		if (mStartState === PlayState.AtTitleScreen)
+		if (startState === PlayState.AtTitleScreen)
 			return
-		if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
+		if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition)
 			return
-		if (down && mManualScrollPositions.mBeatJumpScrollLine != null)
+		if (down && manualScrollPositions.mBeatJumpScrollLine != null)
 			setSongTime(
-				mManualScrollPositions.mBeatJumpScrollLine!!.mLineTime,
+				manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
 				redraw = true,
 				broadcast = true,
 				setPixelPosition = true,
 				recalculateManualPositions = false
 			)
 		else
-			mTargetPixelPosition =
+			targetPixelPosition =
 				if (down)
-					mManualScrollPositions.mPageDownPosition
+					manualScrollPositions.mPageDownPosition
 				else
-					mManualScrollPositions.mPageUpPosition
+					manualScrollPositions.mPageUpPosition
 	}
 
 	private fun changeLine(down: Boolean) {
-		if (mStartState === PlayState.AtTitleScreen)
+		if (startState === PlayState.AtTitleScreen)
 			return
-		if (mTargetPixelPosition != -1 && mTargetPixelPosition != mSongPixelPosition)
+		if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition)
 			return
 		val targetLine =
 			if (down)
-				mSong!!.mCurrentLine.mNextLine
+				song!!.currentLine.nextLine
 			else
-				mSong!!.mCurrentLine.mPrevLine
-		mTargetPixelPosition = (targetLine ?: mSong!!.mCurrentLine).mSongPixelPosition
+				song!!.currentLine.previousLine
+		targetPixelPosition = (targetLine ?: song!!.currentLine).songPixelPosition
 	}
 
 	private fun clearScrollTarget() {
-		mTargetPixelPosition = -1
-		mTargetAcceleration = 1
+		targetPixelPosition = -1
+		targetAcceleration = 1
 		calculateManualScrollPositions()
 	}
 
 	private fun calculateManualScrollPositions() {
-		val currentLine = mSong!!.mCurrentLine
+		val currentLine = song!!.currentLine
 		// Don't bother doing this if we aren't in manual mode.
-		if (currentLine.mScrollMode == ScrollingMode.Manual) {
-			val usableScreenHeight = mSong!!.mDisplaySettings.mUsableScreenHeight
+		if (currentLine.scrollMode == ScrollingMode.Manual) {
+			val usableScreenHeight = song!!.displaySettings.usableScreenHeight
 
 			// We don't always want to scroll bang onto a line. If the candidate line is really big
 			// and starts too far up/down the page, then we will perform a "default scroll", which is
@@ -1201,14 +1201,14 @@ class SongView
 			// b) it takes us into or through a non-manual section.
 
 			// Here's the default scroll position
-			val defaultPageUpScrollPosition = mSongPixelPosition - defaultScrollAmount
+			val defaultPageUpScrollPosition = songPixelPosition - defaultScrollAmount
 
 			// So now find the manual block start.
-			var manualModeBlockStartPosition = currentLine.mSongPixelPosition
+			var manualModeBlockStartPosition = currentLine.songPixelPosition
 			var pageUpLine = currentLine
-			while (pageUpLine.mPrevLine != null && pageUpLine.mPrevLine!!.mScrollMode == ScrollingMode.Manual) {
-				pageUpLine = pageUpLine.mPrevLine!!
-				manualModeBlockStartPosition = pageUpLine.mSongPixelPosition
+			while (pageUpLine.previousLine != null && pageUpLine.previousLine!!.scrollMode == ScrollingMode.Manual) {
+				pageUpLine = pageUpLine.previousLine!!
+				manualModeBlockStartPosition = pageUpLine.songPixelPosition
 			}
 
 			// And take the greater of the two.
@@ -1216,7 +1216,7 @@ class SongView
 
 			// Now for page-down. Bit trickier.
 			// Again, we might be using the "default scroll" amount.
-			val defaultPageDownScrollPosition = mSongPixelPosition + defaultScrollAmount
+			val defaultPageDownScrollPosition = songPixelPosition + defaultScrollAmount
 
 			// We're going to traverse downwards from the current line. Initialise some vars.
 			var pageDownLine = currentLine
@@ -1224,16 +1224,16 @@ class SongView
 			var pageDownPosition = defaultPageDownScrollPosition
 
 			// Keep going while there are still lines to check.
-			while (pageDownLine.mNextLine != null) {
-				val nextLine = pageDownLine.mNextLine!!
+			while (pageDownLine.nextLine != null) {
+				val nextLine = pageDownLine.nextLine!!
 
 				// Escape clause 1: beat line!
-				if (nextLine.mScrollMode == ScrollingMode.Beat) {
+				if (nextLine.scrollMode == ScrollingMode.Beat) {
 					// Whoa, we've found a beat line! End of the road.
 					// If it is onscreen enough, we will use it.
 					beatJumpScrollLine =
-						if (nextLine.isFullyOnScreen(mSongPixelPosition) || nextLine.screenCoverage(
-								mSongPixelPosition
+						if (nextLine.isFullyOnScreen(songPixelPosition) || nextLine.screenCoverage(
+								songPixelPosition
 							) > MINIMUM_SCREEN_COVERAGE_FOR_BEAT_SCROLL
 						)
 							nextLine
@@ -1242,28 +1242,28 @@ class SongView
 					pageDownPosition =
 						when {
 							// If we found a beat scroll line, we'll be scrolling to that.
-							beatJumpScrollLine != null -> beatJumpScrollLine.mSongPixelPosition
+							beatJumpScrollLine != null -> beatJumpScrollLine.songPixelPosition
 							// Otherwise we will use the last manual line, unless that line is HUGE ...
-							pageDownLine.screenCoverage(mSongPixelPosition) <= MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownLine.mSongPixelPosition
+							pageDownLine.screenCoverage(songPixelPosition) <= MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownLine.songPixelPosition
 							// ...in which case, we will just do a default scroll.
 							else -> defaultPageDownScrollPosition
 						}
 					break
 				}
 				// Escape clause 2: we've found a manual line that ISN'T fully onscreen.
-				if (!nextLine.isFullyOnScreen(mSongPixelPosition)) {
+				if (!nextLine.isFullyOnScreen(songPixelPosition)) {
 					// Figure out how much of the screen this line covers.
-					val nextLineScreenCoverage = nextLine.screenCoverage(mSongPixelPosition)
+					val nextLineScreenCoverage = nextLine.screenCoverage(songPixelPosition)
 					pageDownPosition =
 						when {
 							// If it takes up an enormous amount of screen, we'll just do a default scroll.
 							nextLineScreenCoverage > MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> defaultPageDownScrollPosition
 							// If it takes up a reasonable amount of screen, we'll use it.
-							nextLineScreenCoverage >= MINIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> nextLine.mSongPixelPosition
+							nextLineScreenCoverage >= MINIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> nextLine.songPixelPosition
 							// Last possibility: it wasn't onscreen enough, so probably isn't very readable.
 							// We've still got the previous line "in the bank", so we'll use that unless THAT
 							// line takes up a huge amount of the screen ...
-							pageDownLine.screenCoverage(mSongPixelPosition) <= MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownPosition
+							pageDownLine.screenCoverage(songPixelPosition) <= MAXIMUM_SCREEN_COVERAGE_FOR_MANUAL_SCROLL -> pageDownPosition
 							// ...in which case, we will just do a default scroll.
 							else -> defaultPageDownScrollPosition
 						}
@@ -1271,21 +1271,21 @@ class SongView
 				}
 				// Move to the next line.
 				pageDownLine = nextLine
-				pageDownPosition = pageDownLine.mSongPixelPosition
+				pageDownPosition = pageDownLine.songPixelPosition
 			}
 
 			// Phew! Got there in the end.
 			// Never scroll beyond the pre-calculated end point (though this should never happen).
-			pageDownPosition = min(mSong!!.mScrollEndPixel, pageDownPosition)
+			pageDownPosition = min(song!!.scrollEndPixel, pageDownPosition)
 
-			mManualScrollPositions.mPageUpPosition = pageUpPosition
-			mManualScrollPositions.mPageDownPosition = pageDownPosition
-			mManualScrollPositions.mBeatJumpScrollLine = beatJumpScrollLine
+			manualScrollPositions.mPageUpPosition = pageUpPosition
+			manualScrollPositions.mPageDownPosition = pageDownPosition
+			manualScrollPositions.mBeatJumpScrollLine = beatJumpScrollLine
 		}
 	}
 
 	fun setSongBeatPosition(pointer: Int, midiInitiated: Boolean) {
-		val songTime = mSong!!.getMIDIBeatTime(pointer)
+		val songTime = song!!.getMIDIBeatTime(pointer)
 		setSongTime(
 			songTime,
 			true,
@@ -1304,45 +1304,45 @@ class SongView
 				setPixelPosition = true,
 				recalculateManualPositions = true
 			)
-		while (mStartState !== PlayState.Playing)
+		while (startState !== PlayState.Playing)
 			startToggle(null, midiInitiated)
 	}
 
 	fun stopSong(midiInitiated: Boolean) {
-		if (mStartState === PlayState.Playing)
+		if (startState === PlayState.Playing)
 			startToggle(null, midiInitiated)
 	}
 
 	internal fun canYieldToExternalTrigger(): Boolean =
-		when (mExternalTriggerSafetyCatch) {
+		when (externalTriggerSafetyCatch) {
 			TriggerSafetyCatch.Always -> true
-			TriggerSafetyCatch.WhenAtTitleScreen -> mStartState === PlayState.AtTitleScreen
-			TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> mStartState !== PlayState.Playing || mSong != null && mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual
-			TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> mStartState !== PlayState.Playing || mSong == null || mSong!!.mCurrentLine.mNextLine == null || mSong!!.mCurrentLine.mScrollMode === ScrollingMode.Manual
+			TriggerSafetyCatch.WhenAtTitleScreen -> startState === PlayState.AtTitleScreen
+			TriggerSafetyCatch.WhenAtTitleScreenOrPaused -> startState !== PlayState.Playing || song != null && song!!.currentLine.scrollMode === ScrollingMode.Manual
+			TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine -> startState !== PlayState.Playing || song == null || song!!.currentLine.nextLine == null || song!!.currentLine.scrollMode === ScrollingMode.Manual
 			TriggerSafetyCatch.Never -> false
 		}
 
 	private fun getLineHighlightColor(line: Line, time: Long): Int? {
-		if (line == mSong!!.mCurrentLine && mHighlightCurrentLine && line.mScrollMode == ScrollingMode.Beat)
-			return mDefaultCurrentLineHighlightColor
-		if (mHighlightBeatSectionStart && line == mManualScrollPositions.mBeatJumpScrollLine)
-			return mBeatSectionStartHighlightColors[((time / 1000000.0) % mBeatSectionStartHighlightColors.size).toInt()]
+		if (line == song!!.currentLine && highlightCurrentLine && line.scrollMode == ScrollingMode.Beat)
+			return defaultCurrentLineHighlightColor
+		if (highlightBeatSectionStart && line == manualScrollPositions.mBeatJumpScrollLine)
+			return beatSectionStartHighlightColors[((time / 1000000.0) % beatSectionStartHighlightColors.size).toInt()]
 		return null
 	}
 
 	internal inner class ManualMetronomeTask(bpm: Double) : Task(true) {
-		private var mNanosecondsPerBeat: Long = 0
-		private var mNextClickTime: Long = 0
+		private var nanosecondsPerBeat: Long = 0
+		private var nextClickTime: Long = 0
 
 		init {
-			mNanosecondsPerBeat = Utils.nanosecondsPerBeat(bpm)
+			nanosecondsPerBeat = Utils.nanosecondsPerBeat(bpm)
 		}
 
 		override fun doWork() {
-			mNextClickTime = System.nanoTime()
-			mClickSoundPool.play(mClickAudioID, 1.0f, 1.0f, 1, 0, 1.0f)
-			mNextClickTime += mNanosecondsPerBeat
-			val wait = mNextClickTime - System.nanoTime()
+			nextClickTime = System.nanoTime()
+			clickSoundPool.play(clickAudioId, 1.0f, 1.0f, 1, 0, 1.0f)
+			nextClickTime += nanosecondsPerBeat
+			val wait = nextClickTime - System.nanoTime()
 			if (wait > 0) {
 				val millisecondsPerBeat = Utils.nanoToMilli(wait).toLong()
 				val nanosecondRemainder = (wait - Utils.milliToNano(millisecondsPerBeat)).toInt()
@@ -1350,7 +1350,7 @@ class SongView
 					Thread.sleep(millisecondsPerBeat, nanosecondRemainder)
 				} catch (ie: InterruptedException) {
 					Logger.log("Interrupted while waiting ... assuming resync attempt.", ie)
-					mNextClickTime = System.nanoTime()
+					nextClickTime = System.nanoTime()
 				}
 			}
 		}
@@ -1376,7 +1376,7 @@ class SongView
 
 		private const val SONG_END_PEDAL_PRESSES = 3
 		private val SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS = Utils.milliToNano(2000)
-		private val mAccelerations = IntArray(2048)
+		private val accelerations = IntArray(2048)
 
 		// Expressed as a fraction, this is the percentage of the usable screen that will be scrolled
 		// by default when we have stupidly-big lines.
@@ -1396,7 +1396,7 @@ class SongView
 
 		init {
 			repeat(2048) {
-				mAccelerations[it] = ceil(sqrt((it + 1).toDouble()) * 2.0).toInt()
+				accelerations[it] = ceil(sqrt((it + 1).toDouble()) * 2.0).toInt()
 			}
 		}
 

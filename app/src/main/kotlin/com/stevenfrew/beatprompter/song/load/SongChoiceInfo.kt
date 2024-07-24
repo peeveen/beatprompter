@@ -3,15 +3,15 @@ package com.stevenfrew.beatprompter.song.load
 import android.graphics.Rect
 
 data class SongChoiceInfo(
-	val mNormalizedTitle: String,
-	val mNormalizedArtist: String,
-	val mVariation: String,
-	val mOrientation: Int,
-	val mBeatScroll: Boolean,
-	val mSmoothScroll: Boolean,
-	val mMinFontSize: Float,
-	val mMaxFontSize: Float,
-	val mScreenSize: Rect,
-	val mNoAudio: Boolean,
-	val mAudioLatency: Int
+	val normalizedTitle: String,
+	val normalizedArtist: String,
+	val variation: String,
+	val orientation: Int,
+	val isBeatScroll: Boolean,
+	val isSmoothScroll: Boolean,
+	val minFontSize: Float,
+	val maxFontSize: Float,
+	val screenSize: Rect,
+	val noAudio: Boolean,
+	val audioLatency: Int
 )

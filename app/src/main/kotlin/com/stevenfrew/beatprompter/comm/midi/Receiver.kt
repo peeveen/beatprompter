@@ -12,10 +12,10 @@ import com.stevenfrew.beatprompter.events.Events
 import kotlin.experimental.and
 
 abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(name, type) {
-	private var mInSysEx: Boolean = false
+	private var inSysEx: Boolean = false
 
-	private var mMidiBankMSBs = ByteArray(16)
-	private var mMidiBankLSBs = ByteArray(16)
+	private var midiBankMSBs = ByteArray(16)
+	private var midiBankLSBs = ByteArray(16)
 
 	override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
 		var dataStart = 0
@@ -23,9 +23,9 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 			val messageByte = buffer[dataStart]
 			// All interesting MIDI signals have the top bit set.
 			if (messageByte and EIGHT_ZERO_HEX != Message.ZERO_BYTE) {
-				if (mInSysEx) {
+				if (inSysEx) {
 					if (messageByte == Message.MIDI_SYSEX_END_BYTE)
-						mInSysEx = false
+						inSysEx = false
 				} else {
 					// These are single byte messages.
 					when (messageByte) {
@@ -55,7 +55,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 							// Not enough data left.
 								break
 
-						Message.MIDI_SYSEX_START_BYTE -> mInSysEx = true
+						Message.MIDI_SYSEX_START_BYTE -> inSysEx = true
 						else -> {
 							val channelsToListenTo = getIncomingChannels()
 							val messageByteWithoutChannel = (messageByte and F_ZERO_HEX)
@@ -68,8 +68,8 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 											// This message requires one additional byte.
 											if (dataStart < dataEnd - 1) {
 												val pcValues = byteArrayOf(
-													mMidiBankMSBs[channel.toInt()],
-													mMidiBankLSBs[channel.toInt()],
+													midiBankMSBs[channel.toInt()],
+													midiBankLSBs[channel.toInt()],
 													buffer[++dataStart],
 													channel
 												)
@@ -84,9 +84,9 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 												val controller = buffer[++dataStart]
 												val bankValue = buffer[++dataStart]
 												if (controller == Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
-													mMidiBankMSBs[channel.toInt()] = bankValue
+													midiBankMSBs[channel.toInt()] = bankValue
 												else if (controller == Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
-													mMidiBankLSBs[channel.toInt()] = bankValue
+													midiBankLSBs[channel.toInt()] = bankValue
 											} else
 												break
 									}
@@ -118,19 +118,19 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 		private const val EIGHT_ZERO_HEX = 0x80.toByte()
 		private const val F_ZERO_HEX = 0xF0.toByte()
 
-		private var mIncomingChannels = getIncomingChannelsPrefValue()
-		private val mIncomingChannelsLock = Any()
+		private var incomingChannels = getIncomingChannelsPrefValue()
+		private val incomingChannelsLock = Any()
 
 		private fun getIncomingChannelsPrefValue(): Int = Preferences.incomingMIDIChannels
 
 		private fun getIncomingChannels(): Int =
-			synchronized(mIncomingChannelsLock) {
-				return mIncomingChannels
+			synchronized(incomingChannelsLock) {
+				return incomingChannels
 			}
 
 		private fun setIncomingChannels() =
-			synchronized(mIncomingChannelsLock) {
-				mIncomingChannels = getIncomingChannelsPrefValue()
+			synchronized(incomingChannelsLock) {
+				incomingChannels = getIncomingChannelsPrefValue()
 			}
 
 		private fun calculateMidiBeat(byte1: Byte, byte2: Byte): Int {

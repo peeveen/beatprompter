@@ -19,7 +19,7 @@ import io.reactivex.subjects.PublishSubject
  * Base class for all storage systems that we will support.
  */
 abstract class Storage protected constructor(
-	protected var mParentFragment: Fragment,
+	protected var parentFragment: Fragment,
 	storageType: StorageType
 ) {
 	var cacheFolder: CacheFolder
@@ -45,8 +45,8 @@ abstract class Storage protected constructor(
 
 	fun downloadFiles(filesToRefresh: List<FileInfo>, listener: ItemDownloadListener) {
 		val refreshFiles = filesToRefresh.toMutableList()
-		Cache.mDefaultDownloads
-			.map { it.mFileInfo }
+		Cache.defaultDownloads
+			.map { it.fileInfo }
 			.filter { refreshFiles.contains(it) }
 			.forEach { refreshFiles.remove(it) }
 
@@ -67,7 +67,7 @@ abstract class Storage protected constructor(
 			})
 		}
 		// Always include the temporary set list and default midi alias files.
-		Cache.mDefaultDownloads.forEach { downloadSource.onNext(it) }
+		Cache.defaultDownloads.forEach { downloadSource.onNext(it) }
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
 	}
 
@@ -85,7 +85,7 @@ abstract class Storage protected constructor(
 					messageSource.onNext(
 						BeatPrompter.appResources.getString(
 							if (attempt == 0) R.string.downloading else R.string.retryingDownload,
-							file.mName,
+							file.name,
 							attempt,
 							DOWNLOAD_RETRY_LIMIT
 						)
@@ -119,7 +119,7 @@ abstract class Storage protected constructor(
 			add(
 				folderContentsSource.subscribe(
 					{ listener.onCloudItemFound(it) },
-					{ listener.onFolderSearchError(it, mParentFragment.requireContext()) },
+					{ listener.onFolderSearchError(it, parentFragment.requireContext()) },
 					{
 						listener.onFolderSearchComplete()
 						this.dispose()
@@ -129,8 +129,8 @@ abstract class Storage protected constructor(
 				Utils.reportProgress(listener, it)
 			})
 		}
-		for (defaultCloudDownload in Cache.mDefaultDownloads)
-			folderContentsSource.onNext(defaultCloudDownload.mFileInfo)
+		for (defaultCloudDownload in Cache.defaultDownloads)
+			folderContentsSource.onNext(defaultCloudDownload.fileInfo)
 		readFolderContents(folder, listener, folderContentsSource, messageSource, recurseSubFolders)
 	}
 
@@ -142,19 +142,18 @@ abstract class Storage protected constructor(
 						parentActivity,
 						this@Storage,
 						listener,
-						rootPath,
-						parentActivity
+						rootPath
 					).showDialog()
 
 				override fun onRootPathError(t: Throwable) =
-					listener.onFolderSelectedError(t, mParentFragment.requireContext())
+					listener.onFolderSelectedError(t, parentFragment.requireContext())
 
 				override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 
 				override fun shouldCancel(): Boolean = listener.shouldCancel()
 			})
 		} catch (e: Exception) {
-			listener.onFolderSelectedError(e, mParentFragment.requireContext())
+			listener.onFolderSelectedError(e, parentFragment.requireContext())
 		}
 
 	private fun getRootPath(listener: RootPathListener) {

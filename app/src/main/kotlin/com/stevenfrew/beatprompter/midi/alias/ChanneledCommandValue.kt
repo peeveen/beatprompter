@@ -7,16 +7,16 @@ import kotlin.experimental.or
 
 class ChanneledCommandValue internal constructor(value: Byte) : ByteValue(value) {
 	init {
-		if (mValue and 0x0F != ZERO_BYTE)
+		if (this.value and 0x0F != ZERO_BYTE)
 			throw ValueException(BeatPrompter.appResources.getString(R.string.merge_with_channel_non_zero_lower_nibble))
 	}
 
 	override fun resolve(arguments: ByteArray, channel: Byte): Byte =
-		((mValue and 0xF0.toByte()) or (channel and 0x0F))
+		((value and 0xF0.toByte()) or (channel and 0x0F))
 
 	override fun matches(otherValue: Value?): Boolean =
-		if (otherValue is ChanneledCommandValue) otherValue.mValue == mValue else otherValue is WildcardValue
+		if (otherValue is ChanneledCommandValue) otherValue.value == value else otherValue is WildcardValue
 
 	override fun toString(): String =
-		"0x${Integer.toHexString(mValue.toInt()).takeLast(2).take(1)}_"
+		"0x${Integer.toHexString(value.toInt()).takeLast(2).take(1)}_"
 }

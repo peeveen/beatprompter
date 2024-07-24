@@ -26,7 +26,7 @@ internal class BrowserItemListAdapter(items: List<ItemInfo>, context: Context) :
 				val imageView = findViewById<ImageView>(R.id.file_or_folder_icon)
 				this@BrowserItemListAdapter.getItem(position)?.also {
 					textView.apply {
-						text = it.mName
+						text = it.name
 						isEnabled = it.isFolder
 					}
 					imageView.apply {

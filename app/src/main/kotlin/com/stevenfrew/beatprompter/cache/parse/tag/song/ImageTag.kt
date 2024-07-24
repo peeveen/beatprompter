@@ -24,13 +24,13 @@ class ImageTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mFilename: String
-	val mImageScalingMode: ImageScalingMode
+	val filename: String
+	val scalingMode: ImageScalingMode
 
 	init {
 		val bits = value.splitAndTrim(":")
-		mFilename = File(bits[0]).name
-		mImageScalingMode =
+		filename = File(bits[0]).name
+		scalingMode =
 			if (bits.size > 1)
 				parseImageScalingMode(bits[1])
 			else

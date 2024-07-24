@@ -19,7 +19,7 @@ class TimeTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mDuration = TagParsingUtility.parseDurationValue(
+	val duration = TagParsingUtility.parseDurationValue(
 		value,
 		1000L, 60 * 60 * 1000L, true
 	)

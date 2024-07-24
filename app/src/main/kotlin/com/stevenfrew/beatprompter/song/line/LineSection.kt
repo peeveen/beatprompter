@@ -11,57 +11,58 @@ import kotlin.math.max
 import kotlin.math.min
 
 class LineSection(
-	val mLineText: String,
-	val mChordText: String,
-	val mTrueChord: Boolean,
-	private val mSectionPosition: Int,
-	private val mTags: Collection<Tag>
+	val lineText: String,
+	val chordText: String,
+	val isTrueChord: Boolean,
+	private val sectionPosition: Int,
+	private val tags: Collection<Tag>
 ) {
-	private val mTrimmedChord = mChordText.trim()
-	var mChordWidth = 0
-	var mChordHeight = 0
-	var mChordDescenderOffset = 0
-	var mChordTrimWidth = 0
+	private val trimmedChord = chordText.trim()
 
-	var mLineWidth = 0
-	var mLineHeight = 0
-	var mLineDescenderOffset = 0
+	var chordWidth = 0
+	var chordHeight = 0
+	var chordDescenderOffset = 0
+	var chordTrimWidth = 0
 
-	var mChordDrawLine = -1
-	var mHighlightingRectangles =
+	var lineWidth = 0
+	var lineHeight = 0
+	var lineDescenderOffset = 0
+
+	var chordDrawLine = -1
+	var highlightingRectangles =
 		mutableListOf<ColorRect>() // Start/stop/start/stop x-coordinates of highlighted sections.
 
 	val width: Int
-		get() = max(mLineWidth, mChordWidth)
+		get() = max(lineWidth, chordWidth)
 	val height: Int
-		get() = mLineHeight + mChordHeight
+		get() = lineHeight + chordHeight
 
 	fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-		ScreenString.measure(mLineText, paint, fontSize.toFloat(), face)
-		mLineWidth = ScreenString.mMeasuredWidth
-		mLineHeight = if (mLineText.isBlank())
+		ScreenString.measure(lineText, paint, fontSize.toFloat(), face)
+		lineWidth = ScreenString.mMeasuredWidth
+		lineHeight = if (lineText.isBlank())
 			0
 		else
 			ScreenString.mMeasuredHeight
-		mLineDescenderOffset = ScreenString.mMeasuredDescenderOffset
-		return mLineWidth
+		lineDescenderOffset = ScreenString.mMeasuredDescenderOffset
+		return lineWidth
 	}
 
 	fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-		ScreenString.measure(mChordText, paint, fontSize.toFloat(), face)
-		mChordWidth = ScreenString.mMeasuredWidth
-		mChordHeight = if (mTrimmedChord.isEmpty())
+		ScreenString.measure(chordText, paint, fontSize.toFloat(), face)
+		chordWidth = ScreenString.mMeasuredWidth
+		chordHeight = if (trimmedChord.isEmpty())
 			0
 		else
 			ScreenString.mMeasuredHeight
-		mChordDescenderOffset = ScreenString.mMeasuredDescenderOffset
-		mChordTrimWidth = if (mTrimmedChord.length < mChordText.length) {
-			ScreenString.measure(mTrimmedChord, paint, fontSize.toFloat(), face)
+		chordDescenderOffset = ScreenString.mMeasuredDescenderOffset
+		chordTrimWidth = if (trimmedChord.length < chordText.length) {
+			ScreenString.measure(trimmedChord, paint, fontSize.toFloat(), face)
 			ScreenString.mMeasuredWidth
 		} else
-			mChordWidth
+			chordWidth
 
-		return mChordWidth
+		return chordWidth
 	}
 
 	fun calculateHighlightedSections(
@@ -74,24 +75,24 @@ class LineSection(
 		var highlightColour = if (lookingForEnd) currentHighlightColour else null
 		var startX = 0
 		var startPosition = 0
-		val highlightTags = mTags.filter { it is StartOfHighlightTag || it is EndOfHighlightTag }
+		val highlightTags = tags.filter { it is StartOfHighlightTag || it is EndOfHighlightTag }
 		highlightTags.forEach {
-			val length = min(it.mPosition - mSectionPosition, mLineText.length)
+			val length = min(it.position - sectionPosition, lineText.length)
 			if (it is StartOfHighlightTag && !lookingForEnd) {
-				val strHighlightText = mLineText.substring(0, length)
+				val strHighlightText = lineText.substring(0, length)
 				startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
-				startPosition = it.mPosition - mSectionPosition
-				highlightColour = it.mColor
+				startPosition = it.position - sectionPosition
+				highlightColour = it.color
 				lookingForEnd = true
 			} else if (it is EndOfHighlightTag && lookingForEnd) {
-				val strHighlightText = mLineText.substring(startPosition, length)
+				val strHighlightText = lineText.substring(startPosition, length)
 				val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
-				mHighlightingRectangles.add(
+				highlightingRectangles.add(
 					ColorRect(
 						startX,
-						mChordHeight,
+						chordHeight,
 						startX + sectionWidth,
-						mChordHeight + mLineHeight,
+						chordHeight + lineHeight,
 						highlightColour!!
 					)
 				)
@@ -100,20 +101,20 @@ class LineSection(
 			}
 		}
 		if (lookingForEnd)
-			mHighlightingRectangles.add(
+			highlightingRectangles.add(
 				ColorRect(
 					startX,
-					mChordHeight,
-					max(mLineWidth, mChordWidth),
-					mChordHeight + mLineHeight,
+					chordHeight,
+					max(lineWidth, chordWidth),
+					chordHeight + lineHeight,
 					highlightColour!!
 				)
 			)
 		return highlightColour
 	}
 
-	fun hasChord(): Boolean = mChordText.isNotBlank()
+	fun hasChord(): Boolean = chordText.isNotBlank()
 
 	// Even a space can be valid as a section.
-	fun hasText(): Boolean = mLineText.isNotEmpty()
+	fun hasText(): Boolean = lineText.isNotEmpty()
 }

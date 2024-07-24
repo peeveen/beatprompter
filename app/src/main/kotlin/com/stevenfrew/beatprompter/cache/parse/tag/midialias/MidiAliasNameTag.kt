@@ -16,5 +16,5 @@ class MidiAliasNameTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mAliasName: String
+	val aliasName: String
 ) : Tag(name, lineNumber, position)

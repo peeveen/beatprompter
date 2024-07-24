@@ -13,27 +13,27 @@ import com.stevenfrew.beatprompter.set.SetListEntry
  */
 class SetListFileParser(cachedCloudFile: CachedFile) :
 	TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
-	private var mSetName: String = ""
-	private val mSetListEntries = mutableListOf<SetListEntry>()
+	private var setName: String = ""
+	private val setListEntries = mutableListOf<SetListEntry>()
 
 	override fun parseLine(line: TextFileLine<SetListFile>) {
 		val setNameTag = line
-			.mTags
+			.tags
 			.asSequence()
 			.filterIsInstance<SetNameTag>()
 			.firstOrNull()
 		if (setNameTag != null) {
-			if (mSetName.isNotBlank())
-				mErrors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
+			if (setName.isNotBlank())
+				errors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
 			else
-				mSetName = setNameTag.mSetName
-		} else if (line.mLineWithNoTags.isNotEmpty())
-			mSetListEntries.add(SetListEntry(line.mLineWithNoTags))
+				setName = setNameTag.setName
+		} else if (line.lineWithNoTags.isNotEmpty())
+			setListEntries.add(SetListEntry(line.lineWithNoTags))
 	}
 
 	override fun getResult(): SetListFile {
-		if (mSetName.isBlank())
+		if (setName.isBlank())
 			throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
-		return SetListFile(mCachedCloudFile, mSetName, mSetListEntries, mErrors)
+		return SetListFile(cachedCloudFile, setName, setListEntries, errors)
 	}
 }

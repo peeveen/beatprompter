@@ -19,5 +19,5 @@ class RatingTag internal constructor(
 	position: Int,
 	rating: String
 ) : ValueTag(name, lineNumber, position, rating) {
-	val mRating = TagParsingUtility.parseIntegerValue(rating, 1, 5)
+	val rating = TagParsingUtility.parseIntegerValue(rating, 1, 5)
 }

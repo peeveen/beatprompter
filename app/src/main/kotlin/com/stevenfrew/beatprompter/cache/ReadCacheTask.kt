@@ -15,26 +15,26 @@ import kotlin.coroutines.CoroutineContext
  * Task that reads the song database, and parses the song files.
  */
 class ReadCacheTask(
-	private val mContext: Context,
-	private val mHandler: Handler,
-	private val mOnComplete: (Boolean) -> Unit
+	private val context: Context,
+	private val handler: Handler,
+	private val onComplete: (Boolean) -> Unit
 ) : CoroutineTask<Unit, String, Boolean> {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main
-	private var mProgressDialog: Dialog? = null
-	private var mErrorOccurred = false
+	private var progressDialog: Dialog? = null
+	private var errorOccurred = false
 
 	override fun onError(t: Throwable) {
-		mErrorOccurred = true
-		mHandler.obtainMessage(Events.DATABASE_READ_ERROR, t.message).sendToTarget()
+		errorOccurred = true
+		handler.obtainMessage(Events.DATABASE_READ_ERROR, t.message).sendToTarget()
 	}
 
-	private fun closeProgressDialog() = mProgressDialog?.dismiss()
+	private fun closeProgressDialog() = progressDialog?.dismiss()
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val databaseReadListener = object : CacheReadListener {
 			override fun onItemRead(cachedFile: CachedItem) =
-				Cache.mCachedCloudItems.add(cachedFile)
+				Cache.cachedCloudItems.add(cachedFile)
 
 			override fun onCacheReadError(t: Throwable) {
 				onError(t)
@@ -42,25 +42,25 @@ class ReadCacheTask(
 			}
 
 			override fun onCacheReadComplete() {
-				mHandler.obtainMessage(
+				handler.obtainMessage(
 					Events.CACHE_UPDATED,
-					Cache.mCachedCloudItems
+					Cache.cachedCloudItems
 				).sendToTarget()
 				closeProgressDialog()
 			}
 
 			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
 		}
-		return if (mInitialDatabaseReadHasBeenPerformed) {
+		return if (initialDatabaseReadHasBeenPerformed) {
 			databaseReadListener.onCacheReadComplete()
 			true
 		} else Cache.readDatabase(databaseReadListener)
 	}
 
 	override fun onPreExecute() {
-		if (!mInitialDatabaseReadHasBeenPerformed) {
+		if (!initialDatabaseReadHasBeenPerformed) {
 			val title = BeatPrompter.appResources.getString(R.string.readingDatabase)
-			mProgressDialog = Dialog(mContext, R.style.ReadingDatabaseDialog).apply {
+			progressDialog = Dialog(context, R.style.ReadingDatabaseDialog).apply {
 				setTitle(title)
 				setContentView(R.layout.reading_database)
 				setCancelable(false)
@@ -70,16 +70,16 @@ class ReadCacheTask(
 	}
 
 	override fun onProgressUpdate(progress: String) {
-		mProgressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress)?.text = progress
+		progressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress)?.text = progress
 	}
 
 	override fun onPostExecute(result: Boolean) {
-		mInitialDatabaseReadHasBeenPerformed = true
-		mOnComplete(result)
+		initialDatabaseReadHasBeenPerformed = true
+		onComplete(result)
 		closeProgressDialog()
 	}
 
 	companion object {
-		private var mInitialDatabaseReadHasBeenPerformed: Boolean = false
+		private var initialDatabaseReadHasBeenPerformed: Boolean = false
 	}
 }

@@ -10,19 +10,19 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 internal class MidiNativeDeviceListener(
-	private val mCommType: CommunicationType,
-	private val mManager: MidiManager,
-	private val mSenderTask: SenderTask,
-	private val mReceiverTasks: ReceiverTasks,
+	private val commType: CommunicationType,
+	private val manager: MidiManager,
+	private val senderTask: SenderTask,
+	private val receiverTasks: ReceiverTasks,
 	private val addDeviceFn: ((deviceInfo: MidiDeviceInfo, manager: MidiManager) -> Unit)?
 ) : MidiManager.OnDeviceOpenedListener, MidiManager.DeviceCallback() {
 	override fun onDeviceAdded(deviceInfo: MidiDeviceInfo) =
-		addDeviceFn?.invoke(deviceInfo, mManager) ?: Unit
+		addDeviceFn?.invoke(deviceInfo, manager) ?: Unit
 
 	override fun onDeviceRemoved(deviceInfo: MidiDeviceInfo) {
 		deviceInfo.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also {
-			mSenderTask.removeSender(it)
-			mReceiverTasks.stopAndRemoveReceiver(it)
+			senderTask.removeSender(it)
+			receiverTasks.stopAndRemoveReceiver(it)
 		}
 	}
 
@@ -32,24 +32,24 @@ internal class MidiNativeDeviceListener(
 				info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)?.also { deviceName ->
 					info.ports.forEach {
 						when (it.type) {
-							MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> mSenderTask.addSender(
+							MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> senderTask.addSender(
 								deviceName,
 								NativeSender(
 									openedDevice,
 									openedDevice.openInputPort(it.portNumber),
 									deviceName,
-									mCommType
+									commType
 								)
 							)
 
-							MidiDeviceInfo.PortInfo.TYPE_INPUT -> mReceiverTasks.addReceiver(
+							MidiDeviceInfo.PortInfo.TYPE_INPUT -> receiverTasks.addReceiver(
 								deviceName,
 								deviceName,
 								NativeReceiver(
 									openedDevice,
 									openedDevice.openOutputPort(it.portNumber),
 									deviceName,
-									mCommType
+									commType
 								)
 							)
 						}

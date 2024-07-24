@@ -9,11 +9,11 @@ import org.w3c.dom.Element
  */
 class AudioFile internal constructor(
 	cachedFile: CachedFile,
-	val mDuration: Long
+	val duration: Long
 ) : CachedFile(cachedFile) {
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
-		element.setAttribute(AUDIO_FILE_LENGTH_ATTRIBUTE, "$mDuration")
+		element.setAttribute(AUDIO_FILE_LENGTH_ATTRIBUTE, "$duration")
 	}
 
 	companion object {

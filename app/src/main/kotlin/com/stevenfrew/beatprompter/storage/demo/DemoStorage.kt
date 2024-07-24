@@ -44,9 +44,9 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>
 	) = downloadFiles(filesToRefresh, storageListener, itemSource, messageSource) {
-		if (it.mID.equals(DEMO_SONG_TEXT_ID, ignoreCase = true))
+		if (it.id.equals(DEMO_SONG_TEXT_ID, ignoreCase = true))
 			SuccessfulDownloadResult(it, createDemoSongTextFile())
-		else if (it.mID.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true))
+		else if (it.id.equals(DEMO_SONG_AUDIO_ID, ignoreCase = true))
 			SuccessfulDownloadResult(it, createDemoSongAudioFile())
 		else
 			FailedDownloadResult(it)

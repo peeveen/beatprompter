@@ -9,7 +9,7 @@ import com.stevenfrew.beatprompter.set.SetListEntry
  */
 class SetListFile internal constructor(
 	cachedFile: CachedFile,
-	val mSetTitle: String,
-	val mSetListEntries: MutableList<SetListEntry>,
+	val setTitle: String,
+	val setListEntries: MutableList<SetListEntry>,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors)

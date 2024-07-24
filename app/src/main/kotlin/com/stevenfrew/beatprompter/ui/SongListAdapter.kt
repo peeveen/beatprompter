@@ -13,38 +13,38 @@ import com.stevenfrew.beatprompter.set.PlaylistNode
 
 class SongListAdapter(private val values: List<PlaylistNode>, context: Context) :
 	ArrayAdapter<PlaylistNode>(context, -1, values) {
-	private val mLayoutId =
+	private val layoutId =
 		if (Preferences.largePrint)
 			R.layout.song_list_item_large
 		else
 			R.layout.song_list_item
-	private val mShowBeatIcons = Preferences.showBeatStyleIcons
-	private val mShowKey = Preferences.showKeyInSongList
-	private val mShowRating = Preferences.showRatingInSongList
-	private val mShowMusicIcon = Preferences.showMusicIcon
-	private val mInflater = context
+	private val showBeatIcons = Preferences.showBeatStyleIcons
+	private val showKey = Preferences.showKeyInSongList
+	private val showRating = Preferences.showRatingInSongList
+	private val showMusicIcon = Preferences.showMusicIcon
+	private val inflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-		(convertView ?: mInflater.inflate(mLayoutId, parent, false)).also {
+		(convertView ?: inflater.inflate(layoutId, parent, false)).also {
 			val artistView = it.findViewById<TextView>(R.id.songartist)
 			val titleView = it.findViewById<TextView>(R.id.songtitle)
 			val beatIcon = it.findViewById<ImageView>(R.id.beaticon)
 			val docIcon = it.findViewById<ImageView>(R.id.smoothicon)
 			val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
-			val song = values[position].mSongFile
+			val song = values[position].songFile
 			notesIcon.visibility =
-				if (song.mAudioFiles.isEmpty() || !mShowMusicIcon) View.GONE else View.VISIBLE
+				if (song.audioFiles.isEmpty() || !showMusicIcon) View.GONE else View.VISIBLE
 			docIcon.visibility =
-				if (!song.isSmoothScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
+				if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			beatIcon.visibility =
-				if (!song.isBeatScrollable || !mShowBeatIcons) View.GONE else View.VISIBLE
-			titleView.text = song.mTitle
-			val key = song.mKey
-			val rating = song.mRating
-			val keyString = if (mShowKey && key.isNotBlank()) " - $key" else ""
-			val ratingString = if (mShowRating && rating != 0) " - ${STARS[rating]}" else ""
-			val artist = song.mArtist + keyString + ratingString
+				if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
+			titleView.text = song.title
+			val key = song.key
+			val rating = song.rating
+			val keyString = if (showKey && key.isNotBlank()) " - $key" else ""
+			val ratingString = if (showRating && rating != 0) " - ${STARS[rating]}" else ""
+			val artist = song.artist + keyString + ratingString
 			artistView.text = artist
 		}
 

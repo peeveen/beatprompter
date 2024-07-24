@@ -15,5 +15,5 @@ class ScrollBeatModifierTag internal constructor(
 	lineNumber: Int,
 	position: Int
 ) : Tag(name, lineNumber, position) {
-	val mModifier = if (name == "<") -1 else 1
+	val modifier = if (name == "<") -1 else 1
 }

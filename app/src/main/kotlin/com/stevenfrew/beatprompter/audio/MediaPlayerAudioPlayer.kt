@@ -10,20 +10,20 @@ import java.io.FileInputStream
  * MediaPlayer implementation of AudioPlayer interface.
  */
 class MediaPlayerAudioPlayer : AudioPlayer {
-	private val mInternalPlayer: MediaPlayer
-	private var mCurrentVolume: Int = 1
+	private val internalPlayer: MediaPlayer
+	private var currentVolume: Int = 1
 
 	constructor(context: Context) {
 		// Silence player
-		mInternalPlayer = MediaPlayer.create(context, R.raw.silence).apply {
+		internalPlayer = MediaPlayer.create(context, R.raw.silence).apply {
 			initialize(1, true)
 		}
 	}
 
 	constructor(file: File, volume: Int) {
 		// File player
-		mCurrentVolume = volume
-		mInternalPlayer = MediaPlayer().apply {
+		currentVolume = volume
+		internalPlayer = MediaPlayer().apply {
 			FileInputStream(file.absolutePath)
 				.use { stream ->
 					setDataSource(stream.fd)
@@ -33,23 +33,23 @@ class MediaPlayerAudioPlayer : AudioPlayer {
 		}
 	}
 
-	override fun seekTo(ms: Long) = mInternalPlayer.seekTo(ms.toInt())
-	override fun stop() = mInternalPlayer.stop()
-	override fun start() = mInternalPlayer.start()
-	override fun pause() = mInternalPlayer.pause()
-	override fun release() = mInternalPlayer.release()
+	override fun seekTo(ms: Long) = internalPlayer.seekTo(ms.toInt())
+	override fun stop() = internalPlayer.stop()
+	override fun start() = internalPlayer.start()
+	override fun pause() = internalPlayer.pause()
+	override fun release() = internalPlayer.release()
 
 	override val isPlaying: Boolean
-		get() = mInternalPlayer.isPlaying
+		get() = internalPlayer.isPlaying
 
 	override val duration: Long
-		get() = mInternalPlayer.duration.toLong()
+		get() = internalPlayer.duration.toLong()
 
 	override var volume: Int
-		get() = mCurrentVolume
+		get() = currentVolume
 		set(value) {
-			mCurrentVolume = value
-			mInternalPlayer.setVolume(value * 0.01f, value * 0.01f)
+			currentVolume = value
+			internalPlayer.setVolume(value * 0.01f, value * 0.01f)
 		}
 
 	companion object {

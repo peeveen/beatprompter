@@ -7,13 +7,13 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.stevenfrew.beatprompter.events.EventRouter
 
-open class BaseSettingsFragment(private val mPrefsResourceId: Int) :
+open class BaseSettingsFragment(private val prefsResourceId: Int) :
 	PreferenceFragmentCompat() {
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		EventRouter.setSettingsEventHandler(NoOpSettingsEventHandler(this))
+		EventRouter.setSettingsEventHandler(NoOpSettingsEventHandler())
 
 		// Load the preferences from an XML resource
-		addPreferencesFromResource(mPrefsResourceId)
+		addPreferencesFromResource(prefsResourceId)
 	}
 
 	override fun onDestroy() {
@@ -35,7 +35,7 @@ open class BaseSettingsFragment(private val mPrefsResourceId: Int) :
 			super.onDisplayPreferenceDialog(preference)
 		}
 
-	class NoOpSettingsEventHandler internal constructor(private val mFragment: PreferenceFragmentCompat) :
+	class NoOpSettingsEventHandler internal constructor() :
 		Handler(), SettingsEventHandler {
 		override fun handleMessage(msg: Message) {}
 	}

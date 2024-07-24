@@ -15,7 +15,7 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreferences()) {
-	private var mSettingsHandler: PermissionsSettingsEventHandler? = null
+	private var settingsHandler: PermissionsSettingsEventHandler? = null
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		// Load the preferences from an XML resource
@@ -33,9 +33,9 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 			EventRouter.sendEventToSettings(Events.ENABLE_STORAGE)
 			true
 		}
-		mSettingsHandler =
+		settingsHandler =
 			PermissionsSettingsEventHandler(this, arrayOf(bluetoothPermissionPref, storagePermissionPref))
-		EventRouter.setSettingsEventHandler(mSettingsHandler)
+		EventRouter.setSettingsEventHandler(settingsHandler)
 	}
 
 	override fun onDestroy() {
@@ -61,16 +61,16 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 	}
 
 	class PermissionsSettingsEventHandler internal constructor(
-		private val mFragment: PermissionsSettingsFragment,
-		private val mPermissionPrefs: Array<PermissionsPreference?>
+		private val fragment: PermissionsSettingsFragment,
+		private val permissionPrefs: Array<PermissionsPreference?>
 	) :
 		Handler(), SettingsEventHandler {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
 				Events.ENABLE_BLUETOOTH -> {
 					ActivityCompat.requestPermissions(
-						mFragment.requireActivity(),
-						getBluetoothPermissions(mFragment.requireContext()),
+						fragment.requireActivity(),
+						getBluetoothPermissions(fragment.requireContext()),
 						1
 					)
 				}
@@ -78,7 +78,7 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 				Events.ENABLE_STORAGE -> {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 						val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
-						mFragment.startActivity(
+						fragment.startActivity(
 							Intent(
 								Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
 								uri
@@ -86,15 +86,15 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 						)
 					} else {
 						ActivityCompat.requestPermissions(
-							mFragment.requireActivity(),
-							getStoragePermissions(mFragment.requireContext()),
+							fragment.requireActivity(),
+							getStoragePermissions(fragment.requireContext()),
 							1
 						)
 					}
 				}
 
 				Events.PERMISSIONS_UPDATED -> {
-					mPermissionPrefs.filterNotNull().forEach {
+					permissionPrefs.filterNotNull().forEach {
 						it.forceUpdate()
 					}
 				}

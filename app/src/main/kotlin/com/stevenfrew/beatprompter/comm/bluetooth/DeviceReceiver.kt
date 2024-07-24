@@ -10,8 +10,8 @@ import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
 class DeviceReceiver(
-	private val mSenderTask: SenderTask,
-	private val mReceiverTasks: ReceiverTasks,
+	private val senderTask: SenderTask,
+	private val receiverTasks: ReceiverTasks,
 ) : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
 		if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
@@ -26,8 +26,8 @@ class DeviceReceiver(
 					BluetoothDevice::class.java
 				))?.apply {
 				Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
-				mReceiverTasks.stopAndRemoveReceiver(address)
-				mSenderTask.removeSender(address)
+				receiverTasks.stopAndRemoveReceiver(address)
+				senderTask.removeSender(address)
 			}
 		}
 	}

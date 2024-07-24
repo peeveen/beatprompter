@@ -2,25 +2,25 @@ package com.stevenfrew.beatprompter
 
 import android.util.Log
 
-abstract class Task(private var mRunning: Boolean) : Runnable {
-	private var mStop = false
+abstract class Task(private var running: Boolean) : Runnable {
+	private var stop = false
 	private val runningSync = Any()
 	private val stopSync = Any()
 	private var isRunning: Boolean
 		get() = synchronized(runningSync) {
-			return mRunning
+			return running
 		}
 		set(value) = synchronized(runningSync) {
-			mRunning = value
+			running = value
 		}
 	protected val shouldStop: Boolean
 		get() = synchronized(stopSync) {
-			return mStop
+			return stop
 		}
 
 	private fun setShouldStop() =
 		synchronized(stopSync) {
-			mStop = true
+			stop = true
 		}
 
 	override fun run() {

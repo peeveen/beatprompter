@@ -124,113 +124,113 @@ import kotlin.math.roundToInt
  * Song file parser. This returns the full information for playing the song.
  */
 class SongParser(
-	private val mSongLoadInfo: SongLoadInfo,
-	private val mSongLoadCancelEvent: SongLoadCancelEvent,
-	private val mSongLoadHandler: Handler
+	private val songLoadInfo: SongLoadInfo,
+	private val songLoadCancelEvent: SongLoadCancelEvent,
+	private val songLoadHandler: Handler
 ) : SongFileParser<Song>(
-	mSongLoadInfo.mSongFile,
-	mSongLoadInfo.initialScrollMode,
-	mSongLoadInfo.mixedModeActive,
+	songLoadInfo.songFile,
+	songLoadInfo.initialScrollMode,
+	songLoadInfo.mixedModeActive,
 	true
 ) {
-	private val mMetronomeContext: MetronomeContext
-	private val mCustomCommentsUser: String
-	private val mShowChords: Boolean
-	private val mShowKey: Boolean
-	private val mShowBPM: ShowBPMContext
-	private val mTriggerContext: TriggerOutputContext
-	private val mNativeDeviceSettings: DisplaySettings
-	private val mInitialMIDIMessages = mutableListOf<OutgoingMessage>()
-	private var mStopAddingStartupItems = false
-	private val mStartScreenComments = mutableListOf<Song.Comment>()
-	private val mEvents = mutableListOf<BaseEvent>()
-	private val mLines = LineList()
-	private val mRolloverBeats = mutableListOf<BeatEvent>()
-	private val mBeatBlocks = mutableListOf<BeatBlock>()
-	private val mPaint = Paint()
-	private val mFont = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-	private val mDefaultHighlightColor: Int
-	private val mTimePerBar: Long
-	private val mFlatAudioFiles: List<AudioFile>
-	private val mVariationExclusions: ArrayDeque<List<String>> = ArrayDeque()
+	private val metronomeContext: MetronomeContext
+	private val customCommentsUser: String
+	private val showChords: Boolean
+	private val showKey: Boolean
+	private val showBpm: ShowBPMContext
+	private val triggerContext: TriggerOutputContext
+	private val nativeDeviceSettings: DisplaySettings
+	private val initialMidiMessages = mutableListOf<OutgoingMessage>()
+	private var stopAddingStartupItems = false
+	private val startScreenComments = mutableListOf<Song.Comment>()
+	private val events = mutableListOf<BaseEvent>()
+	private val lines = LineList()
+	private val rolloverBeats = mutableListOf<BeatEvent>()
+	private val beatBlocks = mutableListOf<BeatBlock>()
+	private val paint = Paint()
+	private val font = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+	private val defaultHighlightColor: Int
+	private val timePerBar: Long
+	private val flatAudioFiles: List<AudioFile>
+	private val variationExclusions: ArrayDeque<List<String>> = ArrayDeque()
 
-	private var mSongHeight = 0
-	private var mMIDIBeatCounter: Int = 0
-	private var mLastBeatBlock: BeatBlock? = null
-	private var mBeatsToAdjust: Int = 0
-	private var mCurrentBeat: Int = 0
-	private var mCountIn: Int
-	private var mSendMidiClock = false
-	private var mSongTime: Long = 0
-	private var mDefaultMIDIOutputChannel: Byte
-	private var mInChorusSection = false
-	private var mPendingAudioTag: AudioTag? = null
+	private var songHeight = 0
+	private var midiBeatCounter: Int = 0
+	private var lastBeatBlock: BeatBlock? = null
+	private var beatsToAdjust: Int = 0
+	private var currentBeat: Int = 0
+	private var countIn: Int
+	private var sendMidiClock = false
+	private var songTime: Long = 0
+	private var defaultMidiOutputChannel: Byte
+	private var isInChorusSection = false
+	private var pendingAudioTag: AudioTag? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
-		mErrors.addAll(mSongLoadInfo.mSongFile.mErrors)
+		errors.addAll(songLoadInfo.songFile.errors)
 
-		mSendMidiClock = Preferences.sendMIDIClock
-		mCountIn = Preferences.defaultCountIn
-		mMetronomeContext = Preferences.metronomeContext
-		mDefaultHighlightColor = Preferences.defaultHighlightColor
-		mCustomCommentsUser = Preferences.customCommentsUser
-		mShowChords = Preferences.showChords
-		mTriggerContext = Preferences.sendMIDITriggerOnStart
+		sendMidiClock = Preferences.sendMIDIClock
+		countIn = Preferences.defaultCountIn
+		metronomeContext = Preferences.metronomeContext
+		defaultHighlightColor = Preferences.defaultHighlightColor
+		customCommentsUser = Preferences.customCommentsUser
+		showChords = Preferences.showChords
+		triggerContext = Preferences.sendMIDITriggerOnStart
 		val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
-		mDefaultMIDIOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-		mShowKey = Preferences.showKey && mSongLoadInfo.mSongFile.mKey.isNotBlank()
-		mShowBPM =
-			if (mSongLoadInfo.mSongFile.mBPM > 0.0) Preferences.showBPMContext else ShowBPMContext.No
+		defaultMidiOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
+		showKey = Preferences.showKey && songLoadInfo.songFile.key.isNotBlank()
+		showBpm =
+			if (songLoadInfo.songFile.bpm > 0.0) Preferences.showBPMContext else ShowBPMContext.No
 
 		// Figure out the screen size
-		mNativeDeviceSettings = translateSourceDeviceSettingsToNative(
-			mSongLoadInfo.mSourceDisplaySettings,
-			mSongLoadInfo.mNativeDisplaySettings
+		nativeDeviceSettings = translateSourceDeviceSettingsToNative(
+			songLoadInfo.sourceDisplaySettings,
+			songLoadInfo.nativeDisplaySettings
 		)
 
 		// Start the progress message dialog
-		mSongLoadHandler.obtainMessage(
+		songLoadHandler.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
-			0, mSongLoadInfo.mSongFile.mLines
+			0, songLoadInfo.songFile.lines
 		).sendToTarget()
 
-		val selectedVariation = mSongLoadInfo.mVariation
+		val selectedVariation = songLoadInfo.variation
 		val audioFilenamesForThisVariation =
-			mSongLoadInfo.mSongFile.mAudioFiles[selectedVariation] ?: listOf()
-		mFlatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
-			Cache.mCachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+			songLoadInfo.songFile.audioFiles[selectedVariation] ?: listOf()
+		flatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
+			Cache.cachedCloudItems.getMappedAudioFiles(it).firstOrNull()
 		}
-		val lengthOfBackingTrack = mFlatAudioFiles.firstOrNull()?.mDuration ?: 0L
+		val lengthOfBackingTrack = flatAudioFiles.firstOrNull()?.duration ?: 0L
 		var songTime =
-			if (mSongLoadInfo.mSongFile.mDuration == Utils.TRACK_AUDIO_LENGTH_VALUE)
+			if (songLoadInfo.songFile.duration == Utils.TRACK_AUDIO_LENGTH_VALUE)
 				lengthOfBackingTrack
 			else
-				mSongLoadInfo.mSongFile.mDuration
-		if (songTime > 0 && mSongLoadInfo.mSongFile.mTotalPauses > songTime) {
-			mErrors.add(FileParseError(R.string.pauseLongerThanSong))
-			mOngoingBeatInfo = SongBeatInfo(mScrollMode = ScrollingMode.Manual)
-			mCurrentLineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
+				songLoadInfo.songFile.duration
+		if (songTime > 0 && songLoadInfo.songFile.totalPauseDuration > songTime) {
+			errors.add(FileParseError(R.string.pauseLongerThanSong))
+			ongoingBeatInfo = SongBeatInfo(mScrollMode = ScrollingMode.Manual)
+			currentLineBeatInfo = LineBeatInfo(ongoingBeatInfo)
 			songTime = 0
 		}
 
-		mTimePerBar =
+		timePerBar =
 			if (songTime > 0L)
-				(songTime.toDouble() / mSongLoadInfo.mSongFile.mBars).toLong()
+				(songTime.toDouble() / songLoadInfo.songFile.bars).toLong()
 			else
 				0
 	}
 
 	override fun parseLine(line: TextFileLine<Song>) {
-		if (mSongLoadCancelEvent.isCancelled)
+		if (songLoadCancelEvent.isCancelled)
 			throw SongLoadCancelledException()
 		super.parseLine(line)
 
-		val chordTags = line.mTags.filterIsInstance<ChordTag>()
-		val nonChordTags = line.mTags.filter { it !is ChordTag }
+		val chordTags = line.tags.filterIsInstance<ChordTag>()
+		val nonChordTags = line.tags.filter { it !is ChordTag }
 		val chordsFound = chordTags.isNotEmpty()
-		val chordsFoundButNotShowingThem = !mShowChords && chordsFound
-		val tags = if (mShowChords) line.mTags.toList() else nonChordTags
+		val chordsFoundButNotShowingThem = !showChords && chordsFound
+		val tags = if (showChords) line.tags.toList() else nonChordTags
 		val tagSequence = tags.asSequence()
 
 		// We're going to check if we're in a variation exclusion section.
@@ -239,64 +239,64 @@ class SongParser(
 		val variationExclusionStartTag =
 			tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
 		if (variationExclusionStartTag != null)
-			mVariationExclusions.add(variationExclusionStartTag.mVariations)
+			variationExclusions.add(variationExclusionStartTag.variations)
 		// Are we in a variation exclusion section?
 		// Does it instruct us to exclude this line for the current variation?
-		val excludeLine = mVariationExclusions.any { it.contains(mSongLoadInfo.mVariation) }
+		val excludeLine = variationExclusions.any { it.contains(songLoadInfo.variation) }
 		// Now that we've figured out whether this is an exclusion section, we need to look for varxstop tags
 		// on this line.
 		val variationExclusionEndTag =
 			tagSequence.filterIsInstance<EndOfVariationExclusionTag>().firstOrNull()
 		if (variationExclusionEndTag != null)
-			mVariationExclusions.removeLast()
+			variationExclusions.removeLast()
 		// If we're in an exclusion section, bail out. We do not process any other tags or text.
 		if (excludeLine)
 			return
 
-		var workLine = line.mLineWithNoTags
+		var workLine = line.lineWithNoTags
 
 		// Generate clicking beats if the metronome is on.
 		// The "on when no track" logic will be performed during song playback.
 		val metronomeOn =
-			mMetronomeContext === MetronomeContext.On || mMetronomeContext === MetronomeContext.OnWhenNoTrack
+			metronomeContext === MetronomeContext.On || metronomeContext === MetronomeContext.OnWhenNoTrack
 
 		var imageTag = tagSequence.filterIsInstance<ImageTag>().firstOrNull()
 
 		val startOfChorusTag = tagSequence.filterIsInstance<StartOfChorusTag>().firstOrNull()
-		val thisLineIsInChorus = startOfChorusTag != null || mInChorusSection
+		val thisLineIsInChorus = startOfChorusTag != null || isInChorusSection
 		val endOfChorusTag = tagSequence.filterIsInstance<EndOfChorusTag>().firstOrNull()
-		mInChorusSection =
+		isInChorusSection =
 			if (endOfChorusTag != null) {
 				if (startOfChorusTag != null)
-					endOfChorusTag.mPosition < startOfChorusTag.mPosition
+					endOfChorusTag.position < startOfChorusTag.position
 				else
 					false
 			} else
-				startOfChorusTag != null || mInChorusSection
+				startOfChorusTag != null || isInChorusSection
 
-		if (!mSendMidiClock)
-			mSendMidiClock = tags.any { it is SendMIDIClockTag }
+		if (!sendMidiClock)
+			sendMidiClock = tags.any { it is SendMIDIClockTag }
 
-		if (!mStopAddingStartupItems)
-			mCountIn = tags.filterIsInstance<CountTag>().firstOrNull()?.mCount ?: mCountIn
+		if (!stopAddingStartupItems)
+			countIn = tags.filterIsInstance<CountTag>().firstOrNull()?.count ?: countIn
 
 		tags
 			.filterIsInstance<CommentTag>()
 			.map {
 				Song.Comment(
-					it.mComment,
-					it.mAudience,
-					mNativeDeviceSettings.mScreenSize,
-					mPaint,
-					mFont
+					it.comment,
+					it.audience,
+					nativeDeviceSettings.screenSize,
+					paint,
+					font
 				)
 			}
-			.filter { it.isIntendedFor(mCustomCommentsUser) }
+			.filter { it.isIntendedFor(customCommentsUser) }
 			.forEach {
-				if (mStopAddingStartupItems)
-					mEvents.add(CommentEvent(mSongTime, it))
+				if (stopAddingStartupItems)
+					events.add(CommentEvent(songTime, it))
 				else
-					mStartScreenComments.add(it)
+					startScreenComments.add(it)
 			}
 
 		// If a line has a number of bars defined, we really should treat it as a line, even if
@@ -314,7 +314,7 @@ class SongParser(
 			|| chordsFound
 			|| imageTag != null
 			|| shorthandBarTag != null
-			|| (barsTag != null && barsTag.mBars > 0))
+			|| (barsTag != null && barsTag.bars > 0))
 
 		val pauseTag = tagSequence
 			.filterIsInstance<PauseTag>()
@@ -325,12 +325,12 @@ class SongParser(
 		tags
 			.filterIsInstance<MidiEventTag>()
 			.forEach {
-				if (mStopAddingStartupItems || isSongLine)
-					mEvents.add(it.toMIDIEvent(mSongTime))
+				if (stopAddingStartupItems || isSongLine)
+					events.add(it.toMIDIEvent(songTime))
 				else {
-					mInitialMIDIMessages.addAll(it.mMessages)
-					if (it.mOffset.mAmount != 0)
-						mErrors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+					initialMidiMessages.addAll(it.messages)
+					if (it.offset.amount != 0)
+						errors.add(FileParseError(it, R.string.midi_offset_before_first_line))
 				}
 			}
 
@@ -338,21 +338,21 @@ class SongParser(
 		// But the audio tag can be defined on a line without content.
 		// In which case it is "pending", to be applied when line content is found.
 		val audioTags = tags.filterIsInstance<AudioTag>()
-		val variationIndex = mVariations.indexOf(mSongLoadInfo.mVariation)
-		mPendingAudioTag =
-			if (audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !mSongLoadInfo.mNoAudio) audioTags[variationIndex] else mPendingAudioTag
+		val variationIndex = variations.indexOf(songLoadInfo.variation)
+		pendingAudioTag =
+			if (audioTags.any() && variationIndex != -1 && audioTags.size > variationIndex && !songLoadInfo.noAudio) audioTags[variationIndex] else pendingAudioTag
 
 		if (isSongLine) {
 			// We definitely have a line!
 			// So now is when we want to create the count-in (if any)
-			if (mCountIn > 0) {
+			if (countIn > 0) {
 				val countInEvents = generateCountInEvents(
-					mCountIn,
-					mMetronomeContext === MetronomeContext.DuringCountIn || metronomeOn
+					countIn,
+					metronomeContext === MetronomeContext.DuringCountIn || metronomeOn
 				)
-				mEvents.addAll(countInEvents.mEvents)
-				mSongTime = countInEvents.mBlockEndTime
-				mCountIn = 0
+				events.addAll(countInEvents.mEvents)
+				songTime = countInEvents.mBlockEndTime
+				countIn = 0
 			}
 
 			// If there is a beatstart, we add a StartEvent. This functions as a "current event" that
@@ -361,52 +361,52 @@ class SongParser(
 			// StartEvents function as simply dummy starting-point "current" events.
 			val beatStartTag = tagSequence.filterIsInstance<BeatStartTag>().firstOrNull()
 			if (beatStartTag != null)
-				mEvents.add(StartEvent(mSongTime))
+				events.add(StartEvent(songTime))
 
-			mPendingAudioTag?.also {
+			pendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
-					Cache.mCachedCloudItems.getMappedAudioFiles(it.mNormalizedFilename)
+					Cache.cachedCloudItems.getMappedAudioFiles(it.normalizedFilename)
 				if (mappedTracks.isEmpty())
-					mErrors.add(FileParseError(it, R.string.cannotFindAudioFile, it.mNormalizedFilename))
+					errors.add(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
 				else if (mappedTracks.size > 1)
-					mErrors.add(
+					errors.add(
 						FileParseError(
 							it,
 							R.string.multipleFilenameMatches,
-							it.mNormalizedFilename
+							it.normalizedFilename
 						)
 					)
 				else {
 					val audioFile = mappedTracks.first()
-					if (!audioFile.mFile.exists())
-						mErrors.add(
+					if (!audioFile.file.exists())
+						errors.add(
 							FileParseError(
 								it,
 								R.string.cannotFindAudioFile,
-								it.mNormalizedFilename
+								it.normalizedFilename
 							)
 						)
 					else
-						mEvents.add(
+						events.add(
 							AudioEvent(
-								mSongTime,
+								songTime,
 								audioFile,
-								it.mVolume,
-								!mStopAddingStartupItems
+								it.volume,
+								!stopAddingStartupItems
 							)
 						)
 				}
 			}
 			// Clear the pending tag.
-			mPendingAudioTag = null
+			pendingAudioTag = null
 
 			// Any comments or MIDI events from here will be part of the song,
 			// rather than startup events.
-			mStopAddingStartupItems = true
+			stopAddingStartupItems = true
 
 			if (imageTag != null && (workLine.isNotBlank() || chordsFound))
-				mErrors.add(FileParseError(line.mLineNumber, R.string.text_found_with_image))
+				errors.add(FileParseError(line.lineNumber, R.string.text_found_with_image))
 
 			// Measuring a blank line will result in a 0x0 measurement, so we
 			// need to have SOMETHING to measure. A nice wee "down arrow" should look OK.
@@ -414,26 +414,26 @@ class SongParser(
 				workLine = "▼"
 
 			// Generate pause events if required (may return null)
-			val pauseEvents = generatePauseEvents(mSongTime, pauseTag)
+			val pauseEvents = generatePauseEvents(songTime, pauseTag)
 			val paused = pauseEvents?.any() == true
 			if (paused)
-				mRolloverBeats.clear()
+				rolloverBeats.clear()
 
 			if (createLine) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (mLines.isEmpty()) 0L else mSongTime
+				val lineStartTime = if (lines.isEmpty()) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (mLines.isEmpty()) mSongTime else 0L
+				val addToPause = if (lines.isEmpty()) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
-				pauseEvents?.maxOf { it.mEventTime }
+				pauseEvents?.maxOf { it.eventTime }
 				val beatEvents = if (paused)
-					EventBlock(listOf(), pauseEvents?.maxOf { it.mEventTime } ?: 0)
+					EventBlock(listOf(), pauseEvents?.maxOf { it.eventTime } ?: 0)
 				else
-					generateBeatEvents(mSongTime, metronomeOn)
+					generateBeatEvents(songTime, metronomeOn)
 
 				// Calculate how long this line will last for
 				val lineDuration = calculateLineDuration(
@@ -449,34 +449,34 @@ class SongParser(
 					lineStartTime + addToPause,
 					lineDuration,
 					beatEvents,
-					mSongLoadInfo.mAudioLatency
+					songLoadInfo.audioLatency
 				)
 
 				// Create the line
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						Cache.mCachedCloudItems.getMappedImageFiles(imageTag.mFilename)
+						Cache.cachedCloudItems.getMappedImageFiles(imageTag.filename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(
 								imageFiles.first(),
-								imageTag.mImageScalingMode,
+								imageTag.scalingMode,
 								lineStartTime,
 								lineDuration,
-								mCurrentLineBeatInfo.mScrollMode,
-								mNativeDeviceSettings,
-								mSongHeight,
+								currentLineBeatInfo.mScrollMode,
+								nativeDeviceSettings,
+								songHeight,
 								thisLineIsInChorus,
 								startAndStopScrollTimes
 							)
 						} catch (t: Throwable) {
 							// Bitmap loading could cause error here. Even OutOfMemory!
-							mErrors.add(FileParseError(imageTag, t))
+							errors.add(FileParseError(imageTag, t))
 						}
 					else {
 						workLine = BeatPrompter.appResources.getString(R.string.missing_image_file_warning)
-						mErrors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
+						errors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
 						imageTag = null
 					}
 				}
@@ -486,70 +486,70 @@ class SongParser(
 						tags,
 						lineStartTime,
 						lineDuration,
-						mCurrentLineBeatInfo.mScrollMode,
-						mNativeDeviceSettings,
-						mLines
+						currentLineBeatInfo.mScrollMode,
+						nativeDeviceSettings,
+						lines
 							.filterIsInstance<TextLine>()
-							.lastOrNull()?.mTrailingHighlightColor,
-						mSongHeight,
+							.lastOrNull()?.trailingHighlightColor,
+						songHeight,
 						thisLineIsInChorus,
 						startAndStopScrollTimes,
-						mSongLoadCancelEvent
+						songLoadCancelEvent
 					)
 
 				if (lineObj != null) {
-					mLines.add(lineObj)
-					mEvents.add(LineEvent(lineObj.mLineTime, lineObj))
+					lines.add(lineObj)
+					events.add(LineEvent(lineObj.lineTime, lineObj))
 
-					mSongHeight += lineObj.mMeasurements.mLineHeight
+					songHeight += lineObj.measurements.lineHeight
 
 					// If a pause is going to be generated, then we don't need beats.
 					if (pauseEvents == null) {
 						// Otherwise, add any generated beats
 						if (beatEvents != null) {
-							mEvents.addAll(beatEvents.mEvents)
-							mSongTime = beatEvents.mBlockEndTime
+							events.addAll(beatEvents.mEvents)
+							songTime = beatEvents.mBlockEndTime
 						}
 						// Otherwise, forget it, just bump up the song time
 						else
-							mSongTime += lineDuration
+							songTime += lineDuration
 					}
 				}
 			}
 			// Now add the pause events to the song (if required).
 			if (pauseEvents != null && pauseTag != null) {
-				mEvents.addAll(pauseEvents)
-				mSongTime += pauseTag.mDuration
+				events.addAll(pauseEvents)
+				songTime += pauseTag.duration
 			}
 		} else
 		// If there is no actual line data, then the scroll beat offset never took effect.
 		// Clear it so that the next line (which MIGHT be a proper line) doesn't take it into account.
-			mCurrentLineBeatInfo = LineBeatInfo(
-				mCurrentLineBeatInfo.mBeats,
-				mCurrentLineBeatInfo.mBPL,
-				mCurrentLineBeatInfo.mBPB,
-				mCurrentLineBeatInfo.mBPM,
-				mCurrentLineBeatInfo.mScrollBeat,
-				mCurrentLineBeatInfo.mLastScrollBeatTotalOffset,
-				0, mCurrentLineBeatInfo.mScrollMode
+			currentLineBeatInfo = LineBeatInfo(
+				currentLineBeatInfo.mBeats,
+				currentLineBeatInfo.mBPL,
+				currentLineBeatInfo.mBPB,
+				currentLineBeatInfo.mBPM,
+				currentLineBeatInfo.mScrollBeat,
+				currentLineBeatInfo.mLastScrollBeatTotalOffset,
+				0, currentLineBeatInfo.mScrollMode
 			)
 
-		mSongLoadHandler.obtainMessage(
+		songLoadHandler.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
-			line.mLineNumber, mSongLoadInfo.mSongFile.mLines
+			line.lineNumber, songLoadInfo.songFile.lines
 		).sendToTarget()
 	}
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (mLines.isEmpty())
+		if (lines.isEmpty())
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
-		val lineSequence = mLines.asSequence()
-		val smoothMode = lineSequence.filter { it.mScrollMode == ScrollingMode.Smooth }.any()
+		val lineSequence = lines.asSequence()
+		val smoothMode = lineSequence.filter { it.scrollMode == ScrollingMode.Smooth }.any()
 
 		val startScreenStrings = createStartScreenStrings()
-		val totalStartScreenTextHeight = startScreenStrings.first.sumOf { it.mHeight }
+		val totalStartScreenTextHeight = startScreenStrings.first.sumOf { it.height }
 
 		// In smooth scrolling mode, the display will start scrolling immediately.
 		// This is an essential feature of smooth scrolling mode, yet causes a problem: the first line
@@ -559,19 +559,19 @@ class SongParser(
 		val smoothScrollOffset =
 			if (smoothMode)
 			// Obviously this will only be required if the song cannot fit entirely onscreen.
-				if (mSongHeight > mNativeDeviceSettings.mUsableScreenHeight)
-					min(lineSequence.map { it.mMeasurements.mLineHeight }.maxByOrNull { it }
-						?: 0, (mNativeDeviceSettings.mScreenSize.height() / 3.0).toInt())
+				if (songHeight > nativeDeviceSettings.usableScreenHeight)
+					min(lineSequence.map { it.measurements.lineHeight }.maxByOrNull { it }
+						?: 0, (nativeDeviceSettings.screenSize.height() / 3.0).toInt())
 				else
 					0
 			else
 				0
 
 		// Get all required audio info ...
-		val audioEvents = mEvents.filterIsInstance<AudioEvent>()
+		val audioEvents = events.filterIsInstance<AudioEvent>()
 
 		// Allocate graphics objects.
-		val maxGraphicsRequired = getMaximumGraphicsRequired(mNativeDeviceSettings.mScreenSize.height())
+		val maxGraphicsRequired = getMaximumGraphicsRequired(nativeDeviceSettings.screenSize.height())
 		val lineGraphics = CircularGraphicsList()
 		repeat(maxGraphicsRequired) {
 			lineGraphics.add(LineGraphic(getBiggestLineSize(it, maxGraphicsRequired)))
@@ -580,41 +580,41 @@ class SongParser(
 		// There may be no lines! So we have to check ...
 		if (lineGraphics.isNotEmpty()) {
 			var graphic: LineGraphic = lineGraphics.first()
-			mLines.forEach { line ->
-				repeat(line.mMeasurements.mLines) {
+			lines.forEach { line ->
+				repeat(line.measurements.lines) {
 					line.allocateGraphic(graphic)
-					graphic = graphic.mNextGraphic
+					graphic = graphic.nextGraphic
 				}
 			}
 		}
 
-		val beatCounterHeight = mNativeDeviceSettings.mBeatCounterRect.height()
-		val maxSongTitleWidth = mNativeDeviceSettings.mScreenSize.width() * 0.9f
+		val beatCounterHeight = nativeDeviceSettings.beatCounterRect.height()
+		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width() * 0.9f
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
 		val songTitleHeader = ScreenString.create(
-			mSongLoadInfo.mSongFile.mTitle,
-			mPaint,
+			songLoadInfo.songFile.title,
+			paint,
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
 			Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
-			mFont,
+			font,
 			false
 		)
-		val extraMargin = (maxSongTitleHeight - songTitleHeader.mHeight) / 2.0f
-		val x = ((mNativeDeviceSettings.mScreenSize.width() - songTitleHeader.mWidth) / 2.0).toFloat()
-		val y = beatCounterHeight - (extraMargin + songTitleHeader.mDescenderOffset.toFloat() + vMargin)
+		val extraMargin = (maxSongTitleHeight - songTitleHeader.height) / 2.0f
+		val x = ((nativeDeviceSettings.screenSize.width() - songTitleHeader.width) / 2.0).toFloat()
+		val y = beatCounterHeight - (extraMargin + songTitleHeader.descenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
 		// First of all, find beat events that have the "click" flag set and
 		// add a click event (necessary because we want to offset the click by
 		// the audio latency without offsetting the beat).
-		val eventsWithClicks = generateClickEvents(mEvents)
+		val eventsWithClicks = generateClickEvents(events)
 		// Now offset any MIDI events that have an offset.
-		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, mErrors)
+		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, errors)
 		// And offset non-audio events by the audio latency offset.
 		val audioLatencyCompensatedEventList =
-			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(mSongLoadInfo.mAudioLatency))
+			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(songLoadInfo.audioLatency))
 
 		// OK, now sort all events by time, and type within time
 		val sortedEventList = sortEvents(audioLatencyCompensatedEventList).toMutableList()
@@ -625,18 +625,18 @@ class SongParser(
 
 		// Now we need to figure out which lines should NOT scroll offscreen.
 		val noScrollLines = mutableListOf<Line>()
-		val lastLineIsBeat = mLines.lastOrNull()?.mScrollMode == ScrollingMode.Beat
+		val lastLineIsBeat = lines.lastOrNull()?.scrollMode == ScrollingMode.Beat
 		if (lastLineIsBeat) {
-			noScrollLines.add(mLines.last())
+			noScrollLines.add(lines.last())
 			// Why was I removing this? It breaks highlighting the last line ...
 			// sortedEventList.removeAt(sortedEventList.indexOfLast { it is LineEvent })
 		} else if (smoothMode) {
-			var availableScreenHeight = mNativeDeviceSettings.mUsableScreenHeight - smoothScrollOffset
+			var availableScreenHeight = nativeDeviceSettings.usableScreenHeight - smoothScrollOffset
 			val lineEvents = sortedEventList.filterIsInstance<LineEvent>()
 			for (lineEvent in lineEvents.reversed()) {
-				availableScreenHeight -= lineEvent.mLine.mMeasurements.mLineHeight
+				availableScreenHeight -= lineEvent.line.measurements.lineHeight
 				if (availableScreenHeight >= 0) {
-					noScrollLines.add(lineEvent.mLine)
+					noScrollLines.add(lineEvent.line)
 					sortedEventList.remove(lineEvent)
 				} else
 					break
@@ -650,9 +650,9 @@ class SongParser(
 		val lastAudioEndTime = sortedEventList
 			.asSequence()
 			.filterIsInstance<AudioEvent>()
-			.map { it.mAudioFile.mDuration + it.mEventTime }
+			.map { it.audioFile.duration + it.eventTime }
 			.maxOrNull()
-		sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, mSongTime)))
+		sortedEventList.add(EndEvent(max(lastAudioEndTime ?: 0L, songTime)))
 
 		// Now build the final event list.
 		val firstEvent = LinkedEvent(sortedEventList)
@@ -660,55 +660,55 @@ class SongParser(
 		// Calculate the last position that we can scroll to.
 		val scrollEndPixel = calculateScrollEndPixel(smoothMode, smoothScrollOffset)
 
-		if ((mTriggerContext == TriggerOutputContext.Always)
-			|| (mTriggerContext == TriggerOutputContext.ManualStartOnly && !mSongLoadInfo.mStartedByMIDITrigger)
+		if ((triggerContext == TriggerOutputContext.Always)
+			|| (triggerContext == TriggerOutputContext.ManualStartOnly && !songLoadInfo.wasStartedByMidiTrigger)
 		) {
-			mInitialMIDIMessages.addAll(
-				mSongLoadInfo.mSongFile.mProgramChangeTrigger.getMIDIMessages(
-					mDefaultMIDIOutputChannel
+			initialMidiMessages.addAll(
+				songLoadInfo.songFile.programChangeTrigger.getMIDIMessages(
+					defaultMidiOutputChannel
 				)
 			)
-			mInitialMIDIMessages.addAll(
-				mSongLoadInfo.mSongFile.mSongSelectTrigger.getMIDIMessages(
-					mDefaultMIDIOutputChannel
+			initialMidiMessages.addAll(
+				songLoadInfo.songFile.songSelectTrigger.getMIDIMessages(
+					defaultMidiOutputChannel
 				)
 			)
 		}
 
 		return Song(
-			mSongLoadInfo.mSongFile,
-			mNativeDeviceSettings,
+			songLoadInfo.songFile,
+			nativeDeviceSettings,
 			firstEvent,
-			mLines,
+			lines,
 			audioEvents,
-			mInitialMIDIMessages,
-			mBeatBlocks,
-			mSendMidiClock,
+			initialMidiMessages,
+			beatBlocks,
+			sendMidiClock,
 			startScreenStrings.first,
 			startScreenStrings.second,
 			totalStartScreenTextHeight,
-			mSongLoadInfo.mStartedByBandLeader,
-			mSongLoadInfo.mNextSong,
+			songLoadInfo.wasStartedByBandLeader,
+			songLoadInfo.nextSong,
 			smoothScrollOffset,
-			mSongHeight,
+			songHeight,
 			scrollEndPixel,
 			noScrollLines,
-			mNativeDeviceSettings.mBeatCounterRect,
+			nativeDeviceSettings.beatCounterRect,
 			songTitleHeader,
 			songTitleHeaderLocation,
-			mSongLoadInfo.mLoadID,
-			mSongLoadInfo.mAudioLatency
+			songLoadInfo.loadId,
+			songLoadInfo.audioLatency
 		)
 	}
 
 	private fun calculateScrollEndPixel(smoothMode: Boolean, smoothScrollOffset: Int): Int {
-		val manualDisplayEnd = max(0, mSongHeight - mNativeDeviceSettings.mUsableScreenHeight)
+		val manualDisplayEnd = max(0, songHeight - nativeDeviceSettings.usableScreenHeight)
 		val beatDisplayEnd =
-			mLines.lastOrNull { it.mScrollMode === ScrollingMode.Beat }?.mSongPixelPosition
+			lines.lastOrNull { it.scrollMode === ScrollingMode.Beat }?.songPixelPosition
 		return if (smoothMode)
 			manualDisplayEnd + smoothScrollOffset//+smoothScrollEndOffset
 		else if (beatDisplayEnd != null)
-			if (beatDisplayEnd + mNativeDeviceSettings.mUsableScreenHeight > mSongHeight)
+			if (beatDisplayEnd + nativeDeviceSettings.usableScreenHeight > songHeight)
 				beatDisplayEnd
 			else
 				manualDisplayEnd
@@ -720,11 +720,11 @@ class SongParser(
 		var maxHeight = 0
 		var maxWidth = 0
 		var lineCount = 0
-		mLines.forEach {
-			for (lh in it.mMeasurements.mGraphicHeights) {
+		lines.forEach {
+			for (lh in it.measurements.graphicHeights) {
 				if (lineCount % modulus == index) {
 					maxHeight = max(maxHeight, lh)
-					maxWidth = max(maxWidth, it.mMeasurements.mLineWidth)
+					maxWidth = max(maxWidth, it.measurements.lineWidth)
 				}
 				++lineCount
 			}
@@ -734,19 +734,19 @@ class SongParser(
 
 	private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
 		var maxLines = 0
-		repeat(mLines.size) { start ->
+		repeat(lines.size) { start ->
 			var heightCounter = 0
 			var lineCounter = 0
-			for (f in start until mLines.size) {
+			for (f in start until lines.size) {
 				if (heightCounter < screenHeight) {
 					// Assume height of first line to be 1 pixel
 					// This is the state of affairs when the top line is almost
 					// scrolled offscreen, but not quite.
 					var lineHeight = 1
 					if (lineCounter > 0)
-						lineHeight = mLines[f].mMeasurements.mLineHeight
+						lineHeight = lines[f].measurements.lineHeight
 					heightCounter += lineHeight
-					lineCounter += mLines[f].mMeasurements.mLines
+					lineCounter += lines[f].measurements.lines
 				}
 			}
 			maxLines = max(maxLines, lineCounter)
@@ -755,88 +755,95 @@ class SongParser(
 	}
 
 	private fun generateBeatEvents(startTime: Long, click: Boolean): EventBlock? {
-		if (mCurrentLineBeatInfo.mScrollMode === ScrollingMode.Smooth)
+		if (currentLineBeatInfo.mScrollMode === ScrollingMode.Smooth)
 			return null
 		var eventTime = startTime
 		val beatEvents = mutableListOf<BeatEvent>()
 		var beatThatWeWillScrollOn = 0
-		val currentTimePerBeat = Utils.nanosecondsPerBeat(mCurrentLineBeatInfo.mBPM)
-		val rolloverBeatCount = mRolloverBeats.size
+		val currentTimePerBeat = Utils.nanosecondsPerBeat(currentLineBeatInfo.mBPM)
+		val rolloverBeatCount = rolloverBeats.size
 		var rolloverBeatsApplied = 0
 		// We have N beats to adjust.
 		// For the previous N beat events, set the BPB to the new BPB.
-		if (mBeatsToAdjust > 0)
-			mEvents.filterIsInstance<BeatEvent>().takeLast(mBeatsToAdjust).forEach {
-				it.mBPB = mCurrentLineBeatInfo.mBPB
+		if (beatsToAdjust > 0)
+			events.filterIsInstance<BeatEvent>().takeLast(beatsToAdjust).forEach {
+				it.bpb = currentLineBeatInfo.mBPB
 			}
-		mBeatsToAdjust = 0
+		beatsToAdjust = 0
 
 		var currentLineBeat = 0
-		while (currentLineBeat < mCurrentLineBeatInfo.mBeats) {
-			val beatsRemaining = mCurrentLineBeatInfo.mBeats - currentLineBeat
-			beatThatWeWillScrollOn = if (beatsRemaining > mCurrentLineBeatInfo.mBPB)
+		while (currentLineBeat < currentLineBeatInfo.mBeats) {
+			val beatsRemaining = currentLineBeatInfo.mBeats - currentLineBeat
+			beatThatWeWillScrollOn = if (beatsRemaining > currentLineBeatInfo.mBPB)
 				-1
 			else
-				(mCurrentBeat + (beatsRemaining - 1)) % mCurrentLineBeatInfo.mBPB
-			val beatEvent: BeatEvent
+				(currentBeat + (beatsRemaining - 1)) % currentLineBeatInfo.mBPB
 			var rolloverBPB = 0
 			var rolloverBeatLength: Long = 0
-			if (mRolloverBeats.isEmpty())
-				beatEvent = BeatEvent(
+			val beatEvent = if (rolloverBeats.isEmpty())
+				BeatEvent(
 					eventTime,
-					mCurrentLineBeatInfo.mBPM,
-					mCurrentLineBeatInfo.mBPB,
-					mCurrentBeat,
+					currentLineBeatInfo.mBPM,
+					currentLineBeatInfo.mBPB,
+					currentBeat,
 					click,
 					beatThatWeWillScrollOn
 				)
 			else {
-				beatEvent = mRolloverBeats.removeAt(0)
-				beatEvent.mWillScrollOnBeat = beatThatWeWillScrollOn
-				rolloverBPB = beatEvent.mBPB
+				val rolloverBeatEvent = rolloverBeats.removeAt(0)
+				val modifiedRolloverBeatEvent = BeatEvent(
+					rolloverBeatEvent.eventTime,
+					rolloverBeatEvent.bpm,
+					rolloverBeatEvent.bpb,
+					rolloverBeatEvent.beat,
+					rolloverBeatEvent.click,
+					beatThatWeWillScrollOn
+				)
+				rolloverBPB = modifiedRolloverBeatEvent.bpb
 				rolloverBeatsApplied += 1
-				rolloverBeatLength = Utils.nanosecondsPerBeat(beatEvent.mBPM)
+				rolloverBeatLength = Utils.nanosecondsPerBeat(modifiedRolloverBeatEvent.bpm)
+				modifiedRolloverBeatEvent
 			}
 			beatEvents.add(beatEvent)
 			val beatTimeLength = if (rolloverBeatLength == 0L) currentTimePerBeat else rolloverBeatLength
 			val nanoPerBeat = beatTimeLength / 4.0
 			// generate MIDI beats.
-			if (mLastBeatBlock == null || nanoPerBeat != mLastBeatBlock!!.nanoPerBeat) {
-				mLastBeatBlock = BeatBlock(beatEvent.mEventTime, mMIDIBeatCounter++, nanoPerBeat)
-				mBeatBlocks.add(mLastBeatBlock!!)
+			if (lastBeatBlock == null || nanoPerBeat != lastBeatBlock!!.nanoPerBeat) {
+				lastBeatBlock = BeatBlock(beatEvent.eventTime, midiBeatCounter++, nanoPerBeat)
+				beatBlocks.add(lastBeatBlock!!)
 			}
 
 			eventTime += beatTimeLength
-			mCurrentBeat++
-			if (mCurrentBeat == (if (rolloverBPB > 0) rolloverBPB else mCurrentLineBeatInfo.mBPB))
-				mCurrentBeat = 0
+			currentBeat++
+			if (currentBeat == (if (rolloverBPB > 0) rolloverBPB else currentLineBeatInfo.mBPB))
+				currentBeat = 0
 			++currentLineBeat
 		}
 
-		val beatsThisLine = mCurrentLineBeatInfo.mBeats - rolloverBeatCount + rolloverBeatsApplied
+		val beatsThisLine = currentLineBeatInfo.mBeats - rolloverBeatCount + rolloverBeatsApplied
 		val simpleBeatsThisLine =
-			(mCurrentLineBeatInfo.mBPB * mCurrentLineBeatInfo.mBPL) - mCurrentLineBeatInfo.mLastScrollBeatTotalOffset
+			(currentLineBeatInfo.mBPB * currentLineBeatInfo.mBPL) - currentLineBeatInfo.mLastScrollBeatTotalOffset
 		if (beatsThisLine > simpleBeatsThisLine) {
 			// We need to store some information so that the next line can adjust the rollover beats.
-			mBeatsToAdjust = mCurrentLineBeatInfo.mBeats - simpleBeatsThisLine
+			beatsToAdjust = currentLineBeatInfo.mBeats - simpleBeatsThisLine
 		} else if (beatsThisLine < simpleBeatsThisLine) {
 			// We need to generate a few beats to store for the next line to use.
-			mRolloverBeats.clear()
-			var rolloverCurrentBeat = mCurrentBeat
+			rolloverBeats.clear()
+			var rolloverCurrentBeat = currentBeat
 			var rolloverCurrentTime = eventTime
 			for (f in beatsThisLine until simpleBeatsThisLine) {
-				mRolloverBeats.add(
+				rolloverBeats.add(
 					BeatEvent(
 						rolloverCurrentTime,
-						mCurrentLineBeatInfo.mBPM,
-						mCurrentLineBeatInfo.mBPB,
+						currentLineBeatInfo.mBPM,
+						currentLineBeatInfo.mBPB,
 						rolloverCurrentBeat++,
 						click,
 						beatThatWeWillScrollOn
 					)
 				)
 				rolloverCurrentTime += currentTimePerBeat
-				if (rolloverCurrentBeat == mCurrentLineBeatInfo.mBPB)
+				if (rolloverCurrentBeat == currentLineBeatInfo.mBPB)
 					rolloverCurrentBeat = 0
 			}
 		}
@@ -850,8 +857,8 @@ class SongParser(
 		// We don't want to generate thousands of events, so let's say every 1/10th of a second.
 		var eventTime = startTime
 		val pauseEvents = mutableListOf<PauseEvent>()
-		val deciSeconds = ceil(Utils.nanoToMilli(pauseTag.mDuration).toDouble() / 100.0).toInt()
-		val remainder = pauseTag.mDuration - Utils.milliToNano(deciSeconds * 100)
+		val deciSeconds = ceil(Utils.nanoToMilli(pauseTag.duration).toDouble() / 100.0).toInt()
+		val remainder = pauseTag.duration - Utils.milliToNano(deciSeconds * 100)
 		val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
 		eventTime += remainder
 		repeat(deciSeconds) {
@@ -866,17 +873,17 @@ class SongParser(
 		val countInEvents = mutableListOf<BeatEvent>()
 		var startTime = 0L
 		if (countBars > 0) {
-			if (mCurrentLineBeatInfo.mBPM > 0.0) {
-				val countbpm = mCurrentLineBeatInfo.mBPM
-				val countbpb = mCurrentLineBeatInfo.mBPB
+			if (currentLineBeatInfo.mBPM > 0.0) {
+				val countbpm = currentLineBeatInfo.mBPM
+				val countbpb = currentLineBeatInfo.mBPB
 				val nanoPerBeat = Utils.nanosecondsPerBeat(countbpm)
 				repeat(countBars) { bar ->
 					repeat(countbpb) { beat ->
 						countInEvents.add(
 							BeatEvent(
 								startTime,
-								mCurrentLineBeatInfo.mBPM,
-								mCurrentLineBeatInfo.mBPB,
+								currentLineBeatInfo.mBPM,
+								currentLineBeatInfo.mBPB,
 								beat,
 								click,
 								if (bar == countBars - 1) countbpb - 1 else -1
@@ -897,31 +904,31 @@ class SongParser(
 		sourceSettings: DisplaySettings,
 		nativeSettings: DisplaySettings
 	): DisplaySettings {
-		val sourceScreenSize = sourceSettings.mScreenSize
+		val sourceScreenSize = sourceSettings.screenSize
 		val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
-		val screenWillRotate = nativeSettings.mOrientation != sourceSettings.mOrientation
+		val screenWillRotate = nativeSettings.orientation != sourceSettings.orientation
 		val nativeScreenSize = if (screenWillRotate)
-			Rect(0, 0, nativeSettings.mScreenSize.height(), nativeSettings.mScreenSize.width())
+			Rect(0, 0, nativeSettings.screenSize.height(), nativeSettings.screenSize.width())
 		else
-			nativeSettings.mScreenSize
+			nativeSettings.screenSize
 		val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
 		val minRatio = min(nativeRatio, sourceRatio)
 		val maxRatio = max(nativeRatio, sourceRatio)
 		val ratioMultiplier = minRatio / maxRatio
-		var minimumFontSize = sourceSettings.mMinFontSize
-		var maximumFontSize = sourceSettings.mMaxFontSize
+		var minimumFontSize = sourceSettings.minimumFontSize
+		var maximumFontSize = sourceSettings.maximumFontSize
 		minimumFontSize *= ratioMultiplier.toFloat()
 		maximumFontSize *= ratioMultiplier.toFloat()
 		if (minimumFontSize > maximumFontSize) {
-			mErrors.add(FileParseError(0, R.string.fontSizesAllMessedUp))
+			errors.add(FileParseError(0, R.string.fontSizesAllMessedUp))
 			maximumFontSize = minimumFontSize
 		}
 		return DisplaySettings(
-			sourceSettings.mOrientation,
+			sourceSettings.orientation,
 			minimumFontSize,
 			maximumFontSize,
 			nativeScreenSize,
-			sourceSettings.mShowBeatCounter
+			sourceSettings.showBeatCounter
 		)
 	}
 
@@ -932,46 +939,46 @@ class SongParser(
 		// The rest of the space is allocated for the comments and error messages,
 		// each line no more than 10% of the screen height.
 		val startScreenStrings = mutableListOf<ScreenString>()
-		var availableScreenHeight = mNativeDeviceSettings.mScreenSize.height()
+		var availableScreenHeight = nativeDeviceSettings.screenSize.height()
 		var nextSongString: ScreenString? = null
 		val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-		if (mSongLoadInfo.mNextSong.isNotBlank()) {
+		if (songLoadInfo.nextSong.isNotBlank()) {
 			// OK, we have a next song title to display.
 			// This should take up no more than 15% of the screen.
 			// But that includes a border, so use 13 percent for the text.
-			val eightPercent = (mNativeDeviceSettings.mScreenSize.height() * 0.13).toInt()
-			val nextSong = mSongLoadInfo.mNextSong
+			val eightPercent = (nativeDeviceSettings.screenSize.height() * 0.13).toInt()
+			val nextSong = songLoadInfo.nextSong
 			val fullString = ">>> $nextSong >>>"
 			nextSongString = ScreenString.create(
 				fullString,
-				mPaint,
-				mNativeDeviceSettings.mScreenSize.width(),
+				paint,
+				nativeDeviceSettings.screenSize.width(),
 				eightPercent,
 				Color.BLACK,
 				boldFont,
 				true
 			)
-			availableScreenHeight -= (mNativeDeviceSettings.mScreenSize.height() * 0.15f).toInt()
+			availableScreenHeight -= (nativeDeviceSettings.screenSize.height() * 0.15f).toInt()
 		}
 		val tenPercent = (availableScreenHeight / 10.0).toInt()
 		val twentyPercent = (availableScreenHeight / 5.0).toInt()
 		startScreenStrings.add(
 			ScreenString.create(
-				mSongLoadInfo.mSongFile.mTitle,
-				mPaint,
-				mNativeDeviceSettings.mScreenSize.width(),
+				songLoadInfo.songFile.title,
+				paint,
+				nativeDeviceSettings.screenSize.width(),
 				twentyPercent,
 				Color.YELLOW,
 				boldFont,
 				true
 			)
 		)
-		if (mSongLoadInfo.mSongFile.mArtist.isNotBlank())
+		if (songLoadInfo.songFile.artist.isNotBlank())
 			startScreenStrings.add(
 				ScreenString.create(
-					mSongLoadInfo.mSongFile.mArtist,
-					mPaint,
-					mNativeDeviceSettings.mScreenSize.width(),
+					songLoadInfo.songFile.artist,
+					paint,
+					nativeDeviceSettings.screenSize.width(),
 					tenPercent,
 					Color.YELLOW,
 					boldFont,
@@ -979,22 +986,22 @@ class SongParser(
 				)
 			)
 		val commentLines = mutableListOf<String>()
-		for (c in mStartScreenComments)
+		for (c in startScreenComments)
 			commentLines.add(c.mText)
 		val nonBlankCommentLines = mutableListOf<String>()
 		for (commentLine in commentLines)
 			if (commentLine.trim().isNotEmpty())
 				nonBlankCommentLines.add(commentLine.trim())
-		val uniqueErrors = mErrors.asSequence().distinct().sortedBy { it.mLineNumber }.toList()
+		val uniqueErrors = errors.asSequence().distinct().sortedBy { it.lineNumber }.toList()
 		var errorCount = uniqueErrors.size
 		var messages = min(errorCount, 6) + nonBlankCommentLines.size
-		val showBPM = mShowBPM != ShowBPMContext.No
+		val showBPM = showBpm != ShowBPMContext.No
 		if (showBPM)
 			++messages
-		if (mShowKey)
+		if (showKey)
 			++messages
 		if (messages > 0) {
-			val remainingScreenSpace = mNativeDeviceSettings.mScreenSize.height() - twentyPercent * 2
+			val remainingScreenSpace = nativeDeviceSettings.screenSize.height() - twentyPercent * 2
 			var spacePerMessageLine = floor((remainingScreenSpace / messages).toDouble()).toInt()
 			spacePerMessageLine = min(spacePerMessageLine, tenPercent)
 			var errorCounter = 0
@@ -1002,11 +1009,11 @@ class SongParser(
 				startScreenStrings.add(
 					ScreenString.create(
 						error.toString(),
-						mPaint,
-						mNativeDeviceSettings.mScreenSize.width(),
+						paint,
+						nativeDeviceSettings.screenSize.width(),
 						spacePerMessageLine,
 						Color.RED,
-						mFont,
+						font,
 						false
 					)
 				)
@@ -1019,11 +1026,11 @@ class SongParser(
 								BeatPrompter.appResources.getString(R.string.otherErrorCount),
 								errorCount
 							),
-							mPaint,
-							mNativeDeviceSettings.mScreenSize.width(),
+							paint,
+							nativeDeviceSettings.screenSize.width(),
 							spacePerMessageLine,
 							Color.RED,
-							mFont,
+							font,
 							false
 						)
 					)
@@ -1034,57 +1041,57 @@ class SongParser(
 				startScreenStrings.add(
 					ScreenString.create(
 						nonBlankComment,
-						mPaint,
-						mNativeDeviceSettings.mScreenSize.width(),
+						paint,
+						nativeDeviceSettings.screenSize.width(),
 						spacePerMessageLine,
 						Color.WHITE,
-						mFont,
+						font,
 						false
 					)
 				)
-			if (mShowKey) {
+			if (showKey) {
 				val keyString =
-					BeatPrompter.appResources.getString(R.string.keyPrefix) + ": " + mSongLoadInfo.mSongFile.mKey
+					BeatPrompter.appResources.getString(R.string.keyPrefix) + ": " + songLoadInfo.songFile.key
 				startScreenStrings.add(
 					ScreenString.create(
 						keyString,
-						mPaint,
-						mNativeDeviceSettings.mScreenSize.width(),
+						paint,
+						nativeDeviceSettings.screenSize.width(),
 						spacePerMessageLine,
 						Color.CYAN,
-						mFont,
+						font,
 						false
 					)
 				)
 			}
-			if (mShowBPM != ShowBPMContext.No) {
+			if (showBpm != ShowBPMContext.No) {
 				val rounded =
-					mShowBPM == ShowBPMContext.Rounded || mSongLoadInfo.mSongFile.mBPM == mSongLoadInfo.mSongFile.mBPM.toInt()
+					showBpm == ShowBPMContext.Rounded || songLoadInfo.songFile.bpm == songLoadInfo.songFile.bpm.toInt()
 						.toDouble()
 				var bpmString = BeatPrompter.appResources.getString(R.string.bpmPrefix) + ": "
 				bpmString += if (rounded)
-					mSongLoadInfo.mSongFile.mBPM.roundToInt()
+					songLoadInfo.songFile.bpm.roundToInt()
 				else
-					mSongLoadInfo.mSongFile.mBPM
+					songLoadInfo.songFile.bpm
 				startScreenStrings.add(
 					ScreenString.create(
 						bpmString,
-						mPaint,
-						mNativeDeviceSettings.mScreenSize.width(),
+						paint,
+						nativeDeviceSettings.screenSize.width(),
 						spacePerMessageLine,
 						Color.CYAN,
-						mFont,
+						font,
 						false
 					)
 				)
 			}
 		}
-		if (mSongLoadInfo.mSongLoadMode !== ScrollingMode.Manual)
+		if (songLoadInfo.songLoadMode !== ScrollingMode.Manual)
 			startScreenStrings.add(
 				ScreenString.create(
 					BeatPrompter.appResources.getString(R.string.tapTwiceToStart),
-					mPaint,
-					mNativeDeviceSettings.mScreenSize.width(),
+					paint,
+					nativeDeviceSettings.screenSize.width(),
 					tenPercent,
 					Color.GREEN,
 					boldFont,
@@ -1103,27 +1110,27 @@ class SongParser(
 	): Pair<Long, Long> {
 		// Calculate when this line should start scrolling
 		val startScrollTime =
-			when (mCurrentLineBeatInfo.mScrollMode) {
+			when (currentLineBeatInfo.mScrollMode) {
 				// Smooth mode? Start scrolling instantly.
-				ScrollingMode.Smooth -> mSongTime
+				ScrollingMode.Smooth -> songTime
 				else ->
 					// Pause line? Start scrolling after 95% of the pause has elapsed.
 					if (pauseTag != null)
-						lineStartTime + (pauseTag.mDuration * 0.95).toLong()
+						lineStartTime + (pauseTag.duration * 0.95).toLong()
 					// Beat line? Start scrolling on the last beat.
 					else
-						currentBeatEvents!!.mEvents.lastOrNull()?.mEventTime ?: mSongTime
+						currentBeatEvents!!.mEvents.lastOrNull()?.eventTime ?: songTime
 				// (Manual mode ignores these scroll values)
 			}
 		// Calculate when the line should stop scrolling
 		val stopScrollTime =
-			when (mCurrentLineBeatInfo.mScrollMode) {
+			when (currentLineBeatInfo.mScrollMode) {
 				// Smooth mode? It should stop scrolling once the allocated time has elapsed.
-				ScrollingMode.Smooth -> mSongTime + lineDuration
+				ScrollingMode.Smooth -> songTime + lineDuration
 				else ->
 					// Pause line? It should stop scrolling when the pause has ran out
 					if (pauseTag != null)
-						lineStartTime + pauseTag.mDuration
+						lineStartTime + pauseTag.duration
 					// Beat line? It should stop scrolling after the final beat
 					else
 						currentBeatEvents!!.mBlockEndTime
@@ -1148,9 +1155,9 @@ class SongParser(
 		// Calculate how long this line will last for.
 		return when {
 			// Pause line? Lasts as long as the pause!
-			pauseTag != null -> pauseTag.mDuration + addToPause
+			pauseTag != null -> pauseTag.duration + addToPause
 			// Smooth line? We've counted the bars, so do the sums.
-			mCurrentLineBeatInfo.mScrollMode == ScrollingMode.Smooth && mTimePerBar > 0 -> mTimePerBar * mCurrentLineBeatInfo.mBPL
+			currentLineBeatInfo.mScrollMode == ScrollingMode.Smooth && timePerBar > 0 -> timePerBar * currentLineBeatInfo.mBPL
 			// Beat line? The result of generateBeatEvents will contain the time
 			// that the beats end, so subtract the start time from that to get our duration.
 			else -> currentBeatEvents!!.mBlockEndTime - lineStartTime
@@ -1170,17 +1177,17 @@ class SongParser(
 	private class LineList : ArrayList<Line>() {
 		override fun add(element: Line): Boolean {
 			val lastOrNull = lastOrNull()
-			lastOrNull?.mNextLine = element
-			element.mPrevLine = lastOrNull
+			lastOrNull?.nextLine = element
+			element.previousLine = lastOrNull
 			return super.add(element)
 		}
 	}
 
 	private class CircularGraphicsList : ArrayList<LineGraphic>() {
 		override fun add(element: LineGraphic): Boolean {
-			lastOrNull()?.mNextGraphic = element
+			lastOrNull()?.nextGraphic = element
 			val result = super.add(element)
-			last().mNextGraphic = first()
+			last().nextGraphic = first()
 			return result
 		}
 	}
@@ -1189,8 +1196,8 @@ class SongParser(
 		// Sort all events by time, and by type within that.
 		return eventList.sortedWith { e1, e2 ->
 			when {
-				e1.mEventTime > e2.mEventTime -> 1
-				e1.mEventTime < e2.mEventTime -> -1
+				e1.eventTime > e2.eventTime -> 1
+				e1.eventTime < e2.eventTime -> -1
 				else -> {
 					// StartEvents must appear before anything else, as their
 					// function is a "starting point" for song processing to
@@ -1243,7 +1250,7 @@ class SongParser(
 			errors: MutableList<FileParseError>
 		): List<BaseEvent> {
 			val beatEvents =
-				events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.mEventTime }.toList()
+				events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.eventTime }.toList()
 			return events.map {
 				if (it is MIDIEvent)
 					offsetMIDIEvent(it, beatEvents, errors)
@@ -1260,20 +1267,20 @@ class SongParser(
 			beatEvents: List<BeatEvent>,
 			errors: MutableList<FileParseError>
 		): MIDIEvent =
-			if (midiEvent.mOffset.mAmount != 0) {
+			if (midiEvent.offset.amount != 0) {
 				// OK, this event needs moved.
 				var newTime: Long = -1
-				if (midiEvent.mOffset.mOffsetType === EventOffsetType.Milliseconds) {
-					val offset = Utils.milliToNano(midiEvent.mOffset.mAmount)
-					newTime = midiEvent.mEventTime + offset
+				if (midiEvent.offset.offsetType === EventOffsetType.Milliseconds) {
+					val offset = Utils.milliToNano(midiEvent.offset.amount)
+					newTime = midiEvent.eventTime + offset
 				} else {
 					// Offset by beat count.
-					val beatCount = midiEvent.mOffset.mAmount
+					val beatCount = midiEvent.offset.amount
 					val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
 						if (beatCount >= 0)
-							it.mEventTime > midiEvent.mEventTime
+							it.eventTime > midiEvent.eventTime
 						else
-							it.mEventTime < midiEvent.mEventTime
+							it.eventTime < midiEvent.eventTime
 					}
 					val beatsInOrder =
 						if (beatCount < 0)
@@ -1282,18 +1289,18 @@ class SongParser(
 							beatsBeforeOrAfterThisMIDIEvent
 					val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
 					if (beatWeWant != null)
-						newTime = beatWeWant.mEventTime
+						newTime = beatWeWant.eventTime
 				}
 				if (newTime < 0) {
 					errors.add(
 						FileParseError(
-							midiEvent.mOffset.mSourceFileLineNumber,
+							midiEvent.offset.sourceFileLineNumber,
 							R.string.midi_offset_is_before_start_of_song
 						)
 					)
 					newTime = 0
 				}
-				MIDIEvent(newTime, midiEvent.mMessages)
+				MIDIEvent(newTime, midiEvent.messages)
 			} else
 				midiEvent
 
@@ -1320,8 +1327,8 @@ class SongParser(
 			events: List<BaseEvent>
 		): List<BaseEvent> =
 			events.flatMap {
-				if (it is BeatEvent && it.mClick)
-					listOf(it, ClickEvent(it.mEventTime))
+				if (it is BeatEvent && it.click)
+					listOf(it, ClickEvent(it.eventTime))
 				else
 					listOf(it)
 			}

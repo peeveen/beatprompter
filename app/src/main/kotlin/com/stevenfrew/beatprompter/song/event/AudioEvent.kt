@@ -7,10 +7,10 @@ import com.stevenfrew.beatprompter.cache.AudioFile
  */
 class AudioEvent(
 	eventTime: Long,
-	val mAudioFile: AudioFile,
-	val mVolume: Int,
-	val mBackingTrack: Boolean
+	val audioFile: AudioFile,
+	val volume: Int,
+	val isBackingTrack: Boolean
 ) : BaseEvent(eventTime) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		AudioEvent(mEventTime + nanoseconds, mAudioFile, mVolume, mBackingTrack)
+		AudioEvent(eventTime + nanoseconds, audioFile, volume, isBackingTrack)
 }
