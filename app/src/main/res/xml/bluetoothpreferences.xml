@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:customStyle="http://schemas.android.com/apk/res-auto">
+	xmlns:customStyle="http://schemas.android.com/apk/res-auto"
+	xmlns:sf="http://com.stevenfrew/">
 	<com.stevenfrew.beatprompter.ui.pref.ImageListPreference
 		android:defaultValue="@string/pref_bluetoothMode_defaultValue"
 		android:layout="@layout/image_list_preference_layout"
@@ -19,4 +20,14 @@
 		android:summary="@string/pref_bandLeaderDevice_summary"
 		android:title="@string/pref_bandLeaderDevice_title"
 		app:iconSpaceReserved="false" />
+	<com.stevenfrew.beatprompter.ui.pref.BluetoothMidiDevicesPreference
+		android:defaultValue="@array/pref_bluetoothMidiDevices_defaultValues"
+		android:dialogTitle="@string/pref_bluetoothMidiDevices_dialogTitle"
+		android:key="@string/pref_bluetoothMidiDevices_key"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_bluetoothMidiDevices_summary"
+		android:title="@string/pref_bluetoothMidiDevices_title"
+		app:iconSpaceReserved="false"
+		sf:singleSelect="false" />
 </PreferenceScreen>
