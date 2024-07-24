@@ -1,13 +1,11 @@
 package com.stevenfrew.beatprompter.comm
 
 abstract class SenderBase(
-	private val mName: String,
+	override val name: String,
+	override val type: CommunicationType,
 	private val mBufferSize: Int = OUT_BUFFER_SIZE
 ) : Sender {
 	private val mOutBuffer = ByteArray(mBufferSize)
-
-	override val name: String
-		get() = mName
 
 	override fun send(messages: List<OutgoingMessage>) {
 		var currentMessageIndex = 0

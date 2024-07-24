@@ -142,7 +142,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 				.endsWith(".txt")
 	}
 
-	private class DownloadOneDriveFilesTask(
+	private inner class DownloadOneDriveFilesTask(
 		var mClient: IOneDriveClient,
 		var mListener: StorageListener,
 		var mItemSource: PublishSubject<DownloadResult>,
@@ -167,49 +167,37 @@ class OneDriveStorage(parentFragment: Fragment) :
 			// Do nothing.
 		}
 
-		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) {
-			for (file in mFilesToDownload) {
-				if (mListener.shouldCancel())
-					break
-				var result: DownloadResult
+		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) =
+			this@OneDriveStorage.downloadFiles(mFilesToDownload, mListener, mItemSource, mMessageSource) {
 				try {
-					val driveFile = mClient.drive.getItems(file.mID).buildRequest().get()
+					val driveFile = mClient.drive.getItems(it.mID).buildRequest().get()
 					if (driveFile != null) {
-						val title = file.mName
+						val title = it.mName
 						Logger.log { "File title: $title" }
-						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.checking, title))
 						val safeFilename = Utils.makeSafeFilename(title)
 						val targetFile = File(mDownloadFolder, safeFilename)
 						Logger.log { "Safe filename: $safeFilename" }
 
 						Logger.log("Downloading now ...")
-						mMessageSource.onNext(BeatPrompter.appResources.getString(R.string.downloading, title))
 						// Don't check lastModified ... ALWAYS download.
-						if (mListener.shouldCancel())
-							break
-						val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
-						val updatedCloudFile = FileInfo(
-							file.mID, driveFile.name, driveFile.lastModifiedDateTime.time,
-							file.mSubfolderIDs
-						)
-						result = SuccessfulDownloadResult(updatedCloudFile, localFile)
+						if (!mListener.shouldCancel()) {
+							val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
+							val updatedCloudFile = FileInfo(
+								it.mID, driveFile.name, driveFile.lastModifiedDateTime.time,
+								it.mSubfolderIDs
+							)
+							SuccessfulDownloadResult(updatedCloudFile, localFile)
+						} else
+							FailedDownloadResult(it)
 					} else
-						result = FailedDownloadResult(file)
-					mItemSource.onNext(result)
-					if (mListener.shouldCancel())
-						break
+						FailedDownloadResult(it)
 				} catch (oneDriveException: OneDriveServiceException) {
-					if (oneDriveException.isError(OneDriveErrorCodes.ItemNotFound)) {
-						result = FailedDownloadResult(file)
-						mItemSource.onNext(result)
-					} else {
-						mItemSource.onError(oneDriveException)
-						return
-					}
+					if (oneDriveException.isError(OneDriveErrorCodes.ItemNotFound))
+						FailedDownloadResult(it)
+					else
+						throw oneDriveException
 				}
 			}
-			mItemSource.onComplete()
-		}
 
 		private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File =
 			localFile.also {

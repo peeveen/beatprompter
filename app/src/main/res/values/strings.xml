@@ -743,7 +743,7 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="midi_usb_on_the_go_string" translatable="false">USB On-The-Go</string>
 	<string name="midi_native_string">Native</string>
-	<string name="midi_bluetooth_string">Bluetooth (currently not supported)</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 
 	<string name="midi_usb_on_the_go_value" translatable="false">USBOnTheGo</string>
 	<string name="midi_native_value" translatable="false">Native</string>
@@ -794,4 +794,12 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="readingDatabase">Reading database …</string>
 	<string name="failedToReadDatabaseItem">Failed to read database item</string>
+
+	<string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
+
+	<string name="pref_bluetoothMidiDevices_key" translatable="false">pref_bluetoothMidiDevices</string>
+	<string name="pref_bluetoothMidiDevices_title">Bluetooth MIDI Devices</string>
+	<string name="pref_bluetoothMidiDevices_summary">What Bluetooth devices should be considered for MIDI?</string>
+	<string name="pref_bluetoothMidiDevices_dialogTitle">Bluetooth MIDI Devices</string>
+
 </resources>

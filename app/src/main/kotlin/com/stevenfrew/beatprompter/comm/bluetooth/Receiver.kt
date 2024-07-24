@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.ReceiverTask
@@ -19,7 +20,8 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
-class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.remoteDevice.name) {
+class Receiver(private val mmSocket: BluetoothSocket, type: CommunicationType) :
+	ReceiverBase(mmSocket.remoteDevice.name, type) {
 	override fun unregister(task: ReceiverTask) = Bluetooth.removeReceiver(task)
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int =

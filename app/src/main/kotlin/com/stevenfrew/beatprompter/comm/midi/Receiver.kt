@@ -4,13 +4,14 @@ import android.content.SharedPreferences
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.midi.message.Message
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import kotlin.experimental.and
 
-abstract class Receiver(name: String) : ReceiverBase(name) {
+abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(name, type) {
 	private var mInSysEx: Boolean = false
 
 	private var mMidiBankMSBs = ByteArray(16)

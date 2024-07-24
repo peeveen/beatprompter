@@ -20,8 +20,9 @@ object Midi {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
 
-		NativeMidiController(context, mSenderTask, mReceiverTasks)
-		UsbMidiController(context, mSenderTask, mReceiverTasks)
+		NativeMidiController.initialize(context, mSenderTask, mReceiverTasks)
+		UsbMidiController.initialize(context, mSenderTask, mReceiverTasks)
+		BluetoothMidiController.initialize(context, mSenderTask, mReceiverTasks)
 
 		mInitialised = true
 	}

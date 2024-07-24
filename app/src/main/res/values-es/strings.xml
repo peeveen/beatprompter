@@ -375,7 +375,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="instructions">Instrucciones …</string>
 	<string name="pref_anyOtherKeyPageDown_title">Cualquier otra clave es page-down.</string>
 	<string name="pref_anyOtherKeyPageDown_summary">Cualquier otra tecla presionada en un teclado conectado actuará como página abajo.</string>
-	<string name="midi_bluetooth_string">Bluetooth (actualmente no es compatible)</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 	<string name="midi_native_string">Nativo</string>
 	<string name="pref_chorusSectionHighlightColor_title">Color de resaltado de sección de coro</string>
 	<string name="pref_chorusSectionHighlightColor_summary">Resaltar el color para los coros.</string>
@@ -412,4 +412,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="failedToReadDatabaseItem">No se pudo leer el elemento de la base de datos</string>
 	<string name="pref_audioLatency_message">Cantidad de latencia a compensar en la reproducción de audio.</string>
 	<string name="pref_audioLatency_title">Latencia de audio</string>
+	<string name="retryingDownload">Sincronizando %1$s (rever %2$d/%3$d)</string>
 </resources>

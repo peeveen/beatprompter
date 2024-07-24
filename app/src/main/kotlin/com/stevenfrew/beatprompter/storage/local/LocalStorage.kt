@@ -57,28 +57,17 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 		storageListener: StorageListener,
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>
-	) {
-		filesToRefresh.map { sourceCloudFile -> File(sourceCloudFile.mID) to sourceCloudFile.mSubfolderIDs }
-			.map { updatedFile ->
-				SuccessfulDownloadResult(
-					FileInfo(
-						updatedFile.first.absolutePath,
-						updatedFile.first.name,
-						Date(updatedFile.first.lastModified()),
-						updatedFile.second
-					), updatedFile.first
-				)
-			}
-			.forEach {
-				messageSource.onNext(
-					BeatPrompter.appResources.getString(
-						R.string.downloading,
-						it.cachedCloudFile.mName
-					)
-				)
-				itemSource.onNext(it)
-			}
-		itemSource.onComplete()
+	) = downloadFiles(filesToRefresh, storageListener, itemSource, messageSource) { cloudFile ->
+		File(cloudFile.mID).let {
+			SuccessfulDownloadResult(
+				FileInfo(
+					it.absolutePath,
+					it.name,
+					Date(it.lastModified()),
+					cloudFile.mSubfolderIDs
+				), it
+			)
+		}
 	}
 
 	override fun readFolderContents(

@@ -2,7 +2,9 @@ package com.stevenfrew.beatprompter.storage
 
 import android.app.Activity
 import androidx.fragment.app.Fragment
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.storage.demo.DemoStorage
 import com.stevenfrew.beatprompter.storage.dropbox.DropboxStorage
@@ -67,6 +69,43 @@ abstract class Storage protected constructor(
 		// Always include the temporary set list and default midi alias files.
 		Cache.mDefaultDownloads.forEach { downloadSource.onNext(it) }
 		downloadFiles(refreshFiles, listener, downloadSource, messageSource)
+	}
+
+	protected fun downloadFiles(
+		filesToDownload: List<FileInfo>,
+		listener: StorageListener,
+		itemSource: PublishSubject<DownloadResult>,
+		messageSource: PublishSubject<String>,
+		downloadFn: (FileInfo) -> DownloadResult
+	) {
+		for (file in filesToDownload) {
+			var attempt = 0
+			while (attempt <= DOWNLOAD_RETRY_LIMIT) {
+				if (!listener.shouldCancel()) {
+					messageSource.onNext(
+						BeatPrompter.appResources.getString(
+							if (attempt == 0) R.string.downloading else R.string.retryingDownload,
+							file.mName,
+							attempt,
+							DOWNLOAD_RETRY_LIMIT
+						)
+					)
+
+					try {
+						val result = downloadFn(file)
+						itemSource.onNext(result)
+						break
+					} catch (e: Exception) {
+						if (attempt >= DOWNLOAD_RETRY_LIMIT) {
+							itemSource.onError(e)
+							return
+						}
+						attempt += 1
+					}
+				}
+			}
+		}
+		itemSource.onComplete()
 	}
 
 	fun readFolderContents(
@@ -155,6 +194,9 @@ abstract class Storage protected constructor(
 	)
 
 	companion object {
+		// How many times to attempt a download before failing.
+		const val DOWNLOAD_RETRY_LIMIT = 3
+
 		fun getInstance(storageType: StorageType, parentFragment: Fragment): Storage =
 			when {
 				storageType === StorageType.Dropbox -> DropboxStorage(parentFragment)

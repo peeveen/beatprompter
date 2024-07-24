@@ -37,13 +37,13 @@ class ReceiverTasks {
 		Logger.logComms { "Stopped receiver task '$id'" }
 	}
 
-	fun stopAll() =
+	fun stopAndRemoveAll(type: CommunicationType? = null) =
 		synchronized(mReceiverThreadsLock) {
-			Logger.logComms("Stopping ALL receiver tasks")
-			mReceiverThreads.keys.forEach {
+			Logger.logComms("Stopping ALL receiver tasks of type '${type}'")
+			mReceiverTasks.filter { type == null || it.value.type == type }.keys.forEach {
 				stopAndRemoveReceiver(it)
 			}
-			Logger.logComms("Stopped ALL receiver tasks")
+			Logger.logComms("Stopped ALL receiver tasks of type '${type}")
 		}
 
 	val taskCount: Int

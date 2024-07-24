@@ -1,29 +1,22 @@
 package com.stevenfrew.beatprompter.comm.bluetooth
 
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.pm.PackageManager
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 /**
  * General Bluetooth management singleton object.
  */
-object Bluetooth : CoroutineScope {
-	private val mCoRoutineJob = Job()
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + mCoRoutineJob
-
+object Bluetooth {
 	private var mInitialised = false
 
 	private const val BLUETOOTH_QUEUE_SIZE = 4096
@@ -31,7 +24,6 @@ object Bluetooth : CoroutineScope {
 	private val mSenderTask = SenderTask(mBluetoothOutQueue)
 	private val mReceiverTasks = ReceiverTasks()
 	private val mSenderTaskThread = Thread(mSenderTask)
-	private var mController: BluetoothController? = null
 
 	/**
 	 * Called when the app starts. Doing basic Bluetooth setup.
@@ -40,18 +32,28 @@ object Bluetooth : CoroutineScope {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
 
-		mController = BluetoothController(context, mSenderTask, mReceiverTasks)
-		if (mController?.isActive == true) {
-			launch {
-				while (true) {
-					mBluetoothOutQueue.putMessage(HeartbeatMessage)
-					delay(1000)
-				}
-			}
-		}
+		BandBluetoothController.initialize(context, mSenderTask, mReceiverTasks)
 
 		mInitialised = true
 	}
+
+	fun getBluetoothAdapter(context: Context): BluetoothAdapter? =
+		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)) {
+			val bluetoothManager =
+				context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+			bluetoothManager.adapter
+		} else null
+
+	fun getPairedDevices(context: Context): List<BluetoothDevice> =
+		getPairedDevices(getBluetoothAdapter(context))
+
+	fun getPairedDevices(bluetoothAdapter: BluetoothAdapter?): List<BluetoothDevice> =
+		try {
+			bluetoothAdapter?.bondedDevices?.toList() ?: listOf()
+		} catch (se: SecurityException) {
+			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
+			listOf()
+		}
 
 	/**
 	 * Do we have a connection to a band leader?
@@ -64,8 +66,6 @@ object Bluetooth : CoroutineScope {
 	 */
 	val bluetoothClientCount: Int
 		get() = mSenderTask.senderCount
-
-	fun getPairedDevices(): List<BluetoothDevice> = mController?.getPairedDevices() ?: listOf()
 
 	internal fun putMessage(message: OutgoingMessage) {
 		if (mInitialised) mBluetoothOutQueue.putMessage(message)
