@@ -24,7 +24,6 @@ object Bluetooth {
 	private val mSenderTask = SenderTask(mBluetoothOutQueue)
 	private val mReceiverTasks = ReceiverTasks()
 	private val mSenderTaskThread = Thread(mSenderTask)
-	private var mBandBluetoothController: BandBluetoothController? = null
 
 	/**
 	 * Called when the app starts. Doing basic Bluetooth setup.
@@ -33,7 +32,7 @@ object Bluetooth {
 		mSenderTaskThread.start()
 		Task.resumeTask(mSenderTask)
 
-		mBandBluetoothController = BandBluetoothController(context, mSenderTask, mReceiverTasks)
+		BandBluetoothController.initialize(context, mSenderTask, mReceiverTasks)
 
 		mInitialised = true
 	}
@@ -46,8 +45,11 @@ object Bluetooth {
 		} else null
 
 	fun getPairedDevices(context: Context): List<BluetoothDevice> =
+		getPairedDevices(getBluetoothAdapter(context))
+
+	fun getPairedDevices(bluetoothAdapter: BluetoothAdapter?): List<BluetoothDevice> =
 		try {
-			getBluetoothAdapter(context)?.bondedDevices?.toList() ?: listOf()
+			bluetoothAdapter?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
 			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
 			listOf()

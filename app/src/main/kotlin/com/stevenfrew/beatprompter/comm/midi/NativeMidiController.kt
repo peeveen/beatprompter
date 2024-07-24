@@ -8,19 +8,21 @@ import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
-class NativeMidiController(
-	context: Context,
-	senderTask: SenderTask,
-	receiverTasks: ReceiverTasks
-) {
+object NativeMidiController {
 	private var mDeviceListener: MidiNativeDeviceListener? = null
+	private const val NATIVE_MIDI_COMM_TYPE = "Midi"
 
-	init {
+	fun initialize(
+		context: Context,
+		senderTask: SenderTask,
+		receiverTasks: ReceiverTasks
+	) {
 		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 			val manager =
 				context.getSystemService(Context.MIDI_SERVICE) as MidiManager
 			mDeviceListener =
 				MidiNativeDeviceListener(
+					NATIVE_MIDI_COMM_TYPE,
 					manager,
 					senderTask,
 					receiverTasks

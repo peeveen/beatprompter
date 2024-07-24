@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.media.midi.MidiManager
+import android.media.midi.MidiManager.OnDeviceOpenedListener
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
@@ -17,27 +18,30 @@ import com.stevenfrew.beatprompter.comm.bluetooth.AdapterReceiver
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.DeviceReceiver
 
-class BluetoothMidiController(
-	context: Context,
-	senderTask: SenderTask,
-	receiverTasks: ReceiverTasks
-) {
-	private var mBluetoothListener: MidiNativeDeviceListener? = null
+object BluetoothMidiController {
+	// Due to this nonsense:
+	// https://developer.android.com/reference/android/content/SharedPreferences.html#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener)
+	// we have to keep a reference to the prefs listener, or it gets garbage collected.
+	private var mPrefsListener: OnSharedPreferenceChangeListener? = null
+	private const val BLUETOOTH_MIDI_COMM_TYPE = "BluetoothMidi"
 
-	// Threads that watch for client/server connections, and an object to synchronize their
-	// use.
-	private var mBluetoothAdapter: BluetoothAdapter? = null
-	private val mPrefsListener: OnSharedPreferenceChangeListener?
-
-	init {
-		var prefsListener: OnSharedPreferenceChangeListener? = null
-		Bluetooth.getBluetoothAdapter(context)?.also {
+	fun initialize(
+		context: Context,
+		senderTask: SenderTask,
+		receiverTasks: ReceiverTasks
+	) {
+		Bluetooth.getBluetoothAdapter(context)?.also { bluetoothAdapter ->
 			if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
 				val manager =
 					context.getSystemService(Context.MIDI_SERVICE) as MidiManager
-				mBluetoothListener = MidiNativeDeviceListener(manager, senderTask, receiverTasks, null)
+				val listener = MidiNativeDeviceListener(
+					BLUETOOTH_MIDI_COMM_TYPE,
+					manager,
+					senderTask,
+					receiverTasks,
+					null
+				)
 
-				mBluetoothAdapter = it
 				Logger.logComms("Bluetooth adapter found.")
 				Logger.logComms("Starting BandBluetooth sender thread.")
 				Logger.logComms("BandBluetooth sender thread started.")
@@ -49,9 +53,9 @@ class BluetoothMidiController(
 						 * We need to keep an eye on that.
 						 */
 						object : AdapterReceiver() {
-							override fun onBluetoothDisabled() = onStopBluetooth()
+							override fun onBluetoothDisabled() = onBluetoothStopped(senderTask, receiverTasks)
 							override fun onBluetoothEnabled(context: Context) =
-								attemptMidiConnections(context, manager)
+								attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 						},
 						IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
 					)
@@ -60,55 +64,58 @@ class BluetoothMidiController(
 						IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED)
 					)
 				}
-				prefsListener =
-					OnSharedPreferenceChangeListener { prefs, key ->
-						val midiBluetoothKey =
-							BeatPrompter.appResources.getString(R.string.pref_midiConnectionTypes_key)
-						val bluetoothMidiDevicesKey =
-							BeatPrompter.appResources.getString(R.string.pref_bluetoothMidiDevices_key)
-						when (key) {
-							bluetoothMidiDevicesKey, midiBluetoothKey -> {
-								Logger.logComms("Removing all Bluetooth MIDI senders & receivers.")
-								senderTask.removeAll()
-								receiverTasks.stopAndRemoveAll()
-								Logger.logComms("Bluetooth MIDI connection types or target devices changed ... restarting connections.")
-								if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth))
-									attemptMidiConnections(context, manager)
-								else
-									onStopBluetooth()
+				val prefsListener = OnSharedPreferenceChangeListener { _, key ->
+					val midiBluetoothKey =
+						BeatPrompter.appResources.getString(R.string.pref_midiConnectionTypes_key)
+					val bluetoothMidiDevicesKey =
+						BeatPrompter.appResources.getString(R.string.pref_bluetoothMidiDevices_key)
+					when (key) {
+						bluetoothMidiDevicesKey, midiBluetoothKey -> {
+							Logger.logComms("Bluetooth MIDI connection types or target devices changed ... restarting connections.")
+							Logger.logComms("Removing all Bluetooth MIDI senders & receivers.")
+							onBluetoothStopped(senderTask, receiverTasks)
+							if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth)) {
+								Logger.logComms("Bluetooth is still a selected MIDI connection type ... attempting Bluetooth MIDI connections.")
+								attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 							}
 						}
 					}
-				attemptMidiConnections(context, manager)
+				}
+				Preferences.registerOnSharedPreferenceChangeListener(prefsListener)
+				mPrefsListener = prefsListener
+				attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 			}
-		}
-		mPrefsListener = prefsListener
-		mPrefsListener?.also {
-			Preferences.registerOnSharedPreferenceChangeListener(it)
 		}
 	}
 
 	/**
 	 * Called when Bluetooth is switched off.
 	 */
-	private fun onStopBluetooth() {
+	private fun onBluetoothStopped(senderTask: SenderTask, receiverTasks: ReceiverTasks) {
 		Logger.logComms("Bluetooth has stopped.")
+		senderTask.removeAll(BLUETOOTH_MIDI_COMM_TYPE)
+		receiverTasks.stopAndRemoveAll(BLUETOOTH_MIDI_COMM_TYPE)
 	}
 
-	private fun attemptMidiConnections(context: Context, manager: MidiManager) =
+	private fun attemptBluetoothMidiConnections(
+		bluetoothAdapter: BluetoothAdapter,
+		manager: MidiManager,
+		listener: OnDeviceOpenedListener
+	) =
 		Preferences.bluetoothMidiDevices.run {
-			Bluetooth.getPairedDevices(context).filter { contains(it.address) }
-				.forEach { attemptMidiConnection(manager, it) }
+			Bluetooth.getPairedDevices(bluetoothAdapter).filter { contains(it.address) }
+				.forEach { attemptMidiConnection(manager, it, listener) }
 		}
 
 	private fun attemptMidiConnection(
 		manager: MidiManager,
-		device: BluetoothDevice
+		device: BluetoothDevice,
+		listener: OnDeviceOpenedListener
 	) =
 		try {
 			manager.openBluetoothDevice(
 				device,
-				mBluetoothListener,
+				listener,
 				null
 			)
 		} catch (e: Exception) {

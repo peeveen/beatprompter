@@ -11,6 +11,9 @@ class ReceiverTask(
 ) : Task(true) {
 	private var mUnregistered = false
 
+	val type: String
+		get() = mReceiver.type
+
 	override fun doWork() =
 		try {
 			mReceiver.receive()
@@ -25,9 +28,9 @@ class ReceiverTask(
 			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, mName)
 		}
 
-	override fun stop() =
 	// Receivers often block when trying to receive data, so closing the socket or whatever behind
-		// the scenes will usually kickstart it into action.
+	// the scenes will usually kickstart it into action.
+	override fun stop() =
 		try {
 			mReceiver.close()
 		} catch (exception: Exception) {

@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import kotlin.experimental.and
 
-abstract class Receiver(name: String) : ReceiverBase(name) {
+abstract class Receiver(name: String, type: String) : ReceiverBase(name, type) {
 	private var mInSysEx: Boolean = false
 
 	private var mMidiBankMSBs = ByteArray(16)

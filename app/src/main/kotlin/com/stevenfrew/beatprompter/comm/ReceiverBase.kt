@@ -1,14 +1,12 @@
 package com.stevenfrew.beatprompter.comm
 
 abstract class ReceiverBase(
-	private val mName: String,
+	override val name: String,
+	override val type: String,
 	private val mBufferSize: Int = IN_BUFFER_SIZE
 ) : Receiver {
 	private val mInBuffer = ByteArray(mBufferSize)
 	private var mAmountOfDataInBuffer = 0
-
-	override val name: String
-		get() = mName
 
 	override fun receive() {
 		while (true) {

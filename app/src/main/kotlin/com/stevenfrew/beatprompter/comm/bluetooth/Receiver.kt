@@ -19,7 +19,8 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
-class Receiver(private val mmSocket: BluetoothSocket) : ReceiverBase(mmSocket.remoteDevice.name) {
+class Receiver(private val mmSocket: BluetoothSocket, type: String) :
+	ReceiverBase(mmSocket.remoteDevice.name, type) {
 	override fun unregister(task: ReceiverTask) = Bluetooth.removeReceiver(task)
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int =

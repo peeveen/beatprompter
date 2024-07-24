@@ -10,8 +10,10 @@ import kotlin.coroutines.CoroutineContext
 
 class UsbReceiver(
 	private val mConnection: UsbDeviceConnection,
-	private val mEndpoint: UsbEndpoint, name: String
-) : Receiver(name), CoroutineScope {
+	private val mEndpoint: UsbEndpoint,
+	name: String,
+	type: String
+) : Receiver(name, type), CoroutineScope {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.IO
 	private var mClosed = false

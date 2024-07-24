@@ -12,8 +12,9 @@ class NativeReceiver(
 	// it automatically closes. So I'm storing it here.
 	private val mDevice: MidiDevice,
 	private val mPort: MidiOutputPort,
-	name: String
-) : Receiver(name) {
+	name: String,
+	type: String
+) : Receiver(name, type) {
 	private val mInnerReceiver = NativeReceiverReceiver()
 	private val mInnerBufferLock = Any()
 	private var mInnerBuffer = ByteArray(INITIAL_INNER_BUFFER_SIZE)

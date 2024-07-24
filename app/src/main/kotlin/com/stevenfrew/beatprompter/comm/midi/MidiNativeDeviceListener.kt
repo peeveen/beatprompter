@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 internal class MidiNativeDeviceListener(
+	private val mCommType: String,
 	private val mManager: MidiManager,
 	private val mSenderTask: SenderTask,
 	private val mReceiverTasks: ReceiverTasks,
@@ -32,13 +33,23 @@ internal class MidiNativeDeviceListener(
 						when (it.type) {
 							MidiDeviceInfo.PortInfo.TYPE_OUTPUT -> mSenderTask.addSender(
 								deviceName,
-								NativeSender(openedDevice, openedDevice.openInputPort(it.portNumber), deviceName)
+								NativeSender(
+									openedDevice,
+									openedDevice.openInputPort(it.portNumber),
+									deviceName,
+									mCommType
+								)
 							)
 
 							MidiDeviceInfo.PortInfo.TYPE_INPUT -> mReceiverTasks.addReceiver(
 								deviceName,
 								deviceName,
-								NativeReceiver(openedDevice, openedDevice.openOutputPort(it.portNumber), deviceName)
+								NativeReceiver(
+									openedDevice,
+									openedDevice.openOutputPort(it.portNumber),
+									deviceName,
+									mCommType
+								)
 							)
 						}
 					}
