@@ -37,7 +37,7 @@ class ReceiverTasks {
 		Logger.logComms { "Stopped receiver task '$id'" }
 	}
 
-	fun stopAndRemoveAll(type: String? = null) =
+	fun stopAndRemoveAll(type: CommunicationType? = null) =
 		synchronized(mReceiverThreadsLock) {
 			Logger.logComms("Stopping ALL receiver tasks of type '${type}'")
 			mReceiverTasks.filter { type == null || it.value.type == type }.keys.forEach {

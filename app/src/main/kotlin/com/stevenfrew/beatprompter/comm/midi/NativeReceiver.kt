@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.media.midi.MidiDevice
 import android.media.midi.MidiOutputPort
 import android.media.midi.MidiReceiver
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import kotlin.math.max
 import kotlin.math.min
@@ -13,7 +14,7 @@ class NativeReceiver(
 	private val mDevice: MidiDevice,
 	private val mPort: MidiOutputPort,
 	name: String,
-	type: String
+	type: CommunicationType
 ) : Receiver(name, type) {
 	private val mInnerReceiver = NativeReceiverReceiver()
 	private val mInnerBufferLock = Any()

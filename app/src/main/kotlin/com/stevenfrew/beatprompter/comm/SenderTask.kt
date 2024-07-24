@@ -50,7 +50,7 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, sender.name)
 		}
 
-	fun removeAll(type: String? = null) {
+	fun removeAll(type: CommunicationType? = null) {
 		Logger.logComms("Removing ALL senders of type '${type}' from the collection.")
 		synchronized(mSendersLock) {
 			// Avoid concurrent modification exception by converting to array.

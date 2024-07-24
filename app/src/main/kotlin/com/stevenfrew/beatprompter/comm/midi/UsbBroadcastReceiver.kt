@@ -8,6 +8,7 @@ import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.midi.UsbMidiController.attemptUsbMidiConnection
@@ -49,13 +50,13 @@ internal class UsbBroadcastReceiver(
 											if (endPoint.direction == UsbConstants.USB_DIR_OUT)
 												mSenderTask.addSender(
 													deviceName,
-													UsbSender(conn, endPoint, deviceName, USB_MIDI_COMM_TYPE)
+													UsbSender(conn, endPoint, deviceName, CommunicationType.UsbMidi)
 												)
 											else if (endPoint.direction == UsbConstants.USB_DIR_IN)
 												mReceiverTasks.addReceiver(
 													deviceName,
 													deviceName,
-													UsbReceiver(conn, endPoint, deviceName, USB_MIDI_COMM_TYPE)
+													UsbReceiver(conn, endPoint, deviceName, CommunicationType.UsbMidi)
 												)
 											EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
 										}
@@ -70,8 +71,6 @@ internal class UsbBroadcastReceiver(
 	}
 
 	companion object {
-		private const val USB_MIDI_COMM_TYPE = "UsbMidi"
-
 		private fun getDeviceFromIntent(intent: Intent): UsbDevice? =
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
 				intent.getParcelableExtra(

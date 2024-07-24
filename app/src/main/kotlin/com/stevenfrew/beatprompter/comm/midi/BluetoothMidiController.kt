@@ -12,6 +12,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.bluetooth.AdapterReceiver
@@ -23,7 +24,6 @@ object BluetoothMidiController {
 	// https://developer.android.com/reference/android/content/SharedPreferences.html#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener)
 	// we have to keep a reference to the prefs listener, or it gets garbage collected.
 	private var mPrefsListener: OnSharedPreferenceChangeListener? = null
-	private const val BLUETOOTH_MIDI_COMM_TYPE = "BluetoothMidi"
 
 	fun initialize(
 		context: Context,
@@ -35,7 +35,7 @@ object BluetoothMidiController {
 				val manager =
 					context.getSystemService(Context.MIDI_SERVICE) as MidiManager
 				val listener = MidiNativeDeviceListener(
-					BLUETOOTH_MIDI_COMM_TYPE,
+					CommunicationType.BluetoothMidi,
 					manager,
 					senderTask,
 					receiverTasks,
@@ -93,8 +93,8 @@ object BluetoothMidiController {
 	 */
 	private fun onBluetoothStopped(senderTask: SenderTask, receiverTasks: ReceiverTasks) {
 		Logger.logComms("Bluetooth has stopped.")
-		senderTask.removeAll(BLUETOOTH_MIDI_COMM_TYPE)
-		receiverTasks.stopAndRemoveAll(BLUETOOTH_MIDI_COMM_TYPE)
+		senderTask.removeAll(CommunicationType.BluetoothMidi)
+		receiverTasks.stopAndRemoveAll(CommunicationType.BluetoothMidi)
 	}
 
 	private fun attemptBluetoothMidiConnections(

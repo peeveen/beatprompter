@@ -3,13 +3,14 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
+import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 internal class MidiNativeDeviceListener(
-	private val mCommType: String,
+	private val mCommType: CommunicationType,
 	private val mManager: MidiManager,
 	private val mSenderTask: SenderTask,
 	private val mReceiverTasks: ReceiverTasks,

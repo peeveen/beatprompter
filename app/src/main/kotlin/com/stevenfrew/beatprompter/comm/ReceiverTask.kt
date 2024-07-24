@@ -11,7 +11,7 @@ class ReceiverTask(
 ) : Task(true) {
 	private var mUnregistered = false
 
-	val type: String
+	val type: CommunicationType
 		get() = mReceiver.type
 
 	override fun doWork() =
