@@ -19,46 +19,46 @@ import kotlin.coroutines.CoroutineContext
  * Task that downloads files from a storage system.
  */
 class DownloadTask(
-	private val mContext: Context,
-	private val mStorage: Storage,
-	private val mHandler: Handler,
-	private val mCloudPath: String,
-	private val mIncludeSubFolders: Boolean,
+	private val context: Context,
+	private val storage: Storage,
+	private val handler: Handler,
+	private val cloudPath: String,
+	private val includeSubFolders: Boolean,
 	filesToUpdate: List<CachedFile>?
 ) : CoroutineTask<Unit, String, Boolean> {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main
-	private var mProgressDialog: ProgressDialog? = null
-	private var mErrorOccurred = false
-	private var mFilesToUpdate = filesToUpdate?.asSequence()
-		?.map { ftu -> FileInfo(ftu.mID, ftu.mName, ftu.mLastModified, ftu.mSubfolderIDs) }
+	private var progressDialog: ProgressDialog? = null
+	private var errorOccurred = false
+	private var filesToUpdate = filesToUpdate?.asSequence()
+		?.map { ftu -> FileInfo(ftu.id, ftu.name, ftu.lastModified, ftu.subfolderIds) }
 		?.toMutableList()
 		?: mutableListOf()
-	private var mCloudItemsFound = mutableMapOf<String, ItemInfo>()
+	private var cloudItemsFound = mutableMapOf<String, ItemInfo>()
 
 	private val isRefreshingSelectedFiles: Boolean
-		get() = mFilesToUpdate.isNotEmpty()
+		get() = filesToUpdate.isNotEmpty()
 
 	override fun onError(t: Throwable) {
-		mErrorOccurred = true
-		mHandler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
+		errorOccurred = true
+		handler.obtainMessage(Events.CLOUD_SYNC_ERROR, t.message).sendToTarget()
 	}
 
 	private fun cancelWhenAuthenticationRequired() = cancel("Authentication required.")
 
 	private fun closeProgressDialog() {
-		if (mProgressDialog != null)
-			mProgressDialog!!.dismiss()
+		if (progressDialog != null)
+			progressDialog!!.dismiss()
 	}
 
 	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
 		val itemDownloadListener = object : ItemDownloadListener {
 			override fun onItemDownloaded(result: DownloadResult) {
 				if (result is SuccessfulDownloadResult)
-					Cache.mCachedCloudItems.add(CachedFile.createCachedCloudFile(result))
+					Cache.cachedCloudItems.add(CachedFile.createCachedCloudFile(result))
 				else
 				// IMPLICIT if(result is FailedDownloadResult)
-					Cache.mCachedCloudItems.remove(result.mFileInfo)
+					Cache.cachedCloudItems.remove(result.fileInfo)
 			}
 
 			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
@@ -70,30 +70,30 @@ class DownloadTask(
 
 			override fun onDownloadComplete() {
 				if (!isRefreshingSelectedFiles)
-					Cache.mCachedCloudItems.removeNonExistent(
-						mCloudItemsFound.values.asSequence().map { c -> c.mID }.toSet()
+					Cache.cachedCloudItems.removeNonExistent(
+						cloudItemsFound.values.asSequence().map { c -> c.id }.toSet()
 					)
-				mHandler.obtainMessage(Events.CACHE_UPDATED, Cache.mCachedCloudItems)
+				handler.obtainMessage(Events.CACHE_UPDATED, Cache.cachedCloudItems)
 					.sendToTarget()
 				closeProgressDialog()
 			}
 
 			override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
 
-			override fun shouldCancel(): Boolean = mErrorOccurred
+			override fun shouldCancel(): Boolean = errorOccurred
 		}
 		val folderSearchListener = object : FolderSearchListener {
 			override fun onCloudItemFound(item: ItemInfo) {
-				val oldItem = mCloudItemsFound[item.mID]
+				val oldItem = cloudItemsFound[item.id]
 				val itemToAdd =
 					if (item is FileInfo && oldItem is FileInfo) {
 						// If we've found this FILE already, then it exists in multiple folders.
 						// Update the item with a new instance that reflects all sub-folders.
-						val newSubfolderIDs = listOf(oldItem.mSubfolderIDs, item.mSubfolderIDs).flatten()
-						FileInfo(oldItem.mID, oldItem.mName, oldItem.mLastModified, newSubfolderIDs)
+						val newSubfolderIDs = listOf(oldItem.subfolderIds, item.subfolderIds).flatten()
+						FileInfo(oldItem.id, oldItem.name, oldItem.lastModified, newSubfolderIDs)
 					} else
 						oldItem ?: item
-				mCloudItemsFound[itemToAdd.mID] = itemToAdd
+				cloudItemsFound[itemToAdd.id] = itemToAdd
 			}
 
 			override fun onFolderSearchError(t: Throwable, context: Context) {
@@ -102,32 +102,32 @@ class DownloadTask(
 			}
 
 			override fun onFolderSearchComplete() {
-				val itemsFound = mCloudItemsFound.values.toList()
+				val itemsFound = cloudItemsFound.values.toList()
 				itemsFound.filterIsInstance<FolderInfo>().forEach {
-					val parentFolderID = it.mParentFolder?.mID
+					val parentFolderID = it.parentFolder?.id
 					val parentFolderIDs = if (parentFolderID == null) listOf() else listOf(parentFolderID)
-					Cache.mCachedCloudItems.add(CachedFolder(it.mID, it.mName, parentFolderIDs))
+					Cache.cachedCloudItems.add(CachedFolder(it.id, it.name, parentFolderIDs))
 				}
 
 				val downloadsAndUpdates =
 					itemsFound
 						.filterIsInstance<FileInfo>()
 						.partition {
-							Cache.mCachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
+							Cache.cachedCloudItems.compareWithCacheVersion(it) == CacheComparisonResult.Newer
 						}
 				val itemsToDownload = downloadsAndUpdates.first
 				val itemsToUpdate = downloadsAndUpdates.second
 
 				itemsToUpdate.forEach {
-					Cache.mCachedCloudItems.updateLocations(it)
+					Cache.cachedCloudItems.updateLocations(it)
 				}
 
-				mStorage.downloadFiles(itemsToDownload, itemDownloadListener)
+				storage.downloadFiles(itemsToDownload, itemDownloadListener)
 			}
 
 			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
 			override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
-			override fun shouldCancel(): Boolean = mErrorOccurred
+			override fun shouldCancel(): Boolean = errorOccurred
 		}
 		if (isRefreshingSelectedFiles)
 			updateSelectedFiles(itemDownloadListener)
@@ -137,18 +137,18 @@ class DownloadTask(
 	}
 
 	private fun updateEntireCache(listener: FolderSearchListener) =
-		mStorage.readFolderContents(FolderInfo(mCloudPath), listener, mIncludeSubFolders)
+		storage.readFolderContents(FolderInfo(cloudPath), listener, includeSubFolders)
 
 	private fun updateSelectedFiles(listener: ItemDownloadListener) =
-		mStorage.downloadFiles(mFilesToUpdate, listener)
+		storage.downloadFiles(filesToUpdate, listener)
 
 	override fun onPreExecute() {
-		mProgressDialog = ProgressDialog(mContext).apply {
+		progressDialog = ProgressDialog(context).apply {
 			setTitle(BeatPrompter.appResources.getString(R.string.downloadingFiles))
 			setMessage(
 				BeatPrompter.appResources.getString(
 					R.string.accessingCloudStorage,
-					mStorage.cloudStorageName
+					storage.cloudStorageName
 				)
 			)
 			setCancelable(false)
@@ -157,7 +157,7 @@ class DownloadTask(
 		}
 	}
 
-	override fun onProgressUpdate(progress: String) = mProgressDialog!!.setMessage(progress)
+	override fun onProgressUpdate(progress: String) = progressDialog!!.setMessage(progress)
 
 	override fun onPostExecute(result: Boolean) {
 		// Don't care.

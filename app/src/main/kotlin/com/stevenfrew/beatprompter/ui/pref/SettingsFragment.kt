@@ -19,11 +19,11 @@ class SettingsFragment : PreferenceFragmentCompat(),
 			onCloudPathChanged(prefs.getString(key, null))
 	}
 
-	private var mSettingsHandler: SettingsEventHandler? = null
+	private var settingsHandler: SettingsEventHandler? = null
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		mSettingsHandler = MainSettingsEventHandler(this)
-		EventRouter.setSettingsEventHandler(mSettingsHandler)
+		settingsHandler = MainSettingsEventHandler()
+		EventRouter.setSettingsEventHandler(settingsHandler)
 
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.preferences)
@@ -46,12 +46,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
 	override fun onResume() {
 		val bluetoothPreference = findPreference<Preference>("bluetooth_screen_preference")
-		val context = this.requireContext()
-		bluetoothPreference?.isEnabled = PermissionsPreference.permissionsGranted(
-			context,
-			PermissionsSettingsFragment.getBluetoothPermissions(context)
-		)
-		super.onResume()
+		requireContext().also {
+			bluetoothPreference?.isEnabled = PermissionsPreference.permissionsGranted(
+				it,
+				PermissionsSettingsFragment.getBluetoothPermissions(it)
+			)
+			super.onResume()
+		}
 	}
 
 	override fun onDestroy() {
@@ -71,7 +72,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 				if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
 	}
 
-	class MainSettingsEventHandler internal constructor(private val mFragment: SettingsFragment) :
+	class MainSettingsEventHandler internal constructor() :
 		Handler(), SettingsEventHandler {
 		override fun handleMessage(msg: Message) {}
 	}

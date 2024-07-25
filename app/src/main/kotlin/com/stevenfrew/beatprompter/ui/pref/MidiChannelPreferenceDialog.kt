@@ -8,23 +8,23 @@ import android.widget.ToggleButton
 import androidx.preference.PreferenceDialogFragmentCompat
 import com.stevenfrew.beatprompter.R
 
-class MidiChannelPreferenceDialog(private val mSingleSelect: Boolean) :
+class MidiChannelPreferenceDialog(private val singleSelect: Boolean) :
 	PreferenceDialogFragmentCompat(), CompoundButton.OnCheckedChangeListener {
-	private var mCurrentValue: Int = 0
-	private var mView: GridLayout? = null
+	private var currentValue: Int = 0
+	private var gridLayoutView: GridLayout? = null
 	override fun onBindDialogView(view: View) {
-		mView = view.findViewById(R.id.midiGrid)
-		mView!!.apply {
+		gridLayoutView = view.findViewById(R.id.midiGrid)
+		gridLayoutView!!.apply {
 			useDefaultMargins = false
 			alignmentMode = GridLayout.ALIGN_BOUNDS
 			isRowOrderPreserved = false
 		}
-		mCurrentValue = (this.preference as MidiChannelPreference).channelMask
+		currentValue = (preference as MidiChannelPreference).channelMask
 		repeat(16) {
 			val tb = view.findViewById<ToggleButton>(toggleIDs[it])
-			val set = mCurrentValue and (1 shl it) != 0
+			val set = currentValue and (1 shl it) != 0
 			tb.isChecked = set
-			if (mSingleSelect && set)
+			if (singleSelect && set)
 				tb.isEnabled = false
 			tb.setOnCheckedChangeListener(this)
 		}
@@ -33,13 +33,13 @@ class MidiChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 
 	override fun onDialogClosed(positiveResult: Boolean) {
 		if (positiveResult)
-			(this.preference as MidiChannelPreference).channelMask = mCurrentValue
+			(preference as MidiChannelPreference).channelMask = currentValue
 	}
 
 	override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {
-		if (mSingleSelect && isNowChecked) {
+		if (singleSelect && isNowChecked) {
 			repeat(16) {
-				mView!!.findViewById<ToggleButton>(toggleIDs[it]).apply {
+				gridLayoutView!!.findViewById<ToggleButton>(toggleIDs[it]).apply {
 					if (this !== buttonView) {
 						if (isChecked && !isEnabled) {
 							isChecked = false
@@ -52,10 +52,10 @@ class MidiChannelPreferenceDialog(private val mSingleSelect: Boolean) :
 		}
 		repeat(16) {
 			if (toggleIDs[it] == buttonView.id) {
-				mCurrentValue = if (isNowChecked)
-					mCurrentValue or (1 shl it)
+				currentValue = if (isNowChecked)
+					currentValue or (1 shl it)
 				else
-					mCurrentValue and (1 shl it).inv()
+					currentValue and (1 shl it).inv()
 				return
 			}
 		}

@@ -19,17 +19,17 @@ class CommentTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mAudience: List<String>
-	val mComment: String
+	val audience: List<String>
+	val comment: String
 
 	init {
 		val bits = value.splitAndTrim(AUDIENCE_END_MARKER)
 		if (bits.size > 1) {
-			mAudience = bits[0].splitAndTrim(AUDIENCE_SEPARATOR)
-			mComment = bits[1]
+			audience = bits[0].splitAndTrim(AUDIENCE_SEPARATOR)
+			comment = bits[1]
 		} else {
-			mAudience = listOf()
-			mComment = value
+			audience = listOf()
+			comment = value
 		}
 	}
 

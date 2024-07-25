@@ -8,4 +8,4 @@ import kotlin.reflect.KClass
  * indicates the START of the defined section. Allows for generic validation of sequential
  * start/stops.
  */
-annotation class StartedBy(val mStartedBy: KClass<out Tag>)
+annotation class StartedBy(val startedBy: KClass<out Tag>)

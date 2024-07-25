@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.ui.pref
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -8,25 +9,26 @@ import androidx.preference.PreferenceDialogFragmentCompat
 import com.stevenfrew.beatprompter.R
 
 class SeekBarPreferenceDialog(
-	private val mSuffix: String,
-	private val mMax: Int,
-	private val mOffset: Int
+	private val suffix: String,
+	private val max: Int,
+	private val offset: Int
 ) : PreferenceDialogFragmentCompat(), SeekBar.OnSeekBarChangeListener {
-	private var mSeekBar: SeekBar? = null
-	private var mValueLabel: TextView? = null
+	private var seekBar: SeekBar? = null
+	private var valueLabel: TextView? = null
 
 	override fun onBindDialogView(view: View) {
-		mSeekBar = view.findViewById(R.id.seekBarPreferenceSeekBar)
-		mValueLabel = view.findViewById(R.id.seekBarPreferenceValueLabel)
-		mSeekBar!!.setOnSeekBarChangeListener(this)
-		mSeekBar!!.max = mMax
-		mSeekBar!!.progress = (this.preference as SeekBarPreference).preferenceValue
+		seekBar = view.findViewById(R.id.seekBarPreferenceSeekBar)
+		valueLabel = view.findViewById(R.id.seekBarPreferenceValueLabel)
+		seekBar!!.setOnSeekBarChangeListener(this)
+		seekBar!!.max = max
+		seekBar!!.progress = (preference as SeekBarPreference).preferenceValue
 		super.onBindDialogView(view)
 	}
 
+	@SuppressLint("SetTextI18n")
 	override fun onProgressChanged(seek: SeekBar, value: Int, fromTouch: Boolean) {
-		val t = "${value + mOffset}"
-		mValueLabel!!.text = "$t $mSuffix"
+		val t = "${value + offset}"
+		valueLabel!!.text = "$t $suffix"
 	}
 
 	override fun onStartTrackingTouch(seek: SeekBar) {}
@@ -35,8 +37,8 @@ class SeekBarPreferenceDialog(
 	override fun onDialogClosed(positiveResult: Boolean) {
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
-			val value = mSeekBar!!.progress
-			(this.preference as SeekBarPreference).preferenceValue = value
+			val value = seekBar!!.progress
+			(preference as SeekBarPreference).preferenceValue = value
 		}
 	}
 

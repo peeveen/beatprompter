@@ -20,7 +20,7 @@ open class MidiTriggerTag protected constructor(
 	triggerDescriptor: String,
 	type: TriggerType
 ) : Tag(name, lineNumber, position) {
-	val mTrigger: SongTrigger
+	val trigger: SongTrigger
 
 	init {
 		val bits = triggerDescriptor.splitAndTrim(",")
@@ -54,6 +54,6 @@ open class MidiTriggerTag protected constructor(
 				WildcardValue()
 		val index = TagParsingUtility.parseMIDIValue(bits[0], 0, bits.size)
 
-		mTrigger = SongTrigger(msb, lsb, index, channel, type)
+		trigger = SongTrigger(msb, lsb, index, channel, type)
 	}
 }

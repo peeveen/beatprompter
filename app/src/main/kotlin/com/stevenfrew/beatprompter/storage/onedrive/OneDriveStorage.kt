@@ -92,11 +92,11 @@ class OneDriveStorage(parentFragment: Fragment) :
 				if (mListener.shouldCancel())
 					break
 				val nextFolder = folders.removeAt(0)
-				val currentFolderID = nextFolder.mID
+				val currentFolderID = nextFolder.id
 				mMessageSource.onNext(
 					BeatPrompter.appResources.getString(
 						R.string.scanningFolder,
-						nextFolder.mName
+						nextFolder.name
 					)
 				)
 
@@ -115,11 +115,11 @@ class OneDriveStorage(parentFragment: Fragment) :
 								mItemSource.onNext(
 									FileInfo(
 										child.id, child.name, child.lastModifiedDateTime.time,
-										if (nextFolder.mParentFolder == null) "" else nextFolder.mID
+										if (nextFolder.parentFolder == null) "" else nextFolder.id
 									)
 								)
 						} else if (child.folder != null) {
-							val fullPath = mStorage.constructFullPath(nextFolder.mDisplayPath, child.name)
+							val fullPath = mStorage.constructFullPath(nextFolder.displayPath, child.name)
 							val newFolder = FolderInfo(nextFolder, child.id, child.name, fullPath)
 							if (mRecurseSubFolders) {
 								Logger.log("Adding folder to list of folders to query ...")
@@ -170,9 +170,9 @@ class OneDriveStorage(parentFragment: Fragment) :
 		override fun doInBackground(params: Unit, progressUpdater: suspend (Unit) -> Unit) =
 			this@OneDriveStorage.downloadFiles(mFilesToDownload, mListener, mItemSource, mMessageSource) {
 				try {
-					val driveFile = mClient.drive.getItems(it.mID).buildRequest().get()
+					val driveFile = mClient.drive.getItems(it.id).buildRequest().get()
 					if (driveFile != null) {
-						val title = it.mName
+						val title = it.name
 						Logger.log { "File title: $title" }
 						val safeFilename = Utils.makeSafeFilename(title)
 						val targetFile = File(mDownloadFolder, safeFilename)
@@ -183,8 +183,8 @@ class OneDriveStorage(parentFragment: Fragment) :
 						if (!mListener.shouldCancel()) {
 							val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
 							val updatedCloudFile = FileInfo(
-								it.mID, driveFile.name, driveFile.lastModifiedDateTime.time,
-								it.mSubfolderIDs
+								it.id, driveFile.name, driveFile.lastModifiedDateTime.time,
+								it.subfolderIds
 							)
 							SuccessfulDownloadResult(updatedCloudFile, localFile)
 						} else
@@ -225,7 +225,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 		val oneDriveConfig = DefaultClientConfig.createWithAuthenticator(oneDriveAuthenticator)
 		OneDriveClient.Builder()
 			.fromConfig(oneDriveConfig)
-			.loginAndBuildClient(mParentFragment.requireActivity(), callback)
+			.loginAndBuildClient(parentFragment.requireActivity(), callback)
 	}
 
 	private class GetOneDriveRootFolderTask(

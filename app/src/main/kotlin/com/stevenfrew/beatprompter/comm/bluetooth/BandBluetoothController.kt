@@ -28,19 +28,19 @@ object BandBluetoothController : CoroutineScope {
 	// Due to this nonsense:
 	// https://developer.android.com/reference/android/content/SharedPreferences.html#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener)
 	// we have to keep a reference to the prefs listener, or it gets garbage collected.
-	private var mPrefsListener: OnSharedPreferenceChangeListener? = null
+	private var prefsListener: OnSharedPreferenceChangeListener? = null
 
 	// Our unique controller Bluetooth ID.
 	private val BAND_BLUETOOTH_UUID = UUID(0x49ED8190882ADC90L, -0x6c036df6ed2c22d2L)
-	private val mCoRoutineJob = Job()
+	private val coroutineJob = Job()
 	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + mCoRoutineJob
+		get() = Dispatchers.Default + coroutineJob
 
 	// Threads that watch for client/server connections, and an object to synchronize their
 	// use.
-	private val mBluetoothThreadsLock = Any()
-	private var mServerBluetoothThread: ServerThread? = null
-	private var mConnectToBandLeaderThread: ConnectToServerThread? = null
+	private val bluetoothThreadsLock = Any()
+	private var bandLeaderThread: ServerThread? = null
+	private var connectToBandLeaderThread: ConnectToServerThread? = null
 
 	fun initialize(
 		context: Context,
@@ -94,7 +94,7 @@ object BandBluetoothController : CoroutineScope {
 				}
 			}
 			Preferences.registerOnSharedPreferenceChangeListener(prefsListener)
-			mPrefsListener = prefsListener
+			this.prefsListener = prefsListener
 
 			onBluetoothActivation(context, bluetoothAdapter, senderTask, receiverTasks)
 
@@ -133,8 +133,8 @@ object BandBluetoothController : CoroutineScope {
 	private fun shutDownBluetoothServer(senderTask: SenderTask) {
 		senderTask.removeAll(CommunicationType.Bluetooth)
 		Logger.logComms("Shutting down the Bluetooth server thread.")
-		synchronized(mBluetoothThreadsLock) {
-			mServerBluetoothThread?.run {
+		synchronized(bluetoothThreadsLock) {
+			bandLeaderThread?.run {
 				try {
 					Logger.logComms("Stopping listening on Bluetooth server thread.")
 					stopListening()
@@ -149,7 +149,7 @@ object BandBluetoothController : CoroutineScope {
 						e
 					)
 				} finally {
-					mServerBluetoothThread = null
+					bandLeaderThread = null
 				}
 			}
 		}
@@ -162,10 +162,10 @@ object BandBluetoothController : CoroutineScope {
 	private fun shutDownBluetoothClient(receiverTasks: ReceiverTasks) {
 		receiverTasks.stopAndRemoveAll(CommunicationType.Bluetooth)
 		Logger.logComms("Shutting down the Bluetooth client threads.")
-		synchronized(mBluetoothThreadsLock) {
-			if (mConnectToBandLeaderThread != null)
+		synchronized(bluetoothThreadsLock) {
+			if (connectToBandLeaderThread != null)
 				try {
-					mConnectToBandLeaderThread?.apply {
+					connectToBandLeaderThread?.apply {
 						Logger.logComms("Stopping listening on a Bluetooth client thread.")
 						stopTrying()
 						Logger.logComms("Interrupting a Bluetooth client thread.")
@@ -177,7 +177,7 @@ object BandBluetoothController : CoroutineScope {
 				} catch (e: Exception) {
 					Logger.logComms("Error stopping BlueTooth client connection thread, on thread join.", e)
 				}
-			mConnectToBandLeaderThread = null
+			connectToBandLeaderThread = null
 		}
 	}
 
@@ -202,17 +202,17 @@ object BandBluetoothController : CoroutineScope {
 		receiverTasks: ReceiverTasks
 	) {
 		if (bluetoothAdapter.isEnabled) {
-			synchronized(mBluetoothThreadsLock) {
+			synchronized(bluetoothThreadsLock) {
 				when (Preferences.bluetoothMode) {
 					BluetoothMode.Client -> {
 						shutDownBluetoothServer(senderTask)
-						if (mConnectToBandLeaderThread == null) {
+						if (connectToBandLeaderThread == null) {
 							Bluetooth.getPairedDevices(context)
 								.firstOrNull { it.address == Preferences.bandLeaderDevice }
 								?.also {
 									try {
 										Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
-										mConnectToBandLeaderThread =
+										connectToBandLeaderThread =
 											ConnectToServerThread(it, BAND_BLUETOOTH_UUID) { socket ->
 												setServerConnection(socket, receiverTasks)
 											}.apply { start() }
@@ -233,9 +233,9 @@ object BandBluetoothController : CoroutineScope {
 
 					BluetoothMode.Server -> {
 						shutDownBluetoothClient(receiverTasks)
-						if (mServerBluetoothThread == null) {
+						if (bandLeaderThread == null) {
 							Logger.logComms("Starting Bluetooth server thread.")
-							mServerBluetoothThread =
+							bandLeaderThread =
 								ServerThread(bluetoothAdapter, BAND_BLUETOOTH_UUID) { socket ->
 									handleConnectionFromClient(socket, senderTask)
 								}.apply { start() }

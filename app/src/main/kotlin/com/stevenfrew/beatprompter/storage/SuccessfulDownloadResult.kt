@@ -9,15 +9,15 @@ import java.io.File
  */
 class SuccessfulDownloadResult(
 	fileInfo: FileInfo,
-	private val mDownloadedFile: File
+	private val downloadedFile: File
 ) : DownloadResult(fileInfo) {
 	val cachedCloudFile
 		get() =
 			CachedFile(
-				mDownloadedFile,
-				mFileInfo.mID,
-				mFileInfo.mName,
-				mFileInfo.mLastModified,
-				mFileInfo.mSubfolderIDs
+				downloadedFile,
+				fileInfo.id,
+				fileInfo.name,
+				fileInfo.lastModified,
+				fileInfo.subfolderIds
 			)
 }

@@ -14,18 +14,18 @@ class ImageFileParser(cachedCloudFile: CachedFile) : FileParser<ImageFile>(cache
 	override fun parse(element: Element?): ImageFile =
 		try {
 			ImageFile.readDimensionsFromAttributes(element)?.let {
-				ImageFile(mCachedCloudFile, it)
+				ImageFile(cachedCloudFile, it)
 			} ?: BitmapFactory.decodeFile(
-				mCachedCloudFile.mFile.absolutePath,
+				cachedCloudFile.file.absolutePath,
 				BitmapFactory.Options()
 			).let {
-				ImageFile(mCachedCloudFile, Size(it.width, it.height))
+				ImageFile(cachedCloudFile, Size(it.width, it.height))
 			}
 		} catch (e: Exception) {
 			// Not bothered about what the exception is. File is obviously shite.
 			null
 		} ?: throw InvalidBeatPrompterFileException(
 			R.string.could_not_read_image_file,
-			mCachedCloudFile.mName
+			cachedCloudFile.name
 		)
 }

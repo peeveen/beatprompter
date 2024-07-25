@@ -12,11 +12,11 @@ import com.stevenfrew.beatprompter.midi.alias.WildcardValue
 import org.w3c.dom.Element
 
 class SongTrigger(
-	private val mBankSelectMSB: Value,
-	private val mBankSelectLSB: Value,
-	private val mTriggerIndex: Value,
-	private val mChannel: Value,
-	private val mType: TriggerType
+	private val bankSelectMSB: Value,
+	private val bankSelectLSB: Value,
+	private val triggerIndex: Value,
+	private val channel: Value,
+	private val type: TriggerType
 ) {
 	constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType) : this(
 		CommandValue(msb),
@@ -27,65 +27,65 @@ class SongTrigger(
 	)
 
 	val isDeadTrigger: Boolean
-		get() = mType == TriggerType.SongSelect && mBankSelectMSB is NoValue && mBankSelectLSB is NoValue && mTriggerIndex is NoValue && mChannel is NoValue
+		get() = type == TriggerType.SongSelect && bankSelectMSB is NoValue && bankSelectLSB is NoValue && triggerIndex is NoValue && channel is NoValue
 
 	fun writeToXML(element: Element) {
-		element.setAttribute(MSB_ATTRIBUTE, "${mBankSelectMSB.resolve()}")
-		element.setAttribute(LSB_ATTRIBUTE, "${mBankSelectLSB.resolve()}")
-		element.setAttribute(TRIGGER_INDEX_ATTRIBUTE, "${mTriggerIndex.resolve()}")
-		element.setAttribute(CHANNEL_ATTRIBUTE, "${mChannel.resolve()}")
+		element.setAttribute(MSB_ATTRIBUTE, "${bankSelectMSB.resolve()}")
+		element.setAttribute(LSB_ATTRIBUTE, "${bankSelectLSB.resolve()}")
+		element.setAttribute(TRIGGER_INDEX_ATTRIBUTE, "${triggerIndex.resolve()}")
+		element.setAttribute(CHANNEL_ATTRIBUTE, "${channel.resolve()}")
 	}
 
 	override fun equals(other: Any?): Boolean =
 		if (other is SongTrigger) {
 			val mst = other as SongTrigger?
-			mst!!.mBankSelectMSB.matches(mBankSelectMSB) &&
-				mst.mBankSelectLSB.matches(mBankSelectLSB) &&
-				mst.mType == mType &&
-				mst.mTriggerIndex.matches(mTriggerIndex) &&
-				mst.mChannel.matches(mChannel)
+			mst!!.bankSelectMSB.matches(bankSelectMSB) &&
+				mst.bankSelectLSB.matches(bankSelectLSB) &&
+				mst.type == type &&
+				mst.triggerIndex.matches(triggerIndex) &&
+				mst.channel.matches(channel)
 		} else false
 
 	private fun canSend(): Boolean =
-		mTriggerIndex is CommandValue
-			&& mBankSelectLSB is CommandValue
-			&& mBankSelectMSB is CommandValue
+		triggerIndex is CommandValue
+			&& bankSelectLSB is CommandValue
+			&& bankSelectMSB is CommandValue
 
 	fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> =
 		mutableListOf<OutgoingMessage>().apply {
 			if (canSend())
-				if (mType == TriggerType.SongSelect)
-					add(SongSelectMessage(mTriggerIndex.resolve().toInt()))
+				if (type == TriggerType.SongSelect)
+					add(SongSelectMessage(triggerIndex.resolve().toInt()))
 				else {
-					val channel = if (mChannel is WildcardValue)
+					val channel = if (channel is WildcardValue)
 						defaultOutputChannel
 					else
-						mChannel.resolve()
+						channel.resolve()
 
 					add(
 						ControlChangeMessage(
 							Message.MIDI_MSB_BANK_SELECT_CONTROLLER,
-							mBankSelectMSB.resolve(),
+							bankSelectMSB.resolve(),
 							channel
 						)
 					)
 					add(
 						ControlChangeMessage(
 							Message.MIDI_LSB_BANK_SELECT_CONTROLLER,
-							mBankSelectLSB.resolve(),
+							bankSelectLSB.resolve(),
 							channel
 						)
 					)
-					add(ProgramChangeMessage(mTriggerIndex.resolve().toInt(), channel.toInt()))
+					add(ProgramChangeMessage(triggerIndex.resolve().toInt(), channel.toInt()))
 				}
 		}
 
 	override fun hashCode(): Int {
-		var result = mBankSelectMSB.hashCode()
-		result = 31 * result + mBankSelectLSB.hashCode()
-		result = 31 * result + mTriggerIndex.hashCode()
-		result = 31 * result + mChannel.hashCode()
-		result = 31 * result + mType.hashCode()
+		var result = bankSelectMSB.hashCode()
+		result = 31 * result + bankSelectLSB.hashCode()
+		result = 31 * result + triggerIndex.hashCode()
+		result = 31 * result + channel.hashCode()
+		result = 31 * result + type.hashCode()
 		return result
 	}
 

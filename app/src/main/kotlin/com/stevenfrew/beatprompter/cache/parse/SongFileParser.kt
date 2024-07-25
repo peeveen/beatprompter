@@ -24,7 +24,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 abstract class SongFileParser<TResultType>(
 	cachedCloudFile: CachedFile,
 	initialScrollMode: ScrollingMode,
-	private val mAllowModeChange: Boolean,
+	private val allowModeChange: Boolean,
 	reportUnexpectedTags: Boolean
 ) : TextFileParser<TResultType>(
 	cachedCloudFile,
@@ -33,23 +33,24 @@ abstract class SongFileParser<TResultType>(
 	ChordFinder,
 	ShorthandFinder
 ) {
-	protected var mOngoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
-	protected var mCurrentLineBeatInfo: LineBeatInfo = LineBeatInfo(mOngoingBeatInfo)
+	protected var ongoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
+	protected var currentLineBeatInfo: LineBeatInfo = LineBeatInfo(ongoingBeatInfo)
+
 	// Audio files are now a 2D array ... list of audio files per variation.
-	protected val mAudioFiles = mutableMapOf<String,MutableList<String>>()
-	protected val mVariations = mutableListOf<String>()
+	protected val audioFiles = mutableMapOf<String, MutableList<String>>()
+	protected val variations = mutableListOf<String>()
 
 	override fun parseLine(line: TextFileLine<TResultType>) {
-		val lastLineBeatInfo = mCurrentLineBeatInfo
+		val lastLineBeatInfo = currentLineBeatInfo
 
-		val commaBars = line.mTags.filterIsInstance<BarMarkerTag>().size
+		val commaBars = line.tags.filterIsInstance<BarMarkerTag>().size
 		var thisScrollBeatTotalOffset = line
-			.mTags
+			.tags
 			.filterIsInstance<ScrollBeatModifierTag>()
-			.sumOf { it.mModifier }
+			.sumOf { it.modifier }
 
 		// ... or by a tag (which overrides commas)
-		val tagSequence = line.mTags.asSequence()
+		val tagSequence = line.tags.asSequence()
 		val barsTag = tagSequence.filterIsInstance<BarsTag>().firstOrNull()
 		val barsPerLineTag = tagSequence.filterIsInstance<BarsPerLineTag>().firstOrNull()
 		val beatsPerBarTag = tagSequence.filterIsInstance<BeatsPerBarTag>().firstOrNull()
@@ -60,34 +61,39 @@ abstract class SongFileParser<TResultType>(
 
 		// Variations can only be defined once.
 		if (variationsTags.any()) {
-			if (mVariations.isEmpty()) {
-				mVariations.addAll(variationsTags.flatMap { it.mVariations })
-				mVariations.forEach {
-					mAudioFiles[it] = mutableListOf()
+			if (variations.isEmpty()) {
+				variations.addAll(variationsTags.flatMap { it.variations })
+				variations.forEach {
+					audioFiles[it] = mutableListOf()
 				}
 			} else
-				mErrors.add(FileParseError(line.mLineNumber, R.string.variationsAlreadyDefined))
+				errors.add(FileParseError(line.lineNumber, R.string.variationsAlreadyDefined))
 		}
 
 		// Each audio file defined on a line now maps to a variation.
 		// The audio filename itself can be a variation name is no explicitly-named variations
 		// have been defined. Otherwise, they are mapped to variation by index.
-		val noVariationsDefined = mVariations.isEmpty()
+		val noVariationsDefined = variations.isEmpty()
 		audioTags.forEachIndexed { index, it ->
-			val variationNames = getVariationNamesForIndexedAudioFile(index, line.mLineNumber, it.mFilename, noVariationsDefined)
-			variationNames?.forEach { variationName -> mAudioFiles[variationName]?.add(it.mFilename) }
+			val variationNames = getVariationNamesForIndexedAudioFile(
+				index,
+				line.lineNumber,
+				it.filename,
+				noVariationsDefined
+			)
+			variationNames?.forEach { variationName -> audioFiles[variationName]?.add(it.filename) }
 		}
 
 		// Commas take precedence.
-		val barsInThisLine = if (commaBars == 0) barsTag?.mBars ?: barsPerLineTag?.mBPL
-		?: mOngoingBeatInfo.mBPL else commaBars
+		val barsInThisLine = if (commaBars == 0) barsTag?.bars ?: barsPerLineTag?.bpl
+		?: ongoingBeatInfo.mBPL else commaBars
 
-		val beatsPerBarInThisLine = beatsPerBarTag?.mBPB ?: mOngoingBeatInfo.mBPB
-		val beatsPerMinuteInThisLine = beatsPerMinuteTag?.mBPM ?: mOngoingBeatInfo.mBPM
-		var scrollBeatInThisLine = scrollBeatTag?.mScrollBeat ?: mOngoingBeatInfo.mScrollBeat
+		val beatsPerBarInThisLine = beatsPerBarTag?.bpb ?: ongoingBeatInfo.mBPB
+		val beatsPerMinuteInThisLine = beatsPerMinuteTag?.bpm ?: ongoingBeatInfo.mBPM
+		var scrollBeatInThisLine = scrollBeatTag?.scrollBeat ?: ongoingBeatInfo.mScrollBeat
 
-		val previousBeatsPerBar = mOngoingBeatInfo.mBPB
-		val previousScrollBeat = mOngoingBeatInfo.mScrollBeat
+		val previousBeatsPerBar = ongoingBeatInfo.mBPB
+		val previousScrollBeat = ongoingBeatInfo.mScrollBeat
 		// If the beats-per-bar have changed, and there is no indication of what the new scrollbeat should be,
 		// set the new scrollbeat to have the same "difference" as before. For example, if the old BPB was 4,
 		// and the scrollbeat was 3 (one less than BPB), a new BPB of 6 should have a scrollbeat of 5 (one
@@ -105,7 +111,7 @@ abstract class SongFileParser<TResultType>(
 		thisScrollBeatTotalOffset += scrollBeatTagDiff
 
 		if ((beatsPerBarInThisLine != 0) && (thisScrollBeatTotalOffset < -beatsPerBarInThisLine || thisScrollBeatTotalOffset >= beatsPerBarInThisLine)) {
-			mErrors.add(FileParseError(line.mLineNumber, R.string.scrollbeatOffTheMap))
+			errors.add(FileParseError(line.lineNumber, R.string.scrollbeatOffTheMap))
 			thisScrollBeatTotalOffset = 0
 		}
 
@@ -115,10 +121,10 @@ abstract class SongFileParser<TResultType>(
 
 		// Multiple beatstart or beatstop tags on the same line are nonsensical
 		val newScrollMode =
-			if (mAllowModeChange && beatModeTags.size == 1)
+			if (allowModeChange && beatModeTags.size == 1)
 				if (beatStartTags.isNotEmpty())
-					if (mOngoingBeatInfo.mBPM == 0.0) {
-						mErrors.add(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
+					if (ongoingBeatInfo.mBPM == 0.0) {
+						errors.add(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
 						lastLineBeatInfo.mScrollMode
 					} else
 						ScrollingMode.Beat
@@ -133,15 +139,15 @@ abstract class SongFileParser<TResultType>(
 			((beatsPerBarInThisLine * barsInThisLine)
 				- lastScrollBeatTotalOffset) + thisScrollBeatTotalOffset
 
-		mOngoingBeatInfo = SongBeatInfo(
-			barsPerLineTag?.mBPL
-				?: mOngoingBeatInfo.mBPL,
+		ongoingBeatInfo = SongBeatInfo(
+			barsPerLineTag?.bpl
+				?: ongoingBeatInfo.mBPL,
 			beatsPerBarInThisLine,
 			beatsPerMinuteInThisLine,
 			scrollBeatInThisLine,
-			mOngoingBeatInfo.mScrollMode
+			ongoingBeatInfo.mScrollMode
 		)
-		mCurrentLineBeatInfo = LineBeatInfo(
+		currentLineBeatInfo = LineBeatInfo(
 			beatsForThisLine,
 			barsInThisLine,
 			beatsPerBarInThisLine,
@@ -153,15 +159,20 @@ abstract class SongFileParser<TResultType>(
 		)
 	}
 
-	private fun getVariationNamesForIndexedAudioFile(index:Int, lineNumber:Int, filename:String, canAddVariation: Boolean):List<String>? {
-		if(mVariations.size > index)
-			return mVariations.takeLast(mVariations.size-index)
-		if(canAddVariation) {
-			mVariations.add(filename)
-			mAudioFiles[filename] = mutableListOf()
+	private fun getVariationNamesForIndexedAudioFile(
+		index: Int,
+		lineNumber: Int,
+		filename: String,
+		canAddVariation: Boolean
+	): List<String>? {
+		if (variations.size > index)
+			return variations.takeLast(variations.size - index)
+		if (canAddVariation) {
+			variations.add(filename)
+			audioFiles[filename] = mutableListOf()
 			return listOf(filename)
 		}
-		mErrors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
+		errors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
 		return null
 	}
 

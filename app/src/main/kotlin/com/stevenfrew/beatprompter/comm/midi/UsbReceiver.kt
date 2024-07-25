@@ -10,14 +10,14 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class UsbReceiver(
-	private val mConnection: UsbDeviceConnection,
-	private val mEndpoint: UsbEndpoint,
+	private val connection: UsbDeviceConnection,
+	private val endpoint: UsbEndpoint,
 	name: String,
 	type: CommunicationType
 ) : Receiver(name, type), CoroutineScope {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.IO
-	private var mClosed = false
+	private var closed = false
 
 	init {
 		// Read all incoming data until there is none left. Basically, clear anything that
@@ -27,10 +27,10 @@ class UsbReceiver(
 		launch {
 			var bufferClear = 0
 			var dataRead: Int
-			val wasteBuffer = ByteArray(mEndpoint.maxPacketSize)
+			val wasteBuffer = ByteArray(endpoint.maxPacketSize)
 			do {
-				dataRead = mConnection.bulkTransfer(
-					mEndpoint,
+				dataRead = connection.bulkTransfer(
+					endpoint,
 					wasteBuffer, wasteBuffer.size, 1000
 				)
 				if (dataRead > 0)
@@ -41,9 +41,9 @@ class UsbReceiver(
 
 	override fun close() =
 		try {
-			mConnection.close()
+			connection.close()
 		} finally {
-			mClosed = true
+			closed = true
 		}
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
@@ -53,8 +53,8 @@ class UsbReceiver(
 				buffer
 			else
 				ByteArray(maxRead)
-		return mConnection.bulkTransfer(
-			mEndpoint,
+		return connection.bulkTransfer(
+			endpoint,
 			newArray,
 			maxRead,
 			500
@@ -63,7 +63,7 @@ class UsbReceiver(
 				if (offset != 0)
 					System.arraycopy(newArray, 0, buffer, offset, it)
 			} else if (it == -1)
-				if (mClosed)
+				if (closed)
 					throw Exception("Cannot read data, USB connection is closed.")
 		}
 	}

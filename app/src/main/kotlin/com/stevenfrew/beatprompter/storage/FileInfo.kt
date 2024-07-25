@@ -8,8 +8,8 @@ import java.util.Date
 open class FileInfo(
 	id: String,
 	name: String,
-	val mLastModified: Date,
-	val mSubfolderIDs: List<String> = listOf("")
+	val lastModified: Date,
+	val subfolderIds: List<String> = listOf("")
 ) : ItemInfo(id, name) {
 	internal constructor(
 		id: String,

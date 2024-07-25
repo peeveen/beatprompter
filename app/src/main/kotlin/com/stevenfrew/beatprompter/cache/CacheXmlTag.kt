@@ -4,4 +4,4 @@ package com.stevenfrew.beatprompter.cache
 /**
  * Annotation that tells the parser what XML tags describe what filetypes.
  */
-annotation class CacheXmlTag(val mTag: String)
+annotation class CacheXmlTag(val tag: String)

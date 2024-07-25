@@ -7,48 +7,48 @@ import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 import com.stevenfrew.beatprompter.util.Utils
 
 class ClockSignalGeneratorTask : Task(false) {
-	private var mLastSignalTime = 0.0
-	private var mClockSignalsSent = 0
-	private var mNanoSecondsPerMidiSignal = 0.0
-	private var mNextNanoSecondsPerMidiSignal = 0.0
+	private var _lastSignalTime = 0.0
+	private var _clockSignalsSent = 0
+	private var _nanoSecondsPerMidiSignal = 0.0
+	private var _nextNanoSecondsPerMidiSignal = 0.0
 	private val nanoSecondsPerMidiSignalSync = Any()
 	private val nextNanoSecondsPerMidiSignalSync = Any()
 	private val lastSignalTimeSync = Any()
 	private val clockSignalsSentSync = Any()
 	private var nanoSecondsPerMidiSignal: Double
 		get() = synchronized(nanoSecondsPerMidiSignalSync) {
-			return mNanoSecondsPerMidiSignal
+			return _nanoSecondsPerMidiSignal
 		}
 		set(value) = synchronized(nanoSecondsPerMidiSignalSync) {
-			mNanoSecondsPerMidiSignal = value
+			_nanoSecondsPerMidiSignal = value
 		}
 	private var nextNanoSecondsPerMidiSignal: Double
 		get() = synchronized(nextNanoSecondsPerMidiSignalSync) {
-			return mNextNanoSecondsPerMidiSignal
+			return _nextNanoSecondsPerMidiSignal
 		}
 		set(value) = synchronized(nextNanoSecondsPerMidiSignalSync) {
-			mNextNanoSecondsPerMidiSignal = value
+			_nextNanoSecondsPerMidiSignal = value
 		}
 	private var lastSignalTime: Double
 		get() = synchronized(lastSignalTimeSync) {
-			return mLastSignalTime
+			return _lastSignalTime
 		}
 		set(value) = synchronized(lastSignalTimeSync) {
-			mLastSignalTime = value
+			_lastSignalTime = value
 		}
 	private val clockSignalsSent: Int
 		get() = synchronized(clockSignalsSentSync) {
-			return mClockSignalsSent
+			return _clockSignalsSent
 		}
 
 	private fun incrementClockSignalsSent(): Int =
 		synchronized(clockSignalsSentSync) {
-			return ++mClockSignalsSent
+			return ++_clockSignalsSent
 		}
 
 	private fun resetClockSignalsSent() =
 		synchronized(clockSignalsSentSync) {
-			mClockSignalsSent = 0
+			_clockSignalsSent = 0
 		}
 
 	override fun doWork() {

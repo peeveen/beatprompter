@@ -16,5 +16,5 @@ class ArtistTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mArtist: String
-) : ValueTag(name, lineNumber, position, mArtist)
+	val artist: String
+) : ValueTag(name, lineNumber, position, artist)

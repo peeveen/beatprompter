@@ -16,5 +16,5 @@ class SetNameTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mSetName: String
-) : ValueTag(name, lineNumber, position, mSetName)
+	val setName: String
+) : ValueTag(name, lineNumber, position, setName)

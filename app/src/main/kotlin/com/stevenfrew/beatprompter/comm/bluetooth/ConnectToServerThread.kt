@@ -11,28 +11,28 @@ import java.util.UUID
  * A thread that continuously attempts to connect to a band leader.
  */
 internal class ConnectToServerThread(
-	private val mDevice: BluetoothDevice,
-	private val mUUID: UUID,
-	private val mOnConnectedFunction: (socket: BluetoothSocket) -> Unit
+	private val device: BluetoothDevice,
+	private val uuid: UUID,
+	private val onConnectedFunction: (socket: BluetoothSocket) -> Unit
 ) : Thread() {
-	private var mmSocket: BluetoothSocket? = null
-	private var mStop = false
+	private var socket: BluetoothSocket? = null
+	private var stop = false
 
 	override fun run() {
-		while (!mStop)
+		while (!stop)
 			if (!Bluetooth.isConnectedToServer)
 				try {
 					// Connect the device through the socket. This will block
 					// until it succeeds or throws an exception, which can happen
 					// if it doesn't find anything to connect to within about 4 seconds.
-					Logger.logComms { "Attempting to connect to a Bluetooth server on '${mDevice.name}'." }
-					mDevice.createRfcommSocketToServiceRecord(mUUID)?.also {
+					Logger.logComms { "Attempting to connect to a Bluetooth server on '${device.name}'." }
+					device.createRfcommSocketToServiceRecord(uuid)?.also {
 						it.connect()
 						// If the previous line didn't throw an IOException, then it connected OK.
 						// Do work to manage the connection (in a separate thread)
-						Logger.logComms { "Connected to a Bluetooth server on '${mDevice.name}'." }
-						mmSocket = it
-						mOnConnectedFunction(it)
+						Logger.logComms { "Connected to a Bluetooth server on '${device.name}'." }
+						socket = it
+						onConnectedFunction(it)
 
 					}
 				} catch (se: SecurityException) {
@@ -42,7 +42,7 @@ internal class ConnectToServerThread(
 					)
 				} catch (connectException: Exception) {
 					// There probably isn't a server to connect to. Wait a bit and try again.
-					Logger.logComms { "Failed to connect to a server on '${mDevice.name}'." }
+					Logger.logComms { "Failed to connect to a server on '${device.name}'." }
 					Utils.safeThreadWait(1000)
 				}
 			else {
@@ -55,7 +55,7 @@ internal class ConnectToServerThread(
 	 *  Will cancel an in-progress connection, and close the socket
 	 */
 	internal fun stopTrying() {
-		mStop = true
+		stop = true
 		closeSocket()
 	}
 
@@ -65,7 +65,7 @@ internal class ConnectToServerThread(
 	private fun closeSocket() =
 		try {
 			Logger.logComms("Closing the server searching socket.")
-			mmSocket?.close()
+			socket?.close()
 			Logger.logComms("Closed the server searching socket.")
 		} catch (e: IOException) {
 			Logger.logComms("Error closing Bluetooth socket.", e)

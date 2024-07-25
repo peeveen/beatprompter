@@ -5,25 +5,25 @@ import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
-class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
-	private val mSenders = mutableListOf<Sender>()
-	private val mSendersLock = Any()
+class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
+	private val senders = mutableListOf<Sender>()
+	private val sendersLock = Any()
 
 	override fun doWork() =
 		try {
 			// This take() will block if the queue is empty
-			val messages = mMessageQueue.getMessages()
+			val messages = messageQueue.getMessages()
 
-			synchronized(mSendersLock) {
-				for (f in mSenders.size - 1 downTo 0) {
+			synchronized(sendersLock) {
+				for (f in senders.size - 1 downTo 0) {
 					// Sanity check in case a dead sender was removed.
-					if (f < mSenders.size) {
+					if (f < senders.size) {
 						try {
-							mSenders[f].send(messages)
+							senders[f].send(messages)
 						} catch (commException: Exception) {
 							// Problem with the I/O? This sender is now dead to us.
 							Logger.logComms("Sender threw an exception. Assuming it to be dead.")
-							removeSender(mSenders[f].name)
+							removeSender(senders[f].name)
 						}
 					}
 				}
@@ -33,9 +33,9 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 		}
 
 	fun addSender(id: String, sender: Sender) =
-		synchronized(mSendersLock) {
+		synchronized(sendersLock) {
 			Logger.logComms { "Adding new sender '$id' (${sender.name}) to the collection" }
-			mSenders.add(sender)
+			senders.add(sender)
 		}
 
 	fun removeSender(id: String) =
@@ -43,8 +43,8 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 			Logger.logComms { "Removing sender '$id' from the collection" }
 			closeSender(sender)
 			Logger.logComms { "Sender '$id' has been closed." }
-			synchronized(mSendersLock) {
-				mSenders.removeAll { it.name == id }
+			synchronized(sendersLock) {
+				senders.removeAll { it.name == id }
 			}
 			Logger.logComms { "Sender '$id' is now dead ... notifying main activity for UI." }
 			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, sender.name)
@@ -52,16 +52,16 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 
 	fun removeAll(type: CommunicationType? = null) {
 		Logger.logComms("Removing ALL senders of type '${type}' from the collection.")
-		synchronized(mSendersLock) {
+		synchronized(sendersLock) {
 			// Avoid concurrent modification exception by converting to array.
-			val senderArray = mSenders.filter { type == null || it.type == type }.toTypedArray()
+			val senderArray = senders.filter { type == null || it.type == type }.toTypedArray()
 			senderArray.forEach { removeSender(it.name) }
 		}
 	}
 
 	private fun getSender(id: String): Sender? =
-		synchronized(mSendersLock) {
-			return mSenders.firstOrNull { it.name == id }
+		synchronized(sendersLock) {
+			return senders.firstOrNull { it.name == id }
 		}
 
 	private fun closeSender(sender: Sender?) =
@@ -72,7 +72,7 @@ class SenderTask(private val mMessageQueue: MessageQueue) : Task(false) {
 		}
 
 	val senderCount: Int
-		get() = synchronized(mSendersLock) {
-			mSenders.size
+		get() = synchronized(sendersLock) {
+			senders.size
 		}
 }

@@ -5,10 +5,10 @@ import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 
 class MidiMessageQueue(capacity: Int) : MessageQueue(capacity) {
 	internal fun addBeatClockMessages(amount: Int) =
-		synchronized(mBlockingQueue)
+		synchronized(blockingQueue)
 		{
 			repeat(amount) {
-				mBlockingQueue.put(ClockMessage)
+				blockingQueue.put(ClockMessage)
 			}
 		}
 }

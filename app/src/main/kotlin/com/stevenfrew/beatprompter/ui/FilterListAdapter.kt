@@ -22,14 +22,14 @@ class FilterListAdapter(
 	private val onSelectedTagsChanged: () -> Unit
 ) :
 	ArrayAdapter<Filter>(context, -1, values) {
-	private val mInflater = context
+	private val inflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-		(convertView ?: mInflater.inflate(R.layout.filter_item_selected, parent, false)).also {
+		(convertView ?: inflater.inflate(R.layout.filter_item_selected, parent, false)).also {
 			val titleView = it.findViewById<TextView>(R.id.filtertitleselected)
 			val filter = values[position]
-			titleView.text = filter.mName
+			titleView.text = filter.name
 		}
 
 	override fun getDropDownView(
@@ -37,7 +37,7 @@ class FilterListAdapter(
 		convertView: View?,
 		parent: ViewGroup
 	): View =
-		mInflater.inflate(R.layout.filter_list_item, parent, false).also {
+		inflater.inflate(R.layout.filter_list_item, parent, false).also {
 			val titleView = it.findViewById<TextView>(R.id.filtertitle)
 			val filterIcon = it.findViewById<ImageView>(R.id.filterIcon)
 			val filterSelectedIcon = it.findViewById<ImageView>(R.id.filterSelectedIcon)
@@ -66,6 +66,6 @@ class FilterListAdapter(
 			} else
 				filterSelectedIcon.visibility = View.GONE
 			filterIcon.setImageResource(iconResource)
-			titleView.text = filter.mName
+			titleView.text = filter.name
 		}
 }

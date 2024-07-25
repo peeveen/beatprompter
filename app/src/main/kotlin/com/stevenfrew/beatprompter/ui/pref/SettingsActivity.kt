@@ -11,14 +11,14 @@ import com.stevenfrew.beatprompter.events.Events
 
 class SettingsActivity : AppCompatActivity(),
 	PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
-	private val mFragment = SettingsFragment()
+	private val fragment = SettingsFragment()
 
 	public override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
 		supportFragmentManager
 			.beginTransaction()
-			.replace(android.R.id.content, mFragment)
+			.replace(android.R.id.content, fragment)
 			.commit()
 	}
 
@@ -30,8 +30,8 @@ class SettingsActivity : AppCompatActivity(),
 		val ft: FragmentTransaction = supportFragmentManager.beginTransaction()
 		val args = Bundle()
 		args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.key)
-		mFragment.arguments = args
-		ft.replace(android.R.id.content, mFragment, preferenceScreen.key)
+		fragment.arguments = args
+		ft.replace(android.R.id.content, fragment, preferenceScreen.key)
 		ft.addToBackStack(preferenceScreen.key)
 		ft.commit()
 		return true

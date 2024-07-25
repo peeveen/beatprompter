@@ -104,8 +104,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 				}
 			cs.selectFolder(requireActivity(), object : FolderSelectionListener {
 				override fun onFolderSelected(folderInfo: FolderInfo) {
-					Preferences.cloudDisplayPath = folderInfo.mDisplayPath
-					Preferences.cloudPath = folderInfo.mID
+					Preferences.cloudDisplayPath = folderInfo.displayPath
+					Preferences.cloudPath = folderInfo.id
 				}
 
 				override fun onFolderSelectedError(t: Throwable, context: Context) =

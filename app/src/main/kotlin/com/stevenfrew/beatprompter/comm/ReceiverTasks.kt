@@ -3,15 +3,15 @@ package com.stevenfrew.beatprompter.comm
 import com.stevenfrew.beatprompter.Logger
 
 class ReceiverTasks {
-	private val mReceiverThreads = mutableMapOf<String, Thread>()
-	private val mReceiverTasks = mutableMapOf<String, ReceiverTask>()
-	private val mReceiverThreadsLock = Any()
+	private val receiverThreads = mutableMapOf<String, Thread>()
+	private val receiverTasks = mutableMapOf<String, ReceiverTask>()
+	private val receiverThreadsLock = Any()
 
 	fun addReceiver(id: String, name: String, receiver: Receiver) =
-		synchronized(mReceiverThreadsLock) {
+		synchronized(receiverThreadsLock) {
 			Logger.logComms { "Starting new receiver task '$id:' ($name)" }
-			mReceiverTasks[id] = ReceiverTask(name, receiver).also {
-				mReceiverThreads[id] = Thread(it).also { th ->
+			receiverTasks[id] = ReceiverTask(name, receiver).also {
+				receiverThreads[id] = Thread(it).also { th ->
 					th.start()
 				}
 			}
@@ -19,9 +19,9 @@ class ReceiverTasks {
 		}
 
 	fun stopAndRemoveReceiver(id: String) {
-		val (receiverTask, receiverThread) = synchronized(mReceiverThreadsLock) {
+		val (receiverTask, receiverThread) = synchronized(receiverThreadsLock) {
 			Logger.logComms { "Removing receiver task '$id'" }
-			(mReceiverTasks.remove(id) to mReceiverThreads.remove(id)).also {
+			(receiverTasks.remove(id) to receiverThreads.remove(id)).also {
 				Logger.logComms { "Removed receiver task '$id'" }
 			}
 		}
@@ -38,14 +38,14 @@ class ReceiverTasks {
 	}
 
 	fun stopAndRemoveAll(type: CommunicationType? = null) =
-		synchronized(mReceiverThreadsLock) {
+		synchronized(receiverThreadsLock) {
 			Logger.logComms("Stopping ALL receiver tasks of type '${type}'")
-			mReceiverTasks.filter { type == null || it.value.type == type }.keys.forEach {
+			receiverTasks.filter { type == null || it.value.type == type }.keys.forEach {
 				stopAndRemoveReceiver(it)
 			}
 			Logger.logComms("Stopped ALL receiver tasks of type '${type}")
 		}
 
 	val taskCount: Int
-		get() = synchronized(mReceiverThreadsLock) { mReceiverTasks.size }
+		get() = synchronized(receiverThreadsLock) { receiverTasks.size }
 }

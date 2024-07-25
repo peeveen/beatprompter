@@ -19,5 +19,5 @@ class BeatsPerMinuteTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mBPM = TagParsingUtility.parseDoubleValue(value, 10, 300)
+	val bpm = TagParsingUtility.parseDoubleValue(value, 10, 300)
 }

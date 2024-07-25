@@ -17,24 +17,24 @@ import com.stevenfrew.beatprompter.comm.SenderTask
  * General Bluetooth management singleton object.
  */
 object Bluetooth {
-	private var mInitialised = false
+	private var initialised = false
 
 	private const val BLUETOOTH_QUEUE_SIZE = 4096
-	private val mBluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
-	private val mSenderTask = SenderTask(mBluetoothOutQueue)
-	private val mReceiverTasks = ReceiverTasks()
-	private val mSenderTaskThread = Thread(mSenderTask)
+	private val bluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
+	private val senderTask = SenderTask(bluetoothOutQueue)
+	private val receiverTasks = ReceiverTasks()
+	private val senderTaskThread = Thread(senderTask)
 
 	/**
 	 * Called when the app starts. Doing basic Bluetooth setup.
 	 */
 	fun initialize(context: Context) {
-		mSenderTaskThread.start()
-		Task.resumeTask(mSenderTask)
+		senderTaskThread.start()
+		Task.resumeTask(senderTask)
 
-		BandBluetoothController.initialize(context, mSenderTask, mReceiverTasks)
+		BandBluetoothController.initialize(context, senderTask, receiverTasks)
 
-		mInitialised = true
+		initialised = true
 	}
 
 	fun getBluetoothAdapter(context: Context): BluetoothAdapter? =
@@ -59,17 +59,17 @@ object Bluetooth {
 	 * Do we have a connection to a band leader?
 	 */
 	val isConnectedToServer: Boolean
-		get() = mReceiverTasks.taskCount > 0
+		get() = receiverTasks.taskCount > 0
 
 	/**
 	 * As a band leader, how many band members are we connected to?
 	 */
 	val bluetoothClientCount: Int
-		get() = mSenderTask.senderCount
+		get() = senderTask.senderCount
 
 	internal fun putMessage(message: OutgoingMessage) {
-		if (mInitialised) mBluetoothOutQueue.putMessage(message)
+		if (initialised) bluetoothOutQueue.putMessage(message)
 	}
 
-	fun removeReceiver(task: ReceiverTask) = mReceiverTasks.stopAndRemoveReceiver(task.mName)
+	fun removeReceiver(task: ReceiverTask) = receiverTasks.stopAndRemoveReceiver(task.name)
 }

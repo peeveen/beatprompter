@@ -8,9 +8,9 @@ import com.stevenfrew.beatprompter.midi.EventOffset
  */
 class MIDIEvent(
 	time: Long,
-	val mMessages: List<OutgoingMessage>,
-	val mOffset: EventOffset = EventOffset(0)
+	val messages: List<OutgoingMessage>,
+	val offset: EventOffset = EventOffset(0)
 ) : BaseEvent(time) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		MIDIEvent(mEventTime + nanoseconds, mMessages, mOffset)
+		MIDIEvent(eventTime + nanoseconds, messages, offset)
 }

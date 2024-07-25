@@ -21,91 +21,92 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.UUID
 
 class Song(
-	val mSongFile: SongFile,
-	val mDisplaySettings: DisplaySettings,
+	val songFile: SongFile,
+	val displaySettings: DisplaySettings,
 	firstEvent: LinkedEvent,
-	private val mLines: List<Line>,
-	internal val mAudioEvents: List<AudioEvent>,
-	val mInitialMIDIMessages: List<OutgoingMessage>,
-	private val mBeatBlocks: List<BeatBlock>,
-	val mSendMIDIClock: Boolean,
-	val mStartScreenStrings: List<ScreenString>,
-	val mNextSongString: ScreenString?,
-	val mTotalStartScreenTextHeight: Int,
-	val mStartedByBandLeader: Boolean,
-	val mNextSong: String,
-	val mDisplayOffset: Int,
-	val mHeight: Int,
-	val mScrollEndPixel: Int,
-	val mNoScrollLines: List<Line>,
-	val mBeatCounterRect: Rect,
-	val mSongTitleHeader: ScreenString,
-	val mSongTitleHeaderLocation: PointF,
-	val mLoadID: UUID,
-	private val mAudioLatency: Int
+	private val lines: List<Line>,
+	internal val audioEvents: List<AudioEvent>,
+	val initialMidiMessages: List<OutgoingMessage>,
+	private val beatBlocks: List<BeatBlock>,
+	val sendMidiClock: Boolean,
+	val startScreenStrings: List<ScreenString>,
+	val nextSongString: ScreenString?,
+	val totalStartScreenTextHeight: Int,
+	val wasStartedByBandLeader: Boolean,
+	val nextSong: String,
+	val displayOffset: Int,
+	val height: Int,
+	val scrollEndPixel: Int,
+	val noScrollLines: List<Line>,
+	val beatCounterRect: Rect,
+	val songTitleHeader: ScreenString,
+	val songTitleHeaderLocation: PointF,
+	val loadId: UUID,
+	private val audioLatency: Int
 ) {
-	internal var mCurrentLine: Line = mLines.first()
-	internal var mCurrentEvent = firstEvent // Last event that executed.
-	private var mNextEvent: LinkedEvent? = firstEvent.mNextEvent // Upcoming event.
-	var mCancelled = false
-	private val mNumberOfMIDIBeatBlocks = mBeatBlocks.size
-	val mSmoothMode: Boolean =
-		mLines.asSequence().filter { it.mScrollMode === ScrollingMode.Smooth }.any()
-	val mManualMode: Boolean = mLines.all { it.mScrollMode === ScrollingMode.Manual }
-	internal val mBackingTrack = findBackingTrack(firstEvent)
+	internal var currentLine: Line = lines.first()
+	internal var currentEvent = firstEvent // Last event that executed.
+	private var nextEvent: LinkedEvent? = firstEvent.nextEvent // Upcoming event.
+	private val numberOfMidiBeatBlocks = beatBlocks.size
+
+	var cancelled = false
+	val smoothMode: Boolean =
+		lines.asSequence().filter { it.scrollMode === ScrollingMode.Smooth }.any()
+	val manualMode: Boolean = lines.all { it.scrollMode === ScrollingMode.Manual }
+	internal val backingTrack = findBackingTrack(firstEvent)
 
 	private fun getProgressLineEvent(event: LinkedEvent): LineEvent? {
 		var nextEvent: LinkedEvent? = event
-		val latencyCompensatedEventTime = event.time + Utils.milliToNano(mAudioLatency)
+		val latencyCompensatedEventTime = event.time + Utils.milliToNano(audioLatency)
 		// Look at events where the time is the SAME as the progress event, or
 		// the same with audio latency compensation.
 		while (nextEvent != null) {
-			if (nextEvent.mEvent is LineEvent)
+			if (nextEvent.event is LineEvent)
 				if (nextEvent.time == latencyCompensatedEventTime) // This is the line
-					return nextEvent.mEvent as LineEvent
+					return nextEvent.event as LineEvent
 				else // Found a line event with a daft time
 					break
-			nextEvent = nextEvent.mNextEvent
+			nextEvent = nextEvent.nextEvent
 		}
 		// Nothing else for it, use the previous line
-		return event.mPrevLineEvent
+		return event.previousLineEvent
 	}
 
 	internal fun setProgress(nano: Long) {
-		val e = mCurrentEvent
+		val e = currentEvent
 		val newCurrentEvent = e.findLatestEventOnOrBefore(nano)
-		mCurrentEvent = newCurrentEvent
-		mNextEvent = mCurrentEvent.mNextEvent
+		currentEvent = newCurrentEvent
+		nextEvent = currentEvent.nextEvent
 		// Annoyingly, mPrevLineEvent is sometimes the line event
 		// BEFORE the current one ... this happens if the progress
 		// event is an Audio or Midi event, which are placed higher
 		// in the priority queue.
 		val lineEvent = getProgressLineEvent(newCurrentEvent)
-		mCurrentLine = lineEvent?.mLine ?: mLines.first()
+		currentLine = lineEvent?.line ?: lines.first()
 	}
 
 	internal fun getNextEvent(time: Long): LinkedEvent? =
-		if (mNextEvent != null && mNextEvent!!.time <= time) {
-			mCurrentEvent = mNextEvent!!
-			mNextEvent = mNextEvent!!.mNextEvent
-			mCurrentEvent
+		if (nextEvent != null && nextEvent!!.time <= time) {
+			currentEvent = nextEvent!!
+			nextEvent = nextEvent!!.nextEvent
+			currentEvent
 		} else null
 
 	internal fun getTimeFromPixel(pixel: Int): Long =
-		if (pixel == 0) 0 else mCurrentLine.getTimeFromPixel(pixel)
+		if (pixel == 0) 0 else currentLine.getTimeFromPixel(pixel)
 
 	internal fun getPixelFromTime(time: Long): Int =
-		if (time == 0L) 0 else mCurrentLine.getPixelFromTime(time)
+		if (time == 0L) 0 else currentLine.getPixelFromTime(time)
 
 	internal fun recycleGraphics() =
-		mLines.forEach {
+		lines.forEach {
 			it.recycleGraphics()
 		}
 
 	internal fun getMIDIBeatTime(beat: Int): Long {
-		repeat(mNumberOfMIDIBeatBlocks) {
-			val (blockStartTime, midiBeatCount, nanoPerBeat) = mBeatBlocks[it]
-			if (midiBeatCount <= beat && (it + 1 == mNumberOfMIDIBeatBlocks || mBeatBlocks[it + 1].midiBeatCount > beat))
+		repeat(numberOfMidiBeatBlocks) {
+			val (blockStartTime, midiBeatCount, nanoPerBeat) = beatBlocks[it]
+			if (midiBeatCount <= beat && (it + 1 == numberOfMidiBeatBlocks || beatBlocks[it + 1].midiBeatCount > beat))
 				return (blockStartTime + nanoPerBeat * (beat - midiBeatCount)).toLong()
 		}
 		return 0
@@ -119,7 +120,7 @@ class Song(
 		font: Typeface
 	) {
 		private val commentAudience = audience
-		private val mCommentGraphic = ScreenComment(mText, screenSize, paint, font)
+		private val commentGraphic = ScreenComment(mText, screenSize, paint, font)
 
 		fun isIntendedFor(audience: String): Boolean =
 			commentAudience.isEmpty() ||
@@ -127,7 +128,7 @@ class Song(
 				audience.lowercase().splitAndTrim(",").intersect(commentAudience.toSet()).any()
 
 		fun draw(canvas: Canvas, paint: Paint, textColor: Int) =
-			mCommentGraphic.draw(canvas, paint, textColor)
+			commentGraphic.draw(canvas, paint, textColor)
 	}
 
 	companion object {
@@ -135,10 +136,10 @@ class Song(
 			// Find the backing track (if any)
 			var thisEvent: LinkedEvent? = firstEvent
 			while (thisEvent != null) {
-				val innerEvent = thisEvent.mEvent
-				if (innerEvent is AudioEvent && innerEvent.mBackingTrack)
-					return innerEvent.mAudioFile
-				thisEvent = thisEvent.mNextEvent
+				val innerEvent = thisEvent.event
+				if (innerEvent is AudioEvent && innerEvent.isBackingTrack)
+					return innerEvent.audioFile
+				thisEvent = thisEvent.nextEvent
 			}
 			return null
 		}

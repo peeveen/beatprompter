@@ -23,7 +23,7 @@ object BluetoothMidiController {
 	// Due to this nonsense:
 	// https://developer.android.com/reference/android/content/SharedPreferences.html#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener)
 	// we have to keep a reference to the prefs listener, or it gets garbage collected.
-	private var mPrefsListener: OnSharedPreferenceChangeListener? = null
+	private var prefsListener: OnSharedPreferenceChangeListener? = null
 
 	fun initialize(
 		context: Context,
@@ -82,7 +82,7 @@ object BluetoothMidiController {
 					}
 				}
 				Preferences.registerOnSharedPreferenceChangeListener(prefsListener)
-				mPrefsListener = prefsListener
+				this.prefsListener = prefsListener
 				attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 			}
 		}

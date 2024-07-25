@@ -9,16 +9,16 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class ScreenString private constructor(
-	internal val mText: String,
-	internal val mFontSize: Float,
-	internal val mColor: Int,
+	internal val text: String,
+	internal val fontSize: Float,
+	internal val color: Int,
 	width: Int,
 	height: Int,
-	internal val mFace: Typeface,
-	val mDescenderOffset: Int
+	internal val typeface: Typeface,
+	val descenderOffset: Int
 ) {
-	val mWidth = max(0, width)
-	val mHeight = max(0, height)
+	val width = max(0, width)
+	val height = max(0, height)
 
 	companion object {
 		private const val MARGIN_PIXELS = 10

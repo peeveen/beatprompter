@@ -9,6 +9,6 @@ import com.stevenfrew.beatprompter.midi.alias.AliasSet
  */
 class MIDIAliasFile internal constructor(
 	cachedFile: CachedFile,
-	val mAliasSet: AliasSet,
+	val aliasSet: AliasSet,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors)

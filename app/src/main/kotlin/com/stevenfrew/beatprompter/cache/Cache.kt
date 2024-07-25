@@ -59,15 +59,15 @@ object Cache {
 	private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
 	private const val XML_DATABASE_VERSION_ATTRIBUTE = "version"
 
-	var mDefaultDownloads: MutableList<DownloadResult> = mutableListOf()
-	var mCachedCloudItems = CachedCloudCollection()
+	var defaultDownloads: MutableList<DownloadResult> = mutableListOf()
+	var cachedCloudItems = CachedCloudCollection()
 
-	private var mBeatPrompterDataFolder: File? = null
-	private var mBeatPrompterSongFilesFolder: File? = null
+	private var beatPrompterDataFolder: File? = null
+	private var beatPrompterSongFilesFolder: File? = null
 
 	// Fake storage items for temporary set list and default midi aliases
-	var mTemporarySetListFile: File? = null
-	var mDefaultMidiAliasesFile: File? = null
+	var temporarySetListFile: File? = null
+	var defaultMidiAliasesFile: File? = null
 
 	fun copyAssetsFileToLocalFolder(filename: String, destination: File) =
 		BeatPrompter.appResources.assetManager.open(filename).use { inStream ->
@@ -81,11 +81,11 @@ object Cache {
 	fun initialiseTemporarySetListFile(deleteExisting: Boolean, context: Context) {
 		try {
 			if (deleteExisting)
-				if (!mTemporarySetListFile!!.delete())
+				if (!temporarySetListFile!!.delete())
 					Logger.log("Could not delete temporary set list file.")
-			if (!mTemporarySetListFile!!.exists())
+			if (!temporarySetListFile!!.exists())
 				Utils.appendToTextFile(
-					mTemporarySetListFile!!,
+					temporarySetListFile!!,
 					String.format("{set:%1\$s}", context.getString(R.string.temporary))
 				)
 		} catch (ioe: IOException) {
@@ -94,12 +94,12 @@ object Cache {
 	}
 
 	fun initialiseLocalStorage(context: Context) {
-		val previousSongFilesFolder = mBeatPrompterSongFilesFolder
+		val previousSongFilesFolder = beatPrompterSongFilesFolder
 		val s = context.packageName
 		try {
 			val m = context.packageManager
 			val p = m.getPackageInfo(s, 0)
-			mBeatPrompterDataFolder = File(p.applicationInfo.dataDir)
+			beatPrompterDataFolder = File(p.applicationInfo.dataDir)
 		} catch (e: PackageManager.NameNotFoundException) {
 			// There is no way that this can happen.
 			Logger.log("Package name not found ", e)
@@ -111,27 +111,27 @@ object Cache {
 		songFilesFolder = if (useExternalStorage && externalFilesDir != null)
 			externalFilesDir.absolutePath
 		else
-			mBeatPrompterDataFolder!!.absolutePath
+			beatPrompterDataFolder!!.absolutePath
 
-		mBeatPrompterSongFilesFolder =
-			if (songFilesFolder.isEmpty()) mBeatPrompterDataFolder else File(songFilesFolder)
-		if (!mBeatPrompterSongFilesFolder!!.exists())
-			if (!mBeatPrompterSongFilesFolder!!.mkdir())
+		beatPrompterSongFilesFolder =
+			if (songFilesFolder.isEmpty()) beatPrompterDataFolder else File(songFilesFolder)
+		if (!beatPrompterSongFilesFolder!!.exists())
+			if (!beatPrompterSongFilesFolder!!.mkdir())
 				Logger.log("Failed to create song files folder.")
 
-		if (!mBeatPrompterSongFilesFolder!!.exists())
-			mBeatPrompterSongFilesFolder = mBeatPrompterDataFolder
+		if (!beatPrompterSongFilesFolder!!.exists())
+			beatPrompterSongFilesFolder = beatPrompterDataFolder
 
-		mTemporarySetListFile = File(mBeatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
-		mDefaultMidiAliasesFile = File(mBeatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
+		temporarySetListFile = File(beatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
+		defaultMidiAliasesFile = File(beatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
 		initialiseTemporarySetListFile(false, context)
 		try {
-			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, mDefaultMidiAliasesFile!!)
+			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, defaultMidiAliasesFile!!)
 		} catch (ioe: IOException) {
 			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
 		}
 
-		mDefaultDownloads.apply {
+		defaultDownloads.apply {
 			clear()
 			add(
 				SuccessfulDownloadResult(
@@ -139,7 +139,7 @@ object Cache {
 						"idBeatPrompterTemporarySetList",
 						"BeatPrompterTemporarySetList",
 						Date()
-					), mTemporarySetListFile!!
+					), temporarySetListFile!!
 				)
 			)
 			add(
@@ -148,13 +148,13 @@ object Cache {
 						"idBeatPrompterDefaultMidiAliases",
 						context.getString(R.string.default_alias_set_name),
 						Date()
-					), mDefaultMidiAliasesFile!!
+					), defaultMidiAliasesFile!!
 				)
 			)
 		}
 
 		if (previousSongFilesFolder != null)
-			if (previousSongFilesFolder != mBeatPrompterSongFilesFolder)
+			if (previousSongFilesFolder != beatPrompterSongFilesFolder)
 			// Song file storage folder has changed. We need to clear the cache.
 				clearCache(false)
 	}
@@ -173,7 +173,7 @@ object Cache {
 			try {
 				val cachedItem = parser(element, useXmlData)
 				itemSource.onNext(cachedItem)
-				messageSource.onNext(cachedItem.mName)
+				messageSource.onNext(cachedItem.name)
 			} catch (exception: InvalidBeatPrompterFileException) {
 				messageSource.onNext(
 					exception.message
@@ -198,11 +198,11 @@ object Cache {
 		val xmlDatabaseVersion = xmlDoc.documentElement.getAttribute(XML_DATABASE_VERSION_ATTRIBUTE)
 		val currentAppVersion = BeatPrompter.appResources.getString(R.string.version)
 		val useXmlData = currentAppVersion == xmlDatabaseVersion
-		mCachedCloudItems.clear()
+		cachedCloudItems.clear()
 		PARSINGS.forEach {
 			addToCollection(
 				xmlDoc,
-				it.first.findAnnotation<CacheXmlTag>()!!.mTag,
+				it.first.findAnnotation<CacheXmlTag>()!!.tag,
 				it.second,
 				itemSource,
 				messageSource,
@@ -212,7 +212,7 @@ object Cache {
 	}
 
 	fun readDatabase(listener: CacheReadListener): Boolean {
-		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
+		val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
 		val databaseExists = database.exists()
 		if (databaseExists) {
 			val itemSource = PublishSubject.create<CachedItem>()
@@ -244,7 +244,7 @@ object Cache {
 	}
 
 	private fun writeDatabase() {
-		val database = File(mBeatPrompterDataFolder, XML_DATABASE_FILE_NAME)
+		val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
 		if (!database.delete())
 			Logger.log("Failed to delete database file.")
 		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -255,7 +255,7 @@ object Cache {
 			BeatPrompter.appResources.getString(R.string.version)
 		)
 		d.appendChild(root)
-		mCachedCloudItems.writeToXML(d, root)
+		cachedCloudItems.writeToXML(d, root)
 		val transformer = TransformerFactory.newInstance().newTransformer()
 		val output = StreamResult(database)
 		val input = DOMSource(d)
@@ -263,13 +263,13 @@ object Cache {
 	}
 
 	fun getCacheFolderForStorage(storage: StorageType): CacheFolder =
-		CacheFolder(mBeatPrompterSongFilesFolder!!, Storage.getCacheFolderName(storage))
+		CacheFolder(beatPrompterSongFilesFolder!!, Storage.getCacheFolderName(storage))
 
 	fun clearCache(report: Boolean) {
 		// Clear both cache folders
 		val cacheFolder = getCacheFolderForStorage(Preferences.storageSystem)
 		cacheFolder.clear()
-		mCachedCloudItems.clear()
+		cachedCloudItems.clear()
 		try {
 			writeDatabase()
 		} catch (ioe: Exception) {
@@ -279,7 +279,7 @@ object Cache {
 	}
 
 	fun onCacheUpdated(cache: CachedCloudCollection) {
-		mCachedCloudItems = cache
+		cachedCloudItems = cache
 		EventRouter.sendEventToSongList(Events.CACHE_UPDATED, cache)
 		try {
 			writeDatabase()
@@ -301,9 +301,9 @@ object Cache {
 		performCloudSync(null, false, parentFragment)
 
 	fun clearTemporarySetList(context: Context) {
-		for (slf in mCachedCloudItems.setListFiles)
-			if (slf.mFile == mTemporarySetListFile)
-				slf.mSetListEntries.clear()
+		for (slf in cachedCloudItems.setListFiles)
+			if (slf.file == temporarySetListFile)
+				slf.setListEntries.clear()
 		initialiseTemporarySetListFile(true, context)
 		try {
 			writeDatabase()
@@ -338,7 +338,7 @@ object Cache {
 				CacheEventHandler,
 				cloudPath,
 				includeSubFolders,
-				mCachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
+				cachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
 			).execute(Unit)
 			true
 		}

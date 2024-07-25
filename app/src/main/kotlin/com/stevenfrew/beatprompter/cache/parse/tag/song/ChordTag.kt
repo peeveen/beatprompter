@@ -9,12 +9,12 @@ import java.util.regex.Pattern
 /**
  * Tag that defines a chord to be displayed at this point.
  */
-class ChordTag constructor(
+class ChordTag(
 	chordText: String,
 	lineNumber: Int,
 	position: Int
 ) : Tag(chordText, lineNumber, position) {
-	val mValidChord = chordPattern.matcher(chordText.trim()).matches()
+	val isValidChord = chordPattern.matcher(chordText.trim()).matches()
 
 	companion object {
 		@Suppress("SpellCheckingInspection")

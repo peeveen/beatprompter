@@ -10,34 +10,34 @@ import com.stevenfrew.beatprompter.comm.SenderTask
 object Midi {
 	private const val MIDI_QUEUE_SIZE = 4096
 
-	private var mInitialised = false
-	private val mMIDIOutQueue = MidiMessageQueue(MIDI_QUEUE_SIZE)
-	private val mSenderTask = SenderTask(mMIDIOutQueue)
-	private val mReceiverTasks = ReceiverTasks()
-	private val mSenderTaskThread = Thread(mSenderTask).also { it.priority = Thread.MAX_PRIORITY }
+	private var initialised = false
+	private val midiOutQueue = MidiMessageQueue(MIDI_QUEUE_SIZE)
+	private val senderTask = SenderTask(midiOutQueue)
+	private val receiverTasks = ReceiverTasks()
+	private val senderTaskThread = Thread(senderTask).also { it.priority = Thread.MAX_PRIORITY }
 
 	fun initialize(context: Context) {
-		mSenderTaskThread.start()
-		Task.resumeTask(mSenderTask)
+		senderTaskThread.start()
+		Task.resumeTask(senderTask)
 
-		NativeMidiController.initialize(context, mSenderTask, mReceiverTasks)
-		UsbMidiController.initialize(context, mSenderTask, mReceiverTasks)
-		BluetoothMidiController.initialize(context, mSenderTask, mReceiverTasks)
+		NativeMidiController.initialize(context, senderTask, receiverTasks)
+		UsbMidiController.initialize(context, senderTask, receiverTasks)
+		BluetoothMidiController.initialize(context, senderTask, receiverTasks)
 
-		mInitialised = true
+		initialised = true
 	}
 
-	fun removeReceiver(task: ReceiverTask) = mReceiverTasks.stopAndRemoveReceiver(task.mName)
+	fun removeReceiver(task: ReceiverTask) = receiverTasks.stopAndRemoveReceiver(task.name)
 
 	internal fun addBeatClockMessages(amount: Int) {
-		if (mInitialised) mMIDIOutQueue.addBeatClockMessages(amount)
+		if (initialised) midiOutQueue.addBeatClockMessages(amount)
 	}
 
 	internal fun putMessage(message: OutgoingMessage) {
-		if (mInitialised) mMIDIOutQueue.putMessage(message)
+		if (initialised) midiOutQueue.putMessage(message)
 	}
 
 	internal fun putMessages(messages: List<OutgoingMessage>) {
-		if (mInitialised) mMIDIOutQueue.putMessages(messages)
+		if (initialised) midiOutQueue.putMessages(messages)
 	}
 }

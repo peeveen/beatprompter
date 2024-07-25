@@ -4,27 +4,28 @@ import android.graphics.Rect
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 
 class DisplaySettings internal constructor(
-	val mOrientation: Int,
-	val mMinFontSize: Float,
-	val mMaxFontSize: Float,
-	val mScreenSize: Rect,
-	val mShowBeatCounter: Boolean
+	val orientation: Int,
+	val minimumFontSize: Float,
+	val maximumFontSize: Float,
+	val screenSize: Rect,
+	val showBeatCounter: Boolean
 ) {
 	internal constructor(choiceInfo: SongChoiceInfo)
 		: this(
-		choiceInfo.mOrientation,
-		choiceInfo.mMinFontSize,
-		choiceInfo.mMaxFontSize,
-		choiceInfo.mScreenSize,
-		choiceInfo.mBeatScroll || choiceInfo.mSmoothScroll
+		choiceInfo.orientation,
+		choiceInfo.minFontSize,
+		choiceInfo.maxFontSize,
+		choiceInfo.screenSize,
+		choiceInfo.isBeatScroll || choiceInfo.isSmoothScroll
 	)
 
 	// Top 5% of screen is used for beat counter
-	private val mBeatCounterHeight =
-		if (mShowBeatCounter)
-			(mScreenSize.height() / 20.0).toInt()
+	private val beatCounterHeight =
+		if (showBeatCounter)
+			(screenSize.height() / 20.0).toInt()
 		else
 			0
-	val mBeatCounterRect = Rect(0, 0, mScreenSize.width(), mBeatCounterHeight)
-	val mUsableScreenHeight = mScreenSize.height() - mBeatCounterRect.height()
+
+	val beatCounterRect = Rect(0, 0, screenSize.width(), beatCounterHeight)
+	val usableScreenHeight = screenSize.height() - beatCounterRect.height()
 }

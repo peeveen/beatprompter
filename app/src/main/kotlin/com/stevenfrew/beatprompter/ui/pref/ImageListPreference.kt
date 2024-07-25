@@ -11,8 +11,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 
-class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
-	ListPreference(mContext, attrs) {
+class ImageListPreference(private val context: Context, attrs: AttributeSet) :
+	ListPreference(context, attrs) {
 	private lateinit var resourceIds: IntArray
 
 	private var inForceUpdate = false
@@ -54,8 +54,8 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 
 	private fun localStoragePermissionGranted(): Boolean =
 		PermissionsPreference.permissionsGranted(
-			mContext,
-			mContext.resources.getStringArray(R.array.storage_permissions)
+			context,
+			context.resources.getStringArray(R.array.storage_permissions)
 		)
 
 	private fun googleServicesAvailable(): Boolean = GoogleApiAvailability.getInstance()
@@ -64,13 +64,13 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 	private fun getFilteredCloudStorageEntries(): Array<CharSequence> {
 		val localStorageFilteredEntries =
 			if (localStoragePermissionGranted()) entries else entries.filter {
-				it != mContext.getString(
+				it != context.getString(
 					R.string.local_storage_string
 				)
 			}.toTypedArray()
 		val googleDriveFilteredEntries =
 			if (googleServicesAvailable()) localStorageFilteredEntries else localStorageFilteredEntries.filter {
-				it != mContext.getString(
+				it != context.getString(
 					R.string.google_drive_string
 				)
 			}.toTypedArray()
@@ -80,13 +80,13 @@ class ImageListPreference(private val mContext: Context, attrs: AttributeSet) :
 	private fun getFilteredCloudStorageEntryValues(): Array<CharSequence> {
 		val localStorageFilteredEntries =
 			if (localStoragePermissionGranted()) entryValues else entryValues.filter {
-				it != mContext.getString(
+				it != context.getString(
 					R.string.localStorageValue
 				)
 			}.toTypedArray()
 		val googleDriveFilteredEntries =
 			if (googleServicesAvailable()) localStorageFilteredEntries else localStorageFilteredEntries.filter {
-				it != mContext.getString(
+				it != context.getString(
 					R.string.googleDriveValue
 				)
 			}.toTypedArray()

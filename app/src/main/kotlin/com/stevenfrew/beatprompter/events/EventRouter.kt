@@ -6,84 +6,84 @@ import com.stevenfrew.beatprompter.ui.SongListFragment
 import com.stevenfrew.beatprompter.ui.pref.SettingsEventHandler
 
 object EventRouter {
-	private val mSongListEventHandlerLock = Any()
-	private val mSongDisplayEventHandlerLock = Any()
-	private val mSettingsEventHandlerLock = Any()
-	private val mCacheEventHandlerLock = Any()
+	private val songListEventHandlerLock = Any()
+	private val songDisplayEventHandlerLock = Any()
+	private val settingsEventHandlerLock = Any()
+	private val cacheEventHandlerLock = Any()
 
-	private var mSongListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
+	private var songListEventHandlers: MutableMap<String, SongListFragment.SongListEventHandler> =
 		HashMap()
-	private var mSongDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
-	private var mSettingsEventHandler: SettingsEventHandler? = null
+	private var songDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler? = null
+	private var settingsEventHandler: SettingsEventHandler? = null
 
 	fun addSongListEventHandler(
 		key: String,
 		songListEventHandler: SongListFragment.SongListEventHandler
 	) =
-		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandlers.put(key, songListEventHandler)
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.put(key, songListEventHandler)
 		}
 
 	fun removeSongListEventHandler(key: String) =
-		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandlers.remove(key)
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.remove(key)
 		}
 
 	fun setSongDisplayEventHandler(songDisplayEventHandler: SongDisplayActivity.SongDisplayEventHandler) =
-		synchronized(mSongDisplayEventHandlerLock) {
-			mSongDisplayEventHandler = songDisplayEventHandler
+		synchronized(songDisplayEventHandlerLock) {
+			this.songDisplayEventHandler = songDisplayEventHandler
 		}
 
 	fun setSettingsEventHandler(settingsEventHandler: SettingsEventHandler?) =
-		synchronized(mSettingsEventHandlerLock) {
-			mSettingsEventHandler = settingsEventHandler
+		synchronized(settingsEventHandlerLock) {
+			this.settingsEventHandler = settingsEventHandler
 		}
 
 	fun sendEventToSongList(event: Int) =
-		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandlers.values.forEach {
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.values.forEach {
 				it.obtainMessage(event).sendToTarget()
 			}
 		}
 
 	fun sendEventToCache(event: Int, arg: Any) =
-		synchronized(mCacheEventHandlerLock) {
+		synchronized(cacheEventHandlerLock) {
 			Cache.CacheEventHandler.obtainMessage(event, arg).sendToTarget()
 		}
 
 	fun sendEventToSongDisplay(event: Int) =
-		synchronized(mSongDisplayEventHandlerLock) {
-			mSongDisplayEventHandler?.obtainMessage(event)?.sendToTarget()
+		synchronized(songDisplayEventHandlerLock) {
+			songDisplayEventHandler?.obtainMessage(event)?.sendToTarget()
 		}
 
 	fun sendEventToSettings(event: Int) =
-		synchronized(mSettingsEventHandlerLock) {
-			mSettingsEventHandler?.obtainMessage(event)?.sendToTarget()
+		synchronized(settingsEventHandlerLock) {
+			settingsEventHandler?.obtainMessage(event)?.sendToTarget()
 		}
 
 	fun sendEventToSongList(event: Int, arg: Any) =
-		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandlers.values.forEach {
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.values.forEach {
 				it.obtainMessage(event, arg).sendToTarget()
 			}
 		}
 
 	fun sendEventToSongList(event: Int, arg1: Int, arg2: Int) =
-		synchronized(mSongListEventHandlerLock) {
-			mSongListEventHandlers.values.forEach {
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.values.forEach {
 				it.obtainMessage(event, arg1, arg2).sendToTarget()
 			}
 		}
 
 	fun sendEventToSongDisplay(event: Int, arg: Any) =
-		synchronized(mSongDisplayEventHandlerLock) {
-			if (mSongDisplayEventHandler != null)
-				mSongDisplayEventHandler!!.obtainMessage(event, arg).sendToTarget()
+		synchronized(songDisplayEventHandlerLock) {
+			if (songDisplayEventHandler != null)
+				songDisplayEventHandler!!.obtainMessage(event, arg).sendToTarget()
 		}
 
 	fun sendEventToSongDisplay(event: Int, arg1: Int, arg2: Int) =
-		synchronized(mSongDisplayEventHandlerLock) {
-			if (mSongDisplayEventHandler != null)
-				mSongDisplayEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
+		synchronized(songDisplayEventHandlerLock) {
+			if (songDisplayEventHandler != null)
+				songDisplayEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
 		}
 }

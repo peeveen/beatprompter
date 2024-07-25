@@ -3,9 +3,9 @@ package com.stevenfrew.beatprompter.comm
 abstract class SenderBase(
 	override val name: String,
 	override val type: CommunicationType,
-	private val mBufferSize: Int = OUT_BUFFER_SIZE
+	private val bufferSize: Int = OUT_BUFFER_SIZE
 ) : Sender {
-	private val mOutBuffer = ByteArray(mBufferSize)
+	private val outBuffer = ByteArray(bufferSize)
 
 	override fun send(messages: List<OutgoingMessage>) {
 		var currentMessageIndex = 0
@@ -15,16 +15,16 @@ abstract class SenderBase(
 			// We might have more than 4K of data to send here, so might need to loop.
 			while (currentMessageIndex < messages.size) {
 				val messageSize = messages[currentMessageIndex].length
-				if (bytesCopied + messageSize > mBufferSize)
+				if (bytesCopied + messageSize > bufferSize)
 					break
 				System.arraycopy(
-					messages[currentMessageIndex].mBytes,
-					0, mOutBuffer, bytesCopied, messageSize
+					messages[currentMessageIndex].bytes,
+					0, outBuffer, bytesCopied, messageSize
 				)
 				bytesCopied += messageSize
 				++currentMessageIndex
 			}
-			sendMessageData(mOutBuffer, bytesCopied)
+			sendMessageData(outBuffer, bytesCopied)
 		}
 	}
 

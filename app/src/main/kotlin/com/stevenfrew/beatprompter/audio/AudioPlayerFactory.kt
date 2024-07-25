@@ -8,18 +8,18 @@ import java.io.File
  * MediaPlayer or ExoPlayer implementations.
  */
 class AudioPlayerFactory(
-	private val mType: AudioPlayerType,
-	private val mContext: Context
+	private val type: AudioPlayerType,
+	private val context: Context
 ) {
 	fun create(file: File, volume: Int): AudioPlayer =
-		if (mType == AudioPlayerType.MediaPlayer)
+		if (type == AudioPlayerType.MediaPlayer)
 			MediaPlayerAudioPlayer(file, volume)
 		else
-			ExoPlayerAudioPlayer(mContext, file, volume)
+			ExoPlayerAudioPlayer(context, file, volume)
 
 	fun createSilencePlayer(): AudioPlayer =
-		if (mType == AudioPlayerType.MediaPlayer)
-			MediaPlayerAudioPlayer(mContext)
+		if (type == AudioPlayerType.MediaPlayer)
+			MediaPlayerAudioPlayer(context)
 		else
-			ExoPlayerAudioPlayer(mContext)
+			ExoPlayerAudioPlayer(context)
 }

@@ -6,14 +6,14 @@ import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.SenderBase
 
 class UsbSender(
-	private val mConnection: UsbDeviceConnection,
-	private val mEndpoint: UsbEndpoint,
+	private val connection: UsbDeviceConnection,
+	private val endpoint: UsbEndpoint,
 	name: String,
 	type: CommunicationType
 ) : SenderBase(name, type) {
-	override fun close() = mConnection.close()
+	override fun close() = connection.close()
 
 	override fun sendMessageData(bytes: ByteArray, length: Int) {
-		mConnection.bulkTransfer(mEndpoint, bytes, length, 5000)
+		connection.bulkTransfer(endpoint, bytes, length, 5000)
 	}
 }

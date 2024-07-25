@@ -40,7 +40,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 		// one. The internal memory is always first, so we'll use the last one to get an
 		// actual EXTERNAL storage path. Sadly it will be suffixed with "/android/our_app_id/blah/blah",
 		// but we can do something about that.
-		val folderPath = mParentFragment.requireContext().getExternalFilesDirs(null).last().absolutePath
+		val folderPath = parentFragment.requireContext().getExternalFilesDirs(null).last().absolutePath
 		// If the folderPath starts with "/storage/emulated/0" (the internal storage path), use the internal storage path.
 		// But if it doesn't, then there's an SD card in play, so use that. The SD card path will start with "/storage/" then
 		// the ID of the card, so we can adjust the substring for that.
@@ -58,13 +58,13 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 		itemSource: PublishSubject<DownloadResult>,
 		messageSource: PublishSubject<String>
 	) = downloadFiles(filesToRefresh, storageListener, itemSource, messageSource) { cloudFile ->
-		File(cloudFile.mID).let {
+		File(cloudFile.id).let {
 			SuccessfulDownloadResult(
 				FileInfo(
 					it.absolutePath,
 					it.name,
 					Date(it.lastModified()),
-					cloudFile.mSubfolderIDs
+					cloudFile.subfolderIds
 				), it
 			)
 		}
@@ -80,7 +80,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 		val foldersToSearch = mutableListOf(folder)
 		while (foldersToSearch.isNotEmpty()) {
 			val folderToSearch = foldersToSearch.removeAt(0)
-			val localFolder = File(folderToSearch.mID)
+			val localFolder = File(folderToSearch.id)
 			messageSource.onNext(
 				BeatPrompter.appResources.getString(
 					R.string.scanningFolder,

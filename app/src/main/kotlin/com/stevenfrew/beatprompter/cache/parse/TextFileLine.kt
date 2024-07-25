@@ -10,16 +10,16 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingHelper
  */
 open class TextFileLine<TFileType>(
 	line: String,
-	val mLineNumber: Int,
+	val lineNumber: Int,
 	tagParseHelper: TagParsingHelper<TFileType>,
 	parser: TextFileParser<TFileType>
 ) {
-	private val mLine: String
-	val mLineWithNoTags: String
+	private val line: String
+	val lineWithNoTags: String
 
-	val mTags: List<Tag>
+	val tags: List<Tag>
 	val isEmpty: Boolean
-		get() = mLine.isEmpty()
+		get() = line.isEmpty()
 
 	init {
 		var currentLine = line.trim()
@@ -27,33 +27,33 @@ open class TextFileLine<TFileType>(
 			currentLine = currentLine.substring(0, MAX_LINE_LENGTH)
 			parser.addError(
 				FileParseError(
-					mLineNumber,
+					lineNumber,
 					R.string.lineTooLong,
-					mLineNumber,
+					lineNumber,
 					MAX_LINE_LENGTH
 				)
 			)
 		}
 
-		mLine = currentLine
+		this.line = currentLine
 
 		val tagCollection = mutableListOf<Tag>()
 		while (true) {
 			val tagString = parser.findFirstTag(currentLine) ?: break
 			val lineWithoutTag =
-				currentLine.substring(0, tagString.mStart) + currentLine.substring(tagString.mEnd + 1)
+				currentLine.substring(0, tagString.start) + currentLine.substring(tagString.end + 1)
 			try {
-				val tag = parser.parseTag(tagString, mLineNumber, tagParseHelper)
+				val tag = parser.parseTag(tagString, lineNumber, tagParseHelper)
 				if (tag != null)
 					tagCollection.add(tag)
 			} catch (mte: MalformedTagException) {
-				parser.addError(FileParseError(mLineNumber, mte))
+				parser.addError(FileParseError(lineNumber, mte))
 			}
 			currentLine = lineWithoutTag.trim()
 		}
 
-		mLineWithNoTags = currentLine.trim()
-		mTags = tagCollection
+		lineWithNoTags = currentLine.trim()
+		tags = tagCollection
 	}
 
 	companion object {

@@ -12,8 +12,8 @@ import java.io.ObjectOutputStream
  * OutgoingMessage that is sent/received when a song is chosen.
  */
 class ChooseSongMessage(
-	val bytes: ByteArray,
-	val mChoiceInfo: SongChoiceInfo
+	bytes: ByteArray,
+	val choiceInfo: SongChoiceInfo
 ) : BluetoothMessage(bytes) {
 	constructor(choiceInfo: SongChoiceInfo) : this(asBytes(choiceInfo), choiceInfo)
 
@@ -22,18 +22,18 @@ class ChooseSongMessage(
 			ByteArrayOutputStream().apply {
 				write(byteArrayOf(CHOOSE_SONG_MESSAGE_ID), 0, 1)
 				ObjectOutputStream(this).apply {
-					writeObject(choiceInfo.mNormalizedTitle)
-					writeObject(choiceInfo.mNormalizedArtist)
-					writeObject(choiceInfo.mVariation)
-					writeBoolean(choiceInfo.mBeatScroll)
-					writeBoolean(choiceInfo.mSmoothScroll)
-					writeInt(choiceInfo.mOrientation)
-					writeFloat(choiceInfo.mMinFontSize)
-					writeFloat(choiceInfo.mMaxFontSize)
-					writeInt(choiceInfo.mScreenSize.width())
-					writeInt(choiceInfo.mScreenSize.height())
-					writeBoolean(choiceInfo.mNoAudio)
-					writeInt(choiceInfo.mAudioLatency)
+					writeObject(choiceInfo.normalizedTitle)
+					writeObject(choiceInfo.normalizedArtist)
+					writeObject(choiceInfo.variation)
+					writeBoolean(choiceInfo.isBeatScroll)
+					writeBoolean(choiceInfo.isSmoothScroll)
+					writeInt(choiceInfo.orientation)
+					writeFloat(choiceInfo.minFontSize)
+					writeFloat(choiceInfo.maxFontSize)
+					writeInt(choiceInfo.screenSize.width())
+					writeInt(choiceInfo.screenSize.height())
+					writeBoolean(choiceInfo.noAudio)
+					writeInt(choiceInfo.audioLatency)
 					flush()
 					close()
 				}
@@ -76,7 +76,7 @@ class ChooseSongMessage(
 						val availableEnd = available()
 						val messageLength = 1 + (availableStart - availableEnd)
 						close()
-						Logger.logLoader { "Received Bluetooth request to load \"${songChoiceInfo.mNormalizedTitle}\"" }
+						Logger.logLoader { "Received Bluetooth request to load \"${songChoiceInfo.normalizedTitle}\"" }
 						return ChooseSongMessage(bytes.copyOfRange(0, messageLength), songChoiceInfo)
 					}
 				}

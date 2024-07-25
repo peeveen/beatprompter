@@ -10,12 +10,12 @@ import org.w3c.dom.Element
  */
 class ImageFile internal constructor(
 	cachedFile: CachedFile,
-	val mSize: Size
+	val size: Size
 ) : CachedFile(cachedFile) {
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
-		element.setAttribute(WIDTH_ATTRIBUTE, "${mSize.width}")
-		element.setAttribute(HEIGHT_ATTRIBUTE, "${mSize.height}")
+		element.setAttribute(WIDTH_ATTRIBUTE, "${size.width}")
+		element.setAttribute(HEIGHT_ATTRIBUTE, "${size.height}")
 	}
 
 	companion object {

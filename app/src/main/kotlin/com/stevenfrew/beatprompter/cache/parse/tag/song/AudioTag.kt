@@ -22,16 +22,16 @@ class AudioTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mFilename: String
-	val mNormalizedFilename: String
-	val mVolume: Int
+	val filename: String
+	val normalizedFilename: String
+	val volume: Int
 
 	init {
 		val bits = value.splitAndTrim(":")
 		val defaultTrackVolume = Preferences.defaultTrackVolume
-		mFilename = File(bits[0]).name
-		mNormalizedFilename = mFilename.normalize()
-		mVolume =
+		filename = File(bits[0]).name
+		normalizedFilename = filename.normalize()
+		volume =
 			if (bits.size > 1)
 				parseVolume(bits[1], defaultTrackVolume)
 			else

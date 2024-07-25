@@ -26,22 +26,22 @@ import kotlin.reflect.full.primaryConstructor
  */
 abstract class TextFileParser<TFileResult>(
 	cachedCloudFile: CachedFile,
-	private val mReportUnexpectedTags: Boolean,
-	private vararg val mTagFinders: TagFinder
+	private val reportUnexpectedTags: Boolean,
+	private vararg val tagFinders: TagFinder
 ) : FileParser<TFileResult>(cachedCloudFile) {
 	override fun parse(element: Element?): TFileResult {
 		val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
 		var lineNumber = 0
 		val fileTags = mutableSetOf<KClass<out Tag>>()
 		val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
-		mCachedCloudFile.mFile.forEachLine { strLine ->
+		cachedCloudFile.file.forEachLine { strLine ->
 			++lineNumber
 			val txt = strLine.trim().removeControlCharacters()
 			// Ignore empty lines and comments
 			if (txt.isNotEmpty() && !txt.startsWith('#')) {
 				val textLine = TextFileLine(txt, lineNumber, tagParseHelper, this)
 				val lineTags = mutableSetOf<KClass<out Tag>>()
-				textLine.mTags.forEach { tag ->
+				textLine.tags.forEach { tag ->
 					val tagClass = tag::class
 					val isOncePerFile = tagClass.findAnnotation<OncePerFile>() != null
 					val isOncePerLine = tagClass.findAnnotation<OncePerLine>() != null
@@ -53,44 +53,44 @@ abstract class TextFileParser<TFileResult>(
 					fileTags.add(tagClass)
 					lineTags.add(tagClass)
 					if (isOncePerFile && alreadyUsedInFile)
-						mErrors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_file, tag.mName))
+						errors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_file, tag.name))
 					if (isOncePerLine && alreadyUsedInLine)
-						mErrors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_line, tag.mName))
+						errors.add(FileParseError(tag, R.string.tag_used_multiple_times_in_line, tag.name))
 					if (startedByAnnotation != null) {
-						val startedByClass = startedByAnnotation.mStartedBy
+						val startedByClass = startedByAnnotation.startedBy
 						val startedByEndedByAnnotation = startedByClass.findAnnotation<EndedBy>()!!
-						val endedByClass = startedByEndedByAnnotation.mEndedBy
+						val endedByClass = startedByEndedByAnnotation.endedBy
 						if (!livePairings.remove(startedByClass to endedByClass))
-							mErrors.add(
+							errors.add(
 								FileParseError(
 									tag,
 									R.string.ending_tag_found_before_starting_tag,
-									tag.mName
+									tag.name
 								)
 							)
 					} else if (endedByAnnotation != null) {
-						val endedByClass = endedByAnnotation.mEndedBy
+						val endedByClass = endedByAnnotation.endedBy
 						val endedByStartedByAnnotation = endedByClass.findAnnotation<StartedBy>()!!
-						val startedByClass = endedByStartedByAnnotation.mStartedBy
+						val startedByClass = endedByStartedByAnnotation.startedBy
 						val pairing = startedByClass to endedByClass
 						if (livePairings.contains(pairing))
-							mErrors.add(
+							errors.add(
 								FileParseError(
 									tag,
 									R.string.starting_tag_found_after_starting_tag,
-									tag.mName
+									tag.name
 								)
 							)
 						else
 							livePairings.add(pairing)
 					}
 					lineExclusiveTags.forEach {
-						if (lineTags.contains(it.mCantShareWith))
-							mErrors.add(
+						if (lineTags.contains(it.cannotShareWith))
+							errors.add(
 								FileParseError(
 									tag, R.string.tag_cant_share_line_with,
-									tag.mName,
-									it.mCantShareWith.findAnnotation<TagName>()!!.mNames.first()
+									tag.name,
+									it.cannotShareWith.findAnnotation<TagName>()!!.names.first()
 								)
 							)
 					}
@@ -111,31 +111,31 @@ abstract class TextFileParser<TFileResult>(
 		parseHelper: TagParsingHelper<TFileResult>
 	): Tag? {
 		// Should we ignore this tag?
-		if (!parseHelper.mIgnoreTagNames.contains(foundTag.mName)) {
+		if (!parseHelper.ignoreTagNames.contains(foundTag.name)) {
 			// Nope, better parse it!
-			val tagClass = parseHelper.mNameToClassMap[foundTag.mType to foundTag.mName]
-				?: parseHelper.mNoNameToClassMap[foundTag.mType]
+			val tagClass = parseHelper.nameToClassMap[foundTag.type to foundTag.name]
+				?: parseHelper.noNameToClassMap[foundTag.type]
 			if (tagClass != null) {
 				// We found a match!
 				// Construct a tag of this class
 				try {
 					tagClass.primaryConstructor?.apply {
 						return if (parameters.size == 4)
-							call(foundTag.mName, lineNumber, foundTag.mStart, foundTag.mValue)
+							call(foundTag.name, lineNumber, foundTag.start, foundTag.value)
 						else
-							call(foundTag.mName, lineNumber, foundTag.mStart)
+							call(foundTag.name, lineNumber, foundTag.start)
 					}
 				} catch (ite: InvocationTargetException) {
 					throw ite.targetException
 				}
-			} else if (mReportUnexpectedTags)
-				throw MalformedTagException(R.string.unexpected_tag_in_file, foundTag.mName)
+			} else if (reportUnexpectedTags)
+				throw MalformedTagException(R.string.unexpected_tag_in_file, foundTag.name)
 		}
 		return null
 	}
 
 	fun findFirstTag(text: String): FoundTag? =
-		mTagFinders
+		tagFinders
 			.mapNotNull { it.findTag(text) }
-			.minByOrNull { it.mStart }
+			.minByOrNull { it.start }
 }

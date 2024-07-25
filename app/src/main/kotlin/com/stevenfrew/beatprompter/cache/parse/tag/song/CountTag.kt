@@ -19,5 +19,5 @@ class CountTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mCount = TagParsingUtility.parseIntegerValue(value, 0, 4)
+	val count = TagParsingUtility.parseIntegerValue(value, 0, 4)
 }

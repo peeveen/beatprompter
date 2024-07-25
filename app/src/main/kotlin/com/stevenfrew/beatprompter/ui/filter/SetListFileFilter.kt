@@ -5,10 +5,13 @@ import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.set.SetListEntry
 
 open class SetListFileFilter(
-	var mSetListFile: SetListFile,
-	songs: List<SongFile>
-) : SetListFilter(mSetListFile.mSetTitle, getSongList(mSetListFile.mSetListEntries, songs)) {
-	var mMissingSetListEntries = getMissingSetListEntries(mSetListFile.mSetListEntries, mSongs)
+	var setListFile: SetListFile,
+	setSongs: List<SongFile>
+) : SetListFilter(setListFile.setTitle, getSongList(setListFile.setListEntries, setSongs)) {
+	var mMissingSetListEntries = getMissingSetListEntries(
+		setListFile.setListEntries,
+		songs
+	)
 	var mWarned = mMissingSetListEntries.isEmpty()
 
 	companion object {

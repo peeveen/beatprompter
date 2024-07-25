@@ -29,19 +29,19 @@ class MidiEventTag internal constructor(
 	position: Int,
 	value: String
 ) : Tag(name, lineNumber, position) {
-	val mMessages: List<OutgoingMessage>
-	val mOffset: EventOffset
+	val messages: List<OutgoingMessage>
+	val offset: EventOffset
 
 	init {
 		val parsedEvent = parseMIDIEvent(
 			name,
-			value, lineNumber, Cache.mCachedCloudItems.midiAliases
+			value, lineNumber, Cache.cachedCloudItems.midiAliases
 		)
-		mMessages = parsedEvent.first
-		mOffset = parsedEvent.second
+		messages = parsedEvent.first
+		offset = parsedEvent.second
 	}
 
-	fun toMIDIEvent(time: Long): MIDIEvent = MIDIEvent(time, mMessages, mOffset)
+	fun toMIDIEvent(time: Long): MIDIEvent = MIDIEvent(time, messages, offset)
 
 	companion object {
 		const val MIDI_SEND_TAG = "midi_send"
@@ -72,7 +72,7 @@ class MidiEventTag internal constructor(
 						.map { it.resolve() }
 						.toByteArray()
 					val matchedAlias = aliases.firstOrNull {
-						it.mName.equals(
+						it.name.equals(
 							tagName,
 							ignoreCase = true
 						) && it.parameterCount == resolvedBytes.size

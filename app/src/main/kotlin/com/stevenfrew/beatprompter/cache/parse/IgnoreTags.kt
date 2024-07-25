@@ -8,4 +8,4 @@ import kotlin.reflect.KClass
  * Annotation for parser classes. Tells the parser what tags we can ignore. Any tags not
  * found in the parse or ignore lists are reported as errors.
  */
-annotation class IgnoreTags(vararg val mTagClasses: KClass<out Tag>)
+annotation class IgnoreTags(vararg val tagClasses: KClass<out Tag>)

@@ -16,7 +16,7 @@ class FilterComparator private constructor() : Comparator<Filter> {
 			is FolderFilter -> when (p1) {
 				is AllSongsFilter -> 1
 				is TemporarySetListFilter -> 1
-				is FolderFilter -> p0.mName.compareTo(p1.mName)
+				is FolderFilter -> p0.name.compareTo(p1.name)
 				else -> -1
 			}
 
@@ -24,12 +24,12 @@ class FilterComparator private constructor() : Comparator<Filter> {
 				is AllSongsFilter -> 1
 				is TemporarySetListFilter -> 1
 				is FolderFilter -> 1
-				is TagFilter -> p0.mName.compareTo(p1.mName)
+				is TagFilter -> p0.name.compareTo(p1.name)
 				else -> -1
 			}
 
 			is SetListFilter -> when (p1) {
-				is SetListFilter -> p0.mName.compareTo(p1.mName)
+				is SetListFilter -> p0.name.compareTo(p1.name)
 				is MIDIAliasFilesFilter -> 1
 				else -> 1
 			}

@@ -16,5 +16,5 @@ class KeyTag internal constructor(
 	name: String,
 	lineNumber: Int,
 	position: Int,
-	val mKey: String
-) : ValueTag(name, lineNumber, position, mKey)
+	val key: String
+) : ValueTag(name, lineNumber, position, key)

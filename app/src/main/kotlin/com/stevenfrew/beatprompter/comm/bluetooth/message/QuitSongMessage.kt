@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream
  * Bluetooth message that instructs the receiver to stop playing the current song.
  */
 class QuitSongMessage(
-	val bytes: ByteArray,
+	bytes: ByteArray,
 	val songTitle: String,
 	val songArtist: String
 ) : BluetoothMessage(bytes) {

@@ -17,30 +17,30 @@ object DirectiveFinder
 ) {
 	// We made this dumb decision to format the comment tag this way.
 	// We're stuck with it. Let's reparse it for the new file parsing system.
-	private val mCommentTagNamesWithAudienceMarkers = CommentTag::class
+	private val commentTagNamesWithAudienceMarkers = CommentTag::class
 		.annotations
 		.asSequence()
 		.filterIsInstance<TagName>()
-		.map { it.mNames.toList() }
+		.map { it.names.toList() }
 		.flatMap { it.asSequence() }
 		.map { "$it${CommentTag.AUDIENCE_SEPARATOR}" }
 		.toList()
 
 	override fun findTag(text: String): FoundTag? =
 		super.findTag(text)?.let { foundTag ->
-			if (mCommentTagNamesWithAudienceMarkers.any { foundTag.mName.startsWith(it) }) {
+			if (commentTagNamesWithAudienceMarkers.any { foundTag.name.startsWith(it) }) {
 				val newAudience = foundTag
-					.mName
+					.name
 					.splitAndTrim(CommentTag.AUDIENCE_SEPARATOR)
 					.asSequence()
 					.drop(1)
 					.joinToString(CommentTag.AUDIENCE_SEPARATOR)
 				FoundTag(
-					foundTag.mStart,
-					foundTag.mEnd,
+					foundTag.start,
+					foundTag.end,
 					"comment",
-					"$newAudience${CommentTag.AUDIENCE_END_MARKER}${foundTag.mValue}",
-					foundTag.mType
+					"$newAudience${CommentTag.AUDIENCE_END_MARKER}${foundTag.value}",
+					foundTag.type
 				)
 			} else foundTag
 		}

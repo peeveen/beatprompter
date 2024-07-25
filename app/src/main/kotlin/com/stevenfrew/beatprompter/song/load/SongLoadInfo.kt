@@ -6,20 +6,20 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 import java.util.UUID
 
 data class SongLoadInfo(
-	val mSongFile: SongFile,
-	val mVariation: String,
-	val mSongLoadMode: ScrollingMode,
-	val mNextSong: String,
-	val mStartedByBandLeader: Boolean,
-	val mStartedByMIDITrigger: Boolean,
-	val mNativeDisplaySettings: DisplaySettings,
-	val mSourceDisplaySettings: DisplaySettings,
-	val mNoAudio: Boolean,
-	val mAudioLatency: Int
+	val songFile: SongFile,
+	val variation: String,
+	val songLoadMode: ScrollingMode,
+	val nextSong: String,
+	val wasStartedByBandLeader: Boolean,
+	val wasStartedByMidiTrigger: Boolean,
+	val nativeDisplaySettings: DisplaySettings,
+	val sourceDisplaySettings: DisplaySettings,
+	val noAudio: Boolean,
+	val audioLatency: Int
 ) {
-	val mLoadID = UUID.randomUUID()!!
+	val loadId = UUID.randomUUID()!!
 	val initialScrollMode
-		get() = if (mixedModeActive) ScrollingMode.Manual else mSongLoadMode
+		get() = if (mixedModeActive) ScrollingMode.Manual else songLoadMode
 	val mixedModeActive
-		get() = mSongFile.mMixedMode && mSongLoadMode == ScrollingMode.Beat
+		get() = songFile.isMixedMode && songLoadMode == ScrollingMode.Beat
 }

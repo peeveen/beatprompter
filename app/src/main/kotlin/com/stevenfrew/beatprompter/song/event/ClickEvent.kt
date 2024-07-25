@@ -7,5 +7,5 @@ class ClickEvent(
 	eventTime: Long,
 ) : BaseEvent(eventTime) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		ClickEvent(mEventTime + nanoseconds)
+		ClickEvent(eventTime + nanoseconds)
 }

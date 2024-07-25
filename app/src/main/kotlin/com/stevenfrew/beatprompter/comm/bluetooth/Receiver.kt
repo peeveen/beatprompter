@@ -20,12 +20,12 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
-class Receiver(private val mmSocket: BluetoothSocket, type: CommunicationType) :
-	ReceiverBase(mmSocket.remoteDevice.name, type) {
+class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
+	ReceiverBase(socket.remoteDevice.name, type) {
 	override fun unregister(task: ReceiverTask) = Bluetooth.removeReceiver(task)
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int =
-		mmSocket.inputStream.read(buffer, offset, maximumAmount)
+		socket.inputStream.read(buffer, offset, maximumAmount)
 
 	override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
 		var bufferCopy = buffer
@@ -69,13 +69,13 @@ class Receiver(private val mmSocket: BluetoothSocket, type: CommunicationType) :
 		return dataParsed
 	}
 
-	override fun close() = mmSocket.close()
+	override fun close() = socket.close()
 
 	private fun routeBluetoothMessage(msg: OutgoingMessage) {
 		when (msg) {
 			is ChooseSongMessage -> EventRouter.sendEventToSongList(
 				Events.BLUETOOTH_CHOOSE_SONG,
-				msg.mChoiceInfo
+				msg.choiceInfo
 			)
 
 			is PauseOnScrollStartMessage -> EventRouter.sendEventToSongDisplay(Events.BLUETOOTH_PAUSE_ON_SCROLL_START)
@@ -86,12 +86,12 @@ class Receiver(private val mmSocket: BluetoothSocket, type: CommunicationType) :
 
 			is SetSongTimeMessage -> EventRouter.sendEventToSongDisplay(
 				Events.BLUETOOTH_SET_SONG_TIME,
-				msg.mTime
+				msg.time
 			)
 
 			is ToggleStartStopMessage -> EventRouter.sendEventToSongDisplay(
 				Events.BLUETOOTH_TOGGLE_START_STOP,
-				msg.mToggleInfo
+				msg.toggleInfo
 			)
 		}
 	}

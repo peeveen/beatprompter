@@ -5,19 +5,19 @@ import com.stevenfrew.beatprompter.R
 import kotlin.math.abs
 
 data class EventOffset(
-	val mAmount: Int,
-	val mOffsetType: EventOffsetType,
-	val mSourceFileLineNumber: Int
+	val amount: Int,
+	val offsetType: EventOffsetType,
+	val sourceFileLineNumber: Int
 ) {
 	constructor(lineNumber: Int) : this(0, EventOffsetType.Milliseconds, lineNumber)
 
 	init {
-		require(!(abs(mAmount) > 16 && mOffsetType == EventOffsetType.Beats)) {
+		require(!(abs(amount) > 16 && offsetType == EventOffsetType.Beats)) {
 			BeatPrompter.appResources.getString(
 				R.string.max_midi_offset_exceeded
 			)
 		}
-		require(!(abs(mAmount) > 10000 && mOffsetType == EventOffsetType.Milliseconds)) {
+		require(!(abs(amount) > 10000 && offsetType == EventOffsetType.Milliseconds)) {
 			BeatPrompter.appResources.getString(
 				R.string.max_midi_offset_exceeded
 			)

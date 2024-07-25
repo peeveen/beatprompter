@@ -12,35 +12,35 @@ import java.util.Locale
 
 
 class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSeekBarChangeListener {
-	private var mSeekBar: SeekBar? = null
-	private var mTextView: TextView? = null
-	private var mCurrentValue = -1
+	private var seekBar: SeekBar? = null
+	private var textView: TextView? = null
+	private var currentValue = -1
 
 	override fun onBindDialogView(view: View) {
-		mSeekBar = view.findViewById(R.id.fontSizeSeekBar)
-		mTextView = view.findViewById(R.id.fontSizeTextView)
-		mSeekBar!!.setOnSeekBarChangeListener(this)
-		mCurrentValue = (this.preference as FontSizePreference).fontSize
-		mSeekBar!!.progress = mCurrentValue
-		mTextView!!.text = String.format(Locale.getDefault(), "%d", mCurrentValue)
+		seekBar = view.findViewById(R.id.fontSizeSeekBar)
+		textView = view.findViewById(R.id.fontSizeTextView)
+		seekBar!!.setOnSeekBarChangeListener(this)
+		currentValue = (preference as FontSizePreference).fontSize
+		seekBar!!.progress = currentValue
+		textView!!.text = String.format(Locale.getDefault(), "%d", currentValue)
 		//mSeekBar!!.min= FontSizePreference.FONT_SIZE_MIN
-		mSeekBar!!.max = FontSizePreference.FONT_SIZE_MAX
+		seekBar!!.max = FontSizePreference.FONT_SIZE_MAX
 		super.onBindDialogView(view)
 	}
 
 	override fun onDialogClosed(positiveResult: Boolean) {
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
-			val value = mSeekBar!!.progress
-			(this.preference as FontSizePreference).fontSize = value
+			val value = seekBar!!.progress
+			(preference as FontSizePreference).fontSize = value
 		}
 	}
 
 	override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-		mCurrentValue = progress
-		val size = mCurrentValue + FontSizePreference.FONT_SIZE_OFFSET
-		mTextView!!.text = String.format(Locale.getDefault(), "%d", size)
-		mTextView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * Utils.FONT_SCALING)
+		currentValue = progress
+		val size = currentValue + FontSizePreference.FONT_SIZE_OFFSET
+		textView!!.text = String.format(Locale.getDefault(), "%d", size)
+		textView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * Utils.FONT_SCALING)
 	}
 
 	override fun onStartTrackingTouch(seekBar: SeekBar) {}

@@ -3,43 +3,37 @@ package com.stevenfrew.beatprompter.set
 import com.stevenfrew.beatprompter.cache.SongFile
 import kotlin.random.Random
 
-internal class Playlist {
-	private val mItems = mutableListOf<PlaylistNode>()
-
+internal class Playlist private constructor(
+	val nodes: Array<PlaylistNode>
+) {
 	private val songFiles: List<SongFile>
-		get() = mItems.map { it.mSongFile }
+		get() = nodes.map { it.songFile }
 
-	val nodes: List<PlaylistNode>
-		get() = mItems
+	constructor() : this(buildSongList(listOf()))
+	constructor(songs: List<SongFile>) : this(buildSongList(songs))
 
-	constructor() {
-		buildSongList(ArrayList())
-	}
+	fun sortByTitle(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.sortableTitle }))
+	fun sortByMode(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.bestScrollingMode }))
+	fun sortByRating(): Playlist =
+		Playlist(buildSongList(songFiles.sortedByDescending { it.rating }))  // Sort from best to worst
 
-	constructor(songs: List<SongFile>) {
-		buildSongList(songs)
-	}
+	fun sortByArtist(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.sortableArtist }))
+	fun sortByKey(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.key }))
+	fun sortByDateModified(): Playlist =
+		Playlist(buildSongList(songFiles.sortedByDescending { it.lastModified }))
 
-	fun sortByTitle() = buildSongList(songFiles.sortedBy { it.mSortableTitle })
-	fun sortByMode() = buildSongList(songFiles.sortedBy { it.bestScrollingMode })
-	fun sortByRating() =
-		buildSongList(songFiles.sortedByDescending { it.mRating })  // Sort from best to worst
+	fun shuffle(): Playlist =
+		Playlist(buildSongList(songFiles.map { it to Random.Default.nextDouble() }
+			.sortedBy { it.second }.map { it.first }))
 
-	fun sortByArtist() = buildSongList(songFiles.sortedBy { it.mSortableArtist })
-	fun sortByKey() = buildSongList(songFiles.sortedBy { it.mKey })
-	fun sortByDateModified() = buildSongList(songFiles.sortedByDescending { it.mLastModified })
-
-	fun shuffle() {
-		val randomizedSongs = songFiles.map { it to Random.Default.nextDouble() }
-		buildSongList(randomizedSongs.sortedBy { it.second }.map { it.first })
-	}
-
-	private fun buildSongList(songs: List<SongFile>) {
-		mItems.clear()
-		songs.forEach {
-			val node = PlaylistNode(it)
-			mItems.lastOrNull()?.mNextNode = node
-			mItems.add(node)
+	companion object {
+		private fun buildSongList(songs: List<SongFile>): Array<PlaylistNode> {
+			var lastNode: PlaylistNode? = null
+			return songs.reversed().map {
+				val node = PlaylistNode(it, lastNode)
+				lastNode = node
+				node
+			}.reversed().toTypedArray()
 		}
 	}
 }

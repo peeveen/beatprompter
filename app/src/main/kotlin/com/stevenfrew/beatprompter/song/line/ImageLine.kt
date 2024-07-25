@@ -32,19 +32,19 @@ class ImageLine internal constructor(
 	scrollTimes.second,
 	displaySettings
 ) {
-	private val mBitmap =
-		BitmapFactory.decodeFile(mImageFile.mFile.absolutePath, BitmapFactory.Options())
-	private val mSourceRect = Rect(0, 0, mImageFile.mSize.width, mImageFile.mSize.height)
-	private val mDestinationRect = getDestinationRect(
-		mBitmap,
-		displaySettings.mScreenSize,
+	private val bitmap =
+		BitmapFactory.decodeFile(mImageFile.file.absolutePath, BitmapFactory.Options())
+	private val sourceRect = Rect(0, 0, mImageFile.size.width, mImageFile.size.height)
+	private val destinationRect = getDestinationRect(
+		bitmap,
+		displaySettings.screenSize,
 		scalingMode
 	)
-	override val mMeasurements = LineMeasurements(
+	override val measurements = LineMeasurements(
 		1,
-		mDestinationRect.width(),
-		mDestinationRect.height(),
-		intArrayOf(mDestinationRect.height()),
+		destinationRect.width(),
+		destinationRect.height(),
+		intArrayOf(destinationRect.height()),
 		lineTime,
 		lineDuration,
 		scrollTimes.first,
@@ -52,17 +52,17 @@ class ImageLine internal constructor(
 	)
 
 	override fun renderGraphics(paint: Paint) =
-		repeat(mMeasurements.mLines) {
-			val graphic = mGraphics[it]
-			val canvas = mCanvasses[it]
-			if (graphic.mLastDrawnLine !== this) {
-				canvas.drawBitmap(mBitmap, mSourceRect, mDestinationRect, paint)
-				graphic.mLastDrawnLine = this
+		repeat(measurements.lines) {
+			val graphic = graphics[it]
+			val canvas = canvasses[it]
+			if (graphic.lastDrawnLine !== this) {
+				canvas.drawBitmap(bitmap, sourceRect, destinationRect, paint)
+				graphic.lastDrawnLine = this
 			}
 		}
 
 	override fun recycleGraphics() {
-		mBitmap.recycle()
+		bitmap.recycle()
 		super.recycleGraphics()
 	}
 

@@ -20,5 +20,5 @@ class BarsPerLineTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mBPL = TagParsingUtility.parseIntegerValue(value, 1, 32)
+	val bpl = TagParsingUtility.parseIntegerValue(value, 1, 32)
 }

@@ -20,6 +20,6 @@ class BeatsPerBarTag internal constructor(
 	position: Int,
 	value: String
 ) : ValueTag(name, lineNumber, position, value) {
-	val mBPB = TagParsingUtility.parseIntegerValue(value, 1, 32)
+	val bpb = TagParsingUtility.parseIntegerValue(value, 1, 32)
 }
 

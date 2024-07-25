@@ -17,8 +17,8 @@ import java.util.Date
  * it's source.
  */
 open class CachedFile : CachedItem {
-	val mFile: File
-	val mLastModified: Date
+	val file: File
+	val lastModified: Date
 
 	constructor(
 		file: File,
@@ -27,27 +27,27 @@ open class CachedFile : CachedItem {
 		lastModified: Date,
 		subfolderIDs: List<String>
 	) : super(id, name, subfolderIDs) {
-		mFile = file
-		mLastModified = lastModified
+		this.file = file
+		this.lastModified = lastModified
 	}
 
 	constructor(cachedFile: CachedFile) : this(
-		cachedFile.mFile,
-		cachedFile.mID,
-		cachedFile.mName,
-		cachedFile.mLastModified,
-		cachedFile.mSubfolderIDs
+		cachedFile.file,
+		cachedFile.id,
+		cachedFile.name,
+		cachedFile.lastModified,
+		cachedFile.subfolderIds
 	)
 
 	constructor(element: Element) : super(element) {
-		mLastModified = Date(element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME).toLong())
-		mFile = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
+		lastModified = Date(element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME).toLong())
+		file = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
 	}
 
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
-		element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, mFile.absolutePath)
-		element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "${mLastModified.time}")
+		element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, file.absolutePath)
+		element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "${lastModified.time}")
 	}
 
 	companion object {
