@@ -19,7 +19,7 @@ class MidiChannelPreferenceDialog(private val singleSelect: Boolean) :
 			alignmentMode = GridLayout.ALIGN_BOUNDS
 			isRowOrderPreserved = false
 		}
-		currentValue = (this.preference as MidiChannelPreference).channelMask
+		currentValue = (preference as MidiChannelPreference).channelMask
 		repeat(16) {
 			val tb = view.findViewById<ToggleButton>(toggleIDs[it])
 			val set = currentValue and (1 shl it) != 0
@@ -33,7 +33,7 @@ class MidiChannelPreferenceDialog(private val singleSelect: Boolean) :
 
 	override fun onDialogClosed(positiveResult: Boolean) {
 		if (positiveResult)
-			(this.preference as MidiChannelPreference).channelMask = currentValue
+			(preference as MidiChannelPreference).channelMask = currentValue
 	}
 
 	override fun onCheckedChanged(buttonView: CompoundButton, isNowChecked: Boolean) {

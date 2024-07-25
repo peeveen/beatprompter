@@ -46,12 +46,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
 	override fun onResume() {
 		val bluetoothPreference = findPreference<Preference>("bluetooth_screen_preference")
-		val context = this.requireContext()
-		bluetoothPreference?.isEnabled = PermissionsPreference.permissionsGranted(
-			context,
-			PermissionsSettingsFragment.getBluetoothPermissions(context)
-		)
-		super.onResume()
+		requireContext().also {
+			bluetoothPreference?.isEnabled = PermissionsPreference.permissionsGranted(
+				it,
+				PermissionsSettingsFragment.getBluetoothPermissions(it)
+			)
+			super.onResume()
+		}
 	}
 
 	override fun onDestroy() {

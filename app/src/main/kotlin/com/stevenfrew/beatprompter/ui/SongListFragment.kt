@@ -584,10 +584,8 @@ class SongListFragment
 	}
 
 	private fun showMIDIAliasErrors(errors: List<FileParseError>) {
-		val inflater = this.layoutInflater
-
 		@SuppressLint("InflateParams")
-		val view = inflater.inflate(R.layout.parse_errors_dialog, null)
+		val view = layoutInflater.inflate(R.layout.parse_errors_dialog, null)
 		val tv = view.findViewById<TextView>(R.id.errors)
 		val str = StringBuilder()
 		for (fpe in errors)
@@ -744,13 +742,15 @@ class SongListFragment
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
-		if (selectedFilter is MIDIAliasFilesFilter)
-			MIDIAliasListAdapter(
-				filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
-				requireActivity()
-			)
-		else
-			SongListAdapter(filterPlaylistNodes(playlist), this.requireActivity())
+		requireActivity().let {
+			if (selectedFilter is MIDIAliasFilesFilter)
+				MIDIAliasListAdapter(
+					filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
+					it
+				)
+			else
+				SongListAdapter(filterPlaylistNodes(playlist), it)
+		}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")

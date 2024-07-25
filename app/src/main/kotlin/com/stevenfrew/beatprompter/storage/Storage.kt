@@ -59,7 +59,7 @@ abstract class Storage protected constructor(
 					{ listener.onDownloadError(it) },
 					{
 						listener.onDownloadComplete()
-						this.dispose()
+						dispose()
 					})
 			)
 			add(messageSource.subscribe {
@@ -122,7 +122,7 @@ abstract class Storage protected constructor(
 					{ listener.onFolderSearchError(it, parentFragment.requireContext()) },
 					{
 						listener.onFolderSearchComplete()
-						this.dispose()
+						dispose()
 					})
 			)
 			add(messageSource.subscribe {
@@ -162,10 +162,10 @@ abstract class Storage protected constructor(
 			add(
 				rootPathSource.subscribe({
 					listener.onRootPathFound(it)
-					this.dispose()
+					dispose()
 				}, {
 					listener.onRootPathError(it)
-					this.dispose()
+					dispose()
 				})
 			)
 		}

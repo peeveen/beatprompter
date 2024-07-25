@@ -40,6 +40,6 @@ internal class BrowserItemListAdapter(items: List<ItemInfo>, context: Context) :
 	override fun isEnabled(position: Int): Boolean = getItem(position)?.isFolder ?: false
 
 	companion object {
-		private val ItemInfo.icon: Int get() = if (this.isFolder) R.drawable.ic_folder else R.drawable.ic_document
+		private val ItemInfo.icon: Int get() = if (isFolder) R.drawable.ic_folder else R.drawable.ic_document
 	}
 }

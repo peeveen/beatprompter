@@ -20,7 +20,7 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		seekBar = view.findViewById(R.id.fontSizeSeekBar)
 		textView = view.findViewById(R.id.fontSizeTextView)
 		seekBar!!.setOnSeekBarChangeListener(this)
-		currentValue = (this.preference as FontSizePreference).fontSize
+		currentValue = (preference as FontSizePreference).fontSize
 		seekBar!!.progress = currentValue
 		textView!!.text = String.format(Locale.getDefault(), "%d", currentValue)
 		//mSeekBar!!.min= FontSizePreference.FONT_SIZE_MIN
@@ -32,7 +32,7 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
 			val value = seekBar!!.progress
-			(this.preference as FontSizePreference).fontSize = value
+			(preference as FontSizePreference).fontSize = value
 		}
 	}
 

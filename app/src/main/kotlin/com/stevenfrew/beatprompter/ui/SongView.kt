@@ -121,7 +121,7 @@ class SongView
 		.setMaxStreams(16)
 		.setAudioAttributes(SongViewAudioAttributes)
 		.build()
-	private val clickAudioId = clickSoundPool.load(this.context, R.raw.click, 0)
+	private val clickAudioId = clickSoundPool.load(context, R.raw.click, 0)
 
 	enum class ScreenAction {
 		Scroll, Volume, None
@@ -444,15 +444,15 @@ class SongView
 			if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition) {
 				val diff = min(2048, max(-2048, targetPixelPosition - songPixelPosition))
 				val absDiff = abs(diff)
-				val targetAcceleration = min(accelerations[absDiff - 1], absDiff)
-				if (this.targetAcceleration * 2 < targetAcceleration)
-					this.targetAcceleration *= 2
+				val targetAccelerationNow = min(accelerations[absDiff - 1], absDiff)
+				if (targetAcceleration * 2 < targetAccelerationNow)
+					targetAcceleration *= 2
 				else
-					this.targetAcceleration = targetAcceleration
+					targetAcceleration = targetAccelerationNow
 				if (diff > 0)
-					songPixelPosition += this.targetAcceleration
+					songPixelPosition += targetAcceleration
 				else
-					songPixelPosition -= this.targetAcceleration
+					songPixelPosition -= targetAcceleration
 				if (songPixelPosition == targetPixelPosition)
 					clearScrollTarget()
 				val songTime = song!!.currentLine.getTimeFromPixel(songPixelPosition)
@@ -885,7 +885,7 @@ class SongView
 
 	@SuppressLint("ClickableViewAccessibility")
 	override fun onTouchEvent(event: MotionEvent): Boolean {
-		this.gestureDetector!!.onTouchEvent(event)
+		gestureDetector!!.onTouchEvent(event)
 		return super.onTouchEvent(event)
 	}
 

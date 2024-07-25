@@ -48,7 +48,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			.requestScopes(Scope(DriveScopes.DRIVE_READONLY), Scope(Scopes.EMAIL))
 			.build()
 	private val googleSignInClient =
-		GoogleSignIn.getClient(this.parentFragment.requireActivity(), googleClientSignInOptions)
+		GoogleSignIn.getClient(parentFragment.requireActivity(), googleClientSignInOptions)
 
 	override val cloudStorageName: String
 		get() = BeatPrompter.appResources.getString(R.string.google_drive_string)

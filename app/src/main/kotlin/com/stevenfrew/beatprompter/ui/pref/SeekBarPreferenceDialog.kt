@@ -21,7 +21,7 @@ class SeekBarPreferenceDialog(
 		valueLabel = view.findViewById(R.id.seekBarPreferenceValueLabel)
 		seekBar!!.setOnSeekBarChangeListener(this)
 		seekBar!!.max = max
-		seekBar!!.progress = (this.preference as SeekBarPreference).preferenceValue
+		seekBar!!.progress = (preference as SeekBarPreference).preferenceValue
 		super.onBindDialogView(view)
 	}
 
@@ -38,7 +38,7 @@ class SeekBarPreferenceDialog(
 		// When the user selects "OK", persist the new value
 		if (positiveResult) {
 			val value = seekBar!!.progress
-			(this.preference as SeekBarPreference).preferenceValue = value
+			(preference as SeekBarPreference).preferenceValue = value
 		}
 	}
 

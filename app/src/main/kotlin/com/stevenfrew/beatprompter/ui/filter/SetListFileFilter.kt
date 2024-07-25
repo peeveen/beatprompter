@@ -6,11 +6,11 @@ import com.stevenfrew.beatprompter.set.SetListEntry
 
 open class SetListFileFilter(
 	var setListFile: SetListFile,
-	songs: List<SongFile>
-) : SetListFilter(setListFile.setTitle, getSongList(setListFile.setListEntries, songs)) {
+	setSongs: List<SongFile>
+) : SetListFilter(setListFile.setTitle, getSongList(setListFile.setListEntries, setSongs)) {
 	var mMissingSetListEntries = getMissingSetListEntries(
 		setListFile.setListEntries,
-		this.songs
+		songs
 	)
 	var mWarned = mMissingSetListEntries.isEmpty()
 
