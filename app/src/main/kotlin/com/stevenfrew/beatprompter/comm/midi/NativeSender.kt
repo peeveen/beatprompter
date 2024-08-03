@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.media.midi.MidiDevice
 import android.media.midi.MidiInputPort
 import com.stevenfrew.beatprompter.comm.CommunicationType
-import com.stevenfrew.beatprompter.comm.SenderBase
 
 class NativeSender(
 	// Annoyingly, if we don't keep a hold of the MIDI device reference for Bluetooth MIDI, then
@@ -12,7 +11,7 @@ class NativeSender(
 	private val port: MidiInputPort,
 	name: String,
 	type: CommunicationType
-) : SenderBase(name, type) {
+) : MidiSenderBase(name, type) {
 	override fun sendMessageData(bytes: ByteArray, length: Int) = port.send(bytes, 0, length)
 	override fun close() = port.close()
 }

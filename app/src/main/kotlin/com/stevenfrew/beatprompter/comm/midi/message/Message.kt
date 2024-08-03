@@ -1,10 +1,11 @@
 package com.stevenfrew.beatprompter.comm.midi.message
 
+import com.stevenfrew.beatprompter.comm.MessageType
 import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
+open class Message(bytes: ByteArray) : OutgoingMessage(MessageType.Midi, bytes) {
 	companion object {
 		internal const val ZERO_BYTE: Byte = 0
 

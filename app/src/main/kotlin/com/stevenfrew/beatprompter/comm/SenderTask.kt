@@ -13,13 +13,17 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 		try {
 			// This take() will block if the queue is empty
 			val messages = messageQueue.getMessages()
+			val groupedMessages = messages.groupBy { it.type }
 
 			synchronized(sendersLock) {
 				for (f in senders.size - 1 downTo 0) {
 					// Sanity check in case a dead sender was removed.
 					if (f < senders.size) {
 						try {
-							senders[f].send(messages)
+							// Only send the types of messages that it is expecting.
+							groupedMessages[senders[f].messageType]?.also {
+								senders[f].send(it)
+							}
 						} catch (commException: Exception) {
 							// Problem with the I/O? This sender is now dead to us.
 							Logger.logComms("Sender threw an exception. Assuming it to be dead.")
