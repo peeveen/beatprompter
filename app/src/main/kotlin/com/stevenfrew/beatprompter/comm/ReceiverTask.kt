@@ -33,8 +33,10 @@ class ReceiverTask(
 	override fun stop() =
 		try {
 			receiver.close()
+			true
 		} catch (exception: Exception) {
 			// At least we tried ...
+			false
 		}
 
 	fun setUnregistered() {

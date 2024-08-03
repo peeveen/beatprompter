@@ -49,6 +49,8 @@ class SongDisplayActivity
 	private var lastOtherPageDownEvent: Long = 0
 	private var anyOtherKeyPageDown = false
 
+	private var setClockBpmFn: ((Double) -> Unit)? = null
+
 	private lateinit var songDisplayEventHandler: SongDisplayEventHandler
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +58,6 @@ class SongDisplayActivity
 
 		songDisplayInstance = this
 
-		val sendMidiClockPref = Preferences.sendMIDIClock
 		scrollOnProximity = Preferences.proximityScroll
 		anyOtherKeyPageDown = Preferences.anyOtherKeyPageDown
 
@@ -136,8 +137,13 @@ class SongDisplayActivity
 		songView!!.init(this, song)
 
 		// If no clock required, set BPM to zero.
-		if (!sendMidiClockPref && !song.sendMidiClock)
-			ClockSignalGeneratorTask.setBPM(0.0)
+		if (Preferences.sendMIDIClock || song.sendMidiClock) {
+			ClockSignalGeneratorTask.reset()
+			setClockBpmFn = {
+				ClockSignalGeneratorTask.setBPM(it)
+				Task.resumeTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
+			}
+		}
 
 		try {
 			sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -160,7 +166,9 @@ class SongDisplayActivity
 	override fun onPause() {
 		songDisplayActive = false
 		super.onPause()
+
 		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
+
 		if (songView != null)
 			songView!!.stop(false)
 		if (sensorManager != null && proximitySensor != null)
@@ -260,11 +268,7 @@ class SongDisplayActivity
 		// Don't care.
 	}
 
-	fun onSongBeat(bpm: Double) =
-		if (ClockSignalGeneratorTask.setBPM(bpm))
-			Task.resumeTask(ClockSignalGeneratorTask)
-		else
-			Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
+	fun onSongBeat(bpm: Double) = setClockBpmFn?.invoke(bpm)
 
 	fun onSongPaused() = Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
 

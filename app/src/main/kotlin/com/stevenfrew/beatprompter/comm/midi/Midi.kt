@@ -18,7 +18,7 @@ object Midi {
 
 	fun initialize(context: Context) {
 		senderTaskThread.start()
-		Task.resumeTask(senderTask)
+		Task.resumeTask(senderTask, senderTaskThread)
 
 		NativeMidiController.initialize(context, senderTask, receiverTasks)
 		UsbMidiController.initialize(context, senderTask, receiverTasks)

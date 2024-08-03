@@ -41,46 +41,51 @@ abstract class Task(private var running: Boolean) : Runnable {
 		Log.d(TASKTAG, "Task ended.")
 	}
 
-	open fun stop() {
+	private fun pause(): Boolean {
+		val wasRunning = isRunning
+		isRunning = false
+		return wasRunning
+	}
+
+	private fun resume(): Boolean {
+		val wasRunning = isRunning
+		isRunning = true
+		return !wasRunning
+	}
+
+	open fun stop(): Boolean {
+		val wasRunningAndNotStopping = isRunning && !shouldStop
 		isRunning = false
 		setShouldStop()
+		return wasRunningAndNotStopping
 	}
 
 	protected open fun initialise() {}
-	private fun pause() {
-		isRunning = false
-	}
-
-	private fun resume() {
-		isRunning = true
-	}
-
 	abstract fun doWork()
 
 	companion object {
 		private const val TASKTAG = "task"
 
-		fun pauseTask(task: Task?, thread: Thread?) {
+		private fun changeTaskState(task: Task?, thread: Thread?, fn: (Task) -> Boolean): Boolean =
 			if (task != null) {
-				task.pause()
-				thread?.interrupt()
-			}
-		}
+				if (fn(task)) {
+					if (thread != null) {
+						thread.interrupt()
+						true
+					} else false
+				} else false
+			} else false
 
-		fun resumeTask(task: Task?) = task?.resume()
+		fun pauseTask(task: Task?, thread: Thread?) = changeTaskState(task, thread) { it.pause() }
+		fun resumeTask(task: Task?, thread: Thread?) = changeTaskState(task, thread) { it.resume() }
 
 		fun stopTask(task: Task?, thread: Thread?) {
-			if (task != null) {
-				task.stop()
-				if (thread != null) {
-					thread.interrupt()
-					try {
-						thread.join()
-					} catch (ie: InterruptedException) {
-						Log.d(TASKTAG, "Task interrupted while waiting for join.", ie)
-					}
+			if (changeTaskState(task, thread) { it.stop() })
+				try {
+					thread?.join()
+				} catch (ie: InterruptedException) {
+					Log.d(TASKTAG, "Task interrupted while waiting for join.", ie)
 				}
-			}
 		}
 	}
 }

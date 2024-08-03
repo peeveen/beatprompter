@@ -47,7 +47,7 @@ class BeatPrompter : Application() {
 		Bluetooth.initialize(applicationContext)
 		songLoaderTaskThread.start()
 		midiClockOutTaskThread.start()
-		Task.resumeTask(SongLoadQueueWatcherTask)
+		Task.resumeTask(SongLoadQueueWatcherTask, songLoaderTaskThread)
 	}
 
 	private fun applyPreferenceDefaults() {

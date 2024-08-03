@@ -112,8 +112,6 @@ class SongView
 	private val scrollMarkerColor: Int
 	private var songDisplayActivity: SongDisplayActivity? = null
 	private val externalTriggerSafetyCatch: TriggerSafetyCatch
-	private val sendMidiClockPreference: Boolean
-	private var sendMidiClock = false
 	private val manualScrollPositions: ManualScrollPositions = ManualScrollPositions()
 
 	private val clickSoundPool: SoundPool = SoundPool
@@ -156,7 +154,6 @@ class SongView
 			Utils.makeHighlightColour(Preferences.currentLineHighlightColor)
 		defaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
 		pulse = Preferences.pulseDisplay
-		sendMidiClockPreference = Preferences.sendMIDIClock
 		metronomePref = if (Preferences.mute) MetronomeContext.Off else Preferences.metronomeContext
 
 		songTitleContrastBeatCounter = Utils.makeContrastingColour(beatCounterColor)
@@ -221,7 +218,6 @@ class SongView
 		@Suppress("UNCHECKED_CAST")
 		audioPlayers = audioPlayerMap.filterValues { it != null } as Map<AudioFile, AudioPlayer>
 
-		sendMidiClock = song.sendMidiClock || sendMidiClockPreference
 		currentBeatCountRect = song.beatCounterRect
 		this.song = song
 

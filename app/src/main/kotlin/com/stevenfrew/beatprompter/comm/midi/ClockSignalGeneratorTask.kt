@@ -3,7 +3,6 @@ package com.stevenfrew.beatprompter.comm.midi
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
-import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 import com.stevenfrew.beatprompter.util.Utils
 
 object ClockSignalGeneratorTask : Task(false) {
@@ -77,7 +76,11 @@ object ClockSignalGeneratorTask : Task(false) {
 			}
 			nanoDiff -= nanoSecondsPerMidiSignal
 		}
-		Midi.addBeatClockMessages(signalsNeeded)
+		try {
+			Midi.addBeatClockMessages(signalsNeeded)
+		} catch (interruptedException: InterruptedException) {
+			// Task was interrupted by the song being paused or stopped
+		}
 		if (signalsNeeded > 0) {
 			lastSignalTime = nanoTime - nanoDiff
 			val nextSignalDue = lastSignalTime + nanoSecondsPerMidiSignal
@@ -122,15 +125,14 @@ object ClockSignalGeneratorTask : Task(false) {
 			}
 		}
 
-
-	override fun stop() {
-		super.stop()
+	fun reset() {
 		lastSignalTime = 0.0
 		resetClockSignalsSent()
-		try {
-			Midi.putMessage(StopMessage)
-		} catch (e: Exception) {
-			Logger.logComms({ "Failed to add MIDI stop signal to output queue." }, e)
-		}
 	}
+
+	override fun stop() =
+		super.stop().also {
+			reset()
+		}
 }
+

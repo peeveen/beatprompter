@@ -30,7 +30,7 @@ object Bluetooth {
 	 */
 	fun initialize(context: Context) {
 		senderTaskThread.start()
-		Task.resumeTask(senderTask)
+		Task.resumeTask(senderTask, senderTaskThread)
 
 		BandBluetoothController.initialize(context, senderTask, receiverTasks)
 

@@ -43,7 +43,11 @@ object SongLoadQueueWatcherTask : Task(true) {
 				return
 			}
 		}
-		Thread.sleep(250)
+		try {
+			Thread.sleep(250)
+		} catch (interruptedException: InterruptedException) {
+			// Thread was interrupted in order to be paused or stopped.
+		}
 	}
 
 	fun onSongLoadFinished() =
@@ -51,10 +55,10 @@ object SongLoadQueueWatcherTask : Task(true) {
 			loadingSong = null
 		}
 
-	override fun stop() {
-		stopCurrentLoads()
-		super.stop()
-	}
+	override fun stop(): Boolean =
+		stopCurrentLoads().let {
+			super.stop()
+		}
 
 	private fun stopCurrentLoads() =
 		synchronized(songLoadLock) {
