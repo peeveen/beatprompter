@@ -1,8 +1,7 @@
 package com.stevenfrew.beatprompter.midi
 
 import com.stevenfrew.beatprompter.comm.midi.message.ControlChangeMessage
-import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.comm.midi.message.ProgramChangeMessage
 import com.stevenfrew.beatprompter.comm.midi.message.SongSelectMessage
 import com.stevenfrew.beatprompter.midi.alias.CommandValue
@@ -51,8 +50,8 @@ class SongTrigger(
 			&& bankSelectLSB is CommandValue
 			&& bankSelectMSB is CommandValue
 
-	fun getMIDIMessages(defaultOutputChannel: Byte): List<OutgoingMessage> =
-		mutableListOf<OutgoingMessage>().apply {
+	fun getMIDIMessages(defaultOutputChannel: Byte): List<MidiMessage> =
+		mutableListOf<MidiMessage>().apply {
 			if (canSend())
 				if (type == TriggerType.SongSelect)
 					add(SongSelectMessage(triggerIndex.resolve().toInt()))
@@ -64,14 +63,14 @@ class SongTrigger(
 
 					add(
 						ControlChangeMessage(
-							Message.MIDI_MSB_BANK_SELECT_CONTROLLER,
+							MidiMessage.MIDI_MSB_BANK_SELECT_CONTROLLER,
 							bankSelectMSB.resolve(),
 							channel
 						)
 					)
 					add(
 						ControlChangeMessage(
-							Message.MIDI_LSB_BANK_SELECT_CONTROLLER,
+							MidiMessage.MIDI_LSB_BANK_SELECT_CONTROLLER,
 							bankSelectLSB.resolve(),
 							channel
 						)

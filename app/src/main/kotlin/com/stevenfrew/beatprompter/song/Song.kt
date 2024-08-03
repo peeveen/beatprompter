@@ -7,7 +7,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
@@ -26,7 +26,7 @@ class Song(
 	firstEvent: LinkedEvent,
 	private val lines: List<Line>,
 	internal val audioEvents: List<AudioEvent>,
-	val initialMidiMessages: List<OutgoingMessage>,
+	val initialMidiMessages: List<MidiMessage>,
 	private val beatBlocks: List<BeatBlock>,
 	val sendMidiClock: Boolean,
 	val startScreenStrings: List<ScreenString>,

@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.midi.alias
 
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 /**
  * A simple sequence of MIDI bytes.
@@ -16,8 +16,8 @@ class SimpleAliasComponent(
 		aliases: List<Alias>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<OutgoingMessage> =
-		listOf(OutgoingMessage(values.map {
+	): List<MidiMessage> =
+		listOf(MidiMessage(values.map {
 			it.resolve(parameters, channelValue?.value ?: channel)
 		}.toByteArray()))
 }

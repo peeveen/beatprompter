@@ -5,4 +5,4 @@ internal class ControlChangeMessage(
 	value: Byte,
 	channel: Byte
 ) :
-	OutgoingMessage(mergeMessageByteWithChannel(MIDI_CONTROL_CHANGE_BYTE, channel), controller, value)
+	MidiMessage(mergeMessageByteWithChannel(MIDI_CONTROL_CHANGE_BYTE, channel), controller, value)

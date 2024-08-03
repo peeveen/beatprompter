@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.Context
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -33,11 +33,11 @@ object Midi {
 		if (initialised) midiOutQueue.addBeatClockMessages(amount)
 	}
 
-	internal fun putMessage(message: OutgoingMessage) {
+	internal fun putMessage(message: Message) {
 		if (initialised) midiOutQueue.putMessage(message)
 	}
 
-	internal fun putMessages(messages: List<OutgoingMessage>) {
+	internal fun putMessages(messages: List<Message>) {
 		if (initialised) midiOutQueue.putMessages(messages)
 	}
 }

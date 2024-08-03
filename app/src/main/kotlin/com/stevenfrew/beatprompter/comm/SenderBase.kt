@@ -7,18 +7,19 @@ abstract class SenderBase(
 ) : Sender {
 	private val outBuffer = ByteArray(bufferSize)
 
-	override fun send(messages: List<OutgoingMessage>) {
+	override fun send(messages: List<Message>) {
+		val convertedMessages = messages.map { convertMessage(it) }
 		var currentMessageIndex = 0
-		while (currentMessageIndex < messages.size) {
+		while (currentMessageIndex < convertedMessages.size) {
 			var bytesCopied = 0
 			// Copy messages to out-buffer
 			// We might have more than 4K of data to send here, so might need to loop.
-			while (currentMessageIndex < messages.size) {
-				val messageSize = messages[currentMessageIndex].length
+			while (currentMessageIndex < convertedMessages.size) {
+				val messageSize = convertedMessages[currentMessageIndex].length
 				if (bytesCopied + messageSize > bufferSize)
 					break
 				System.arraycopy(
-					messages[currentMessageIndex].bytes,
+					convertedMessages[currentMessageIndex].bytes,
 					0, outBuffer, bytesCopied, messageSize
 				)
 				bytesCopied += messageSize
@@ -27,6 +28,8 @@ abstract class SenderBase(
 			sendMessageData(outBuffer, bytesCopied)
 		}
 	}
+
+	protected open fun convertMessage(message: Message): Message = message
 
 	protected abstract fun sendMessageData(bytes: ByteArray, length: Int)
 

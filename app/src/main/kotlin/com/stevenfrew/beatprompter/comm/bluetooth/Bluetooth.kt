@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.MessageQueue
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -67,7 +67,7 @@ object Bluetooth {
 	val bluetoothClientCount: Int
 		get() = senderTask.senderCount
 
-	internal fun putMessage(message: OutgoingMessage) {
+	internal fun putMessage(message: Message) {
 		if (initialised) bluetoothOutQueue.putMessage(message)
 	}
 

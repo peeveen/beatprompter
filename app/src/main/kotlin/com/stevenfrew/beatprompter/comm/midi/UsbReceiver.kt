@@ -15,6 +15,8 @@ class UsbReceiver(
 	name: String,
 	type: CommunicationType
 ) : Receiver(name, type), CoroutineScope {
+	private var innerBuffer = ByteArray(INITIAL_INNER_BUFFER_SIZE)
+
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.IO
 	private var closed = false
@@ -46,6 +48,16 @@ class UsbReceiver(
 			closed = true
 		}
 
+	override fun parseMessageData(buffer: ByteArray, dataEnd: Int): Int {
+		while (innerBuffer.size < dataEnd)
+			innerBuffer = ByteArray(innerBuffer.size + INNER_BUFFER_GROW_SIZE)
+		var positions = 0 to 0 // first=read position, second=write position
+		while (positions.first < dataEnd)
+			positions =
+				parseUsbMidiMessages(buffer, innerBuffer, positions.first, positions.second, dataEnd)
+		return super.parseMessageData(innerBuffer, positions.second)
+	}
+
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
 		val maxRead = maximumAmount - offset
 		val newArray =
@@ -69,4 +81,21 @@ class UsbReceiver(
 	}
 
 	override fun unregister(task: ReceiverTask) = Midi.removeReceiver(task)
+
+	companion object {
+		private const val INITIAL_INNER_BUFFER_SIZE = 4096
+		private const val INNER_BUFFER_GROW_SIZE = 2048
+
+		private fun parseUsbMidiMessages(
+			readBuffer: ByteArray,
+			writeBuffer: ByteArray,
+			readStart: Int,
+			writeStart: Int,
+			readLimit: Int
+		): Pair<Int, Int> {
+			//TODO Actually parse the data.
+			System.arraycopy(readBuffer, readStart, writeBuffer, writeStart, readLimit)
+			return readLimit to readLimit
+		}
+	}
 }

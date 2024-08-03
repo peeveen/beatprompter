@@ -45,8 +45,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
-import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
@@ -140,7 +139,7 @@ class SongParser(
 	private val showBpm: ShowBPMContext
 	private val triggerContext: TriggerOutputContext
 	private val nativeDeviceSettings: DisplaySettings
-	private val initialMidiMessages = mutableListOf<OutgoingMessage>()
+	private val initialMidiMessages = mutableListOf<MidiMessage>()
 	private var stopAddingStartupItems = false
 	private val startScreenComments = mutableListOf<Song.Comment>()
 	private val events = mutableListOf<BaseEvent>()
@@ -178,7 +177,7 @@ class SongParser(
 		showChords = Preferences.showChords
 		triggerContext = Preferences.sendMIDITriggerOnStart
 		val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
-		defaultMidiOutputChannel = Message.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
+		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
 		showKey = Preferences.showKey && songLoadInfo.songFile.key.isNotBlank()
 		showBpm =
 			if (songLoadInfo.songFile.bpm > 0.0) Preferences.showBPMContext else ShowBPMContext.No

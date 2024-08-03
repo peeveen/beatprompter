@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.Message
 
-open class BluetoothMessage(bytes: ByteArray) : OutgoingMessage(bytes) {
+open class BluetoothMessage(bytes: ByteArray) : Message(bytes) {
 	companion object {
 		internal const val CHOOSE_SONG_MESSAGE_ID: Byte = 0
 		internal const val TOGGLE_START_STOP_MESSAGE_ID: Byte = 1

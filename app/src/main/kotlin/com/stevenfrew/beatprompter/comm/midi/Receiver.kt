@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverBase
-import com.stevenfrew.beatprompter.comm.midi.message.Message
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import kotlin.experimental.and
@@ -22,17 +22,17 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 		while (dataStart < dataEnd) {
 			val messageByte = buffer[dataStart]
 			// All interesting MIDI signals have the top bit set.
-			if (messageByte and EIGHT_ZERO_HEX != Message.ZERO_BYTE) {
+			if (messageByte and EIGHT_ZERO_HEX != MidiMessage.ZERO_BYTE) {
 				if (inSysEx) {
-					if (messageByte == Message.MIDI_SYSEX_END_BYTE)
+					if (messageByte == MidiMessage.MIDI_SYSEX_END_BYTE)
 						inSysEx = false
 				} else {
 					// These are single byte messages.
 					when (messageByte) {
-						Message.MIDI_START_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_START_SONG)
-						Message.MIDI_CONTINUE_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_CONTINUE_SONG)
-						Message.MIDI_STOP_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_STOP_SONG)
-						Message.MIDI_SONG_POSITION_POINTER_BYTE ->
+						MidiMessage.MIDI_START_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_START_SONG)
+						MidiMessage.MIDI_CONTINUE_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_CONTINUE_SONG)
+						MidiMessage.MIDI_STOP_BYTE -> EventRouter.sendEventToSongDisplay(Events.MIDI_STOP_SONG)
+						MidiMessage.MIDI_SONG_POSITION_POINTER_BYTE ->
 							// This message requires two additional bytes.
 							if (dataStart < dataEnd - 2)
 								EventRouter.sendEventToSongDisplay(
@@ -44,7 +44,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 							// Not enough data left.
 								break
 
-						Message.MIDI_SONG_SELECT_BYTE ->
+						MidiMessage.MIDI_SONG_SELECT_BYTE ->
 							if (dataStart < dataEnd - 1)
 								EventRouter.sendEventToSongList(
 									Events.MIDI_SONG_SELECT,
@@ -55,7 +55,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 							// Not enough data left.
 								break
 
-						Message.MIDI_SYSEX_START_BYTE -> inSysEx = true
+						MidiMessage.MIDI_SYSEX_START_BYTE -> inSysEx = true
 						else -> {
 							val channelsToListenTo = getIncomingChannels()
 							val messageByteWithoutChannel = (messageByte and F_ZERO_HEX)
@@ -64,7 +64,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 								val channel = (messageByte and 0x0F)
 								if (channelsToListenTo and (1 shl channel.toInt()) != 0) {
 									when (messageByteWithoutChannel) {
-										Message.MIDI_PROGRAM_CHANGE_BYTE ->
+										MidiMessage.MIDI_PROGRAM_CHANGE_BYTE ->
 											// This message requires one additional byte.
 											if (dataStart < dataEnd - 1) {
 												val pcValues = byteArrayOf(
@@ -77,15 +77,15 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 											} else
 												break
 
-										Message.MIDI_CONTROL_CHANGE_BYTE ->
+										MidiMessage.MIDI_CONTROL_CHANGE_BYTE ->
 											// The only control change value we care about are bank selects.
 											// Control change messages have two additional bytes.
 											if (dataStart < dataEnd - 2) {
 												val controller = buffer[++dataStart]
 												val bankValue = buffer[++dataStart]
-												if (controller == Message.MIDI_MSB_BANK_SELECT_CONTROLLER)
+												if (controller == MidiMessage.MIDI_MSB_BANK_SELECT_CONTROLLER)
 													midiBankMSBs[channel.toInt()] = bankValue
-												else if (controller == Message.MIDI_LSB_BANK_SELECT_CONTROLLER)
+												else if (controller == MidiMessage.MIDI_LSB_BANK_SELECT_CONTROLLER)
 													midiBankLSBs[channel.toInt()] = bankValue
 											} else
 												break

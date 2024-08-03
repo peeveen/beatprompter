@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.comm.CommunicationType
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverBase
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.bluetooth.message.BluetoothMessage
@@ -31,7 +31,7 @@ class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
 		var bufferCopy = buffer
 		var dataParsed = 0
 		var dataRemaining = dataEnd
-		val receivedMessages = mutableListOf<OutgoingMessage>()
+		val receivedMessages = mutableListOf<Message>()
 		var lastSetTimeMessage: SetSongTimeMessage? = null
 		var lastChooseSongMessage: ChooseSongMessage? = null
 		while (dataRemaining > 0) {
@@ -71,7 +71,7 @@ class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
 
 	override fun close() = socket.close()
 
-	private fun routeBluetoothMessage(msg: OutgoingMessage) {
+	private fun routeBluetoothMessage(msg: Message) {
 		when (msg) {
 			is ChooseSongMessage -> EventRouter.sendEventToSongList(
 				Events.BLUETOOTH_CHOOSE_SONG,
@@ -100,7 +100,7 @@ class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
 		/**
 		 * Constructs the message object from the received bytes.
 		 */
-		internal fun fromBytes(bytes: ByteArray): OutgoingMessage {
+		internal fun fromBytes(bytes: ByteArray): Message {
 			if (bytes.isNotEmpty())
 				return when (bytes[0]) {
 					BluetoothMessage.CHOOSE_SONG_MESSAGE_ID -> ChooseSongMessage.fromBytes(bytes)

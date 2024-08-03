@@ -8,8 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
-import com.stevenfrew.beatprompter.comm.midi.message.Message
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.alias.Alias
@@ -29,7 +28,7 @@ class MidiEventTag internal constructor(
 	position: Int,
 	value: String
 ) : Tag(name, lineNumber, position) {
-	val messages: List<OutgoingMessage>
+	val messages: List<MidiMessage>
 	val offset: EventOffset
 
 	init {
@@ -51,7 +50,7 @@ class MidiEventTag internal constructor(
 			value: String,
 			lineNumber: Int,
 			aliases: List<Alias>
-		): Pair<List<OutgoingMessage>, EventOffset> =
+		): Pair<List<MidiMessage>, EventOffset> =
 			normalizeMIDIValues(name, value, lineNumber).let { (tagName, tagValue, eventOffset) ->
 				val firstPassParamValues =
 					tagValue
@@ -64,7 +63,7 @@ class MidiEventTag internal constructor(
 				val (params, channelValue) =
 					separateParametersFromChannel(
 						firstPassParamValues,
-						Message.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
+						MidiMessage.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
 					)
 
 				try {
@@ -78,7 +77,7 @@ class MidiEventTag internal constructor(
 						) && it.parameterCount == resolvedBytes.size
 					}
 					when {
-						tagName == MIDI_SEND_TAG -> listOf(OutgoingMessage(resolvedBytes))
+						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes))
 						matchedAlias != null -> matchedAlias.resolve(
 							aliases,
 							resolvedBytes,

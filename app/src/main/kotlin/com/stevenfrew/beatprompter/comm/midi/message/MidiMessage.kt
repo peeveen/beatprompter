@@ -1,16 +1,21 @@
 package com.stevenfrew.beatprompter.comm.midi.message
 
-import com.stevenfrew.beatprompter.comm.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.Message
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class Message(bytes: ByteArray) : OutgoingMessage(bytes) {
+open class MidiMessage(bytes: ByteArray) : Message(bytes) {
+	constructor(byte: Byte) : this(byteArrayOf(byte))
+	constructor(byte1: Byte, byte2: Byte) : this(byteArrayOf(byte1, byte2))
+	constructor(byte1: Byte, byte2: Byte, byte3: Byte) : this(byteArrayOf(byte1, byte2, byte3))
+
 	companion object {
 		internal const val ZERO_BYTE: Byte = 0
 
 		internal const val MIDI_SYSEX_START_BYTE = 0xf0.toByte()
 		internal const val MIDI_SONG_POSITION_POINTER_BYTE = 0xf2.toByte()
 		internal const val MIDI_SONG_SELECT_BYTE = 0xf3.toByte()
+		internal const val MIDI_CLOCK_BYTE = 0xf8.toByte()
 		internal const val MIDI_START_BYTE = 0xfa.toByte()
 		internal const val MIDI_CONTINUE_BYTE = 0xfb.toByte()
 		internal const val MIDI_STOP_BYTE = 0xfc.toByte()

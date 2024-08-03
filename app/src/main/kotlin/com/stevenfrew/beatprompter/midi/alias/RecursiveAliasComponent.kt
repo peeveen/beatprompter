@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.midi.alias
 
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.comm.midi.message.OutgoingMessage
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 class RecursiveAliasComponent(
 	private val referencedAliasName: String,
@@ -16,7 +16,7 @@ class RecursiveAliasComponent(
 		aliases: List<Alias>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<OutgoingMessage> =
+	): List<MidiMessage> =
 		try {
 			aliases.first {
 				it.name.equals(

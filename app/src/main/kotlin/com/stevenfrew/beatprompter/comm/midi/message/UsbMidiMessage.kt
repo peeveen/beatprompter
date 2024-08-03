@@ -1,20 +1,9 @@
 package com.stevenfrew.beatprompter.comm.midi.message
 
-open class OutgoingMessage : Message {
-	protected constructor(byte1: Byte, byte2: Byte) : this(
-		byteArrayOf(
-			getCodeIndex(byte1),
-			byte1,
-			byte2,
-			0
-		)
-	)
+import com.stevenfrew.beatprompter.comm.Message
 
-	protected constructor(
-		byte1: Byte,
-		byte2: Byte,
-		byte3: Byte
-	) : this(byteArrayOf(getCodeIndex(byte1), byte1, byte2, byte3))
+open class UsbMidiMessage : MidiMessage {
+	constructor(message: Message) : this(message.bytes)
 
 	protected constructor(
 		bytes: ByteArray,

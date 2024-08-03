@@ -27,6 +27,6 @@ abstract class ReceiverBase(
 
 	companion object {
 		// 4K buffer by default.
-		private const val IN_BUFFER_SIZE = 4096
+		internal const val IN_BUFFER_SIZE = 4096
 	}
 }
