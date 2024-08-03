@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 import com.stevenfrew.beatprompter.util.Utils
 
-class ClockSignalGeneratorTask : Task(false) {
+object ClockSignalGeneratorTask : Task(false) {
 	private var _lastSignalTime = 0.0
 	private var _clockSignalsSent = 0
 	private var _nanoSecondsPerMidiSignal = 0.0
@@ -100,26 +100,28 @@ class ClockSignalGeneratorTask : Task(false) {
 		}
 	}
 
-	fun setBPM(bpm: Double) {
-		if (bpm != 0.0 && !shouldStop) {
-			val oldNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
-			val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm)
-			if (oldNanoSecondsPerMidiSignal == 0.0) {
-				// This is the first BPM value being set.
-				resetClockSignalsSent()
-				lastSignalTime = System.nanoTime().toDouble()
-				try {
-					Midi.putMessage(StartMessage)
-				} catch (e: Exception) {
-					Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
-				}
+	fun setBPM(bpm: Double): Boolean =
+		(bpm != 0.0 && !shouldStop).also {
+			if (it) {
+				val oldNanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
+				val newNanosecondsPerMidiSignal = Utils.bpmToMIDIClockNanoseconds(bpm)
+				if (oldNanoSecondsPerMidiSignal == 0.0) {
+					// This is the first BPM value being set.
+					resetClockSignalsSent()
+					lastSignalTime = System.nanoTime().toDouble()
+					try {
+						Midi.putMessage(StartMessage)
+					} catch (e: Exception) {
+						Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
+					}
 
-				nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
-				nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
-			} else
-				nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+					nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+					nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+				} else
+					nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
+			}
 		}
-	}
+
 
 	override fun stop() {
 		super.stop()

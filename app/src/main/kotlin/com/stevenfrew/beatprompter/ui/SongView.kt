@@ -745,7 +745,7 @@ class SongView
 		}
 		if (!midiInitiated)
 			if (songDisplayActivity != null)
-				songDisplayActivity!!.onSongStop()
+				songDisplayActivity!!.onSongPaused()
 	}
 
 	fun stop(destroyed: Boolean) {
@@ -1017,7 +1017,7 @@ class SongView
 				it.pause()
 		}
 		if (songDisplayActivity != null)
-			songDisplayActivity!!.onSongStop()
+			songDisplayActivity!!.onSongPaused()
 	}
 
 	private fun onVolumeChanged() {

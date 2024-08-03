@@ -15,6 +15,7 @@ import android.os.ParcelUuid
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
@@ -49,10 +50,6 @@ class SongDisplayActivity
 	private var anyOtherKeyPageDown = false
 
 	private lateinit var songDisplayEventHandler: SongDisplayEventHandler
-
-	private val midiClockOutTask = ClockSignalGeneratorTask()
-	private val midiClockOutTaskThread =
-		Thread(midiClockOutTask).also { it.priority = Thread.MAX_PRIORITY }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -138,8 +135,9 @@ class SongDisplayActivity
 		EventRouter.setSongDisplayEventHandler(songDisplayEventHandler)
 		songView!!.init(this, song)
 
-		if (sendMidiClockPref || song.sendMidiClock)
-			midiClockOutTaskThread.start()
+		// If no clock required, set BPM to zero.
+		if (!sendMidiClockPref && !song.sendMidiClock)
+			ClockSignalGeneratorTask.setBPM(0.0)
 
 		try {
 			sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -162,7 +160,7 @@ class SongDisplayActivity
 	override fun onPause() {
 		songDisplayActive = false
 		super.onPause()
-		Task.pauseTask(midiClockOutTask, midiClockOutTaskThread)
+		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
 		if (songView != null)
 			songView!!.stop(false)
 		if (sensorManager != null && proximitySensor != null)
@@ -175,7 +173,7 @@ class SongDisplayActivity
 		if (!songDisplayActive)
 			SongLoadJob.mLoadedSong = null
 
-		Task.stopTask(midiClockOutTask, midiClockOutTaskThread)
+		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
 
 		if (songView != null) {
 			songView!!.stop(true)
@@ -193,7 +191,6 @@ class SongDisplayActivity
 		songDisplayActive = true
 		super.onResume()
 		requestedOrientation = orientation
-		Task.resumeTask(midiClockOutTask)
 		requestedOrientation = orientation
 		if (sensorManager != null && proximitySensor != null)
 			sensorManager!!.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
@@ -263,12 +260,13 @@ class SongDisplayActivity
 		// Don't care.
 	}
 
-	fun onSongBeat(bpm: Double) {
-		if (bpm != 0.0)
-			midiClockOutTask.setBPM(bpm)
-	}
+	fun onSongBeat(bpm: Double) =
+		if (ClockSignalGeneratorTask.setBPM(bpm))
+			Task.resumeTask(ClockSignalGeneratorTask)
+		else
+			Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
 
-	fun onSongStop() = Task.stopTask(midiClockOutTask, midiClockOutTaskThread)
+	fun onSongPaused() = Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
 
 	class SongDisplayEventHandler internal constructor(
 		private val activity: SongDisplayActivity,

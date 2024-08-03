@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
+import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 import com.stevenfrew.beatprompter.util.GlobalAppResources
@@ -45,6 +46,7 @@ class BeatPrompter : Application() {
 		Midi.initialize(applicationContext)
 		Bluetooth.initialize(applicationContext)
 		songLoaderTaskThread.start()
+		midiClockOutTaskThread.start()
 		Task.resumeTask(SongLoadQueueWatcherTask)
 	}
 
@@ -65,5 +67,7 @@ class BeatPrompter : Application() {
 		const val APP_NAME = "BeatPrompter"
 		private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
 		lateinit var appResources: GlobalAppResources
+		val midiClockOutTaskThread =
+			Thread(ClockSignalGeneratorTask).also { it.priority = Thread.MAX_PRIORITY }
 	}
 }
