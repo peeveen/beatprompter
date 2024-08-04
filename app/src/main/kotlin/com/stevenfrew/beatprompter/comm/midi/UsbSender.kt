@@ -14,12 +14,9 @@ class UsbSender(
 	type: CommunicationType
 ) : SenderBase(name, type) {
 	override fun close() = connection.close()
-
 	override fun sendMessageData(bytes: ByteArray, length: Int) {
 		connection.bulkTransfer(endpoint, bytes, length, 5000)
 	}
 
-	override fun convertMessage(message: Message): Message {
-		return UsbMidiMessage(message)
-	}
+	override fun convertMessage(message: Message): Message = UsbMidiMessage(message)
 }

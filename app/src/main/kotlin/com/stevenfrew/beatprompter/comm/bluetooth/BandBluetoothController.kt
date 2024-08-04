@@ -11,11 +11,11 @@ import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.CommunicationType
+import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
+import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -262,7 +262,12 @@ object BandBluetoothController : CoroutineScope {
 					socket.remoteDevice.address,
 					Sender(socket, CommunicationType.Bluetooth)
 				)
-				EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
+				ConnectionNotificationTask.addConnection(
+					ConnectionDescriptor(
+						socket.remoteDevice.name,
+						CommunicationType.Bluetooth
+					)
+				)
 			} catch (se: SecurityException) {
 				Logger.logComms(
 					"A Bluetooth security exception was thrown while handling connection from client.",
@@ -283,7 +288,12 @@ object BandBluetoothController : CoroutineScope {
 					socket.remoteDevice.name,
 					Receiver(socket, CommunicationType.Bluetooth)
 				)
-				EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, socket.remoteDevice.name)
+				ConnectionNotificationTask.addConnection(
+					ConnectionDescriptor(
+						socket.remoteDevice.name,
+						CommunicationType.Bluetooth
+					)
+				)
 			}
 		} catch (se: SecurityException) {
 			Logger.logComms(

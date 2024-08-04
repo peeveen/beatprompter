@@ -1129,9 +1129,7 @@ class SongListFragment
 						songList.startSongActivity(msg.obj as UUID)
 				}
 
-				Events.SONG_LOAD_LINE_PROCESSED -> {
-					songList.updateLoadingProgress(msg.arg1, msg.arg2)
-				}
+				Events.SONG_LOAD_LINE_PROCESSED -> songList.updateLoadingProgress(msg.arg1, msg.arg2)
 
 				Events.CACHE_CLEARED -> songList.onCacheCleared(msg.obj as Boolean)
 				Events.TEMPORARY_SET_LIST_CLEARED -> songList.onTemporarySetListCleared()

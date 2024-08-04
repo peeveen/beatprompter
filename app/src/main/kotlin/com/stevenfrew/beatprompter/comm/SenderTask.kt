@@ -2,8 +2,6 @@ package com.stevenfrew.beatprompter.comm
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 
 class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 	private val senders = mutableListOf<Sender>()
@@ -47,7 +45,7 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 				senders.removeAll { it.name == id }
 			}
 			Logger.logComms { "Sender '$id' is now dead ... notifying main activity for UI." }
-			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, sender.name)
+			ConnectionNotificationTask.addDisconnection(ConnectionDescriptor(sender.name, sender.type))
 		}
 
 	fun removeAll(type: CommunicationType? = null) {

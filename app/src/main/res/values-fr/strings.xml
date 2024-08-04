@@ -330,8 +330,8 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="pref_proximityScroll_title">Le capteur de proximité fait défiler la page.</string>
 	<string name="pref_proximityScroll_summary">Si votre appareil est doté d\'un capteur de proximité, le déclenchera comme appuyer sur une pédale de descente de la page.</string>
 	<string name="local_storage_string">Stockage Local</string>
-	<string name="connection_added">Connecté à \'%1$s\'</string>
-	<string name="connection_lost">Connexion perdue avec \'%1$s\'</string>
+	<string name="connection_added">Connecté à %1$s</string>
+	<string name="connection_lost">Connexion perdue avec %1$s</string>
 	<string name="midi_alias_set_name_defined_multiple_times">Le nom du jeu d\'alias MIDI a déjà été défini.</string>
 	<string name="set_name_defined_multiple_times">Le nom de l\'ensemble a déjà été défini.</string>
 	<string name="image_too_large">L\'image après la mise à l\'échelle dépasse la taille maximale de 8192 x 8192. Ligne ignorée.</string>

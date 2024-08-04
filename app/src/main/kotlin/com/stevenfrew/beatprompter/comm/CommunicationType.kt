@@ -9,5 +9,13 @@ enum class CommunicationType {
 	Bluetooth, // Band Bluetooth
 	Midi, // Native MIDI
 	UsbMidi, // USB MIDI
-	BluetoothMidi // Bluetooth MIDI
+	BluetoothMidi; // Bluetooth MIDI
+
+	override fun toString(): String =
+		when (this) {
+			Bluetooth -> "Bluetooth"
+			Midi -> "MIDI"
+			UsbMidi -> "USB-MIDI"
+			BluetoothMidi -> "Bluetooth MIDI"
+		}
 }

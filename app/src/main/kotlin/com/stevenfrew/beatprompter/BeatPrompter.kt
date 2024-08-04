@@ -7,6 +7,7 @@ import android.content.res.AssetManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
+import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.Midi
@@ -14,8 +15,6 @@ import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
 import com.stevenfrew.beatprompter.util.GlobalAppResources
 
 class BeatPrompter : Application() {
-	private val songLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
-
 	override fun attachBaseContext(base: Context) {
 		super.attachBaseContext(base)
 		MultiDex.install(this)
@@ -47,6 +46,7 @@ class BeatPrompter : Application() {
 		Bluetooth.initialize(applicationContext)
 		songLoaderTaskThread.start()
 		midiClockOutTaskThread.start()
+		connectionNotificationTaskThread.start()
 		Task.resumeTask(SongLoadQueueWatcherTask, songLoaderTaskThread)
 	}
 
@@ -67,6 +67,9 @@ class BeatPrompter : Application() {
 		const val APP_NAME = "BeatPrompter"
 		private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
 		lateinit var appResources: GlobalAppResources
+
+		private val songLoaderTaskThread = Thread(SongLoadQueueWatcherTask)
+		private val connectionNotificationTaskThread = Thread(ConnectionNotificationTask)
 		val midiClockOutTaskThread =
 			Thread(ClockSignalGeneratorTask).also { it.priority = Thread.MAX_PRIORITY }
 	}

@@ -2,8 +2,6 @@ package com.stevenfrew.beatprompter.comm
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 
 class ReceiverTask(
 	val name: String,
@@ -25,7 +23,7 @@ class ReceiverTask(
 				receiver.unregister(this)
 			super.stop()
 			Logger.logComms("Receiver is now stopped.")
-			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, name)
+			ConnectionNotificationTask.addDisconnection(ConnectionDescriptor(name, receiver.type))
 		}
 
 	// Receivers often block when trying to receive data, so closing the socket or whatever behind

@@ -330,8 +330,8 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="pref_proximityScroll_title">O sensor de proximidade desliza a página.</string>
 	<string name="pref_proximityScroll_summary">Se o seu dispositivo tiver um sensor de proximidade, desencadear-se-á agirá como pressionando um pedal de deslocamento da página.</string>
 	<string name="local_storage_string">Armazenamento Local</string>
-	<string name="connection_added">Conectado a \'%1$s\'</string>
-	<string name="connection_lost">Conexão perdida com \'%1$s\'</string>
+	<string name="connection_added">Conectado a %1$s</string>
+	<string name="connection_lost">Conexão perdida com %1$s</string>
 	<string name="midi_alias_set_name_defined_multiple_times">O nome do conjunto de alias MIDI já foi definido.</string>
 	<string name="set_name_defined_multiple_times">O nome do conjunto já foi definido.</string>
 	<string name="image_too_large">A imagem após o dimensionamento excede o tamanho máximo de 8192 x 8192. Ignorando a linha.</string>

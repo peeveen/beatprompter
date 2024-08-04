@@ -330,8 +330,8 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_proximityScroll_title">Näherungssensor scrollt die Seite.</string>
 	<string name="pref_proximityScroll_summary">Wenn Ihr Gerät über einen Näherungssensor verfügt, funktioniert das Auslösen wie beim Drücken eines Seiten-Pedals.</string>
 	<string name="local_storage_string">Lokaler Speicher</string>
-	<string name="connection_added">Verbunden mit \'%1$s\'</string>
-	<string name="connection_lost">Verbindung zu \'%1$s\' verloren</string>
+	<string name="connection_added">Verbunden mit %1$s</string>
+	<string name="connection_lost">Verbindung zu %1$s verloren</string>
 	<string name="midi_alias_set_name_defined_multiple_times">Der Name des MIDI-Alias-Sets wurde bereits definiert.</string>
 	<string name="set_name_defined_multiple_times">Der Setname wurde bereits definiert.</string>
 	<string name="image_too_large">Das Bild nach der Skalierung überschreitet die maximale Größe von 8192 x 8192. Ignorieren der Linie.</string>

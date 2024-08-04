@@ -39,51 +39,57 @@ object EventRouter {
 			this.settingsEventHandler = settingsEventHandler
 		}
 
-	fun sendEventToSongList(event: Int) =
-		synchronized(songListEventHandlerLock) {
-			songListEventHandlers.values.forEach {
-				it.obtainMessage(event).sendToTarget()
-			}
-		}
 
 	fun sendEventToCache(event: Int, arg: Any) =
 		synchronized(cacheEventHandlerLock) {
 			Cache.CacheEventHandler.obtainMessage(event, arg).sendToTarget()
 		}
 
-	fun sendEventToSongDisplay(event: Int) =
-		synchronized(songDisplayEventHandlerLock) {
-			songDisplayEventHandler?.obtainMessage(event)?.sendToTarget()
-		}
-
-	fun sendEventToSettings(event: Int) =
+	fun sendEventToSettings(event: Int): Boolean =
 		synchronized(settingsEventHandlerLock) {
 			settingsEventHandler?.obtainMessage(event)?.sendToTarget()
+			return settingsEventHandler != null
 		}
 
-	fun sendEventToSongList(event: Int, arg: Any) =
+	fun sendEventToSongList(event: Int): Boolean =
+		synchronized(songListEventHandlerLock) {
+			songListEventHandlers.values.forEach {
+				it.obtainMessage(event).sendToTarget()
+			}
+			return songListEventHandlers.any()
+		}
+
+	fun sendEventToSongList(event: Int, arg: Any): Boolean =
 		synchronized(songListEventHandlerLock) {
 			songListEventHandlers.values.forEach {
 				it.obtainMessage(event, arg).sendToTarget()
 			}
+			return songListEventHandlers.any()
 		}
 
-	fun sendEventToSongList(event: Int, arg1: Int, arg2: Int) =
+	fun sendEventToSongList(event: Int, arg1: Int, arg2: Int): Boolean =
 		synchronized(songListEventHandlerLock) {
 			songListEventHandlers.values.forEach {
 				it.obtainMessage(event, arg1, arg2).sendToTarget()
 			}
+			return songListEventHandlers.any()
 		}
 
-	fun sendEventToSongDisplay(event: Int, arg: Any) =
+	fun sendEventToSongDisplay(event: Int): Boolean =
 		synchronized(songDisplayEventHandlerLock) {
-			if (songDisplayEventHandler != null)
-				songDisplayEventHandler!!.obtainMessage(event, arg).sendToTarget()
+			songDisplayEventHandler?.obtainMessage(event)?.sendToTarget()
+			return songDisplayEventHandler != null
 		}
 
-	fun sendEventToSongDisplay(event: Int, arg1: Int, arg2: Int) =
+	fun sendEventToSongDisplay(event: Int, arg: Any): Boolean =
 		synchronized(songDisplayEventHandlerLock) {
-			if (songDisplayEventHandler != null)
-				songDisplayEventHandler!!.obtainMessage(event, arg1, arg2).sendToTarget()
+			songDisplayEventHandler?.obtainMessage(event, arg)?.sendToTarget()
+			return songDisplayEventHandler != null
+		}
+
+	fun sendEventToSongDisplay(event: Int, arg1: Int, arg2: Int): Boolean =
+		synchronized(songDisplayEventHandlerLock) {
+			songDisplayEventHandler?.obtainMessage(event, arg1, arg2)?.sendToTarget()
+			return songDisplayEventHandler != null
 		}
 }

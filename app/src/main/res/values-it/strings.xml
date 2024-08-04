@@ -330,8 +330,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="pref_proximityScroll_title">Il sensore di prossimità scorre la pagina.</string>
 	<string name="pref_proximityScroll_summary">Se il tuo dispositivo ha un sensore di prossimità, attivandolo agirà come premendo un pedale di scorrimento verso il basso.</string>
 	<string name="local_storage_string">Memoria Locale</string>
-	<string name="connection_added">Connesso a \'%1$s\'</string>
-	<string name="connection_lost">Connessione persa a \'%1$s\'</string>
+	<string name="connection_added">Connesso a %1$s</string>
+	<string name="connection_lost">Connessione persa a %1$s</string>
 	<string name="midi_alias_set_name_defined_multiple_times">Il nome del set di alias MIDI è già stato definito.</string>
 	<string name="set_name_defined_multiple_times">Il nome del set è già stato definito.</string>
 	<string name="image_too_large">L\'immagine dopo il ridimensionamento supera la dimensione massima di 8192 x 8192. Linea di ignoranza.</string>

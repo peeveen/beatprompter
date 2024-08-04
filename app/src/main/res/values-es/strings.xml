@@ -330,8 +330,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_proximityScroll_title">El sensor de proximidad se desplaza por la página.</string>
 	<string name="pref_proximityScroll_summary">Si su dispositivo tiene un sensor de proximidad, activarlo actuará como presionar un pedal de avance de página.</string>
 	<string name="local_storage_string">Almacenamiento Local</string>
-	<string name="connection_added">Conectado a \'%1$s\'</string>
-	<string name="connection_lost">Se perdió la conexión a \'%1$s\'</string>
+	<string name="connection_added">Conectado a %1$s</string>
+	<string name="connection_lost">Se perdió la conexión a %1$s</string>
 	<string name="midi_alias_set_name_defined_multiple_times">El nombre del conjunto de alias MIDI ya ha sido definido.</string>
 	<string name="set_name_defined_multiple_times">Establecer nombre ya ha sido definido.</string>
 	<string name="image_too_large">La imagen después de la escala excede el tamaño máximo de 8192 x 8192. Ignorando la línea.</string>

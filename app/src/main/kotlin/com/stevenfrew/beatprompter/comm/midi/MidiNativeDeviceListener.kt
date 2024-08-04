@@ -4,10 +4,10 @@ import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
 import com.stevenfrew.beatprompter.comm.CommunicationType
+import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
+import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 
 internal class MidiNativeDeviceListener(
 	private val commType: CommunicationType,
@@ -54,7 +54,12 @@ internal class MidiNativeDeviceListener(
 							)
 						}
 					}
-					EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
+					ConnectionNotificationTask.addConnection(
+						ConnectionDescriptor(
+							deviceName,
+							commType
+						)
+					)
 				}
 			}
 		} catch (exception: Exception) {

@@ -9,11 +9,11 @@ import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
 import com.stevenfrew.beatprompter.comm.CommunicationType
+import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
+import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.midi.UsbMidiController.attemptUsbMidiConnection
-import com.stevenfrew.beatprompter.events.EventRouter
-import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
 internal class UsbBroadcastReceiver(
@@ -58,7 +58,12 @@ internal class UsbBroadcastReceiver(
 													deviceName,
 													UsbReceiver(conn, endPoint, deviceName, CommunicationType.UsbMidi)
 												)
-											EventRouter.sendEventToSongList(Events.CONNECTION_ADDED, deviceName)
+											ConnectionNotificationTask.addConnection(
+												ConnectionDescriptor(
+													deviceName,
+													CommunicationType.UsbMidi
+												)
+											)
 										}
 									}
 								}
