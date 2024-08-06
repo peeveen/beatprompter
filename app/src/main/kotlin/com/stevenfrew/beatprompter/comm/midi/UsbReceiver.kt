@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import kotlin.experimental.and
 
 class UsbReceiver(
 	private val connection: UsbDeviceConnection,
@@ -55,7 +56,8 @@ class UsbReceiver(
 		while (positions.first < dataEnd)
 			positions =
 				parseUsbMidiMessages(buffer, innerBuffer, positions.first, positions.second, dataEnd)
-		return super.parseMessageData(innerBuffer, positions.second)
+		super.parseMessageData(innerBuffer, positions.second)
+		return positions.first
 	}
 
 	override fun receiveMessageData(buffer: ByteArray, offset: Int, maximumAmount: Int): Int {
@@ -86,6 +88,10 @@ class UsbReceiver(
 		private const val INITIAL_INNER_BUFFER_SIZE = 4096
 		private const val INNER_BUFFER_GROW_SIZE = 2048
 
+		// Using zero to indicate "unknown/future expansion" message lengths.
+		private val CODE_INDEX_MESSAGE_LENGTH_LOOKUP =
+			arrayOf(0, 0, 2, 3, 3, 1, 2, 3, 3, 3, 3, 3, 2, 2, 3, 1)
+
 		private fun parseUsbMidiMessages(
 			readBuffer: ByteArray,
 			writeBuffer: ByteArray,
@@ -93,9 +99,24 @@ class UsbReceiver(
 			writeStart: Int,
 			readLimit: Int
 		): Pair<Int, Int> {
-			//TODO Actually parse the data.
-			System.arraycopy(readBuffer, readStart, writeBuffer, writeStart, readLimit)
-			return readLimit to readLimit
+			var currentReadPosition = readStart
+			var currentWritePosition = writeStart
+			while (currentReadPosition < readLimit) {
+				val codeIndex = readBuffer[currentReadPosition] and 0x0F
+				val messageLength = CODE_INDEX_MESSAGE_LENGTH_LOOKUP[codeIndex.toInt()]
+				if (messageLength != 0) {
+					System.arraycopy(
+						readBuffer,
+						currentReadPosition + 1,
+						writeBuffer,
+						currentWritePosition,
+						messageLength
+					)
+					currentWritePosition += messageLength
+				}
+				currentReadPosition += 4
+			}
+			return currentReadPosition to currentWritePosition
 		}
 	}
 }
