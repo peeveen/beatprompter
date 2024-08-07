@@ -82,7 +82,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private val imageFiles = mutableListOf<String>()
 	private var isFilterOnly = false
 	private val tags = mutableListOf<String>()
-	private var midiProgramChangeTriggerr: SongTrigger? = null
+	private var midiProgramChangeTrigger: SongTrigger? = null
 	private var midiSongSelectTrigger: SongTrigger? = null
 	private var isMixedMode: Boolean = false
 	private var lines = 0
@@ -143,7 +143,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 			midiSongSelectTrigger = midiSongSelectTriggerTag.trigger
 
 		if (midiProgramChangeTriggerTag != null)
-			midiProgramChangeTriggerr = midiProgramChangeTriggerTag.trigger
+			midiProgramChangeTrigger = midiProgramChangeTriggerTag.trigger
 
 		if (bpmTag != null)
 			bpm = bpmTag.bpm
@@ -197,7 +197,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 			audioFiles,
 			imageFiles,
 			tags.toSet(),
-			midiProgramChangeTriggerr
+			midiProgramChangeTrigger
 				?: SongTrigger.DEAD_TRIGGER,
 			midiSongSelectTrigger
 				?: SongTrigger.DEAD_TRIGGER,
