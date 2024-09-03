@@ -146,7 +146,7 @@ class CachedCloudCollection {
 					it.name.equals(
 						FILTER_ONLY_FILENAME,
 						true
-					) && it.subfolderIds.intersect(folderIDs).isNotEmpty()
+					) && it.subfolderIds.count{ id -> id.isNotBlank() } > 0 && it.subfolderIds.intersect(folderIDs).isNotEmpty()
 				}
 			}
 
