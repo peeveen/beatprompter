@@ -44,11 +44,12 @@ abstract class Line internal constructor(
 		else (if (nextLine == null) Long.MAX_VALUE else nextLine!!.lineTime).let {
 			if (time in lineTime until it)
 				calculatePixelFromTime(time)
-			if (time < lineTime && previousLine != null)
+			else if (time < lineTime && previousLine != null)
 				previousLine!!.getPixelFromTime(time)
-			if (time >= it && nextLine != null)
+			else if (time >= it && nextLine != null)
 				nextLine!!.getPixelFromTime(time)
-			songPixelPosition + measurements.pixelsToTimes.size
+			else
+				songPixelPosition + measurements.pixelsToTimes.size
 		}
 
 	private fun calculatePixelFromTime(time: Long): Int =
