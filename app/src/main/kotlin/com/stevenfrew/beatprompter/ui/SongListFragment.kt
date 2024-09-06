@@ -240,19 +240,23 @@ class SongListFragment
 			adapter = listAdapter
 		}
 
+	private fun setFilters(){
+			val spinnerLayout = menu?.findItem(R.id.tagspinnerlayout)?.actionView as? LinearLayout
+			spinnerLayout?.findViewById<Spinner>(R.id.tagspinner)?.apply {
+				onItemSelectedListener = this@SongListFragment
+				adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
+					applyFileFilter(selectedFilter)
+				}
+			}
+	}
+
 	@Deprecated("Deprecated in Java")
 	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		this.menu = menu
 		inflater.inflate(R.menu.songlistmenu, menu)
 
-		val spinnerLayout = menu.findItem(R.id.tagspinnerlayout).actionView as LinearLayout
-		spinnerLayout.findViewById<Spinner>(R.id.tagspinner).apply {
-			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
-				applyFileFilter(selectedFilter)
-			}
-		}
+		setFilters()
 
 		(menu.findItem(R.id.search).actionView as SearchView).apply {
 			setOnQueryTextListener(this@SongListFragment)
@@ -824,9 +828,11 @@ class SongListFragment
 		// The default selected filter should be "all songs".
 		selectedFilter = allSongsFilter
 		applyFileFilter(selectedFilter)
+		setFilters()
 		requireActivity().invalidateOptionsMenu()
 	}
 
+	@Deprecated("Deprecated in Java")
 	override fun onPrepareOptionsMenu(menu: Menu) =
 		menu.run {
 			findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
