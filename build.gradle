@@ -5,8 +5,6 @@ buildscript {
 	repositories {
 		mavenCentral()
 		google()
-		//noinspection JcenterRepositoryObsolete Microsoft still use it for OneDrive stuff
-		jcenter()
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:8.5.2'

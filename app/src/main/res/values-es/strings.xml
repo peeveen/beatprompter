@@ -413,4 +413,9 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_audioLatency_message">Cantidad de latencia a compensar en la reproducción de audio.</string>
 	<string name="pref_audioLatency_title">Latencia de audio</string>
 	<string name="retryingDownload">Sincronizando %1$s (rever %2$d/%3$d)</string>
+	<string name="pref_bluetoothMidiDevices_title">Dispositivos MIDI Bluetooth</string>
+	<string name="pref_bluetoothMidiDevices_summary">¿Qué dispositivos Bluetooth se deben considerar para MIDI?</string>
+	<string name="pref_bluetoothMidiDevices_dialogTitle">Dispositivos MIDI Bluetooth</string>
+	<string name="database_read_error">Se produjo un error al leer la base de datos.</string>
+	<string name="database_write_error">Se produjo un error al escribir la base de datos.</string>
 </resources>

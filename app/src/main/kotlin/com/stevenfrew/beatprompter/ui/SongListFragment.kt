@@ -240,14 +240,14 @@ class SongListFragment
 			adapter = listAdapter
 		}
 
-	private fun setFilters(){
-			val spinnerLayout = menu?.findItem(R.id.tagspinnerlayout)?.actionView as? LinearLayout
-			spinnerLayout?.findViewById<Spinner>(R.id.tagspinner)?.apply {
-				onItemSelectedListener = this@SongListFragment
-				adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
-					applyFileFilter(selectedFilter)
-				}
+	private fun setFilters() {
+		val spinnerLayout = menu?.findItem(R.id.tagspinnerlayout)?.actionView as? LinearLayout
+		spinnerLayout?.findViewById<Spinner>(R.id.tagspinner)?.apply {
+			onItemSelectedListener = this@SongListFragment
+			adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
+				applyFileFilter(selectedFilter)
 			}
+		}
 	}
 
 	@Deprecated("Deprecated in Java")
@@ -1139,6 +1139,16 @@ class SongListFragment
 
 				Events.CACHE_CLEARED -> songList.onCacheCleared(msg.obj as Boolean)
 				Events.TEMPORARY_SET_LIST_CLEARED -> songList.onTemporarySetListCleared()
+
+				Events.DATABASE_READ_ERROR, Events.DATABASE_WRITE_ERROR -> {
+					Toast.makeText(
+						songList.context,
+						if (msg.what == Events.DATABASE_READ_ERROR) BeatPrompter.appResources.getString(R.string.database_read_error) else BeatPrompter.appResources.getString(
+							R.string.database_write_error
+						),
+						Toast.LENGTH_LONG
+					).show()
+				}
 			}
 		}
 	}

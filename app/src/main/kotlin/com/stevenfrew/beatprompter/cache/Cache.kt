@@ -244,22 +244,27 @@ object Cache {
 	}
 
 	private fun writeDatabase() {
-		val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-		if (!database.delete())
-			Logger.log("Failed to delete database file.")
-		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-		val d = docBuilder.newDocument()
-		val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
-		root.setAttribute(
-			XML_DATABASE_VERSION_ATTRIBUTE,
-			BeatPrompter.appResources.getString(R.string.version)
-		)
-		d.appendChild(root)
-		cachedCloudItems.writeToXML(d, root)
-		val transformer = TransformerFactory.newInstance().newTransformer()
-		val output = StreamResult(database)
-		val input = DOMSource(d)
-		transformer.transform(input, output)
+		try {
+			val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
+			if (!database.delete())
+				Logger.log("Failed to delete database file.")
+			val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+			val d = docBuilder.newDocument()
+			val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
+			root.setAttribute(
+				XML_DATABASE_VERSION_ATTRIBUTE,
+				BeatPrompter.appResources.getString(R.string.version)
+			)
+			d.appendChild(root)
+			cachedCloudItems.writeToXML(d, root)
+			val transformer = TransformerFactory.newInstance().newTransformer()
+			val output = StreamResult(database)
+			val input = DOMSource(d)
+			transformer.transform(input, output)
+		} catch (ioe: Exception) {
+			Logger.log(ioe)
+			EventRouter.sendEventToSongList(Events.DATABASE_WRITE_ERROR)
+		}
 	}
 
 	fun getCacheFolderForStorage(storage: StorageType): CacheFolder =
@@ -270,22 +275,13 @@ object Cache {
 		val cacheFolder = getCacheFolderForStorage(Preferences.storageSystem)
 		cacheFolder.clear()
 		cachedCloudItems.clear()
-		try {
-			writeDatabase()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
-		}
+		writeDatabase()
 		EventRouter.sendEventToSongList(Events.CACHE_CLEARED, report)
 	}
 
 	fun onCacheUpdated(cache: CachedCloudCollection) {
 		cachedCloudItems = cache
 		EventRouter.sendEventToSongList(Events.CACHE_UPDATED, cache)
-		try {
-			writeDatabase()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
-		}
 	}
 
 	private val cloudPath: String
@@ -305,11 +301,7 @@ object Cache {
 			if (slf.file == temporarySetListFile)
 				slf.setListEntries.clear()
 		initialiseTemporarySetListFile(true, context)
-		try {
-			writeDatabase()
-		} catch (ioe: Exception) {
-			Logger.log(ioe)
-		}
+		writeDatabase()
 		EventRouter.sendEventToSongList(Events.TEMPORARY_SET_LIST_CLEARED)
 	}
 
