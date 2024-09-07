@@ -34,7 +34,9 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 			val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
 			val song = values[position].songFile
 			notesIcon.visibility =
-				if (song.audioFiles.isEmpty() || !showMusicIcon) View.GONE else View.VISIBLE
+				if (song.audioFiles.values.flatten()
+						.isEmpty() || !showMusicIcon
+				) View.GONE else View.VISIBLE
 			docIcon.visibility =
 				if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			beatIcon.visibility =

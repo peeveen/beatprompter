@@ -77,6 +77,7 @@ abstract class SongFileParser<TResultType>(
 		audioTags.forEachIndexed { index, it ->
 			val variationNames = getVariationNamesForIndexedAudioFile(
 				index,
+				audioTags.count(),
 				line.lineNumber,
 				it.filename,
 				noVariationsDefined
@@ -161,12 +162,16 @@ abstract class SongFileParser<TResultType>(
 
 	private fun getVariationNamesForIndexedAudioFile(
 		index: Int,
+		audioTagCount: Int,
 		lineNumber: Int,
 		filename: String,
 		canAddVariation: Boolean
 	): List<String>? {
 		if (variations.size > index)
-			return variations.takeLast(variations.size - index)
+			return if (audioTagCount > index)
+				listOf(variations[index])
+			else
+				variations.takeLast(variations.size - index)
 		if (canAddVariation) {
 			variations.add(filename)
 			audioFiles[filename] = mutableListOf()
