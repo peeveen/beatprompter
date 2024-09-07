@@ -220,7 +220,7 @@ class SongFile(
 		) = audioFiles.forEach {
 			doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG).apply {
 				setAttribute(VARIATION_TAG, it.key)
-				writeStringsToElement(doc, element, AUDIO_FILE_TAG, it.value)
+				writeStringsToElement(doc, this, AUDIO_FILE_TAG, it.value)
 				element.appendChild(this)
 			}
 		}
