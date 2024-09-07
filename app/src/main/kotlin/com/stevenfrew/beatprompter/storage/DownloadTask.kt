@@ -6,6 +6,7 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.cache.Cache.writeDatabase
 import com.stevenfrew.beatprompter.cache.CacheComparisonResult
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.CachedFolder
@@ -73,6 +74,7 @@ class DownloadTask(
 					Cache.cachedCloudItems.removeNonExistent(
 						cloudItemsFound.values.asSequence().map { c -> c.id }.toSet()
 					)
+				writeDatabase()
 				handler.obtainMessage(Events.CACHE_UPDATED, Cache.cachedCloudItems)
 					.sendToTarget()
 				closeProgressDialog()
@@ -119,7 +121,7 @@ class DownloadTask(
 				val itemsToUpdate = downloadsAndUpdates.second
 
 				itemsToUpdate.forEach {
-					Cache.cachedCloudItems.updateLocations(it)
+					Cache.cachedCloudItems.updateItem(it)
 				}
 
 				storage.downloadFiles(itemsToDownload, itemDownloadListener)

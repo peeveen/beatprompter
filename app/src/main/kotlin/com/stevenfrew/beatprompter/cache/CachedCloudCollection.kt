@@ -52,8 +52,8 @@ class CachedCloudCollection {
 		items[cachedItem.id] = cachedItem
 	}
 
-	fun updateLocations(fileInfo: FileInfo) {
-		items[fileInfo.id]?.subfolderIds = fileInfo.subfolderIds
+	fun updateItem(fileInfo: FileInfo) {
+		items[fileInfo.id]?.update(fileInfo)
 	}
 
 	fun remove(file: ItemInfo) = items.remove(file.id)

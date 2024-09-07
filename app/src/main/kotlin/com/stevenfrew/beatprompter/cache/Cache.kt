@@ -243,7 +243,7 @@ object Cache {
 		return databaseExists
 	}
 
-	private fun writeDatabase() {
+	fun writeDatabase() {
 		try {
 			val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
 			if (!database.delete())
