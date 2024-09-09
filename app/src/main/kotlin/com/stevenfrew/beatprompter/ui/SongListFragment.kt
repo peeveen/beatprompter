@@ -240,13 +240,14 @@ class SongListFragment
 			adapter = listAdapter
 		}
 
-	private fun setFilters() {
+	private fun setFilters(initialSelection: Int = 0) {
 		val spinnerLayout = menu?.findItem(R.id.tagspinnerlayout)?.actionView as? LinearLayout
 		spinnerLayout?.findViewById<Spinner>(R.id.tagspinner)?.apply {
 			onItemSelectedListener = this@SongListFragment
 			adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
 				applyFileFilter(selectedFilter)
 			}
+			setSelection(initialSelection)
 		}
 	}
 
@@ -255,9 +256,7 @@ class SongListFragment
 		// Inflate the menu; this adds items to the action bar if it is present.
 		this.menu = menu
 		inflater.inflate(R.menu.songlistmenu, menu)
-
 		setFilters()
-
 		(menu.findItem(R.id.search).actionView as SearchView).apply {
 			setOnQueryTextListener(this@SongListFragment)
 			isSubmitButtonEnabled = false
@@ -727,13 +726,13 @@ class SongListFragment
 		if (selectedFilter.canSort) {
 			val sorting = Preferences.sorting
 			sorting.forEach {
-				when (it) {
-					SortingPreference.Date -> playlist = playlist.sortByDateModified()
-					SortingPreference.Artist -> playlist = playlist.sortByArtist()
-					SortingPreference.Title -> playlist = playlist.sortByTitle()
-					SortingPreference.Mode -> playlist = playlist.sortByMode()
-					SortingPreference.Rating -> playlist = playlist.sortByRating()
-					SortingPreference.Key -> playlist = playlist.sortByKey()
+				playlist = when (it) {
+					SortingPreference.Date -> playlist.sortByDateModified()
+					SortingPreference.Artist -> playlist.sortByArtist()
+					SortingPreference.Title -> playlist.sortByTitle()
+					SortingPreference.Mode -> playlist.sortByMode()
+					SortingPreference.Rating -> playlist.sortByRating()
+					SortingPreference.Key -> playlist.sortByKey()
 				}
 			}
 		}
@@ -758,6 +757,7 @@ class SongListFragment
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")
+		val lastSelectedFilter = selectedFilter
 		val tagAndFolderFilters = mutableListOf<Filter>()
 
 		// Create filters from song tags and sub-folders. Many songs can share the same
@@ -790,11 +790,7 @@ class SongListFragment
 		tagAndFolderFilters.sortBy { it.name.lowercase() }
 
 		// Now create the basic "all songs" filter, dead easy ...
-		val allSongsFilter = AllSongsFilter(cache
-			.songFiles
-			.asSequence()
-			.filterNot { cache.isFilterOnly(it) }
-			.toList())
+		val allSongsFilter = createAllSongsFilter(cache)
 
 		// Depending on whether we have a temporary set list file, we can create a temporary
 		// set list filter ...
@@ -826,11 +822,23 @@ class SongListFragment
 			.sortedWith(FilterComparator.instance)
 
 		// The default selected filter should be "all songs".
-		selectedFilter = allSongsFilter
+		selectedFilter = findFilter(lastSelectedFilter, cache)
 		applyFileFilter(selectedFilter)
-		setFilters()
+		val selectedFilterIndex = filters.indexOf(selectedFilter)
+		setFilters(if (selectedFilterIndex == -1) 0 else selectedFilterIndex)
 		requireActivity().invalidateOptionsMenu()
 	}
+
+	private fun createAllSongsFilter(cache: CachedCloudCollection): Filter = AllSongsFilter(cache
+		.songFiles
+		.asSequence()
+		.filterNot { cache.isFilterOnly(it) }
+		.toList())
+
+	private fun findFilter(filter: Filter, cache: CachedCloudCollection): Filter =
+		filters.find { it == filter } ?: filters.find { it is AllSongsFilter } ?: createAllSongsFilter(
+			cache
+		)
 
 	@Deprecated("Deprecated in Java")
 	override fun onPrepareOptionsMenu(menu: Menu) =
@@ -1092,6 +1100,11 @@ class SongListFragment
 
 				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())
 				Events.CACHE_UPDATED -> {
+					Toast.makeText(
+						songList.context,
+						"Cache updated",
+						Toast.LENGTH_LONG
+					).show()
 					val cache = msg.obj as CachedCloudCollection
 					songList.onCacheUpdated(cache)
 				}

@@ -10,6 +10,5 @@ class AllSongsFilter(songs: List<SongFile>) : SongFilter(
 	true
 ) {
 	override fun equals(other: Any?): Boolean = other == null || other is AllSongsFilter
-
 	override fun hashCode(): Int = javaClass.hashCode()
 }

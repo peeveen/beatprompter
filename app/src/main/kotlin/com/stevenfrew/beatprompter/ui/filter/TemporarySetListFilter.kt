@@ -8,13 +8,11 @@ class TemporarySetListFilter(
 	songs: List<SongFile>
 ) : SetListFileFilter(setListFile, songs) {
 	fun addSong(sf: SongFile) = songs.add(sf)
-
 	override fun equals(other: Any?): Boolean = other != null && other is TemporarySetListFilter
+	override fun hashCode(): Int = javaClass.hashCode()
 
 	fun clear() {
 		mMissingSetListEntries.clear()
 		songs.clear()
 	}
-
-	override fun hashCode(): Int = javaClass.hashCode()
 }
