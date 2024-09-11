@@ -64,8 +64,13 @@
 		android:title="@string/buyMeACoffee"
 		app:showAsAction="never" />
 	<item
-		android:id="@+id/about"
+		android:id="@+id/debug_log"
 		android:orderInCategory="9"
+		android:title="@string/showDebugLog"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/about"
+		android:orderInCategory="10"
 		android:title="@string/about"
 		app:showAsAction="never" />
 </menu>
