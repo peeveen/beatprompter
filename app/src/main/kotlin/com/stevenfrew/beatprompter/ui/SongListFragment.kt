@@ -1111,11 +1111,7 @@ class SongListFragment
 
 				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())
 				Events.CACHE_UPDATED -> {
-					Toast.makeText(
-						songList.context,
-						"Cache updated",
-						Toast.LENGTH_LONG
-					).show()
+					BeatPrompter.addDebugMessage("CACHE_UPDATED received")
 					val cache = msg.obj as CachedCloudCollection
 					songList.onCacheUpdated(cache)
 				}
