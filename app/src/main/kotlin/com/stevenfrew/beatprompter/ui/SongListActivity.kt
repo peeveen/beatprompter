@@ -10,14 +10,16 @@ import com.stevenfrew.beatprompter.R
 class SongListActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		val fragmentManager: FragmentManager = supportFragmentManager
-		val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-		fragmentTransaction.replace(
-			android.R.id.content,
-			SongListFragment(),
-			"SongListFragment" + (++mSongListFragmentCounter)
-		)
-		fragmentTransaction.commit()
+		if (savedInstanceState == null) {
+			val fragmentManager: FragmentManager = supportFragmentManager
+			val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+			fragmentTransaction.replace(
+				android.R.id.content,
+				SongListFragment(),
+				"SongListFragment" + (++mSongListFragmentCounter)
+			)
+			fragmentTransaction.commit()
+		}
 
 		supportActionBar?.apply {
 			displayOptions = ActionBar.DISPLAY_SHOW_HOME
