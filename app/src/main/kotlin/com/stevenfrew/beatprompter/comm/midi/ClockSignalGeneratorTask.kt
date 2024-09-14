@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.util.Utils
 
 object ClockSignalGeneratorTask : Task(false) {
@@ -112,12 +111,6 @@ object ClockSignalGeneratorTask : Task(false) {
 					// This is the first BPM value being set.
 					resetClockSignalsSent()
 					lastSignalTime = System.nanoTime().toDouble()
-					try {
-						Midi.putMessage(StartMessage)
-					} catch (e: Exception) {
-						Logger.logComms({ "Failed to add MIDI start signal to output queue." }, e)
-					}
-
 					nanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
 					nextNanoSecondsPerMidiSignal = newNanosecondsPerMidiSignal
 				} else

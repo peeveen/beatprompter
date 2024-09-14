@@ -28,15 +28,15 @@
 			android:textSize="20sp" />
 
 		<TextView
-			android:id="@+id/textView14"
+			android:id="@+id/versionInfo"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:text="@string/version" />
+			android:text="(version here)" />
 
 		<Space
 			android:layout_width="match_parent"
-			android:layout_height="10sp" />
+			android:layout_height="11sp" />
 
 		<TextView
 			android:id="@+id/textView12"

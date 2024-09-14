@@ -804,6 +804,6 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="database_write_error">An error occurred while writing the database.</string>
 	<string name="showDebugLog" translatable="false">Show debug log ...</string>
 	<string name="debugLogDialogCaption" translatable="false">Debug Log</string>
-	<string name="versionInfo" translatable="false">$1$s.$2$d</string>
+	<string name="versionInfo" translatable="false">%1$s.%2$d</string>
 
 </resources>
