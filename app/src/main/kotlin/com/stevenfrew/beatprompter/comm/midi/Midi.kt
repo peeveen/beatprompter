@@ -1,11 +1,15 @@
 package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.Context
+import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.midi.message.ContinueMessage
+import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
+import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 
 object Midi {
 	private const val MIDI_QUEUE_SIZE = 4096
@@ -36,6 +40,17 @@ object Midi {
 	internal fun putMessage(message: Message) {
 		if (initialised) midiOutQueue.putMessage(message)
 	}
+
+	private fun tryPutMessage(message: Message, messageName: String) =
+		try {
+			putMessage(message)
+		} catch (e: Exception) {
+			Logger.logComms({ "Failed to add MIDI $messageName signal to output queue." }, e)
+		}
+
+	fun putStartMessage() = tryPutMessage(StartMessage, "start")
+	fun putStopMessage() = tryPutMessage(StopMessage, "stop")
+	fun putContinueMessage() = tryPutMessage(ContinueMessage, "continue")
 
 	internal fun putMessages(messages: List<Message>) {
 		if (initialised) midiOutQueue.putMessages(messages)

@@ -167,8 +167,7 @@ class SongDisplayActivity
 		songDisplayActive = false
 		super.onPause()
 
-		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
-
+		pauseClockSignalGeneratorTask()
 		if (songView != null)
 			songView!!.stop(false)
 		if (sensorManager != null && proximitySensor != null)
@@ -181,8 +180,7 @@ class SongDisplayActivity
 		if (!songDisplayActive)
 			SongLoadJob.mLoadedSong = null
 
-		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
-
+		pauseClockSignalGeneratorTask()
 		if (songView != null) {
 			songView!!.stop(true)
 			songView = null
@@ -264,13 +262,16 @@ class SongDisplayActivity
 		}
 	}
 
-	override fun onAccuracyChanged(sensor: Sensor, i: Int) {
-		// Don't care.
-	}
+	override fun onAccuracyChanged(sensor: Sensor, i: Int) = Unit // Don't care
 
 	fun onSongBeat(bpm: Double) = setClockBpmFn?.invoke(bpm)
 
-	fun onSongPaused() = Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
+	fun onSongPaused() = pauseClockSignalGeneratorTask()
+
+	private fun pauseClockSignalGeneratorTask() {
+		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
+		Midi.putStopMessage()
+	}
 
 	class SongDisplayEventHandler internal constructor(
 		private val activity: SongDisplayActivity,
