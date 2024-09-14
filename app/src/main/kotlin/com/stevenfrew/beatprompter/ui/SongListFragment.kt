@@ -36,6 +36,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
@@ -951,6 +952,11 @@ class SongListFragment
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
+				findViewById<TextView>(R.id.versionInfo)?.text = BeatPrompter.appResources.getString(
+					R.string.versionInfo,
+					BuildConfig.VERSION_NAME,
+					BuildConfig.VERSION_CODE
+				)
 				findViewById<ImageView>(R.id.buyMeACoffeeIcon)?.setOnClickListener { openBuyMeACoffeeURL() }
 			}
 		}

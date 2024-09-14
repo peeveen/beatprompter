@@ -24,11 +24,11 @@
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<TextView
-		android:id="@+id/textView5"
+		android:id="@+id/versionInfo"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal"
-		android:text="@string/version"
+		android:text="(version here)"
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<TextView
