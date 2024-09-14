@@ -418,4 +418,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_bluetoothMidiDevices_dialogTitle">Dispositivos MIDI Bluetooth</string>
 	<string name="database_read_error">Se produjo un error al leer la base de datos.</string>
 	<string name="database_write_error">Se produjo un error al escribir la base de datos.</string>
+	<string name="rebuildingDatabase">Reconstruyendo base de datos...</string>
 </resources>

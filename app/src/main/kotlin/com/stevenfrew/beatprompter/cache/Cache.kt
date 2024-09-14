@@ -165,20 +165,22 @@ object Cache {
 		tagName: String,
 		parser: (cachedItem: Element, useXmlData: Boolean) -> TCachedCloudItemType,
 		itemSource: PublishSubject<CachedItem>,
-		messageSource: PublishSubject<String>,
-		useXmlData: Boolean
+		messageSource: PublishSubject<Pair<String?, Boolean>>,
+		rebuild: Boolean
 	) {
 		val elements = xmlDoc.getElementsByTagName(tagName)
 		repeat(elements.length) {
 			val element = elements.item(it) as Element
 			try {
-				val cachedItem = parser(element, useXmlData)
+				val cachedItem = parser(element, !rebuild)
 				itemSource.onNext(cachedItem)
-				messageSource.onNext(cachedItem.name)
+				messageSource.onNext(Pair(cachedItem.name, false))
 			} catch (exception: InvalidBeatPrompterFileException) {
 				messageSource.onNext(
-					exception.message
-						?: BeatPrompter.appResources.getString(R.string.failedToReadDatabaseItem)
+					Pair(
+						exception.message
+							?: BeatPrompter.appResources.getString(R.string.failedToReadDatabaseItem), false
+					)
 				)
 				itemSource.onError(exception)
 				// This should never happen. If we could write out the file info, then it was valid.
@@ -194,11 +196,12 @@ object Cache {
 	private fun readFromXML(
 		xmlDoc: Document,
 		itemSource: PublishSubject<CachedItem>,
-		messageSource: PublishSubject<String>
-	) {
+		messageSource: PublishSubject<Pair<String?, Boolean>>
+	): Boolean {
 		val xmlDatabaseVersion = xmlDoc.documentElement.getAttribute(XML_DATABASE_VERSION_ATTRIBUTE)
 		val currentAppVersion = "${BuildConfig.VERSION_CODE}"
-		val useXmlData = currentAppVersion == xmlDatabaseVersion
+		val rebuild = currentAppVersion != xmlDatabaseVersion
+		messageSource.onNext(Pair(null, rebuild))
 		cachedCloudItems.clear()
 		PARSINGS.forEach {
 			addToCollection(
@@ -207,9 +210,10 @@ object Cache {
 				it.second,
 				itemSource,
 				messageSource,
-				useXmlData
+				rebuild
 			)
 		}
+		return rebuild
 	}
 
 	fun readDatabase(listener: CacheReadListener): Boolean {
@@ -217,7 +221,7 @@ object Cache {
 		val databaseExists = database.exists()
 		if (databaseExists) {
 			val itemSource = PublishSubject.create<CachedItem>()
-			val messageSource = PublishSubject.create<String>()
+			val messageSource = PublishSubject.create<Pair<String?, Boolean>>()
 			val compositeDisposable = CompositeDisposable().apply {
 				add(
 					itemSource.subscribe(
@@ -235,11 +239,13 @@ object Cache {
 				.newInstance()
 				.newDocumentBuilder()
 				.parse(database)
-			readFromXML(
-				xml,
-				itemSource,
-				messageSource
+			if (readFromXML(
+					xml,
+					itemSource,
+					messageSource
+				)
 			)
+				writeDatabase()
 			BeatPrompter.addDebugMessage("Calling itemSource.onComplete()")
 			itemSource.onComplete()
 			BeatPrompter.addDebugMessage("Called itemSource.onComplete()")

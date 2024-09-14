@@ -805,5 +805,6 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="showDebugLog" translatable="false">Show debug log ...</string>
 	<string name="debugLogDialogCaption" translatable="false">Debug Log</string>
 	<string name="versionInfo" translatable="false">%1$s.%2$d</string>
+	<string name="rebuildingDatabase">Rebuilding database ...</string>
 
 </resources>

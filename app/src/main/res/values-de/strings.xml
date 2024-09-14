@@ -418,4 +418,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_bluetoothMidiDevices_dialogTitle">Bluetooth-MIDI-Geräte</string>
 	<string name="database_read_error">Beim Lesen der Datenbank ist ein Fehler aufgetreten.</string>
 	<string name="database_write_error">Beim Schreiben der Datenbank ist ein Fehler aufgetreten.</string>
+	<string name="rebuildingDatabase">Datenbank wird neu erstellt ...</string>
 </resources>

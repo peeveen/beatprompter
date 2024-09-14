@@ -39,7 +39,7 @@
 			android:layout_height="11sp" />
 
 		<TextView
-			android:id="@+id/textView12"
+			android:id="@+id/readingOrRebuilding"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"

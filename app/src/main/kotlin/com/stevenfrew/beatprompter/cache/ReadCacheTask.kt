@@ -19,7 +19,7 @@ class ReadCacheTask(
 	private val context: Context,
 	private val handler: Handler,
 	private val onComplete: (Boolean) -> Unit
-) : CoroutineTask<Unit, String, Boolean> {
+) : CoroutineTask<Unit, Pair<String?, Boolean>, Boolean> {
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main
 	private var progressDialog: Dialog? = null
@@ -32,7 +32,10 @@ class ReadCacheTask(
 
 	private fun closeProgressDialog() = progressDialog?.dismiss()
 
-	override fun doInBackground(params: Unit, progressUpdater: suspend (String) -> Unit): Boolean {
+	override fun doInBackground(
+		params: Unit,
+		progressUpdater: suspend (Pair<String?, Boolean>) -> Unit
+	): Boolean {
 		val databaseReadListener = object : CacheReadListener {
 			override fun onItemRead(cachedFile: CachedItem) =
 				Cache.cachedCloudItems.add(cachedFile)
@@ -53,7 +56,8 @@ class ReadCacheTask(
 				closeProgressDialog()
 			}
 
-			override suspend fun onProgressMessageReceived(message: String) = progressUpdater(message)
+			override suspend fun onProgressMessageReceived(message: Pair<String?, Boolean>) =
+				progressUpdater(message)
 		}
 		return if (initialDatabaseReadHasBeenPerformed) {
 			databaseReadListener.onCacheReadComplete()
@@ -78,8 +82,12 @@ class ReadCacheTask(
 		}
 	}
 
-	override fun onProgressUpdate(progress: String) {
-		progressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress)?.text = progress
+	override fun onProgressUpdate(progress: Pair<String?, Boolean>) {
+		if (progress.first != null)
+			progressDialog!!.findViewById<TextView>(R.id.readDatabaseProgress)?.text = progress.first
+		if (progress.second)
+			progressDialog!!.findViewById<TextView>(R.id.readingOrRebuilding)?.text =
+				BeatPrompter.appResources.getString(R.string.rebuildingDatabase)
 	}
 
 	override fun onPostExecute(result: Boolean) {
