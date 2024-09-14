@@ -259,7 +259,7 @@ object Cache {
 			val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
 			root.setAttribute(
 				XML_DATABASE_VERSION_ATTRIBUTE,
-				BeatPrompter.appResources.getString(BuildConfig.VERSION_CODE)
+				"${BuildConfig.VERSION_CODE}"
 			)
 			d.appendChild(root)
 			cachedCloudItems.writeToXML(d, root)
