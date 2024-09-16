@@ -15,226 +15,225 @@ import org.w3c.dom.Element
  * A song file in the cache.
  */
 class SongFile(
-	cachedFile: CachedFile,
-	val lines: Int,
-	val bars: Int,
-	val title: String,
-	val artist: String,
-	val key: String,
-	val bpm: Double,
-	val duration: Long,
-	val isMixedMode: Boolean,
-	val totalPauseDuration: Long,
-	val audioFiles: Map<String, List<String>>,
-	val imageFiles: List<String>,
-	val tags: Set<String>,
-	val programChangeTrigger: SongTrigger,
-	val songSelectTrigger: SongTrigger,
-	val isFilterOnly: Boolean,
-	val rating: Int,
-	val variations: List<String>,
-	errors: List<FileParseError>
+  cachedFile: CachedFile,
+  val lines: Int,
+  val bars: Int,
+  val title: String,
+  val artist: String,
+  val key: String,
+  val bpm: Double,
+  val duration: Long,
+  val mixedModeVariations: List<String>,
+  val totalPauseDuration: Long,
+  val audioFiles: Map<String, List<String>>,
+  val imageFiles: List<String>,
+  val tags: Set<String>,
+  val programChangeTrigger: SongTrigger,
+  val songSelectTrigger: SongTrigger,
+  val isFilterOnly: Boolean,
+  val rating: Int,
+  val variations: List<String>,
+  errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors) {
-	val normalizedArtist = artist.normalize()
-	val normalizedTitle = title.normalize()
-	val sortableArtist = sortableString(artist)
-	val sortableTitle = sortableString(title)
-	val isSmoothScrollable
-		get() = duration > 0
-	val isBeatScrollable
-		get() = bpm > 0.0
-	val bestScrollingMode
-		get() = when {
-			isBeatScrollable -> ScrollingMode.Beat
-			isSmoothScrollable -> ScrollingMode.Smooth
-			else -> ScrollingMode.Manual
-		}
+  val normalizedArtist = artist.normalize()
+  val normalizedTitle = title.normalize()
+  val sortableArtist = sortableString(artist)
+  val sortableTitle = sortableString(title)
+  val isSmoothScrollable
+    get() = duration > 0
+  val isBeatScrollable
+    get() = bpm > 0.0
+  val bestScrollingMode
+    get() = when {
+      isBeatScrollable -> ScrollingMode.Beat
+      isSmoothScrollable -> ScrollingMode.Smooth
+      else -> ScrollingMode.Manual
+    }
 
-	fun matchesTrigger(trigger: SongTrigger): Boolean =
-		songSelectTrigger == trigger || programChangeTrigger == trigger
+  fun matchesTrigger(trigger: SongTrigger): Boolean =
+    songSelectTrigger == trigger || programChangeTrigger == trigger
 
-	override fun writeToXML(doc: Document, element: Element) {
-		super.writeToXML(doc, element)
-		element.setAttribute(TITLE_ATTRIBUTE, title)
-		element.setAttribute(ARTIST_ATTRIBUTE, artist)
-		element.setAttribute(LINES_ATTRIBUTE, "$lines")
-		element.setAttribute(BARS_ATTRIBUTE, "$bars")
-		element.setAttribute(KEY_ATTRIBUTE, key)
-		element.setAttribute(BPM_ATTRIBUTE, "$bpm")
-		element.setAttribute(DURATION_ATTRIBUTE, "$duration")
-		element.setAttribute(MIXED_MODE_ATTRIBUTE, "$isMixedMode")
-		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
-		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
-		element.setAttribute(RATING_ATTRIBUTE, "$rating")
+  override fun writeToXML(doc: Document, element: Element) {
+    super.writeToXML(doc, element)
+    element.setAttribute(TITLE_ATTRIBUTE, title)
+    element.setAttribute(ARTIST_ATTRIBUTE, artist)
+    element.setAttribute(LINES_ATTRIBUTE, "$lines")
+    element.setAttribute(BARS_ATTRIBUTE, "$bars")
+    element.setAttribute(KEY_ATTRIBUTE, key)
+    element.setAttribute(BPM_ATTRIBUTE, "$bpm")
+    element.setAttribute(DURATION_ATTRIBUTE, "$duration")
+    element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
+    element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
+    element.setAttribute(RATING_ATTRIBUTE, "$rating")
 
-		writeStringsToElement(doc, element, TAG_TAG, tags)
-		writeStringsToElement(doc, element, IMAGE_FILE_TAG, imageFiles)
-		writeStringsToElement(doc, element, VARIATION_TAG, variations)
+    writeStringsToElement(doc, element, TAG_TAG, tags)
+    writeStringsToElement(doc, element, MIXED_MODE_VARIATIONS_TAG, mixedModeVariations)
+    writeStringsToElement(doc, element, IMAGE_FILE_TAG, imageFiles)
+    writeStringsToElement(doc, element, VARIATION_TAG, variations)
 
-		writeAudioFilesToElement(doc, element, audioFiles)
-		if (!songSelectTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
-		if (!programChangeTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
-	}
+    writeAudioFilesToElement(doc, element, audioFiles)
+    if (!songSelectTrigger.isDeadTrigger)
+      writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
+    if (!programChangeTrigger.isDeadTrigger)
+      writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
+  }
 
-	companion object {
-		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
+  companion object {
+    private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
 
-		private const val TITLE_ATTRIBUTE = "title"
-		private const val ARTIST_ATTRIBUTE = "artist"
-		private const val LINES_ATTRIBUTE = "lines"
-		private const val BARS_ATTRIBUTE = "bars"
-		private const val KEY_ATTRIBUTE = "key"
-		private const val BPM_ATTRIBUTE = "bpm"
-		private const val DURATION_ATTRIBUTE = "duration"
-		private const val MIXED_MODE_ATTRIBUTE = "mixedMode"
-		private const val TOTAL_PAUSES_ATTRIBUTE = "totalPauses"
-		private const val FILTER_ONLY_ATTRIBUTE = "filterOnly"
-		private const val RATING_ATTRIBUTE = "rating"
+    private const val TITLE_ATTRIBUTE = "title"
+    private const val ARTIST_ATTRIBUTE = "artist"
+    private const val LINES_ATTRIBUTE = "lines"
+    private const val BARS_ATTRIBUTE = "bars"
+    private const val KEY_ATTRIBUTE = "key"
+    private const val BPM_ATTRIBUTE = "bpm"
+    private const val DURATION_ATTRIBUTE = "duration"
+    private const val TOTAL_PAUSES_ATTRIBUTE = "totalPauses"
+    private const val FILTER_ONLY_ATTRIBUTE = "filterOnly"
+    private const val RATING_ATTRIBUTE = "rating"
 
-		private const val IMAGE_FILE_TAG = "imageFiles"
-		private const val TAG_TAG = "tags"
-		private const val VARIATION_TAG = "variations"
+    private const val IMAGE_FILE_TAG = "imageFiles"
+    private const val TAG_TAG = "tags"
+    private const val MIXED_MODE_VARIATIONS_TAG = "mixedModeVariations"
+    private const val VARIATION_TAG = "variations"
 
-		private const val AUDIO_FILE_TAG = "audioFiles"
-		private const val VARIATION_ATTRIBUTE = "variation"
-		private const val AUDIO_FILES_FOR_VARIATION_TAG = "audioFilesForVariation"
+    private const val AUDIO_FILE_TAG = "audioFiles"
+    private const val VARIATION_ATTRIBUTE = "variation"
+    private const val AUDIO_FILES_FOR_VARIATION_TAG = "audioFilesForVariation"
 
-		private const val PROGRAM_CHANGE_TRIGGER_TAG = "programChangeTrigger"
-		private const val SONG_SELECT_TRIGGER_TAG = "songSelectTrigger"
+    private const val PROGRAM_CHANGE_TRIGGER_TAG = "programChangeTrigger"
+    private const val SONG_SELECT_TRIGGER_TAG = "songSelectTrigger"
 
-		fun readSongInfoFromAttributes(element: Element?, cachedFile: CachedFile): SongFile? =
-			if (element?.hasAttribute(TITLE_ATTRIBUTE) == true && element.hasAttribute(ARTIST_ATTRIBUTE)) {
-				val title = element.getAttribute(TITLE_ATTRIBUTE)
-				val artist = element.getAttribute(ARTIST_ATTRIBUTE)
-				val key = element.getAttribute(KEY_ATTRIBUTE)
-				val linesString = element.getAttribute(LINES_ATTRIBUTE)
-				val barsString = element.getAttribute(BARS_ATTRIBUTE)
-				val bpmString = element.getAttribute(BPM_ATTRIBUTE)
-				val durationString = element.getAttribute(DURATION_ATTRIBUTE)
-				val mixedModeString = element.getAttribute(MIXED_MODE_ATTRIBUTE)
-				val totalPausesString = element.getAttribute(TOTAL_PAUSES_ATTRIBUTE)
-				val filterOnlyString = element.getAttribute(FILTER_ONLY_ATTRIBUTE)
-				val ratingString = element.getAttribute(RATING_ATTRIBUTE)
-				try {
-					val lines = linesString.toInt()
-					val bars = barsString.toInt()
-					val bpm = bpmString.toDouble()
-					val duration = durationString.toLong()
-					val mixedMode = mixedModeString.toBoolean()
-					val totalPauses = totalPausesString.toLong()
-					val filterOnly = filterOnlyString.toBoolean()
-					val rating = ratingString.toInt()
+    fun readSongInfoFromAttributes(element: Element?, cachedFile: CachedFile): SongFile? =
+      if (element?.hasAttribute(TITLE_ATTRIBUTE) == true && element.hasAttribute(ARTIST_ATTRIBUTE)) {
+        val title = element.getAttribute(TITLE_ATTRIBUTE)
+        val artist = element.getAttribute(ARTIST_ATTRIBUTE)
+        val key = element.getAttribute(KEY_ATTRIBUTE)
+        val linesString = element.getAttribute(LINES_ATTRIBUTE)
+        val barsString = element.getAttribute(BARS_ATTRIBUTE)
+        val bpmString = element.getAttribute(BPM_ATTRIBUTE)
+        val durationString = element.getAttribute(DURATION_ATTRIBUTE)
+        val totalPausesString = element.getAttribute(TOTAL_PAUSES_ATTRIBUTE)
+        val filterOnlyString = element.getAttribute(FILTER_ONLY_ATTRIBUTE)
+        val ratingString = element.getAttribute(RATING_ATTRIBUTE)
+        try {
+          val lines = linesString.toInt()
+          val bars = barsString.toInt()
+          val bpm = bpmString.toDouble()
+          val duration = durationString.toLong()
+          val totalPauses = totalPausesString.toLong()
+          val filterOnly = filterOnlyString.toBoolean()
+          val rating = ratingString.toInt()
 
-					val tags = getStringsFromElement(element, TAG_TAG).toSet()
-					val imageFiles = getStringsFromElement(element, IMAGE_FILE_TAG)
-					val variations = getStringsFromElement(element, VARIATION_TAG)
+          val tags = getStringsFromElement(element, TAG_TAG).toSet()
+          val imageFiles = getStringsFromElement(element, IMAGE_FILE_TAG)
+          val variations = getStringsFromElement(element, VARIATION_TAG)
+          val mixedModeVariations = getStringsFromElement(element, MIXED_MODE_VARIATIONS_TAG)
 
-					val audioFiles = getAudioFilesFromElement(element)
+          val audioFiles = getAudioFilesFromElement(element)
 
-					val programChangeTrigger = getSongTriggerFromElement(
-						element,
-						PROGRAM_CHANGE_TRIGGER_TAG,
-						TriggerType.ProgramChange
-					) ?: SongTrigger.DEAD_TRIGGER
-					val songSelectTrigger =
-						getSongTriggerFromElement(element, SONG_SELECT_TRIGGER_TAG, TriggerType.SongSelect)
-							?: SongTrigger.DEAD_TRIGGER
+          val programChangeTrigger = getSongTriggerFromElement(
+            element,
+            PROGRAM_CHANGE_TRIGGER_TAG,
+            TriggerType.ProgramChange
+          ) ?: SongTrigger.DEAD_TRIGGER
+          val songSelectTrigger =
+            getSongTriggerFromElement(element, SONG_SELECT_TRIGGER_TAG, TriggerType.SongSelect)
+              ?: SongTrigger.DEAD_TRIGGER
 
-					SongFile(
-						cachedFile,
-						lines,
-						bars,
-						title,
-						artist,
-						key,
-						bpm,
-						duration,
-						mixedMode,
-						totalPauses,
-						audioFiles,
-						imageFiles,
-						tags,
-						programChangeTrigger,
-						songSelectTrigger,
-						filterOnly,
-						rating,
-						variations,
-						listOf()
-					)
-				} catch (numberFormatException: NumberFormatException) {
-					// Attribute is garbage, we'll need to actually examine the file.
-					null
-				}
-			} else null
+          SongFile(
+            cachedFile,
+            lines,
+            bars,
+            title,
+            artist,
+            key,
+            bpm,
+            duration,
+            mixedModeVariations,
+            totalPauses,
+            audioFiles,
+            imageFiles,
+            tags,
+            programChangeTrigger,
+            songSelectTrigger,
+            filterOnly,
+            rating,
+            variations,
+            listOf()
+          )
+        } catch (numberFormatException: NumberFormatException) {
+          // Attribute is garbage, we'll need to actually examine the file.
+          null
+        }
+      } else null
 
-		private fun getAudioFilesFromElement(element: Element): Map<String, List<String>> =
-			mutableMapOf<String, List<String>>().apply {
-				element.getElementsByTagName(AUDIO_FILES_FOR_VARIATION_TAG).also {
-					repeat(it.length) { index ->
-						val tagElement = it.item(index) as Element
-						val variationName = tagElement.getAttribute(VARIATION_ATTRIBUTE)
-						val audioFiles = getStringsFromElement(tagElement, AUDIO_FILE_TAG)
-						this[variationName] = audioFiles
-					}
-				}
-			}
+    private fun getAudioFilesFromElement(element: Element): Map<String, List<String>> =
+      mutableMapOf<String, List<String>>().apply {
+        element.getElementsByTagName(AUDIO_FILES_FOR_VARIATION_TAG).also {
+          repeat(it.length) { index ->
+            val tagElement = it.item(index) as Element
+            val variationName = tagElement.getAttribute(VARIATION_ATTRIBUTE)
+            val audioFiles = getStringsFromElement(tagElement, AUDIO_FILE_TAG)
+            this[variationName] = audioFiles
+          }
+        }
+      }
 
-		private fun getSongTriggerFromElement(
-			element: Element,
-			tag: String,
-			type: TriggerType
-		): SongTrigger? =
-			element.getElementsByTagName(tag).takeIf { it.length > 0 }?.let {
-				val tagElement = it.item(0) as Element
-				return SongTrigger.readFromXml(tagElement, type)
-			}
+    private fun getSongTriggerFromElement(
+      element: Element,
+      tag: String,
+      type: TriggerType
+    ): SongTrigger? =
+      element.getElementsByTagName(tag).takeIf { it.length > 0 }?.let {
+        val tagElement = it.item(0) as Element
+        return SongTrigger.readFromXml(tagElement, type)
+      }
 
-		private fun getStringsFromElement(element: Element, tag: String): List<String> =
-			mutableListOf<String>().apply {
-				element.getElementsByTagName(tag).run {
-					repeat(length) {
-						val tagElement = item(it)
-						add(tagElement.textContent)
-					}
-				}
-			}
+    private fun getStringsFromElement(element: Element, tag: String): List<String> =
+      mutableListOf<String>().apply {
+        element.getElementsByTagName(tag).run {
+          repeat(length) {
+            val tagElement = item(it)
+            add(tagElement.textContent)
+          }
+        }
+      }
 
-		private fun writeStringsToElement(
-			doc: Document,
-			element: Element,
-			tag: String,
-			values: Iterable<String>
-		) = values.forEach {
-			doc.createElement(tag).apply {
-				textContent = it
-				element.appendChild(this)
-			}
-		}
+    private fun writeStringsToElement(
+      doc: Document,
+      element: Element,
+      tag: String,
+      values: Iterable<String>
+    ) = values.forEach {
+      doc.createElement(tag).apply {
+        textContent = it
+        element.appendChild(this)
+      }
+    }
 
-		private fun writeAudioFilesToElement(
-			doc: Document,
-			element: Element,
-			audioFiles: Map<String, List<String>>
-		) = audioFiles.forEach {
-			doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG).apply {
-				setAttribute(VARIATION_TAG, it.key)
-				writeStringsToElement(doc, this, AUDIO_FILE_TAG, it.value)
-				element.appendChild(this)
-			}
-		}
+    private fun writeAudioFilesToElement(
+      doc: Document,
+      element: Element,
+      audioFiles: Map<String, List<String>>
+    ) = audioFiles.forEach {
+      doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG).apply {
+        setAttribute(VARIATION_TAG, it.key)
+        writeStringsToElement(doc, this, AUDIO_FILE_TAG, it.value)
+        element.appendChild(this)
+      }
+    }
 
-		private fun writeSongTriggerToElement(
-			doc: Document,
-			element: Element,
-			tag: String,
-			songTrigger: SongTrigger
-		) = doc.createElement(tag).run {
-			songTrigger.writeToXML(this)
-			element.appendChild(this)
-		}
+    private fun writeSongTriggerToElement(
+      doc: Document,
+      element: Element,
+      tag: String,
+      songTrigger: SongTrigger
+    ) = doc.createElement(tag).run {
+      songTrigger.writeToXML(this)
+      element.appendChild(this)
+    }
 
-		fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
-	}
+    fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
+  }
 }

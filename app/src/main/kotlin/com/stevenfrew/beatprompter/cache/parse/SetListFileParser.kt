@@ -12,28 +12,29 @@ import com.stevenfrew.beatprompter.set.SetListEntry
  * Parser for set list files.
  */
 class SetListFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
-	private var setName: String = ""
-	private val setListEntries = mutableListOf<SetListEntry>()
+  TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
+  private var setName: String = ""
+  private val setListEntries = mutableListOf<SetListEntry>()
 
-	override fun parseLine(line: TextFileLine<SetListFile>) {
-		val setNameTag = line
-			.tags
-			.asSequence()
-			.filterIsInstance<SetNameTag>()
-			.firstOrNull()
-		if (setNameTag != null) {
-			if (setName.isNotBlank())
-				errors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
-			else
-				setName = setNameTag.setName
-		} else if (line.lineWithNoTags.isNotEmpty())
-			setListEntries.add(SetListEntry(line.lineWithNoTags))
-	}
+  override fun parseLine(line: TextFileLine<SetListFile>): Boolean {
+    val setNameTag = line
+      .tags
+      .asSequence()
+      .filterIsInstance<SetNameTag>()
+      .firstOrNull()
+    if (setNameTag != null) {
+      if (setName.isNotBlank())
+        errors.add(FileParseError(setNameTag, R.string.set_name_defined_multiple_times))
+      else
+        setName = setNameTag.setName
+    } else if (line.lineWithNoTags.isNotEmpty())
+      setListEntries.add(SetListEntry(line.lineWithNoTags))
+    return true
+  }
 
-	override fun getResult(): SetListFile {
-		if (setName.isBlank())
-			throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
-		return SetListFile(cachedCloudFile, setName, setListEntries, errors)
-	}
+  override fun getResult(): SetListFile {
+    if (setName.isBlank())
+      throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
+    return SetListFile(cachedCloudFile, setName, setListEntries, errors)
+  }
 }
