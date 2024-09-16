@@ -161,6 +161,10 @@ abstract class SongFileParser<TResultType>(
       else
         lastLineBeatInfo.scrollMode
 
+    // If this line is not in Beat mode, then the scrollbeat offset stops here.
+    if (newScrollMode !== ScrollingMode.Beat)
+      thisScrollBeatTotalOffset = 0
+
     val lastScrollBeatTotalOffset = lastLineBeatInfo.scrollBeatTotalOffset
 
     val beatsForThisLine =

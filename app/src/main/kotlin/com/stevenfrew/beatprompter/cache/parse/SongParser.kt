@@ -397,7 +397,7 @@ class SongParser(
       // Generate pause events if required (may return null)
       val pauseEvents = generatePauseEvents(songTime, pauseTag)
       val paused = pauseEvents?.any() == true
-      if (paused)
+      if (paused || currentLineBeatInfo.scrollMode !== ScrollingMode.Beat)
         rolloverBeats.clear()
 
       if (isLineContent) {
@@ -411,7 +411,7 @@ class SongParser(
 
         // Generate beat events (may return null in smooth mode)
         pauseEvents?.maxOf { it.eventTime }
-        val beatEvents = if (paused)
+        val beatEvents = if (paused || currentLineBeatInfo.scrollMode === ScrollingMode.Smooth)
           EventBlock(listOf(), pauseEvents?.maxOf { it.eventTime } ?: 0)
         else
           generateBeatEvents(songTime, metronomeOn)
@@ -503,8 +503,8 @@ class SongParser(
         songTime += pauseTag.duration
       }
     }
-    if (!isLineContent)
-    // If there is no actual line data, then the scroll beat offset never took effect.
+    if (!isLineContent || currentLineBeatInfo.scrollMode !== ScrollingMode.Beat)
+    // If there is no actual line data (or if the line is a manual mode line), then the scroll beat offset never took effect.
     // Clear it so that the next line (which MIGHT be a proper line) doesn't take it into account.
       currentLineBeatInfo = LineBeatInfo(
         currentLineBeatInfo.beats,
