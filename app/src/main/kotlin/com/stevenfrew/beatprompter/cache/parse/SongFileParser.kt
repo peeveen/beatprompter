@@ -36,7 +36,7 @@ abstract class SongFileParser<TResultType>(
   ChordFinder,
   ShorthandFinder
 ) {
-  protected var ongoingBeatInfo: SongBeatInfo = SongBeatInfo(mScrollMode = initialScrollMode)
+  protected var ongoingBeatInfo: SongBeatInfo = SongBeatInfo(scrollMode = initialScrollMode)
   protected var currentLineBeatInfo: LineBeatInfo = LineBeatInfo(ongoingBeatInfo)
 
   // Audio files are now a 2D array ... list of audio files per variation.
@@ -114,14 +114,14 @@ abstract class SongFileParser<TResultType>(
 
     // Commas take precedence.
     val barsInThisLine = if (commaBars == 0) barsTag?.bars ?: barsPerLineTag?.bpl
-    ?: ongoingBeatInfo.mBPL else commaBars
+    ?: ongoingBeatInfo.bpl else commaBars
 
-    val beatsPerBarInThisLine = beatsPerBarTag?.bpb ?: ongoingBeatInfo.mBPB
-    val beatsPerMinuteInThisLine = beatsPerMinuteTag?.bpm ?: ongoingBeatInfo.mBPM
-    var scrollBeatInThisLine = scrollBeatTag?.scrollBeat ?: ongoingBeatInfo.mScrollBeat
+    val beatsPerBarInThisLine = beatsPerBarTag?.bpb ?: ongoingBeatInfo.bpb
+    val beatsPerMinuteInThisLine = beatsPerMinuteTag?.bpm ?: ongoingBeatInfo.bpm
+    var scrollBeatInThisLine = scrollBeatTag?.scrollBeat ?: ongoingBeatInfo.scrollBeat
 
-    val previousBeatsPerBar = ongoingBeatInfo.mBPB
-    val previousScrollBeat = ongoingBeatInfo.mScrollBeat
+    val previousBeatsPerBar = ongoingBeatInfo.bpb
+    val previousScrollBeat = ongoingBeatInfo.scrollBeat
     // If the beats-per-bar have changed, and there is no indication of what the new scrollbeat should be,
     // set the new scrollbeat to have the same "difference" as before. For example, if the old BPB was 4,
     // and the scrollbeat was 3 (one less than BPB), a new BPB of 6 should have a scrollbeat of 5 (one
@@ -151,17 +151,17 @@ abstract class SongFileParser<TResultType>(
     val newScrollMode =
       if (allowModeChange && beatModeTags.size == 1)
         if (beatStartTags.isNotEmpty())
-          if (ongoingBeatInfo.mBPM == 0.0) {
+          if (ongoingBeatInfo.bpm == 0.0) {
             errors.add(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
-            lastLineBeatInfo.mScrollMode
+            lastLineBeatInfo.scrollMode
           } else
             ScrollingMode.Beat
         else
           ScrollingMode.Manual
       else
-        lastLineBeatInfo.mScrollMode
+        lastLineBeatInfo.scrollMode
 
-    val lastScrollBeatTotalOffset = lastLineBeatInfo.mScrollBeatTotalOffset
+    val lastScrollBeatTotalOffset = lastLineBeatInfo.scrollBeatTotalOffset
 
     val beatsForThisLine =
       ((beatsPerBarInThisLine * barsInThisLine)
@@ -169,11 +169,11 @@ abstract class SongFileParser<TResultType>(
 
     ongoingBeatInfo = SongBeatInfo(
       barsPerLineTag?.bpl
-        ?: ongoingBeatInfo.mBPL,
+        ?: ongoingBeatInfo.bpl,
       beatsPerBarInThisLine,
       beatsPerMinuteInThisLine,
       scrollBeatInThisLine,
-      ongoingBeatInfo.mScrollMode
+      ongoingBeatInfo.scrollMode
     )
     currentLineBeatInfo = LineBeatInfo(
       beatsForThisLine,
@@ -210,32 +210,32 @@ abstract class SongFileParser<TResultType>(
   }
 
   protected data class LineBeatInfo(
-    val mBeats: Int,
-    val mBPL: Int,
-    val mBPB: Int,
-    val mBPM: Double,
-    val mScrollBeat: Int,
-    val mScrollBeatTotalOffset: Int,
-    val mLastScrollBeatTotalOffset: Int,
-    val mScrollMode: ScrollingMode = ScrollingMode.Beat
+    val beats: Int,
+    val bpl: Int,
+    val bpb: Int,
+    val bpm: Double,
+    val scrollBeat: Int,
+    val scrollBeatTotalOffset: Int,
+    val lastScrollBeatTotalOffset: Int,
+    val scrollMode: ScrollingMode = ScrollingMode.Beat
   ) {
     constructor(songBeatInfo: SongBeatInfo) : this(
-      songBeatInfo.mBPB * songBeatInfo.mBPL,
-      songBeatInfo.mBPL,
-      songBeatInfo.mBPB,
-      songBeatInfo.mBPM,
-      songBeatInfo.mScrollBeat,
-      songBeatInfo.mBPB - songBeatInfo.mScrollBeat,
+      songBeatInfo.bpb * songBeatInfo.bpl,
+      songBeatInfo.bpl,
+      songBeatInfo.bpb,
+      songBeatInfo.bpm,
+      songBeatInfo.scrollBeat,
+      songBeatInfo.bpb - songBeatInfo.scrollBeat,
       0,
-      songBeatInfo.mScrollMode
+      songBeatInfo.scrollMode
     )
   }
 
   protected data class SongBeatInfo(
-    val mBPL: Int = 4,
-    val mBPB: Int = 4,
-    val mBPM: Double = 120.0,
-    val mScrollBeat: Int = 4,
-    val mScrollMode: ScrollingMode = ScrollingMode.Beat
+    val bpl: Int = 4,
+    val bpb: Int = 4,
+    val bpm: Double = 120.0,
+    val scrollBeat: Int = 4,
+    val scrollMode: ScrollingMode = ScrollingMode.Beat
   )
 }

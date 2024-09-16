@@ -165,8 +165,8 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
       rating = ratingTag.rating
 
     if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
-      bars += currentLineBeatInfo.mBPL
-      beats += currentLineBeatInfo.mBeats
+      bars += currentLineBeatInfo.bpl
+      beats += currentLineBeatInfo.beats
     }
 
     imageFiles.addAll(imageTags.map { it.filename })
