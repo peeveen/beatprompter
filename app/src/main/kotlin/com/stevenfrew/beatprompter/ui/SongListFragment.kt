@@ -549,6 +549,7 @@ class SongListFragment
     // Pass null as the parent view because its going in the dialog layout
     AlertDialog.Builder(context).apply {
       setView(view)
+      setTitle(R.string.play_options)
       // Add action buttons
       setPositiveButton(R.string.play) { _, _ ->
         val selectedVariation = variationSpinner.selectedItem as String
