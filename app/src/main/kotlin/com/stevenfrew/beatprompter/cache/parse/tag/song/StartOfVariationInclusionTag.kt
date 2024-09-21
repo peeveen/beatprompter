@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
-@EndedBy(EndOfVariationExclusionTag::class)
+@EndedBy(EndOfVariationInclusionTag::class)
 @TagName("varstart", "start_of_variation")
 @TagType(Type.Directive)
 @OncePerLine
