@@ -60,6 +60,9 @@ object ClockSignalGeneratorTask : Task(false) {
 		if (clockSignalsSent == 0)
 			nanoSecondsPerMidiSignal = vNanoSecondsPerMidiSignal
 		val nanoTime = System.nanoTime()
+		if (lastSignalTime == 0.0) {
+			Logger.logComms("Sending a STUPID number of clock signals (lastSignalTime == 0.0", true)
+		}
 		var nanoDiff = nanoTime - lastSignalTime
 		var signalsNeeded = 0
 		while (nanoDiff >= nanoSecondsPerMidiSignal) {
@@ -121,6 +124,7 @@ object ClockSignalGeneratorTask : Task(false) {
 
 	fun reset() {
 		lastSignalTime = 0.0
+		nextNanoSecondsPerMidiSignal = 0.0
 		resetClockSignalsSent()
 	}
 
