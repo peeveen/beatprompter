@@ -419,4 +419,5 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="database_read_error">Une erreur s\'est produite lors de la lecture de la base de données.</string>
 	<string name="database_write_error">Une erreur s\'est produite lors de l\'écriture de la base de données.</string>
 	<string name="rebuildingDatabase">Reconstruction de la base de données...</string>
+	<string name="cannot_use_with_midi_with_parameters">Les directives with_midi_* ne peuvent pas être utilisées dans des alias contenant des paramètres</string>
 </resources>

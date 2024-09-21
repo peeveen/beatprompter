@@ -419,4 +419,5 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="database_read_error">Si è verificato un errore durante la lettura del database.</string>
 	<string name="database_write_error">Si è verificato un errore durante la scrittura del database.</string>
 	<string name="rebuildingDatabase">Ricostruzione del database...</string>
+	<string name="cannot_use_with_midi_with_parameters">As directivas with_midi_* não podem ser utilizadas em alias que contenham parâmetros</string>
 </resources>

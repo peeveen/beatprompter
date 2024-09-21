@@ -4,7 +4,10 @@ import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 class Alias(
 	val name: String,
-	private val components: List<AliasComponent>
+	private val components: List<AliasComponent>,
+	val withMidiStart: Boolean = false,
+	val withMidiContinue: Boolean = false,
+	val withMidiStop: Boolean = false,
 ) {
 	val parameterCount
 		get() = components.maxOf { it.parameterCount }

@@ -419,4 +419,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="database_read_error">Beim Lesen der Datenbank ist ein Fehler aufgetreten.</string>
 	<string name="database_write_error">Beim Schreiben der Datenbank ist ein Fehler aufgetreten.</string>
 	<string name="rebuildingDatabase">Datenbank wird neu erstellt ...</string>
+	<string name="cannot_use_with_midi_with_parameters">with_midi_*-Direktiven können nicht in Aliasnamen verwendet werden, die Parameter enthalten</string>
 </resources>

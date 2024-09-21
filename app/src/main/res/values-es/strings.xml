@@ -419,4 +419,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="database_read_error">Se produjo un error al leer la base de datos.</string>
 	<string name="database_write_error">Se produjo un error al escribir la base de datos.</string>
 	<string name="rebuildingDatabase">Reconstruyendo base de datos...</string>
+	<string name="cannot_use_with_midi_with_parameters">Las directivas with_midi_* no se pueden utilizar en alias que contengan parámetros</string>
 </resources>

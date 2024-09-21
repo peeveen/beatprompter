@@ -78,7 +78,6 @@ object Cache {
 			}
 		}
 
-
 	fun initialiseTemporarySetListFile(deleteExisting: Boolean, context: Context) {
 		try {
 			if (deleteExisting)
