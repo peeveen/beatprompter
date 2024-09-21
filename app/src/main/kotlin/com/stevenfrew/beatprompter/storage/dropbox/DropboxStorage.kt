@@ -67,10 +67,10 @@ class DropboxStorage(parentFragment: Fragment) :
 			val metadata = client.files().getMetadata(it.id)
 			if (metadata is FileMetadata) {
 				val title = it.name
-				Logger.log { "File title: $title" }
+				Logger.log({ "File title: $title" })
 				val safeFilename = Utils.makeSafeFilename(title)
 				val targetFile = File(cacheFolder, safeFilename)
-				Logger.log { "Safe filename: $safeFilename" }
+				Logger.log({ "Safe filename: $safeFilename" })
 
 				Logger.log("Downloading now ...")
 				// Don't check lastModified ... ALWAYS download.

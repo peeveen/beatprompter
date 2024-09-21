@@ -75,7 +75,7 @@ class CachedCloudCollection {
 		items.values.filterIsInstance<CachedFile>().filterNot { storageIDs.contains(it.id) }
 			.forEach { f ->
 				if (!f.file.delete())
-					Logger.log { "Failed to delete file: ${f.file.name}" }
+					Logger.log({ "Failed to delete file: ${f.file.name}" }, true)
 			}
 		// Keep remaining files.
 		items = items.filter { storageIDs.contains(it.value.id) }.toMutableMap()
@@ -146,7 +146,9 @@ class CachedCloudCollection {
 					it.name.equals(
 						FILTER_ONLY_FILENAME,
 						true
-					) && it.subfolderIds.count{ id -> id.isNotBlank() } > 0 && it.subfolderIds.intersect(folderIDs).isNotEmpty()
+					) && it.subfolderIds.count { id -> id.isNotBlank() } > 0 && it.subfolderIds.intersect(
+						folderIDs
+					).isNotEmpty()
 				}
 			}
 

@@ -211,7 +211,7 @@ object BandBluetoothController : CoroutineScope {
 								.firstOrNull { it.address == Preferences.bandLeaderDevice }
 								?.also {
 									try {
-										Logger.logComms { "Starting Bluetooth client thread, looking to connect with '${it.name}'." }
+										Logger.logComms({ "Starting Bluetooth client thread, looking to connect with '${it.name}'." })
 										connectToBandLeaderThread =
 											ConnectToServerThread(it, BAND_BLUETOOTH_UUID) { socket ->
 												setServerConnection(socket, receiverTasks)
@@ -257,7 +257,7 @@ object BandBluetoothController : CoroutineScope {
 	private fun handleConnectionFromClient(socket: BluetoothSocket, senderTask: SenderTask) {
 		if (Preferences.bluetoothMode === BluetoothMode.Server)
 			try {
-				Logger.logComms { "Client connection opened with '${socket.remoteDevice.name}'" }
+				Logger.logComms({ "Client connection opened with '${socket.remoteDevice.name}'" })
 				senderTask.addSender(
 					socket.remoteDevice.address,
 					Sender(socket, CommunicationType.Bluetooth)
@@ -282,7 +282,7 @@ object BandBluetoothController : CoroutineScope {
 	private fun setServerConnection(socket: BluetoothSocket, receiverTasks: ReceiverTasks) {
 		try {
 			if (Preferences.bluetoothMode === BluetoothMode.Client) {
-				Logger.logComms { "Server connection opened with '${socket.remoteDevice.name}'" }
+				Logger.logComms({ "Server connection opened with '${socket.remoteDevice.name}'" })
 				receiverTasks.addReceiver(
 					socket.remoteDevice.address,
 					socket.remoteDevice.name,

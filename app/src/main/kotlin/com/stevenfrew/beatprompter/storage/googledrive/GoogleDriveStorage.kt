@@ -184,7 +184,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 							val fileID = resolvedChild.id
 							val title = resolvedChild.name
 							val mimeType = resolvedChild.mimeType
-							Logger.log { "File ID: $fileID" }
+							Logger.log({ "File ID: $fileID" })
 							if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
 								val newFolder = FolderInfo(
 									currentFolder,
@@ -201,7 +201,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								}
 								mItemSource.onNext(newFolder)
 							} else {
-								Logger.log { "File title: $title" }
+								Logger.log({ "File title: $title" })
 								val modifiedTime = Date(resolvedChild.modifiedTime.value)
 								val newFile = FileInfo(
 									fileID, title, modifiedTime,
@@ -263,9 +263,9 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 						.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD).execute()
 					if (!file.trashed) {
 						val title = file.name
-						Logger.log { "File title: $title" }
+						Logger.log({ "File title: $title" })
 						val safeFilename = Utils.makeSafeFilename(it.id)
-						Logger.log { "Safe filename: $safeFilename" }
+						Logger.log({ "Safe filename: $safeFilename" })
 						Logger.log("Downloading now ...")
 						if (!mListener.shouldCancel()) {
 							val localFile = downloadGoogleDriveFile(file, safeFilename)
@@ -294,7 +294,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			val localFile = File(mDownloadFolder, filename)
 			val inputStream = getDriveFileInputStream(file)
 			inputStream?.use { inStream ->
-				Logger.log { "Creating new local file, ${localFile.absolutePath}" }
+				Logger.log({ "Creating new local file, ${localFile.absolutePath}" })
 				val fos = FileOutputStream(localFile)
 				fos.use {
 					Utils.streamToStream(inStream, it)

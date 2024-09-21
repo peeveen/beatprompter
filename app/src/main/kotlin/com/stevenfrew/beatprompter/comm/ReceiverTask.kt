@@ -18,7 +18,7 @@ class ReceiverTask(
 		} catch (t: Throwable) {
 			// Any I/O error means this receiver is dead to us.
 			Logger.logComms("Unexpected IO exception from receiver.", t)
-			Logger.logComms { "Receiver '$name' threw an exception. Assuming it to be dead." }
+			Logger.logComms({ "Receiver '$name' threw an exception. Assuming it to be dead." }, true)
 			if (!unregistered)
 				receiver.unregister(this)
 			super.stop()

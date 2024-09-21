@@ -76,7 +76,7 @@ class ChooseSongMessage(
 						val availableEnd = available()
 						val messageLength = 1 + (availableStart - availableEnd)
 						close()
-						Logger.logLoader { "Received Bluetooth request to load \"${songChoiceInfo.normalizedTitle}\"" }
+						Logger.logLoader({ "Received Bluetooth request to load \"${songChoiceInfo.normalizedTitle}\"" })
 						return ChooseSongMessage(bytes.copyOfRange(0, messageLength), songChoiceInfo)
 					}
 				}

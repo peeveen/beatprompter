@@ -71,11 +71,12 @@ object ClockSignalGeneratorTask : Task(false) {
 					nanoSecondsPerMidiSignal = nextNanoSecondsPerMidiSignal
 				}
 			} catch (e: Exception) {
-				Logger.logComms({ "Failed to add MIDI timing clock signal to output queue." }, e)
+				Logger.logComms({ "Failed to add MIDI timing clock signal to output queue." }, false, e)
 			}
 			nanoDiff -= nanoSecondsPerMidiSignal
 		}
 		try {
+			Logger.logComms("Sending $signalsNeeded clock messages.")
 			Midi.addBeatClockMessages(signalsNeeded)
 		} catch (interruptedException: InterruptedException) {
 			// Task was interrupted by the song being paused or stopped
@@ -96,7 +97,7 @@ object ClockSignalGeneratorTask : Task(false) {
 				try {
 					Thread.sleep(nextSignalDueMilli, nextSignalDueNanoRemainder)
 				} catch (e: Exception) {
-					Logger.logComms({ "Thread sleep was interrupted." }, e)
+					Logger.logComms({ "Thread sleep was interrupted." }, false, e)
 				}
 			}
 		}
@@ -123,9 +124,11 @@ object ClockSignalGeneratorTask : Task(false) {
 		resetClockSignalsSent()
 	}
 
-	override fun stop() =
-		super.stop().also {
+	override fun stop(): Boolean {
+		Logger.logComms("ClockSignalGeneratorTask is STOPPING.")
+		return super.stop().also {
 			reset()
 		}
+	}
 }
 

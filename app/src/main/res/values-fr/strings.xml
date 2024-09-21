@@ -147,7 +147,7 @@
 	<string name="pref_storageLocation_title">Emplacement de stockage</string>
 	<string name="use_internal_storage"> Utilisation de stockage interne</string>
 	<string name="manual_scrolling">Manuel Scrolling</string>
-	<string name="pref_sendMidi_summary">Si un morceau a battu timings, ce qui enverra des signaux d\'horloge MIDI via une connexion USB On-The-Go .</string>
+	<string name="pref_sendMidi_summary">Si une chanson a des timings de battement, cela enverra des signaux d\'horloge MIDI.</string>
 	<string name="pref_sendMidi_title">Envoyer des signaux d\'horloge MIDI</string>
 	<string name="pref_manualMode_summary">Par défaut, les chansons jouent toujours en mode de défilement manuel sans piste d\'accompagnement.</string>
 	<string name="pref_manualMode_title">Mode manuel</string>

@@ -89,15 +89,15 @@ class SongDisplayActivity
 		// can end up with multiple SongDisplay activities running.
 		if (song.loadId != loadID.uuid) {
 			Logger.logLoader("*** Load ID Mismatch ***")
-			Logger.logLoader { "Parcelable Load ID = ${loadID.uuid}" }
-			Logger.logLoader { "SongLoadJob ID = ${song.loadId}" }
+			Logger.logLoader({ "Parcelable Load ID = ${loadID.uuid}" })
+			Logger.logLoader({ "SongLoadJob ID = ${song.loadId}" })
 			finish()
 			System.gc()
 			return
 		} else {
-			Logger.logLoader { "Successful load ID match: ${song.loadId}" }
+			Logger.logLoader({ "Successful load ID match: ${song.loadId}" })
 			if (Preferences.bluetoothMode == BluetoothMode.Server) {
-				Logger.logLoader { "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle}\"" }
+				Logger.logLoader({ "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle}\"" })
 				val csm = ChooseSongMessage(
 					SongChoiceInfo(
 						loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle,

@@ -25,12 +25,12 @@ internal class ConnectToServerThread(
 					// Connect the device through the socket. This will block
 					// until it succeeds or throws an exception, which can happen
 					// if it doesn't find anything to connect to within about 4 seconds.
-					Logger.logComms { "Attempting to connect to a Bluetooth server on '${device.name}'." }
+					Logger.logComms({ "Attempting to connect to a Bluetooth server on '${device.name}'." })
 					device.createRfcommSocketToServiceRecord(uuid)?.also {
 						it.connect()
 						// If the previous line didn't throw an IOException, then it connected OK.
 						// Do work to manage the connection (in a separate thread)
-						Logger.logComms { "Connected to a Bluetooth server on '${device.name}'." }
+						Logger.logComms({ "Connected to a Bluetooth server on '${device.name}'." })
 						socket = it
 						onConnectedFunction(it)
 
@@ -42,7 +42,7 @@ internal class ConnectToServerThread(
 					)
 				} catch (connectException: Exception) {
 					// There probably isn't a server to connect to. Wait a bit and try again.
-					Logger.logComms { "Failed to connect to a server on '${device.name}'." }
+					Logger.logComms({ "Failed to connect to a server on '${device.name}'." })
 					Utils.safeThreadWait(1000)
 				}
 			else {

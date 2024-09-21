@@ -27,7 +27,7 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 			launch {
 				System.gc()
 				try {
-					Logger.logLoader { "Starting to load '${songLoadInfo.songFile.title}'." }
+					Logger.logLoader({ "Starting to load '${songLoadInfo.songFile.title}'." })
 					val loadedSong = SongParser(songLoadInfo, cancelEvent, handler).parse()
 					if (cancelEvent.isCancelled)
 						throw SongLoadCancelledException()

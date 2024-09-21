@@ -147,7 +147,7 @@
 	<string name="pref_storageLocation_title"> Ubicación de almacenamiento</string>
 	<string name="use_internal_storage">Uso de almacenamiento interno</string>
 	<string name="manual_scrolling">Manual de Desplazamiento</string>
-	<string name="pref_sendMidi_summary"> Si una canción ha superado los tiempos, esto enviará señales de reloj MIDI a través de una conexión USB On-The-Go .</string>
+	<string name="pref_sendMidi_summary">" Si una canción tiene tiempos de ritmo, esto enviará señales de reloj MIDI."</string>
 	<string name="pref_sendMidi_title"> Enviar señales de reloj MIDI</string>
 	<string name="pref_manualMode_summary">Por defecto, las canciones siempre juegan en el modo de desplazamiento manual con ninguna pista de fondo.</string>
 	<string name="pref_manualMode_title">Modo manual</string>

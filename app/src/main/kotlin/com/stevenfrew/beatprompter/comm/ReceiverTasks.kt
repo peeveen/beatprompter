@@ -9,23 +9,23 @@ class ReceiverTasks {
 
 	fun addReceiver(id: String, name: String, receiver: Receiver) =
 		synchronized(receiverThreadsLock) {
-			Logger.logComms { "Starting new receiver task '$id:' ($name)" }
+			Logger.logComms({ "Starting new receiver task '$id:' ($name)" })
 			receiverTasks[id] = ReceiverTask(name, receiver).also {
 				receiverThreads[id] = Thread(it).also { th ->
 					th.start()
 				}
 			}
-			Logger.logComms { "Started new receiver task '$id:' ($name)" }
+			Logger.logComms({ "Started new receiver task '$id:' ($name)" })
 		}
 
 	fun stopAndRemoveReceiver(id: String) {
 		val (receiverTask, receiverThread) = synchronized(receiverThreadsLock) {
-			Logger.logComms { "Removing receiver task '$id'" }
+			Logger.logComms({ "Removing receiver task '$id'" })
 			(receiverTasks.remove(id) to receiverThreads.remove(id)).also {
-				Logger.logComms { "Removed receiver task '$id'" }
+				Logger.logComms({ "Removed receiver task '$id'" })
 			}
 		}
-		Logger.logComms { "Stopping receiver task '$id'" }
+		Logger.logComms({ "Stopping receiver task '$id'" })
 		receiverTask?.apply {
 			setUnregistered()
 			stop()
@@ -34,7 +34,7 @@ class ReceiverTasks {
 			interrupt()
 			join()
 		}
-		Logger.logComms { "Stopped receiver task '$id'" }
+		Logger.logComms({ "Stopped receiver task '$id'" })
 	}
 
 	fun stopAndRemoveAll(type: CommunicationType? = null) =

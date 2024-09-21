@@ -147,7 +147,7 @@
 	<string name="pref_storageLocation_title">Local de armazenamento</string>
 	<string name="use_internal_storage"> Use Armazenamento interno</string>
 	<string name="manual_scrolling">Manual Scrolling</string>
-	<string name="pref_sendMidi_summary"> Se uma música tem a batida horários, enviam sinais de relógio MIDI através de uma conexão USB On-The-Go .</string>
+	<string name="pref_sendMidi_summary">" Se uma música tiver tempos de batida, isto enviará sinais de relógio MIDI."</string>
 	<string name="pref_sendMidi_title">Enviar sinais de relógio MIDI</string>
 	<string name="pref_manualMode_summary">Por padrão, as canções sempre jogar no modo de rolagem manual com nenhuma faixa de apoio.</string>
 	<string name="pref_manualMode_title">Modo manual</string>

@@ -25,7 +25,7 @@ class DeviceReceiver(
 					BluetoothDevice.EXTRA_DEVICE,
 					BluetoothDevice::class.java
 				))?.apply {
-				Logger.logComms { "A Bluetooth device with address '$address' has disconnected." }
+				Logger.logComms({ "A Bluetooth device with address '$address' has disconnected." })
 				receiverTasks.stopAndRemoveReceiver(address)
 				senderTask.removeSender(address)
 			}

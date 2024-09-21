@@ -678,7 +678,7 @@ class SongView
 							)
 						} else {
 							// Zero-time index? Start. Else it's a continue.
-							Logger.log { "Resuming, pause time=$pauseTime" }
+							Logger.log({ "Resuming, pause time=$pauseTime" })
 							time = pauseTime
 							setSongTime(
 								time,

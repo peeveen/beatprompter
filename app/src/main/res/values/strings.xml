@@ -340,7 +340,7 @@
 
 	<string name="pref_sendMidi_key" translatable="false">pref_sendMidi</string>
 	<string name="pref_sendMidi_title">Send MIDI clock signals</string>
-	<string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals via a USB On-The-Go connection.</string>
+	<string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals.</string>
 
 	<string name="pref_highlightColor_key" translatable="false">pref_highlightColor</string>
 	<string name="pref_highlightColor_title">Highlight colour</string>

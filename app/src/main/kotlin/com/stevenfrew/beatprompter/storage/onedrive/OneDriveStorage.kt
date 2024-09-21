@@ -173,10 +173,10 @@ class OneDriveStorage(parentFragment: Fragment) :
 					val driveFile = mClient.drive.getItems(it.id).buildRequest().get()
 					if (driveFile != null) {
 						val title = it.name
-						Logger.log { "File title: $title" }
+						Logger.log({ "File title: $title" })
 						val safeFilename = Utils.makeSafeFilename(title)
 						val targetFile = File(mDownloadFolder, safeFilename)
-						Logger.log { "Safe filename: $safeFilename" }
+						Logger.log({ "Safe filename: $safeFilename" })
 
 						Logger.log("Downloading now ...")
 						// Don't check lastModified ... ALWAYS download.
