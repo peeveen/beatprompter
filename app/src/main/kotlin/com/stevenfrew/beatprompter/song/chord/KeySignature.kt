@@ -10,6 +10,8 @@ class KeySignature(
 	val chromaticScale: List<String>
 ) {
 	companion object {
+		private val MINOR_PATTERN = "(${Chord.MINOR_SUFFIXES})+"
+
 		// Chromatic scale starting from C using flats only.
 		private val FLAT_SCALE =
 			listOf("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "Cb")
@@ -25,7 +27,7 @@ class KeySignature(
 		private val C_FLAT_SCALE = G_FLAT_SCALE.map { if (it == "E") "Fb" else it }
 
 		private val KEY_SIGNATURE_REGEX =
-			Pattern.compile("${Chord.ROOT_PATTERN}(${Chord.MINOR_PATTERN})?")
+			Pattern.compile("${Chord.ROOT_PATTERN}(${MINOR_PATTERN})?")
 
 		private val cKeySignature = KeySignature("C", "Am", KeyType.SHARP, 0, SHARP_SCALE)
 		private val dFlatKeySignature = KeySignature("Db", "Bbm", KeyType.FLAT, 1, FLAT_SCALE)

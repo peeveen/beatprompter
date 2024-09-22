@@ -232,7 +232,6 @@ class SongParser(
 	}
 
 	override fun parseLine(line: TextFileLine<Song>): Boolean {
-		chordMap = chordMap?.shift(1)
 		if (songLoadCancelEvent.isCancelled)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))

@@ -21,27 +21,30 @@ class Chord(
 		private const val REGEX_SUFFIX_GROUP_NAME = "suffix"
 		private const val REGEX_BASS_GROUP_NAME = "bass"
 
+		private val ACCIDENTALS = listOf('b', '♭', '#', '♯', '♮')
+
 		// Regex for recognizing chords
-		private const val MINOR_SUFFIXES = "m|min|minor"
-		private const val NOT_MINOR_SUFFIXES = "M|maj|major|dim|sus|dom|aug|Ø|ø|°|Δ|∆|\\+|-"
+		val MINOR_SUFFIXES = listOf("m", "min", "minor")
+		private val NOT_MINOR_SUFFIXES =
+			listOf("M", "maj", "major", "dim", "sus", "dom", "aug", "Ø", "ø", "°", "Δ", "∆", "\\+", "-")
 
-		private const val TRIAD_PATTERN = "($NOT_MINOR_SUFFIXES|$MINOR_SUFFIXES)"
-		private const val ADDED_TONE_PATTERN = "(\\(?([\\/\\.\\+]|add)?[#b]?\\d+[\\+-]?\\)?)"
-		private const val SUFFIX_PATTERN =
+		private val TRIAD_PATTERN =
+			"(${NOT_MINOR_SUFFIXES.joinToString("|")}|${MINOR_SUFFIXES.joinToString("|")})"
+		private val ADDED_TONE_PATTERN =
+			"(\\(?([\\/\\.\\+]|add)?[${ACCIDENTALS.joinToString()}]?\\d+[\\+-]?\\)?)"
+		private val SUFFIX_PATTERN =
 			"(?<$REGEX_SUFFIX_GROUP_NAME>\\(?${TRIAD_PATTERN}?${ADDED_TONE_PATTERN}*\\)?)"
-		private const val BASS_PATTERN = "(\\/(?<$REGEX_BASS_GROUP_NAME>[A-G](b|♭|#|♯|♮)?))?"
+		private val BASS_PATTERN =
+			"(\\/(?<$REGEX_BASS_GROUP_NAME>[A-G](${ACCIDENTALS.joinToString("|")})?))?"
 
-		const val ROOT_PATTERN = "(?<$REGEX_ROOT_GROUP_NAME>[A-G](b|♭|#|♯|♮)?)"
-		const val NOT_MINOR_PATTERN = "($NOT_MINOR_SUFFIXES)+"
-		const val MINOR_PATTERN = "($MINOR_SUFFIXES)+"
+		val ROOT_PATTERN = "(?<$REGEX_ROOT_GROUP_NAME>[A-G](${ACCIDENTALS.joinToString("|")})?)"
+		private val NOT_MINOR_PATTERN = "($NOT_MINOR_SUFFIXES)+"
 
-		private const val CHORD_REGEX = "^${ROOT_PATTERN}${SUFFIX_PATTERN}${BASS_PATTERN}$"
-		private const val MINOR_SUFFIX_REGEX = "^${MINOR_PATTERN}.*$"
-		private const val NOT_MINOR_SUFFIX_REGEX = "^${NOT_MINOR_PATTERN}.*$"
+		private val CHORD_REGEX = "^${ROOT_PATTERN}${SUFFIX_PATTERN}${BASS_PATTERN}$"
+		private val NOT_MINOR_SUFFIX_REGEX = "^${NOT_MINOR_PATTERN}.*$"
 
 		private val CHORD_REGEX_PATTERN = Pattern.compile(CHORD_REGEX)
 		private val NOT_MINOR_SUFFIX_REGEX_PATTERN = Pattern.compile(NOT_MINOR_SUFFIX_REGEX)
-		private val MINOR_SUFFIX_REGEX_PATTERN = Pattern.compile(MINOR_SUFFIX_REGEX)
 
 		fun parse(chord: String): Chord? {
 			try {
