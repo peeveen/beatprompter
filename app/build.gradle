@@ -7,7 +7,7 @@ android {
 
 	defaultConfig {
 		applicationId "com.stevenfrew.beatprompter"
-		minSdkVersion 23
+		minSdkVersion 26
 		// Enabling multidex support.
 		multiDexEnabled true
 		targetSdkVersion 34

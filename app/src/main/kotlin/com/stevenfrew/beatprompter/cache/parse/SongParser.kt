@@ -57,6 +57,7 @@ import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
+import com.stevenfrew.beatprompter.song.chord.ChordMap
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.BaseEvent
 import com.stevenfrew.beatprompter.song.event.BeatEvent
@@ -169,6 +170,11 @@ class SongParser(
 	private var isInChorusSection = false
 	private var pendingAudioTag: AudioTag? = null
 	private var audioTagIndex: Int = 0
+	private var chordMap: ChordMap? = if (songLoadInfo.songFile.firstChord != null) ChordMap(
+		songLoadInfo.songFile.chords.toSet(),
+		songLoadInfo.songFile.firstChord,
+		songLoadInfo.songFile.key
+	) else null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
@@ -183,7 +189,7 @@ class SongParser(
 		triggerContext = Preferences.sendMIDITriggerOnStart
 		val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
 		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-		showKey = Preferences.showKey && songLoadInfo.songFile.key.isNotBlank()
+		showKey = Preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
 		showBpm =
 			if (songLoadInfo.songFile.bpm > 0.0) Preferences.showBPMContext else ShowBPMContext.No
 
@@ -226,6 +232,7 @@ class SongParser(
 	}
 
 	override fun parseLine(line: TextFileLine<Song>): Boolean {
+		chordMap = chordMap?.shift(1)
 		if (songLoadCancelEvent.isCancelled)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))
@@ -479,6 +486,7 @@ class SongParser(
 						songHeight,
 						thisLineIsInChorus,
 						startAndStopScrollTimes,
+						chordMap,
 						songLoadCancelEvent
 					)
 

@@ -44,7 +44,7 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 			titleView.text = song.title
 			val key = song.key
 			val rating = song.rating
-			val keyString = if (showKey && key.isNotBlank()) " - $key" else ""
+			val keyString = if (showKey && !key.isNullOrBlank()) " - $key" else ""
 			val ratingString = if (showRating && rating != 0) " - ${STARS[rating]}" else ""
 			val artist = song.artist + keyString + ratingString
 			artistView.text = artist

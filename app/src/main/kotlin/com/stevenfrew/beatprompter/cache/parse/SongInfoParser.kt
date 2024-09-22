@@ -38,6 +38,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.chord.Chord
 import org.w3c.dom.Element
 
 @ParseTags(
@@ -81,10 +82,10 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private var title: String? = null
 	private var artist: String? = null
 	private var key: String? = null
-	private var firstChord: String? = null
 	private var bpm: Double = 0.0
 	private var bars: Int = 0
 	private var beats: Int = 0
+	private val chords: MutableList<String> = mutableListOf()
 	private var totalPauseDuration: Long = 0L
 	private var duration: Long = 0L
 	private val imageFiles = mutableListOf<String>()
@@ -116,7 +117,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val titleTag = tagSequence.filterIsInstance<TitleTag>().firstOrNull()
 		val artistTag = tagSequence.filterIsInstance<ArtistTag>().firstOrNull()
 		val keyTag = tagSequence.filterIsInstance<KeyTag>().firstOrNull()
-		val chordTag = tagSequence.filterIsInstance<ChordTag>().firstOrNull()
+		val chordTags = tagSequence.filterIsInstance<ChordTag>()
 		val midiSongSelectTriggerTag =
 			tagSequence.filterIsInstance<MidiSongSelectTriggerTag>().firstOrNull()
 		val midiProgramChangeTriggerTag =
@@ -143,9 +144,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		if (filterOnlyTag != null)
 			isFilterOnly = true
 
-		if (chordTag != null)
-			if (firstChord == null && chordTag.isValidChord)
-				firstChord = chordTag.name
+		chords.addAll(chordTags.map { it.name })
 
 		if (midiSongSelectTriggerTag != null)
 			midiSongSelectTrigger = midiSongSelectTriggerTag.trigger
@@ -168,7 +167,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		if (ratingTag != null)
 			rating = ratingTag.rating
 
-		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTag != null) {
+		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTags.any()) {
 			bars += currentLineBeatInfo.bpl
 			beats += currentLineBeatInfo.beats
 		}
@@ -178,27 +177,20 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		return true
 	}
 
+	private val firstChord: String?
+		get() = chords.firstOrNull { Chord.isChord(it) }
+
 	override fun getResult(): SongFile {
 		if (title.isNullOrBlank())
 			throw InvalidBeatPrompterFileException(R.string.noTitleFound, cachedCloudFile.name)
-		if (artist.isNullOrBlank())
-			artist = ""
-		val key =
-			if (key.isNullOrBlank())
-				if (firstChord.isNullOrBlank())
-					""
-				else
-					firstChord!!
-			else
-				key!!
 
 		return SongFile(
 			cachedCloudFile,
 			lines,
 			bars,
 			title!!,
-			artist!!,
-			key,
+			artist ?: "",
+			key ?: firstChord,
 			bpm,
 			duration,
 			mixedModeVariations.toList(),
@@ -213,6 +205,8 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 			isFilterOnly,
 			rating,
 			if (variations.isEmpty()) listOf("Default") else variations,
+			chords,
+			firstChord,
 			errors
 		)
 	}

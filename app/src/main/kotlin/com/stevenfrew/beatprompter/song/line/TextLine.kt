@@ -10,6 +10,8 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.chord.Chord
+import com.stevenfrew.beatprompter.song.chord.ChordMap
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils
@@ -29,6 +31,7 @@ class TextLine internal constructor(
 	pixelPosition: Int,
 	inChorusSection: Boolean,
 	scrollTimes: Pair<Long, Long>,
+	private val chordMap: ChordMap?,
 	songLoadCancelEvent: SongLoadCancelEvent
 ) : Line(
 	lineTime,
@@ -479,8 +482,9 @@ class TextLine internal constructor(
 				var trueChord = false
 				if (chordTagIndex != -1) {
 					val chordTag = chordTags[chordTagIndex]
-					trueChord = chordTag.isValidChord
 					chordText = chordTag.name
+					chordText = chordMap?.get(chordText)?.toString() ?: chordText
+					trueChord = Chord.isChord(chordText)
 					// Stick a couple of spaces on each chord, apart from the last one.
 					// This is so they don't appear right beside each other.
 					if (!isLastChord)

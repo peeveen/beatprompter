@@ -386,7 +386,8 @@ class SongListFragment
 			nativeSettings,
 			sourceSettings,
 			noAudio,
-			Preferences.audioLatency
+			Preferences.audioLatency,
+			0
 		)
 		val songLoadJob = SongLoadJob(songLoadInfo)
 		SongLoadQueueWatcherTask.loadSong(songLoadJob)
@@ -988,7 +989,8 @@ class SongListFragment
 					nativeSettings,
 					sourceSettings,
 					choiceInfo.noAudio,
-					choiceInfo.audioLatency
+					choiceInfo.audioLatency,
+					0
 				)
 				val songLoadJob = SongLoadJob(songLoadInfo)
 				if (SongDisplayActivity.interruptCurrentSong(songLoadJob) == SongInterruptResult.NoSongToInterrupt)
