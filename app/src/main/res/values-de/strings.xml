@@ -420,4 +420,8 @@ Em]zeigt den Beat Progression.\n
 	<string name="database_write_error">Beim Schreiben der Datenbank ist ein Fehler aufgetreten.</string>
 	<string name="rebuildingDatabase">Datenbank wird neu erstellt ...</string>
 	<string name="cannot_use_with_midi_with_parameters">with_midi_*-Direktiven können nicht in Aliasnamen verwendet werden, die Parameter enthalten</string>
+	<string name="pref_alwaysDisplaySharpChords_title">Immer Kreuzakkorde anzeigen</string>
+	<string name="pref_alwaysDisplaySharpChords_summary">Alle B-Akkorde werden in entsprechende Kreuz-Akkorde umgewandelt.</string>
+	<string name="pref_displayUnicodeAccidentals_title">Unicode-Vorzeichen anzeigen</string>
+	<string name="pref_displayUnicodeAccidentals_summary">Akkorde, die die Zeichen b/# enthalten, werden in ♭/♯ umgewandelt.</string>
 </resources>

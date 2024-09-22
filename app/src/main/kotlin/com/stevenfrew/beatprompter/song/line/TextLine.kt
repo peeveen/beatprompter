@@ -483,7 +483,7 @@ class TextLine internal constructor(
 				if (chordTagIndex != -1) {
 					val chordTag = chordTags[chordTagIndex]
 					chordText = chordTag.name
-					chordText = chordMap?.get(chordText)?.toString() ?: chordText
+					chordText = chordMap?.getChordDisplayString(chordText) ?: chordText
 					trueChord = Chord.isChord(chordText)
 					// Stick a couple of spaces on each chord, apart from the last one.
 					// This is so they don't appear right beside each other.

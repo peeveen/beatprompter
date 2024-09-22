@@ -1,14 +1,22 @@
 package com.stevenfrew.beatprompter.song.chord
 
-class ChordMap(private val chordMap: Map<String, Chord>, private val key: KeySignature) :
-	Map<String, Chord> {
+import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.song.chord.Chord.Companion.CHORD_RANKS_AND_SHARPS
 
+class ChordMap private constructor(
+	private val chordMap: Map<String, Chord>,
+	private val key: KeySignature,
+	private val alwaysUseSharps: Boolean = false,
+	private val useUnicodeAccidentals: Boolean = false
+) : Map<String, Chord> {
 	constructor(chordStrings: Set<String>, firstChord: String, key: String? = null) : this(
 		chordStrings.mapNotNull { Chord.parse(it)?.let { parsedChord -> it to parsedChord } }.toMap(),
 		key?.let { KeySignature.valueOf(it) } ?: Chord.parse(
 			firstChord
 		)?.let { KeySignature.guessKeySignature(it) }
-		?: throw Exception("Could not determine key signature")
+		?: throw Exception("Could not determine key signature"),
+		Preferences.alwaysDisplaySharpChords,
+		Preferences.displayUnicodeAccidentals,
 	)
 
 	fun fromKey(key: KeySignature): ChordMap = ChordMap(chordMap, key)
@@ -68,12 +76,15 @@ class ChordMap(private val chordMap: Map<String, Chord>, private val key: KeySig
 	): Map<String, String> {
 		val semitones = semitonesBetween(currentKey, newKey)
 		val scale: List<String> = newKey.chromaticScale
-		return CHORD_RANKS.map { it.key to scale[(it.value + semitones + NUMBER_OF_KEYS) % NUMBER_OF_KEYS] }
+		return CHORD_RANKS_AND_SHARPS.map { it.key to scale[(it.value.first + semitones + NUMBER_OF_KEYS) % NUMBER_OF_KEYS] }
 			.toMap()
 	}
 
 	/** Finds the number of semitones between the given keys. */
 	private fun semitonesBetween(a: KeySignature, b: KeySignature): Int = b.rank - a.rank
+
+	fun getChordDisplayString(chord: String): String? =
+		get(chord)?.getChordDisplayString(alwaysUseSharps, useUnicodeAccidentals)
 
 	override val entries: Set<Map.Entry<String, Chord>>
 		get() = chordMap.entries
@@ -91,46 +102,5 @@ class ChordMap(private val chordMap: Map<String, Chord>, private val key: KeySig
 
 	companion object {
 		const val NUMBER_OF_KEYS = 12
-
-		/**
-		 * The rank for each possible chord. Rank is the distance in semitones from C.
-		 */
-		val CHORD_RANKS: Map<String, Int> = mapOf(
-			"B#" to 0,
-			"B♯" to 0,
-			"C" to 0,
-			"C#" to 1,
-			"C♯" to 1,
-			"Db" to 1,
-			"D♭" to 1,
-			"D" to 2,
-			"D#" to 3,
-			"D♯" to 3,
-			"Eb" to 3,
-			"E♭" to 3,
-			"E" to 4,
-			"Fb" to 4,
-			"F♭" to 4,
-			"E#" to 5,
-			"E♯" to 5,
-			"F" to 5,
-			"F#" to 6,
-			"F♯" to 6,
-			"Gb" to 6,
-			"G♭" to 6,
-			"G" to 7,
-			"G#" to 8,
-			"G♯" to 8,
-			"Ab" to 8,
-			"A♭" to 8,
-			"A" to 9,
-			"A#" to 10,
-			"A♯" to 10,
-			"Bb" to 10,
-			"B♭" to 10,
-			"Cb" to 11,
-			"C♭" to 11,
-			"B" to 11
-		)
 	}
 }

@@ -15,7 +15,48 @@ class Chord(
 	val bass: String? = null
 ) {
 	companion object {
-		fun useUnicodeFlatsAndSharps(str: String): String = str.replace('b', '♭').replace('#', '♯')
+		/**
+		 * The rank for each possible chord. Rank is the distance in semitones from C.
+		 */
+		val CHORD_RANKS_AND_SHARPS: Map<String, Pair<Int, String>> = mapOf(
+			"B#" to (0 to "B#"),
+			"B♯" to (0 to "B♯"),
+			"C" to (0 to "C"),
+			"C#" to (1 to "C#"),
+			"C♯" to (1 to "C♯"),
+			"Db" to (1 to "C#"),
+			"D♭" to (1 to "C♯"),
+			"D" to (2 to "D"),
+			"D#" to (3 to "D#"),
+			"D♯" to (3 to "D♯"),
+			"Eb" to (3 to "D#"),
+			"E♭" to (3 to "D♯"),
+			"E" to (4 to "E"),
+			"Fb" to (4 to "E"),
+			"F♭" to (4 to "E"),
+			"E#" to (5 to "E#"),
+			"E♯" to (5 to "E♯"),
+			"F" to (5 to "F"),
+			"F#" to (6 to "F#"),
+			"F♯" to (6 to "F♯"),
+			"Gb" to (6 to "F#"),
+			"G♭" to (6 to "F♯"),
+			"G" to (7 to "G"),
+			"G#" to (8 to "G#"),
+			"G♯" to (8 to "G♯"),
+			"Ab" to (8 to "G#"),
+			"A♭" to (8 to "G♯"),
+			"A" to (9 to "A"),
+			"A#" to (10 to "A#"),
+			"A♯" to (10 to "A♯"),
+			"Bb" to (10 to "A#"),
+			"B♭" to (10 to "A♯"),
+			"Cb" to (11 to "B"),
+			"C♭" to (11 to "B"),
+			"B" to (11 to "B")
+		)
+
+		fun useUnicodeAccidentals(str: String): String = str.replace('b', '♭').replace('#', '♯')
 
 		private const val REGEX_ROOT_GROUP_NAME = "root"
 		private const val REGEX_SUFFIX_GROUP_NAME = "suffix"
@@ -50,9 +91,13 @@ class Chord(
 			try {
 				val result = CHORD_REGEX_PATTERN.matcher(chord)
 				if (result.find()) {
-					val root = result.group(REGEX_ROOT_GROUP_NAME)
-					val suffix = result.group(REGEX_SUFFIX_GROUP_NAME)
-					val bass = result.group(REGEX_BASS_GROUP_NAME)
+					// For Oreo
+					/*					val root = result.group(REGEX_ROOT_GROUP_NAME)
+										val suffix = result.group(REGEX_SUFFIX_GROUP_NAME)
+										val bass = result.group(REGEX_BASS_GROUP_NAME)*/
+					val root = result.group(1)
+					val suffix = result.group(3)
+					val bass = result.group(8)
 					if (root.isNullOrBlank())
 						throw IllegalStateException("Failed to parse chord $chord")
 					return Chord(root, suffix, bass)
@@ -66,13 +111,21 @@ class Chord(
 		fun isChord(token: String): Boolean = CHORD_REGEX_PATTERN.matcher(token).matches()
 	}
 
-	override fun toString(): String =
-		useUnicodeFlatsAndSharps(
-			if (this.bass != null)
-				this.root + this.suffix + "/" + this.bass
-			else
-				this.root + this.suffix
-		)
+	internal fun getChordDisplayString(
+		alwaysUseSharps: Boolean,
+		useUnicodeAccidentals: Boolean
+	): String {
+		val root = root.let {
+			if (alwaysUseSharps) CHORD_RANKS_AND_SHARPS[root]?.second ?: root else root
+		}
+		val rawChord = if (this.bass != null)
+			root + this.suffix + "/" + this.bass
+		else
+			root + this.suffix
+		return rawChord.let {
+			if (useUnicodeAccidentals) useUnicodeAccidentals(it) else it
+		}
+	}
 
 	val isMinor
 		get() = if (suffix == null) false else !NOT_MINOR_SUFFIX_REGEX_PATTERN.matcher(suffix).matches()

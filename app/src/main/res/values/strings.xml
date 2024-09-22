@@ -347,6 +347,16 @@
 	<string name="pref_highlightColor_summary">Highlight colour to apply to highlighted lyric text.</string>
 	<string name="pref_highlightColor_default" translatable="false">#ff00ffff</string>
 
+	<string name="pref_alwaysDisplaySharpChords_key" translatable="false">pref_alwaysDisplaySharpChords</string>
+	<string name="pref_alwaysDisplaySharpChords_title">Always display sharp chords</string>
+	<string name="pref_alwaysDisplaySharpChords_summary">Any flat chords will be converted to appropriate sharp chords.</string>
+	<string name="pref_alwaysDisplaySharpChords_default" translatable="false">false</string>
+
+	<string name="pref_displayUnicodeAccidentals_key" translatable="false">pref_displayUnicodeAccidentals</string>
+	<string name="pref_displayUnicodeAccidentals_title">Display Unicode accidentals</string>
+	<string name="pref_displayUnicodeAccidentals_summary">Chords that contain b/# characters will be converted to use ♭/♯.</string>
+	<string name="pref_displayUnicodeAccidentals_default" translatable="false">false</string>
+
 	<string name="pref_currentLineHighlightColor_key" translatable="false">pref_currentLineHighlightColor</string>
 	<string name="pref_currentLineHighlightColor_title">Current Line Highlight colour</string>
 	<string name="pref_currentLineHighlightColor_summary">Highlight colour to apply to the current line.</string>

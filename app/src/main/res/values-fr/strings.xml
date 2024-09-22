@@ -420,4 +420,8 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="database_write_error">Une erreur s\'est produite lors de l\'écriture de la base de données.</string>
 	<string name="rebuildingDatabase">Reconstruction de la base de données...</string>
 	<string name="cannot_use_with_midi_with_parameters">Les directives with_midi_* ne peuvent pas être utilisées dans des alias contenant des paramètres</string>
+	<string name="pref_alwaysDisplaySharpChords_title">Affichez toujours les accords dièses</string>
+	<string name="pref_alwaysDisplaySharpChords_summary">Tous les accords plats seront convertis en accords dièses appropriés.</string>
+	<string name="pref_displayUnicodeAccidentals_title">Afficher les altérations Unicode</string>
+	<string name="pref_displayUnicodeAccidentals_summary">Les accords contenant des caractères b/# seront convertis pour utiliser ♭/♯.</string>
 </resources>
