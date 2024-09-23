@@ -483,18 +483,27 @@ class SongListFragment
       requireContext(),
       android.R.layout.simple_spinner_item, selectedSong.variations
     )
+    val transposeOptions =
+      TransposeOption.getTransposeOptions(selectedSong.key, selectedSong.firstChord)
+
     val transposeSpinner = view
       .findViewById<Spinner>(R.id.transposeSpinner)
-    val transposeSpinnerAdapter = ArrayAdapter(
-      requireContext(),
-      android.R.layout.simple_spinner_item,
-      TransposeOption.getTransposeOptions(selectedSong.key, selectedSong.firstChord)
-    )
+    val noTranspose = transposeOptions.isEmpty() || !Preferences.showChords
+    if (noTranspose) {
+      view.findViewById<TextView>(R.id.transposeLabel).visibility = View.GONE
+      transposeSpinner.visibility = View.GONE
+    } else {
+      val transposeSpinnerAdapter = ArrayAdapter(
+        requireContext(),
+        android.R.layout.simple_spinner_item,
+        transposeOptions
+      )
+      transposeSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+      transposeSpinner.adapter = transposeSpinnerAdapter
+    }
     val noAudioCheckbox = view.findViewById<CheckBox>(R.id.noAudioCheckbox)
     variationSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     variationSpinner.adapter = variationSpinnerAdapter
-    transposeSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-    transposeSpinner.adapter = transposeSpinnerAdapter
 
     val beatScrollable = selectedSong.isBeatScrollable
     val smoothScrollable = selectedSong.isSmoothScrollable
@@ -568,7 +577,8 @@ class SongListFragment
       // Add action buttons
       setPositiveButton(R.string.play) { _, _ ->
         val selectedVariation = variationSpinner.selectedItem as String
-        val selectedTranspose = transposeSpinner.selectedItem as TransposeOption
+        val selectedTranspose =
+          if (noTranspose) null else transposeSpinner.selectedItem as TransposeOption
         val noAudio = noAudioCheckbox.isChecked
         val mode =
           when {
@@ -585,7 +595,7 @@ class SongListFragment
           sds,
           sds,
           noAudio,
-          selectedTranspose.offset
+          selectedTranspose?.offset ?: 0
         )
       }
       setNegativeButton(R.string.cancel) { _, _ -> }
