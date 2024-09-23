@@ -25,6 +25,18 @@ object Preferences {
 			setOf(ConnectionType.USBOnTheGo)
 		}
 
+	val alwaysDisplaySharpChords: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_alwaysDisplaySharpChords_key,
+			false
+		)
+
+	val displayUnicodeAccidentals: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_displayUnicodeAccidentals_key,
+			false
+		)
+
 	val bluetoothMidiDevices: Set<String>
 		get() = getStringSetPreference(
 			R.string.pref_bluetoothMidiDevices_key,

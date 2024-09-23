@@ -28,6 +28,22 @@
             android:minHeight="48dp"
             android:spinnerMode="dropdown" />
 
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/transpose"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/transposeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:minHeight="48dp"
+            android:spinnerMode="dropdown" />
+
         <CheckBox
             android:id="@+id/noAudioCheckbox"
             android:layout_width="wrap_content"
