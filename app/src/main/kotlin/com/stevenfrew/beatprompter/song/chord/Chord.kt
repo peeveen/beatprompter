@@ -75,7 +75,7 @@ class Chord(
     private val ADDED_TONE_PATTERN =
       "(\\(?([\\/\\.\\+]|add)?[${ACCIDENTALS.joinToString()}]?\\d+[\\+-]?\\)?)"
     private val SUFFIX_PATTERN =
-      "(?<$REGEX_SUFFIX_GROUP_NAME>\\(?${TRIAD_PATTERN}?${ADDED_TONE_PATTERN}*\\)?)"
+      "(?<$REGEX_SUFFIX_GROUP_NAME>\\d*\\(?${TRIAD_PATTERN}?${ADDED_TONE_PATTERN}*\\)?)"
     private val BASS_PATTERN =
       "(\\/(?<$REGEX_BASS_GROUP_NAME>[A-G](${ACCIDENTALS.joinToString("|")})?))?"
 
