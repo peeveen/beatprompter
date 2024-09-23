@@ -20,6 +20,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStartTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStopTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordMapTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CountTag
@@ -46,6 +47,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfVariationInclusio
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
@@ -110,7 +112,9 @@ import kotlin.math.roundToInt
 	EndOfVariationInclusionTag::class,
 	StartOfChorusTag::class,
 	VariationsTag::class,
-	EndOfChorusTag::class
+	EndOfChorusTag::class,
+	TransposeTag::class,
+	ChordMapTag::class
 )
 @IgnoreTags(
 	LegacyTag::class,
@@ -243,6 +247,20 @@ class SongParser(
 		val chordsFoundButNotShowingThem = !showChords && chordsFound
 		val tags = if (showChords) line.tags.toList() else nonChordTags
 		val tagSequence = tags.asSequence()
+
+		val transposeTags = tagSequence.filterIsInstance<TransposeTag>()
+		transposeTags.forEach {
+			try {
+				chordMap = chordMap?.transpose(it.value)
+			} catch (e: Exception) {
+				errors.add(FileParseError(it, e))
+			}
+		}
+
+		val chordMapTags = tagSequence.filterIsInstance<ChordMapTag>()
+		chordMapTags.forEach {
+			chordMap = chordMap?.addChordMapping(it.from, it.to)
+		}
 
 		var workLine = line.lineWithNoTags
 

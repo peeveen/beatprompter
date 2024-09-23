@@ -87,7 +87,7 @@ class KeySignature(
 		}.reversed().toMap()
 
 		/**
-		 * Returns the enum constant with the specific name or throws an error if the
+		 * Returns the enum constant with the specific name or returns null if the
 		 * key signature is not valid.
 		 */
 		fun valueOf(name: String): KeySignature? {

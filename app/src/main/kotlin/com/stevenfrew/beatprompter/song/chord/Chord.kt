@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.song.chord
 
+import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.R
 import java.util.regex.Pattern
 
 /**
@@ -13,10 +15,11 @@ class Chord(
 	val root: String,
 	val suffix: String? = null,
 	val bass: String? = null
-) {
+) : IChord {
 	companion object {
 		/**
-		 * The rank for each possible chord. Rank is the distance in semitones from C.
+		 * The rank for each possible chord, and also the sharp-only version.
+		 * Rank is the distance in semitones from C.
 		 */
 		val CHORD_RANKS_AND_SHARPS: Map<String, Pair<Int, String>> = mapOf(
 			"B#" to (0 to "B#"),
@@ -55,8 +58,6 @@ class Chord(
 			"C♭" to (11 to "B"),
 			"B" to (11 to "B")
 		)
-
-		fun useUnicodeAccidentals(str: String): String = str.replace('b', '♭').replace('#', '♯')
 
 		private const val REGEX_ROOT_GROUP_NAME = "root"
 		private const val REGEX_SUFFIX_GROUP_NAME = "suffix"
@@ -99,7 +100,12 @@ class Chord(
 					val suffix = result.group(3)
 					val bass = result.group(8)
 					if (root.isNullOrBlank())
-						throw IllegalStateException("Failed to parse chord $chord")
+						throw IllegalStateException(
+							BeatPrompter.appResources.getString(
+								R.string.failedToParseChord,
+								chord
+							)
+						)
 					return Chord(root, suffix, bass)
 				}
 			} catch (e: IllegalStateException) {
@@ -111,7 +117,7 @@ class Chord(
 		fun isChord(token: String): Boolean = CHORD_REGEX_PATTERN.matcher(token).matches()
 	}
 
-	internal fun getChordDisplayString(
+	override fun getChordDisplayString(
 		alwaysUseSharps: Boolean,
 		useUnicodeAccidentals: Boolean
 	): String {
@@ -126,6 +132,13 @@ class Chord(
 			if (useUnicodeAccidentals) useUnicodeAccidentals(it) else it
 		}
 	}
+
+	override fun transpose(transpositionMap: Map<String, String>): IChord =
+		Chord(
+			transpositionMap[root] ?: root,
+			suffix,
+			transpositionMap[bass]
+		)
 
 	val isMinor
 		get() = if (suffix == null) false else !NOT_MINOR_SUFFIX_REGEX_PATTERN.matcher(suffix).matches()
