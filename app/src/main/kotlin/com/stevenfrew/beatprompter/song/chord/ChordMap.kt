@@ -35,6 +35,8 @@ class ChordMap private constructor(
   fun transpose(amount: Int): ChordMap = shift(amount)
 
   private fun shift(semitones: Int): ChordMap {
+    if (semitones == 0)
+      return this
     val newKey =
       key.shift(semitones)
         ?: throw Exception(
