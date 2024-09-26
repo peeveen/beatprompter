@@ -1,11 +1,13 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -81,6 +83,10 @@ class SongFile(
 		if (!programChangeTrigger.isDeadTrigger)
 			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
 	}
+
+	val keySignature: String?
+		get() = KeySignatureDefinition.getKeySignature(key, firstChord)
+			?.getDisplayString(Preferences.displayUnicodeAccidentals)
 
 	companion object {
 		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "

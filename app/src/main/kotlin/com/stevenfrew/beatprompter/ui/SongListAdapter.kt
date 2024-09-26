@@ -42,7 +42,7 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 			beatIcon.visibility =
 				if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			titleView.text = song.title
-			val key = song.key
+			val key = song.keySignature
 			val rating = song.rating
 			val keyString = if (showKey && !key.isNullOrBlank()) " - $key" else ""
 			val ratingString = if (showRating && rating != 0) " - ${STARS[rating]}" else ""
