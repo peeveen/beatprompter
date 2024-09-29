@@ -66,7 +66,7 @@ class Chord(
 		private val ACCIDENTALS = listOf('b', '♭', '#', '♯', '♮')
 
 		// Regex for recognizing chords
-		val MINOR_SUFFIXES = listOf("m", "min", "minor")
+		val MINOR_SUFFIXES = listOf("m", "mmaj", "min", "minor")
 		private val NOT_MINOR_SUFFIXES =
 			listOf("M", "maj", "major", "dim", "sus", "dom", "aug", "Ø", "ø", "°", "Δ", "∆", "\\+", "-")
 
