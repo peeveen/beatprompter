@@ -230,7 +230,7 @@ class SongView
 			it.seekTo(0)
 		}
 
-		currentBeatCountRect = song.beatCounterRect
+		currentBeatCountRect = Rect(song.beatCounterRect)
 		this.song = song
 
 		calculateManualScrollPositions()
@@ -818,7 +818,7 @@ class SongView
 				bottom = song!!.beatCounterRect.height()
 			}
 		else
-			song!!.beatCounterRect
+			Rect(song!!.beatCounterRect)
 	}
 
 	private fun isTrackPlaying(): Boolean = audioPlayers.values.any { it.isPlaying }
@@ -856,7 +856,7 @@ class SongView
 	private fun processLineEvent(event: LineEvent) = song?.apply {
 		currentLine = event.line
 		if (currentLine.scrollMode == ScrollingMode.Manual) {
-			currentBeatCountRect = beatCounterRect
+			currentBeatCountRect = Rect(beatCounterRect)
 			calculateManualScrollPositions()
 		}
 	}
@@ -947,7 +947,7 @@ class SongView
 				if (currentLine.scrollMode !== ScrollingMode.Manual) currentEvent.previousBeatEvent else null
 			currentBeatCountRect =
 				//val nextBeatEvent = mCurrentEvent.mNextBeatEvent
-				if (prevBeatEvent == null) beatCounterRect else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
+				if (prevBeatEvent == null) Rect(beatCounterRect) else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
 			songStartTime = System.nanoTime() - nano
 			if (redraw)
 				invalidate()
