@@ -66,6 +66,17 @@ abstract class SongFileParser<TResultType>(
 			tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
 		val variationInclusionStartTag =
 			tagSequence.filterIsInstance<StartOfVariationInclusionTag>().firstOrNull()
+		val namedVariations =
+			variationInclusionStartTag?.variations ?: variationExclusionStartTag?.variations ?: listOf()
+		val unknownNamedVariations = namedVariations.subtract(variations.toSet())
+		if (unknownNamedVariations.any())
+			errors.add(
+				FileParseError(
+					line.lineNumber,
+					R.string.unknownVariations,
+					unknownNamedVariations.joinToString(", ")
+				)
+			)
 		if (variationExclusionStartTag != null)
 			variationExclusions.add(variationExclusionStartTag.variations)
 		if (variationInclusionStartTag != null)

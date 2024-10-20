@@ -76,6 +76,9 @@ object Preferences {
 	val bandLeaderDevice: String
 		get() = getStringPreference(R.string.pref_bandLeaderDevice_key, "")
 
+	val preferredVariation: String
+		get() = getStringPreference(R.string.pref_preferredVariation_key, "")
+
 	val bluetoothMode: BluetoothMode
 		get() = try {
 			BluetoothMode.valueOf(

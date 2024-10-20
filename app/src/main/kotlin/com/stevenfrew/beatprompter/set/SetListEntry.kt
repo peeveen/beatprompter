@@ -9,16 +9,21 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
  */
 class SetListEntry private constructor(
 	private val normalizedTitle: String,
-	private val normalizedArtist: String
+	private val normalizedArtist: String,
+	val variation: String
 ) {
-	private constructor(titleAndArtist: Pair<String, String>)
-		: this(titleAndArtist.first, titleAndArtist.second)
+	private constructor(titleAndArtist: Triple<String, String, String>)
+		: this(titleAndArtist.first, titleAndArtist.second, titleAndArtist.third)
 
 	constructor(songFile: SongFile)
-		: this(songFile.normalizedTitle, songFile.normalizedArtist)
+		: this(
+		songFile.normalizedTitle,
+		songFile.normalizedArtist,
+		songFile.defaultVariation
+	)
 
 	constructor(setListFileLine: String)
-		: this(getTitleAndArtistFromSetListLine(setListFileLine))
+		: this(getInfoFromSetListLine(setListFileLine))
 
 	fun matches(songFile: SongFile): SetListMatch =
 		if (songFile.normalizedTitle.equals(normalizedTitle, true)) {
@@ -32,17 +37,31 @@ class SetListEntry private constructor(
 		if (normalizedArtist.isBlank()) normalizedTitle
 		else "$normalizedArtist - $normalizedTitle"
 
-	override fun toString(): String = normalizedTitle + SET_LIST_ENTRY_DELIMITER + normalizedArtist
+	override fun toString(): String = normalizedTitle + SET_LIST_ARTIST_DELIMITER + normalizedArtist
 
 	companion object {
-		private const val SET_LIST_ENTRY_DELIMITER = "==="
+		private const val SET_LIST_ARTIST_DELIMITER = "==="
+		private const val SET_LIST_VARIATION_DELIMITER = "###"
 
-		private fun getTitleAndArtistFromSetListLine(setListFileLine: String): Pair<String, String> =
-			setListFileLine.splitAndTrim(SET_LIST_ENTRY_DELIMITER).let {
+		private fun splitOnDelimiter(setListFileLine: String, delimiter: String): Pair<String, String> =
+			setListFileLine.splitAndTrim(delimiter).let {
 				if (it.size > 1)
-					it[0] to it[1]
+					it[0].trim() to it[1].trim()
 				else
-					it[0] to ""
+					it[0].trim() to ""
+			}
+
+		private fun getInfoFromSetListLine(setListFileLine: String): Triple<String, String, String> =
+			splitOnDelimiter(setListFileLine, SET_LIST_ARTIST_DELIMITER).let {
+				if (it.second.isNotBlank()) {
+					// Artist was specified.
+					val secondSplit = splitOnDelimiter(it.second, SET_LIST_VARIATION_DELIMITER)
+					Triple(it.first, secondSplit.first, secondSplit.second)
+				} else {
+					// No artist specified, but variation still might be
+					val secondSplit = splitOnDelimiter(it.first, SET_LIST_VARIATION_DELIMITER)
+					Triple(secondSplit.first, it.second, secondSplit.second)
+				}
 			}
 	}
 }

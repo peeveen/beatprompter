@@ -57,6 +57,12 @@ class SongFile(
 	fun matchesTrigger(trigger: SongTrigger): Boolean =
 		songSelectTrigger == trigger || programChangeTrigger == trigger
 
+	val defaultVariation: String
+		get() =
+			Preferences.preferredVariation.let {
+				if (variations.contains(it)) it else variations.firstOrNull() ?: ""
+			}
+
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
 		element.setAttribute(TITLE_ATTRIBUTE, title)
