@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.comm.bluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
 import com.stevenfrew.beatprompter.comm.CommunicationType
+import com.stevenfrew.beatprompter.comm.MessageType
 import com.stevenfrew.beatprompter.comm.SenderBase
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
@@ -15,6 +16,8 @@ class Sender(private val clientSocket: BluetoothSocket, type: CommunicationType)
 				length
 			)
 		)
+
+	override val messageType: MessageType = MessageType.Band
 
 	override fun close() = clientSocket.close()
 }

@@ -12,7 +12,7 @@ class NativeSender(
 	private val port: MidiInputPort,
 	name: String,
 	type: CommunicationType
-) : SenderBase(name, type) {
+) : MidiSenderBase(name, type) {
 	override fun sendMessageData(bytes: ByteArray, length: Int) = port.send(bytes, 0, length)
 	override fun close() = port.close()
 }
