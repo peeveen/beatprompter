@@ -42,7 +42,7 @@ import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
-import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MidiEvent
 import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
@@ -439,7 +439,7 @@ class SongView
 					is CommentEvent -> processCommentEvent(innerEvent, time)
 					is BeatEvent -> currentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
 					is ClickEvent -> processClickEvent()
-					is MIDIEvent -> processMIDIEvent(innerEvent)
+					is MidiEvent -> processMIDIEvent(innerEvent)
 					is PauseEvent -> processPauseEvent(innerEvent)
 					is LineEvent -> processLineEvent(innerEvent)
 					is AudioEvent -> processAudioEvent(innerEvent)
@@ -868,7 +868,7 @@ class SongView
 			bottom = -1
 		}
 
-	private fun processMIDIEvent(event: MIDIEvent) =
+	private fun processMIDIEvent(event: MidiEvent) =
 		event.messages.forEach {
 			Midi.putMessage(it)
 		}

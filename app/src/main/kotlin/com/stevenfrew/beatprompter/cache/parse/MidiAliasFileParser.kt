@@ -55,7 +55,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				.firstOrNull()
 				?.also {
 					if (aliasSetName != null)
-						errors.add(FileParseError(it, R.string.midi_alias_set_name_defined_multiple_times))
+						addError(FileParseError(it, R.string.midi_alias_set_name_defined_multiple_times))
 					else
 						aliasSetName = it.aliasSetName
 				}
@@ -79,7 +79,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (aliasSetName.isNullOrBlank())
-			errors.add(FileParseError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
+			addError(FileParseError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
 		else
 			if (currentAliasName == null)
 				currentAliasName = aliasNameTag.aliasName
@@ -87,7 +87,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				finishCurrentAlias()
 				currentAliasName = aliasNameTag.aliasName
 				if (currentAliasName.isNullOrBlank()) {
-					errors.add(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
+					addError(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
 					currentAliasName = null
 				}
 			}
@@ -95,10 +95,10 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private fun addInstructionToCurrentAlias(instructionTag: MidiAliasInstructionTag) {
 		if (aliasSetName.isNullOrBlank())
-			errors.add(FileParseError(instructionTag, R.string.no_midi_alias_set_name_defined))
+			addError(FileParseError(instructionTag, R.string.no_midi_alias_set_name_defined))
 		else {
 			if (currentAliasName == null)
-				errors.add(FileParseError(instructionTag, R.string.no_midi_alias_name_defined))
+				addError(FileParseError(instructionTag, R.string.no_midi_alias_name_defined))
 			else
 				currentAliasComponents.add(createAliasComponent(instructionTag))
 		}
@@ -116,7 +116,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			if (currentAliasComponents.isNotEmpty()) {
 				val hasArguments = currentAliasComponents.any { it.parameterCount > 0 }
 				if (hasArguments && withMidiSet) {
-					errors.add(FileParseError(R.string.cannot_use_with_midi_with_parameters))
+					addError(FileParseError(R.string.cannot_use_with_midi_with_parameters))
 				}
 				aliases.add(
 					Alias(
@@ -132,7 +132,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				withMidiContinue = false
 				withMidiStop = false
 			} else
-				errors.add(FileParseError(R.string.midi_alias_has_no_components, currentAliasName!!))
+				addError(FileParseError(R.string.midi_alias_has_no_components, currentAliasName!!))
 	}
 
 	private fun createAliasComponent(tag: MidiAliasInstructionTag): AliasComponent {
@@ -144,7 +144,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
 				componentArgs.add(aliasValue)
 			} catch (mte: MalformedTagException) {
-				errors.add(FileParseError(tag, mte))
+				addError(FileParseError(tag, mte))
 			}
 		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
@@ -152,12 +152,12 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			0 -> null
 			1 -> channelArgs.first().also {
 				if (componentArgs.last() != it)
-					errors.add(FileParseError(tag, R.string.channel_must_be_last_parameter))
+					addError(FileParseError(tag, R.string.channel_must_be_last_parameter))
 				componentArgs.remove(it)
 			}
 
 			else -> {
-				errors.add(FileParseError(tag, R.string.multiple_channel_args))
+				addError(FileParseError(tag, R.string.multiple_channel_args))
 				null
 			}
 		}

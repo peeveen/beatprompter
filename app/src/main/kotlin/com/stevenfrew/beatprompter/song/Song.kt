@@ -112,13 +112,13 @@ class Song(
 	}
 
 	class Comment internal constructor(
-		var mText: String,
+		var text: String,
 		audience: List<String>,
 		screenSize: Rect,
 		paint: Paint
 	) {
 		private val commentAudience = audience
-		private val commentGraphic = ScreenComment(mText, screenSize, paint)
+		private val commentGraphic = ScreenComment(text, screenSize, paint)
 
 		fun isIntendedFor(audience: String): Boolean =
 			commentAudience.isEmpty() ||

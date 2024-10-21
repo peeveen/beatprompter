@@ -15,7 +15,7 @@ import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException
 import com.stevenfrew.beatprompter.midi.alias.Value
-import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MidiEvent
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 @TagType(Type.Directive)
@@ -40,7 +40,7 @@ class MidiEventTag internal constructor(
 		offset = parsedEvent.second
 	}
 
-	fun toMIDIEvent(time: Long): MIDIEvent = MIDIEvent(time, messages, offset)
+	fun toMIDIEvent(time: Long): MidiEvent = MidiEvent(time, messages, offset)
 
 	companion object {
 		const val MIDI_SEND_TAG = "midi_send"

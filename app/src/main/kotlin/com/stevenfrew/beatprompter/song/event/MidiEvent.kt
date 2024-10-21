@@ -6,11 +6,11 @@ import com.stevenfrew.beatprompter.midi.EventOffset
 /**
  * A MIDIEvent tells the event processor to chuck some MIDI data out of the USB port.
  */
-class MIDIEvent(
+class MidiEvent(
 	time: Long,
 	val messages: List<MidiMessage>,
 	val offset: EventOffset = EventOffset(0)
 ) : BaseEvent(time) {
 	override fun offset(nanoseconds: Long): BaseEvent =
-		MIDIEvent(eventTime + nanoseconds, messages, offset)
+		MidiEvent(eventTime + nanoseconds, messages, offset)
 }

@@ -7,7 +7,6 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -67,7 +66,7 @@ import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
-import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MidiEvent
 import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.event.StartEvent
 import com.stevenfrew.beatprompter.song.line.ImageLine
@@ -133,6 +132,7 @@ import kotlin.math.roundToInt
  */
 class SongParser(
 	private val songLoadInfo: SongLoadInfo,
+	private val supportFileResolver: SupportFileResolver,
 	private val songLoadCancelEvent: SongLoadCancelEvent? = null,
 	private val songLoadHandler: Handler? = null
 ) : SongFileParser<Song>(
@@ -181,7 +181,7 @@ class SongParser(
 
 	init {
 		// All songFile info parsing errors count as our errors too.
-		errors.addAll(songLoadInfo.songFile.errors)
+		songLoadInfo.songFile.errors.forEach { addError(it) }
 
 		sendMidiClock = BeatPrompter.preferences.sendMIDIClock
 		countIn = BeatPrompter.preferences.defaultCountIn
@@ -212,7 +212,7 @@ class SongParser(
 		val audioFilenamesForThisVariation =
 			songLoadInfo.songFile.audioFiles[selectedVariation] ?: listOf()
 		flatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
-			Cache.cachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+			supportFileResolver.getMappedAudioFiles(it).firstOrNull()
 		}
 		val lengthOfBackingTrack = flatAudioFiles.firstOrNull()?.duration ?: 0L
 		var songTime =
@@ -221,7 +221,7 @@ class SongParser(
 			else
 				songLoadInfo.songFile.duration
 		if (songTime > 0 && songLoadInfo.songFile.totalPauseDuration > songTime) {
-			errors.add(FileParseError(R.string.pauseLongerThanSong))
+			addError(FileParseError(R.string.pauseLongerThanSong))
 			ongoingBeatInfo = SongBeatInfo(scrollMode = ScrollingMode.Manual)
 			currentLineBeatInfo = LineBeatInfo(ongoingBeatInfo)
 			songTime = 0
@@ -253,7 +253,7 @@ class SongParser(
 			try {
 				chordMap = chordMap?.transpose(it.value)
 			} catch (e: Exception) {
-				errors.add(FileParseError(it, e))
+				addError(FileParseError(it, e))
 			}
 		}
 
@@ -338,7 +338,7 @@ class SongParser(
 				else {
 					initialMidiMessages.addAll(it.messages)
 					if (it.offset.amount != 0)
-						errors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+						addError(FileParseError(it, R.string.midi_offset_before_first_line))
 				}
 			}
 
@@ -374,11 +374,11 @@ class SongParser(
 			pendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
-					Cache.cachedCloudItems.getMappedAudioFiles(it.normalizedFilename)
+					supportFileResolver.getMappedAudioFiles(it.normalizedFilename)
 				if (mappedTracks.isEmpty())
-					errors.add(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
+					addError(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
 				else if (mappedTracks.size > 1)
-					errors.add(
+					addError(
 						FileParseError(
 							it,
 							R.string.multipleFilenameMatches,
@@ -388,7 +388,7 @@ class SongParser(
 				else {
 					val audioFile = mappedTracks.first()
 					if (!audioFile.file.exists())
-						errors.add(
+						addError(
 							FileParseError(
 								it,
 								R.string.cannotFindAudioFile,
@@ -414,7 +414,7 @@ class SongParser(
 			stopAddingStartupItems = true
 
 			if (imageTag != null && (workLine.isNotBlank() || chordsFound))
-				errors.add(FileParseError(line.lineNumber, R.string.text_found_with_image))
+				addError(FileParseError(line.lineNumber, R.string.text_found_with_image))
 
 			// Measuring a blank line will result in a 0x0 measurement, so we
 			// need to have SOMETHING to measure. A nice wee "down arrow" should look OK.
@@ -464,7 +464,7 @@ class SongParser(
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						Cache.cachedCloudItems.getMappedImageFiles(imageTag.filename)
+						supportFileResolver.getMappedImageFiles(imageTag.filename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(
@@ -480,11 +480,11 @@ class SongParser(
 							)
 						} catch (t: Throwable) {
 							// Bitmap loading could cause error here. Even OutOfMemory!
-							errors.add(FileParseError(imageTag, t))
+							addError(FileParseError(imageTag, t))
 						}
 					else {
 						workLine = BeatPrompter.appResources.getString(R.string.missing_image_file_warning)
-						errors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
+						addError(FileParseError(imageTag, R.string.missing_image_file_warning))
 						imageTag = null
 					}
 				}
@@ -628,7 +628,7 @@ class SongParser(
 		// the audio latency without offsetting the beat).
 		val eventsWithClicks = generateClickEvents(events)
 		// Now offset any MIDI events that have an offset.
-		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, errors)
+		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks)
 		// And offset non-audio events by the audio latency offset.
 		val audioLatencyCompensatedEventList =
 			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(songLoadInfo.audioLatency))
@@ -937,7 +937,7 @@ class SongParser(
 		minimumFontSize *= ratioMultiplier.toFloat()
 		maximumFontSize *= ratioMultiplier.toFloat()
 		if (minimumFontSize > maximumFontSize) {
-			errors.add(FileParseError(0, R.string.fontSizesAllMessedUp))
+			addError(FileParseError(0, R.string.fontSizesAllMessedUp))
 			maximumFontSize = minimumFontSize
 		}
 		return DisplaySettings(
@@ -1000,7 +1000,7 @@ class SongParser(
 			)
 		val commentLines = mutableListOf<String>()
 		for (c in startScreenComments)
-			commentLines.add(c.mText)
+			commentLines.add(c.text)
 		val nonBlankCommentLines = mutableListOf<String>()
 		for (commentLine in commentLines)
 			if (commentLine.trim().isNotEmpty())
@@ -1218,11 +1218,11 @@ class SongParser(
 					// MIDI events are most important. We want to
 					// these first at any given time for maximum MIDI
 					// responsiveness
-					else if (e1 is MIDIEvent && e2 is MIDIEvent)
+					else if (e1 is MidiEvent && e2 is MidiEvent)
 						0
-					else if (e1 is MIDIEvent)
+					else if (e1 is MidiEvent)
 						-1
-					else if (e2 is MIDIEvent)
+					else if (e2 is MidiEvent)
 						1
 					// AudioEvents are next-most important. We want to process
 					// these first at any given time for maximum audio
@@ -1248,69 +1248,67 @@ class SongParser(
 		}
 	}
 
-	companion object {
-		/**
-		 * Each MIDIEvent might have an offset. Process that here.
-		 */
-		private fun offsetMIDIEvents(
-			events: List<BaseEvent>,
-			errors: MutableList<FileParseError>
-		): List<BaseEvent> {
-			val beatEvents =
-				events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.eventTime }.toList()
-			return events.map {
-				if (it is MIDIEvent)
-					offsetMIDIEvent(it, beatEvents, errors)
-				else
-					it
-			}
+	/**
+	 * Each MIDIEvent might have an offset. Process that here.
+	 */
+	private fun offsetMIDIEvents(
+		events: List<BaseEvent>
+	): List<BaseEvent> {
+		val beatEvents =
+			events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.eventTime }.toList()
+		return events.map {
+			if (it is MidiEvent)
+				offsetMIDIEvent(it, beatEvents)
+			else
+				it
 		}
+	}
 
-		/**
-		 * Each MIDIEvent might have an offset. Process that here.
-		 */
-		private fun offsetMIDIEvent(
-			midiEvent: MIDIEvent,
-			beatEvents: List<BeatEvent>,
-			errors: MutableList<FileParseError>
-		): MIDIEvent =
-			if (midiEvent.offset.amount != 0) {
-				// OK, this event needs moved.
-				var newTime: Long = -1
-				if (midiEvent.offset.offsetType === EventOffsetType.Milliseconds) {
-					val offset = Utils.milliToNano(midiEvent.offset.amount)
-					newTime = midiEvent.eventTime + offset
-				} else {
-					// Offset by beat count.
-					val beatCount = midiEvent.offset.amount
-					val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
-						if (beatCount >= 0)
-							it.eventTime > midiEvent.eventTime
-						else
-							it.eventTime < midiEvent.eventTime
-					}
-					val beatsInOrder =
-						if (beatCount < 0)
-							beatsBeforeOrAfterThisMIDIEvent.reversed()
-						else
-							beatsBeforeOrAfterThisMIDIEvent
-					val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
-					if (beatWeWant != null)
-						newTime = beatWeWant.eventTime
+	/**
+	 * Each MIDIEvent might have an offset. Process that here.
+	 */
+	private fun offsetMIDIEvent(
+		midiEvent: MidiEvent,
+		beatEvents: List<BeatEvent>
+	): MidiEvent =
+		if (midiEvent.offset.amount != 0) {
+			// OK, this event needs moved.
+			var newTime: Long = -1
+			if (midiEvent.offset.offsetType === EventOffsetType.Milliseconds) {
+				val offset = Utils.milliToNano(midiEvent.offset.amount)
+				newTime = midiEvent.eventTime + offset
+			} else {
+				// Offset by beat count.
+				val beatCount = midiEvent.offset.amount
+				val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
+					if (beatCount >= 0)
+						it.eventTime > midiEvent.eventTime
+					else
+						it.eventTime < midiEvent.eventTime
 				}
-				if (newTime < 0) {
-					errors.add(
-						FileParseError(
-							midiEvent.offset.sourceFileLineNumber,
-							R.string.midi_offset_is_before_start_of_song
-						)
+				val beatsInOrder =
+					if (beatCount < 0)
+						beatsBeforeOrAfterThisMIDIEvent.reversed()
+					else
+						beatsBeforeOrAfterThisMIDIEvent
+				val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
+				if (beatWeWant != null)
+					newTime = beatWeWant.eventTime
+			}
+			if (newTime < 0) {
+				addError(
+					FileParseError(
+						midiEvent.offset.sourceFileLineNumber,
+						R.string.midi_offset_is_before_start_of_song
 					)
-					newTime = 0
-				}
-				MIDIEvent(newTime, midiEvent.messages)
-			} else
-				midiEvent
+				)
+				newTime = 0
+			}
+			MidiEvent(newTime, midiEvent.messages)
+		} else
+			midiEvent
 
+	companion object {
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =
 			!(this is AudioEvent || this is StartEvent || this is ClickEvent || (this is LineEvent && !lineEventFound))
 

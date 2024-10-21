@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.song.load
 import android.os.Handler
 import android.os.Message
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
@@ -28,7 +29,8 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 				System.gc()
 				try {
 					Logger.logLoader({ "Starting to load '${songLoadInfo.songFile.title}'." })
-					val loadedSong = SongParser(songLoadInfo, cancelEvent, handler).parse()
+					val loadedSong =
+						SongParser(songLoadInfo, Cache.supportFileResolver, cancelEvent, handler).parse()
 					if (cancelEvent.isCancelled)
 						throw SongLoadCancelledException()
 					Logger.logLoader("Song was loaded successfully.")

@@ -16,6 +16,7 @@ import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.MidiAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
+import com.stevenfrew.beatprompter.cache.parse.SupportFileResolver
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.storage.CacheFolder
@@ -51,6 +52,14 @@ object Cache {
 				Events.CLOUD_SYNC_ERROR -> EventRouter.sendEventToSongList(msg.what, msg.obj)
 			}
 		}
+	}
+
+	internal val supportFileResolver: SupportFileResolver = object : SupportFileResolver {
+		override fun getMappedAudioFiles(filename: String): List<AudioFile> =
+			cachedCloudItems.getMappedAudioFiles(filename)
+
+		override fun getMappedImageFiles(filename: String): List<ImageFile> =
+			cachedCloudItems.getMappedImageFiles(filename)
 	}
 
 	private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
