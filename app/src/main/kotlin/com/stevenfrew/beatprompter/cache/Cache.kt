@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.AudioFileParser
 import com.stevenfrew.beatprompter.cache.parse.ImageFileParser
@@ -106,7 +105,7 @@ object Cache {
 		}
 
 		val songFilesFolder: String
-		val useExternalStorage = Preferences.useExternalStorage
+		val useExternalStorage = BeatPrompter.preferences.useExternalStorage
 		val externalFilesDir = context.getExternalFilesDir(null)
 		songFilesFolder = if (useExternalStorage && externalFilesDir != null)
 			externalFilesDir.absolutePath
@@ -283,7 +282,7 @@ object Cache {
 
 	fun clearCache(report: Boolean) {
 		// Clear both cache folders
-		val cacheFolder = getCacheFolderForStorage(Preferences.storageSystem)
+		val cacheFolder = getCacheFolderForStorage(BeatPrompter.preferences.storageSystem)
 		cacheFolder.clear()
 		cachedCloudItems.clear()
 		writeDatabase()
@@ -296,13 +295,13 @@ object Cache {
 	}
 
 	private val cloudPath: String
-		get() = Preferences.cloudPath
+		get() = BeatPrompter.preferences.cloudPath
 
 	private val includeSubFolders: Boolean
-		get() = Preferences.includeSubFolders
+		get() = BeatPrompter.preferences.includeSubFolders
 
 	fun canPerformCloudSync(): Boolean =
-		Preferences.storageSystem !== StorageType.Demo && cloudPath.isNotBlank()
+		BeatPrompter.preferences.storageSystem !== StorageType.Demo && cloudPath.isNotBlank()
 
 	fun performFullCloudSync(parentFragment: Fragment): Boolean =
 		performCloudSync(null, false, parentFragment)
@@ -324,7 +323,7 @@ object Cache {
 		val context = parentFragment.requireContext()
 		if (fileToUpdate == null)
 			clearTemporarySetList(context)
-		val cs = Storage.getInstance(Preferences.storageSystem, parentFragment)
+		val cs = Storage.getInstance(BeatPrompter.preferences.storageSystem, parentFragment)
 		val cloudPath = cloudPath
 		return if (cloudPath.isBlank()) {
 			Toast.makeText(

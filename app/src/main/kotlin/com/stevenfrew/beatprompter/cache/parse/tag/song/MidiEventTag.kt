@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
@@ -63,7 +63,7 @@ class MidiEventTag internal constructor(
 				val (params, channelValue) =
 					separateParametersFromChannel(
 						firstPassParamValues,
-						MidiMessage.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
+						MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
 					)
 
 				try {

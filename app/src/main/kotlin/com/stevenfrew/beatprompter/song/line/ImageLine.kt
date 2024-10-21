@@ -1,15 +1,13 @@
 package com.stevenfrew.beatprompter.song.line
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Paint
-import android.graphics.Rect
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.ImageFile
 import com.stevenfrew.beatprompter.cache.parse.SongParserException
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.ImageScalingMode
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
 class ImageLine internal constructor(
@@ -33,10 +31,12 @@ class ImageLine internal constructor(
 	displaySettings
 ) {
 	private val bitmap =
-		BitmapFactory.decodeFile(mImageFile.file.absolutePath, BitmapFactory.Options())
-	private val sourceRect = Rect(0, 0, mImageFile.size.width, mImageFile.size.height)
+		BeatPrompter.bitmapFactory.createBitmap(mImageFile.file.absolutePath)
+	private val sourceRect =
+		android.graphics.Rect(0, 0, mImageFile.size.width, mImageFile.size.height)
 	private val destinationRect = getDestinationRect(
-		bitmap,
+		bitmap.width,
+		bitmap.height,
 		displaySettings.screenSize,
 		scalingMode
 	)
@@ -68,30 +68,28 @@ class ImageLine internal constructor(
 
 	companion object {
 		private fun getDestinationRect(
-			bitmap: Bitmap,
+			imageWidth: Int,
+			imageHeight: Int,
 			screenSize: Rect,
 			scalingMode: ImageScalingMode
-		): Rect {
-			val imageHeight = bitmap.height
-			val imageWidth = bitmap.width
-
+		): android.graphics.Rect {
 			val needsStretched =
-				imageWidth > screenSize.width() || scalingMode === ImageScalingMode.Stretch
+				imageWidth > screenSize.width || scalingMode === ImageScalingMode.Stretch
 			val scaledImageHeight =
 				if (needsStretched)
-					(imageHeight * (screenSize.width().toDouble() / imageWidth.toDouble())).toInt()
+					(imageHeight * (screenSize.width.toDouble() / imageWidth.toDouble())).toInt()
 				else
 					imageHeight
 			val scaledImageWidth =
 				if (needsStretched)
-					screenSize.width()
+					screenSize.width
 				else
 					imageWidth
 
 			if (scaledImageHeight > 8192 || scaledImageWidth > 8192)
 				throw SongParserException(BeatPrompter.appResources.getString(R.string.image_too_large))
 
-			return Rect(0, 0, scaledImageWidth, scaledImageHeight)
+			return android.graphics.Rect(0, 0, scaledImageWidth, scaledImageHeight)
 		}
 	}
 }

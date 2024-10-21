@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
@@ -78,7 +77,7 @@ object BandBluetoothController : CoroutineScope {
 				when (key) {
 					bluetoothModeKey -> {
 						Logger.logComms("Bluetooth mode changed.")
-						if (Preferences.bluetoothMode === BluetoothMode.None)
+						if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.None)
 							onStopBluetooth(senderTask, receiverTasks)
 						else
 							onStartBluetooth(context, bluetoothAdapter, senderTask, receiverTasks)
@@ -86,14 +85,14 @@ object BandBluetoothController : CoroutineScope {
 
 					bandLeaderDeviceKey -> {
 						Logger.logComms("Band leader device changed.")
-						if (Preferences.bluetoothMode === BluetoothMode.Client) {
+						if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.Client) {
 							shutDownBluetoothClient(receiverTasks)
 							startBluetoothWatcherThreads(context, bluetoothAdapter, senderTask, receiverTasks)
 						}
 					}
 				}
 			}
-			Preferences.registerOnSharedPreferenceChangeListener(prefsListener)
+			BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(prefsListener)
 			this.prefsListener = prefsListener
 
 			onBluetoothActivation(context, bluetoothAdapter, senderTask, receiverTasks)
@@ -114,7 +113,7 @@ object BandBluetoothController : CoroutineScope {
 		receiverTasks: ReceiverTasks
 	) {
 		Logger.logComms("Bluetooth is on.")
-		if (Preferences.bluetoothMode !== BluetoothMode.None)
+		if (BeatPrompter.preferences.bluetoothMode !== BluetoothMode.None)
 			onStartBluetooth(context, bluetoothAdapter, senderTask, receiverTasks)
 	}
 
@@ -203,12 +202,12 @@ object BandBluetoothController : CoroutineScope {
 	) {
 		if (bluetoothAdapter.isEnabled) {
 			synchronized(bluetoothThreadsLock) {
-				when (Preferences.bluetoothMode) {
+				when (BeatPrompter.preferences.bluetoothMode) {
 					BluetoothMode.Client -> {
 						shutDownBluetoothServer(senderTask)
 						if (connectToBandLeaderThread == null) {
 							Bluetooth.getPairedDevices(context)
-								.firstOrNull { it.address == Preferences.bandLeaderDevice }
+								.firstOrNull { it.address == BeatPrompter.preferences.bandLeaderDevice }
 								?.also {
 									try {
 										Logger.logComms({ "Starting Bluetooth client thread, looking to connect with '${it.name}'." })
@@ -255,7 +254,7 @@ object BandBluetoothController : CoroutineScope {
 	 * new connection.
 	 */
 	private fun handleConnectionFromClient(socket: BluetoothSocket, senderTask: SenderTask) {
-		if (Preferences.bluetoothMode === BluetoothMode.Server)
+		if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.Server)
 			try {
 				Logger.logComms({ "Client connection opened with '${socket.remoteDevice.name}'" })
 				senderTask.addSender(
@@ -281,7 +280,7 @@ object BandBluetoothController : CoroutineScope {
 	 */
 	private fun setServerConnection(socket: BluetoothSocket, receiverTasks: ReceiverTasks) {
 		try {
-			if (Preferences.bluetoothMode === BluetoothMode.Client) {
+			if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.Client) {
 				Logger.logComms({ "Server connection opened with '${socket.remoteDevice.name}'" })
 				receiverTasks.addReceiver(
 					socket.remoteDevice.address,

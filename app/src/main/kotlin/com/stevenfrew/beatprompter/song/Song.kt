@@ -3,12 +3,11 @@ package com.stevenfrew.beatprompter.song
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.Typeface
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
@@ -116,11 +115,10 @@ class Song(
 		var mText: String,
 		audience: List<String>,
 		screenSize: Rect,
-		paint: Paint,
-		font: Typeface
+		paint: Paint
 	) {
 		private val commentAudience = audience
-		private val commentGraphic = ScreenComment(mText, screenSize, paint, font)
+		private val commentGraphic = ScreenComment(mText, screenSize, paint)
 
 		fun isIntendedFor(audience: String): Boolean =
 			commentAudience.isEmpty() ||

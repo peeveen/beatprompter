@@ -3,11 +3,8 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.Typeface
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.Cache
@@ -54,6 +51,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
@@ -135,8 +133,8 @@ import kotlin.math.roundToInt
  */
 class SongParser(
 	private val songLoadInfo: SongLoadInfo,
-	private val songLoadCancelEvent: SongLoadCancelEvent,
-	private val songLoadHandler: Handler
+	private val songLoadCancelEvent: SongLoadCancelEvent? = null,
+	private val songLoadHandler: Handler? = null
 ) : SongFileParser<Song>(
 	songLoadInfo.songFile,
 	songLoadInfo.initialScrollMode,
@@ -159,7 +157,6 @@ class SongParser(
 	private val rolloverBeats = mutableListOf<BeatEvent>()
 	private val beatBlocks = mutableListOf<BeatBlock>()
 	private val paint = Paint()
-	private val font = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 	private val defaultHighlightColor: Int
 	private val timePerBar: Long
 	private val flatAudioFiles: List<AudioFile>
@@ -186,18 +183,18 @@ class SongParser(
 		// All songFile info parsing errors count as our errors too.
 		errors.addAll(songLoadInfo.songFile.errors)
 
-		sendMidiClock = Preferences.sendMIDIClock
-		countIn = Preferences.defaultCountIn
-		metronomeContext = Preferences.metronomeContext
-		defaultHighlightColor = Preferences.defaultHighlightColor
-		customCommentsUser = Preferences.customCommentsUser
-		showChords = Preferences.showChords
-		triggerContext = Preferences.sendMIDITriggerOnStart
-		val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
+		sendMidiClock = BeatPrompter.preferences.sendMIDIClock
+		countIn = BeatPrompter.preferences.defaultCountIn
+		metronomeContext = BeatPrompter.preferences.metronomeContext
+		defaultHighlightColor = BeatPrompter.preferences.defaultHighlightColor
+		customCommentsUser = BeatPrompter.preferences.customCommentsUser
+		showChords = BeatPrompter.preferences.showChords
+		triggerContext = BeatPrompter.preferences.sendMIDITriggerOnStart
+		val defaultMIDIOutputChannelPrefValue = BeatPrompter.preferences.defaultMIDIOutputChannel
 		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-		showKey = Preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
+		showKey = BeatPrompter.preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
 		showBpm =
-			if (songLoadInfo.songFile.bpm > 0.0) Preferences.showBPMContext else ShowBPMContext.No
+			if (songLoadInfo.songFile.bpm > 0.0) BeatPrompter.preferences.showBPMContext else ShowBPMContext.No
 
 		// Figure out the screen size
 		nativeDeviceSettings = translateSourceDeviceSettingsToNative(
@@ -206,10 +203,10 @@ class SongParser(
 		)
 
 		// Start the progress message dialog
-		songLoadHandler.obtainMessage(
+		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
 			0, songLoadInfo.songFile.lines
-		).sendToTarget()
+		)?.sendToTarget()
 
 		val selectedVariation = songLoadInfo.variation
 		val audioFilenamesForThisVariation =
@@ -238,7 +235,7 @@ class SongParser(
 	}
 
 	override fun parseLine(line: TextFileLine<Song>): Boolean {
-		if (songLoadCancelEvent.isCancelled)
+		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))
 			return false
@@ -298,9 +295,8 @@ class SongParser(
 				Song.Comment(
 					it.comment,
 					it.audience,
-					nativeDeviceSettings.screenSize,
-					paint,
-					font
+					Rect(nativeDeviceSettings.screenSize),
+					paint
 				)
 			}
 			.filter { it.isIntendedFor(customCommentsUser) }
@@ -548,10 +544,10 @@ class SongParser(
 				0, currentLineBeatInfo.scrollMode
 			)
 
-		songLoadHandler.obtainMessage(
+		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
 			line.lineNumber, songLoadInfo.songFile.lines
-		).sendToTarget()
+		)?.sendToTarget()
 		return true
 	}
 
@@ -583,7 +579,7 @@ class SongParser(
 			// Obviously this will only be required if the song cannot fit entirely onscreen.
 				if (songHeight > nativeDeviceSettings.usableScreenHeight)
 					min(lineSequence.map { it.measurements.lineHeight }.maxByOrNull { it }
-						?: 0, (nativeDeviceSettings.screenSize.height() / 3.0).toInt())
+						?: 0, (nativeDeviceSettings.screenSize.height / 3.0).toInt())
 				else
 					0
 			else
@@ -593,7 +589,7 @@ class SongParser(
 		val audioEvents = events.filterIsInstance<AudioEvent>()
 
 		// Allocate graphics objects.
-		val maxGraphicsRequired = getMaximumGraphicsRequired(nativeDeviceSettings.screenSize.height())
+		val maxGraphicsRequired = getMaximumGraphicsRequired(nativeDeviceSettings.screenSize.height)
 		val lineGraphics = CircularGraphicsList()
 		repeat(maxGraphicsRequired) {
 			lineGraphics.add(LineGraphic(getBiggestLineSize(it, maxGraphicsRequired)))
@@ -610,8 +606,8 @@ class SongParser(
 			}
 		}
 
-		val beatCounterHeight = nativeDeviceSettings.beatCounterRect.height()
-		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width() * 0.9f
+		val beatCounterHeight = nativeDeviceSettings.beatCounterRect.height
+		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width * 0.9f
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
 		val songTitleHeader = ScreenString.create(
@@ -620,11 +616,10 @@ class SongParser(
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
 			Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
-			font,
 			false
 		)
 		val extraMargin = (maxSongTitleHeight - songTitleHeader.height) / 2.0f
-		val x = ((nativeDeviceSettings.screenSize.width() - songTitleHeader.width) / 2.0).toFloat()
+		val x = ((nativeDeviceSettings.screenSize.width - songTitleHeader.width) / 2.0).toFloat()
 		val y = beatCounterHeight - (extraMargin + songTitleHeader.descenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
@@ -927,13 +922,13 @@ class SongParser(
 		nativeSettings: DisplaySettings
 	): DisplaySettings {
 		val sourceScreenSize = sourceSettings.screenSize
-		val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
+		val sourceRatio = sourceScreenSize.width.toDouble() / sourceScreenSize.height.toDouble()
 		val screenWillRotate = nativeSettings.orientation != sourceSettings.orientation
 		val nativeScreenSize = if (screenWillRotate)
-			Rect(0, 0, nativeSettings.screenSize.height(), nativeSettings.screenSize.width())
+			Rect(0, 0, nativeSettings.screenSize.height, nativeSettings.screenSize.width)
 		else
 			nativeSettings.screenSize
-		val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
+		val nativeRatio = nativeScreenSize.width.toDouble() / nativeScreenSize.height.toDouble()
 		val minRatio = min(nativeRatio, sourceRatio)
 		val maxRatio = max(nativeRatio, sourceRatio)
 		val ratioMultiplier = minRatio / maxRatio
@@ -961,26 +956,24 @@ class SongParser(
 		// The rest of the space is allocated for the comments and error messages,
 		// each line no more than 10% of the screen height.
 		val startScreenStrings = mutableListOf<ScreenString>()
-		var availableScreenHeight = nativeDeviceSettings.screenSize.height()
+		var availableScreenHeight = nativeDeviceSettings.screenSize.height
 		var nextSongString: ScreenString? = null
-		val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
 		if (songLoadInfo.nextSong.isNotBlank()) {
 			// OK, we have a next song title to display.
 			// This should take up no more than 15% of the screen.
 			// But that includes a border, so use 13 percent for the text.
-			val eightPercent = (nativeDeviceSettings.screenSize.height() * 0.13).toInt()
+			val eightPercent = (nativeDeviceSettings.screenSize.height * 0.13).toInt()
 			val nextSong = songLoadInfo.nextSong
 			val fullString = ">>> $nextSong >>>"
 			nextSongString = ScreenString.create(
 				fullString,
 				paint,
-				nativeDeviceSettings.screenSize.width(),
+				nativeDeviceSettings.screenSize.width,
 				eightPercent,
 				Color.BLACK,
-				boldFont,
 				true
 			)
-			availableScreenHeight -= (nativeDeviceSettings.screenSize.height() * 0.15f).toInt()
+			availableScreenHeight -= (nativeDeviceSettings.screenSize.height * 0.15f).toInt()
 		}
 		val tenPercent = (availableScreenHeight / 10.0).toInt()
 		val twentyPercent = (availableScreenHeight / 5.0).toInt()
@@ -988,10 +981,9 @@ class SongParser(
 			ScreenString.create(
 				songLoadInfo.songFile.title,
 				paint,
-				nativeDeviceSettings.screenSize.width(),
+				nativeDeviceSettings.screenSize.width,
 				twentyPercent,
 				Color.YELLOW,
-				boldFont,
 				true
 			)
 		)
@@ -1000,10 +992,9 @@ class SongParser(
 				ScreenString.create(
 					songLoadInfo.songFile.artist,
 					paint,
-					nativeDeviceSettings.screenSize.width(),
+					nativeDeviceSettings.screenSize.width,
 					tenPercent,
 					Color.YELLOW,
-					boldFont,
 					true
 				)
 			)
@@ -1023,7 +1014,7 @@ class SongParser(
 		if (showKey)
 			++messages
 		if (messages > 0) {
-			val remainingScreenSpace = nativeDeviceSettings.screenSize.height() - twentyPercent * 2
+			val remainingScreenSpace = nativeDeviceSettings.screenSize.height - twentyPercent * 2
 			var spacePerMessageLine = floor((remainingScreenSpace / messages).toDouble()).toInt()
 			spacePerMessageLine = min(spacePerMessageLine, tenPercent)
 			var errorCounter = 0
@@ -1032,10 +1023,9 @@ class SongParser(
 					ScreenString.create(
 						error.toString(),
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.RED,
-						font,
 						false
 					)
 				)
@@ -1049,10 +1039,9 @@ class SongParser(
 								errorCount
 							),
 							paint,
-							nativeDeviceSettings.screenSize.width(),
+							nativeDeviceSettings.screenSize.width,
 							spacePerMessageLine,
 							Color.RED,
-							font,
 							false
 						)
 					)
@@ -1064,10 +1053,9 @@ class SongParser(
 					ScreenString.create(
 						nonBlankComment,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.WHITE,
-						font,
 						false
 					)
 				)
@@ -1078,10 +1066,9 @@ class SongParser(
 					ScreenString.create(
 						keyString,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.CYAN,
-						font,
 						false
 					)
 				)
@@ -1099,10 +1086,9 @@ class SongParser(
 					ScreenString.create(
 						bpmString,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.CYAN,
-						font,
 						false
 					)
 				)
@@ -1113,10 +1099,9 @@ class SongParser(
 				ScreenString.create(
 					BeatPrompter.appResources.getString(R.string.tapTwiceToStart),
 					paint,
-					nativeDeviceSettings.screenSize.width(),
+					nativeDeviceSettings.screenSize.width,
 					tenPercent,
 					Color.GREEN,
-					boldFont,
 					true
 				)
 			)

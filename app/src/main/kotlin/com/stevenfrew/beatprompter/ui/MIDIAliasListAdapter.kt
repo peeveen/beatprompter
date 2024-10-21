@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 
 class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>, context: Context) :
 	ArrayAdapter<MIDIAliasFile>(context, -1, values) {
 	private val layoutId =
-		if (Preferences.largePrint)
+		if (BeatPrompter.preferences.largePrint)
 			R.layout.midi_alias_list_item_large
 		else
 			R.layout.midi_alias_list_item

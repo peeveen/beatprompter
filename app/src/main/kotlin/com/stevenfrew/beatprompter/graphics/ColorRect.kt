@@ -6,4 +6,7 @@ data class ColorRect(
 	val right: Int,
 	val bottom: Int,
 	val color: Int
-)
+) {
+	val height = bottom - top
+	val width = right - left
+}

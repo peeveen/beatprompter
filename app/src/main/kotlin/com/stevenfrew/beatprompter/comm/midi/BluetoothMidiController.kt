@@ -10,7 +10,6 @@ import android.media.midi.MidiManager
 import android.media.midi.MidiManager.OnDeviceOpenedListener
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
@@ -74,14 +73,14 @@ object BluetoothMidiController {
 							Logger.logComms("Bluetooth MIDI connection types or target devices changed ... restarting connections.")
 							Logger.logComms("Removing all Bluetooth MIDI senders & receivers.")
 							onBluetoothStopped(senderTask, receiverTasks)
-							if (Preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth)) {
+							if (BeatPrompter.preferences.midiConnectionTypes.contains(ConnectionType.Bluetooth)) {
 								Logger.logComms("Bluetooth is still a selected MIDI connection type ... attempting Bluetooth MIDI connections.")
 								attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 							}
 						}
 					}
 				}
-				Preferences.registerOnSharedPreferenceChangeListener(prefsListener)
+				BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(prefsListener)
 				this.prefsListener = prefsListener
 				attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 			}
@@ -102,7 +101,7 @@ object BluetoothMidiController {
 		manager: MidiManager,
 		listener: OnDeviceOpenedListener
 	) =
-		Preferences.bluetoothMidiDevices.run {
+		BeatPrompter.preferences.bluetoothMidiDevices.run {
 			Bluetooth.getPairedDevices(bluetoothAdapter).filter { contains(it.address) }
 				.forEach { attemptMidiConnection(manager, it, listener) }
 		}

@@ -1,8 +1,8 @@
 package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.Context
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.comm.Message
@@ -57,7 +57,7 @@ object Midi {
 			val messages = it.resolve(
 				Cache.cachedCloudItems.midiAliases,
 				byteArrayOf(),
-				MidiMessage.getChannelFromBitmask(Preferences.defaultMIDIOutputChannel)
+				MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
 			)
 			messages.forEach { msg -> tryPutMessage(msg, it.name) }
 		}

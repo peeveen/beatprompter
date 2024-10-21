@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.cache.parse.tag.EndedBy
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
@@ -25,6 +25,9 @@ class StartOfHighlightTag internal constructor(
 ) {
 	companion object {
 		fun getDefaultHighlightColorString(): String =
-			"#${((Preferences.defaultHighlightColor and 0x00FFFFFF).toString(16).padStart(6, '0'))}"
+			"#${
+				((BeatPrompter.preferences.defaultHighlightColor and 0x00FFFFFF).toString(16)
+					.padStart(6, '0'))
+			}"
 	}
 }

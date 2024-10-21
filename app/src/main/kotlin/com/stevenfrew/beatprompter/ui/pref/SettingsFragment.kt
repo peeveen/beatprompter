@@ -8,7 +8,7 @@ import android.os.Handler
 import android.os.Message
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.events.EventRouter
 
@@ -39,7 +39,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
 		val darkModePrefName = getString(R.string.pref_darkMode_key)
 		val darkModePref = findPreference<Preference>(darkModePrefName)
 		darkModePref?.setOnPreferenceClickListener {
-			Preferences.darkMode = !Preferences.darkMode
+			BeatPrompter.preferences.darkMode = !BeatPrompter.preferences.darkMode
 			true
 		}
 	}
@@ -56,13 +56,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
 	}
 
 	override fun onDestroy() {
-		Preferences.unregisterOnSharedPreferenceChangeListener(this)
+		BeatPrompter.preferences.unregisterOnSharedPreferenceChangeListener(this)
 		EventRouter.setSettingsEventHandler(null)
 		super.onDestroy()
 	}
 
 	private fun onCloudPathChanged(newValue: Any?) {
-		val displayPath = Preferences.cloudDisplayPath
+		val displayPath = BeatPrompter.preferences.cloudDisplayPath
 
 		val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
