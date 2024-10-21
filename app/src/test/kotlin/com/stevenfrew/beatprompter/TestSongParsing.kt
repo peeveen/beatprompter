@@ -216,6 +216,17 @@ class TestSongParsing {
 		private const val PATH_ATTRIBUTE = "path"
 		private const val FILENAME_ATTRIBUTE = "filename"
 		private const val ID_ATTRIBUTE = "id"
+		private const val IS_IN_CHORUS_SECTION_ATTRIBUTE = "isInChorusSection"
+		private const val SCROLLING_MODE_ATTRIBUTE = "scrollingMode"
+		private const val SONG_PIXEL_POSITION_ATTRIBUTE = "songPixelPosition"
+		private const val Y_START_SCROLL_TIME_ATTRIBUTE = "yStartScrollTime"
+		private const val Y_STOP_SCROLL_TIME_ATTRIBUTE = "yStopScrollTime"
+		private const val LINES_ATTRIBUTE = "lines"
+		private const val WIDTH_ATTRIBUTE = "width"
+		private const val HEIGHT_ATTRIBUTE = "height"
+		private const val JUMP_SCROLL_INTERVALS_ATTRIBUTE = "jumpScrollIntervals"
+		private const val PIXELS_TO_TIMES_ATTRIBUTE = "pixelsToTimes"
+		private const val GRAPHIC_HEIGHTS_ATTRIBUTE = "graphicHeights"
 
 		private fun parseAudioEventXmlElement(element: Element): AudioEvent {
 			val time = element.getAttribute(TIME_ATTRIBUTE).toLong()
@@ -297,14 +308,51 @@ class TestSongParsing {
 
 		private fun parseLineEventXmlElement(element: Element): LineEvent {
 			val time = element.getAttribute(TIME_ATTRIBUTE).toLong()
+			val duration = element.getAttribute(TIME_ATTRIBUTE).toLong()
+			val isInChorusSection = element.getAttribute(TIME_ATTRIBUTE).toBoolean()
+			val scrollingMode = ScrollingMode.valueOf(element.getAttribute(TIME_ATTRIBUTE))
+			val songPixelPosition = element.getAttribute(SONG_PIXEL_POSITION_ATTRIBUTE).toInt()
+			val yStartScrollTime = element.getAttribute(Y_START_SCROLL_TIME_ATTRIBUTE).toLong()
+			val yStopScrollTime = element.getAttribute(Y_STOP_SCROLL_TIME_ATTRIBUTE).toLong()
+
 			return LineEvent(
 				time,
-				MockLine(time, 0, ScrollingMode.Beat, 0, false, 0, 0, TestDisplaySettings)
+				MockLine(
+					time,
+					duration,
+					scrollingMode,
+					songPixelPosition,
+					isInChorusSection,
+					yStartScrollTime,
+					yStopScrollTime,
+					TestDisplaySettings
+				)
 			)
 		}
 
 		private fun writeLineEventToXml(event: LineEvent, document: Document): Element {
 			val element = document.createElement(LINE_EVENT_TAG_NAME)
+			element.setAttribute(DURATION_ATTRIBUTE, event.line.lineDuration.toString())
+			element.setAttribute(IS_IN_CHORUS_SECTION_ATTRIBUTE, event.line.isInChorusSection.toString())
+			element.setAttribute(SCROLLING_MODE_ATTRIBUTE, event.line.scrollMode.toString())
+			element.setAttribute(SONG_PIXEL_POSITION_ATTRIBUTE, event.line.songPixelPosition.toString())
+			element.setAttribute(Y_START_SCROLL_TIME_ATTRIBUTE, event.line.yStartScrollTime.toString())
+			element.setAttribute(Y_STOP_SCROLL_TIME_ATTRIBUTE, event.line.yStopScrollTime.toString())
+			element.setAttribute(LINES_ATTRIBUTE, event.line.measurements.lines.toString())
+			element.setAttribute(WIDTH_ATTRIBUTE, event.line.measurements.lineWidth.toString())
+			element.setAttribute(HEIGHT_ATTRIBUTE, event.line.measurements.lineHeight.toString())
+			element.setAttribute(
+				JUMP_SCROLL_INTERVALS_ATTRIBUTE,
+				event.line.measurements.jumpScrollIntervals.joinToString(",")
+			)
+			element.setAttribute(
+				PIXELS_TO_TIMES_ATTRIBUTE,
+				event.line.measurements.pixelsToTimes.joinToString(",")
+			)
+			element.setAttribute(
+				GRAPHIC_HEIGHTS_ATTRIBUTE,
+				event.line.measurements.graphicHeights.joinToString(",")
+			)
 			return element
 		}
 
@@ -335,8 +383,8 @@ class TestSongParsing {
 			val messagesString = event.messages.map { message ->
 				message.bytes.map {
 					it.toString(16)
-				}.joinToString { " " }
-			}.joinToString { "," }
+				}.joinToString(" ")
+			}.joinToString(",")
 			element.setAttribute(MESSAGES_ATTRIBUTE, messagesString)
 			return element
 		}

@@ -11,7 +11,7 @@ class MockFontManager : FontManager {
 		strIn: String,
 		fontSize: Float,
 		bold: Boolean
-	): Pair<Int, Rect> = 0 to Rect()
+	): Pair<Int, Rect> = DEFAULT_WIDTH to DEFAULT_RECT
 
 	override fun getBestFontSize(
 		text: String,
@@ -21,16 +21,25 @@ class MockFontManager : FontManager {
 		maxWidth: Int,
 		maxHeight: Int,
 		bold: Boolean
-	): Pair<Int, Rect> = 0 to Rect()
+	): Pair<Int, Rect> = DEFAULT_FONT_SIZE to DEFAULT_RECT
 
 	override fun measure(
 		text: String,
 		paint: Paint,
 		fontSize: Float,
 		bold: Boolean
-	): TextMeasurement = TextMeasurement()
+	): TextMeasurement =
+		TextMeasurement(DEFAULT_RECT, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_DESCENDER_OFFSET)
 
 	override fun setTypeface(paint: Paint, bold: Boolean) {
 		// Do nothing.
+	}
+
+	companion object {
+		private const val DEFAULT_FONT_SIZE = 24
+		private const val DEFAULT_WIDTH = 600
+		private const val DEFAULT_HEIGHT = 100
+		private const val DEFAULT_DESCENDER_OFFSET = 20
+		private val DEFAULT_RECT = Rect(0, 0, DEFAULT_WIDTH, DEFAULT_HEIGHT)
 	}
 }
