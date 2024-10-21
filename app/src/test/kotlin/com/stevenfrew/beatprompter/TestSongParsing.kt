@@ -177,13 +177,13 @@ class TestSongParsing {
 			when (event) {
 				is AudioEvent -> writeAudioEventToXml(event, document)
 				is BeatEvent -> writeBeatEventToXml(event, document)
-				is ClickEvent -> writeClickEventToXml(event, document)
+				is ClickEvent -> writeClickEventToXml(document)
 				is CommentEvent -> writeCommentEventToXml(event, document)
-				is EndEvent -> writeEndEventToXml(event, document)
+				is EndEvent -> writeEndEventToXml(document)
 				is LineEvent -> writeLineEventToXml(event, document)
 				is MidiEvent -> writeMidiEventToXml(event, document)
 				is PauseEvent -> writePauseEventToXml(event, document)
-				is StartEvent -> writeStartEventToXml(event, document)
+				is StartEvent -> writeStartEventToXml(document)
 				else -> throw UnsupportedOperationException("Don't know how to handle this event type.")
 			}
 
@@ -277,7 +277,7 @@ class TestSongParsing {
 			return ClickEvent(time)
 		}
 
-		private fun writeClickEventToXml(event: ClickEvent, document: Document): Element {
+		private fun writeClickEventToXml(document: Document): Element {
 			val element = document.createElement(CLICK_EVENT_TAG_NAME)
 			return element
 		}
@@ -301,7 +301,7 @@ class TestSongParsing {
 			return EndEvent(time)
 		}
 
-		private fun writeEndEventToXml(event: EndEvent, document: Document): Element {
+		private fun writeEndEventToXml(document: Document): Element {
 			val element = document.createElement(END_EVENT_TAG_NAME)
 			return element
 		}
@@ -408,7 +408,7 @@ class TestSongParsing {
 			return StartEvent(time)
 		}
 
-		private fun writeStartEventToXml(event: StartEvent, document: Document): Element {
+		private fun writeStartEventToXml(document: Document): Element {
 			val element = document.createElement(START_EVENT_TAG_NAME)
 			return element
 		}
