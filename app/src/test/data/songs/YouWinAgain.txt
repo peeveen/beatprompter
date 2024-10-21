@@ -1,0 +1,87 @@
+{t:You Win Again}
+{st:The Bee Gees}
+{variations:Guitaraoke, Karaoke, Open Mic}
+{audio:YouWinAgain_Guitaraoke.wav}{audio:YouWinAgain_Karaoke.wav}{audio:YouWinAgain_OpenMic.wav}
+{bpm:84.35}
+
+[DRUMS]
+[C][Dm][G]
+
+{bpl:1}[C]I couldn't figure why you couldn't give me what
+[Em]everybody needs
+[Am]I shouldn't let you kick me when I'm
+[Em]down, my [Dm]ba[G7]by
+[F/C]I find out everybody knows that
+[G/B]You've been using [G]me
+[Dm7]I'm surprised you
+[G]Let me stay around you
+
+[C]One day I'm gonna lift the cover
+And [Em]look inside your heart
+[Am]We gotta level before we go
+And [Fm7]tear this love apart
+
+There's no [C]fight you can't fight<
+This [F]battle of [G]love with [C]me, you win again
+[Am]So little time<
+We do [Dm7]nothing but com[G]pete<
+There's no [C]life on earth<
+No [F]other could [G]see me [C]through, you win again
+[Am]Some never try<
+But if [Dm7]anybody can, we [Gsus2]can
+{bpb:6}[G]And [Gsus4]I'll be, I'll be<
+{bpb:4}Following [C]you<
+
+[A#]Ah [F]girl
+,,,[C][A#]Oh [F]baby, I’ll shake you from now [Em]on<
+{bpl:2}I'm gonna [Am]break down your defences one by [Em]one
+,I'm gonna [Am]hit you from all sides<
+,Lay your [D7]fortress open wide
+[G7]Nobody stops [F]this body from [Em7]taking [G7/D]you<
+
+{bpl:1}You better be[C]ware, I swear, I'm gonna be there
+[Em]one day when you fall
+[Am]I could never let you cast aside
+The [Fm7]greatest love of all
+
+There's no [C]fight you can't fight<
+This [F]battle of [G]love with [C]me, you win again
+[Am]So little time<
+We do [Dm7]nothing but com[G]pete<
+There's no [C]life on earth<
+No [F]other could [G]see me [C]through, you win again
+[Am]Some never try<
+But if [Dm7]anybody can, we [Gsus2]can
+{bpb:6}[G]And [Gsus4]I'll be, I'll be<
+{bpb:4}Following [C]you<
+
+[A#]Ah [F]girl
+[C#]<
+[F#][G#][C#]You win again
+[A#m]So little time<
+We do [D#m7]nothing but com[G#]pete<
+There's no [C#]life on earth<
+No [F#]other could [G#]see me [C#]through, you win again
+[A#m]Some never try<
+But if [D#m7]anybody can, we [G#sus2]can
+{bpb:6}[G#]And [G#sus4]I'll be, I'll be<
+{bpb:4}Following [C#]you<
+
+[F#][G#][C#]You win again
+[A#m]So little time<
+We do [D#m7]nothing but com[G#]pete<
+There's no [C#]life on earth<
+No [F#]other could [G#]see me [C#]through, you win again
+[A#m]Some never try<
+But if [D#m7]anybody can, we [G#sus2]can
+
+There's no [C#]fight you can't fight<
+This [F#]battle of [G#]love with [C#]me, you win again
+[A#m]So little time<
+We do [D#m7]nothing but com[G#]pete<
+There's no [C#]life on earth<
+No [F#]other could [G#]see me [C#]through, you win again
+[A#m]Some never try<
+But if [D#m7]anybody can, we [G#sus2]can
+[C#]
+
