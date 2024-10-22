@@ -1,0 +1,9 @@
+{t:004-Scrollbeat&BPBChange}
+{bpm:100}{bpb:3}{bpl:2}{count:1}{scrollbeat:2}
+
+,One-bar line, scrollbeat is pushed to first beat of NEXT line>>
+Basic two-bar line 123123, scrollbeat back to 2
+{bpb:4}Now four beats per bar, scrollbeat should be 3 (1 fewer than bar length)
+Still four beats per bar, scrollbeat still 3
+
+

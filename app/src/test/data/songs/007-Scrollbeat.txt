@@ -1,0 +1,23 @@
+{t:007-Scrollbeat}
+{st:Scrolly Joe}
+{bpm:120}{bpb:4}{bpl:1}{count:0}{scrollbeat:4}
+
+BPL=1, BPB=4, Scrollbeat=4
+{scrollbeat:3}Scrollbeat now 3
+{scrollbeat:2}Scrollbeat now 2
+{scrollbeat:1}Scrollbeat now 1
+{scrollbeat:2}Scrollbeat now 2
+{scrollbeat:3}Scrollbeat now 3
+{scrollbeat:4}Scrollbeat now 4
+{scrollbeat:1}Scrollbeat now 1
+{scrollbeat:4}Scrollbeat now 4
+(<<<)<<<
+(<<)<<
+(<)<
+Simple line
+(<)<
+(<<)<<
+(<<<)<<<
+Simple line
+
+

@@ -4,6 +4,7 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.graphics.Paint
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedFile
+import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
@@ -46,6 +47,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import kotlin.io.path.pathString
 import kotlin.test.Test
+import kotlin.test.assertContains
 
 class TestSongParsing {
 	init {
@@ -78,21 +80,37 @@ class TestSongParsing {
 			)
 			val songParser =
 				SongParser(songLoadInfo, MockSupportFileResolver(TEST_DATA_FOLDER_PATH.pathString))
-			val song = songParser.parse()
-			val songEvents = getSongEvents(song)
 			val nameWithoutExtension = it.nameWithoutExtension
-			val expectedEventsPath =
-				Paths.get(it.parent, "${nameWithoutExtension}.expectedEvents.xml").pathString
-			val expectedErrorsPath =
-				Paths.get(it.parent, "${nameWithoutExtension}.expectedErrors.txt").pathString
-			val expectedEventsXml = readEventListXml(expectedEventsPath)
-			val expectedErrors = readErrorList(expectedErrorsPath)
-			assertEquals(expectedErrors, songParser.errors)
-			val eventsXml = getEventListAsXml(songEvents)
-			if (expectedEventsXml != null)
-				assertEquals(expectedEventsXml, eventsXml)
-			else
-				File(expectedEventsPath).writeText(eventsXml)
+			try {
+				val song = songParser.parse()
+				val songEvents = getSongEvents(song)
+				val expectedEventsPath =
+					Paths.get(it.parent, "${nameWithoutExtension}.expectedEvents.xml").pathString
+				val parsedEventsPath =
+					Paths.get(it.parent, "${nameWithoutExtension}.parsedEvents.xml").pathString
+				val expectedErrorsPath =
+					Paths.get(it.parent, "${nameWithoutExtension}.expectedErrors.txt").pathString
+				val expectedEventsXml = readEventListXml(expectedEventsPath)
+				val expectedErrors = readErrorList(expectedErrorsPath)
+				assertEquals(expectedErrors, songParser.errors)
+				val eventsXml = getEventListAsXml(songEvents)
+				File(parsedEventsPath).writeText(eventsXml)
+				if (expectedEventsXml != null)
+					assertEquals(
+						expectedEventsXml,
+						eventsXml,
+						"${nameWithoutExtension} did not parse correctly. Compare output XML files for details."
+					)
+				else
+					File(expectedEventsPath).writeText(eventsXml)
+			} catch (e: InvalidBeatPrompterFileException) {
+				assertContains(
+					nameWithoutExtension,
+					"Invalid-",
+					true,
+					"File was invalid, but was not expected to be."
+				)
+			}
 		}
 	}
 
