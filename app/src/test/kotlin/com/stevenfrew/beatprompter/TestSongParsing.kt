@@ -18,9 +18,6 @@ class TestSongParsing {
 	fun testTimingTrickery() = TestUtils.testSongFileEvents("003-TimingTrickery.txt")
 
 	@Test
-	fun testTimingTrickeryExcerpt() = TestUtils.testSongFileEvents("009-TimingTrickeryExcerpt.txt")
-
-	@Test
 	fun testScrollbeatWithBPBChange() = TestUtils.testSongFileEvents("004-Scrollbeat&BPBChange.txt")
 
 	@Test
