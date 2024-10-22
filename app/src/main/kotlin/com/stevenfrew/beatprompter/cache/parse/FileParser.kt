@@ -7,9 +7,10 @@ import org.w3c.dom.Element
  * Base class for all file parsers.
  */
 abstract class FileParser<TFileResult>(protected val cachedCloudFile: CachedFile) {
-	protected val errors = mutableListOf<FileParseError>()
+	private val errorList = mutableListOf<FileParseError>()
+	val errors: List<FileParseError> get() = errorList
 
 	abstract fun parse(element: Element? = null): TFileResult
 
-	fun addError(error: FileParseError) = errors.add(error)
+	fun addError(error: FileParseError) = errorList.add(error)
 }

@@ -7,7 +7,6 @@ import android.widget.ImageView
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.PreferenceViewHolder
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 
 class MidiConnectionsPreference(context: Context, attrs: AttributeSet) :
@@ -18,7 +17,7 @@ class MidiConnectionsPreference(context: Context, attrs: AttributeSet) :
 		val usbImageView = view.findViewById(R.id.midiUsbOnTheGoIconImageView) as ImageView
 		val nativeImageView = view.findViewById(R.id.midiNativeIconImageView) as ImageView
 		val bluetoothImageView = view.findViewById(R.id.midiBluetoothIconImageView) as ImageView
-		val currentPrefValue = Preferences.getStringSetPreference(
+		val currentPrefValue = BeatPrompter.preferences.getStringSetPreference(
 			key,
 			BeatPrompter.appResources.getStringSet(R.array.pref_midiConnectionTypes_defaultValues)
 		)

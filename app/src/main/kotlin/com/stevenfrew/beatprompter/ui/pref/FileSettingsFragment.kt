@@ -11,7 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
@@ -45,7 +45,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.filepreferences)
 
-		Preferences.registerOnSharedPreferenceChangeListener(this)
+		BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(this)
 
 		val clearCachePrefName = getString(R.string.pref_clearCache_key)
 		val clearCachePref = findPreference<Preference>(clearCachePrefName)
@@ -65,22 +65,22 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		val cloudPref = findPreference<ImageListPreference>(cloudPrefName)
 		cloudPref?.setOnPreferenceChangeListener { _, value ->
 			EventRouter.sendEventToCache(Events.CLEAR_CACHE, true)
-			Preferences.storageSystem = StorageType.valueOf(value.toString())
-			Preferences.cloudPath = ""
-			Preferences.cloudDisplayPath = ""
+			BeatPrompter.preferences.storageSystem = StorageType.valueOf(value.toString())
+			BeatPrompter.preferences.cloudPath = ""
+			BeatPrompter.preferences.cloudDisplayPath = ""
 			cloudPref.forceUpdate()
 			true
 		}
 	}
 
 	override fun onDestroy() {
-		Preferences.unregisterOnSharedPreferenceChangeListener(this)
+		BeatPrompter.preferences.unregisterOnSharedPreferenceChangeListener(this)
 		EventRouter.setSettingsEventHandler(null)
 		super.onDestroy()
 	}
 
 	private fun onCloudPathChanged(newValue: Any?) {
-		val displayPath = Preferences.cloudDisplayPath
+		val displayPath = BeatPrompter.preferences.cloudDisplayPath
 
 		val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
@@ -91,7 +91,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 	}
 
 	private fun setCloudPath() {
-		val cloudType = Preferences.storageSystem
+		val cloudType = BeatPrompter.preferences.storageSystem
 		if (cloudType !== StorageType.Demo) {
 			val cs = Storage.getInstance(cloudType, this)
 			val progressDialog =
@@ -104,8 +104,8 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 				}
 			cs.selectFolder(requireActivity(), object : FolderSelectionListener {
 				override fun onFolderSelected(folderInfo: FolderInfo) {
-					Preferences.cloudDisplayPath = folderInfo.displayPath
-					Preferences.cloudPath = folderInfo.id
+					BeatPrompter.preferences.cloudDisplayPath = folderInfo.displayPath
+					BeatPrompter.preferences.cloudPath = folderInfo.id
 				}
 
 				override fun onFolderSelectedError(t: Throwable, context: Context) =

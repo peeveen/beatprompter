@@ -9,7 +9,7 @@ import android.content.pm.PackageManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
@@ -49,7 +49,7 @@ object UsbMidiController {
 	}
 
 	internal fun attemptUsbMidiConnection(manager: UsbManager, permissionIntent: PendingIntent) {
-		if (Preferences.midiConnectionTypes.contains(ConnectionType.USBOnTheGo)) {
+		if (BeatPrompter.preferences.midiConnectionTypes.contains(ConnectionType.USBOnTheGo)) {
 			val list = manager.deviceList
 			if (list != null && list.size > 0) {
 				val devObjects = list.values

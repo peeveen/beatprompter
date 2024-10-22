@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.comm.bluetooth.message
 
-import android.graphics.Rect
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -30,8 +30,8 @@ class ChooseSongMessage(
 					writeInt(choiceInfo.orientation)
 					writeFloat(choiceInfo.minFontSize)
 					writeFloat(choiceInfo.maxFontSize)
-					writeInt(choiceInfo.screenSize.width())
-					writeInt(choiceInfo.screenSize.height())
+					writeInt(choiceInfo.screenSize.width)
+					writeInt(choiceInfo.screenSize.height)
 					writeBoolean(choiceInfo.noAudio)
 					writeInt(choiceInfo.audioLatency)
 					writeInt(choiceInfo.transposeShift)

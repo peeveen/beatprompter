@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.song
 
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
@@ -28,7 +28,7 @@ class AudioTag internal constructor(
 
 	init {
 		val bits = value.splitAndTrim(":")
-		val defaultTrackVolume = Preferences.defaultTrackVolume
+		val defaultTrackVolume = BeatPrompter.preferences.defaultTrackVolume
 		filename = File(bits[0]).name
 		normalizedFilename = filename.normalize()
 		volume =

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -37,7 +37,7 @@ object NativeMidiController {
 	}
 
 	private fun addNativeDevice(nativeDeviceInfo: MidiDeviceInfo, manager: MidiManager) {
-		if (Preferences.midiConnectionTypes.contains(ConnectionType.Native))
+		if (BeatPrompter.preferences.midiConnectionTypes.contains(ConnectionType.Native))
 			manager.openDevice(nativeDeviceInfo, deviceListener, null)
 	}
 }

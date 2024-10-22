@@ -3,14 +3,10 @@ package com.stevenfrew.beatprompter.cache.parse
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.Typeface
 import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -54,6 +50,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
@@ -69,7 +66,7 @@ import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
-import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MidiEvent
 import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.event.StartEvent
 import com.stevenfrew.beatprompter.song.line.ImageLine
@@ -135,8 +132,9 @@ import kotlin.math.roundToInt
  */
 class SongParser(
 	private val songLoadInfo: SongLoadInfo,
-	private val songLoadCancelEvent: SongLoadCancelEvent,
-	private val songLoadHandler: Handler
+	private val supportFileResolver: SupportFileResolver,
+	private val songLoadCancelEvent: SongLoadCancelEvent? = null,
+	private val songLoadHandler: Handler? = null
 ) : SongFileParser<Song>(
 	songLoadInfo.songFile,
 	songLoadInfo.initialScrollMode,
@@ -159,7 +157,6 @@ class SongParser(
 	private val rolloverBeats = mutableListOf<BeatEvent>()
 	private val beatBlocks = mutableListOf<BeatBlock>()
 	private val paint = Paint()
-	private val font = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 	private val defaultHighlightColor: Int
 	private val timePerBar: Long
 	private val flatAudioFiles: List<AudioFile>
@@ -184,20 +181,20 @@ class SongParser(
 
 	init {
 		// All songFile info parsing errors count as our errors too.
-		errors.addAll(songLoadInfo.songFile.errors)
+		songLoadInfo.songFile.errors.forEach { addError(it) }
 
-		sendMidiClock = Preferences.sendMIDIClock
-		countIn = Preferences.defaultCountIn
-		metronomeContext = Preferences.metronomeContext
-		defaultHighlightColor = Preferences.defaultHighlightColor
-		customCommentsUser = Preferences.customCommentsUser
-		showChords = Preferences.showChords
-		triggerContext = Preferences.sendMIDITriggerOnStart
-		val defaultMIDIOutputChannelPrefValue = Preferences.defaultMIDIOutputChannel
+		sendMidiClock = BeatPrompter.preferences.sendMIDIClock
+		countIn = BeatPrompter.preferences.defaultCountIn
+		metronomeContext = BeatPrompter.preferences.metronomeContext
+		defaultHighlightColor = BeatPrompter.preferences.defaultHighlightColor
+		customCommentsUser = BeatPrompter.preferences.customCommentsUser
+		showChords = BeatPrompter.preferences.showChords
+		triggerContext = BeatPrompter.preferences.sendMIDITriggerOnStart
+		val defaultMIDIOutputChannelPrefValue = BeatPrompter.preferences.defaultMIDIOutputChannel
 		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-		showKey = Preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
+		showKey = BeatPrompter.preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
 		showBpm =
-			if (songLoadInfo.songFile.bpm > 0.0) Preferences.showBPMContext else ShowBPMContext.No
+			if (songLoadInfo.songFile.bpm > 0.0) BeatPrompter.preferences.showBPMContext else ShowBPMContext.No
 
 		// Figure out the screen size
 		nativeDeviceSettings = translateSourceDeviceSettingsToNative(
@@ -206,16 +203,16 @@ class SongParser(
 		)
 
 		// Start the progress message dialog
-		songLoadHandler.obtainMessage(
+		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
 			0, songLoadInfo.songFile.lines
-		).sendToTarget()
+		)?.sendToTarget()
 
 		val selectedVariation = songLoadInfo.variation
 		val audioFilenamesForThisVariation =
 			songLoadInfo.songFile.audioFiles[selectedVariation] ?: listOf()
 		flatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
-			Cache.cachedCloudItems.getMappedAudioFiles(it).firstOrNull()
+			supportFileResolver.getMappedAudioFiles(it).firstOrNull()
 		}
 		val lengthOfBackingTrack = flatAudioFiles.firstOrNull()?.duration ?: 0L
 		var songTime =
@@ -224,7 +221,7 @@ class SongParser(
 			else
 				songLoadInfo.songFile.duration
 		if (songTime > 0 && songLoadInfo.songFile.totalPauseDuration > songTime) {
-			errors.add(FileParseError(R.string.pauseLongerThanSong))
+			addError(FileParseError(R.string.pauseLongerThanSong))
 			ongoingBeatInfo = SongBeatInfo(scrollMode = ScrollingMode.Manual)
 			currentLineBeatInfo = LineBeatInfo(ongoingBeatInfo)
 			songTime = 0
@@ -238,7 +235,7 @@ class SongParser(
 	}
 
 	override fun parseLine(line: TextFileLine<Song>): Boolean {
-		if (songLoadCancelEvent.isCancelled)
+		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))
 			return false
@@ -256,7 +253,7 @@ class SongParser(
 			try {
 				chordMap = chordMap?.transpose(it.value)
 			} catch (e: Exception) {
-				errors.add(FileParseError(it, e))
+				addError(FileParseError(it, e))
 			}
 		}
 
@@ -298,9 +295,8 @@ class SongParser(
 				Song.Comment(
 					it.comment,
 					it.audience,
-					nativeDeviceSettings.screenSize,
-					paint,
-					font
+					Rect(nativeDeviceSettings.screenSize),
+					paint
 				)
 			}
 			.filter { it.isIntendedFor(customCommentsUser) }
@@ -342,7 +338,7 @@ class SongParser(
 				else {
 					initialMidiMessages.addAll(it.messages)
 					if (it.offset.amount != 0)
-						errors.add(FileParseError(it, R.string.midi_offset_before_first_line))
+						addError(FileParseError(it, R.string.midi_offset_before_first_line))
 				}
 			}
 
@@ -378,11 +374,11 @@ class SongParser(
 			pendingAudioTag?.also {
 				// Make sure file exists.
 				val mappedTracks =
-					Cache.cachedCloudItems.getMappedAudioFiles(it.normalizedFilename)
+					supportFileResolver.getMappedAudioFiles(it.normalizedFilename)
 				if (mappedTracks.isEmpty())
-					errors.add(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
+					addError(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
 				else if (mappedTracks.size > 1)
-					errors.add(
+					addError(
 						FileParseError(
 							it,
 							R.string.multipleFilenameMatches,
@@ -392,7 +388,7 @@ class SongParser(
 				else {
 					val audioFile = mappedTracks.first()
 					if (!audioFile.file.exists())
-						errors.add(
+						addError(
 							FileParseError(
 								it,
 								R.string.cannotFindAudioFile,
@@ -418,7 +414,7 @@ class SongParser(
 			stopAddingStartupItems = true
 
 			if (imageTag != null && (workLine.isNotBlank() || chordsFound))
-				errors.add(FileParseError(line.lineNumber, R.string.text_found_with_image))
+				addError(FileParseError(line.lineNumber, R.string.text_found_with_image))
 
 			// Measuring a blank line will result in a 0x0 measurement, so we
 			// need to have SOMETHING to measure. A nice wee "down arrow" should look OK.
@@ -468,7 +464,7 @@ class SongParser(
 				var lineObj: Line? = null
 				if (imageTag != null) {
 					val imageFiles =
-						Cache.cachedCloudItems.getMappedImageFiles(imageTag.filename)
+						supportFileResolver.getMappedImageFiles(imageTag.filename)
 					if (imageFiles.isNotEmpty())
 						try {
 							lineObj = ImageLine(
@@ -484,11 +480,11 @@ class SongParser(
 							)
 						} catch (t: Throwable) {
 							// Bitmap loading could cause error here. Even OutOfMemory!
-							errors.add(FileParseError(imageTag, t))
+							addError(FileParseError(imageTag, t))
 						}
 					else {
 						workLine = BeatPrompter.appResources.getString(R.string.missing_image_file_warning)
-						errors.add(FileParseError(imageTag, R.string.missing_image_file_warning))
+						addError(FileParseError(imageTag, R.string.missing_image_file_warning))
 						imageTag = null
 					}
 				}
@@ -548,10 +544,10 @@ class SongParser(
 				0, currentLineBeatInfo.scrollMode
 			)
 
-		songLoadHandler.obtainMessage(
+		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
 			line.lineNumber, songLoadInfo.songFile.lines
-		).sendToTarget()
+		)?.sendToTarget()
 		return true
 	}
 
@@ -583,7 +579,7 @@ class SongParser(
 			// Obviously this will only be required if the song cannot fit entirely onscreen.
 				if (songHeight > nativeDeviceSettings.usableScreenHeight)
 					min(lineSequence.map { it.measurements.lineHeight }.maxByOrNull { it }
-						?: 0, (nativeDeviceSettings.screenSize.height() / 3.0).toInt())
+						?: 0, (nativeDeviceSettings.screenSize.height / 3.0).toInt())
 				else
 					0
 			else
@@ -593,7 +589,7 @@ class SongParser(
 		val audioEvents = events.filterIsInstance<AudioEvent>()
 
 		// Allocate graphics objects.
-		val maxGraphicsRequired = getMaximumGraphicsRequired(nativeDeviceSettings.screenSize.height())
+		val maxGraphicsRequired = getMaximumGraphicsRequired(nativeDeviceSettings.screenSize.height)
 		val lineGraphics = CircularGraphicsList()
 		repeat(maxGraphicsRequired) {
 			lineGraphics.add(LineGraphic(getBiggestLineSize(it, maxGraphicsRequired)))
@@ -610,8 +606,8 @@ class SongParser(
 			}
 		}
 
-		val beatCounterHeight = nativeDeviceSettings.beatCounterRect.height()
-		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width() * 0.9f
+		val beatCounterHeight = nativeDeviceSettings.beatCounterRect.height
+		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width * 0.9f
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
 		val songTitleHeader = ScreenString.create(
@@ -620,11 +616,10 @@ class SongParser(
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
 			Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
-			font,
 			false
 		)
 		val extraMargin = (maxSongTitleHeight - songTitleHeader.height) / 2.0f
-		val x = ((nativeDeviceSettings.screenSize.width() - songTitleHeader.width) / 2.0).toFloat()
+		val x = ((nativeDeviceSettings.screenSize.width - songTitleHeader.width) / 2.0).toFloat()
 		val y = beatCounterHeight - (extraMargin + songTitleHeader.descenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
@@ -633,7 +628,7 @@ class SongParser(
 		// the audio latency without offsetting the beat).
 		val eventsWithClicks = generateClickEvents(events)
 		// Now offset any MIDI events that have an offset.
-		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks, errors)
+		val midiOffsetEventList = offsetMIDIEvents(eventsWithClicks)
 		// And offset non-audio events by the audio latency offset.
 		val audioLatencyCompensatedEventList =
 			compensateForAudioLatency(midiOffsetEventList, Utils.milliToNano(songLoadInfo.audioLatency))
@@ -927,13 +922,13 @@ class SongParser(
 		nativeSettings: DisplaySettings
 	): DisplaySettings {
 		val sourceScreenSize = sourceSettings.screenSize
-		val sourceRatio = sourceScreenSize.width().toDouble() / sourceScreenSize.height().toDouble()
+		val sourceRatio = sourceScreenSize.width.toDouble() / sourceScreenSize.height.toDouble()
 		val screenWillRotate = nativeSettings.orientation != sourceSettings.orientation
 		val nativeScreenSize = if (screenWillRotate)
-			Rect(0, 0, nativeSettings.screenSize.height(), nativeSettings.screenSize.width())
+			Rect(0, 0, nativeSettings.screenSize.height, nativeSettings.screenSize.width)
 		else
 			nativeSettings.screenSize
-		val nativeRatio = nativeScreenSize.width().toDouble() / nativeScreenSize.height().toDouble()
+		val nativeRatio = nativeScreenSize.width.toDouble() / nativeScreenSize.height.toDouble()
 		val minRatio = min(nativeRatio, sourceRatio)
 		val maxRatio = max(nativeRatio, sourceRatio)
 		val ratioMultiplier = minRatio / maxRatio
@@ -942,7 +937,7 @@ class SongParser(
 		minimumFontSize *= ratioMultiplier.toFloat()
 		maximumFontSize *= ratioMultiplier.toFloat()
 		if (minimumFontSize > maximumFontSize) {
-			errors.add(FileParseError(0, R.string.fontSizesAllMessedUp))
+			addError(FileParseError(0, R.string.fontSizesAllMessedUp))
 			maximumFontSize = minimumFontSize
 		}
 		return DisplaySettings(
@@ -961,26 +956,24 @@ class SongParser(
 		// The rest of the space is allocated for the comments and error messages,
 		// each line no more than 10% of the screen height.
 		val startScreenStrings = mutableListOf<ScreenString>()
-		var availableScreenHeight = nativeDeviceSettings.screenSize.height()
+		var availableScreenHeight = nativeDeviceSettings.screenSize.height
 		var nextSongString: ScreenString? = null
-		val boldFont = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
 		if (songLoadInfo.nextSong.isNotBlank()) {
 			// OK, we have a next song title to display.
 			// This should take up no more than 15% of the screen.
 			// But that includes a border, so use 13 percent for the text.
-			val eightPercent = (nativeDeviceSettings.screenSize.height() * 0.13).toInt()
+			val eightPercent = (nativeDeviceSettings.screenSize.height * 0.13).toInt()
 			val nextSong = songLoadInfo.nextSong
 			val fullString = ">>> $nextSong >>>"
 			nextSongString = ScreenString.create(
 				fullString,
 				paint,
-				nativeDeviceSettings.screenSize.width(),
+				nativeDeviceSettings.screenSize.width,
 				eightPercent,
 				Color.BLACK,
-				boldFont,
 				true
 			)
-			availableScreenHeight -= (nativeDeviceSettings.screenSize.height() * 0.15f).toInt()
+			availableScreenHeight -= (nativeDeviceSettings.screenSize.height * 0.15f).toInt()
 		}
 		val tenPercent = (availableScreenHeight / 10.0).toInt()
 		val twentyPercent = (availableScreenHeight / 5.0).toInt()
@@ -988,10 +981,9 @@ class SongParser(
 			ScreenString.create(
 				songLoadInfo.songFile.title,
 				paint,
-				nativeDeviceSettings.screenSize.width(),
+				nativeDeviceSettings.screenSize.width,
 				twentyPercent,
 				Color.YELLOW,
-				boldFont,
 				true
 			)
 		)
@@ -1000,16 +992,15 @@ class SongParser(
 				ScreenString.create(
 					songLoadInfo.songFile.artist,
 					paint,
-					nativeDeviceSettings.screenSize.width(),
+					nativeDeviceSettings.screenSize.width,
 					tenPercent,
 					Color.YELLOW,
-					boldFont,
 					true
 				)
 			)
 		val commentLines = mutableListOf<String>()
 		for (c in startScreenComments)
-			commentLines.add(c.mText)
+			commentLines.add(c.text)
 		val nonBlankCommentLines = mutableListOf<String>()
 		for (commentLine in commentLines)
 			if (commentLine.trim().isNotEmpty())
@@ -1023,7 +1014,7 @@ class SongParser(
 		if (showKey)
 			++messages
 		if (messages > 0) {
-			val remainingScreenSpace = nativeDeviceSettings.screenSize.height() - twentyPercent * 2
+			val remainingScreenSpace = nativeDeviceSettings.screenSize.height - twentyPercent * 2
 			var spacePerMessageLine = floor((remainingScreenSpace / messages).toDouble()).toInt()
 			spacePerMessageLine = min(spacePerMessageLine, tenPercent)
 			var errorCounter = 0
@@ -1032,10 +1023,9 @@ class SongParser(
 					ScreenString.create(
 						error.toString(),
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.RED,
-						font,
 						false
 					)
 				)
@@ -1049,10 +1039,9 @@ class SongParser(
 								errorCount
 							),
 							paint,
-							nativeDeviceSettings.screenSize.width(),
+							nativeDeviceSettings.screenSize.width,
 							spacePerMessageLine,
 							Color.RED,
-							font,
 							false
 						)
 					)
@@ -1064,10 +1053,9 @@ class SongParser(
 					ScreenString.create(
 						nonBlankComment,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.WHITE,
-						font,
 						false
 					)
 				)
@@ -1078,10 +1066,9 @@ class SongParser(
 					ScreenString.create(
 						keyString,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.CYAN,
-						font,
 						false
 					)
 				)
@@ -1099,10 +1086,9 @@ class SongParser(
 					ScreenString.create(
 						bpmString,
 						paint,
-						nativeDeviceSettings.screenSize.width(),
+						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						Color.CYAN,
-						font,
 						false
 					)
 				)
@@ -1113,10 +1099,9 @@ class SongParser(
 				ScreenString.create(
 					BeatPrompter.appResources.getString(R.string.tapTwiceToStart),
 					paint,
-					nativeDeviceSettings.screenSize.width(),
+					nativeDeviceSettings.screenSize.width,
 					tenPercent,
 					Color.GREEN,
-					boldFont,
 					true
 				)
 			)
@@ -1233,11 +1218,11 @@ class SongParser(
 					// MIDI events are most important. We want to
 					// these first at any given time for maximum MIDI
 					// responsiveness
-					else if (e1 is MIDIEvent && e2 is MIDIEvent)
+					else if (e1 is MidiEvent && e2 is MidiEvent)
 						0
-					else if (e1 is MIDIEvent)
+					else if (e1 is MidiEvent)
 						-1
-					else if (e2 is MIDIEvent)
+					else if (e2 is MidiEvent)
 						1
 					// AudioEvents are next-most important. We want to process
 					// these first at any given time for maximum audio
@@ -1263,69 +1248,67 @@ class SongParser(
 		}
 	}
 
-	companion object {
-		/**
-		 * Each MIDIEvent might have an offset. Process that here.
-		 */
-		private fun offsetMIDIEvents(
-			events: List<BaseEvent>,
-			errors: MutableList<FileParseError>
-		): List<BaseEvent> {
-			val beatEvents =
-				events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.eventTime }.toList()
-			return events.map {
-				if (it is MIDIEvent)
-					offsetMIDIEvent(it, beatEvents, errors)
-				else
-					it
-			}
+	/**
+	 * Each MIDIEvent might have an offset. Process that here.
+	 */
+	private fun offsetMIDIEvents(
+		events: List<BaseEvent>
+	): List<BaseEvent> {
+		val beatEvents =
+			events.asSequence().filterIsInstance<BeatEvent>().sortedBy { it.eventTime }.toList()
+		return events.map {
+			if (it is MidiEvent)
+				offsetMIDIEvent(it, beatEvents)
+			else
+				it
 		}
+	}
 
-		/**
-		 * Each MIDIEvent might have an offset. Process that here.
-		 */
-		private fun offsetMIDIEvent(
-			midiEvent: MIDIEvent,
-			beatEvents: List<BeatEvent>,
-			errors: MutableList<FileParseError>
-		): MIDIEvent =
-			if (midiEvent.offset.amount != 0) {
-				// OK, this event needs moved.
-				var newTime: Long = -1
-				if (midiEvent.offset.offsetType === EventOffsetType.Milliseconds) {
-					val offset = Utils.milliToNano(midiEvent.offset.amount)
-					newTime = midiEvent.eventTime + offset
-				} else {
-					// Offset by beat count.
-					val beatCount = midiEvent.offset.amount
-					val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
-						if (beatCount >= 0)
-							it.eventTime > midiEvent.eventTime
-						else
-							it.eventTime < midiEvent.eventTime
-					}
-					val beatsInOrder =
-						if (beatCount < 0)
-							beatsBeforeOrAfterThisMIDIEvent.reversed()
-						else
-							beatsBeforeOrAfterThisMIDIEvent
-					val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
-					if (beatWeWant != null)
-						newTime = beatWeWant.eventTime
+	/**
+	 * Each MIDIEvent might have an offset. Process that here.
+	 */
+	private fun offsetMIDIEvent(
+		midiEvent: MidiEvent,
+		beatEvents: List<BeatEvent>
+	): MidiEvent =
+		if (midiEvent.offset.amount != 0) {
+			// OK, this event needs moved.
+			var newTime: Long = -1
+			if (midiEvent.offset.offsetType === EventOffsetType.Milliseconds) {
+				val offset = Utils.milliToNano(midiEvent.offset.amount)
+				newTime = midiEvent.eventTime + offset
+			} else {
+				// Offset by beat count.
+				val beatCount = midiEvent.offset.amount
+				val beatsBeforeOrAfterThisMIDIEvent = beatEvents.filter {
+					if (beatCount >= 0)
+						it.eventTime > midiEvent.eventTime
+					else
+						it.eventTime < midiEvent.eventTime
 				}
-				if (newTime < 0) {
-					errors.add(
-						FileParseError(
-							midiEvent.offset.sourceFileLineNumber,
-							R.string.midi_offset_is_before_start_of_song
-						)
+				val beatsInOrder =
+					if (beatCount < 0)
+						beatsBeforeOrAfterThisMIDIEvent.reversed()
+					else
+						beatsBeforeOrAfterThisMIDIEvent
+				val beatWeWant = beatsInOrder.asSequence().take(beatCount.absoluteValue).lastOrNull()
+				if (beatWeWant != null)
+					newTime = beatWeWant.eventTime
+			}
+			if (newTime < 0) {
+				addError(
+					FileParseError(
+						midiEvent.offset.sourceFileLineNumber,
+						R.string.midi_offset_is_before_start_of_song
 					)
-					newTime = 0
-				}
-				MIDIEvent(newTime, midiEvent.messages)
-			} else
-				midiEvent
+				)
+				newTime = 0
+			}
+			MidiEvent(newTime, midiEvent.messages)
+		} else
+			midiEvent
 
+	companion object {
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =
 			!(this is AudioEvent || this is StartEvent || this is ClickEvent || (this is LineEvent && !lineEventFound))
 

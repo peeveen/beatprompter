@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.midi.SongTrigger
@@ -59,7 +58,7 @@ class SongFile(
 
 	val defaultVariation: String
 		get() =
-			Preferences.preferredVariation.let {
+			BeatPrompter.preferences.preferredVariation.let {
 				if (variations.contains(it)) it else variations.firstOrNull() ?: ""
 			}
 
@@ -92,7 +91,7 @@ class SongFile(
 
 	val keySignature: String?
 		get() = KeySignatureDefinition.getKeySignature(key, firstChord)
-			?.getDisplayString(Preferences.displayUnicodeAccidentals)
+			?.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)
 
 	companion object {
 		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "

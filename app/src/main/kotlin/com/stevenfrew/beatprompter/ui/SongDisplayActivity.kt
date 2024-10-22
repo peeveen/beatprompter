@@ -17,7 +17,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
@@ -58,8 +57,8 @@ class SongDisplayActivity
 
 		songDisplayInstance = this
 
-		scrollOnProximity = Preferences.proximityScroll
-		anyOtherKeyPageDown = Preferences.anyOtherKeyPageDown
+		scrollOnProximity = BeatPrompter.preferences.proximityScroll
+		anyOtherKeyPageDown = BeatPrompter.preferences.anyOtherKeyPageDown
 
 		setContentView(R.layout.activity_song_display)
 		val potentiallyNullSongView: SongView? = findViewById(R.id.song_view)
@@ -96,7 +95,7 @@ class SongDisplayActivity
 			return
 		} else {
 			Logger.logLoader({ "Successful load ID match: ${song.loadId}" })
-			if (Preferences.bluetoothMode == BluetoothMode.Server) {
+			if (BeatPrompter.preferences.bluetoothMode == BluetoothMode.Server) {
 				Logger.logLoader({ "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle}\"" })
 				val csm = ChooseSongMessage(
 					SongChoiceInfo(
@@ -138,7 +137,7 @@ class SongDisplayActivity
 		songView!!.init(this, song)
 
 		// If no clock required, set BPM to zero.
-		if (Preferences.sendMIDIClock || song.sendMidiClock) {
+		if (BeatPrompter.preferences.sendMIDIClock || song.sendMidiClock) {
 			ClockSignalGeneratorTask.reset()
 			setClockBpmFn = {
 				ClockSignalGeneratorTask.setBPM(it)

@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.graphics
 
-import android.graphics.Bitmap
-import android.graphics.Rect
+import com.stevenfrew.beatprompter.BeatPrompter
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.song.line.Line
 
 class LineGraphic(private val size: Rect) {
@@ -18,10 +18,9 @@ class LineGraphic(private val size: Rect) {
 		}
 
 	private fun createBitmap(): Bitmap =
-		Bitmap.createBitmap(
-			size.width(),
-			size.height(),
-			Bitmap.Config.ARGB_8888
+		BeatPrompter.bitmapFactory.createBitmap(
+			size.width,
+			size.height
 		)
 
 	fun recycle() {

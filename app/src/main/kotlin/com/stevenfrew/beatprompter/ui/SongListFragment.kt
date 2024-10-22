@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Point
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -38,7 +37,6 @@ import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.CachedCloudCollection
@@ -51,6 +49,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
+import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.set.Playlist
@@ -160,7 +159,7 @@ class SongListFragment
 	)
 
 	internal fun updateBluetoothIcon() {
-		val bluetoothMode = Preferences.bluetoothMode
+		val bluetoothMode = BeatPrompter.preferences.bluetoothMode
 		val slave = bluetoothMode === BluetoothMode.Client
 		val connectedToServer = Bluetooth.isConnectedToServer
 		val master = bluetoothMode === BluetoothMode.Server
@@ -193,7 +192,7 @@ class SongListFragment
 	}
 
 	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-		if (Preferences.clearTagsOnFolderChange)
+		if (BeatPrompter.preferences.clearTagsOnFolderChange)
 			selectedTagFilters.clear()
 		applyFileFilter(filters[position])
 		if (performingCloudSync) {
@@ -300,8 +299,8 @@ class SongListFragment
 		node: PlaylistNode,
 		startedByMidiTrigger: Boolean
 	) {
-		val mute = Preferences.mute
-		val manualMode = Preferences.manualMode
+		val mute = BeatPrompter.preferences.mute
+		val manualMode = BeatPrompter.preferences.manualMode
 		val mode =
 			if (manualMode)
 				ScrollingMode.Manual
@@ -321,25 +320,25 @@ class SongListFragment
 	}
 
 	private fun shouldPlayNextSong(): Boolean =
-		when (Preferences.playNextSong) {
+		when (BeatPrompter.preferences.playNextSong) {
 			getString(R.string.playNextSongAlwaysValue) -> true
 			getString(R.string.playNextSongSetListsOnlyValue) -> selectedFilter is SetListFilter
 			else -> false
 		}
 
 	private fun getSongDisplaySettings(songScrollMode: ScrollingMode): DisplaySettings {
-		val onlyUseBeatFontSizes = Preferences.onlyUseBeatFontSizes
+		val onlyUseBeatFontSizes = BeatPrompter.preferences.onlyUseBeatFontSizes
 
-		val minimumFontSizeBeat = Preferences.minimumBeatFontSize
-		val maximumFontSizeBeat = Preferences.maximumBeatFontSize
+		val minimumFontSizeBeat = BeatPrompter.preferences.minimumBeatFontSize
+		val maximumFontSizeBeat = BeatPrompter.preferences.maximumBeatFontSize
 		val minimumFontSizeSmooth =
-			if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumSmoothFontSize
+			if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompter.preferences.minimumSmoothFontSize
 		val maximumFontSizeSmooth =
-			if (onlyUseBeatFontSizes) maximumFontSizeBeat else Preferences.maximumSmoothFontSize
+			if (onlyUseBeatFontSizes) maximumFontSizeBeat else BeatPrompter.preferences.maximumSmoothFontSize
 		val minimumFontSizeManual =
-			if (onlyUseBeatFontSizes) minimumFontSizeBeat else Preferences.minimumManualFontSize
+			if (onlyUseBeatFontSizes) minimumFontSizeBeat else BeatPrompter.preferences.minimumManualFontSize
 		val maximumFontSizeManual =
-			if (onlyUseBeatFontSizes) maximumFontSizeBeat else Preferences.maximumManualFontSize
+			if (onlyUseBeatFontSizes) maximumFontSizeBeat else BeatPrompter.preferences.maximumManualFontSize
 
 		val minimumFontSize: Int
 		val maximumFontSize: Int
@@ -390,13 +389,13 @@ class SongListFragment
 			selectedNode.songFile,
 			if (selectedNode.variation.isNullOrBlank()) selectedNode.songFile.defaultVariation else selectedNode.variation,
 			scrollMode,
+			nativeSettings,
+			sourceSettings,
 			nextSongName,
 			false,
 			startedByMidiTrigger,
-			nativeSettings,
-			sourceSettings,
 			noAudio,
-			Preferences.audioLatency,
+			BeatPrompter.preferences.audioLatency,
 			transposeShift
 		)
 		val songLoadJob = SongLoadJob(songLoadInfo)
@@ -494,7 +493,7 @@ class SongListFragment
 
 		val transposeSpinner = view
 			.findViewById<Spinner>(R.id.transposeSpinner)
-		val noTranspose = transposeOptions.isEmpty() || !Preferences.showChords
+		val noTranspose = transposeOptions.isEmpty() || !BeatPrompter.preferences.showChords
 		if (noTranspose) {
 			view.findViewById<TextView>(R.id.transposeLabel).visibility = View.GONE
 			transposeSpinner.visibility = View.GONE
@@ -684,7 +683,7 @@ class SongListFragment
 
 		registerEventHandler()
 
-		Preferences.registerOnSharedPreferenceChangeListener(this)
+		BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(this)
 
 		setHasOptionsMenu(true)
 
@@ -699,9 +698,9 @@ class SongListFragment
 		FontSizePreference.FONT_SIZE_MIN = 0
 		FontSizePreference.FONT_SIZE_OFFSET = Utils.MINIMUM_FONT_SIZE
 
-		val firstRun = Preferences.firstRun
+		val firstRun = BeatPrompter.preferences.firstRun
 		if (firstRun) {
-			Preferences.firstRun = false
+			BeatPrompter.preferences.firstRun = false
 			showFirstRunMessages()
 		}
 
@@ -719,8 +718,8 @@ class SongListFragment
 
 	private fun onDatabaseReadCompleted(databaseExists: Boolean, firstRun: Boolean) {
 		if (!databaseExists && firstRun) {
-			Preferences.storageSystem = StorageType.Demo
-			Preferences.cloudPath = "/"
+			BeatPrompter.preferences.storageSystem = StorageType.Demo
+			BeatPrompter.preferences.cloudPath = "/"
 			Cache.performFullCloudSync(this)
 		}
 	}
@@ -731,7 +730,7 @@ class SongListFragment
 	}
 
 	override fun onDestroy() {
-		Preferences.unregisterOnSharedPreferenceChangeListener(this)
+		BeatPrompter.preferences.unregisterOnSharedPreferenceChangeListener(this)
 		EventRouter.removeSongListEventHandler(tag!!)
 		super.onDestroy()
 	}
@@ -770,7 +769,7 @@ class SongListFragment
 
 	private fun sortSongList() {
 		if (selectedFilter.canSort) {
-			val sorting = Preferences.sorting
+			val sorting = BeatPrompter.preferences.sorting
 			sorting.forEach {
 				playlist = when (it) {
 					SortingPreference.Date -> playlist.sortByDateModified()
@@ -906,7 +905,7 @@ class SongListFragment
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
-					Preferences.sorting = arrayOf(
+					BeatPrompter.preferences.sorting = arrayOf(
 						when (n) {
 							1 -> SortingPreference.Artist
 							2 -> SortingPreference.Date
@@ -1009,7 +1008,8 @@ class SongListFragment
 		val scrollingMode =
 			if (beat) ScrollingMode.Beat else if (smooth) ScrollingMode.Smooth else ScrollingMode.Manual
 
-		val mimicDisplay = scrollingMode === ScrollingMode.Manual && Preferences.mimicBandLeaderDisplay
+		val mimicDisplay =
+			scrollingMode === ScrollingMode.Manual && BeatPrompter.preferences.mimicBandLeaderDisplay
 
 		// Only use the settings from the ChooseSongMessage if the "mimic band leader display" setting is true.
 		// Also, beat and smooth scrolling should never mimic.
@@ -1022,11 +1022,11 @@ class SongListFragment
 					sf,
 					choiceInfo.variation,
 					scrollingMode,
+					nativeSettings,
+					sourceSettings,
 					"",
 					wasStartedByBandLeader = true,
 					wasStartedByMidiTrigger = false,
-					nativeSettings,
-					sourceSettings,
 					choiceInfo.noAudio,
 					choiceInfo.audioLatency,
 					choiceInfo.transposeShift
@@ -1148,7 +1148,8 @@ class SongListFragment
 			val offsetAmount =
 				if (offset == 0) BeatPrompter.appResources.getString(R.string.none) else "$offset"
 			val newKey =
-				key?.let { " (${it.getDisplayString(Preferences.displayUnicodeAccidentals)})" } ?: ""
+				key?.let { " (${it.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)})" }
+					?: ""
 			return "$offsetSign$offset$newKey"
 		}
 	}

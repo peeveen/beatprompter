@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.song.load
 
-import android.graphics.Rect
+import com.stevenfrew.beatprompter.graphics.Rect
 
 data class SongChoiceInfo(
 	val normalizedTitle: String,
