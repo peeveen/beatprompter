@@ -516,7 +516,7 @@ class SongView
 			startY -= (fifteenPercent / 2.0f).toInt()
 			paint.apply {
 				color = nextSongSS.color
-				textSize = nextSongSS.fontSize * Utils.FONT_SCALING
+				BeatPrompter.fontManager.setTextSize(this, nextSongSS.fontSize)
 				BeatPrompter.fontManager.setTypeface(this, nextSongSS.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
@@ -531,7 +531,7 @@ class SongView
 			startY += ss.height
 			paint.apply {
 				color = ss.color
-				textSize = ss.fontSize * Utils.FONT_SCALING
+				BeatPrompter.fontManager.setTextSize(this, ss.fontSize)
 				BeatPrompter.fontManager.setTypeface(this, ss.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
@@ -547,7 +547,7 @@ class SongView
 	private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
 		val popupMargin = 25
 		paint.strokeWidth = 2.0f
-		paint.textSize = textSize * Utils.FONT_SCALING
+		BeatPrompter.fontManager.setTextSize(paint, textSize.toFloat())
 		paint.flags = Paint.ANTI_ALIAS_FLAG
 		val outRect = Rect()
 		paint.getTextBounds(message, 0, message.length, outRect)
@@ -601,7 +601,7 @@ class SongView
 
 	private fun showSongTitle(canvas: Canvas) = song?.apply {
 		paint.apply {
-			textSize = songTitleHeader.fontSize * Utils.FONT_SCALING
+			BeatPrompter.fontManager.setTextSize(this, songTitleHeader.fontSize)
 			BeatPrompter.fontManager.setTypeface(this, songTitleHeader.bold)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground

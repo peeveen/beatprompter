@@ -75,7 +75,6 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.SongFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
-import com.stevenfrew.beatprompter.ui.pref.FontSizePreference
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
@@ -689,15 +688,6 @@ class SongListFragment
 
 		Cache.initialiseLocalStorage(requireContext())
 
-		// Set font stuff first.
-		val metrics = resources.displayMetrics
-		Utils.FONT_SCALING = metrics.density
-		Utils.MAXIMUM_FONT_SIZE = Integer.parseInt(getString(R.string.fontSizeMax))
-		Utils.MINIMUM_FONT_SIZE = Integer.parseInt(getString(R.string.fontSizeMin))
-		FontSizePreference.FONT_SIZE_MAX = Utils.MAXIMUM_FONT_SIZE - Utils.MINIMUM_FONT_SIZE
-		FontSizePreference.FONT_SIZE_MIN = 0
-		FontSizePreference.FONT_SIZE_OFFSET = Utils.MINIMUM_FONT_SIZE
-
 		val firstRun = BeatPrompter.preferences.firstRun
 		if (firstRun) {
 			BeatPrompter.preferences.firstRun = false
@@ -1145,8 +1135,7 @@ class SongListFragment
 
 		override fun toString(): String {
 			val offsetSign = if (offset > 0) "+" else ""
-			val offsetAmount =
-				if (offset == 0) BeatPrompter.appResources.getString(R.string.none) else "$offset"
+			if (offset == 0) BeatPrompter.appResources.getString(R.string.none) else "$offset"
 			val newKey =
 				key?.let { " (${it.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)})" }
 					?: ""

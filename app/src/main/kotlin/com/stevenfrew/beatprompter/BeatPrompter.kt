@@ -44,7 +44,11 @@ class BeatPrompter : Application() {
 			PreferenceManager.getDefaultSharedPreferences(applicationContext),
 			applicationContext.getSharedPreferences(SHARED_PREFERENCES_ID, MODE_PRIVATE)
 		)
-		fontManager = AndroidFontManager
+
+		val minimumFontSize = getString(R.string.fontSizeMin).toFloat()
+		val maximumFontSize = getString(R.string.fontSizeMax).toFloat()
+		fontManager =
+			AndroidFontManager(minimumFontSize, maximumFontSize, resources.displayMetrics.density)
 		bitmapFactory = AndroidBitmapFactory
 		applyPreferenceDefaults()
 		AppCompatDelegate.setDefaultNightMode(if (preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)

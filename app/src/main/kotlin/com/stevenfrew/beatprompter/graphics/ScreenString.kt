@@ -3,13 +3,12 @@ package com.stevenfrew.beatprompter.graphics
 import android.graphics.Paint
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.graphics.fonts.FontManager
-import com.stevenfrew.beatprompter.util.Utils
 import kotlin.math.max
 
 class ScreenString private constructor(
-	internal val text: String,
-	internal val fontSize: Float,
-	internal val color: Int,
+	val text: String,
+	val fontSize: Float,
+	val color: Int,
 	width: Int,
 	height: Int,
 	val descenderOffset: Int,
@@ -30,8 +29,6 @@ class ScreenString private constructor(
 			val (fontSize, bestFontSizeRect) = BeatPrompter.fontManager.getBestFontSize(
 				text,
 				paint,
-				Utils.MINIMUM_FONT_SIZE.toFloat(),
-				Utils.MAXIMUM_FONT_SIZE.toFloat(),
 				maxWidth,
 				maxHeight,
 				bold

@@ -14,7 +14,9 @@ object AndroidBitmapFactory : BitmapFactory {
 		AndroidBitmap(
 			android.graphics.BitmapFactory.decodeFile(
 				path,
-				android.graphics.BitmapFactory.Options()
+				DEFAULT_OPTIONS
 			)
 		)
+
+	private val DEFAULT_OPTIONS = android.graphics.BitmapFactory.Options()
 }

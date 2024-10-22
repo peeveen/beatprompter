@@ -149,9 +149,9 @@ class TextLine internal constructor(
 		do {
 			var proposedLargerTextFontSize = textFontSize
 			var proposedLargerChordFontSize = chordFontSize
-			if (allTextSmallerThanChords && textExists && textFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerTextFontSize <= displaySettings.maximumFontSize - 2)
+			if (allTextSmallerThanChords && textExists && textFontSize <= BeatPrompter.fontManager.maximumFontSize - 2 && proposedLargerTextFontSize <= displaySettings.maximumFontSize - 2)
 				proposedLargerTextFontSize += 2.0
-			else if (allChordsSmallerThanText && chordFontSize <= Utils.MAXIMUM_FONT_SIZE - 2 && proposedLargerChordFontSize <= displaySettings.maximumFontSize - 2)
+			else if (allChordsSmallerThanText && chordFontSize <= BeatPrompter.fontManager.maximumFontSize - 2 && proposedLargerChordFontSize <= displaySettings.maximumFontSize - 2)
 				proposedLargerChordFontSize += 2.0
 			else
 			// Nothing we can do. Increasing any size will make things bigger than the screen.
@@ -539,7 +539,7 @@ class TextLine internal constructor(
 									.isNotEmpty()
 							) {
 								paint.color = if (section.isTrueChord) chordColor else annotationColor
-								paint.textSize = chordTextSize * Utils.FONT_SCALING
+								BeatPrompter.fontManager.setTextSize(paint, chordTextSize.toFloat())
 								paint.flags = Paint.ANTI_ALIAS_FLAG
 								canvas.drawText(
 									section.chordText,
@@ -553,7 +553,7 @@ class TextLine internal constructor(
 								canvas.clipRect(0, 0, xSplit, thisLineHeight)
 							if (section.lineText.trim().isNotEmpty()) {
 								paint.color = lyricColor
-								paint.textSize = lineTextSize * Utils.FONT_SCALING
+								BeatPrompter.fontManager.setTextSize(paint, lineTextSize.toFloat())
 								paint.flags = Paint.ANTI_ALIAS_FLAG
 								canvas.drawText(
 									section.lineText,

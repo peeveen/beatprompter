@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
-import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.BeatPrompter
 
 class ScreenComment(
 	private val text: String,
@@ -36,7 +36,7 @@ class ScreenComment(
 
 	fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
 		paint.apply {
-			textSize = screenString.fontSize * Utils.FONT_SCALING
+			BeatPrompter.fontManager.setTextSize(this, screenString.fontSize)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = Color.BLACK
 		}

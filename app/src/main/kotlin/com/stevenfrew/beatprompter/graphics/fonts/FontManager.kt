@@ -14,6 +14,14 @@ interface FontManager {
 	fun getBestFontSize(
 		text: String,
 		paint: Paint,
+		maxWidth: Int,
+		maxHeight: Int,
+		bold: Boolean = false
+	): Pair<Int, Rect>
+
+	fun getBestFontSize(
+		text: String,
+		paint: Paint,
 		minimumFontSize: Float,
 		maximumFontSize: Float,
 		maxWidth: Int,
@@ -32,6 +40,15 @@ interface FontManager {
 		paint: Paint,
 		bold: Boolean = false
 	)
+
+	fun setTextSize(
+		paint: Paint,
+		size: Float
+	)
+
+	val maximumFontSize: Float
+	val minimumFontSize: Float
+	val fontScaling: Float
 
 	companion object {
 		const val MARGIN_PIXELS = 10
