@@ -1,0 +1,7 @@
+{t:009-TimingTrickeryExcerpt}
+{st:The Trickster}
+{bpm:100.1}{bpb:3}{bpl:2}{count:1}{scrollbeat:2}
+
+,,,3 bars / scroll on 2nd beat of 3rd bar
+2 bars, (<<) / scroll on 3rd beat of 1st bar<<
+{bpb:5}BPB=5, scrollbeat will now be 4 / scroll on 4th beat of 3rd bar (extra bar

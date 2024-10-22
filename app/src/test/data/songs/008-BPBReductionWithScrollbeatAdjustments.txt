@@ -1,8 +1,6 @@
 {t:008-BPBReductionWithScrollbeatAdjustments}
 {bpm:84.35}{bpl:1}
 
-[Am]Some never try<
-But if [Dm7]anybody can, we [Gsus2]can
 {bpb:6}[G]And [Gsus4]I'll be, I'll be<
 {bpb:4}Following [C]you<
 

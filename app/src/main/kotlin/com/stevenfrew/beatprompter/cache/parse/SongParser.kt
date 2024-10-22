@@ -430,11 +430,11 @@ class SongParser(
 			if (isLineContent) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (lines.isEmpty()) 0L else songTime
+				val lineStartTime = if (lines.isEmpty) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (lines.isEmpty()) songTime else 0L
+				val addToPause = if (lines.isEmpty) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.eventTime }
@@ -560,7 +560,7 @@ class SongParser(
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (lines.isEmpty())
+		if (lines.isEmpty)
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
 		val lineSequence = lines.asSequence()
@@ -778,25 +778,54 @@ class SongParser(
 		val beatEvents = mutableListOf<BeatEvent>()
 		var beatThatWeWillScrollOn = 0
 		val currentTimePerBeat = Utils.nanosecondsPerBeat(currentLineBeatInfo.bpm)
+		// If the previous line scrolled early, there will still be some beats left over,
+		// so they need to be added to this beat event group.
 		val rolloverBeatCount = rolloverBeats.size
 		var rolloverBeatsApplied = 0
-		// We have N beats to adjust.
-		// For the previous N beat events, set the BPB to the new BPB.
-		if (beatsToAdjust > 0)
+		// We have N beats to adjust, because the BPB has changed on this line, and the
+		// previous line scrolled late, meaning that one or more beat events from the previous
+		// beat-event group will have incorrect BPB values.
+		// If we don't adjust the BPB of the previous beats to the BPB from THIS line, they
+		// will not appear correctly.
+		// So ... for the previous N beat events, set the BPB to the new BPB.
+		if (beatsToAdjust > 0) {
 			events.filterIsInstance<BeatEvent>().takeLast(beatsToAdjust).forEach {
 				it.bpb = currentLineBeatInfo.bpb
 			}
-		beatsToAdjust = 0
+			beatsToAdjust = 0
+		}
 
-		var currentLineBeat = 0
-		while (currentLineBeat < currentLineBeatInfo.beats) {
-			val beatsRemaining = currentLineBeatInfo.beats - currentLineBeat
-			beatThatWeWillScrollOn = if (beatsRemaining > currentLineBeatInfo.bpb)
-				-1
-			else
-				(currentBeat + (beatsRemaining - 1)) % currentLineBeatInfo.bpb
+		// Okay, we can now create the beat events for this line.
+		(0 until currentLineBeatInfo.beats).forEach { beatIndex ->
+			currentLineBeatInfo.beats - beatIndex
+			val beatsRemaining = currentLineBeatInfo.beats - beatIndex
+			// Calculate the scroll beat.
+			// If the number of beats remaining in this line is greater than the BPB,
+			// then the scroll beat won't be happening in the bar that this beat is in.
+			beatThatWeWillScrollOn = if (beatsRemaining > currentLineBeatInfo.bpb) -1 else
+			// Otherwise the scrollbeat will be coming up ...
+				((currentLineBeatInfo.bpb * 2 + currentLineBeatInfo.scrollBeatTotalOffset - 1) % currentLineBeatInfo.bpb).let {
+					// If the scrollbeat is the current beat, we don't want to display the marker on this beat.
+					if (it == currentBeat)
+						-2
+					else
+						it
+				}
+			// If we have a non-negative value for this beatThatWeWillScrollOn, we can retroactively
+			// set beat events with this to improve visibility.
+
+			if (beatThatWeWillScrollOn >= 0) {
+				// Find the previous beat event, with a beat counter at least equal to the scrollbeat,
+				// with a -2 value for willScrollOnBeat
+				(if (beatEvents.isEmpty()) events.filterIsInstance<BeatEvent>() else beatEvents)
+					.takeLastWhile { it.willScrollOnBeat == -2 }
+					.forEach { it.willScrollOnBeat = beatThatWeWillScrollOn }
+			}
 			var rolloverBPB = 0
-			var rolloverBeatLength: Long = 0
+			var rolloverBeatLength = 0L
+			// Create the next beat event. If there are rollover beats (caused by the
+			// previous line scrolling early), "use them up" first before creating
+			// new beat events for this line.
 			val beatEvent = if (rolloverBeats.isEmpty())
 				BeatEvent(
 					eventTime,
@@ -807,7 +836,9 @@ class SongParser(
 					beatThatWeWillScrollOn
 				)
 			else {
+				// Take a rollover beat from the pile.
 				val rolloverBeatEvent = rolloverBeats.removeAt(0)
+				// Update it with the new beatThatWeWillScrollOn value.
 				val modifiedRolloverBeatEvent = BeatEvent(
 					rolloverBeatEvent.eventTime,
 					rolloverBeatEvent.bpm,
@@ -817,38 +848,42 @@ class SongParser(
 					beatThatWeWillScrollOn
 				)
 				rolloverBPB = modifiedRolloverBeatEvent.bpb
+				rolloverBeatLength = Utils.nanosecondsPerBeat(rolloverBeatEvent.bpm)
 				rolloverBeatsApplied += 1
-				rolloverBeatLength = Utils.nanosecondsPerBeat(modifiedRolloverBeatEvent.bpm)
 				modifiedRolloverBeatEvent
 			}
 			beatEvents.add(beatEvent)
 			val beatTimeLength = if (rolloverBeatLength == 0L) currentTimePerBeat else rolloverBeatLength
+
+			// generate MIDI beat blocks.
 			val nanoPerBeat = beatTimeLength / 4.0
-			// generate MIDI beats.
 			if (lastBeatBlock == null || nanoPerBeat != lastBeatBlock!!.nanoPerBeat) {
 				lastBeatBlock = BeatBlock(beatEvent.eventTime, midiBeatCounter++, nanoPerBeat)
 				beatBlocks.add(lastBeatBlock!!)
 			}
 
 			eventTime += beatTimeLength
+
+			// Keep track of the current beat number.
 			currentBeat++
 			if (currentBeat == (if (rolloverBPB > 0) rolloverBPB else currentLineBeatInfo.bpb))
 				currentBeat = 0
-			++currentLineBeat
 		}
 
 		val beatsThisLine = currentLineBeatInfo.beats - rolloverBeatCount + rolloverBeatsApplied
 		val simpleBeatsThisLine =
 			(currentLineBeatInfo.bpb * currentLineBeatInfo.bpl) - currentLineBeatInfo.lastScrollBeatTotalOffset
 		if (beatsThisLine > simpleBeatsThisLine) {
+			// This line is scrolling EARLY.
 			// We need to store some information so that the next line can adjust the rollover beats.
 			beatsToAdjust = currentLineBeatInfo.beats - simpleBeatsThisLine
 		} else if (beatsThisLine < simpleBeatsThisLine) {
+			// This line is scrolling LATE.
 			// We need to generate a few beats to store for the next line to use.
 			rolloverBeats.clear()
 			var rolloverCurrentBeat = currentBeat
 			var rolloverCurrentTime = eventTime
-			for (f in beatsThisLine until simpleBeatsThisLine) {
+			repeat(simpleBeatsThisLine - beatsThisLine) {
 				rolloverBeats.add(
 					BeatEvent(
 						rolloverCurrentTime,
