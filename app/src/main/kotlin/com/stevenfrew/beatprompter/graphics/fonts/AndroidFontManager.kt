@@ -21,19 +21,14 @@ class AndroidFontManager(
 		private const val DOUBLE_MASKING_STRING = MASKING_STRING + MASKING_STRING
 	}
 
-	private val boldDoubleXWidth: Array<Pair<Int, Rect>>
-	private val regularDoubleXWidth: Array<Pair<Int, Rect>>
-
-	init {
-		boldDoubleXWidth = Array(
-			ceil(maximumFontSize).toInt() - floor(minimumFontSize).toInt() + 1,
-			init = { _ -> -1 to Rect() }
-		)
-		regularDoubleXWidth = Array(
-			ceil(maximumFontSize).toInt() - floor(minimumFontSize).toInt() + 1,
-			init = { _ -> -1 to Rect() }
-		)
-	}
+	private val boldDoubleXWidth: Array<Pair<Int, Rect>> = Array(
+		ceil(maximumFontSize).toInt() - floor(minimumFontSize).toInt() + 1,
+		init = { _ -> -1 to Rect() }
+	)
+	private val regularDoubleXWidth: Array<Pair<Int, Rect>> = Array(
+		ceil(maximumFontSize).toInt() - floor(minimumFontSize).toInt() + 1,
+		init = { _ -> -1 to Rect() }
+	)
 
 	private fun getTextRect(
 		str: String,
@@ -127,23 +122,14 @@ class AndroidFontManager(
 		paint: Paint,
 		maxWidth: Int,
 		maxHeight: Int,
-		bold: Boolean
-	): Pair<Int, Rect> =
-		getBestFontSize(text, paint, minimumFontSize, maximumFontSize, maxWidth, maxHeight, bold)
-
-	override fun getBestFontSize(
-		text: String,
-		paint: Paint,
-		minimumFontSize: Float,
-		maximumFontSize: Float,
-		maxWidth: Int,
-		maxHeight: Int,
-		bold: Boolean
+		bold: Boolean,
+		minimumFontSize: Float?,
+		maximumFontSize: Float?
 	): Pair<Int, Rect> {
 		if (maxWidth <= 0)
 			return 0 to Rect()
-		var hi = maximumFontSize
-		var lo = minimumFontSize
+		var hi = maximumFontSize ?: this.maximumFontSize
+		var lo = minimumFontSize ?: this.minimumFontSize
 		val threshold = 0.5f // How close we have to be
 
 		val maskedText = if (MASKING) "$MASKING_STRING$text$MASKING_STRING" else text

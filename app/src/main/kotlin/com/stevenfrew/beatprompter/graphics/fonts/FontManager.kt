@@ -16,17 +16,9 @@ interface FontManager {
 		paint: Paint,
 		maxWidth: Int,
 		maxHeight: Int,
-		bold: Boolean = false
-	): Pair<Int, Rect>
-
-	fun getBestFontSize(
-		text: String,
-		paint: Paint,
-		minimumFontSize: Float,
-		maximumFontSize: Float,
-		maxWidth: Int,
-		maxHeight: Int,
-		bold: Boolean = false
+		bold: Boolean = false,
+		minimumFontSize: Float? = null,
+		maximumFontSize: Float? = null,
 	): Pair<Int, Rect>
 
 	fun measure(

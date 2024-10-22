@@ -92,10 +92,10 @@ class TextLine internal constructor(
 		val maxLongestFontSize = BeatPrompter.fontManager.getBestFontSize(
 			longestBits.toString(),
 			paint,
-			displaySettings.minimumFontSize,
-			displaySettings.maximumFontSize,
 			displaySettings.screenSize.width,
-			-1
+			-1,
+			minimumFontSize = displaySettings.minimumFontSize,
+			maximumFontSize = displaySettings.maximumFontSize,
 		).first.toDouble()
 		var textFontSize = maxLongestFontSize
 		var chordFontSize = maxLongestFontSize

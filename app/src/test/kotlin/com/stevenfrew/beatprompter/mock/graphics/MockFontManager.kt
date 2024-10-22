@@ -16,11 +16,11 @@ class MockFontManager : FontManager {
 	override fun getBestFontSize(
 		text: String,
 		paint: Paint,
-		minimumFontSize: Float,
-		maximumFontSize: Float,
 		maxWidth: Int,
 		maxHeight: Int,
-		bold: Boolean
+		bold: Boolean,
+		minimumFontSize: Float?,
+		maximumFontSize: Float?,
 	): Pair<Int, Rect> = DEFAULT_FONT_SIZE to DEFAULT_RECT
 
 	override fun measure(
@@ -34,6 +34,14 @@ class MockFontManager : FontManager {
 	override fun setTypeface(paint: Paint, bold: Boolean) {
 		// Do nothing.
 	}
+
+	override fun setTextSize(paint: Paint, size: Float) {
+		// Do nothing.
+	}
+
+	override val maximumFontSize: Float = 8.0f
+	override val minimumFontSize: Float = 150.0f
+	override val fontScaling: Float = 1.0f
 
 	companion object {
 		private const val DEFAULT_FONT_SIZE = 24
