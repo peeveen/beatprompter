@@ -11,7 +11,11 @@ class ChordMap private constructor(
 ) : Map<String, IChord> {
 	constructor(chordStrings: Set<String>, firstChord: String, key: String? = null) : this(
 		chordStrings.associateWith {
-			(Chord.parse(it) ?: UnknownChord(it))
+			try {
+				Chord.parse(it)
+			} catch (_: InvalidChordException) {
+				UnknownChord(it)
+			}
 		},
 		KeySignatureDefinition.getKeySignature(key, firstChord)
 			?: throw Exception("Could not determine key signature"),
@@ -51,7 +55,7 @@ class ChordMap private constructor(
 
 	private fun toKey(toKey: String): ChordMap {
 		val newKey =
-			Chord.parse(toKey)?.let { KeySignatureDefinition.valueOf(it) }
+			Chord.parse(toKey).let { KeySignatureDefinition.valueOf(it) }
 				?: throw Exception(BeatPrompter.appResources.getString(R.string.failedToParseKey, toKey))
 		val newChords = transposeChords(key, newKey)
 		return ChordMap(newChords, newKey, alwaysUseSharps, useUnicodeAccidentals)

@@ -149,7 +149,13 @@ open class KeySignatureDefinition(
 		internal fun forRank(rank: Int): KeySignatureDefinition? = rankMap[rank]
 
 		private fun getKeySignature(chordName: String?): KeySignature? =
-			chordName?.let { Chord.parse(it)?.let { parsedChord -> valueOf(parsedChord) } }
+			chordName?.let {
+				try {
+					valueOf(Chord.parse(it))
+				} catch (_: InvalidChordException) {
+					null
+				}
+			}
 
 		fun getKeySignature(key: String?, firstChord: String?): KeySignature? =
 			getKeySignature(key) ?: getKeySignature(firstChord)
