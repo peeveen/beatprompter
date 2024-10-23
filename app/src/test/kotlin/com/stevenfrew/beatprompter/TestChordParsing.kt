@@ -9,12 +9,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class TestChordParsing {
+	init {
+		TestUtils.setMocks()
+	}
+
 	@Test
 	fun testBasicChords() {
 		with(parseChord("A")) {
 			assertEquals(Note.A, root)
 			assertEquals(null, suffix)
 			assertEquals(null, bass)
+			assertEquals("A", toDisplayString(true, true))
 		}
 		with(parseChord("B")) {
 			assertEquals(Note.B, root)
@@ -54,11 +59,13 @@ class TestChordParsing {
 			assertEquals(Note.ASharp, root)
 			assertEquals(null, suffix)
 			assertEquals(null, bass)
+			assertEquals("A#", toDisplayString())
 		}
 		with(parseChord("B#")) {
 			assertEquals(Note.BSharp, root)
 			assertEquals(null, suffix)
 			assertEquals(null, bass)
+			assertEquals("B♯", toDisplayString(true, true))
 		}
 		with(parseChord("C♯")) {
 			assertEquals(Note.CSharp, root)
@@ -93,11 +100,13 @@ class TestChordParsing {
 			assertEquals(Note.AFlat, root)
 			assertEquals(null, suffix)
 			assertEquals(null, bass)
+			assertEquals("A♭", toDisplayString(false, true))
 		}
 		with(parseChord("B♭")) {
 			assertEquals(Note.BFlat, root)
 			assertEquals(null, suffix)
 			assertEquals(null, bass)
+			assertEquals("Bb", toDisplayString())
 		}
 		with(parseChord("Cb")) {
 			assertEquals(Note.CFlat, root)
@@ -137,7 +146,7 @@ class TestChordParsing {
 			assertEquals(Note.DFlat, root)
 			assertEquals("m7b5", suffix)
 			assertEquals(null, bass)
-			assertEquals("C♯m7♭5", this.toDisplayString(true, true))
+			assertEquals("C♯m7♭5", toDisplayString(true, true))
 		}
 		with(parseChord("Dm#5")) {
 			assertEquals(Note.D, root)

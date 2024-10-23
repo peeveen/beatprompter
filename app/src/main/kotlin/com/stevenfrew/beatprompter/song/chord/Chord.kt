@@ -69,29 +69,24 @@ class Chord(
 
 		private val CHORD_REGEX_PATTERN = Pattern.compile(CHORD_REGEX)
 
-		fun parse(chord: String): Chord? {
-			try {
-				val result = CHORD_REGEX_PATTERN.matcher(chord)
-				if (result.find()) {
-					// For Oreo
-					/*					val root = result.group(REGEX_ROOT_GROUP_NAME)
-										val suffix = result.group(REGEX_SUFFIX_GROUP_NAME)
-										val bass = result.group(REGEX_BASS_GROUP_NAME)*/
-					val root = result.group(1)
-					val suffix = result.group(3)
-					val bass = result.group(9)
-					if (root.isNullOrBlank())
-						throw InvalidChordException(chord)
+		fun parse(chord: String): Chord {
+			val result = CHORD_REGEX_PATTERN.matcher(chord)
+			if (result.find()) {
+				// For Oreo
+				/*					val root = result.group(REGEX_ROOT_GROUP_NAME)
+									val suffix = result.group(REGEX_SUFFIX_GROUP_NAME)
+									val bass = result.group(REGEX_BASS_GROUP_NAME)*/
+				val root = result.group(1)
+				val suffix = result.group(3)
+				val bass = result.group(9)
+				if (!root.isNullOrBlank())
 					return Chord(
 						Note.parse(root),
 						if (suffix.isNullOrBlank()) null else suffix,
 						if (bass.isNullOrBlank()) null else Note.parse(bass)
 					)
-				}
-			} catch (_: InvalidChordException) {
-				// Chord could not be parsed.
 			}
-			return null
+			throw InvalidChordException(chord)
 		}
 
 		fun isChord(token: String): Boolean = CHORD_REGEX_PATTERN.matcher(token).matches()
@@ -105,9 +100,9 @@ class Chord(
 		useUnicodeAccidentals: Boolean,
 		majorOrMinorRootOnly: Boolean
 	): String {
-		val replacedSuffix =
-			(if (useUnicodeAccidentals && suffix != null) ChordUtils.useUnicodeAccidentals(suffix) else suffix)
-				?: ""
+		val replacedSuffix = suffix?.let {
+			ChordUtils.replaceAccidentals(it, useUnicodeAccidentals)
+		} ?: ""
 		val secondPart =
 			if (majorOrMinorRootOnly)
 				""

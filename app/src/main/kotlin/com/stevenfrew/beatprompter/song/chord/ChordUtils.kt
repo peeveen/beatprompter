@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.song.chord
 
 object ChordUtils {
-	fun useUnicodeAccidentals(str: String): String = str.replace('b', '♭').replace('#', '♯')
+	fun replaceAccidentals(str: String, unicode: Boolean): String =
+		if (unicode) str.replace('b', '♭').replace('#', '♯') else str.replace('♭', 'b')
+			.replace('♯', '#')
 }

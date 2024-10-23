@@ -81,7 +81,7 @@ enum class Note {
 		val asMajorOrMinorString =
 			if (majorOrMinorRootOnly && Chord.isMinorSuffix(suffix)) "${asString}m" else asString
 		return asMajorOrMinorString.let {
-			if (useUnicodeAccidentals) ChordUtils.useUnicodeAccidentals(it) else it
+			ChordUtils.replaceAccidentals(it, useUnicodeAccidentals)
 		}
 	}
 

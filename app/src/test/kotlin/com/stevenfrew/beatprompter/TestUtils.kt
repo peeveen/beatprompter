@@ -48,7 +48,7 @@ import kotlin.collections.forEach
 import kotlin.io.path.pathString
 
 object TestUtils {
-	init {
+	internal fun setMocks() {
 		BeatPrompter.appResources = MockGlobalAppResources()
 		BeatPrompter.preferences = MockPreferences()
 		BeatPrompter.fontManager = MockFontManager()

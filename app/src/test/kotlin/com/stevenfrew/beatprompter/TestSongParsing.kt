@@ -6,6 +6,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TestSongParsing {
+	init {
+		TestUtils.setMocks()
+	}
+
 	@Test
 	fun testNoLines() {
 		val songFile = TestUtils.getTestFile("songs", "001-NoLines.txt")

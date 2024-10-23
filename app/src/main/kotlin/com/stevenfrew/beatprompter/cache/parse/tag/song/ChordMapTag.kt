@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.song.chord.Chord
 import com.stevenfrew.beatprompter.song.chord.IChord
+import com.stevenfrew.beatprompter.song.chord.InvalidChordException
 import com.stevenfrew.beatprompter.song.chord.UnknownChord
 
 @TagName("chord_map")
@@ -30,6 +31,10 @@ class ChordMapTag internal constructor(
 		if ((bits.size != 2) || (bits.any { it.isBlank() }))
 			throw MalformedTagException(BeatPrompter.appResources.getString(R.string.chordMapTagMustContainTwoValues))
 		from = bits[0]
-		to = Chord.parse(bits[1]) ?: UnknownChord(bits[1])
+		to = try {
+			Chord.parse(bits[1])
+		} catch (_: InvalidChordException) {
+			UnknownChord(bits[1])
+		}
 	}
 }
