@@ -9,7 +9,7 @@ class MockGlobalAppResources : GlobalAppResources {
 		"$resID${getResourceStringArgs(*args)}"
 
 	private fun getResourceStringArgs(vararg args: Any): String =
-		if (args.isEmpty()) "" else " ${args.joinToString { " " }}"
+		if (args.isEmpty()) "" else " ${args.joinToString(" ")}"
 
 	override fun getStringSet(resID: Int): Set<String> = setOf("$resID")
 	override val assetManager: AssetManager

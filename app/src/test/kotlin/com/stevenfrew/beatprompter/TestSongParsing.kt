@@ -49,8 +49,9 @@ class TestSongParsing {
 	}
 
 	@Test
-	fun testNoTitle() =
-		with("009-NoTitle.txt") {
-			assertEquals(this, TestUtils.testSongFileEvents(this).songFile.title)
-		}
+	fun testNoTitle() {
+		val songFile = TestUtils.getTestFile("songs", "009-NoTitle.txt")
+		var exception = assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
+		assertEquals("2131886484 009-NoTitle.txt", exception.message)
+	}
 }
