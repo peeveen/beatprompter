@@ -1,11 +1,11 @@
 package com.stevenfrew.beatprompter.song.chord
 
 interface IChord {
-	fun getChordDisplayString(
-		alwaysUseSharps: Boolean,
-		useUnicodeAccidentals: Boolean,
+	fun toDisplayString(
+		alwaysUseSharps: Boolean = false,
+		useUnicodeAccidentals: Boolean = false,
 		majorOrMinorRootOnly: Boolean = false
 	): String
 
-	fun transpose(transpositionMap: Map<String, String>): IChord
+	fun transpose(transpositionMap: Map<Note, Note>): IChord
 }

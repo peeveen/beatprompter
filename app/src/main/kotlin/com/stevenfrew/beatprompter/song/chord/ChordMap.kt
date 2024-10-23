@@ -71,7 +71,7 @@ class ChordMap private constructor(
 	}
 
 	fun getChordDisplayString(chord: String): String? =
-		get(chord)?.getChordDisplayString(alwaysUseSharps, useUnicodeAccidentals)
+		get(chord)?.toDisplayString(alwaysUseSharps, useUnicodeAccidentals)
 
 	fun addChordMapping(fromChord: String, toChord: IChord): ChordMap {
 		val mutableMap = toMutableMap()
