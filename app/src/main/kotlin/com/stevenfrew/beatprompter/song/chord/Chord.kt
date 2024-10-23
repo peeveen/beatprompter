@@ -106,7 +106,8 @@ class Chord(
 		majorOrMinorRootOnly: Boolean
 	): String {
 		val replacedSuffix =
-			if (useUnicodeAccidentals && suffix != null) ChordUtils.useUnicodeAccidentals(suffix) else suffix
+			(if (useUnicodeAccidentals && suffix != null) ChordUtils.useUnicodeAccidentals(suffix) else suffix)
+				?: ""
 		val secondPart =
 			if (majorOrMinorRootOnly)
 				""
