@@ -109,7 +109,7 @@ enum class Note {
 				"G" -> G
 				"Gb" -> GFlat
 				"G#" -> GSharp
-				else -> throw IllegalStateException("Unknown note: $note")
+				else -> throw InvalidChordException("Unknown note: $note")
 			}
 	}
 }
