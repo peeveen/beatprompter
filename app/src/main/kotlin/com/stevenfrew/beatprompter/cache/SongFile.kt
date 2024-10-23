@@ -187,7 +187,7 @@ class SongFile(
 						firstChord,
 						listOf()
 					)
-				} catch (numberFormatException: NumberFormatException) {
+				} catch (_: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
 					null
 				}

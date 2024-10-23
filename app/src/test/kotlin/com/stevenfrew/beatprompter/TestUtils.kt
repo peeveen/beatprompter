@@ -54,7 +54,7 @@ object TestUtils {
 		BeatPrompter.fontManager = MockFontManager()
 		BeatPrompter.bitmapFactory = MockBitmapFactory()
 	}
-	
+
 	internal fun getTestFile(subfolder: String, filename: String): File {
 		var testFilePath = Paths.get(TEST_DATA_FOLDER_PATH.pathString, subfolder, filename)
 		var testFile = File(testFilePath.pathString)
@@ -84,10 +84,11 @@ object TestUtils {
 		return song to songParser.errors
 	}
 
-	internal fun testSongFileEvents(filename: String) {
+	internal fun testSongFileEvents(filename: String): Song {
 		val songFile = getTestFile("songs", filename)
 		val (song, errors) = parseSong(songFile)
 		checkExpectedSongEvents(songFile, song, errors)
+		return song
 	}
 
 	private fun checkExpectedSongEvents(songFile: File, song: Song, errors: List<FileParseError>) {

@@ -3,33 +3,54 @@ package com.stevenfrew.beatprompter
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TestSongParsing {
 	@Test
-	fun testOnlyATitle() {
-		val songFile = TestUtils.getTestFile("songs", "001-OnlyATitle.txt")
-		assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
+	fun testNoLines() {
+		val songFile = TestUtils.getTestFile("songs", "001-NoLines.txt")
+		var exception = assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
+		assertEquals("2131886488", exception.message)
 	}
 
 	@Test
-	fun testBarsAndCommasOnSameLine() = TestUtils.testSongFileEvents("002-BarsAndCommasSameLine.txt")
+	fun testBarsAndCommasOnSameLine() {
+		TestUtils.testSongFileEvents("002-BarsAndCommasSameLine.txt")
+	}
 
 	@Test
-	fun testTimingTrickery() = TestUtils.testSongFileEvents("003-TimingTrickery.txt")
+	fun testTimingTrickery() {
+		TestUtils.testSongFileEvents("003-TimingTrickery.txt")
+	}
 
 	@Test
-	fun testScrollbeatWithBPBChange() = TestUtils.testSongFileEvents("004-Scrollbeat&BPBChange.txt")
+	fun testScrollbeatWithBPBChange() {
+		TestUtils.testSongFileEvents("004-Scrollbeat&BPBChange.txt")
+	}
 
 	@Test
-	fun testBPBChange1() = TestUtils.testSongFileEvents("005-BPBChange1.txt")
+	fun testBPBChange1() {
+		TestUtils.testSongFileEvents("005-BPBChange1.txt")
+	}
 
 	@Test
-	fun testBPBChange2() = TestUtils.testSongFileEvents("006-BPBChange2.txt")
+	fun testBPBChange2() {
+		TestUtils.testSongFileEvents("006-BPBChange2.txt")
+	}
 
 	@Test
-	fun testScrollbeat() = TestUtils.testSongFileEvents("007-Scrollbeat.txt")
+	fun testScrollbeat() {
+		TestUtils.testSongFileEvents("007-Scrollbeat.txt")
+	}
 
 	@Test
-	fun testBPBReductionWithScrollbeatAdjustments() =
+	fun testBPBReductionWithScrollbeatAdjustments() {
 		TestUtils.testSongFileEvents("008-BPBReductionWithScrollbeatAdjustments.txt")
+	}
+
+	@Test
+	fun testNoTitle() =
+		with("009-NoTitle.txt") {
+			assertEquals(this, TestUtils.testSongFileEvents(this).songFile.title)
+		}
 }

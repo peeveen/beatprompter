@@ -181,14 +181,15 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		get() = chords.firstOrNull { Chord.isChord(it) }
 
 	override fun getResult(): SongFile {
-		if (title.isNullOrBlank())
+		val titleOrFilename = title ?: cachedCloudFile.name
+		if (titleOrFilename.isBlank())
 			throw InvalidBeatPrompterFileException(R.string.noTitleFound, cachedCloudFile.name)
 
 		return SongFile(
 			cachedCloudFile,
 			lines,
 			bars,
-			title!!,
+			titleOrFilename,
 			artist ?: "",
 			key ?: firstChord,
 			bpm,
