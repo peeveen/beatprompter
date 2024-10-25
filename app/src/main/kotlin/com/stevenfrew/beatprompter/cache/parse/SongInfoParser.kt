@@ -36,9 +36,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
+import com.stevenfrew.beatprompter.chord.Chord
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.song.chord.Chord
 import org.w3c.dom.Element
 
 @ParseTags(

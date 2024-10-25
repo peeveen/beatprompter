@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @EndedBy(EndOfHighlightTag::class)
-@TagName("soh")
+@TagName("soh", "start_of_highlight", "startofhighlight")
 @TagType(Type.Directive)
 /**
  * Tag that defines the start of a block of highlighted text.

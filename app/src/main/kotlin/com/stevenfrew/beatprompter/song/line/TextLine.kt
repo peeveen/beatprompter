@@ -6,10 +6,10 @@ import android.graphics.Rect
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
+import com.stevenfrew.beatprompter.chord.Chord
+import com.stevenfrew.beatprompter.chord.ChordMap
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.song.chord.Chord
-import com.stevenfrew.beatprompter.song.chord.ChordMap
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.util.Utils

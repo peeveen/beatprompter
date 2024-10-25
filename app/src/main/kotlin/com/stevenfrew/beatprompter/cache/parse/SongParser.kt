@@ -46,6 +46,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
+import com.stevenfrew.beatprompter.chord.ChordMap
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -57,7 +58,6 @@ import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
-import com.stevenfrew.beatprompter.song.chord.ChordMap
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.BaseEvent
 import com.stevenfrew.beatprompter.song.event.BeatEvent
@@ -430,11 +430,11 @@ class SongParser(
 			if (isLineContent) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (lines.isEmpty) 0L else songTime
+				val lineStartTime = if (lines.isEmpty()) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (lines.isEmpty) songTime else 0L
+				val addToPause = if (lines.isEmpty()) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.eventTime }
@@ -560,7 +560,7 @@ class SongParser(
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (lines.isEmpty)
+		if (lines.isEmpty())
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
 		val lineSequence = lines.asSequence()

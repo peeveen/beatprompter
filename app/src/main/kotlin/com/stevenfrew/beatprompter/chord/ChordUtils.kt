@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
 object ChordUtils {
 	fun replaceAccidentals(str: String, unicode: Boolean): String =

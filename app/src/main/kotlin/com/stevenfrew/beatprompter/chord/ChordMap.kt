@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R

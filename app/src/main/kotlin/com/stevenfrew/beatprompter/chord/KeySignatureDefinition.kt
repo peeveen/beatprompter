@@ -1,7 +1,7 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
-import com.stevenfrew.beatprompter.song.chord.Chord.Companion.CHORD_RANKS
-import com.stevenfrew.beatprompter.song.chord.ChordMap.Companion.NUMBER_OF_KEYS
+import com.stevenfrew.beatprompter.chord.Chord.Companion.CHORD_RANKS
+import com.stevenfrew.beatprompter.chord.ChordMap.Companion.NUMBER_OF_KEYS
 
 open class KeySignatureDefinition(
 	val majorKey: Note,

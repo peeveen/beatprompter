@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
 import java.util.regex.Pattern
 
@@ -59,13 +59,13 @@ class Chord(
 		private val ADDED_TONE_PATTERN =
 			"(\\(?([\\/\\.\\+]|add)?[${ACCIDENTALS.joinToString()}]?\\d+[\\+-]?\\)?)"
 		private val SUFFIX_PATTERN =
-			"(?<$REGEX_SUFFIX_GROUP_NAME>${TRIAD_PATTERN}?\\d*\\(?${TRIAD_PATTERN}?${ADDED_TONE_PATTERN}*\\)?)"
+			"(?<$REGEX_SUFFIX_GROUP_NAME>$TRIAD_PATTERN?\\d*\\(?$TRIAD_PATTERN?$ADDED_TONE_PATTERN*\\)?)"
 		private val BASS_PATTERN =
 			"(\\/(?<$REGEX_BASS_GROUP_NAME>[A-G](${ACCIDENTALS.joinToString("|")})?))?"
 
 		private val ROOT_PATTERN = "(?<$REGEX_ROOT_GROUP_NAME>[A-G](${ACCIDENTALS.joinToString("|")})?)"
 
-		private val CHORD_REGEX = "^${ROOT_PATTERN}${SUFFIX_PATTERN}${BASS_PATTERN}$"
+		private val CHORD_REGEX = "^$ROOT_PATTERN$SUFFIX_PATTERN$BASS_PATTERN$"
 
 		private val CHORD_REGEX_PATTERN = Pattern.compile(CHORD_REGEX)
 

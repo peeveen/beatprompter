@@ -43,10 +43,4 @@ open class MidiMessage(bytes: ByteArray) : Message(MessageType.Midi, bytes) {
 			return 0
 		}
 	}
-
-	private fun isSystemCommonMessage(message: Byte): Boolean =
-		bytes.isNotEmpty() && bytes[0] == message
-
-	private fun isChannelVoiceMessage(message: Byte): Boolean =
-		bytes.isNotEmpty() && (bytes[0] and 0xF0.toByte() == message)
 }

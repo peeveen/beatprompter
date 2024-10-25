@@ -10,7 +10,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 @TagName("set")
 @TagType(Type.Directive)
 /**
- * Tag that defines the name of a setlist.
+ * Tag that defines the name of a set list.
  */
 class SetNameTag internal constructor(
 	name: String,

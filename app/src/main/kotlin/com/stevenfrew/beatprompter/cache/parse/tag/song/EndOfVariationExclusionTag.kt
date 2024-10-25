@@ -8,7 +8,14 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @StartedBy(StartOfVariationExclusionTag::class)
-@TagName("varxend", "varexend", "varxstop", "varexstop", "end_of_variation_exclusion")
+@TagName(
+	"varxend",
+	"varexend",
+	"varxstop",
+	"varexstop",
+	"end_of_variation_exclusion",
+	"endofvariationexclusion"
+)
 @TagType(Type.Directive)
 @OncePerLine
 /**

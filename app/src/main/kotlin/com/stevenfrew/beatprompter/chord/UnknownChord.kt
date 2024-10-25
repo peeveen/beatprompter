@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
 class UnknownChord(private val chord: String) : IChord {
 	override fun toDisplayString(

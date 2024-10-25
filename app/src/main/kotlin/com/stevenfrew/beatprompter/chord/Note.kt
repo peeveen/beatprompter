@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
 enum class Note {
 	A,
@@ -23,7 +23,7 @@ enum class Note {
 	GFlat,
 	GSharp;
 
-	fun makeSharp(): Note =
+	private fun makeSharp(): Note =
 		when (this) {
 			A -> A
 			AFlat -> GSharp

@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @OncePerFile
-@TagName("no_chords")
+@TagName("no_chords", "nochords")
 @TagType(Type.Directive)
 /**
  * Tag that instructs the app to ignore chords from here onwards.

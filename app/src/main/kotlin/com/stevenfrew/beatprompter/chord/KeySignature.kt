@@ -1,6 +1,6 @@
-package com.stevenfrew.beatprompter.song.chord
+package com.stevenfrew.beatprompter.chord
 
-import com.stevenfrew.beatprompter.song.chord.ChordMap.Companion.NUMBER_OF_KEYS
+import com.stevenfrew.beatprompter.chord.ChordMap.Companion.NUMBER_OF_KEYS
 
 class KeySignature(
 	val chord: IChord,

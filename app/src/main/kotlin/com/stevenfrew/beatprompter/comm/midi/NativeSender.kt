@@ -3,11 +3,11 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.media.midi.MidiDevice
 import android.media.midi.MidiInputPort
 import com.stevenfrew.beatprompter.comm.CommunicationType
-import com.stevenfrew.beatprompter.comm.SenderBase
 
 class NativeSender(
 	// Annoyingly, if we don't keep a hold of the MIDI device reference for Bluetooth MIDI, then
 	// it automatically closes. So I'm storing it here.
+	// ⚠️⚠️⚠️⚠️ SO WHATEVER YOU DO, DO NOT REMOVE THIS SO-CALLED "UNUSED" PARAMETER!!! ⚠️⚠️⚠️⚠️
 	private val device: MidiDevice,
 	private val port: MidiInputPort,
 	name: String,
