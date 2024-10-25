@@ -42,12 +42,6 @@ object Logger {
 	fun logLoader(message: String, warn: Boolean = false, t: Throwable? = null) =
 		log(TAG_LOAD, message, warn, t)
 
-	fun logLoader(message: String, t: Throwable) =
-		log(TAG_LOAD, message, false, t)
-
-	fun logLoader(message: () -> String, t: Throwable) =
-		log(TAG_LOAD, message, false, t)
-
 	fun logComms(message: () -> String, warn: Boolean = false, t: Throwable? = null) =
 		log(TAG_COMMS, message, warn, t)
 

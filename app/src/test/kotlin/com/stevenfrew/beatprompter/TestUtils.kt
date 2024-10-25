@@ -44,7 +44,6 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import kotlin.collections.forEach
 import kotlin.io.path.pathString
 
 object TestUtils {
@@ -56,8 +55,8 @@ object TestUtils {
 	}
 
 	internal fun getTestFile(subfolder: String, filename: String): File {
-		var testFilePath = Paths.get(TEST_DATA_FOLDER_PATH.pathString, subfolder, filename)
-		var testFile = File(testFilePath.pathString)
+		val testFilePath = Paths.get(TEST_DATA_FOLDER_PATH.pathString, subfolder, filename)
+		val testFile = File(testFilePath.pathString)
 		if (testFile.exists() && testFile.isFile)
 			return testFile
 		throw UnsupportedOperationException("Requested test file ${testFilePath.pathString} could not found.")
@@ -73,9 +72,9 @@ object TestUtils {
 				listOf(songFile.parent ?: "")
 			)
 		val songFileInfoParser = SongInfoParser(cachedFile)
-		val songFile = songFileInfoParser.parse()
+		val parsedSongFile = songFileInfoParser.parse()
 		val songLoadInfo = SongLoadInfo(
-			songFile, songFile.variations.first(), ScrollingMode.Beat, TestDisplaySettings,
+			parsedSongFile, parsedSongFile.variations.first(), ScrollingMode.Beat, TestDisplaySettings,
 			TestDisplaySettings
 		)
 		val songParser =
@@ -116,7 +115,8 @@ object TestUtils {
 	}
 
 	private val TestScreenSize = Rect(0, 0, 2000, 1000)
-	val TestDisplaySettings = DisplaySettings(ORIENTATION_LANDSCAPE, 8.0f, 80.0f, TestScreenSize)
+	private val TestDisplaySettings =
+		DisplaySettings(ORIENTATION_LANDSCAPE, 8.0f, 80.0f, TestScreenSize)
 
 	private val PROJECT_DIR_ABSOLUTE_PATH = Paths.get("").toAbsolutePath().toString()
 	private val TEST_DATA_FOLDER_PATH = Paths.get(PROJECT_DIR_ABSOLUTE_PATH, "src/test/data")
@@ -398,11 +398,11 @@ object TestUtils {
 		element.setAttribute(OFFSET_AMOUNT_ATTRIBUTE, event.offset.amount.toString())
 		element.setAttribute(OFFSET_TYPE_ATTRIBUTE, event.offset.offsetType.toString())
 		element.setAttribute(LINE_NUMBER_ATTRIBUTE, event.offset.sourceFileLineNumber.toString())
-		val messagesString = event.messages.map { message ->
-			message.bytes.map {
+		val messagesString = event.messages.joinToString(",") { message ->
+			message.bytes.joinToString(" ") {
 				it.toString(16)
-			}.joinToString(" ")
-		}.joinToString(",")
+			}
+		}
 		element.setAttribute(MESSAGES_ATTRIBUTE, messagesString)
 		return element
 	}

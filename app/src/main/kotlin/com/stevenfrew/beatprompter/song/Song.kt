@@ -60,9 +60,10 @@ class Song(
 		// Look at events where the time is the SAME as the progress event, or
 		// the same with audio latency compensation.
 		while (nextEvent != null) {
-			if (nextEvent.event is LineEvent)
+			val nextEventEvent = nextEvent.event
+			if (nextEventEvent is LineEvent)
 				if (nextEvent.time == latencyCompensatedEventTime) // This is the line
-					return nextEvent.event
+					return nextEventEvent
 				else // Found a line event with a daft time
 					break
 			nextEvent = nextEvent.nextEvent
