@@ -427,6 +427,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="failedToParseKey">\'%1$s\' no se pudo analizar como una clave válida</string>
 	<string name="couldNotShiftKey">Impossibile calcolare la nuova tonalità (spostamento di %1$s di %2$d semitoni)</string>
 	<string name="failedToParseChord">No se pudo analizar el acorde \'%1$s\'</string>
+	<string name="failedToParseNote">No se pudo analizar la nota \'%1$s\'</string>
 	<string name="excessiveTransposeMagnitude">La etiqueta {transpose} no debe contener un valor numérico mayor que 11 ni menor que -11</string>
 	<string name="chordMapTagMustContainTwoValues">La etiqueta {chord_map} debe contener dos valores separados por =</string>
 	<string name="transpose">Transponer</string>

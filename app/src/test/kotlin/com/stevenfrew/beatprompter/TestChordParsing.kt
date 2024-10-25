@@ -158,6 +158,11 @@ class TestChordParsing {
 			assertEquals("m(M7)", suffix)
 			assertEquals(null, bass)
 		}
+		with(parseChord("Dbmaj7sus2/F#")) {
+			assertEquals(Note.DFlat, root)
+			assertEquals("maj7sus2", suffix)
+			assertEquals(Note.FSharp, bass)
+		}
 	}
 
 	@Test
@@ -171,7 +176,7 @@ class TestChordParsing {
 	}
 
 	private fun parseChord(chord: String): Chord {
-		var parsedChord = Chord.parse(chord)
+		val parsedChord = Chord.parse(chord)
 		assertNotNull(parsedChord)
 		return parsedChord
 	}

@@ -427,6 +427,7 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="failedToParseKey">\'%1$s\' não pôde ser analisado como uma chave válida</string>
 	<string name="couldNotShiftKey">Falha no cálculo da nova tonalidade (deslocamento de %1$s em %2$d semitons)</string>
 	<string name="failedToParseChord">Falha ao analisar o acorde \'%1$s\'</string>
+	<string name="failedToParseNote">Falha ao analisar a nota \'%1$s\'</string>
 	<string name="excessiveTransposeMagnitude">A etiqueta {transpose} não deve conter um valor numérico superior a 11 ou inferior a -11</string>
 	<string name="chordMapTagMustContainTwoValues">A tag {chord_map} deve conter dois valores separados por =</string>
 	<string name="transpose">Transpor</string>

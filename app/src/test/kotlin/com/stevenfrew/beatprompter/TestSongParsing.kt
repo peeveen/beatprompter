@@ -14,7 +14,7 @@ class TestSongParsing {
 	fun testNoLines() {
 		val songFile = TestUtils.getTestFile("songs", "001-NoLines.txt")
 		var exception = assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
-		assertEquals("2131886488", exception.message)
+		assertEquals("2131886489", exception.message)
 	}
 
 	@Test
@@ -56,6 +56,6 @@ class TestSongParsing {
 	fun testNoTitle() {
 		val songFile = TestUtils.getTestFile("songs", "009-NoTitle.txt")
 		var exception = assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
-		assertEquals("2131886484 009-NoTitle.txt", exception.message)
+		assertEquals("2131886485 009-NoTitle.txt", exception.message)
 	}
 }

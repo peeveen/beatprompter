@@ -427,6 +427,7 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="failedToParseKey">\'%1$s\' n\'a pas pu être analysé comme une clé valide</string>
 	<string name="couldNotShiftKey">Échec du calcul de la nouvelle tonalité (décalage de %1$s de %2$d demi-tons)</string>
 	<string name="failedToParseChord">Échec de l\'analyse de l\'accord \'%1$s\'</string>
+	<string name="failedToParseNote">Échec de l\'analyse de la note \'%1$s\'</string>
 	<string name="excessiveTransposeMagnitude">La balise {transpose} ne doit pas contenir une valeur numérique supérieure à 11 ou inférieure à -11</string>
 	<string name="chordMapTagMustContainTwoValues">La balise {chord_map} doit contenir deux valeurs séparées par =</string>
 	<string name="transpose">Transposer</string>

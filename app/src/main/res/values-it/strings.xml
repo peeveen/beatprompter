@@ -427,6 +427,7 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="failedToParseKey">\'%1$s\' non può essere analizzato come chiave valida</string>
 	<string name="couldNotShiftKey">Impossibile calcolare la nuova tonalità (spostamento di %1$s di %2$d semitoni)</string>
 	<string name="failedToParseChord">Impossibile analizzare l\'accordo \'%1$s\'</string>
+	<string name="failedToParseNote">Impossibile analizzare la nota \'%1$s\'</string>
 	<string name="excessiveTransposeMagnitude">Il tag {transpose} non deve contenere un valore numerico maggiore di 11 o minore di -11</string>
 	<string name="chordMapTagMustContainTwoValues">Il tag {chord_map} deve contenere due valori separati da =</string>
 	<string name="transpose">Trasporre</string>

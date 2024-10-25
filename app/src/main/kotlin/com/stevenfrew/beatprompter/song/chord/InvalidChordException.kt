@@ -2,15 +2,21 @@ package com.stevenfrew.beatprompter.song.chord
 
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import kotlin.Exception
 
 /**
- * Special exception for song parsing errors.
+ * Chord parsing exception.
  */
-internal class InvalidChordException(val chord: String) :
-	Exception(
-		BeatPrompter.appResources.getString(
-			R.string.failedToParseChord,
-			chord
-		)
+internal class InvalidChordException : Exception {
+	constructor(chord: String) : super(getMessage(chord))
+	constructor(chord: String, invalidNoteException: InvalidNoteException) : super(
+		getMessage(chord), invalidNoteException
 	)
+
+	companion object {
+		fun getMessage(chord: String): String =
+			BeatPrompter.appResources.getString(
+				R.string.failedToParseChord,
+				chord
+			)
+	}
+}

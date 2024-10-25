@@ -50,7 +50,7 @@ class Chord(
 		private val ACCIDENTALS = listOf('b', '♭', '#', '♯', '♮')
 
 		// Regex for recognizing chords
-		val MINOR_SUFFIXES = listOf("m", "mmaj", "mM", "min", "minor")
+		private val MINOR_SUFFIXES = listOf("m", "mmaj", "mM", "min", "minor")
 		private val NOT_MINOR_SUFFIXES =
 			listOf("M", "maj", "major", "dim", "sus", "dom", "aug", "Ø", "ø", "°", "Δ", "∆", "\\+", "-")
 
@@ -80,11 +80,15 @@ class Chord(
 				val suffix = result.group(3)
 				val bass = result.group(9)
 				if (!root.isNullOrBlank())
-					return Chord(
-						Note.parse(root),
-						if (suffix.isNullOrBlank()) null else suffix,
-						if (bass.isNullOrBlank()) null else Note.parse(bass)
-					)
+					try {
+						return Chord(
+							Note.parse(root),
+							if (suffix.isNullOrBlank()) null else suffix,
+							if (bass.isNullOrBlank()) null else Note.parse(bass)
+						)
+					} catch (ine: InvalidNoteException) {
+						throw InvalidChordException(chord, ine)
+					}
 			}
 			throw InvalidChordException(chord)
 		}
@@ -92,7 +96,7 @@ class Chord(
 		fun isChord(token: String): Boolean = CHORD_REGEX_PATTERN.matcher(token).matches()
 
 		internal fun isMinorSuffix(suffix: String?) =
-			(suffix?.startsWith("m") == true || suffix?.startsWith("min") == true) && suffix.startsWith("maj") != true
+			(suffix?.startsWith("m") == true || suffix?.startsWith("min") == true) && !suffix.startsWith("maj")
 	}
 
 	override fun toDisplayString(
