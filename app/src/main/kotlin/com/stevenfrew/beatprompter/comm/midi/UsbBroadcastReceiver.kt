@@ -60,7 +60,7 @@ internal class UsbBroadcastReceiver(
 												)
 											ConnectionNotificationTask.addConnection(
 												ConnectionDescriptor(
-													deviceName,
+													if (productName.isNullOrBlank()) deviceName else productName!!,
 													CommunicationType.UsbMidi
 												)
 											)
