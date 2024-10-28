@@ -13,12 +13,14 @@ class SongListActivity : AppCompatActivity() {
 		if (savedInstanceState == null) {
 			val fragmentManager: FragmentManager = supportFragmentManager
 			val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+			val songListFragment = SongListFragment()
 			fragmentTransaction.replace(
 				android.R.id.content,
-				SongListFragment(),
+				songListFragment,
 				"SongListFragment" + (++mSongListFragmentCounter)
 			)
 			fragmentTransaction.commit()
+			addMenuProvider(songListFragment.MenuProvider())
 		}
 
 		supportActionBar?.apply {

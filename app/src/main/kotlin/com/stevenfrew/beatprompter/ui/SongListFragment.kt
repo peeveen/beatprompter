@@ -253,25 +253,6 @@ class SongListFragment
 		}
 	}
 
-	@Deprecated("Deprecated in Java")
-	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		this.menu = menu
-		inflater.inflate(R.menu.songlistmenu, menu)
-		setFilters()
-		(menu.findItem(R.id.search).actionView as SearchView).apply {
-			setOnQueryTextListener(this@SongListFragment)
-			isSubmitButtonEnabled = false
-		}
-		if (!BuildConfig.DEBUG) {
-			menu.findItem(R.id.debug_log).apply {
-				isVisible = false
-			}
-		}
-		updateBluetoothIcon()
-		super.onCreateOptionsMenu(menu, inflater)
-	}
-
 	private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
 		for (node in playlist.nodes)
 			if (node.songFile.matchesTrigger(mst)) {
@@ -684,8 +665,6 @@ class SongListFragment
 
 		BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(this)
 
-		setHasOptionsMenu(true)
-
 		Cache.initialiseLocalStorage(requireContext())
 
 		val firstRun = BeatPrompter.preferences.firstRun
@@ -875,13 +854,6 @@ class SongListFragment
 			cache
 		)
 
-	@Deprecated("Deprecated in Java")
-	override fun onPrepareOptionsMenu(menu: Menu) =
-		menu.run {
-			findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
-			findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
-		}
-
 	private fun showSortDialog() {
 		if (selectedFilter.canSort) {
 			AlertDialog.Builder(context).apply {
@@ -932,23 +904,6 @@ class SongListFragment
 			R.string.debugLogDialogCaption,
 			this.requireContext()
 		)
-
-	@Deprecated("Deprecated in Java")
-	override fun onOptionsItemSelected(item: MenuItem): Boolean {
-		when (item.itemId) {
-			R.id.synchronize -> Cache.performFullCloudSync(this)
-			R.id.shuffle -> shuffleSongList()
-			R.id.sort_songs -> showSortDialog()
-			R.id.settings -> startActivity(Intent(context, SettingsActivity::class.java))
-			R.id.manual -> openManualURL()
-			R.id.privacy_policy -> openPrivacyPolicyURL()
-			R.id.buy_me_a_coffee -> openBuyMeACoffeeURL()
-			R.id.debug_log -> showDebugLog()
-			R.id.about -> showAboutDialog()
-			else -> return super.onOptionsItemSelected(item)
-		}
-		return true
-	}
 
 	private fun showSetListMissingSongs() {
 		if (selectedFilter is SetListFileFilter) {
@@ -1118,6 +1073,46 @@ class SongListFragment
 		var mSongEndedNaturally = false
 
 		lateinit var mSongListInstance: SongListFragment
+	}
+
+	inner class MenuProvider :
+		androidx.core.view.MenuProvider {
+		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+			// Inflate the menu; this adds items to the action bar if it is present.
+			menuInflater.inflate(R.menu.songlistmenu, menu)
+			if (!BuildConfig.DEBUG) {
+				menu.findItem(R.id.debug_log).apply {
+					isVisible = false
+				}
+			}
+			(menu.findItem(R.id.search).actionView as SearchView).apply {
+				setOnQueryTextListener(this@SongListFragment)
+				isSubmitButtonEnabled = false
+			}
+			this@SongListFragment.menu = menu
+			setFilters()
+			updateBluetoothIcon()
+		}
+
+		override fun onPrepareMenu(menu: Menu) {
+			menu.findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
+			menu.findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
+		}
+
+		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+			when (menuItem.itemId) {
+				R.id.synchronize -> Cache.performFullCloudSync(this@SongListFragment)
+				R.id.shuffle -> shuffleSongList()
+				R.id.sort_songs -> showSortDialog()
+				R.id.settings -> startActivity(Intent(context, SettingsActivity::class.java))
+				R.id.manual -> openManualURL()
+				R.id.privacy_policy -> openPrivacyPolicyURL()
+				R.id.buy_me_a_coffee -> openBuyMeACoffeeURL()
+				R.id.debug_log -> showDebugLog()
+				R.id.about -> showAboutDialog()
+			}
+			return true
+		}
 	}
 
 	class TransposeOption(val offset: Int, val key: KeySignature?) {
