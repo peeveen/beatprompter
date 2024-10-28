@@ -15,7 +15,6 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.view.GestureDetectorCompat
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -109,7 +108,7 @@ class SongView
 	private var songTitleContrastBackground: Int = 0
 	private var songTitleContrastBeatCounter: Int = 0
 	private val scrollIndicatorRect = Rect()
-	private var gestureDetector: GestureDetectorCompat? = null
+	private var gestureDetector: GestureDetector? = null
 	private var screenAction = ScreenAction.Scroll
 	private val scrollMarkerColor: Int
 	private var songDisplayActivity: SongDisplayActivity? = null
@@ -129,7 +128,7 @@ class SongView
 
 	constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
 		scroller = OverScroller(context)
-		gestureDetector = GestureDetectorCompat(context, this)
+		gestureDetector = GestureDetector(context, this)
 		songPixelPosition = 0
 
 		audioPlayerFactory = AudioPlayerFactory(BeatPrompter.preferences.audioPlayer, context)
