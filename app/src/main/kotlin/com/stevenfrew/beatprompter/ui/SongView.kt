@@ -209,7 +209,7 @@ class SongView
 			{
 				try {
 					audioPlayerFactory.create(it.audioFile.file, it.volume)
-				} catch (e: Exception) {
+				} catch (_: Exception) {
 					null
 				}
 			}
