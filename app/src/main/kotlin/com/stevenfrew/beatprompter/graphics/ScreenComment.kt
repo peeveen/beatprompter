@@ -26,7 +26,7 @@ class ScreenComment(
 		val rectHeight = (screenString.height * 1.1).toFloat()
 		val heightDiff = ((rectHeight - screenString.height) / 2.0).toFloat()
 		val rectX = ((screenSize.width - rectWidth) / 2.0).toFloat()
-		val rectY = screenSize.height - rectHeight - 10
+		val rectY = screenSize.height - rectHeight - (screenSize.height * 0.05).toInt()
 		val textWidth = screenString.width
 		val textX = ((screenSize.width - textWidth) / 2.0).toFloat()
 		val textY = rectY + rectHeight - (screenString.descenderOffset + heightDiff)

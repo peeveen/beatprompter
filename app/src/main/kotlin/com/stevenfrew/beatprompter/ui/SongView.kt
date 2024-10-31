@@ -550,24 +550,25 @@ class SongView
 		paint.getTextBounds(message, 0, message.length, outRect)
 		val textWidth = paint.measureText(message)
 		val textHeight = outRect.height()
-		val volumeControlWidth = textWidth + popupMargin * 2.0f
-		val volumeControlHeight = textHeight + popupMargin * 2
-		val x = (song!!.displaySettings.screenSize.width - volumeControlWidth) / 2.0f
-		val y = (song!!.displaySettings.screenSize.height - volumeControlHeight) / 2
+		val tempMessageWidth = textWidth + popupMargin * 2.0f
+		val tempMessageHeight = textHeight + popupMargin * 2
+		val x = (song!!.displaySettings.screenSize.width - tempMessageWidth) / 2.0f
+		val y =
+			song!!.displaySettings.screenSize.height - (tempMessageHeight + (song!!.displaySettings.screenSize.height * 0.05))
 		paint.color = Color.BLACK
 		canvas.drawRect(
 			x,
 			y.toFloat(),
-			x + volumeControlWidth,
-			(y + volumeControlHeight).toFloat(),
+			x + tempMessageWidth,
+			(y + tempMessageHeight).toFloat(),
 			paint
 		)
 		paint.color = Color.rgb(255, 255, 200)
 		canvas.drawRect(
 			x + 1,
 			(y + 1).toFloat(),
-			x + (volumeControlWidth - 2),
-			(y + (volumeControlHeight - 2)).toFloat(),
+			x + (tempMessageWidth - 2),
+			(y + (tempMessageHeight - 2)).toFloat(),
 			paint
 		)
 		paint.color = textColor
