@@ -85,7 +85,6 @@ class SongView
 	private var nanosecondsPerBeat = Utils.nanosecondsPerBeat(120.0)
 
 	private val backgroundColorLookup = IntArray(101)
-	private val commentTextColor: Int
 	private val pageDownMarkerColor: Int
 	private val beatCounterColor: Int
 	private val defaultCurrentLineHighlightColor: Int
@@ -144,7 +143,6 @@ class SongView
 		showPageDownMarker = BeatPrompter.preferences.showPageDownMarker
 		highlightBeatSectionStart = BeatPrompter.preferences.highlightBeatSectionStart
 		beatCounterColor = BeatPrompter.preferences.beatCounterColor
-		commentTextColor = BeatPrompter.preferences.commentColor
 		pageDownMarkerColor = BeatPrompter.preferences.pageDownMarkerColor
 		scrollMarkerColor = BeatPrompter.preferences.scrollIndicatorColor
 		val mHighlightBeatSectionStartColor = BeatPrompter.preferences.beatSectionStartHighlightColor
@@ -639,7 +637,7 @@ class SongView
 
 	private fun showComment(canvas: Canvas) {
 		if (lastCommentEvent != null)
-			lastCommentEvent!!.comment.draw(canvas, paint, commentTextColor)
+			lastCommentEvent!!.comment.draw(canvas, paint)
 	}
 
 	private fun startToggle(playState: PlayState) {

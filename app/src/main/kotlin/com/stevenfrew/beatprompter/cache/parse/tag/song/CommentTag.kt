@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag.song
 
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
+import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.ValueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
@@ -21,12 +22,18 @@ class CommentTag internal constructor(
 ) : ValueTag(name, lineNumber, position, value) {
 	val audience: List<String>
 	val comment: String
+	val color: Int?
 
 	init {
-		val bits = value.splitAndTrim(AUDIENCE_END_MARKER)
-		if (bits.size > 1) {
-			audience = bits[0].splitAndTrim(AUDIENCE_SEPARATOR)
-			comment = bits[1]
+		val colorBits = value.splitAndTrim(COLOR_SEPARATOR)
+		color = if (colorBits.size > 1)
+			TagParsingUtility.parseColourValue(colorBits[1])
+		else
+			null
+		val audienceBits = colorBits[0].splitAndTrim(AUDIENCE_END_MARKER)
+		if (audienceBits.size > 1) {
+			audience = audienceBits[0].splitAndTrim(AUDIENCE_SEPARATOR)
+			comment = audienceBits[1]
 		} else {
 			audience = listOf()
 			comment = value
@@ -36,6 +43,7 @@ class CommentTag internal constructor(
 	companion object {
 		const val AUDIENCE_END_MARKER = "|||||"
 		const val AUDIENCE_SEPARATOR = "@"
+		const val COLOR_SEPARATOR = "###"
 	}
 }
 

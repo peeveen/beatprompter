@@ -226,6 +226,7 @@ object TestUtils {
 	private const val WILL_SCROLL_ON_BEAT_ATTRIBUTE = "willScrollOnBeat"
 	private const val TEXT_ATTRIBUTE = "text"
 	private const val AUDIENCE_ATTRIBUTE = "audience"
+	private const val COLOR_ATTRIBUTE = "color"
 	private const val MESSAGES_ATTRIBUTE = "messages"
 	private const val OFFSET_AMOUNT_ATTRIBUTE = "offsetAmount"
 	private const val OFFSET_TYPE_ATTRIBUTE = "offsetType"
@@ -304,7 +305,11 @@ object TestUtils {
 		val time = element.getAttribute(TIME_ATTRIBUTE).toLong()
 		val text = element.getAttribute(TEXT_ATTRIBUTE)
 		val audience = element.getAttribute(AUDIENCE_ATTRIBUTE)
-		return CommentEvent(time, Song.Comment(text, audience.split("***"), TestScreenSize, Paint()))
+		val color = element.getAttribute(COLOR_ATTRIBUTE)
+		return CommentEvent(
+			time,
+			Song.Comment(text, audience.split("***"), color.toInt(), TestScreenSize, Paint())
+		)
 	}
 
 	private fun writeCommentEventToXml(event: CommentEvent, document: Document): Element {

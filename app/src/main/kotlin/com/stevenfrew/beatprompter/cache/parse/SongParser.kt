@@ -295,6 +295,8 @@ class SongParser(
 				Song.Comment(
 					it.comment,
 					it.audience,
+					it.color
+						?: if (stopAddingStartupItems) BeatPrompter.preferences.commentColor else DEFAULT_START_SCREEN_COMMENT_COLOR,
 					Rect(nativeDeviceSettings.screenSize),
 					paint
 				)
@@ -1018,7 +1020,7 @@ class SongParser(
 				paint,
 				nativeDeviceSettings.screenSize.width,
 				twentyPercent,
-				Color.YELLOW,
+				DEFAULT_START_SCREEN_TITLE_COLOR,
 				true
 			)
 		)
@@ -1029,17 +1031,11 @@ class SongParser(
 					paint,
 					nativeDeviceSettings.screenSize.width,
 					tenPercent,
-					Color.YELLOW,
+					DEFAULT_START_SCREEN_ARTIST_COLOR,
 					true
 				)
 			)
-		val commentLines = mutableListOf<String>()
-		for (c in startScreenComments)
-			commentLines.add(c.text)
-		val nonBlankCommentLines = mutableListOf<String>()
-		for (commentLine in commentLines)
-			if (commentLine.trim().isNotEmpty())
-				nonBlankCommentLines.add(commentLine.trim())
+		val nonBlankCommentLines = startScreenComments.filter { it.text.trim().isNotEmpty() }
 		val uniqueErrors = errors.asSequence().distinct().sortedBy { it.lineNumber }.toList()
 		var errorCount = uniqueErrors.size
 		var messages = min(errorCount, 6) + nonBlankCommentLines.size
@@ -1060,7 +1056,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						Color.RED,
+						DEFAULT_START_SCREEN_ERROR_COLOR,
 						false
 					)
 				)
@@ -1076,7 +1072,7 @@ class SongParser(
 							paint,
 							nativeDeviceSettings.screenSize.width,
 							spacePerMessageLine,
-							Color.RED,
+							DEFAULT_START_SCREEN_ERROR_COLOR,
 							false
 						)
 					)
@@ -1086,11 +1082,11 @@ class SongParser(
 			for (nonBlankComment in nonBlankCommentLines)
 				startScreenStrings.add(
 					ScreenString.create(
-						nonBlankComment,
+						nonBlankComment.text.trim(),
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						Color.WHITE,
+						nonBlankComment.textColor,
 						false
 					)
 				)
@@ -1103,7 +1099,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						Color.CYAN,
+						DEFAULT_START_SCREEN_KEY_COLOR,
 						false
 					)
 				)
@@ -1123,7 +1119,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						Color.CYAN,
+						DEFAULT_START_SCREEN_BPM_COLOR,
 						false
 					)
 				)
@@ -1136,7 +1132,7 @@ class SongParser(
 					paint,
 					nativeDeviceSettings.screenSize.width,
 					tenPercent,
-					Color.GREEN,
+					DEFAULT_START_SCREEN_TAP_TO_START_COLOR,
 					true
 				)
 			)
@@ -1344,6 +1340,14 @@ class SongParser(
 			midiEvent
 
 	companion object {
+		private const val DEFAULT_START_SCREEN_COMMENT_COLOR = Color.WHITE
+		private const val DEFAULT_START_SCREEN_ERROR_COLOR = Color.RED
+		private const val DEFAULT_START_SCREEN_TITLE_COLOR = Color.YELLOW
+		private const val DEFAULT_START_SCREEN_ARTIST_COLOR = Color.YELLOW
+		private const val DEFAULT_START_SCREEN_BPM_COLOR = Color.CYAN
+		private const val DEFAULT_START_SCREEN_KEY_COLOR = Color.CYAN
+		private const val DEFAULT_START_SCREEN_TAP_TO_START_COLOR = Color.GREEN
+
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =
 			!(this is AudioEvent || this is StartEvent || this is ClickEvent || (this is LineEvent && !lineEventFound))
 

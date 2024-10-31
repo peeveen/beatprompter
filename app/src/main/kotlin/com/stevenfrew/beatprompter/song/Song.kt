@@ -115,6 +115,7 @@ class Song(
 	class Comment internal constructor(
 		var text: String,
 		audience: List<String>,
+		val textColor: Int,
 		screenSize: Rect,
 		paint: Paint
 	) {
@@ -126,7 +127,7 @@ class Song(
 				audience.isBlank() ||
 				audience.lowercase().splitAndTrim(",").intersect(commentAudience.toSet()).any()
 
-		fun draw(canvas: Canvas, paint: Paint, textColor: Int) =
+		fun draw(canvas: Canvas, paint: Paint) =
 			commentGraphic.draw(canvas, paint, textColor)
 	}
 

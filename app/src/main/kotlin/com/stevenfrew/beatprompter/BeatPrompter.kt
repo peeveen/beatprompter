@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter
 
 import android.app.Application
 import android.content.Context
-import android.content.res.AssetManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.preference.PreferenceManager
@@ -17,6 +16,7 @@ import com.stevenfrew.beatprompter.graphics.fonts.FontManager
 import com.stevenfrew.beatprompter.preferences.AndroidPreferences
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.util.ApplicationContextResources
 import com.stevenfrew.beatprompter.util.GlobalAppResources
 
 class BeatPrompter : Application() {
@@ -27,18 +27,7 @@ class BeatPrompter : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
-		appResources = object : GlobalAppResources {
-			override fun getString(resID: Int): String = applicationContext.getString(resID)
-
-			override fun getString(resID: Int, vararg args: Any): String =
-				applicationContext.getString(resID, *args)
-
-			override fun getStringSet(resID: Int): Set<String> =
-				applicationContext.resources.getStringArray(resID).toSet()
-
-			override val assetManager: AssetManager
-				get() = applicationContext.assets
-		}
+		appResources = ApplicationContextResources(applicationContext)
 		preferences = AndroidPreferences(
 			appResources,
 			PreferenceManager.getDefaultSharedPreferences(applicationContext),
