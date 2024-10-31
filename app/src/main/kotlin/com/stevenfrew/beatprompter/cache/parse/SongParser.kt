@@ -1020,7 +1020,7 @@ class SongParser(
 				paint,
 				nativeDeviceSettings.screenSize.width,
 				twentyPercent,
-				DEFAULT_START_SCREEN_TITLE_COLOR,
+				START_SCREEN_TITLE_COLOR,
 				true
 			)
 		)
@@ -1031,7 +1031,7 @@ class SongParser(
 					paint,
 					nativeDeviceSettings.screenSize.width,
 					tenPercent,
-					DEFAULT_START_SCREEN_ARTIST_COLOR,
+					START_SCREEN_ARTIST_COLOR,
 					true
 				)
 			)
@@ -1056,7 +1056,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						DEFAULT_START_SCREEN_ERROR_COLOR,
+						START_SCREEN_ERROR_COLOR,
 						false
 					)
 				)
@@ -1072,7 +1072,7 @@ class SongParser(
 							paint,
 							nativeDeviceSettings.screenSize.width,
 							spacePerMessageLine,
-							DEFAULT_START_SCREEN_ERROR_COLOR,
+							START_SCREEN_ERROR_COLOR,
 							false
 						)
 					)
@@ -1099,7 +1099,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						DEFAULT_START_SCREEN_KEY_COLOR,
+						START_SCREEN_KEY_COLOR,
 						false
 					)
 				)
@@ -1119,7 +1119,7 @@ class SongParser(
 						paint,
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
-						DEFAULT_START_SCREEN_BPM_COLOR,
+						START_SCREEN_BPM_COLOR,
 						false
 					)
 				)
@@ -1132,7 +1132,7 @@ class SongParser(
 					paint,
 					nativeDeviceSettings.screenSize.width,
 					tenPercent,
-					DEFAULT_START_SCREEN_TAP_TO_START_COLOR,
+					START_SCREEN_TAP_TO_START_COLOR,
 					true
 				)
 			)
@@ -1341,12 +1341,12 @@ class SongParser(
 
 	companion object {
 		private const val DEFAULT_START_SCREEN_COMMENT_COLOR = Color.WHITE
-		private const val DEFAULT_START_SCREEN_ERROR_COLOR = Color.RED
-		private const val DEFAULT_START_SCREEN_TITLE_COLOR = Color.YELLOW
-		private const val DEFAULT_START_SCREEN_ARTIST_COLOR = Color.YELLOW
-		private const val DEFAULT_START_SCREEN_BPM_COLOR = Color.CYAN
-		private const val DEFAULT_START_SCREEN_KEY_COLOR = Color.CYAN
-		private const val DEFAULT_START_SCREEN_TAP_TO_START_COLOR = Color.GREEN
+		private const val START_SCREEN_ERROR_COLOR = Color.RED
+		private const val START_SCREEN_TITLE_COLOR = Color.YELLOW
+		private const val START_SCREEN_ARTIST_COLOR = Color.YELLOW
+		private const val START_SCREEN_BPM_COLOR = Color.CYAN
+		private const val START_SCREEN_KEY_COLOR = Color.CYAN
+		private const val START_SCREEN_TAP_TO_START_COLOR = Color.GREEN
 
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =
 			!(this is AudioEvent || this is StartEvent || this is ClickEvent || (this is LineEvent && !lineEventFound))
