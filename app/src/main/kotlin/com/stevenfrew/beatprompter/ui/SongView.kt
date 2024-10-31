@@ -410,11 +410,11 @@ class SongView
 				showSongTitle(canvas)
 			if (showTempMessage) {
 				if (endSongByPedalCounter == 0)
-					showTempMessage("$currentVolume%", 80, Color.BLACK, canvas)
+					showTempMessage("$currentVolume%", 80, DEFAULT_VOLUME_TEXT_COLOR, canvas)
 				else {
 					val message =
 						"Press pedal " + (SONG_END_PEDAL_PRESSES - endSongByPedalCounter) + " more times to end song."
-					showTempMessage(message, 20, Color.BLUE, canvas)
+					showTempMessage(message, 20, DEFAULT_END_SONG_TEXT_COLOR, canvas)
 				}
 			} else
 				endSongByPedalCounter = 0
@@ -492,14 +492,14 @@ class SongView
 		}
 
 	private fun drawTitleScreen(canvas: Canvas) {
-		canvas.drawColor(Color.BLACK)
+		canvas.drawColor(DEFAULT_TITLE_SCREEN_BACKGROUND_COLOR)
 		val midX = song!!.displaySettings.screenSize.width shr 1
 		val fifteenPercent = song!!.displaySettings.screenSize.height * 0.15f
 		var startY =
 			floor(((song!!.displaySettings.screenSize.height - song!!.totalStartScreenTextHeight) / 2).toDouble()).toInt()
 		val nextSongSS = song!!.nextSongString
 		if (nextSongSS != null) {
-			paint.color = if (skipping) Color.RED else Color.WHITE
+			paint.color = if (skipping) DEFAULT_NEXT_SONG_SKIPPING_COLOR else DEFAULT_NEXT_SONG_COLOR
 			val halfDiff = (fifteenPercent - nextSongSS.height) / 2.0f
 			canvas.drawRect(
 				0f,
@@ -555,7 +555,7 @@ class SongView
 		val x = (song!!.displaySettings.screenSize.width - tempMessageWidth) / 2.0f
 		val y =
 			song!!.displaySettings.screenSize.height - (tempMessageHeight + (song!!.displaySettings.screenSize.height * 0.05))
-		paint.color = Color.BLACK
+		paint.color = DEFAULT_TEMP_MESSAGE_BOX_OUTLINE_COLOR
 		canvas.drawRect(
 			x,
 			y.toFloat(),
@@ -563,7 +563,7 @@ class SongView
 			(y + tempMessageHeight).toFloat(),
 			paint
 		)
-		paint.color = Color.rgb(255, 255, 200)
+		paint.color = DEFAULT_TEMP_MESSAGE_BACKGROUND_COLOR
 		canvas.drawRect(
 			x + 1,
 			(y + 1).toFloat(),
@@ -1386,6 +1386,14 @@ class SongView
 	}
 
 	companion object {
+		private const val DEFAULT_NEXT_SONG_COLOR = Color.WHITE
+		private const val DEFAULT_NEXT_SONG_SKIPPING_COLOR = Color.RED
+		private const val DEFAULT_END_SONG_TEXT_COLOR = Color.BLUE
+		private const val DEFAULT_VOLUME_TEXT_COLOR = Color.BLACK
+		private val DEFAULT_TEMP_MESSAGE_BACKGROUND_COLOR = Color.rgb(255, 255, 200)
+		private const val DEFAULT_TITLE_SCREEN_BACKGROUND_COLOR = Color.BLACK
+		private const val DEFAULT_TEMP_MESSAGE_BOX_OUTLINE_COLOR = Color.BLACK
+
 		private val SongViewAudioAttributes = AudioAttributes
 			.Builder()
 			.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
