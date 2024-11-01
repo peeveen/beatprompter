@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.Rect
+import android.graphics.RectF
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.util.AttributeSet
@@ -46,6 +47,7 @@ import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.inflate
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -556,19 +558,19 @@ class SongView
 		val y =
 			song!!.displaySettings.screenSize.height - (tempMessageHeight + (song!!.displaySettings.screenSize.height * 0.05))
 		paint.color = TEMP_MESSAGE_BOX_OUTLINE_COLOR
-		canvas.drawRect(
+		val rect = RectF(
 			x,
 			y.toFloat(),
 			x + tempMessageWidth,
 			(y + tempMessageHeight).toFloat(),
+		)
+		canvas.drawRect(
+			rect,
 			paint
 		)
 		paint.color = TEMP_MESSAGE_BACKGROUND_COLOR
 		canvas.drawRect(
-			x + 1,
-			(y + 1).toFloat(),
-			x + (tempMessageWidth - 2),
-			(y + (tempMessageHeight - 2)).toFloat(),
+			rect.inflate(-1),
 			paint
 		)
 		paint.color = textColor

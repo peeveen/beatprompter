@@ -6,7 +6,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import com.stevenfrew.beatprompter.BeatPrompter
-
+import com.stevenfrew.beatprompter.util.inflate
 
 class ScreenComment(
 	private val text: String,
@@ -48,10 +48,7 @@ class ScreenComment(
 		canvas.drawRect(popupRect, paint)
 		paint.color = backgroundColor
 		canvas.drawRect(
-			popupRect.left + 1,
-			popupRect.top + 1,
-			popupRect.right - 1,
-			popupRect.bottom - 1,
+			popupRect.inflate(-1),
 			paint
 		)
 		paint.color = textColor
