@@ -36,7 +36,7 @@ class CommentTag internal constructor(
 			comment = audienceBits[1]
 		} else {
 			audience = listOf()
-			comment = value
+			comment = colorBits[0]
 		}
 	}
 
