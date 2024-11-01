@@ -7,6 +7,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import com.stevenfrew.beatprompter.BeatPrompter
 
+
 class ScreenComment(
 	private val text: String,
 	screenSize: Rect,
@@ -35,13 +36,17 @@ class ScreenComment(
 	}
 
 	fun draw(canvas: Canvas, paint: Paint, textColor: Int) {
+		val backgroundColor = BeatPrompter.preferences.backgroundColor
+		val outline =
+			if ((Color.red(backgroundColor) + Color.green(backgroundColor) + Color.blue(backgroundColor)) / 3 > 127) Color.BLACK else Color.WHITE
+
 		paint.apply {
 			BeatPrompter.fontManager.setTextSize(this, screenString.fontSize)
 			flags = Paint.ANTI_ALIAS_FLAG
-			color = Color.BLACK
+			color = outline
 		}
 		canvas.drawRect(popupRect, paint)
-		paint.color = Color.WHITE
+		paint.color = backgroundColor
 		canvas.drawRect(
 			popupRect.left + 1,
 			popupRect.top + 1,
