@@ -554,9 +554,10 @@ class SongView
 		val textHeight = outRect.height()
 		val tempMessageWidth = textWidth + popupMargin * 2.0f
 		val tempMessageHeight = textHeight + popupMargin * 2
+		val screenMargin = song!!.displaySettings.screenSize.height * 0.05
 		val x = (song!!.displaySettings.screenSize.width - tempMessageWidth) / 2.0f
 		val y =
-			song!!.displaySettings.screenSize.height - (tempMessageHeight + (song!!.displaySettings.screenSize.height * 0.05))
+			song!!.displaySettings.screenSize.height - (tempMessageHeight + screenMargin)
 		paint.color = TEMP_MESSAGE_BOX_OUTLINE_COLOR
 		val rect = RectF(
 			x,
@@ -577,7 +578,7 @@ class SongView
 		canvas.drawText(
 			message,
 			(song!!.displaySettings.screenSize.width - textWidth) / 2,
-			((song!!.displaySettings.screenSize.height - textHeight) / 2 + textHeight).toFloat(),
+			(song!!.displaySettings.screenSize.height - (textHeight + screenMargin)).toFloat(),
 			paint
 		)
 	}
