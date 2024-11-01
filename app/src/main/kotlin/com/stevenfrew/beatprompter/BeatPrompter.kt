@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
-import androidx.preference.PreferenceManager
 import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
@@ -28,18 +27,13 @@ class BeatPrompter : Application() {
 	override fun onCreate() {
 		super.onCreate()
 		appResources = ApplicationContextResources(applicationContext)
-		preferences = AndroidPreferences(
-			appResources,
-			PreferenceManager.getDefaultSharedPreferences(applicationContext),
-			applicationContext.getSharedPreferences(SHARED_PREFERENCES_ID, MODE_PRIVATE)
-		)
+		preferences = AndroidPreferences(appResources, applicationContext)
 
 		val minimumFontSize = getString(R.string.fontSizeMin).toFloat()
 		val maximumFontSize = getString(R.string.fontSizeMax).toFloat()
 		fontManager =
 			AndroidFontManager(minimumFontSize, maximumFontSize, resources.displayMetrics.density)
 		bitmapFactory = AndroidBitmapFactory
-		applyPreferenceDefaults()
 		AppCompatDelegate.setDefaultNightMode(if (preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		Midi.initialize(applicationContext)
 		Bluetooth.initialize(applicationContext)
@@ -49,22 +43,8 @@ class BeatPrompter : Application() {
 		Task.resumeTask(SongLoadQueueWatcherTask, songLoaderTaskThread)
 	}
 
-	private fun applyPreferenceDefaults() {
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.preferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.fontsizepreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.colorpreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.filepreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.midipreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.bluetoothpreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.permissionpreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.songdisplaypreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.audiopreferences, true)
-		PreferenceManager.setDefaultValues(applicationContext, R.xml.songlistpreferences, true)
-	}
-
 	companion object {
 		const val APP_NAME = "BeatPrompter"
-		private const val SHARED_PREFERENCES_ID = "beatPrompterSharedPreferences"
 		lateinit var appResources: GlobalAppResources
 		lateinit var preferences: Preferences
 		lateinit var fontManager: FontManager
