@@ -574,11 +574,12 @@ class SongView
 			rect.inflate(-1),
 			paint
 		)
+		val textRect = rect.inflate(-popupMargin)
 		paint.color = textColor
 		canvas.drawText(
 			message,
-			(song!!.displaySettings.screenSize.width - textWidth) / 2,
-			(song!!.displaySettings.screenSize.height - (textHeight + screenMargin)).toFloat(),
+			textRect.left,
+			textRect.top,
 			paint
 		)
 	}
