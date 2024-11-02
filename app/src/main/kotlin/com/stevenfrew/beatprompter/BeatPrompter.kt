@@ -26,14 +26,15 @@ class BeatPrompter : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
-		appResources = ApplicationContextResources(applicationContext)
-		preferences = AndroidPreferences(appResources, applicationContext)
-
 		val minimumFontSize = getString(R.string.fontSizeMin).toFloat()
 		val maximumFontSize = getString(R.string.fontSizeMax).toFloat()
 		fontManager =
 			AndroidFontManager(minimumFontSize, maximumFontSize, resources.displayMetrics.density)
 		bitmapFactory = AndroidBitmapFactory
+
+		appResources = ApplicationContextResources(applicationContext)
+		preferences = AndroidPreferences(appResources, applicationContext)
+
 		AppCompatDelegate.setDefaultNightMode(if (preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
 		Midi.initialize(applicationContext)
 		Bluetooth.initialize(applicationContext)

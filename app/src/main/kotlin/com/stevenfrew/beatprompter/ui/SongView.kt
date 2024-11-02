@@ -544,26 +544,23 @@ class SongView
 	}
 
 	private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
-		val popupMargin = 25
 		paint.strokeWidth = 2.0f
-		BeatPrompter.fontManager.setTextSize(paint, textSize.toFloat())
+		val textSizeFloat = textSize.toFloat()
+		BeatPrompter.fontManager.setTextSize(paint, textSizeFloat)
+		val textMeasurement = BeatPrompter.fontManager.measure(message, paint, textSizeFloat)
 		paint.flags = Paint.ANTI_ALIAS_FLAG
-		val outRect = Rect()
-		paint.getTextBounds(message, 0, message.length, outRect)
-		val textWidth = paint.measureText(message)
-		val textHeight = outRect.height()
-		val tempMessageWidth = textWidth + popupMargin * 2.0f
-		val tempMessageHeight = textHeight + popupMargin * 2
-		val screenMargin = song!!.displaySettings.screenSize.height * 0.05
-		val x = (song!!.displaySettings.screenSize.width - tempMessageWidth) / 2.0f
+		val screenMargin = song!!.displaySettings.screenSize.height * 0.05f
+		val boxRect =
+			Rect(0, 0, textMeasurement.width, textMeasurement.height).inflate(TEMP_MESSAGE_MARGIN)
+		val x = (song!!.displaySettings.screenSize.width - boxRect.width()) / 2.0f
 		val y =
-			song!!.displaySettings.screenSize.height - (tempMessageHeight + screenMargin)
+			song!!.displaySettings.screenSize.height - (boxRect.height() + screenMargin)
 		paint.color = TEMP_MESSAGE_BOX_OUTLINE_COLOR
 		val rect = RectF(
 			x,
-			y.toFloat(),
-			x + tempMessageWidth,
-			(y + tempMessageHeight).toFloat(),
+			y,
+			x + boxRect.width(),
+			y + boxRect.height(),
 		)
 		canvas.drawRect(
 			rect,
@@ -574,12 +571,11 @@ class SongView
 			rect.inflate(-1),
 			paint
 		)
-		val textRect = rect.inflate(-popupMargin)
 		paint.color = textColor
 		canvas.drawText(
 			message,
-			textRect.left,
-			textRect.top,
+			x + TEMP_MESSAGE_MARGIN,
+			y + TEMP_MESSAGE_MARGIN + (textMeasurement.height - textMeasurement.descenderOffset),
 			paint
 		)
 	}
@@ -1390,6 +1386,8 @@ class SongView
 	}
 
 	companion object {
+		private const val TEMP_MESSAGE_MARGIN = 25
+
 		private const val NEXT_SONG_TITLE_COLOR = Color.WHITE
 		private const val NEXT_SONG_TITLE_WHEN_SKIPPING_COLOR = Color.RED
 		private const val END_SONG_WARNING_TEXT_COLOR = Color.BLUE

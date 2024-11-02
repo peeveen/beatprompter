@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.util
 
+import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
@@ -22,6 +23,9 @@ fun String.removeControlCharacters(): String = replace("\uFEFF", "")
 
 fun RectF.inflate(amount: Int): RectF =
 	RectF(this.left - amount, this.top - amount, this.right + amount, this.bottom + amount)
+
+fun Rect.inflate(amount: Int): Rect =
+	Rect(this.left - amount, this.top - amount, this.right + amount, this.bottom + amount)
 
 /**
  * Replaces weird apostrophe with usual apostrophe ... prevents failed matches based on apostrophe difference.
