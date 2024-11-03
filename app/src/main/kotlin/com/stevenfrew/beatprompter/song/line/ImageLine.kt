@@ -31,7 +31,7 @@ class ImageLine internal constructor(
 	displaySettings
 ) {
 	private val bitmap =
-		BeatPrompter.bitmapFactory.createBitmap(mImageFile.file.absolutePath)
+		BeatPrompter.platformUtils.bitmapFactory.createBitmap(mImageFile.file.absolutePath)
 	private val sourceRect =
 		android.graphics.Rect(0, 0, mImageFile.size.width, mImageFile.size.height)
 	private val destinationRect = getDestinationRect(

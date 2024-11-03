@@ -89,7 +89,7 @@ class TextLine internal constructor(
 		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
 
-		val maxLongestFontSize = BeatPrompter.fontManager.getBestFontSize(
+		val maxLongestFontSize = BeatPrompter.platformUtils.fontManager.getBestFontSize(
 			longestBits.toString(),
 			paint,
 			displaySettings.screenSize.width,
@@ -149,9 +149,9 @@ class TextLine internal constructor(
 		do {
 			var proposedLargerTextFontSize = textFontSize
 			var proposedLargerChordFontSize = chordFontSize
-			if (allTextSmallerThanChords && textExists && textFontSize <= BeatPrompter.fontManager.maximumFontSize - 2 && proposedLargerTextFontSize <= displaySettings.maximumFontSize - 2)
+			if (allTextSmallerThanChords && textExists && textFontSize <= BeatPrompter.platformUtils.fontManager.maximumFontSize - 2 && proposedLargerTextFontSize <= displaySettings.maximumFontSize - 2)
 				proposedLargerTextFontSize += 2.0
-			else if (allChordsSmallerThanText && chordFontSize <= BeatPrompter.fontManager.maximumFontSize - 2 && proposedLargerChordFontSize <= displaySettings.maximumFontSize - 2)
+			else if (allChordsSmallerThanText && chordFontSize <= BeatPrompter.platformUtils.fontManager.maximumFontSize - 2 && proposedLargerChordFontSize <= displaySettings.maximumFontSize - 2)
 				proposedLargerChordFontSize += 2.0
 			else
 			// Nothing we can do. Increasing any size will make things bigger than the screen.
@@ -284,14 +284,14 @@ class TextLine internal constructor(
 							val tryThisWithWhitespace = Utils.stitchBits(bits, f)
 							val tryThis = tryThisWithWhitespace.trim()
 							val tryThisWidth =
-								BeatPrompter.fontManager.getStringWidth(
+								BeatPrompter.platformUtils.fontManager.getStringWidth(
 									paint,
 									tryThis,
 									lineTextSize.toFloat()
 								).first
 							var tryThisWithWhitespaceWidth = tryThisWidth
 							if (tryThisWithWhitespace.length > tryThis.length)
-								tryThisWithWhitespaceWidth = BeatPrompter.fontManager.getStringWidth(
+								tryThisWithWhitespaceWidth = BeatPrompter.platformUtils.fontManager.getStringWidth(
 									paint,
 									tryThisWithWhitespace,
 									lineTextSize.toFloat()
@@ -361,7 +361,7 @@ class TextLine internal constructor(
 								while (f >= 1 && songLoadCancelEvent?.isCancelled != true) {
 									val tryThis = Utils.stitchBits(bits, f)
 									val tryThisWidth =
-										BeatPrompter.fontManager.getStringWidth(
+										BeatPrompter.platformUtils.fontManager.getStringWidth(
 											paint,
 											tryThis,
 											lineTextSize.toFloat()
@@ -527,7 +527,7 @@ class TextLine internal constructor(
 					currentX -= xSplits[g]
 					++g
 				}
-				BeatPrompter.fontManager.setTypeface(paint)
+				BeatPrompter.platformUtils.fontManager.setTypeface(paint)
 				canvas.drawColor(backgroundColor, PorterDuff.Mode.SRC) // Fill with transparency.
 				val xSplit = if (xSplits.size > lineNumber) xSplits[lineNumber] else Integer.MAX_VALUE
 				for (i in sections.indices) {
@@ -539,7 +539,7 @@ class TextLine internal constructor(
 									.isNotEmpty()
 							) {
 								paint.color = if (section.isTrueChord) chordColor else annotationColor
-								BeatPrompter.fontManager.setTextSize(paint, chordTextSize.toFloat())
+								BeatPrompter.platformUtils.fontManager.setTextSize(paint, chordTextSize.toFloat())
 								paint.flags = Paint.ANTI_ALIAS_FLAG
 								canvas.drawText(
 									section.chordText,
@@ -553,7 +553,7 @@ class TextLine internal constructor(
 								canvas.clipRect(0, 0, xSplit, thisLineHeight)
 							if (section.lineText.trim().isNotEmpty()) {
 								paint.color = lyricColor
-								BeatPrompter.fontManager.setTextSize(paint, lineTextSize.toFloat())
+								BeatPrompter.platformUtils.fontManager.setTextSize(paint, lineTextSize.toFloat())
 								paint.flags = Paint.ANTI_ALIAS_FLAG
 								canvas.drawText(
 									section.lineText,

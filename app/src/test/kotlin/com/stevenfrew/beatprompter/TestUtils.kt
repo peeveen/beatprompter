@@ -13,10 +13,9 @@ import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.mock.MockGlobalAppResources
+import com.stevenfrew.beatprompter.mock.MockPlatformUtils
 import com.stevenfrew.beatprompter.mock.MockPreferences
 import com.stevenfrew.beatprompter.mock.MockSupportFileResolver
-import com.stevenfrew.beatprompter.mock.graphics.MockBitmapFactory
-import com.stevenfrew.beatprompter.mock.graphics.MockFontManager
 import com.stevenfrew.beatprompter.mock.graphics.MockLine
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
@@ -50,8 +49,7 @@ object TestUtils {
 	internal fun setMocks() {
 		BeatPrompter.appResources = MockGlobalAppResources()
 		BeatPrompter.preferences = MockPreferences()
-		BeatPrompter.fontManager = MockFontManager()
-		BeatPrompter.bitmapFactory = MockBitmapFactory()
+		BeatPrompter.platformUtils = MockPlatformUtils()
 	}
 
 	internal fun getTestFile(subfolder: String, filename: String): File {
@@ -62,7 +60,10 @@ object TestUtils {
 		throw UnsupportedOperationException("Requested test file ${testFilePath.pathString} could not found.")
 	}
 
-	internal fun parseSong(songFile: File): Pair<Song, List<FileParseError>> {
+	internal fun parseSong(
+		songFile: File,
+		scrollingMode: ScrollingMode = ScrollingMode.Beat
+	): Pair<Song, List<FileParseError>> {
 		val cachedFile =
 			CachedFile(
 				songFile,
@@ -74,7 +75,7 @@ object TestUtils {
 		val songFileInfoParser = SongInfoParser(cachedFile)
 		val parsedSongFile = songFileInfoParser.parse()
 		val songLoadInfo = SongLoadInfo(
-			parsedSongFile, parsedSongFile.variations.first(), ScrollingMode.Beat, TestDisplaySettings,
+			parsedSongFile, parsedSongFile.variations.first(), scrollingMode, TestDisplaySettings,
 			TestDisplaySettings
 		)
 		val songParser =
@@ -83,9 +84,12 @@ object TestUtils {
 		return song to songParser.errors
 	}
 
-	internal fun testSongFileEvents(filename: String): Song {
+	internal fun testSongFileEvents(
+		filename: String,
+		scrollingMode: ScrollingMode = ScrollingMode.Beat
+	): Song {
 		val songFile = getTestFile("songs", filename)
-		val (song, errors) = parseSong(songFile)
+		val (song, errors) = parseSong(songFile, scrollingMode)
 		checkExpectedSongEvents(songFile, song, errors)
 		return song
 	}

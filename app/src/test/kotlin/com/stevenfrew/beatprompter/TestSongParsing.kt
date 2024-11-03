@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
+import com.stevenfrew.beatprompter.song.ScrollingMode
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,5 +58,10 @@ class TestSongParsing {
 		val songFile = TestUtils.getTestFile("songs", "009-NoTitle.txt")
 		val exception = assertThrows<InvalidBeatPrompterFileException> { TestUtils.parseSong(songFile) }
 		assertEquals("2131886485 009-NoTitle.txt", exception.message)
+	}
+
+	@Test
+	fun testSmoothScrolling() {
+		TestUtils.testSongFileEvents("010-SmoothScrolling.txt", ScrollingMode.Smooth)
 	}
 }

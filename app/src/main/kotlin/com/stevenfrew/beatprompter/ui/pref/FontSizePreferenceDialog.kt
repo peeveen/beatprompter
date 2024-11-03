@@ -40,7 +40,10 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		currentValue = progress
 		val size = currentValue + FontSizePreference.FONT_SIZE_OFFSET
 		textView!!.text = String.format(Locale.getDefault(), "%d", size)
-		textView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * BeatPrompter.fontManager.fontScaling)
+		textView!!.setTextSize(
+			TypedValue.COMPLEX_UNIT_PX,
+			size * BeatPrompter.platformUtils.fontManager.fontScaling
+		)
 	}
 
 	override fun onStartTrackingTouch(seekBar: SeekBar) {}

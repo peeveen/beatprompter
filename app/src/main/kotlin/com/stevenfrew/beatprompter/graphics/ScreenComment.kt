@@ -41,7 +41,7 @@ class ScreenComment(
 			if ((Color.red(backgroundColor) + Color.green(backgroundColor) + Color.blue(backgroundColor)) / 3 > 127) Color.BLACK else Color.WHITE
 
 		paint.apply {
-			BeatPrompter.fontManager.setTextSize(this, screenString.fontSize)
+			BeatPrompter.platformUtils.fontManager.setTextSize(this, screenString.fontSize)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = outline
 		}

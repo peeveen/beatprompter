@@ -26,7 +26,7 @@ class ScreenString private constructor(
 			color: Int,
 			bold: Boolean = false
 		): ScreenString {
-			val (fontSize, bestFontSizeRect) = BeatPrompter.fontManager.getBestFontSize(
+			val (fontSize, bestFontSizeRect) = BeatPrompter.platformUtils.fontManager.getBestFontSize(
 				text,
 				paint,
 				maxWidth,

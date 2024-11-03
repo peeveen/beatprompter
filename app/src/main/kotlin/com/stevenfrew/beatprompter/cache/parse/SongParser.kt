@@ -432,11 +432,11 @@ class SongParser(
 			if (isLineContent) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (lines.isEmpty()) 0L else songTime
+				val lineStartTime = if (lines.isEmpty) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (lines.isEmpty()) songTime else 0L
+				val addToPause = if (lines.isEmpty) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.eventTime }
@@ -517,7 +517,7 @@ class SongParser(
 					// If a pause is going to be generated, then we don't need beats.
 					if (pauseEvents == null) {
 						// Otherwise, add any generated beats
-						if (beatEvents != null) {
+						if (beatEvents?.mEvents?.isNotEmpty() == true) {
 							events.addAll(beatEvents.mEvents)
 							songTime = beatEvents.mBlockEndTime
 						}
@@ -562,7 +562,7 @@ class SongParser(
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (lines.isEmpty())
+		if (lines.isEmpty)
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
 		val lineSequence = lines.asSequence()

@@ -3,8 +3,8 @@ package com.stevenfrew.beatprompter.preferences
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.graphics.Color
 import androidx.preference.PreferenceManager
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.util.GlobalAppResources
 
@@ -68,7 +68,7 @@ class AndroidPreferences(
 	override fun getColorPreference(prefResourceString: Int, prefDefaultResourceString: Int): Int =
 		publicPreferences.getInt(
 			appResources.getString(prefResourceString),
-			Color.parseColor(appResources.getString(prefDefaultResourceString))
+			BeatPrompter.platformUtils.parseColor(appResources.getString(prefDefaultResourceString))
 		)
 
 	override fun getBooleanPreference(prefResourceString: Int, default: Boolean): Boolean =

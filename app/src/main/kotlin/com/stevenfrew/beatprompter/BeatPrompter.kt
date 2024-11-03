@@ -8,15 +8,13 @@ import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.Midi
-import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmapFactory
-import com.stevenfrew.beatprompter.graphics.bitmaps.BitmapFactory
-import com.stevenfrew.beatprompter.graphics.fonts.AndroidFontManager
-import com.stevenfrew.beatprompter.graphics.fonts.FontManager
 import com.stevenfrew.beatprompter.preferences.AndroidPreferences
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.util.AndroidUtils
 import com.stevenfrew.beatprompter.util.ApplicationContextResources
 import com.stevenfrew.beatprompter.util.GlobalAppResources
+import com.stevenfrew.beatprompter.util.PlatformUtils
 
 class BeatPrompter : Application() {
 	override fun attachBaseContext(base: Context) {
@@ -26,13 +24,8 @@ class BeatPrompter : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
-		val minimumFontSize = getString(R.string.fontSizeMin).toFloat()
-		val maximumFontSize = getString(R.string.fontSizeMax).toFloat()
-		fontManager =
-			AndroidFontManager(minimumFontSize, maximumFontSize, resources.displayMetrics.density)
-		bitmapFactory = AndroidBitmapFactory
-
-		appResources = ApplicationContextResources(applicationContext)
+		platformUtils = AndroidUtils(resources)
+		appResources = ApplicationContextResources(resources)
 		preferences = AndroidPreferences(appResources, applicationContext)
 
 		AppCompatDelegate.setDefaultNightMode(if (preferences.darkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
@@ -48,8 +41,7 @@ class BeatPrompter : Application() {
 		const val APP_NAME = "BeatPrompter"
 		lateinit var appResources: GlobalAppResources
 		lateinit var preferences: Preferences
-		lateinit var fontManager: FontManager
-		lateinit var bitmapFactory: BitmapFactory
+		lateinit var platformUtils: PlatformUtils
 		private val debugMessages = mutableListOf<String>()
 
 		private val songLoaderTaskThread = Thread(SongLoadQueueWatcherTask)

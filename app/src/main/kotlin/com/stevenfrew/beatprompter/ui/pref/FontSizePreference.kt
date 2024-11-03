@@ -35,8 +35,8 @@ class FontSizePreference(
 		}
 
 	companion object {
-		val FONT_SIZE_OFFSET: Int = BeatPrompter.fontManager.minimumFontSize.toInt()
+		val FONT_SIZE_OFFSET: Int = BeatPrompter.platformUtils.fontManager.minimumFontSize.toInt()
 		val FONT_SIZE_MAX: Int =
-			(BeatPrompter.fontManager.maximumFontSize - BeatPrompter.fontManager.minimumFontSize).toInt()
+			(BeatPrompter.platformUtils.fontManager.maximumFontSize - BeatPrompter.platformUtils.fontManager.minimumFontSize).toInt()
 	}
 }

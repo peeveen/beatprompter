@@ -37,7 +37,8 @@ class LineSection(
 		get() = lineHeight + chordHeight
 
 	fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int): Int {
-		val measurement = BeatPrompter.fontManager.measure(lineText, paint, fontSize.toFloat())
+		val measurement =
+			BeatPrompter.platformUtils.fontManager.measure(lineText, paint, fontSize.toFloat())
 		lineWidth = measurement.width
 		lineHeight = if (lineText.isBlank())
 			0
@@ -48,7 +49,8 @@ class LineSection(
 	}
 
 	fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int): Int {
-		val measurement = BeatPrompter.fontManager.measure(chordText, paint, fontSize.toFloat())
+		val measurement =
+			BeatPrompter.platformUtils.fontManager.measure(chordText, paint, fontSize.toFloat())
 		chordWidth = measurement.width
 		chordHeight = if (trimmedChord.isEmpty())
 			0
@@ -56,7 +58,8 @@ class LineSection(
 			measurement.height
 		chordDescenderOffset = measurement.descenderOffset
 		chordTrimWidth = if (trimmedChord.length < chordText.length) {
-			val newMeasurement = BeatPrompter.fontManager.measure(trimmedChord, paint, fontSize.toFloat())
+			val newMeasurement =
+				BeatPrompter.platformUtils.fontManager.measure(trimmedChord, paint, fontSize.toFloat())
 			newMeasurement.width
 		} else
 			chordWidth
@@ -78,7 +81,8 @@ class LineSection(
 			val length = min(it.position - sectionPosition, lineText.length)
 			if (it is StartOfHighlightTag && !lookingForEnd) {
 				val strHighlightText = lineText.substring(0, length)
-				val stringWidth = BeatPrompter.fontManager.getStringWidth(paint, strHighlightText, textSize)
+				val stringWidth =
+					BeatPrompter.platformUtils.fontManager.getStringWidth(paint, strHighlightText, textSize)
 				startX = stringWidth.first
 				startPosition = it.position - sectionPosition
 				highlightColour = it.color
@@ -86,7 +90,7 @@ class LineSection(
 			} else if (it is EndOfHighlightTag && lookingForEnd) {
 				val strHighlightText = lineText.substring(startPosition, length)
 				val sectionWidth =
-					BeatPrompter.fontManager.getStringWidth(paint, strHighlightText, textSize)
+					BeatPrompter.platformUtils.fontManager.getStringWidth(paint, strHighlightText, textSize)
 				highlightingRectangles.add(
 					ColorRect(
 						startX,

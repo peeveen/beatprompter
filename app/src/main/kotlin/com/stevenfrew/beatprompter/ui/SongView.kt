@@ -515,8 +515,8 @@ class SongView
 			startY -= (fifteenPercent / 2.0f).toInt()
 			paint.apply {
 				color = nextSongSS.color
-				BeatPrompter.fontManager.setTextSize(this, nextSongSS.fontSize)
-				BeatPrompter.fontManager.setTypeface(this, nextSongSS.bold)
+				BeatPrompter.platformUtils.fontManager.setTextSize(this, nextSongSS.fontSize)
+				BeatPrompter.platformUtils.fontManager.setTypeface(this, nextSongSS.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
@@ -530,8 +530,8 @@ class SongView
 			startY += ss.height
 			paint.apply {
 				color = ss.color
-				BeatPrompter.fontManager.setTextSize(this, ss.fontSize)
-				BeatPrompter.fontManager.setTypeface(this, ss.bold)
+				BeatPrompter.platformUtils.fontManager.setTextSize(this, ss.fontSize)
+				BeatPrompter.platformUtils.fontManager.setTypeface(this, ss.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
@@ -546,8 +546,9 @@ class SongView
 	private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
 		paint.strokeWidth = 2.0f
 		val textSizeFloat = textSize.toFloat()
-		BeatPrompter.fontManager.setTextSize(paint, textSizeFloat)
-		val textMeasurement = BeatPrompter.fontManager.measure(message, paint, textSizeFloat)
+		BeatPrompter.platformUtils.fontManager.setTextSize(paint, textSizeFloat)
+		val textMeasurement =
+			BeatPrompter.platformUtils.fontManager.measure(message, paint, textSizeFloat)
 		paint.flags = Paint.ANTI_ALIAS_FLAG
 		val screenMargin = song!!.displaySettings.screenSize.height * 0.05f
 		val boxRect =
@@ -599,8 +600,8 @@ class SongView
 
 	private fun showSongTitle(canvas: Canvas) = song?.apply {
 		paint.apply {
-			BeatPrompter.fontManager.setTextSize(this, songTitleHeader.fontSize)
-			BeatPrompter.fontManager.setTypeface(this, songTitleHeader.bold)
+			BeatPrompter.platformUtils.fontManager.setTextSize(this, songTitleHeader.fontSize)
+			BeatPrompter.platformUtils.fontManager.setTypeface(this, songTitleHeader.bold)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground
 		}
@@ -873,7 +874,7 @@ class SongView
 
 	private fun processLineEvent(event: LineEvent) = song?.apply {
 		currentLine = event.line
-		if (currentLine.scrollMode == ScrollingMode.Manual) {
+		if (currentLine.scrollMode === ScrollingMode.Manual) {
 			currentBeatCountRect = Rect(originalBeatCountRect)
 			calculateManualScrollPositions()
 		}

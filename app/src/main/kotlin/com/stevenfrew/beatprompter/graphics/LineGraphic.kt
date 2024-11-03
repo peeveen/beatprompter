@@ -18,7 +18,7 @@ class LineGraphic(private val size: Rect) {
 		}
 
 	private fun createBitmap(): Bitmap =
-		BeatPrompter.bitmapFactory.createBitmap(
+		BeatPrompter.platformUtils.bitmapFactory.createBitmap(
 			size.width,
 			size.height
 		)
