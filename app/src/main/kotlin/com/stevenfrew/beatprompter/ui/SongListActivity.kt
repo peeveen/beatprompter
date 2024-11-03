@@ -20,7 +20,6 @@ class SongListActivity : AppCompatActivity() {
 				"SongListFragment" + (++mSongListFragmentCounter)
 			)
 			fragmentTransaction.commit()
-			addMenuProvider(songListFragment.MenuProvider())
 		}
 
 		supportActionBar?.apply {

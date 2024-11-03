@@ -652,6 +652,11 @@ class SongListFragment
 		EventRouter.addSongListEventHandler(tag!!, mSongListEventHandler!!)
 	}
 
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+		requireActivity().addMenuProvider(MenuProvider())
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		songLauncher =
 			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
