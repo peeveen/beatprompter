@@ -372,7 +372,7 @@ class SongView
 				}
 
 				if (smoothMode) {
-					val prevLine = currentLine.previousLine
+					val prevLine = this.currentLine.previousLine
 					if (prevLine != null && startY > 0) {
 						paint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
 						currentY = startY - prevLine.measurements.lineHeight
