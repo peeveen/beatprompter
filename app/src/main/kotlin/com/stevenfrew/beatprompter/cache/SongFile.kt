@@ -1,13 +1,12 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.song.ScrollingMode
-import com.stevenfrew.beatprompter.song.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -57,6 +56,12 @@ class SongFile(
 	fun matchesTrigger(trigger: SongTrigger): Boolean =
 		songSelectTrigger == trigger || programChangeTrigger == trigger
 
+	val defaultVariation: String
+		get() =
+			BeatPrompter.preferences.preferredVariation.let {
+				if (variations.contains(it)) it else variations.firstOrNull() ?: ""
+			}
+
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
 		element.setAttribute(TITLE_ATTRIBUTE, title)
@@ -86,7 +91,7 @@ class SongFile(
 
 	val keySignature: String?
 		get() = KeySignatureDefinition.getKeySignature(key, firstChord)
-			?.getDisplayString(Preferences.displayUnicodeAccidentals)
+			?.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)
 
 	companion object {
 		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
@@ -182,7 +187,7 @@ class SongFile(
 						firstChord,
 						listOf()
 					)
-				} catch (numberFormatException: NumberFormatException) {
+				} catch (_: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
 					null
 				}

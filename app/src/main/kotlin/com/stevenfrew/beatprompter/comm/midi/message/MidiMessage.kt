@@ -1,10 +1,11 @@
 package com.stevenfrew.beatprompter.comm.midi.message
 
 import com.stevenfrew.beatprompter.comm.Message
+import com.stevenfrew.beatprompter.comm.MessageType
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class MidiMessage(bytes: ByteArray) : Message(bytes) {
+open class MidiMessage(bytes: ByteArray) : Message(MessageType.Midi, bytes) {
 	constructor(byte: Byte) : this(byteArrayOf(byte))
 	constructor(byte1: Byte, byte2: Byte) : this(byteArrayOf(byte1, byte2))
 	constructor(byte1: Byte, byte2: Byte, byte3: Byte) : this(byteArrayOf(byte1, byte2, byte3))
@@ -42,10 +43,4 @@ open class MidiMessage(bytes: ByteArray) : Message(bytes) {
 			return 0
 		}
 	}
-
-	private fun isSystemCommonMessage(message: Byte): Boolean =
-		bytes.isNotEmpty() && bytes[0] == message
-
-	private fun isChannelVoiceMessage(message: Byte): Boolean =
-		bytes.isNotEmpty() && (bytes[0] and 0xF0.toByte() == message)
 }

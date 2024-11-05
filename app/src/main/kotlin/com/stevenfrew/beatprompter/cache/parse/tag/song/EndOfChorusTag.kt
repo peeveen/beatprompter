@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @StartedBy(StartOfChorusTag::class)
-@TagName("eoc", "end_of_chorus")
+@TagName("eoc", "endofchorus", "end_of_chorus")
 @TagType(Type.Directive)
 /**
  * Tag that defines the end of a highlighted block of text.

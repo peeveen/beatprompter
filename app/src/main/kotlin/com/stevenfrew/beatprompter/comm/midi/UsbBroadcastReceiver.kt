@@ -38,6 +38,7 @@ internal class UsbBroadcastReceiver(
 			UsbMidiController.ACTION_USB_PERMISSION -> {
 				synchronized(this) {
 					getDeviceFromIntent(intent)?.apply {
+						val displayName = if (productName.isNullOrBlank()) deviceName else productName!!
 						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 							val midiInterface = getUsbDeviceMidiInterface()
 							if (midiInterface != null) {
@@ -60,7 +61,7 @@ internal class UsbBroadcastReceiver(
 												)
 											ConnectionNotificationTask.addConnection(
 												ConnectionDescriptor(
-													deviceName,
+													displayName,
 													CommunicationType.UsbMidi
 												)
 											)

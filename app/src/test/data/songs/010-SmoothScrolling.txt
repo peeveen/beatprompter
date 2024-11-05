@@ -1,0 +1,80 @@
+{t:Billie Jean}
+{a:(Michael Jackson)}
+{count:0}
+{time:3:40}
+{tag:INTERNACIONAIS}{tag:TIME}{tag:80s}
+-
+-
+-
+-
+-
+-
+-
+RIFF...
+[F#m]-  [E]-  [F#m]-  [E]-
+[F#m]-  [E]-  [F#m]-  [E]-
+-
+{soh:#FFFF00}[F#m]     She was [E]more like a [F#m]beauty queen
+from a [E]movie scene.{eoh}
+[F#m]    I said, "Don't [E]mind, but what [F#m]do you mean?"
+"[E]I am the [Bm]one...
+who will [Bm7]dance on the floor in the [F#m]round."   [E]
+[F#m]     She said, am the [Bm]one
+who will [Bm7]dance on the floor in the [F#m]round."   [E]
+[F#m]-  [E]-
+-
+{soh:#FFFF00}[F#m]     She told me [E]her name was [F#m]Billie Jean,
+as she [E]caused a scene,{eoh}
+[F#m]     then every [E]head turned, with [F#m]eyes that [E]dreamed of
+being the [Bm]one...
+who will [Bm7]dance on the floor in the [F#m]round."   [E]   [F#m]  [E]
+-
+{soh:#FFFF00}[D]People always told me, "Be [F#m]careful what you do,
+and don't [D]go around breaking young girls' [F#m]hearts !"
+And [D]mother always told me, "Be [F#m]careful who you love,
+and be [D]careful of what you do 'cause the [C#7]lie becomes the truth." Hey!{eoh}
+-
+{soh}[F#m]     Billie [E]Jean is [F#m]not my [E]lover,
+[F#m]     she's just a [E]girl who [F#m]claims that [E]I am the [Bm]one,
+but the [Bm7]kid is not my [F#m]son.  [E]-
+[F#m]     she says [E]I am the [Bm]one,
+but the [Bm7]kid is not my [F#m]son.  [E]  [F#m]  [E]{eoh}
+-
+{soh:#FFFF00}[F#m]     For forty [E]days and [F#m]forty nights,
+the law was [E]on her side,{eoh}
+[F#m]     but who can [E]stand, when she's [F#m]in demand,
+[E]her schemes and [Bm]plans.
+'cause we [Bm7]danced on the floor in the [F#m]round,   [E]-
+[F#m]     so take [E]my strong ad[Bm]vice,
+just re[Bm7]member to always  think [F#m]twice.  {soh}[E] (Do think [F#m]twice)   [E]{eoh}
+-
+{soh:#FFFF00}[F#m]     She told [E]my baby   that's[F#m] a treat
+as she [E]looked at me{eoh}
+[F#m]     then showed a [E]photo of [F#m]baby cries,
+[E]eyes were like [Bm]mine...
+who will [Bm7]dance on the floor in the [F#m]round, [E]baby  [F#m]  [E]
+-
+{soh:#FFFF00}[D]People always told me, "Be [F#m]careful what you do,
+and don't [D]go around breaking young girls' [F#m]hearts !"
+But she [D]came and stood right by me, then the [F#m]smell of sweet perfume
+this [D]happened much too soon, she [C#7]called me to her room{eoh}
+-
+{soh}[F#m]     Billie [E]Jean is [F#m]not my [E]lover,
+[F#m]     she's just a [E]girl who [F#m]claims that [E]I am the [Bm]one,
+but the [Bm7]kid is not my [F#m]son.  [E]-
+[F#m]     she says [E]I am the [Bm]one,
+but the [Bm7]kid is not my [F#m]son.  [E]-  [F#m]-  [E]-{eoh}
+-
+[F#m]     Billie [E]Jean is [F#m]not my [E]lover,
+[F#m]     Billie [E]Jean is [F#m]not my [E]lover,
+[F#m]     Billie [E]Jean is [F#m]not my [E]lover,
+[F#m]-   [E]-   [F#m]-   [E]-
+RIFF (final)
+-
+-
+-
+-
+-
+-
+-
+

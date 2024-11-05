@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.github.paolorotolo.appintro.AppIntro
@@ -38,7 +37,7 @@ class IntroActivity
 
 		// Instead of fragments, you can also use our default slide
 		// Just set a title, description, background and image. AppIntro will do the rest.
-		val backgroundColor = Color.parseColor("#CCCCCC")
+		val backgroundColor = BeatPrompter.platformUtils.parseColor("#CCCCCC")
 
 		pageInfo.forEach {
 			addSlide(AppIntroFragment.newInstance(SliderPage().apply {
@@ -51,8 +50,8 @@ class IntroActivity
 
 		// OPTIONAL METHODS
 		// Override bar/separator color.
-		setBarColor(Color.parseColor("#AAAAAA"))
-		setSeparatorColor(Color.parseColor("#888888"))
+		setBarColor(BeatPrompter.platformUtils.parseColor("#AAAAAA"))
+		setSeparatorColor(BeatPrompter.platformUtils.parseColor("#888888"))
 
 		// Hide Skip/Done button.
 		showSkipButton(true)

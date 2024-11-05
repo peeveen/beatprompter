@@ -6,8 +6,8 @@ import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.preference.PreferenceDialogFragmentCompat
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.util.Utils
 import java.util.Locale
 
 
@@ -40,7 +40,10 @@ class FontSizePreferenceDialog : PreferenceDialogFragmentCompat(), SeekBar.OnSee
 		currentValue = progress
 		val size = currentValue + FontSizePreference.FONT_SIZE_OFFSET
 		textView!!.text = String.format(Locale.getDefault(), "%d", size)
-		textView!!.setTextSize(TypedValue.COMPLEX_UNIT_PX, size * Utils.FONT_SCALING)
+		textView!!.setTextSize(
+			TypedValue.COMPLEX_UNIT_PX,
+			size * BeatPrompter.platformUtils.fontManager.fontScaling
+		)
 	}
 
 	override fun onStartTrackingTouch(seekBar: SeekBar) {}

@@ -10,7 +10,7 @@ class BeatEvent(
 	var bpb: Int,
 	val beat: Int,
 	val click: Boolean,
-	val willScrollOnBeat: Int
+	var willScrollOnBeat: Int
 ) : BaseEvent(eventTime) {
 	override fun offset(nanoseconds: Long): BaseEvent =
 		BeatEvent(eventTime + nanoseconds, bpm, bpb, beat, click, willScrollOnBeat)

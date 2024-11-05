@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.Rect
+import android.graphics.RectF
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.util.AttributeSet
@@ -15,9 +16,8 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.view.GestureDetectorCompat
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.audio.AudioPlayer
@@ -31,6 +31,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.message.ToggleStartStopMessage
 import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
+import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
@@ -41,11 +42,12 @@ import com.stevenfrew.beatprompter.song.event.CommentEvent
 import com.stevenfrew.beatprompter.song.event.EndEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
-import com.stevenfrew.beatprompter.song.event.MIDIEvent
+import com.stevenfrew.beatprompter.song.event.MidiEvent
 import com.stevenfrew.beatprompter.song.event.PauseEvent
 import com.stevenfrew.beatprompter.song.line.Line
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.inflate
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -57,13 +59,14 @@ class SongView
 	: AppCompatImageView,
 	GestureDetector.OnGestureListener {
 
-	private val destinationGraphicRect = Rect(0, 0, 0, 0)
+	private val destinationGraphicRect = Rect()
 	private var currentBeatCountRect = Rect()
+	private var originalBeatCountRect = Rect()
 	private var endSongByPedalCounter = 0
 	private var metronomeOn: Boolean = false
 	private var initialized = false
 	private var skipping = false
-	private var currentVolume = Preferences.defaultTrackVolume
+	private var currentVolume = BeatPrompter.preferences.defaultTrackVolume
 	private var lastCommentEvent: CommentEvent? = null
 	private var lastCommentTime: Long = 0
 	private var lastTempMessageTime: Long = 0
@@ -84,7 +87,6 @@ class SongView
 	private var nanosecondsPerBeat = Utils.nanosecondsPerBeat(120.0)
 
 	private val backgroundColorLookup = IntArray(101)
-	private val commentTextColor: Int
 	private val pageDownMarkerColor: Int
 	private val beatCounterColor: Int
 	private val defaultCurrentLineHighlightColor: Int
@@ -107,7 +109,7 @@ class SongView
 	private var songTitleContrastBackground: Int = 0
 	private var songTitleContrastBeatCounter: Int = 0
 	private val scrollIndicatorRect = Rect()
-	private var gestureDetector: GestureDetectorCompat? = null
+	private var gestureDetector: GestureDetector? = null
 	private var screenAction = ScreenAction.Scroll
 	private val scrollMarkerColor: Int
 	private var songDisplayActivity: SongDisplayActivity? = null
@@ -127,40 +129,41 @@ class SongView
 
 	constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
 		scroller = OverScroller(context)
-		gestureDetector = GestureDetectorCompat(context, this)
+		gestureDetector = GestureDetector(context, this)
 		songPixelPosition = 0
 
-		audioPlayerFactory = AudioPlayerFactory(Preferences.audioPlayer, context)
+		audioPlayerFactory = AudioPlayerFactory(BeatPrompter.preferences.audioPlayer, context)
 		silenceAudioPlayer = audioPlayerFactory.createSilencePlayer()
 
-		screenAction = Preferences.screenAction
-		showScrollIndicator = Preferences.showScrollIndicator
-		showSongTitle = Preferences.showSongTitle
-		val commentDisplayTimeSeconds = Preferences.commentDisplayTime
+		screenAction = BeatPrompter.preferences.screenAction
+		showScrollIndicator = BeatPrompter.preferences.showScrollIndicator
+		showSongTitle = BeatPrompter.preferences.showSongTitle
+		val commentDisplayTimeSeconds = BeatPrompter.preferences.commentDisplayTime
 		commentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
-		externalTriggerSafetyCatch = Preferences.midiTriggerSafetyCatch
-		highlightCurrentLine = Preferences.highlightCurrentLine
-		showPageDownMarker = Preferences.showPageDownMarker
-		highlightBeatSectionStart = Preferences.highlightBeatSectionStart
-		beatCounterColor = Preferences.beatCounterColor
-		commentTextColor = Preferences.commentColor
-		pageDownMarkerColor = Preferences.pageDownMarkerColor
-		scrollMarkerColor = Preferences.scrollIndicatorColor
-		val mHighlightBeatSectionStartColor = Preferences.beatSectionStartHighlightColor
+		externalTriggerSafetyCatch = BeatPrompter.preferences.midiTriggerSafetyCatch
+		highlightCurrentLine = BeatPrompter.preferences.highlightCurrentLine
+		showPageDownMarker = BeatPrompter.preferences.showPageDownMarker
+		highlightBeatSectionStart = BeatPrompter.preferences.highlightBeatSectionStart
+		beatCounterColor = BeatPrompter.preferences.beatCounterColor
+		pageDownMarkerColor = BeatPrompter.preferences.pageDownMarkerColor
+		scrollMarkerColor = BeatPrompter.preferences.scrollIndicatorColor
+		val mHighlightBeatSectionStartColor = BeatPrompter.preferences.beatSectionStartHighlightColor
 		beatSectionStartHighlightColors =
 			createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
 		defaultCurrentLineHighlightColor =
-			Utils.makeHighlightColour(Preferences.currentLineHighlightColor)
-		defaultPageDownLineHighlightColor = Utils.makeHighlightColour(Preferences.pageDownMarkerColor)
-		pulse = Preferences.pulseDisplay
-		metronomePref = if (Preferences.mute) MetronomeContext.Off else Preferences.metronomeContext
+			Utils.makeHighlightColour(BeatPrompter.preferences.currentLineHighlightColor)
+		defaultPageDownLineHighlightColor =
+			Utils.makeHighlightColour(BeatPrompter.preferences.pageDownMarkerColor)
+		pulse = BeatPrompter.preferences.pulseDisplay
+		metronomePref =
+			if (BeatPrompter.preferences.mute) MetronomeContext.Off else BeatPrompter.preferences.metronomeContext
 
 		songTitleContrastBeatCounter = Utils.makeContrastingColour(beatCounterColor)
-		val backgroundColor = Preferences.backgroundColor
+		val backgroundColor = BeatPrompter.preferences.backgroundColor
 		val pulseColor =
 			if (pulse)
-				Preferences.pulseColor
+				BeatPrompter.preferences.pulseColor
 			else
 				backgroundColor
 		val bgR = Color.red(backgroundColor)
@@ -206,7 +209,7 @@ class SongView
 			{
 				try {
 					audioPlayerFactory.create(it.audioFile.file, it.volume)
-				} catch (e: Exception) {
+				} catch (_: Exception) {
 					null
 				}
 			}
@@ -230,7 +233,14 @@ class SongView
 			it.seekTo(0)
 		}
 
-		currentBeatCountRect = song.beatCounterRect
+		originalBeatCountRect = Rect(
+			song.beatCounterRect.left,
+			song.beatCounterRect.top,
+			song.beatCounterRect.right,
+			song.beatCounterRect.bottom
+		)
+		currentBeatCountRect = Rect(originalBeatCountRect)
+
 		this.song = song
 
 		calculateManualScrollPositions()
@@ -278,7 +288,7 @@ class SongView
 					if (time - lastCommentTime < commentDisplayTimeNanoseconds)
 						showComment = true
 			}
-			var currentY = beatCounterRect.height() + displayOffset
+			var currentY = beatCounterRect.height + displayOffset
 			var currentLine = currentLine
 			var yScrollOffset = 0
 			if (currentLine.scrollMode !== ScrollingMode.Beat)
@@ -304,7 +314,7 @@ class SongView
 							// In smooth mode, if we're on the last line, prevent it scrolling up more than necessary ... i.e. keep as much song onscreen as possible.
 							if (currentLine.scrollMode === ScrollingMode.Smooth) {
 								val remainingSongHeight = height - currentLine.songPixelPosition
-								val remainingScreenHeight = displaySettings.screenSize.height() - currentY
+								val remainingScreenHeight = displaySettings.screenSize.height - currentY
 								yScrollOffset = min(
 									(currentLine.measurements.lineHeight * scrollPercentage).toInt(),
 									remainingSongHeight - remainingScreenHeight
@@ -322,8 +332,8 @@ class SongView
 
 				val startY = currentY
 				var firstLineOnscreen: Line? = null
-				while (currentY < displaySettings.screenSize.height()) {
-					if (currentY > beatCounterRect.height() - currentLine.measurements.lineHeight) {
+				while (currentY < displaySettings.screenSize.height) {
+					if (currentY > beatCounterRect.height - currentLine.measurements.lineHeight) {
 						if (firstLineOnscreen == null)
 							firstLineOnscreen = currentLine
 						val graphics = currentLine.getGraphics(paint)
@@ -333,7 +343,12 @@ class SongView
 							val sourceRect = currentLine.measurements.graphicRectangles[f]
 							destinationGraphicRect.set(sourceRect)
 							destinationGraphicRect.offset(0, currentY)
-							canvas.drawBitmap(graphic.bitmap, sourceRect, destinationGraphicRect, paint)
+							canvas.drawBitmap(
+								(graphic.bitmap as AndroidBitmap).androidBitmap,
+								sourceRect,
+								destinationGraphicRect,
+								paint
+							)
 							currentY += currentLine.measurements.graphicHeights[f]
 						}
 						val highlightColor = getLineHighlightColor(currentLine, time)
@@ -342,7 +357,7 @@ class SongView
 							canvas.drawRect(
 								0f,
 								lineTop.toFloat(),
-								displaySettings.screenSize.width().toFloat(),
+								displaySettings.screenSize.width.toFloat(),
 								(lineTop + currentLine.measurements.lineHeight).toFloat(),
 								paint
 							)
@@ -357,14 +372,19 @@ class SongView
 				}
 
 				if (smoothMode) {
-					val prevLine = currentLine.previousLine
+					val prevLine = this.currentLine.previousLine
 					if (prevLine != null && startY > 0) {
 						paint.alpha = (255.0 - 255.0 * scrollPercentage).toInt()
 						currentY = startY - prevLine.measurements.lineHeight
 						val graphics = prevLine.getGraphics(paint)
 						for (f in graphics.indices) {
 							val graphic = graphics[f]
-							canvas.drawBitmap(graphic.bitmap, 0f, currentY.toFloat(), paint)
+							canvas.drawBitmap(
+								(graphic.bitmap as AndroidBitmap).androidBitmap,
+								0f,
+								currentY.toFloat(),
+								paint
+							)
 							currentY += prevLine.measurements.graphicHeights[f]
 						}
 						paint.alpha = 255
@@ -372,7 +392,7 @@ class SongView
 				}
 			}
 			paint.color = backgroundColorLookup[100]
-			canvas.drawRect(beatCounterRect, paint)
+			canvas.drawRect(originalBeatCountRect, paint)
 			paint.color = scrollMarkerColor
 			if (currentLine.scrollMode === ScrollingMode.Beat && showScrollIndicator)
 				canvas.drawRect(scrollIndicatorRect, paint)
@@ -381,9 +401,9 @@ class SongView
 			canvas.drawRect(currentBeatCountRect, paint)
 			canvas.drawLine(
 				0f,
-				beatCounterRect.height().toFloat(),
-				displaySettings.screenSize.width().toFloat(),
-				beatCounterRect.height().toFloat(),
+				beatCounterRect.height.toFloat(),
+				displaySettings.screenSize.width.toFloat(),
+				beatCounterRect.height.toFloat(),
 				paint
 			)
 			if (showPageDownMarker)
@@ -392,11 +412,11 @@ class SongView
 				showSongTitle(canvas)
 			if (showTempMessage) {
 				if (endSongByPedalCounter == 0)
-					showTempMessage("$currentVolume%", 80, Color.BLACK, canvas)
+					showTempMessage("$currentVolume%", 80, VOLUME_TEXT_COLOR, canvas)
 				else {
 					val message =
 						"Press pedal " + (SONG_END_PEDAL_PRESSES - endSongByPedalCounter) + " more times to end song."
-					showTempMessage(message, 20, Color.BLUE, canvas)
+					showTempMessage(message, 20, END_SONG_WARNING_TEXT_COLOR, canvas)
 				}
 			} else
 				endSongByPedalCounter = 0
@@ -418,7 +438,7 @@ class SongView
 					is CommentEvent -> processCommentEvent(innerEvent, time)
 					is BeatEvent -> currentBeatCountRect = processBeatEvent(innerEvent/*, true*/)
 					is ClickEvent -> processClickEvent()
-					is MIDIEvent -> processMIDIEvent(innerEvent)
+					is MidiEvent -> processMIDIEvent(innerEvent)
 					is PauseEvent -> processPauseEvent(innerEvent)
 					is LineEvent -> processLineEvent(innerEvent)
 					is AudioEvent -> processAudioEvent(innerEvent)
@@ -474,29 +494,29 @@ class SongView
 		}
 
 	private fun drawTitleScreen(canvas: Canvas) {
-		canvas.drawColor(Color.BLACK)
-		val midX = song!!.displaySettings.screenSize.width() shr 1
-		val fifteenPercent = song!!.displaySettings.screenSize.height() * 0.15f
+		canvas.drawColor(TITLE_SCREEN_BACKGROUND_COLOR)
+		val midX = song!!.displaySettings.screenSize.width shr 1
+		val fifteenPercent = song!!.displaySettings.screenSize.height * 0.15f
 		var startY =
-			floor(((song!!.displaySettings.screenSize.height() - song!!.totalStartScreenTextHeight) / 2).toDouble()).toInt()
+			floor(((song!!.displaySettings.screenSize.height - song!!.totalStartScreenTextHeight) / 2).toDouble()).toInt()
 		val nextSongSS = song!!.nextSongString
 		if (nextSongSS != null) {
-			paint.color = if (skipping) Color.RED else Color.WHITE
+			paint.color = if (skipping) NEXT_SONG_TITLE_WHEN_SKIPPING_COLOR else NEXT_SONG_TITLE_COLOR
 			val halfDiff = (fifteenPercent - nextSongSS.height) / 2.0f
 			canvas.drawRect(
 				0f,
-				song!!.displaySettings.screenSize.height() - fifteenPercent,
-				song!!.displaySettings.screenSize.width().toFloat(),
-				song!!.displaySettings.screenSize.height().toFloat(),
+				song!!.displaySettings.screenSize.height - fifteenPercent,
+				song!!.displaySettings.screenSize.width.toFloat(),
+				song!!.displaySettings.screenSize.height.toFloat(),
 				paint
 			)
 			val nextSongY =
-				song!!.displaySettings.screenSize.height() - (nextSongSS.descenderOffset + halfDiff).toInt()
+				song!!.displaySettings.screenSize.height - (nextSongSS.descenderOffset + halfDiff).toInt()
 			startY -= (fifteenPercent / 2.0f).toInt()
 			paint.apply {
 				color = nextSongSS.color
-				textSize = nextSongSS.fontSize * Utils.FONT_SCALING
-				typeface = nextSongSS.typeface
+				BeatPrompter.platformUtils.fontManager.setTextSize(this, nextSongSS.fontSize)
+				BeatPrompter.platformUtils.fontManager.setTypeface(this, nextSongSS.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
@@ -510,8 +530,8 @@ class SongView
 			startY += ss.height
 			paint.apply {
 				color = ss.color
-				textSize = ss.fontSize * Utils.FONT_SCALING
-				typeface = ss.typeface
+				BeatPrompter.platformUtils.fontManager.setTextSize(this, ss.fontSize)
+				BeatPrompter.platformUtils.fontManager.setTypeface(this, ss.bold)
 				flags = Paint.ANTI_ALIAS_FLAG
 			}
 			canvas.drawText(
@@ -524,39 +544,39 @@ class SongView
 	}
 
 	private fun showTempMessage(message: String, textSize: Int, textColor: Int, canvas: Canvas) {
-		val popupMargin = 25
 		paint.strokeWidth = 2.0f
-		paint.textSize = textSize * Utils.FONT_SCALING
+		val textSizeFloat = textSize.toFloat()
+		BeatPrompter.platformUtils.fontManager.setTextSize(paint, textSizeFloat)
+		val textMeasurement =
+			BeatPrompter.platformUtils.fontManager.measure(message, paint, textSizeFloat)
 		paint.flags = Paint.ANTI_ALIAS_FLAG
-		val outRect = Rect()
-		paint.getTextBounds(message, 0, message.length, outRect)
-		val textWidth = paint.measureText(message)
-		val textHeight = outRect.height()
-		val volumeControlWidth = textWidth + popupMargin * 2.0f
-		val volumeControlHeight = textHeight + popupMargin * 2
-		val x = (song!!.displaySettings.screenSize.width() - volumeControlWidth) / 2.0f
-		val y = (song!!.displaySettings.screenSize.height() - volumeControlHeight) / 2
-		paint.color = Color.BLACK
-		canvas.drawRect(
+		val screenMargin = song!!.displaySettings.screenSize.height * 0.05f
+		val boxRect =
+			Rect(0, 0, textMeasurement.width, textMeasurement.height).inflate(TEMP_MESSAGE_MARGIN)
+		val x = (song!!.displaySettings.screenSize.width - boxRect.width()) / 2.0f
+		val y =
+			song!!.displaySettings.screenSize.height - (boxRect.height() + screenMargin)
+		paint.color = TEMP_MESSAGE_BOX_OUTLINE_COLOR
+		val rect = RectF(
 			x,
-			y.toFloat(),
-			x + volumeControlWidth,
-			(y + volumeControlHeight).toFloat(),
+			y,
+			x + boxRect.width(),
+			y + boxRect.height(),
+		)
+		canvas.drawRect(
+			rect,
 			paint
 		)
-		paint.color = Color.rgb(255, 255, 200)
+		paint.color = TEMP_MESSAGE_BACKGROUND_COLOR
 		canvas.drawRect(
-			x + 1,
-			(y + 1).toFloat(),
-			x + (volumeControlWidth - 2),
-			(y + (volumeControlHeight - 2)).toFloat(),
+			rect.inflate(-1),
 			paint
 		)
 		paint.color = textColor
 		canvas.drawText(
 			message,
-			(song!!.displaySettings.screenSize.width() - textWidth) / 2,
-			((song!!.displaySettings.screenSize.height() - textHeight) / 2 + textHeight).toFloat(),
+			x + TEMP_MESSAGE_MARGIN,
+			y + TEMP_MESSAGE_MARGIN + (textMeasurement.height - textMeasurement.descenderOffset),
 			paint
 		)
 	}
@@ -564,9 +584,9 @@ class SongView
 	private fun showPageDownMarkers(canvas: Canvas) {
 		if (song!!.currentLine.scrollMode == ScrollingMode.Manual && songPixelPosition < song!!.scrollEndPixel) {
 			val scrollPosition =
-				((manualScrollPositions.mPageDownPosition - songPixelPosition) + song!!.displaySettings.beatCounterRect.height()).toFloat()
-			val screenHeight = song!!.displaySettings.screenSize.height().toFloat()
-			val screenWidth = song!!.displaySettings.screenSize.width().toFloat()
+				((manualScrollPositions.mPageDownPosition - songPixelPosition) + song!!.displaySettings.beatCounterRect.height).toFloat()
+			val screenHeight = song!!.displaySettings.screenSize.height.toFloat()
+			val screenWidth = song!!.displaySettings.screenSize.width.toFloat()
 			val lineSize = screenWidth / 10.0f
 
 			paint.strokeWidth = (screenWidth + screenHeight) / 200.0f
@@ -580,8 +600,8 @@ class SongView
 
 	private fun showSongTitle(canvas: Canvas) = song?.apply {
 		paint.apply {
-			textSize = songTitleHeader.fontSize * Utils.FONT_SCALING
-			typeface = songTitleHeader.typeface
+			BeatPrompter.platformUtils.fontManager.setTextSize(this, songTitleHeader.fontSize)
+			BeatPrompter.platformUtils.fontManager.setTypeface(this, songTitleHeader.bold)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground
 		}
@@ -619,7 +639,7 @@ class SongView
 
 	private fun showComment(canvas: Canvas) {
 		if (lastCommentEvent != null)
-			lastCommentEvent!!.comment.draw(canvas, paint, commentTextColor)
+			lastCommentEvent!!.comment.draw(canvas, paint)
 	}
 
 	private fun startToggle(playState: PlayState) {
@@ -642,7 +662,7 @@ class SongView
 			if (startState !== PlayState.Playing) {
 				if (startState === PlayState.AtTitleScreen)
 					if (e != null)
-						if (e.y > displaySettings.screenSize.height() * 0.85f)
+						if (e.y > displaySettings.screenSize.height * 0.85f)
 							if (nextSong.isNotBlank()) {
 								endSong(true)
 								return true
@@ -710,9 +730,9 @@ class SongView
 			} else {
 				if (screenAction == ScreenAction.Volume) {
 					if (e != null) {
-						if (e.y < displaySettings.screenSize.height() * 0.5)
+						if (e.y < displaySettings.screenSize.height * 0.5)
 							changeVolume(+5)
-						else if (e.y > displaySettings.screenSize.height() * 0.5)
+						else if (e.y > displaySettings.screenSize.height * 0.5)
 							changeVolume(-5)
 					}
 				} else if (currentLine.scrollMode !== ScrollingMode.Manual) {
@@ -793,11 +813,11 @@ class SongView
 
 	private fun processBeatEvent(event: BeatEvent): Rect {
 		nanosecondsPerBeat = Utils.nanosecondsPerBeat(event.bpm)
-		val beatWidth = song!!.displaySettings.screenSize.width().toDouble() / event.bpb.toDouble()
+		val beatWidth = song!!.displaySettings.screenSize.width.toDouble() / event.bpb.toDouble()
 		val currentBeatCounterWidth = (beatWidth * (event.beat + 1).toDouble()).toInt()
 		if (event.willScrollOnBeat != -1) {
 			val thirdWidth = beatWidth / 3
-			val thirdHeight = song!!.beatCounterRect.height() / 3.0
+			val thirdHeight = song!!.beatCounterRect.height / 3.0
 			val scrollIndicatorStart = (beatWidth * event.willScrollOnBeat + thirdWidth).toInt()
 			val scrollIndicatorEnd = (beatWidth * (event.willScrollOnBeat + 1) - thirdWidth).toInt()
 			scrollIndicatorRect.apply {
@@ -815,10 +835,10 @@ class SongView
 				left = (currentBeatCounterWidth - beatWidth).toInt()
 				top = 0
 				right = currentBeatCounterWidth
-				bottom = song!!.beatCounterRect.height()
+				bottom = song!!.beatCounterRect.height
 			}
 		else
-			song!!.beatCounterRect
+			Rect(originalBeatCountRect)
 	}
 
 	private fun isTrackPlaying(): Boolean = audioPlayers.values.any { it.isPlaying }
@@ -828,35 +848,34 @@ class SongView
 
 	private fun processPauseEvent(event: PauseEvent) {
 		lastBeatTime = -1
-		val currentBeatCounterWidth = (song!!.displaySettings.screenSize.width()
+		val currentBeatCounterWidth = (song!!.displaySettings.screenSize.width
 			.toDouble() / (event.beats - 1).toDouble() * event.beat.toDouble()).toInt()
 		currentBeatCountRect.apply {
 			left = 0
 			top = 0
 			right = currentBeatCounterWidth
-			bottom = song!!.beatCounterRect.height()
+			bottom = song!!.beatCounterRect.height
 		}
 		clearScrollIndicatorRect()
 	}
 
-	private fun clearScrollIndicatorRect() {
+	private fun clearScrollIndicatorRect() =
 		scrollIndicatorRect.apply {
 			left = -1
 			top = -1
 			right = -1
 			bottom = -1
 		}
-	}
 
-	private fun processMIDIEvent(event: MIDIEvent) =
+	private fun processMIDIEvent(event: MidiEvent) =
 		event.messages.forEach {
 			Midi.putMessage(it)
 		}
 
 	private fun processLineEvent(event: LineEvent) = song?.apply {
 		currentLine = event.line
-		if (currentLine.scrollMode == ScrollingMode.Manual) {
-			currentBeatCountRect = beatCounterRect
+		if (currentLine.scrollMode === ScrollingMode.Manual) {
+			currentBeatCountRect = Rect(originalBeatCountRect)
 			calculateManualScrollPositions()
 		}
 	}
@@ -947,7 +966,7 @@ class SongView
 				if (currentLine.scrollMode !== ScrollingMode.Manual) currentEvent.previousBeatEvent else null
 			currentBeatCountRect =
 				//val nextBeatEvent = mCurrentEvent.mNextBeatEvent
-				if (prevBeatEvent == null) beatCounterRect else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
+				if (prevBeatEvent == null) Rect(originalBeatCountRect) else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
 			songStartTime = System.nanoTime() - nano
 			if (redraw)
 				invalidate()
@@ -1368,6 +1387,16 @@ class SongView
 	}
 
 	companion object {
+		private const val TEMP_MESSAGE_MARGIN = 25
+
+		private const val NEXT_SONG_TITLE_COLOR = Color.WHITE
+		private const val NEXT_SONG_TITLE_WHEN_SKIPPING_COLOR = Color.RED
+		private const val END_SONG_WARNING_TEXT_COLOR = Color.BLUE
+		private const val VOLUME_TEXT_COLOR = Color.BLACK
+		private val TEMP_MESSAGE_BACKGROUND_COLOR = Color.rgb(255, 255, 200)
+		private const val TITLE_SCREEN_BACKGROUND_COLOR = Color.BLACK
+		private const val TEMP_MESSAGE_BOX_OUTLINE_COLOR = Color.BLACK
+
 		private val SongViewAudioAttributes = AudioAttributes
 			.Builder()
 			.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)

@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse.tag
 
-import android.graphics.Color
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.TextFileParser
@@ -38,7 +37,7 @@ object TagParsingUtility {
 				else if (it > max)
 					throw MalformedTagException(R.string.intValueTooHigh, max, it)
 			}
-		} catch (nfe: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			throw MalformedTagException(R.string.intValueUnreadable, value)
 		}
 
@@ -62,7 +61,7 @@ object TagParsingUtility {
 						)
 					)
 			})
-		} catch (nfe: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			throw MalformedTagException(
 				BeatPrompter.appResources.getString(
 					R.string.durationValueUnreadable,
@@ -91,7 +90,7 @@ object TagParsingUtility {
 						)
 					)
 			}
-		} catch (nfe: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			throw MalformedTagException(
 				BeatPrompter.appResources.getString(
 					R.string.doubleValueUnreadable,
@@ -102,11 +101,11 @@ object TagParsingUtility {
 
 	fun parseColourValue(value: String): Int =
 		try {
-			Color.parseColor(value)
-		} catch (iae: IllegalArgumentException) {
+			BeatPrompter.platformUtils.parseColor(value)
+		} catch (_: IllegalArgumentException) {
 			try {
-				Color.parseColor("#$value")
-			} catch (iae2: IllegalArgumentException) {
+				BeatPrompter.platformUtils.parseColor("#$value")
+			} catch (_: IllegalArgumentException) {
 				throw MalformedTagException(
 					BeatPrompter.appResources.getString(
 						R.string.colorValueUnreadable,
@@ -128,7 +127,7 @@ object TagParsingUtility {
 						try {
 							// Arguments are one-based in the alias files.
 							ArgumentValue(Integer.parseInt(withoutQuestion) - 1)
-						} catch (nfe: NumberFormatException) {
+						} catch (_: NumberFormatException) {
 							throw MalformedTagException(BeatPrompter.appResources.getString(R.string.not_a_valid_argument_index))
 						}
 					}
@@ -156,7 +155,7 @@ object TagParsingUtility {
 				}
 			} catch (valueEx: ValueException) {
 				throw MalformedTagException(valueEx.message!!)
-			} catch (nfe: NumberFormatException) {
+			} catch (_: NumberFormatException) {
 				throw MalformedTagException(BeatPrompter.appResources.getString(R.string.not_a_valid_byte_value))
 			}
 		}

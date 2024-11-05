@@ -7,21 +7,21 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.stevenfrew.beatprompter.Preferences
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.set.PlaylistNode
 
 class SongListAdapter(private val values: List<PlaylistNode>, context: Context) :
 	ArrayAdapter<PlaylistNode>(context, -1, values) {
 	private val layoutId =
-		if (Preferences.largePrint)
+		if (BeatPrompter.preferences.largePrint)
 			R.layout.song_list_item_large
 		else
 			R.layout.song_list_item
-	private val showBeatIcons = Preferences.showBeatStyleIcons
-	private val showKey = Preferences.showKeyInSongList
-	private val showRating = Preferences.showRatingInSongList
-	private val showMusicIcon = Preferences.showMusicIcon
+	private val showBeatIcons = BeatPrompter.preferences.showBeatStyleIcons
+	private val showKey = BeatPrompter.preferences.showKeyInSongList
+	private val showRating = BeatPrompter.preferences.showRatingInSongList
+	private val showMusicIcon = BeatPrompter.preferences.showMusicIcon
 	private val inflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 

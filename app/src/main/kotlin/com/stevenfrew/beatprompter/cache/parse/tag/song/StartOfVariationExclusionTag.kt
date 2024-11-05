@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
 @EndedBy(EndOfVariationExclusionTag::class)
-@TagName("varxstart", "varexstart", "start_of_variation_exclusion")
+@TagName("varxstart", "varexstart", "start_of_variation_exclusion", "startofvariationexclusion")
 @TagType(Type.Directive)
 @OncePerLine
 /**

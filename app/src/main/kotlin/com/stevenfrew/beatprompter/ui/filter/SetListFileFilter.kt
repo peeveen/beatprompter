@@ -10,7 +10,7 @@ open class SetListFileFilter(
 ) : SetListFilter(setListFile.setTitle, getSongList(setListFile.setListEntries, setSongs)) {
 	var mMissingSetListEntries = getMissingSetListEntries(
 		setListFile.setListEntries,
-		songs
+		songs.map { it.first }
 	)
 	var mWarned = mMissingSetListEntries.isEmpty()
 
@@ -18,7 +18,13 @@ open class SetListFileFilter(
 		private fun getSongList(
 			setListEntries: List<SetListEntry>,
 			songFiles: List<SongFile>
-		): List<SongFile> = getMatches(setListEntries, songFiles).mapNotNull { it.second ?: it.third }
+		): List<Pair<SongFile, String?>> =
+			getMatches(setListEntries, songFiles)
+				.filter { it.second != null || it.third != null }
+				.map {
+					(it.second
+						?: it.third)!! to it.first.variation.ifBlank { null }
+				}
 
 		private fun getMissingSetListEntries(
 			setListEntries: List<SetListEntry>,
@@ -35,10 +41,21 @@ open class SetListFileFilter(
 		): List<Triple<SetListEntry, SongFile?, SongFile?>> =
 			setListEntries.map { entry ->
 				val exactMatch =
-					songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleAndArtistMatch }
+					songFiles.firstOrNull { song ->
+						songHasVariation(song, entry.variation) && entry.matches(
+							song
+						) == SetListMatch.TitleAndArtistMatch
+					}
 				val inexactMatch =
-					songFiles.firstOrNull { song: SongFile -> entry.matches(song) == SetListMatch.TitleMatch }
+					songFiles.firstOrNull { song ->
+						songHasVariation(song, entry.variation) && entry.matches(
+							song
+						) == SetListMatch.TitleMatch
+					}
 				Triple(entry, exactMatch, inexactMatch)
 			}
+
+		private fun songHasVariation(song: SongFile, variation: String): Boolean =
+			variation.isBlank() || song.variations.contains(variation)
 	}
 }

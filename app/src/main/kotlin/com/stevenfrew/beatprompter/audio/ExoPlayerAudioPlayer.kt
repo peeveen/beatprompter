@@ -17,7 +17,7 @@ import java.io.File
 class ExoPlayerAudioPlayer private constructor(
 	context: Context,
 	uri: Uri,
-	vol: Int,
+	private var currentVolume: Int,
 	looping: Boolean
 ) : AudioPlayer {
 	@OptIn(UnstableApi::class)
@@ -25,7 +25,7 @@ class ExoPlayerAudioPlayer private constructor(
 		setSeekParameters(SeekParameters.EXACT)
 		setMediaItem(MediaItem.fromUri(uri))
 		seekTo(0)
-		volume = 0.01f * vol
+		volume = 0.01f * currentVolume
 		repeatMode = if (looping) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
 		prepare()
 	}
@@ -59,8 +59,9 @@ class ExoPlayerAudioPlayer private constructor(
 		get() = internalPlayer.duration
 
 	override var volume: Int
-		get() = (internalPlayer.volume * 100.0).toInt()
+		get() = currentVolume
 		set(value) {
+			currentVolume = value
 			internalPlayer.volume = value * 0.01f
 		}
 }

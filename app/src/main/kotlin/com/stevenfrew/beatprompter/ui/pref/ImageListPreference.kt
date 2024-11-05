@@ -8,7 +8,6 @@ import androidx.preference.PreferenceViewHolder
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 
 class ImageListPreference(private val context: Context, attrs: AttributeSet) :
@@ -96,7 +95,7 @@ class ImageListPreference(private val context: Context, attrs: AttributeSet) :
 	override fun onBindViewHolder(view: PreferenceViewHolder) {
 		super.onBindViewHolder(view)
 		val imageView = view.findViewById(R.id.iconImageView) as ImageView
-		val iconResource = when (Preferences.getStringPreference(key, "")) {
+		val iconResource = when (BeatPrompter.preferences.getStringPreference(key, "")) {
 			BeatPrompter.appResources.getString(R.string.googleDriveValue) -> R.drawable.ic_google_drive
 			BeatPrompter.appResources.getString(R.string.dropboxValue) -> R.drawable.ic_dropbox
 			BeatPrompter.appResources.getString(R.string.oneDriveValue) -> R.drawable.ic_onedrive

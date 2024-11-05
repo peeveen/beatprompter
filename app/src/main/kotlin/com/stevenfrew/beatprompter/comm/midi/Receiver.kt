@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.comm.midi
 
 import android.content.SharedPreferences
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverBase
@@ -107,7 +106,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 
 	companion object : SharedPreferences.OnSharedPreferenceChangeListener {
 		init {
-			Preferences.registerOnSharedPreferenceChangeListener(this)
+			BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(this)
 		}
 
 		override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -121,7 +120,7 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 		private var incomingChannels = getIncomingChannelsPrefValue()
 		private val incomingChannelsLock = Any()
 
-		private fun getIncomingChannelsPrefValue(): Int = Preferences.incomingMIDIChannels
+		private fun getIncomingChannelsPrefValue(): Int = BeatPrompter.preferences.incomingMIDIChannels
 
 		private fun getIncomingChannels(): Int =
 			synchronized(incomingChannelsLock) {

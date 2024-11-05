@@ -66,6 +66,17 @@ abstract class SongFileParser<TResultType>(
 			tagSequence.filterIsInstance<StartOfVariationExclusionTag>().firstOrNull()
 		val variationInclusionStartTag =
 			tagSequence.filterIsInstance<StartOfVariationInclusionTag>().firstOrNull()
+		val namedVariations =
+			variationInclusionStartTag?.variations ?: variationExclusionStartTag?.variations ?: listOf()
+		val unknownNamedVariations = namedVariations.subtract(variations.toSet())
+		if (unknownNamedVariations.any())
+			addError(
+				FileParseError(
+					line.lineNumber,
+					R.string.unknownVariations,
+					unknownNamedVariations.joinToString(", ")
+				)
+			)
 		if (variationExclusionStartTag != null)
 			variationExclusions.add(variationExclusionStartTag.variations)
 		if (variationInclusionStartTag != null)
@@ -102,7 +113,7 @@ abstract class SongFileParser<TResultType>(
 					variationAudioTags[it] = mutableListOf()
 				}
 			} else
-				errors.add(FileParseError(line.lineNumber, R.string.variationsAlreadyDefined))
+				addError(FileParseError(line.lineNumber, R.string.variationsAlreadyDefined))
 		}
 
 		// Each audio file defined on a line now maps to a variation.
@@ -147,7 +158,7 @@ abstract class SongFileParser<TResultType>(
 		thisScrollBeatTotalOffset += scrollBeatTagDiff
 
 		if ((beatsPerBarInThisLine != 0) && (thisScrollBeatTotalOffset < -beatsPerBarInThisLine || thisScrollBeatTotalOffset >= beatsPerBarInThisLine)) {
-			errors.add(FileParseError(line.lineNumber, R.string.scrollbeatOffTheMap))
+			addError(FileParseError(line.lineNumber, R.string.scrollbeatOffTheMap))
 			thisScrollBeatTotalOffset = 0
 		}
 
@@ -160,7 +171,7 @@ abstract class SongFileParser<TResultType>(
 			if (allowModeChange && beatModeTags.size == 1)
 				if (beatStartTags.isNotEmpty())
 					if (ongoingBeatInfo.bpm == 0.0) {
-						errors.add(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
+						addError(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
 						lastLineBeatInfo.scrollMode
 					} else
 						ScrollingMode.Beat
@@ -217,7 +228,7 @@ abstract class SongFileParser<TResultType>(
 			variationAudioTags[filename] = mutableListOf()
 			return listOf(filename)
 		}
-		errors.add(FileParseError(lineNumber, R.string.tooManyAudioTags))
+		addError(FileParseError(lineNumber, R.string.tooManyAudioTags))
 		return null
 	}
 

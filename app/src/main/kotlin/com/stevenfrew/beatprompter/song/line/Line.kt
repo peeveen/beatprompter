@@ -1,9 +1,9 @@
 package com.stevenfrew.beatprompter.song.line
 
-import android.graphics.Canvas
 import android.graphics.Paint
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.LineGraphic
+import com.stevenfrew.beatprompter.graphics.bitmaps.BitmapCanvas
 import com.stevenfrew.beatprompter.song.ScrollingMode
 
 abstract class Line internal constructor(
@@ -21,7 +21,7 @@ abstract class Line internal constructor(
 	abstract val measurements: LineMeasurements
 	protected val graphics =
 		mutableListOf<LineGraphic>() // pointer to the allocated graphic, if one exists
-	protected val canvasses = mutableListOf<Canvas>()
+	protected val canvasses = mutableListOf<BitmapCanvas>()
 
 	internal abstract fun renderGraphics(paint: Paint)
 
@@ -57,7 +57,7 @@ abstract class Line internal constructor(
 
 	internal fun allocateGraphic(graphic: LineGraphic) {
 		graphics.add(graphic)
-		canvasses.add(Canvas(graphic.bitmap))
+		canvasses.add(graphic.bitmap.toCanvas())
 	}
 
 	internal fun getGraphics(paint: Paint): List<LineGraphic> {

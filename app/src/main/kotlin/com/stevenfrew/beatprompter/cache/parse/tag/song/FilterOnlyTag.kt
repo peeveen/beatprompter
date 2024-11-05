@@ -5,7 +5,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 
-@TagName("filter_only")
+@TagName("filter_only", "filteronly")
 @TagType(Type.Directive)
 /**
  * Tag that instructs the app to NOT list this song file in the main song list. It will only be

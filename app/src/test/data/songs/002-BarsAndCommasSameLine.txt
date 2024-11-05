@@ -1,0 +1,11 @@
+{t:002-BarsAndCommasSameLine}
+{c:Commas should take precedence}
+{bpl:4}{bpm:120}
+
+This is four bars per line,
+,This has one comma, so is one line
+{bpl:2},This is two bars per line, with a one-bar comma after the bpl
+This, with no commas, should now be two bars
+,,{bpl:4}This is four bars per line, with two commas BEFORE the bpl ... should still be two bars
+This, with no commas, should now be four bars
+And we’re done (four bars here).

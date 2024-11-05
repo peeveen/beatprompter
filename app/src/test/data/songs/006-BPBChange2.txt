@@ -1,0 +1,8 @@
+{t:006-BPBChange2}
+{bpm:113}{bpl:2}{count:0}{scrollbeat:3}
+
+I ain't [G]saying I loved you [F]first,
+I ain't [G]saying I loved you [F]first,
+{scrollbeat:5}{bpb:6},But I [C]loved you [A#]best.
+
+{bpb:4}I [Am]know we must abide

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import com.stevenfrew.beatprompter.BeatPrompter
 
 class FontSizePreference(
 	context: Context?,
@@ -34,9 +35,8 @@ class FontSizePreference(
 		}
 
 	companion object {
-		// Set by onCreate() in SongListActivity.java
-		var FONT_SIZE_OFFSET: Int = 0
-		var FONT_SIZE_MAX: Int = 0
-		var FONT_SIZE_MIN: Int = 0
+		val FONT_SIZE_OFFSET: Int = BeatPrompter.platformUtils.fontManager.minimumFontSize.toInt()
+		val FONT_SIZE_MAX: Int =
+			(BeatPrompter.platformUtils.fontManager.maximumFontSize - BeatPrompter.platformUtils.fontManager.minimumFontSize).toInt()
 	}
 }

@@ -9,14 +9,14 @@ data class SongLoadInfo(
 	val songFile: SongFile,
 	val variation: String,
 	val songLoadMode: ScrollingMode,
-	val nextSong: String,
-	val wasStartedByBandLeader: Boolean,
-	val wasStartedByMidiTrigger: Boolean,
 	val nativeDisplaySettings: DisplaySettings,
 	val sourceDisplaySettings: DisplaySettings,
-	val noAudio: Boolean,
-	val audioLatency: Int,
-	val transposeShift: Int
+	val nextSong: String = "",
+	val wasStartedByBandLeader: Boolean = false,
+	val wasStartedByMidiTrigger: Boolean = false,
+	val noAudio: Boolean = false,
+	val audioLatency: Int = 0,
+	val transposeShift: Int = 0
 ) {
 	val loadId = UUID.randomUUID()!!
 	val initialScrollMode

@@ -21,11 +21,6 @@ object Utils {
 	// Size of a "long", in bytes.
 	internal const val LONG_BUFFER_SIZE = 8
 
-	// Set by onCreate() in SongListActivity.java
-	internal var MAXIMUM_FONT_SIZE: Int = 0
-	internal var MINIMUM_FONT_SIZE: Int = 0
-	var FONT_SCALING: Float = 0.toFloat()
-
 	// Special token.
 	const val TRACK_AUDIO_LENGTH_VALUE = -93781472L
 	private val splitters = arrayOf(" ", "-")

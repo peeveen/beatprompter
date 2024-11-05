@@ -13,7 +13,6 @@ import com.dropbox.core.v2.files.GetMetadataErrorException
 import com.dropbox.core.v2.files.ListFolderResult
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.Preferences
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.DownloadResult
 import com.stevenfrew.beatprompter.storage.FailedDownloadResult
@@ -175,16 +174,16 @@ class DropboxStorage(parentFragment: Fragment) :
 
 	private fun updateDropboxCredentials(cred: DbxCredential): DbxCredential =
 		cred.also {
-			Preferences.dropboxAccessToken = it.accessToken
-			Preferences.dropboxRefreshToken = it.refreshToken
-			Preferences.dropboxExpiryTime = it.expiresAt
+			BeatPrompter.preferences.dropboxAccessToken = it.accessToken
+			BeatPrompter.preferences.dropboxRefreshToken = it.refreshToken
+			BeatPrompter.preferences.dropboxExpiryTime = it.expiresAt
 		}
 
 	private fun getStoredDropboxCredentials(): DbxCredential? {
-		val storedAccessToken = Preferences.dropboxAccessToken
-		val storedRefreshToken = Preferences.dropboxRefreshToken
-		val storedExpiryTime = Preferences.dropboxExpiryTime
-		if (storedAccessToken != null && storedRefreshToken != null && storedExpiryTime != 0L) {
+		val storedAccessToken = BeatPrompter.preferences.dropboxAccessToken
+		val storedRefreshToken = BeatPrompter.preferences.dropboxRefreshToken
+		val storedExpiryTime = BeatPrompter.preferences.dropboxExpiryTime
+		if (storedAccessToken.isNotBlank() && storedRefreshToken.isNotBlank() && storedExpiryTime != 0L) {
 			val cred = DbxCredential(
 				storedAccessToken,
 				storedExpiryTime,

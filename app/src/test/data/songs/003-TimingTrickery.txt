@@ -1,0 +1,41 @@
+{t:003-TimingTrickery}
+{st:The Trickster}
+{bpm:100.1}{bpb:5}{bpl:2}{count:1}{scrollbeat:3}
+
+BPB=5, scrollbeat=3, BPL=2 / scroll on beat 3 of bar 2
+(<) scroll on beat 2 of bar 2<
+(>) scroll on beat 4 of bar 2>
+,1 bar / scroll on beat 3
+,,,{scrollbeat:2}Three bars, scrollbeat=2 / scroll on beat 2 of third bar
+{bpb:3}2 bars, BPB=3 (>) / scrollbeat should now be 2, because it can’t be zero, so > will cause scroll on 3rd beat of 2nd bar>
+,1 bar, (>>) / scroll on first beat of next bar>>
+2 bars / scroll on 2nd beat of 2nd bar
+{bpb:4}2 bars, BPB=4, scrollbeat will now be 3 / scroll on 3rd beat of 2nd bar
+2 bars / scroll on 3rd beat of 2nd bar
+,,,,4 bars, (>>>) / scroll on 2nd beat of next (5th) bar>>>
+{bpb:6}2 bars, BPB=6, scrollbeat will now be 5 / scroll on 5th beat of 2nd bar
+2 bars / scroll on 5th beat of 2nd bar
+{bpb:3}2 bars, BPB=3, scrollbeat will now be 2 / scroll on 2nd beat of 2nd bar
+,,,3 bars / scroll on 2nd beat of 3rd bar
+2 bars, (<<) / scroll on 3rd beat of 1st bar<<
+{bpb:5}BPB=5, scrollbeat will now be 4 / scroll on 4th beat of 3rd bar (extra bar because of early finish of previous line)
+2 bars / scroll on 4th beat of 2nd bar
+2 bars, (>) / scroll on 5th beat of 2nd bar>
+{bpb:4}BPB=4, scrollbeat now 3 / scroll on 3rd beat of 2nd bar
+{scrollbeat:4}scrollbeat=4 / scroll on 4th beat of 2nd bar
+,1 bar / scroll on 4th beat of this bar
+2 bars, (>) / scroll on 1st beat of 3rd (next line) bar>
+,,{bpb:2}2 bars, BPB=2, scrollbeat will be 2 (<) / scroll on 1st beat of 2nd bar<
+2 bars, (<<) / scroll on 2nd beat of FIRST bar<<
+2 bars / should last THREE bars because of early finish of previous
+{bpb:7}2 bars, BPB=7, scrollbeat will be 7 / scroll on 7th beat of 2nd bar
+2 bars / scroll on 7th beat of 2nd bar
+,,,,,,{bpb:3}6 bars, BPB=3, scrollbeat will be 3, (<) / scroll on 2nd beat of 6th bar<
+2 bars / scroll on 3rd beat of 2nd bar
+,,,,,5 bars / scroll on 3rd beat of 5th bar
+{bpb:4}BPB=4, scrollbeat will now be 4, (>>) / scroll on 2nd beat of NEXT (3rd) bar>>
+2 bars / scroll on 4th beat of 2nd bar
+,1 bar / scroll on 4th beat of this bar
+,,2 bars, (<) / scroll on 3rd beat of 2nd bar<
+2 bars / scroll on 4th beat of 2nd bar
+2 bars, (<) / scroll on 3th beat of 2nd bar<

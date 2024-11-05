@@ -24,9 +24,9 @@ abstract class Task(private var running: Boolean) : Runnable {
 		}
 
 	override fun run() {
-		Log.d(TASKTAG, "Task initialising.")
+		Log.d(TASK_TAG, "Task initialising.")
 		initialise()
-		Log.d(TASKTAG, "Task starting.")
+		Log.d(TASK_TAG, "Task starting.")
 		while (!shouldStop) {
 			if (isRunning) {
 				doWork()
@@ -34,11 +34,11 @@ abstract class Task(private var running: Boolean) : Runnable {
 				try {
 					Thread.sleep(500)
 				} catch (ie: InterruptedException) {
-					Log.d(TASKTAG, "Thread sleep (while paused) was interrupted.", ie)
+					Log.d(TASK_TAG, "Thread sleep (while paused) was interrupted.", ie)
 				}
 			}
 		}
-		Log.d(TASKTAG, "Task ended.")
+		Log.d(TASK_TAG, "Task ended.")
 	}
 
 	private fun pause(): Boolean {
@@ -64,7 +64,7 @@ abstract class Task(private var running: Boolean) : Runnable {
 	abstract fun doWork()
 
 	companion object {
-		private const val TASKTAG = "task"
+		private const val TASK_TAG = "task"
 
 		private fun changeTaskState(task: Task?, thread: Thread?, fn: (Task) -> Boolean): Boolean =
 			if (task != null) {
@@ -84,7 +84,7 @@ abstract class Task(private var running: Boolean) : Runnable {
 				try {
 					thread?.join()
 				} catch (ie: InterruptedException) {
-					Log.d(TASKTAG, "Task interrupted while waiting for join.", ie)
+					Log.d(TASK_TAG, "Task interrupted while waiting for join.", ie)
 				}
 		}
 	}

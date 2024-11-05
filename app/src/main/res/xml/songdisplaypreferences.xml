@@ -12,6 +12,12 @@
 		app:fragment="com.stevenfrew.beatprompter.ui.pref.FontSizeSettingsFragment"
 		app:key="font-size_screen_preference"
 		app:title="Font Sizes" />
+	<EditTextPreference
+		android:defaultValue=""
+		android:key="@string/pref_preferredVariation_key"
+		android:summary="@string/pref_preferredVariation_summary"
+		android:title="@string/pref_preferredVariation_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
 		android:defaultValue="true"
 		android:key="@string/pref_pulse_key"

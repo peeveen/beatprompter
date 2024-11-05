@@ -1,12 +1,11 @@
 package com.stevenfrew.beatprompter.song.line
 
 import android.graphics.Paint
-import android.graphics.Typeface
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.StartOfHighlightTag
 import com.stevenfrew.beatprompter.graphics.ColorRect
-import com.stevenfrew.beatprompter.graphics.ScreenString
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,28 +36,31 @@ class LineSection(
 	val height: Int
 		get() = lineHeight + chordHeight
 
-	fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-		ScreenString.measure(lineText, paint, fontSize.toFloat(), face)
-		lineWidth = ScreenString.mMeasuredWidth
+	fun setTextFontSizeAndMeasure(paint: Paint, fontSize: Int): Int {
+		val measurement =
+			BeatPrompter.platformUtils.fontManager.measure(lineText, paint, fontSize.toFloat())
+		lineWidth = measurement.width
 		lineHeight = if (lineText.isBlank())
 			0
 		else
-			ScreenString.mMeasuredHeight
-		lineDescenderOffset = ScreenString.mMeasuredDescenderOffset
+			measurement.height
+		lineDescenderOffset = measurement.descenderOffset
 		return lineWidth
 	}
 
-	fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int, face: Typeface): Int {
-		ScreenString.measure(chordText, paint, fontSize.toFloat(), face)
-		chordWidth = ScreenString.mMeasuredWidth
+	fun setChordFontSizeAndMeasure(paint: Paint, fontSize: Int): Int {
+		val measurement =
+			BeatPrompter.platformUtils.fontManager.measure(chordText, paint, fontSize.toFloat())
+		chordWidth = measurement.width
 		chordHeight = if (trimmedChord.isEmpty())
 			0
 		else
-			ScreenString.mMeasuredHeight
-		chordDescenderOffset = ScreenString.mMeasuredDescenderOffset
+			measurement.height
+		chordDescenderOffset = measurement.descenderOffset
 		chordTrimWidth = if (trimmedChord.length < chordText.length) {
-			ScreenString.measure(trimmedChord, paint, fontSize.toFloat(), face)
-			ScreenString.mMeasuredWidth
+			val newMeasurement =
+				BeatPrompter.platformUtils.fontManager.measure(trimmedChord, paint, fontSize.toFloat())
+			newMeasurement.width
 		} else
 			chordWidth
 
@@ -68,7 +70,6 @@ class LineSection(
 	fun calculateHighlightedSections(
 		paint: Paint,
 		textSize: Float,
-		face: Typeface,
 		currentHighlightColour: Int?
 	): Int? {
 		var lookingForEnd = currentHighlightColour != null
@@ -80,18 +81,21 @@ class LineSection(
 			val length = min(it.position - sectionPosition, lineText.length)
 			if (it is StartOfHighlightTag && !lookingForEnd) {
 				val strHighlightText = lineText.substring(0, length)
-				startX = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
+				val stringWidth =
+					BeatPrompter.platformUtils.fontManager.getStringWidth(paint, strHighlightText, textSize)
+				startX = stringWidth.first
 				startPosition = it.position - sectionPosition
 				highlightColour = it.color
 				lookingForEnd = true
 			} else if (it is EndOfHighlightTag && lookingForEnd) {
 				val strHighlightText = lineText.substring(startPosition, length)
-				val sectionWidth = ScreenString.getStringWidth(paint, strHighlightText, face, textSize)
+				val sectionWidth =
+					BeatPrompter.platformUtils.fontManager.getStringWidth(paint, strHighlightText, textSize)
 				highlightingRectangles.add(
 					ColorRect(
 						startX,
 						chordHeight,
-						startX + sectionWidth,
+						startX + sectionWidth.first,
 						chordHeight + lineHeight,
 						highlightColour!!
 					)
