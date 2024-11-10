@@ -1,0 +1,27 @@
+{t:011-TimeTrack}
+{st:BeatPrompter Test}
+{bpm:120}
+{time:track}
+{variations:Var1,Var2}
+{audio:var1_audio.wav}{audio:var2_audio.wav}
+
+Blah Blah
+Blah
+Blah
+Blah Blah
+Blah
+Blah
+
+Blah Blah
+Blah
+Blah
+Blah Blah
+Blah
+Blah
+
+Blah Blah
+Blah
+Blah
+Blah Blah
+Blah
+Blah
