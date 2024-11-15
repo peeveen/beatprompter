@@ -216,7 +216,7 @@ class SongParser(
 		}
 		val lengthOfBackingTrack = flatAudioFiles.firstOrNull()?.duration ?: 0L
 		var songTime =
-			if (songLoadInfo.songFile.duration == Utils.TRACK_AUDIO_LENGTH_VALUE)
+			if (songLoadInfo.songFile.duration == Utils.milliToNano(Utils.TRACK_AUDIO_LENGTH_VALUE))
 				lengthOfBackingTrack
 			else
 				songLoadInfo.songFile.duration

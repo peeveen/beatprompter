@@ -43,7 +43,7 @@ class SongFile(
 	val sortableArtist = sortableString(artist)
 	val sortableTitle = sortableString(title)
 	val isSmoothScrollable
-		get() = duration > 0
+		get() = duration != 0L
 	val isBeatScrollable
 		get() = bpm > 0.0
 	val bestScrollingMode

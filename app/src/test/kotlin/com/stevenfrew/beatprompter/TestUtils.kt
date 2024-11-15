@@ -4,6 +4,7 @@ import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.graphics.Paint
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedFile
+import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.cache.parse.SongParser
@@ -62,7 +63,8 @@ object TestUtils {
 
 	internal fun parseSong(
 		songFile: File,
-		scrollingMode: ScrollingMode = ScrollingMode.Beat
+		scrollingMode: ScrollingMode = ScrollingMode.Beat,
+		songFileValidator: ((SongFile) -> Unit)? = null
 	): Pair<Song, List<FileParseError>> {
 		val cachedFile =
 			CachedFile(
@@ -74,6 +76,7 @@ object TestUtils {
 			)
 		val songFileInfoParser = SongInfoParser(cachedFile)
 		val parsedSongFile = songFileInfoParser.parse()
+		songFileValidator?.invoke(parsedSongFile)
 		val songLoadInfo = SongLoadInfo(
 			parsedSongFile, parsedSongFile.variations.first(), scrollingMode, TestDisplaySettings,
 			TestDisplaySettings
@@ -86,10 +89,11 @@ object TestUtils {
 
 	internal fun testSongFileEvents(
 		filename: String,
-		scrollingMode: ScrollingMode = ScrollingMode.Beat
+		scrollingMode: ScrollingMode = ScrollingMode.Beat,
+		songFileValidator: ((SongFile) -> Unit)? = null
 	): Song {
 		val songFile = getTestFile("songs", filename)
-		val (song, errors) = parseSong(songFile, scrollingMode)
+		val (song, errors) = parseSong(songFile, scrollingMode, songFileValidator)
 		checkExpectedSongEvents(songFile, song, errors)
 		return song
 	}

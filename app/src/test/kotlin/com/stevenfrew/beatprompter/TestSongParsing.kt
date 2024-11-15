@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class TestSongParsing {
 	init {
@@ -62,6 +63,15 @@ class TestSongParsing {
 
 	@Test
 	fun testSmoothScrolling() {
-		TestUtils.testSongFileEvents("010-SmoothScrolling.txt", ScrollingMode.Smooth)
+		TestUtils.testSongFileEvents("010-SmoothScrolling.txt", ScrollingMode.Smooth) {
+			assertTrue(it.isSmoothScrollable)
+		}
+	}
+
+	@Test
+	fun testTimeTrack() {
+		TestUtils.testSongFileEvents("011-TimeTrack.txt", ScrollingMode.Smooth) {
+			assertTrue(it.isSmoothScrollable)
+		}
 	}
 }
