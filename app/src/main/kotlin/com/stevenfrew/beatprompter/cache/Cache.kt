@@ -242,22 +242,28 @@ object Cache {
 			}
 
 			BeatPrompter.addDebugMessage("Reading XML database.")
-			val xml = DocumentBuilderFactory
-				.newInstance()
-				.newDocumentBuilder()
-				.parse(database)
-			if (readFromXML(
-					xml,
-					itemSource,
-					messageSource
+			try {
+				val xml = DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(database)
+				if (readFromXML(
+						xml,
+						itemSource,
+						messageSource
+					)
 				)
-			)
-				writeDatabase()
-			BeatPrompter.addDebugMessage("Calling itemSource.onComplete()")
-			itemSource.onComplete()
-			BeatPrompter.addDebugMessage("Called itemSource.onComplete()")
-			compositeDisposable.dispose()
-			BeatPrompter.addDebugMessage("Disposed of CompositeDisposable.")
+					writeDatabase()
+				BeatPrompter.addDebugMessage("Calling itemSource.onComplete()")
+				itemSource.onComplete()
+				BeatPrompter.addDebugMessage("Called itemSource.onComplete()")
+				compositeDisposable.dispose()
+				BeatPrompter.addDebugMessage("Disposed of CompositeDisposable.")
+			} catch (e: Exception) {
+				// Something went wrong with reading the XML.
+				// Database is lost, and will need rebuilt.
+				return false
+			}
 		}
 		return databaseExists
 	}
