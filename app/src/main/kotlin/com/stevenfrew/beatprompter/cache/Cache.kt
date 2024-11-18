@@ -63,6 +63,7 @@ object Cache {
 	}
 
 	private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
+	private const val TEMP_XML_DATABASE_FILE_NAME = "$XML_DATABASE_FILE_NAME.tmp"
 	private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
 	private const val TEMPORARY_SET_LIST_FILENAME = "temporary_setlist.txt"
 	private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
@@ -270,9 +271,9 @@ object Cache {
 
 	fun writeDatabase() {
 		try {
+			val tempDatabase = File(beatPrompterDataFolder, TEMP_XML_DATABASE_FILE_NAME)
 			val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-			if (!database.delete())
-				Logger.log("Failed to delete database file.")
+			tempDatabase.delete()
 			val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 			val d = docBuilder.newDocument()
 			val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
@@ -283,9 +284,13 @@ object Cache {
 			d.appendChild(root)
 			cachedCloudItems.writeToXML(d, root)
 			val transformer = TransformerFactory.newInstance().newTransformer()
-			val output = StreamResult(database)
+			val output = StreamResult(tempDatabase)
 			val input = DOMSource(d)
 			transformer.transform(input, output)
+			// Rename temp database file to actual database.
+			// This limits potential for corruption caused by shutdown during write.
+			tempDatabase.copyTo(database, true)
+			tempDatabase.delete()
 		} catch (ioe: Exception) {
 			Logger.log(ioe)
 			EventRouter.sendEventToSongList(Events.DATABASE_WRITE_ERROR)
