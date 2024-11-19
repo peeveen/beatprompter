@@ -184,6 +184,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								child
 							val fileID = resolvedChild.id
 							val title = resolvedChild.name
+							val md5Checksum = resolvedChild.md5Checksum ?: ""
 							val mimeType = resolvedChild.mimeType
 							Logger.log({ "File ID: $fileID" })
 							if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
@@ -205,7 +206,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								Logger.log({ "File title: $title" })
 								val modifiedTime = Date(resolvedChild.modifiedTime.value)
 								val newFile = FileInfo(
-									fileID, title, modifiedTime,
+									fileID, title, modifiedTime, md5Checksum,
 									if (currentFolder.parentFolder == null) "" else currentFolderID
 								)
 								mItemSource.onNext(newFile)

@@ -93,7 +93,15 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 				val files = localFolder.listFiles()
 				if (files != null) {
 					files.filter { it.isFile }
-						.map { FileInfo(it.absolutePath, it.name, Date(it.lastModified()), it.absolutePath) }
+						.map {
+							FileInfo(
+								it.absolutePath,
+								it.name,
+								Date(it.lastModified()),
+								it.getMd5Hash(),
+								it.absolutePath
+							)
+						}
 						.forEach { itemSource.onNext(it) }
 					if (recurseSubFolders)
 						foldersToSearch.addAll(files.filter { it.isDirectory }

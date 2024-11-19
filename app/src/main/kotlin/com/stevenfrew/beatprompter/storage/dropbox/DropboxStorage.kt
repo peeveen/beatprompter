@@ -172,6 +172,7 @@ class DropboxStorage(parentFragment: Fragment) :
 								itemSource.onNext(
 									FileInfo(
 										metadata.id, metadata.name, metadata.serverModified,
+										metadata.contentHash,
 										if (folderToSearch.parentFolder == null) "" else currentFolderID
 									)
 								)

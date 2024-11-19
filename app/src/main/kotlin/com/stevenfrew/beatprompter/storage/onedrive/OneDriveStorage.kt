@@ -117,6 +117,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 								mItemSource.onNext(
 									FileInfo(
 										child.id, child.name, child.lastModifiedDateTime.time,
+										child.file.hashes.sha1Hash ?: "",
 										if (nextFolder.parentFolder == null) "" else nextFolder.id
 									)
 								)
