@@ -18,6 +18,7 @@ class SuccessfulDownloadResult(
 				fileInfo.id,
 				fileInfo.name,
 				fileInfo.lastModified,
+				fileInfo.contentHash,
 				fileInfo.subfolderIds
 			)
 }

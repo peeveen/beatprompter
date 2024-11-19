@@ -32,7 +32,7 @@ class DownloadTask(
 	private var progressDialog: ProgressDialog? = null
 	private var errorOccurred = false
 	private var filesToUpdate = filesToUpdate?.asSequence()
-		?.map { ftu -> FileInfo(ftu.id, ftu.name, ftu.lastModified, ftu.subfolderIds) }
+		?.map { ftu -> FileInfo(ftu.id, ftu.name, ftu.lastModified, ftu.contentHash, ftu.subfolderIds) }
 		?.toMutableList()
 		?: mutableListOf()
 	private var cloudItemsFound = mutableMapOf<String, ItemInfo>()
@@ -92,7 +92,13 @@ class DownloadTask(
 						// If we've found this FILE already, then it exists in multiple folders.
 						// Update the item with a new instance that reflects all sub-folders.
 						val newSubfolderIDs = listOf(oldItem.subfolderIds, item.subfolderIds).flatten()
-						FileInfo(oldItem.id, oldItem.name, oldItem.lastModified, newSubfolderIDs)
+						FileInfo(
+							oldItem.id,
+							oldItem.name,
+							oldItem.lastModified,
+							oldItem.contentHash,
+							newSubfolderIDs
+						)
 					} else
 						oldItem ?: item
 				cloudItemsFound[itemToAdd.id] = itemToAdd

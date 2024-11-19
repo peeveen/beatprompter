@@ -8,6 +8,9 @@ import android.hardware.usb.UsbInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
 
 fun String.splitAndTrim(separator: String): List<String> =
 	split(separator).run {
@@ -126,3 +129,11 @@ fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 	}
 	return fallbackInterface
 }
+
+fun File.getMd5Hash(): String = getHash("MD5").toHashString(32)
+fun File.getHash(algorithm: String) = readBytes().getHash(algorithm)
+
+fun ByteArray.toHashString(minLength: Int) =
+	BigInteger(1, this).toString(16).padStart(minLength, '0')
+
+fun ByteArray.getHash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this)

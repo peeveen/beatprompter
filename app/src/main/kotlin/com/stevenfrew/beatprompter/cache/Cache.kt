@@ -28,6 +28,7 @@ import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.w3c.dom.Document
@@ -133,6 +134,8 @@ object Cache {
 
 		temporarySetListFile = File(beatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
 		defaultMidiAliasesFile = File(beatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
+		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
+		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
 		initialiseTemporarySetListFile(false, context)
 		try {
 			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, defaultMidiAliasesFile!!)
@@ -147,7 +150,8 @@ object Cache {
 					FileInfo(
 						"idBeatPrompterTemporarySetList",
 						"BeatPrompterTemporarySetList",
-						Date()
+						Date(),
+						temporarySetListFileMd5Checksum
 					), temporarySetListFile!!
 				)
 			)
@@ -156,7 +160,8 @@ object Cache {
 					FileInfo(
 						"idBeatPrompterDefaultMidiAliases",
 						context.getString(R.string.default_alias_set_name),
-						Date()
+						Date(),
+						defaultMidiAliasesFileMd5Checksum
 					), defaultMidiAliasesFile!!
 				)
 			)

@@ -59,8 +59,8 @@ class DemoStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTyp
 		messageSource: PublishSubject<String>,
 		recurseSubFolders: Boolean
 	) = with(itemSource) {
-		onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date()))
-		onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date()))
+		onNext(FileInfo(DEMO_SONG_TEXT_ID, DEMO_SONG_FILENAME, Date(), "demoSongHash"))
+		onNext(FileInfo(DEMO_SONG_AUDIO_ID, DEMO_SONG_AUDIO_FILENAME, Date(), "demoAudioHash"))
 		onComplete()
 	}
 

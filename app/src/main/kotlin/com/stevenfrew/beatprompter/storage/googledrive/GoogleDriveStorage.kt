@@ -29,6 +29,7 @@ import com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -271,6 +272,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 							val localFile = downloadGoogleDriveFile(file, safeFilename)
 							val updatedCloudFile = FileInfo(
 								it.id, file.name, Date(file.modifiedTime.value),
+								file.md5Checksum ?: "",
 								it.subfolderIds
 							)
 							SuccessfulDownloadResult(updatedCloudFile, localFile)
@@ -292,6 +294,10 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			filename: String
 		): File {
 			val localFile = File(mDownloadFolder, filename)
+			// If we already have the file, we must be downloading cos the database
+			// was corrupted. The existing file might be valid.
+			if (localFile.exists() && file.md5Checksum != null && localFile.getMd5Hash() == file.md5Checksum)
+				return localFile
 			val inputStream = getDriveFileInputStream(file)
 			inputStream?.use { inStream ->
 				Logger.log({ "Creating new local file, ${localFile.absolutePath}" })
@@ -378,7 +384,8 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		private const val GOOGLE_DRIVE_ROOT_FOLDER_ID = "root"
 		private const val GOOGLE_DRIVE_ROOT_PATH = "/"
 		const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
-		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON = "id,name,mimeType,modifiedTime"
+		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON =
+			"id,name,mimeType,modifiedTime,md5Checksum"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN =
 			"${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},shortcutDetails"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD =

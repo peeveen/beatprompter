@@ -12,6 +12,7 @@ import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.subjects.PublishSubject
 import java.io.File
 import java.util.Date
@@ -64,6 +65,7 @@ class LocalStorage(parentFragment: Fragment) : Storage(parentFragment, StorageTy
 					it.absolutePath,
 					it.name,
 					Date(it.lastModified()),
+					it.getMd5Hash(),
 					cloudFile.subfolderIds
 				), it
 			)

@@ -129,14 +129,15 @@ class CachedCloudCollection {
 				}
 			}
 
-
 	fun isFilterOnly(file: SongFile): Boolean =
+	// If a FILE is marked as filter-only, then it SHOULD actually be shown if it is
+		// in the root folder (in which case, there will be a blank ID).
 		if (file.isFilterOnly)
-			true
-		else
-		// Now ... if any of the folders that the file is in contain a file called ".filter_only"
+			file.subfolderIds.any { it.isNotBlank() }
+		// Now ... if any of the FOLDERS that the file is in contain a file called ".filter_only"
 		// then we treat this file as "filter only". This also applies to any parent folders of
 		// those folders.
+		else
 			file.subfolderIds.toMutableSet().apply {
 				toSet().forEach {
 					addAll(getParentFolderIDs(it))
