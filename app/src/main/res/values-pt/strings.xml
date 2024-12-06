@@ -434,4 +434,6 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="unknownVariations">A etiqueta varstart/varxstart contém variações desconhecidas: %1$s</string>
 	<string name="pref_preferredVariation_title">Variação preferida</string>
 	<string name="pref_preferredVariation_summary">Se uma música contiver esta variação, esta será carregada por defeito.</string>
+	<string name="stop">Parar</string>
+	<string name="stopping">Parando …</string>
 </resources>

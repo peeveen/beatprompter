@@ -434,4 +434,6 @@ Em]zeigt den Beat Progression.\n
 	<string name="unknownVariations">varstart/varxstart-Tag enthält unbekannte Variationen: %1$s</string>
 	<string name="pref_preferredVariation_title">Bevorzugte Variante</string>
 	<string name="pref_preferredVariation_summary">Wenn ein Lied diese Variation enthält, wird sie standardmäßig geladen.</string>
+	<string name="stop">Stoppen</string>
+	<string name="stopping">Stoppen …</string>
 </resources>

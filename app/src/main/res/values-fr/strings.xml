@@ -434,4 +434,6 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="unknownVariations">La balise varstart/varxstart contient des variantes inconnues : %1$s</string>
 	<string name="pref_preferredVariation_title">Variation préférée</string>
 	<string name="pref_preferredVariation_summary">Si une chanson contient cette variation, elle sera chargée par défaut.</string>
+	<string name="stop">Arrêter</string>
+	<string name="stopping">Arrêt …</string>
 </resources>

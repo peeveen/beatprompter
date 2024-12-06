@@ -673,6 +673,8 @@ class SongView
 					if (currentLine.scrollMode === ScrollingMode.Manual) {
 						// Top of the page? Start. Else it's a continue.
 						if (songPixelPosition == 0) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (jumpToBeatStart())
+							return true
 						// Start the count in.
 						if (manualMetronomeThread != null) {
 							if (!manualMetronomeThread!!.isAlive) {
@@ -1160,20 +1162,24 @@ class SongView
 			changeVolume(+5)
 	}
 
+	private fun jumpToBeatStart(): Boolean =
+		(manualScrollPositions.mBeatJumpScrollLine != null).also {
+			if (it)
+				setSongTime(
+					manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
+					redraw = true,
+					broadcast = true,
+					setPixelPosition = true,
+					recalculateManualPositions = false
+				)
+		}
+
 	private fun changePage(down: Boolean) {
 		if (startState === PlayState.AtTitleScreen)
 			return
 		if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition)
 			return
-		if (down && manualScrollPositions.mBeatJumpScrollLine != null)
-			setSongTime(
-				manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
-				redraw = true,
-				broadcast = true,
-				setPixelPosition = true,
-				recalculateManualPositions = false
-			)
-		else
+		if (!down || !jumpToBeatStart())
 			targetPixelPosition =
 				if (down)
 					manualScrollPositions.mPageDownPosition

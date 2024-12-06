@@ -434,4 +434,6 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="unknownVariations">Il tag varstart/varxstart contiene varianti sconosciute: %1$s</string>
 	<string name="pref_preferredVariation_title">Variante preferita</string>
 	<string name="pref_preferredVariation_summary">Se una canzone contiene questa variazione, questa verrà caricata per impostazione predefinita.</string>
+	<string name="stop">Fermare</string>
+	<string name="stopping">Arresto …</string>
 </resources>
