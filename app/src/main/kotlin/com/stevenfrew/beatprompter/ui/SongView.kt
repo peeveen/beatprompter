@@ -730,6 +730,8 @@ class SongView
 						)
 					)
 			} else {
+				if (jumpToBeatStart())
+					return true
 				if (screenAction == ScreenAction.Volume) {
 					if (e != null) {
 						if (e.y < displaySettings.screenSize.height * 0.5)
