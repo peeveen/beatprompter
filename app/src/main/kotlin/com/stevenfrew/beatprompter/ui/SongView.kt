@@ -1165,8 +1165,8 @@ class SongView
 	}
 
 	private fun jumpToBeatStart(): Boolean =
-		(manualScrollPositions.mBeatJumpScrollLine != null).also {
-			if (it)
+		(song!!.currentLine.scrollMode === ScrollingMode.Manual && manualScrollPositions.mBeatJumpScrollLine != null).also {
+			if (it) {
 				setSongTime(
 					manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
 					redraw = true,
@@ -1174,6 +1174,7 @@ class SongView
 					setPixelPosition = true,
 					recalculateManualPositions = false
 				)
+			}
 		}
 
 	private fun changePage(down: Boolean) {
