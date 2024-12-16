@@ -436,4 +436,8 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_preferredVariation_summary">Wenn ein Lied diese Variation enthält, wird sie standardmäßig geladen.</string>
 	<string name="stop">Stoppen</string>
 	<string name="stopping">Stoppen …</string>
+	<string name="pref_trimTrailingPunctuation_title">Kürzen Sie die nachfolgende Interpunktion</string>
+	<string name="pref_useUnicodeEllipsis_title">Unicode-Auslassungspunkte verwenden</string>
+	<string name="pref_useUnicodeEllipsis_summary">Ersetzen Sie Sequenzen von genau drei Punkten durch das Unicode-Auslassungszeichen.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Entfernen Sie einzelne Punkte oder Kommas am Zeilenende.</string>
 </resources>

@@ -436,4 +436,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_preferredVariation_summary">Si una canción contiene esta variación, se cargará de forma predeterminada.</string>
 	<string name="stop">Parar</string>
 	<string name="stopping">Parada …</string>
+	<string name="pref_trimTrailingPunctuation_title">Recortar la puntuación final</string>
+	<string name="pref_useUnicodeEllipsis_title">Utilice puntos suspensivos Unicode</string>
+	<string name="pref_useUnicodeEllipsis_summary">Reemplace secuencias de exactamente tres puntos con el carácter de puntos suspensivos Unicode.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Eliminar puntos o comas simples del final de las líneas.</string>
 </resources>

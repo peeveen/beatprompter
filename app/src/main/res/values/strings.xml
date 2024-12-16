@@ -810,6 +810,14 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
 
+	<string name="pref_useUnicodeEllipsis_key" translatable="false">pref_useUnicodeEllipsis</string>
+	<string name="pref_useUnicodeEllipsis_title">Use Unicode ellipsis</string>
+	<string name="pref_useUnicodeEllipsis_summary">Replace sequences of exactly three dots with the Unicode ellipsis character.</string>
+
+	<string name="pref_trimTrailingPunctuation_key" translatable="false">pref_trimTrailingPunctuation</string>
+	<string name="pref_trimTrailingPunctuation_title">Trim trailing punctuation</string>
+	<string name="pref_trimTrailingPunctuation_summary">Remove single full-stops or commas from the end of lines.</string>
+
 	<string name="pref_bluetoothMidiDevices_key" translatable="false">pref_bluetoothMidiDevices</string>
 	<string name="pref_bluetoothMidiDevices_title">Bluetooth MIDI Devices</string>
 	<string name="pref_bluetoothMidiDevices_summary">What Bluetooth devices should be considered for MIDI?</string>

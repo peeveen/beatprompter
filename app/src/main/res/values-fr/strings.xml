@@ -436,4 +436,8 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="pref_preferredVariation_summary">Si une chanson contient cette variation, elle sera chargée par défaut.</string>
 	<string name="stop">Arrêter</string>
 	<string name="stopping">Arrêt …</string>
+	<string name="pref_trimTrailingPunctuation_title">Couper la ponctuation de fin</string>
+	<string name="pref_useUnicodeEllipsis_title">Utiliser les points de suspension Unicode</string>
+	<string name="pref_useUnicodeEllipsis_summary">Remplacez les séquences d’exactement trois points par le caractère de points de suspension Unicode.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Supprimez les points simples ou les virgules à la fin des lignes.</string>
 </resources>

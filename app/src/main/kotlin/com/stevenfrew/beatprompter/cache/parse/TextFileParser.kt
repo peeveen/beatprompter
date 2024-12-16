@@ -37,6 +37,7 @@ abstract class TextFileParser<TFileResult>(
 		cachedCloudFile.file.forEachLine { strLine ->
 			++lineNumber
 			val txt = strLine.trim().removeControlCharacters()
+
 			// Ignore empty lines and comments
 			if (txt.isNotEmpty() && !txt.startsWith('#')) {
 				val textLine = TextFileLine(txt, lineNumber, tagParseHelper, this)
@@ -138,4 +139,5 @@ abstract class TextFileParser<TFileResult>(
 		tagFinders
 			.mapNotNull { it.findTag(text) }
 			.minByOrNull { it.start }
+
 }

@@ -436,4 +436,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="pref_preferredVariation_summary">Se una canzone contiene questa variazione, questa verrà caricata per impostazione predefinita.</string>
 	<string name="stop">Fermare</string>
 	<string name="stopping">Arresto …</string>
+	<string name="pref_trimTrailingPunctuation_title">Ritaglia la punteggiatura finale</string>
+	<string name="pref_useUnicodeEllipsis_title">Utilizzare i puntini di sospensione Unicode</string>
+	<string name="pref_useUnicodeEllipsis_summary">Sostituisci sequenze di esattamente tre punti con il carattere di ellissi Unicode.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Rimuovere i singoli punti o le virgole dalla fine delle righe.</string>
 </resources>

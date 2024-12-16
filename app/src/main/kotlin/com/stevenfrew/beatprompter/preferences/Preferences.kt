@@ -84,6 +84,8 @@ interface Preferences {
 	var dropboxAccessToken: String
 	var dropboxRefreshToken: String
 	var dropboxExpiryTime: Long
+	val trimTrailingPunctuation: Boolean
+	val useUnicodeEllipsis: Boolean
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

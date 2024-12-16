@@ -480,6 +480,12 @@ abstract class AbstractPreferences(
 		get() = getPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, 0L)
 		set(value) = setPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, value)
 
+	override val trimTrailingPunctuation: Boolean
+		get() = getBooleanPreference(R.string.pref_trimTrailingPunctuation_key, true)
+
+	override val useUnicodeEllipsis: Boolean
+		get() = getBooleanPreference(R.string.pref_useUnicodeEllipsis_key, true)
+
 	private fun getIntPreference(
 		prefResourceString: Int,
 		prefDefaultResourceString: Int,
