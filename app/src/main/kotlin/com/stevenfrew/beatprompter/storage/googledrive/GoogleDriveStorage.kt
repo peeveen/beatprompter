@@ -9,6 +9,7 @@ import com.google.android.gms.common.api.Scope
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.HttpStatusCodes
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.ExponentialBackOff
@@ -178,8 +179,15 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								break
 							// Ignore shortcuts
 							val resolvedChild = if (child.shortcutDetails != null)
-								mClient.files().get(child.shortcutDetails.targetId)
-									.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
+								try {
+									// Shortcuts can point to files that no longer exist!
+									mClient.files().get(child.shortcutDetails.targetId)
+										.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
+								} catch (e: GoogleJsonResponseException) {
+									if (e.statusCode == HttpStatusCodes.STATUS_CODE_NOT_FOUND)
+										continue
+									throw e
+								}
 							else
 								child
 							val fileID = resolvedChild.id
