@@ -36,7 +36,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
  * Parser for MIDI alias files.
  */
 class MidiAliasFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, DirectiveFinder) {
+	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
 	private var currentAliasName: String? = null

@@ -1,6 +1,5 @@
 package com.stevenfrew.beatprompter.cache.parse
 
-import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.Tag
@@ -13,7 +12,9 @@ open class TextFileLine<TFileType>(
 	line: String,
 	val lineNumber: Int,
 	tagParseHelper: TagParsingHelper<TFileType>,
-	parser: TextFileParser<TFileType>
+	parser: TextFileParser<TFileType>,
+	private val useUnicodeEllipsis: Boolean,
+	private val trimTrailingPunctuation: Boolean
 ) {
 	private val line: String
 	val lineWithNoTags: String
@@ -23,7 +24,6 @@ open class TextFileLine<TFileType>(
 		get() = line.isEmpty()
 
 	init {
-		val useUnicodeEllipsis = BeatPrompter.preferences.useUnicodeEllipsis
 		var currentLine = line.trim().let {
 			if (useUnicodeEllipsis)
 				it.replace(ellipsisReplaceRegex, "$1…$2")
@@ -59,7 +59,6 @@ open class TextFileLine<TFileType>(
 			currentLine = lineWithoutTag.trim()
 		}
 
-		val trimTrailingPunctuation = BeatPrompter.preferences.trimTrailingPunctuation
 		lineWithNoTags = currentLine.trim().let {
 			if (trimTrailingPunctuation)
 				it.replace(trimTrailingPunctuationRegex, "$1")

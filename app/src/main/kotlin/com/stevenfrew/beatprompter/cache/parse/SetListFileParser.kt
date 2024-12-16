@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.set.SetListEntry
  * Parser for set list files.
  */
 class SetListFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
+	TextFileParser<SetListFile>(cachedCloudFile, true, false, false, DirectiveFinder) {
 	private var setName: String = ""
 	private val setListEntries = mutableListOf<SetListEntry>()
 
