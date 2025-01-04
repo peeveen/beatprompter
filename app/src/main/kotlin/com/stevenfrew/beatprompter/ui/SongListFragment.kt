@@ -1068,6 +1068,8 @@ class SongListFragment
 			|| key == getString(R.string.pref_showBeatStyleIcons_key)
 			|| key == getString(R.string.pref_showMusicIcon_key)
 			|| key == getString(R.string.pref_showKeyInList_key)
+			|| key == getString(R.string.pref_showIconInList_key)
+			|| key == getString(R.string.pref_showYearInList_key)
 		) {
 			listAdapter = buildListAdapter()
 			updateListView()
