@@ -19,7 +19,7 @@
 	<string name="pref_bpl_text">BPL</string>
 	<string name="pref_bpm_text">BPM</string>
 	<string name="byArtist">Con l\'artista</string>
-	<string name="byDate">Per data</string>
+	<string name="byDate">Per data dell\'ultima modifica</string>
 	<string name="byTitle">Per titolo</string>
 	<string name="cancel">Annulla</string>
 	<string name="cannotFindAudioFile">Impossibile trovare il file audio: %1$s</string>
@@ -440,4 +440,10 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="pref_useUnicodeEllipsis_title">Utilizzare i puntini di sospensione Unicode</string>
 	<string name="pref_useUnicodeEllipsis_summary">Sostituisci sequenze di esattamente tre punti con il carattere di ellissi Unicode.</string>
 	<string name="pref_trimTrailingPunctuation_summary">Rimuovere i singoli punti o le virgole dalla fine delle righe.</string>
+	<string name="byYear">Per anno</string>
+	<string name="byIcon">Per icona</string>
+	<string name="pref_showYearInList_title">Mostra l\'anno della canzone</string>
+	<string name="pref_showYearInList_summary">Nell\'elenco principale dei brani, mostra l\'anno del brano (se definito).</string>
+	<string name="pref_showIconInList_title">Mostra icona canzone</string>
+	<string name="pref_showIconInList_summary">Nell\'elenco principale dei brani, mostra l\'icona del brano (se definito).</string>
 </resources>

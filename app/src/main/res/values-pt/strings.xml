@@ -19,7 +19,7 @@
 	<string name="pref_bpl_text">BPL</string>
 	<string name="pref_bpm_text">BPM</string>
 	<string name="byArtist">Pelo artista</string>
-	<string name="byDate">Por data</string>
+	<string name="byDate">Pela data da última modificação</string>
 	<string name="byTitle">Por título</string>
 	<string name="cancel">Cancelar</string>
 	<string name="cannotFindAudioFile">Não é possível localizar arquivo de áudio: %1$s</string>
@@ -440,4 +440,10 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="pref_useUnicodeEllipsis_title">Utilize reticências Unicode</string>
 	<string name="pref_useUnicodeEllipsis_summary">Substitua sequências de exatamente três pontos pelo caractere de reticências Unicode.</string>
 	<string name="pref_trimTrailingPunctuation_summary">Remova os pontos finais ou vírgulas do final das linhas.</string>
+	<string name="byYear">Por ano</string>
+	<string name="byIcon">Por ícone</string>
+	<string name="pref_showYearInList_title">Mostrar ano da música</string>
+	<string name="pref_showYearInList_summary">Na lista principal de músicas, mostre o ano da música (se definido).</string>
+	<string name="pref_showIconInList_title">Mostrar ícone de música</string>
+	<string name="pref_showIconInList_summary">Na lista principal de músicas, mostre o ícone da música (se definido).</string>
 </resources>

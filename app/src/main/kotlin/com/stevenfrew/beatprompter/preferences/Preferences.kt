@@ -61,6 +61,8 @@ interface Preferences {
 	val showBeatStyleIcons: Boolean
 	val showKeyInSongList: Boolean
 	val showRatingInSongList: Boolean
+	val showYearInSongList: Boolean
+	val showIconInSongList: Boolean
 	val showMusicIcon: Boolean
 	val screenAction: SongView.ScreenAction
 	val audioPlayer: AudioPlayerType

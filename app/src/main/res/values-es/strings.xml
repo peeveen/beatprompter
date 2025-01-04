@@ -7,7 +7,7 @@
 	<string name="badAudioVolume">Volumen de pista de audio no es un número entre 0 y 100.</string>
 	<string name="beat_scrolling">Batir Desplazamiento</string>
 	<string name="byArtist">Por el artista</string>
-	<string name="byDate">Por fecha</string>
+	<string name="byDate">Por fecha de última modificación</string>
 	<string name="byTitle">Por titulo</string>
 	<string name="cancel">Cancelar</string>
 	<string name="cannotFindAudioFile">No se puede encontrar el archivo de audio: %1$s</string>
@@ -440,4 +440,10 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_useUnicodeEllipsis_title">Utilice puntos suspensivos Unicode</string>
 	<string name="pref_useUnicodeEllipsis_summary">Reemplace secuencias de exactamente tres puntos con el carácter de puntos suspensivos Unicode.</string>
 	<string name="pref_trimTrailingPunctuation_summary">Eliminar puntos o comas simples del final de las líneas.</string>
+	<string name="byYear">Por año</string>
+	<string name="byIcon">Por icono</string>
+	<string name="pref_showYearInList_title">Mostrar canción del año</string>
+	<string name="pref_showYearInList_summary">En la lista principal de canciones, muestra el año de la canción (si está definido).</string>
+	<string name="pref_showIconInList_title">Mostrar icono de canción</string>
+	<string name="pref_showIconInList_summary">En la lista principal de canciones, muestra el ícono de la canción (si está definido).</string>
 </resources>

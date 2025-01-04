@@ -6,5 +6,7 @@ enum class SortingPreference {
 	Key,
 	Date,
 	Mode,
-	Rating
+	Rating,
+	Year,
+	Icon
 }

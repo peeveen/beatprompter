@@ -752,6 +752,8 @@ class SongListFragment
 					SortingPreference.Mode -> playlist.sortByMode()
 					SortingPreference.Rating -> playlist.sortByRating()
 					SortingPreference.Key -> playlist.sortByKey()
+					SortingPreference.Year -> playlist.sortByYear()
+					SortingPreference.Icon -> playlist.sortByIcon()
 				}
 			}
 		}
@@ -869,6 +871,8 @@ class SongListFragment
 					getString(R.string.byKey),
 					getString(R.string.byMode),
 					getString(R.string.byRating),
+					getString(R.string.byYear),
+					getString(R.string.byIcon),
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
@@ -879,6 +883,8 @@ class SongListFragment
 							3 -> SortingPreference.Key
 							4 -> SortingPreference.Mode
 							5 -> SortingPreference.Rating
+							6 -> SortingPreference.Year
+							7 -> SortingPreference.Icon
 							else -> SortingPreference.Title
 						}
 					)

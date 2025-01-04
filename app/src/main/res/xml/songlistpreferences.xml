@@ -18,13 +18,25 @@
 		android:title="@string/pref_showKeyInList_title"
 		android:summary="@string/pref_showKeyInList_summary"
 		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:defaultValue="true" />
 	<CheckBoxPreference
 		android:key="@string/pref_showRatingInList_key"
 		android:title="@string/pref_showRatingInList_title"
 		android:summary="@string/pref_showRatingInList_summary"
 		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:defaultValue="true" />
+	<CheckBoxPreference
+		android:key="@string/pref_showYearInList_key"
+		android:title="@string/pref_showYearInList_title"
+		android:summary="@string/pref_showYearInList_summary"
+		app:iconSpaceReserved="false"
+		android:defaultValue="true" />
+	<CheckBoxPreference
+		android:key="@string/pref_showIconInList_key"
+		android:title="@string/pref_showIconInList_title"
+		android:summary="@string/pref_showIconInList_summary"
+		app:iconSpaceReserved="false"
+		android:defaultValue="true" />
 	<CheckBoxPreference
 		android:key="@string/pref_largePrintList_key"
 		android:title="@string/pref_largePrintList_title"

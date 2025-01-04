@@ -6,7 +6,7 @@
 	<string name="badAudioVolume">Audio Track-Lautstärke ist nicht eine Zahl zwischen 0 und 100.</string>
 	<string name="beat_scrolling">Schlagen Scrolling</string>
 	<string name="byArtist">Durch Künstler</string>
-	<string name="byDate">Nach Datum</string>
+	<string name="byDate">Nach Datum der letzten Änderung</string>
 	<string name="byTitle">Mit dem Titel</string>
 	<string name="cancel">Stornieren</string>
 	<string name="cannotFindAudioFile">Kann nicht Audiodatei finden: %1$s</string>
@@ -440,4 +440,10 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_useUnicodeEllipsis_title">Unicode-Auslassungspunkte verwenden</string>
 	<string name="pref_useUnicodeEllipsis_summary">Ersetzen Sie Sequenzen von genau drei Punkten durch das Unicode-Auslassungszeichen.</string>
 	<string name="pref_trimTrailingPunctuation_summary">Entfernen Sie einzelne Punkte oder Kommas am Zeilenende.</string>
+	<string name="byYear">Nach Jahr</string>
+	<string name="byIcon">Nach Symbol</string>
+	<string name="pref_showYearInList_title">Songjahr anzeigen</string>
+	<string name="pref_showYearInList_summary">Zeigen Sie in der Hauptsongliste das Jahr des Songs an (sofern definiert).</string>
+	<string name="pref_showIconInList_title">Songsymbol anzeigen</string>
+	<string name="pref_showIconInList_summary">Zeigen Sie in der Hauptsongliste das Symbol des Songs an (sofern definiert).</string>
 </resources>

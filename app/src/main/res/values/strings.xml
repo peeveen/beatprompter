@@ -187,7 +187,7 @@
 	<string name="lowerCaseThe">the</string>
 	<string name="byTitle">By title</string>
 	<string name="byArtist">By artist</string>
-	<string name="byDate">By date</string>
+	<string name="byDate">By last-modified date</string>
 	<string name="byKey">By key</string>
 	<string name="sortSongs">Sort songs …</string>
 	<string name="file_io_read_error">Error reading file.</string>
@@ -415,6 +415,16 @@
 	<string name="pref_showKeyInList_title">Show song key</string>
 	<string name="pref_showKeyInList_summary">In the main song list, show the key of the song.</string>
 	<string name="pref_showKeyInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showYearInList_key" translatable="false">pref_showYearInList</string>
+	<string name="pref_showYearInList_title">Show song year</string>
+	<string name="pref_showYearInList_summary">In the main song list, show the year of the song (if defined).</string>
+	<string name="pref_showYearInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showIconInList_key" translatable="false">pref_showIconInList</string>
+	<string name="pref_showIconInList_title">Show song icon</string>
+	<string name="pref_showIconInList_summary">In the main song list, show the icon of the song (if defined).</string>
+	<string name="pref_showIconInList_defaultValue" translatable="false">false</string>
 
 	<string name="pref_showRatingInList_key" translatable="false">pref_showRatingInList</string>
 	<string name="pref_showRatingInList_title">Show song rating</string>
@@ -840,5 +850,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="unknownVariations">varstart/varxstart tag contains unknown variations: %1$s.</string>
 	<string name="stop">Stop</string>
 	<string name="stopping">Stopping …</string>
+	<string name="byYear">By year</string>
+	<string name="byIcon">By icon</string>
 
 </resources>

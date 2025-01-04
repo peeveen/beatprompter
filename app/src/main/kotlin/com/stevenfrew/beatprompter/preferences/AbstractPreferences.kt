@@ -329,6 +329,18 @@ abstract class AbstractPreferences(
 			R.string.pref_showRatingInList_defaultValue
 		)
 
+	override val showYearInSongList: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_showYearInList_key,
+			R.string.pref_showYearInList_defaultValue
+		)
+
+	override val showIconInSongList: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_showIconInList_key,
+			R.string.pref_showIconInList_defaultValue
+		)
+
 	override val showMusicIcon: Boolean
 		get() = getBooleanPreference(
 			R.string.pref_showMusicIcon_key,
