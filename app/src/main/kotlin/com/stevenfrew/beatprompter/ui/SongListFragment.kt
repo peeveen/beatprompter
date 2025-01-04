@@ -53,6 +53,7 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.set.Playlist
@@ -112,6 +113,7 @@ class SongListFragment
 	private var filters = listOf<Filter>()
 	private val selectedTagFilters = mutableListOf<TagFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
+	private var imageDictionary: Map<String, Bitmap> = mapOf()
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		if (selectedFilter is MIDIAliasFilesFilter) {
@@ -773,7 +775,11 @@ class SongListFragment
 					it
 				)
 			else
-				SongListAdapter(filterPlaylistNodes(playlist), it)
+				SongListAdapter(
+					filterPlaylistNodes(playlist),
+					imageDictionary,
+					it
+				)
 		}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
@@ -1002,9 +1008,21 @@ class SongListFragment
 			}
 	}
 
+	private fun buildImageDictionary(cache: CachedCloudCollection): Map<String, Bitmap> =
+		BeatPrompter.platformUtils.bitmapFactory.let { factory ->
+			cache.imageFiles.mapNotNull {
+				try {
+					it.name to factory.createBitmap(it.file.path)
+				} catch (_: Exception) {
+					null
+				}
+			}.toMap()
+		}
+
 	internal fun onCacheUpdated(cache: CachedCloudCollection) {
 		val listView = requireView().findViewById<ListView>(R.id.listView)
 		savedListIndex = listView.firstVisiblePosition
+		imageDictionary = buildImageDictionary(cache)
 		val v = listView.getChildAt(0)
 		savedListOffset = if (v == null) 0 else v.top - listView.paddingTop
 		initialiseList(cache)

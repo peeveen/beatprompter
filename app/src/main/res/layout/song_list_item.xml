@@ -10,8 +10,10 @@
 		android:layout_width="30dip"
 		android:layout_height="30dip"
 		android:layout_alignParentStart="true"
+		android:layout_centerVertical="true"
+		android:layout_margin="2dp"
 		android:scaleType="fitCenter"
-		app:srcCompat="@drawable/beat_selector"
+		app:srcCompat="@drawable/blank_icon"
 		tools:layout_centerVertical="true" />
 
 	<LinearLayout
@@ -55,7 +57,6 @@
 		android:id="@+id/songartist"
 		android:layout_width="fill_parent"
 		android:layout_height="20dip"
-		android:layout_alignParentStart="true"
 		android:layout_alignParentBottom="true"
 		android:layout_marginTop="0dp"
 		android:layout_toStartOf="@id/songlisticonsection"

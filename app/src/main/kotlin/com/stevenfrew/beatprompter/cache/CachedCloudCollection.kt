@@ -36,7 +36,7 @@ class CachedCloudCollection {
 		get() =
 			items.values.filterIsInstance<AudioFile>()
 
-	private val imageFiles: List<ImageFile>
+	val imageFiles: List<ImageFile>
 		get() =
 			items.values.filterIsInstance<ImageFile>()
 

@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.ui
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.set.PlaylistNode
 
-class SongListAdapter(private val values: List<PlaylistNode>, context: Context) :
-	ArrayAdapter<PlaylistNode>(context, -1, values) {
+class SongListAdapter(
+	private val values: List<PlaylistNode>,
+	private val imageDictionary: Map<String, Bitmap>,
+	context: Context
+) : ArrayAdapter<PlaylistNode>(context, -1, values) {
+	private val blankIconBitmap = BitmapFactory.decodeResource(
+		context.resources,
+		R.drawable.blank_icon
+	)
 	private val layoutId =
 		if (BeatPrompter.preferences.largePrint)
 			R.layout.song_list_item_large
@@ -34,9 +44,13 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 			val beatIcon = it.findViewById<ImageView>(R.id.beaticon)
 			val docIcon = it.findViewById<ImageView>(R.id.smoothicon)
 			val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
-			val iconIcon = it.findViewById<ImageView>(R.id.icon)
+			val songIcon = it.findViewById<ImageView>(R.id.songIcon)
 			val song = values[position].songFile
-			val icon = song.icon
+			if (showIcon) {
+				val icon = song.icon
+				val image = imageDictionary.getOrDefault(icon, null) as AndroidBitmap?
+				songIcon.setImageBitmap(image?.androidBitmap ?: blankIconBitmap)
+			}
 			notesIcon.visibility =
 				if (song.audioFiles.values.flatten()
 						.isEmpty() || !showMusicIcon
@@ -45,8 +59,7 @@ class SongListAdapter(private val values: List<PlaylistNode>, context: Context) 
 				if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			beatIcon.visibility =
 				if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
-			iconIcon.visibility =
-				if (showIcon && icon != null) View.VISIBLE else View.GONE
+			songIcon.visibility = if (showIcon) View.VISIBLE else View.GONE
 			titleView.text = song.title
 			val key = song.keySignature
 			val rating = song.rating

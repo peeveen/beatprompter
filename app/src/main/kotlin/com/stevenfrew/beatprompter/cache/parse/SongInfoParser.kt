@@ -70,7 +70,9 @@ import org.w3c.dom.Element
 	BeatStopTag::class,
 	AudioTag::class,
 	VariationsTag::class,
-	ChordTag::class
+	ChordTag::class,
+	YearTag::class,
+	IconTag::class
 )
 @IgnoreTags(
 	LegacyTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,

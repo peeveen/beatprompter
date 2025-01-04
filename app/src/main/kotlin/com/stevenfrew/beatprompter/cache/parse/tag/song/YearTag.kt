@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 @TagName("year", "y")
 @TagType(Type.Directive)
 /**
- * Tag that defines the year of realease of this song.
+ * Tag that defines the year of release of this song.
  */
 class YearTag internal constructor(
 	name: String,
@@ -19,5 +19,5 @@ class YearTag internal constructor(
 	position: Int,
 	year: String
 ) : ValueTag(name, lineNumber, position, year) {
-	val year = TagParsingUtility.parseIntegerValue(year, 1, 5)
+	val year = TagParsingUtility.parseIntegerValue(year, 0, 9999)
 }
