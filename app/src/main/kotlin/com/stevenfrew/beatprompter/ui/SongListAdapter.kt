@@ -53,7 +53,7 @@ class SongListAdapter(
 			val song = values[position].songFile
 			val iconShown = song.icon.let {
 				val image = (imageDictionary.getOrDefault(it, null) as AndroidBitmap?)?.androidBitmap
-					?: blankIconBitmap
+					?: missingIconBitmap
 				songIconDisplayed?.setImageBitmap(image)
 				songIconDisplayed != null && it != null
 			}
