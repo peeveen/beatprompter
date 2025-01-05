@@ -25,6 +25,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationInclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.IconTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
@@ -46,6 +47,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
 import com.stevenfrew.beatprompter.chord.ChordMap
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
@@ -125,6 +127,8 @@ import kotlin.math.roundToInt
 	KeyTag::class,
 	RatingTag::class,
 	TagTag::class,
+	YearTag::class,
+	IconTag::class,
 	FilterOnlyTag::class
 )
 /**
