@@ -67,7 +67,7 @@ class SongListAdapter(
 			val keyString = if (showKey && !key.isNullOrBlank()) " - $key" else ""
 			val ratingString = if (showRating && rating != 0) " - ${STARS[rating]}" else ""
 			val yearString = if (showYear && year != null) " - $year" else ""
-			val artist = song.artist + keyString + yearString + ratingString
+			val artist = song.artist + yearString + keyString + ratingString
 			artistView.text = artist
 		}
 
