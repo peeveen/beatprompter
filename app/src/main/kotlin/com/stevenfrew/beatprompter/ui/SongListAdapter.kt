@@ -16,7 +16,6 @@ import com.stevenfrew.beatprompter.set.PlaylistNode
 class SongListAdapter(
 	private val values: List<PlaylistNode>,
 	private val imageDictionary: Map<String, Bitmap>,
-	private val blankIconBitmap: android.graphics.Bitmap,
 	private val missingIconBitmap: android.graphics.Bitmap,
 	context: Context
 ) : ArrayAdapter<PlaylistNode>(context, -1, values) {

@@ -115,7 +115,6 @@ class SongListFragment
 	private val selectedTagFilters = mutableListOf<TagFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
 	private var imageDictionary: Map<String, Bitmap> = mapOf()
-	private var blankIconBitmap: android.graphics.Bitmap? = null
 	private var missingIconBitmap: android.graphics.Bitmap? = null
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -661,10 +660,6 @@ class SongListFragment
 		super.onViewCreated(view, savedInstanceState)
 		val activity = requireActivity()
 		activity.addMenuProvider(MenuProvider())
-		blankIconBitmap = BitmapFactory.decodeResource(
-			activity.resources,
-			R.drawable.blank_icon
-		)
 		missingIconBitmap = BitmapFactory.decodeResource(
 			activity.resources,
 			R.drawable.ic_missing
@@ -790,7 +785,6 @@ class SongListFragment
 				SongListAdapter(
 					filterPlaylistNodes(playlist),
 					imageDictionary,
-					blankIconBitmap!!,
 					missingIconBitmap!!,
 					it
 				)
