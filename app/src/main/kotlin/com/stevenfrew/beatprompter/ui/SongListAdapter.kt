@@ -46,10 +46,11 @@ class SongListAdapter(
 			val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
 			val songIcon = it.findViewById<ImageView>(R.id.songIcon)
 			val song = values[position].songFile
-			if (showIcon) {
-				val icon = song.icon
-				val image = imageDictionary.getOrDefault(icon, null) as AndroidBitmap?
-				songIcon.setImageBitmap(image?.androidBitmap ?: blankIconBitmap)
+			val iconShown = song.icon.let {
+				val image = (imageDictionary.getOrDefault(it, null) as AndroidBitmap?)?.androidBitmap
+					?: blankIconBitmap
+				songIcon.setImageBitmap(image)
+				showIcon && it != null
 			}
 			notesIcon.visibility =
 				if (song.audioFiles.values.flatten()
@@ -59,7 +60,7 @@ class SongListAdapter(
 				if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			beatIcon.visibility =
 				if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
-			songIcon.visibility = if (showIcon) View.VISIBLE else View.GONE
+			songIcon.visibility = if (iconShown) View.VISIBLE else View.GONE
 			titleView.text = song.title
 			val key = song.keySignature
 			val rating = song.rating
