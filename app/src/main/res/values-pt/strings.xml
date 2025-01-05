@@ -444,6 +444,10 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="byIcon">Por ícone</string>
 	<string name="pref_showYearInList_title">Mostrar ano da música</string>
 	<string name="pref_showYearInList_summary">Na lista principal de músicas, mostre o ano da música (se definido).</string>
-	<string name="pref_showIconInList_title">Mostrar ícone de música</string>
-	<string name="pref_showIconInList_summary">Na lista principal de músicas, mostre o ícone da música (se definido).</string>
+	<string name="pref_songIconDisplayPosition_title">Posição de visualização do ícone da música</string>
+	<string name="pref_songIconDisplayPosition_summary">Onde deve ser apresentado o ícone da música (se definido)?</string>
+	<string name="songListDisplayPositionNoneName">Nenhum</string>
+	<string name="songListDisplayPositionLeftName">Esquerdo</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Secção de ícones, à esquerda</string>
+	<string name="songListDisplayPositionIconSectionRightName">Secção de ícones, à direita</string>
 </resources>

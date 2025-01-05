@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
@@ -114,6 +115,8 @@ class SongListFragment
 	private val selectedTagFilters = mutableListOf<TagFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
 	private var imageDictionary: Map<String, Bitmap> = mapOf()
+	private var blankIconBitmap: android.graphics.Bitmap? = null
+	private var missingIconBitmap: android.graphics.Bitmap? = null
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		if (selectedFilter is MIDIAliasFilesFilter) {
@@ -656,7 +659,16 @@ class SongListFragment
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		requireActivity().addMenuProvider(MenuProvider())
+		val activity = requireActivity()
+		activity.addMenuProvider(MenuProvider())
+		blankIconBitmap = BitmapFactory.decodeResource(
+			activity.resources,
+			R.drawable.blank_icon
+		)
+		missingIconBitmap = BitmapFactory.decodeResource(
+			activity.resources,
+			R.drawable.ic_missing
+		)
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -778,6 +790,8 @@ class SongListFragment
 				SongListAdapter(
 					filterPlaylistNodes(playlist),
 					imageDictionary,
+					blankIconBitmap!!,
+					missingIconBitmap!!,
 					it
 				)
 		}
@@ -1068,7 +1082,7 @@ class SongListFragment
 			|| key == getString(R.string.pref_showBeatStyleIcons_key)
 			|| key == getString(R.string.pref_showMusicIcon_key)
 			|| key == getString(R.string.pref_showKeyInList_key)
-			|| key == getString(R.string.pref_showIconInList_key)
+			|| key == getString(R.string.pref_songIconDisplayPosition_key)
 			|| key == getString(R.string.pref_showYearInList_key)
 		) {
 			listAdapter = buildListAdapter()

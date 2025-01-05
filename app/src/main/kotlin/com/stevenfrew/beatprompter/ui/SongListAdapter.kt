@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.ui
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +16,10 @@ import com.stevenfrew.beatprompter.set.PlaylistNode
 class SongListAdapter(
 	private val values: List<PlaylistNode>,
 	private val imageDictionary: Map<String, Bitmap>,
+	private val blankIconBitmap: android.graphics.Bitmap,
+	private val missingIconBitmap: android.graphics.Bitmap,
 	context: Context
 ) : ArrayAdapter<PlaylistNode>(context, -1, values) {
-	private val blankIconBitmap = BitmapFactory.decodeResource(
-		context.resources,
-		R.drawable.blank_icon
-	)
 	private val layoutId =
 		if (BeatPrompter.preferences.largePrint)
 			R.layout.song_list_item_large
@@ -32,7 +29,7 @@ class SongListAdapter(
 	private val showKey = BeatPrompter.preferences.showKeyInSongList
 	private val showRating = BeatPrompter.preferences.showRatingInSongList
 	private val showYear = BeatPrompter.preferences.showYearInSongList
-	private val showIcon = BeatPrompter.preferences.showIconInSongList
+	private val songIconDisplayPosition = BeatPrompter.preferences.songIconDisplayPosition
 	private val showMusicIcon = BeatPrompter.preferences.showMusicIcon
 	private val inflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -44,13 +41,21 @@ class SongListAdapter(
 			val beatIcon = it.findViewById<ImageView>(R.id.beaticon)
 			val docIcon = it.findViewById<ImageView>(R.id.smoothicon)
 			val notesIcon = it.findViewById<ImageView>(R.id.musicicon)
-			val songIcon = it.findViewById<ImageView>(R.id.songIcon)
+			val songIconLeft = it.findViewById<ImageView>(R.id.songIconLeft)
+			val songIconSectionLeft = it.findViewById<ImageView>(R.id.songIconSectionLeft)
+			val songIconSectionRight = it.findViewById<ImageView>(R.id.songIconSectionRight)
+			val songIconDisplayed = when (songIconDisplayPosition) {
+				SongIconDisplayPosition.Left -> songIconLeft
+				SongIconDisplayPosition.IconSectionLeft -> songIconSectionLeft
+				SongIconDisplayPosition.IconSectionRight -> songIconSectionRight
+				else -> null
+			}
 			val song = values[position].songFile
 			val iconShown = song.icon.let {
 				val image = (imageDictionary.getOrDefault(it, null) as AndroidBitmap?)?.androidBitmap
 					?: blankIconBitmap
-				songIcon.setImageBitmap(image)
-				showIcon && it != null
+				songIconDisplayed?.setImageBitmap(image)
+				songIconDisplayed != null && it != null
 			}
 			notesIcon.visibility =
 				if (song.audioFiles.values.flatten()
@@ -60,7 +65,12 @@ class SongListAdapter(
 				if (!song.isSmoothScrollable || !showBeatIcons) View.GONE else View.VISIBLE
 			beatIcon.visibility =
 				if (!song.isBeatScrollable || !showBeatIcons) View.GONE else View.VISIBLE
-			songIcon.visibility = if (iconShown) View.VISIBLE else View.GONE
+			songIconLeft.visibility =
+				if (songIconDisplayPosition == SongIconDisplayPosition.Left && iconShown) View.VISIBLE else View.GONE
+			songIconSectionLeft.visibility =
+				if (songIconDisplayPosition == SongIconDisplayPosition.IconSectionLeft && iconShown) View.VISIBLE else View.GONE
+			songIconSectionRight.visibility =
+				if (songIconDisplayPosition == SongIconDisplayPosition.IconSectionRight && iconShown) View.VISIBLE else View.GONE
 			titleView.text = song.title
 			val key = song.keySignature
 			val rating = song.rating

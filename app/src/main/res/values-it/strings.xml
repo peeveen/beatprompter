@@ -444,6 +444,10 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="byIcon">Per icona</string>
 	<string name="pref_showYearInList_title">Mostra l\'anno della canzone</string>
 	<string name="pref_showYearInList_summary">Nell\'elenco principale dei brani, mostra l\'anno del brano (se definito).</string>
-	<string name="pref_showIconInList_title">Mostra icona canzone</string>
-	<string name="pref_showIconInList_summary">Nell\'elenco principale dei brani, mostra l\'icona del brano (se definito).</string>
+	<string name="pref_songIconDisplayPosition_title">Posizione di visualizzazione dell\'icona della canzone</string>
+	<string name="pref_songIconDisplayPosition_summary">Dove dovrebbe essere visualizzata l\'icona del brano (se definita)?</string>
+	<string name="songListDisplayPositionNoneName">Nessuno</string>
+	<string name="songListDisplayPositionLeftName">Sinistra</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Sezione icona, sinistra</string>
+	<string name="songListDisplayPositionIconSectionRightName">Sezione icona, destra</string>
 </resources>

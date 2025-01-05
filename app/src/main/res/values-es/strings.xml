@@ -444,6 +444,10 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="byIcon">Por icono</string>
 	<string name="pref_showYearInList_title">Mostrar canción del año</string>
 	<string name="pref_showYearInList_summary">En la lista principal de canciones, muestra el año de la canción (si está definido).</string>
-	<string name="pref_showIconInList_title">Mostrar icono de canción</string>
-	<string name="pref_showIconInList_summary">En la lista principal de canciones, muestra el ícono de la canción (si está definido).</string>
+	<string name="pref_songIconDisplayPosition_title">Posición de visualización del icono de la canción</string>
+	<string name="pref_songIconDisplayPosition_summary">¿Dónde debe mostrarse el ícono de la canción (si está definido)?</string>
+	<string name="songListDisplayPositionNoneName">Ninguno</string>
+	<string name="songListDisplayPositionLeftName">Izquierda</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Sección de iconos, izquierda</string>
+	<string name="songListDisplayPositionIconSectionRightName">Sección de iconos, derecha</string>
 </resources>

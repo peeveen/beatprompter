@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -173,7 +174,7 @@ abstract class AbstractPreferences(
 					R.string.pref_showSongBPM_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			ShowBPMContext.No
 		}
@@ -186,7 +187,7 @@ abstract class AbstractPreferences(
 					R.string.pref_sendMidiTriggerOnStart_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			TriggerOutputContext.ManualStartOnly
 		}
@@ -199,7 +200,7 @@ abstract class AbstractPreferences(
 					R.string.pref_metronome_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			MetronomeContext.Off
 		}
@@ -335,11 +336,18 @@ abstract class AbstractPreferences(
 			R.string.pref_showYearInList_defaultValue
 		)
 
-	override val showIconInSongList: Boolean
-		get() = getBooleanPreference(
-			R.string.pref_showIconInList_key,
-			R.string.pref_showIconInList_defaultValue
-		)
+	override val songIconDisplayPosition: SongIconDisplayPosition
+		get() = try {
+			SongIconDisplayPosition.valueOf(
+				getStringPreference(
+					R.string.pref_songIconDisplayPosition_key,
+					R.string.pref_songIconDisplayPosition_defaultValue
+				)
+			)
+		} catch (_: Exception) {
+			// Default
+			SongIconDisplayPosition.Left
+		}
 
 	override val showMusicIcon: Boolean
 		get() = getBooleanPreference(

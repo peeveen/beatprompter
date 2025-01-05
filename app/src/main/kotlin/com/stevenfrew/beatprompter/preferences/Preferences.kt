@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -62,7 +63,7 @@ interface Preferences {
 	val showKeyInSongList: Boolean
 	val showRatingInSongList: Boolean
 	val showYearInSongList: Boolean
-	val showIconInSongList: Boolean
+	val songIconDisplayPosition: SongIconDisplayPosition
 	val showMusicIcon: Boolean
 	val screenAction: SongView.ScreenAction
 	val audioPlayer: AudioPlayerType

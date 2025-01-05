@@ -444,6 +444,10 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="byIcon">Par icône</string>
 	<string name="pref_showYearInList_title">Afficher l\'année de la chanson</string>
 	<string name="pref_showYearInList_summary">Dans la liste principale des chansons, affichez l\'année de la chanson (si définie).</string>
-	<string name="pref_showIconInList_title">Afficher l\'icône de la chanson</string>
-	<string name="pref_showIconInList_summary">Dans la liste principale des chansons, affichez l\'icône de la chanson (si définie).</string>
+	<string name="pref_songIconDisplayPosition_title">Position d\'affichage de l\'icône de chanson</string>
+	<string name="pref_songIconDisplayPosition_summary">Où l\'icône de la chanson (si définie) doit-elle être affichée ?</string>
+	<string name="songListDisplayPositionNoneName">Aucun</string>
+	<string name="songListDisplayPositionLeftName">Gauche</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Section d\'icônes, à gauche</string>
+	<string name="songListDisplayPositionIconSectionRightName">Section d\'icônes, à droite</string>
 </resources>

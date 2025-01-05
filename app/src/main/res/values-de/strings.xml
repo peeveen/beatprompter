@@ -444,6 +444,10 @@ Em]zeigt den Beat Progression.\n
 	<string name="byIcon">Nach Symbol</string>
 	<string name="pref_showYearInList_title">Songjahr anzeigen</string>
 	<string name="pref_showYearInList_summary">Zeigen Sie in der Hauptsongliste das Jahr des Songs an (sofern definiert).</string>
-	<string name="pref_showIconInList_title">Songsymbol anzeigen</string>
-	<string name="pref_showIconInList_summary">Zeigen Sie in der Hauptsongliste das Symbol des Songs an (sofern definiert).</string>
+	<string name="pref_songIconDisplayPosition_title">Anzeigeposition des Songsymbols</string>
+	<string name="pref_songIconDisplayPosition_summary">Wo soll das Songsymbol (sofern definiert) angezeigt werden?</string>
+	<string name="songListDisplayPositionNoneName">Keiner</string>
+	<string name="songListDisplayPositionLeftName">Links</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Icon-Bereich, links</string>
+	<string name="songListDisplayPositionIconSectionRightName">Icon-Bereich, rechts</string>
 </resources>

@@ -8,6 +8,7 @@ import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -63,7 +64,7 @@ class MockPreferences(
 	override val showKeyInSongList: Boolean = true,
 	override val showRatingInSongList: Boolean = true,
 	override val showYearInSongList: Boolean = true,
-	override val showIconInSongList: Boolean = true,
+	override val songIconDisplayPosition: SongIconDisplayPosition = SongIconDisplayPosition.Left,
 	override val showMusicIcon: Boolean = true,
 	override val screenAction: SongView.ScreenAction = SongView.ScreenAction.Scroll,
 	override val audioPlayer: AudioPlayerType = AudioPlayerType.ExoPlayer,

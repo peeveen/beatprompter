@@ -421,10 +421,10 @@
 	<string name="pref_showYearInList_summary">In the main song list, show the year of the song (if defined).</string>
 	<string name="pref_showYearInList_defaultValue" translatable="false">false</string>
 
-	<string name="pref_showIconInList_key" translatable="false">pref_showIconInList</string>
-	<string name="pref_showIconInList_title">Show song icon</string>
-	<string name="pref_showIconInList_summary">In the main song list, show the icon of the song (if defined).</string>
-	<string name="pref_showIconInList_defaultValue" translatable="false">false</string>
+	<string name="pref_songIconDisplayPosition_key" translatable="false">pref_songIconDisplayPosition</string>
+	<string name="pref_songIconDisplayPosition_title">Song icon display position</string>
+	<string name="pref_songIconDisplayPosition_summary">Where should the song icon (if defined) be displayed?</string>
+	<string name="pref_songIconDisplayPosition_defaultValue" translatable="false">Left</string>
 
 	<string name="pref_showRatingInList_key" translatable="false">pref_showRatingInList</string>
 	<string name="pref_showRatingInList_title">Show song rating</string>
@@ -852,5 +852,15 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="stopping">Stopping …</string>
 	<string name="byYear">By year</string>
 	<string name="byIcon">By icon</string>
+
+	<string name="songListDisplayPositionNoneName">None</string>
+	<string name="songListDisplayPositionLeftName">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Icon section, left</string>
+	<string name="songListDisplayPositionIconSectionRightName">Icon section, right</string>
+
+	<string name="songListDisplayPositionNoneValue" translatable="false">None</string>
+	<string name="songListDisplayPositionLeftValue" translatable="false">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftValue" translatable="false">IconSectionLeft</string>
+	<string name="songListDisplayPositionIconSectionRightValue" translatable="false">IconSectionRight</string>
 
 </resources>
