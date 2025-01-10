@@ -76,6 +76,7 @@ dependencies {
 	implementation libs.hsv.alpha.color.picker.android
 	implementation libs.appintro
 	implementation libs.dropbox.core.sdk
+	implementation libs.dropbox.android.sdk
 	implementation libs.rxjava
 	implementation libs.commons.io
 	implementation libs.gson

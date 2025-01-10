@@ -101,7 +101,7 @@ class DropboxStorage(parentFragment: Fragment) :
 
 	fun File.getDropboxHash(): String {
 		val inputStream = this.inputStream()
-		var sha256s = mutableListOf<ByteArray>()
+		val sha256s = mutableListOf<ByteArray>()
 		while (true) {
 			val bytesRead = inputStream.read(hashBuffer)
 			if (bytesRead > 0) {
@@ -172,7 +172,7 @@ class DropboxStorage(parentFragment: Fragment) :
 								itemSource.onNext(
 									FileInfo(
 										metadata.id, metadata.name, metadata.serverModified,
-										metadata.contentHash,
+										metadata.contentHash ?: "",
 										if (folderToSearch.parentFolder == null) "" else currentFolderID
 									)
 								)
@@ -180,9 +180,9 @@ class DropboxStorage(parentFragment: Fragment) :
 							Logger.log("Adding folder to list of folders to query ...")
 							val newFolder = FolderInfo(
 								folderToSearch,
-								metadata.getPathLower(),
+								metadata.getPathLower() ?: "",
 								metadata.getName(),
-								metadata.getPathDisplay()
+								metadata.getPathDisplay() ?: ""
 							)
 							if (recurseSubfolders)
 								foldersToSearch.add(newFolder)
