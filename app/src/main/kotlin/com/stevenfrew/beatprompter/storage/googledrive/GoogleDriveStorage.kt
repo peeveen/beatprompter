@@ -393,7 +393,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 
 	override fun getEditIntent(id: String) =
 		Intent(Intent.ACTION_VIEW).apply {
-			data = Uri.parse("https://docs.google.com/file/d/$id")
+			data = Uri.parse("https://docs.google.com/file/d/$id/edit")
 		}
 
 	companion object {
