@@ -500,10 +500,10 @@
 	<string name="pref_showScrollIndicator_summary">In the beat counter section, highlight the beat that the display will scroll on.</string>
 	<string name="pref_showScrollIndicator_defaultValue" translatable="false">true</string>
 
-	<string name="pref_showSongTitle_key" translatable="false">pref_showSongTitle</string>
-	<string name="pref_showSongTitle_title">Show song title.</string>
-	<string name="pref_showSongTitle_summary">Displays the current song title over the top of the beat counter section.</string>
-	<string name="pref_showSongTitle_defaultValue" translatable="false">false</string>
+	<string name="pref_beatCounterTextOverlay_key" translatable="false">pref_beatCounterTextOverlay</string>
+	<string name="pref_beatCounterTextOverlay_title">Beat counter text overlay.</string>
+	<string name="pref_beatCounterTextOverlay_summary">What text to display over the beat counter.</string>
+	<string name="pref_beatCounterTextOverlay_defaultValue" translatable="false">Nothing</string>
 
 	<string name="pref_showSongKey_key" translatable="false">pref_showSongKey</string>
 	<string name="pref_showSongKey_title">Show song key on title screen.</string>
@@ -862,5 +862,13 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="songListDisplayPositionLeftValue" translatable="false">Left</string>
 	<string name="songListDisplayPositionIconSectionLeftValue" translatable="false">IconSectionLeft</string>
 	<string name="songListDisplayPositionIconSectionRightValue" translatable="false">IconSectionRight</string>
+
+	<string name="beatCounterTextOverlayNothingName">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleName">Song title</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Current time</string>
+
+	<string name="beatCounterTextOverlayNothingValue" translatable="false">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleValue" translatable="false">SongTitle</string>
+	<string name="beatCounterTextOverlayCurrentTimeValue" translatable="false">CurrentTime</string>
 
 </resources>

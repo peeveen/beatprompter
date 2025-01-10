@@ -9,6 +9,7 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
@@ -387,11 +388,18 @@ abstract class AbstractPreferences(
 			R.string.pref_showScrollIndicator_defaultValue
 		)
 
-	override val showSongTitle: Boolean
-		get() = getBooleanPreference(
-			R.string.pref_showSongTitle_key,
-			R.string.pref_showSongTitle_defaultValue
-		)
+	override val beatCounterTextOverlay: BeatCounterTextOverlay
+		get() = try {
+			BeatCounterTextOverlay.valueOf(
+				getStringPreference(
+					R.string.pref_beatCounterTextOverlay_key,
+					R.string.pref_beatCounterTextOverlay_defaultValue
+				)
+			)
+		} catch (e: Exception) {
+			// backward compatibility with old shite values.
+			BeatCounterTextOverlay.Nothing
+		}
 
 	private val commentDisplayTimeOffset =
 		Integer.parseInt(appResources.getString(R.string.pref_commentDisplayTime_offset))

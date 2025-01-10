@@ -163,8 +163,6 @@
 	<string name="pref_showChords_title">Mostra Chords</string>
 	<string name="pref_showFirstBeat_summary">Indica la prima battuta nella sezione dell\'indicatore battito.</string>
 	<string name="pref_showFirstBeat_title">Mostra prima battuta.</string>
-	<string name="pref_showSongTitle_summary">Consente di visualizzare il titolo del brano corrente sopra la parte superiore della sezione beatcounter.</string>
-	<string name="pref_showSongTitle_title">Mostra il titolo del brano.</string>
 	<string name="song_display_options">Opzioni di visualizzazione canzone</string>
 	<string name="song_list_options">Canzone Opzioni elenco</string>
 	<string name="force_refresh_set">Forza set list di aggiornamento</string>
@@ -450,4 +448,9 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="songListDisplayPositionLeftName">Sinistra</string>
 	<string name="songListDisplayPositionIconSectionLeftName">Sezione icona, sinistra</string>
 	<string name="songListDisplayPositionIconSectionRightName">Sezione icona, destra</string>
+	<string name="pref_beatCounterTextOverlay_title">Sovrapposizione di testo del contatore dei battiti.</string>
+	<string name="pref_beatCounterTextOverlay_summary">Quale testo visualizzare sopra il contatore dei battiti.</string>
+	<string name="beatCounterTextOverlayNothingName">Niente</string>
+	<string name="beatCounterTextOverlaySongTitleName">Titolo della canzone</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Ora corrente</string>
 </resources>

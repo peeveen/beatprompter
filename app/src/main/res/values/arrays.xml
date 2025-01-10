@@ -207,4 +207,14 @@
 		<item>@string/songListDisplayPositionIconSectionLeftValue</item>
 		<item>@string/songListDisplayPositionIconSectionRightValue</item>
 	</string-array>
+	<string-array name="pref_beatCounterTextOverlay_entries">
+		<item>@string/beatCounterTextOverlayNothingName</item>
+		<item>@string/beatCounterTextOverlaySongTitleName</item>
+		<item>@string/beatCounterTextOverlayCurrentTimeName</item>
+	</string-array>
+	<string-array name="pref_beatCounterTextOverlay_entryValues">
+		<item>@string/beatCounterTextOverlayNothingValue</item>
+		<item>@string/beatCounterTextOverlaySongTitleValue</item>
+		<item>@string/beatCounterTextOverlayCurrentTimeValue</item>
+	</string-array>
 </resources>

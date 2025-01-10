@@ -162,8 +162,6 @@
 	<string name="pref_showChords_title">Zeige Akkorde</string>
 	<string name="pref_showFirstBeat_summary">Zeigt den ersten Schlag im Takt Indikatorabschnitt.</string>
 	<string name="pref_showFirstBeat_title">Zeigen ersten Schlag.</string>
-	<string name="pref_showSongTitle_summary">Zeigt den aktuellen Songtitel über den oberen Teil der Beatcounter Abschnitt.</string>
-	<string name="pref_showSongTitle_title">Zeigen Songtitel.</string>
 	<string name="song_display_options">Song-Anzeigeoptionen</string>
 	<string name="song_list_options">Songliste Optionen</string>
 	<string name="force_refresh_set">Force-Refresh-Set-Liste</string>
@@ -450,4 +448,9 @@ Em]zeigt den Beat Progression.\n
 	<string name="songListDisplayPositionLeftName">Links</string>
 	<string name="songListDisplayPositionIconSectionLeftName">Icon-Bereich, links</string>
 	<string name="songListDisplayPositionIconSectionRightName">Icon-Bereich, rechts</string>
+	<string name="pref_beatCounterTextOverlay_title">Textüberlagerung des Beat-Zählers.</string>
+	<string name="pref_beatCounterTextOverlay_summary">Welcher Text über dem Beatcounter angezeigt werden soll.</string>
+	<string name="beatCounterTextOverlayNothingName">Nichts</string>
+	<string name="beatCounterTextOverlaySongTitleName">Liedtitel</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Aktuelle Uhrzeit</string>
 </resources>

@@ -93,7 +93,6 @@ class SongView
 	private val beatSectionStartHighlightColors: IntArray
 	private val defaultPageDownLineHighlightColor: Int
 	private val showScrollIndicator: Boolean
-	private val showSongTitle: Boolean
 	private val commentDisplayTimeNanoseconds: Long
 	private val audioPlayerFactory: AudioPlayerFactory
 	private var audioPlayers = mapOf<AudioFile, AudioPlayer>()
@@ -137,7 +136,6 @@ class SongView
 
 		screenAction = BeatPrompter.preferences.screenAction
 		showScrollIndicator = BeatPrompter.preferences.showScrollIndicator
-		showSongTitle = BeatPrompter.preferences.showSongTitle
 		val commentDisplayTimeSeconds = BeatPrompter.preferences.commentDisplayTime
 		commentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
 		externalTriggerSafetyCatch = BeatPrompter.preferences.midiTriggerSafetyCatch
@@ -408,8 +406,7 @@ class SongView
 			)
 			if (showPageDownMarker)
 				showPageDownMarkers(canvas)
-			if (showSongTitle)
-				showSongTitle(canvas)
+			showBeatCounterTextOverlay(canvas)
 			if (showTempMessage) {
 				if (endSongByPedalCounter == 0)
 					showTempMessage("$currentVolume%", 80, VOLUME_TEXT_COLOR, canvas)
@@ -598,12 +595,13 @@ class SongView
 		}
 	}
 
-	private fun showSongTitle(canvas: Canvas) = song?.apply {
+	private fun showBeatCounterTextOverlay(canvas: Canvas) = song?.apply {
 		paint.apply {
 			BeatPrompter.platformUtils.fontManager.setTextSize(this, songTitleHeader.fontSize)
 			BeatPrompter.platformUtils.fontManager.setTypeface(this, songTitleHeader.bold)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground
+			alpha = 100
 		}
 
 		canvas.drawText(
@@ -616,6 +614,7 @@ class SongView
 		canvas.save()
 		canvas.clipRect(currentBeatCountRect)
 		paint.color = songTitleContrastBeatCounter
+		paint.alpha = 100
 		canvas.drawText(
 			songTitleHeader.text,
 			songTitleHeaderLocation.x,
