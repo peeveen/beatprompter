@@ -133,7 +133,7 @@ class SongListFragment
 		val intent = Intent(context, SongDisplayActivity::class.java)
 		intent.putExtra("loadID", ParcelUuid(loadID))
 		Logger.logLoader({ "Starting SongDisplayActivity for $loadID!" })
-		songLauncher?.launch(intent)
+		songLauncher!!.launch(intent)
 	}
 
 	internal fun startSongViaMidiProgramChange(
@@ -1244,8 +1244,10 @@ class SongListFragment
 					Logger.logLoader({ "Song ${msg.obj} was fully loaded successfully." })
 					songList.showLoadingProgressUI(false)
 					// No point starting up the activity if there are songs in the load queue
-					if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
+					if (SongLoadQueueWatcherTask.hasASongToLoad)
 						Logger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
+					else if (SongLoadQueueWatcherTask.isLoadingASong)
+						Logger.logLoader("Abandoning loaded song: there appears to be another song already loading.")
 					else
 						songList.startSongActivity(msg.obj as UUID)
 				}
