@@ -77,7 +77,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		FileSettingsFragment.mOnGoogleDriveAuthenticationFailed = {
 			itemSource.onError(Exception(parentFragment.getString(R.string.googleDriveAccessFailed)))
 		}
-		(parentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
+		(parentFragment as FileSettingsFragment).mGoogleDriveAuthenticator.launch(intent)
 	}
 
 	private fun <T> doGoogleDriveAction(itemSource: PublishSubject<T>, action: GoogleDriveAction) {

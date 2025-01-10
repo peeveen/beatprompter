@@ -101,7 +101,7 @@ class SongListFragment
 	private val coroutineJob = Job()
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main + coroutineJob
-	private var songLauncher: ActivityResultLauncher<Intent>? = null
+
 	private var listAdapter: BaseAdapter? = null
 	private var menu: Menu? = null
 
@@ -116,6 +116,12 @@ class SongListFragment
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
 	private var imageDictionary: Map<String, Bitmap> = mapOf()
 	private var missingIconBitmap: android.graphics.Bitmap? = null
+
+	private val songLauncher: ActivityResultLauncher<Intent> =
+		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+			if (result.resultCode == Activity.RESULT_OK)
+				startNextSong()
+		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		if (selectedFilter is MIDIAliasFilesFilter) {
@@ -133,7 +139,7 @@ class SongListFragment
 		val intent = Intent(context, SongDisplayActivity::class.java)
 		intent.putExtra("loadID", ParcelUuid(loadID))
 		Logger.logLoader({ "Starting SongDisplayActivity for $loadID!" })
-		songLauncher!!.launch(intent)
+		songLauncher.launch(intent)
 	}
 
 	internal fun startSongViaMidiProgramChange(
@@ -667,12 +673,6 @@ class SongListFragment
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		songLauncher =
-			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-				if (result.resultCode == Activity.RESULT_OK)
-					startNextSong()
-			}
-
 		super.onCreate(savedInstanceState)
 
 		registerEventHandler()

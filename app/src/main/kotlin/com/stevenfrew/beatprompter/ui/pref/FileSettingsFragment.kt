@@ -23,22 +23,17 @@ import com.stevenfrew.beatprompter.util.Utils
 
 class FileSettingsFragment : PreferenceFragmentCompat(),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-	var mGoogleDriveAuthenticator: ActivityResultLauncher<Intent>? = null
+	val mGoogleDriveAuthenticator: ActivityResultLauncher<Intent> =
+		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+			if (result.resultCode == Activity.RESULT_OK)
+				mOnGoogleDriveAuthenticated?.invoke()
+			else
+				mOnGoogleDriveAuthenticationFailed?.invoke()
+		}
 
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
 		if (key == getString(R.string.pref_cloudPath_key))
 			onCloudPathChanged(prefs.getString(key, null))
-	}
-
-	override fun onCreate(savedInstanceState: Bundle?) {
-		mGoogleDriveAuthenticator =
-			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-				if (result.resultCode == Activity.RESULT_OK)
-					mOnGoogleDriveAuthenticated?.invoke()
-				else
-					mOnGoogleDriveAuthenticationFailed?.invoke()
-			}
-		super.onCreate(savedInstanceState)
 	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
