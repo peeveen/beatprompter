@@ -871,4 +871,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="beatCounterTextOverlaySongTitleValue" translatable="false">SongTitle</string>
 	<string name="beatCounterTextOverlayCurrentTimeValue" translatable="false">CurrentTime</string>
 
+	<string name="edit_file">Edit file in cloud …</string>
+	<string name="edit_set_file">Edit set file in cloud …</string>
+
 </resources>

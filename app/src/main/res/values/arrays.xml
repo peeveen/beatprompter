@@ -60,36 +60,6 @@
 		<item>@string/showBPMYesRoundedValue</item>
 		<item>@string/showBPMNoValue</item>
 	</string-array>
-	<string-array name="song_options_array">
-		<item>@string/play_submenu</item>
-		<item>@string/force_refresh</item>
-		<item>@string/force_refresh_with_dependencies</item>
-	</string-array>
-	<string-array name="song_options_array_with_add">
-		<item>@string/play_submenu</item>
-		<item>@string/force_refresh</item>
-		<item>@string/force_refresh_with_dependencies</item>
-		<item>@string/add_to_temporary_set</item>
-	</string-array>
-	<string-array name="song_options_array_with_refresh_and_add">
-		<item>@string/play_submenu</item>
-		<item>@string/force_refresh</item>
-		<item>@string/force_refresh_with_dependencies</item>
-		<item>@string/force_refresh_set</item>
-		<item>@string/add_to_temporary_set</item>
-	</string-array>
-	<string-array name="song_options_array_with_refresh">
-		<item>@string/play_submenu</item>
-		<item>@string/force_refresh</item>
-		<item>@string/force_refresh_with_dependencies</item>
-		<item>@string/force_refresh_set</item>
-	</string-array>
-	<string-array name="song_options_array_with_clear">
-		<item>@string/play_submenu</item>
-		<item>@string/force_refresh</item>
-		<item>@string/force_refresh_with_dependencies</item>
-		<item>@string/clear_set</item>
-	</string-array>
 	<string-array name="pref_sendMidiTriggerOnStart_entries">
 		<item>@string/sendMidiTriggerOnStartNever</item>
 		<item>@string/sendMidiTriggerOnStartAlways</item>
@@ -145,13 +115,6 @@
 		<item>@string/dropboxValue</item>
 		<item>@string/oneDriveValue</item>
 		<item>@string/localStorageValue</item>
-	</string-array>
-	<string-array name="midi_alias_options_array">
-		<item>@string/force_refresh_midi_alias</item>
-	</string-array>
-	<string-array name="midi_alias_options_array_with_show_errors">
-		<item>@string/force_refresh_midi_alias</item>
-		<item>@string/show_midi_alias_errors</item>
 	</string-array>
 	<string-array name="pref_bluetoothMidiDevices_defaultValues"></string-array>
 	<array name="cloudStorageSystem_images">

@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.content.Intent
+import android.net.Uri
 import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -18,6 +19,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.DownloadResult
+import com.stevenfrew.beatprompter.storage.EditableStorage
 import com.stevenfrew.beatprompter.storage.FailedDownloadResult
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
@@ -43,7 +45,7 @@ import kotlin.coroutines.CoroutineContext
  * GoogleDrive implementation of the storage system.
  */
 class GoogleDriveStorage(parentFragment: Fragment) :
-	Storage(parentFragment, StorageType.GoogleDrive) {
+	Storage(parentFragment, StorageType.GoogleDrive), EditableStorage {
 
 	private val googleClientSignInOptions =
 		GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -388,6 +390,11 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
 		})
 	}
+
+	override fun getEditIntent(id: String) =
+		Intent(Intent.ACTION_VIEW).apply {
+			data = Uri.parse("https://docs.google.com/file/d/$id")
+		}
 
 	companion object {
 		private const val GOOGLE_DRIVE_ROOT_FOLDER_ID = "root"

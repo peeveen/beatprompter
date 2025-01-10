@@ -66,6 +66,8 @@ import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.storage.EditableStorage
+import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.filter.AllSongsFilter
 import com.stevenfrew.beatprompter.ui.filter.Filter
@@ -421,40 +423,36 @@ class SongListFragment
 		val includeRefreshSet = selectedSet != null && selectedFilter !== tempSetListFilter
 		val includeClearSet = selectedFilter === tempSetListFilter
 
-		val arrayID: Int = if (includeRefreshSet)
-			if (addAllowed)
-				R.array.song_options_array_with_refresh_and_add
-			else
-				R.array.song_options_array_with_refresh
-		else if (includeClearSet)
-			R.array.song_options_array_with_clear
-		else if (addAllowed)
-			R.array.song_options_array_with_add
-		else
-			R.array.song_options_array
+		val options = mutableListOf<Pair<Int, () -> Unit>>()
+		options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSong) })
+		options.add(R.string.force_refresh to {
+			performingCloudSync =
+				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
+		})
+		options.add(R.string.force_refresh_with_dependencies to {
+			performingCloudSync =
+				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
+		})
+		if (includeRefreshSet)
+			options.add(R.string.force_refresh_set to {
+				performingCloudSync =
+					Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+			})
+		if (includeClearSet)
+			options.add(R.string.clear_set to { Cache.clearTemporarySetList(requireContext()) })
+		if (addAllowed)
+			options.add(R.string.add_to_temporary_set to { addToTemporarySet(selectedSong) })
+		val storage = Storage.getInstance(BeatPrompter.preferences.storageSystem, this)
+		if (storage is EditableStorage) {
+			options.add(R.string.edit_file to { startActivity(storage.getEditIntent(selectedSong.id)) })
+			if (selectedSet != null)
+				options.add(R.string.edit_set_file to { startActivity(storage.getEditIntent(selectedSet.id)) })
+		}
 
+		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
 		AlertDialog.Builder(context).apply {
 			setTitle(R.string.song_options)
-			setItems(arrayID) { _, which ->
-				when (which) {
-					0 -> showPlayDialog(selectedNode, selectedSong)
-					1 -> performingCloudSync =
-						Cache.performCloudSync(selectedSong, false, this@SongListFragment)
-
-					2 -> performingCloudSync =
-						Cache.performCloudSync(selectedSong, true, this@SongListFragment)
-
-					3 -> when {
-						includeRefreshSet -> performingCloudSync =
-							Cache.performCloudSync(selectedSet, false, this@SongListFragment)
-
-						includeClearSet -> Cache.clearTemporarySetList(requireContext())
-						else -> addToTemporarySet(selectedSong)
-					}
-
-					4 -> addToTemporarySet(selectedSong)
-				}
-			}
+			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
@@ -603,17 +601,21 @@ class SongListFragment
 	private fun onMIDIAliasListLongClick(position: Int) {
 		val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
 		val showErrors = maf.errors.isNotEmpty()
-		val arrayID =
-			if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
+		val options = mutableListOf<Pair<Int, () -> Unit>>()
+		options.add(R.string.force_refresh_midi_alias to {
+			performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
+		})
+		if (showErrors)
+			options.add(R.string.show_midi_alias_errors to { showMIDIAliasErrors(maf.errors) })
+		val storage = Storage.getInstance(BeatPrompter.preferences.storageSystem, this)
+		if (storage is EditableStorage)
+			options.add(R.string.edit_file to { startActivity(storage.getEditIntent(maf.id)) })
+
+		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
 		AlertDialog.Builder(context).apply {
 			setTitle(R.string.midi_alias_list_options)
-				.setItems(arrayID) { _, which ->
-					if (which == 0)
-						performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
-					else if (which == 1)
-						showMIDIAliasErrors(maf.errors)
-				}
+			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
