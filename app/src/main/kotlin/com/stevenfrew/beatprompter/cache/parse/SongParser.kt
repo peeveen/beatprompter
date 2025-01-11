@@ -80,8 +80,7 @@ import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import com.stevenfrew.beatprompter.util.getTextOverlayFn
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -441,11 +440,11 @@ class SongParser(
 			if (isLineContent) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (lines.isEmpty()) 0L else songTime
+				val lineStartTime = if (lines.isEmpty) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (lines.isEmpty()) songTime else 0L
+				val addToPause = if (lines.isEmpty) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.eventTime }
@@ -571,7 +570,7 @@ class SongParser(
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (lines.isEmpty())
+		if (lines.isEmpty)
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
 		val lineSequence = lines.asSequence()
@@ -621,30 +620,19 @@ class SongParser(
 		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width * 0.9f
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
-		val timeFormatter = SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT)
-		val songTitleHeader = ScreenString.create(
-			when (beatCounterTextOverlay) {
-				BeatCounterTextOverlay.Nothing -> {
-					""
-				}
-
-				BeatCounterTextOverlay.SongTitle -> {
-					songLoadInfo.songFile.title
-				}
-
-				BeatCounterTextOverlay.CurrentTime -> {
-					timeFormatter.format(Calendar.getInstance().time)
-				}
-			},
+		val beatCounterTextOverlayScreenString = ScreenString.create(
+			beatCounterTextOverlay.getTextOverlayFn(songLoadInfo.songFile.title),
 			paint,
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
 			Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
 			false
 		)
-		val extraMargin = (maxSongTitleHeight - songTitleHeader.height) / 2.0f
-		val x = ((nativeDeviceSettings.screenSize.width - songTitleHeader.width) / 2.0).toFloat()
-		val y = beatCounterHeight - (extraMargin + songTitleHeader.descenderOffset.toFloat() + vMargin)
+		val extraMargin = (maxSongTitleHeight - beatCounterTextOverlayScreenString.height) / 2.0f
+		val x =
+			((nativeDeviceSettings.screenSize.width - beatCounterTextOverlayScreenString.width) / 2.0).toFloat()
+		val y =
+			beatCounterHeight - (extraMargin + beatCounterTextOverlayScreenString.descenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
 		// First of all, find beat events that have the "click" flag set and
@@ -735,7 +723,7 @@ class SongParser(
 			scrollEndPixel,
 			noScrollLines,
 			nativeDeviceSettings.beatCounterRect,
-			songTitleHeader,
+			beatCounterTextOverlayScreenString,
 			songTitleHeaderLocation,
 			songLoadInfo.loadId,
 			songLoadInfo.audioLatency

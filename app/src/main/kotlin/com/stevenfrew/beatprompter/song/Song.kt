@@ -38,7 +38,7 @@ class Song(
 	val scrollEndPixel: Int,
 	val noScrollLines: List<Line>,
 	val beatCounterRect: Rect,
-	val songTitleHeader: ScreenString,
+	val beatCounterTextOverlayScreenString: ScreenString,
 	val songTitleHeaderLocation: PointF,
 	val loadId: UUID,
 	private val audioLatency: Int

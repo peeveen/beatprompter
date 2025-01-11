@@ -596,16 +596,23 @@ class SongView
 	}
 
 	private fun showBeatCounterTextOverlay(canvas: Canvas) = song?.apply {
+		val text = beatCounterTextOverlayScreenString.text
 		paint.apply {
-			BeatPrompter.platformUtils.fontManager.setTextSize(this, songTitleHeader.fontSize)
-			BeatPrompter.platformUtils.fontManager.setTypeface(this, songTitleHeader.bold)
+			BeatPrompter.platformUtils.fontManager.setTextSize(
+				this,
+				beatCounterTextOverlayScreenString.fontSize
+			)
+			BeatPrompter.platformUtils.fontManager.setTypeface(
+				this,
+				beatCounterTextOverlayScreenString.bold
+			)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground
 			alpha = 100
 		}
 
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
@@ -614,9 +621,9 @@ class SongView
 		canvas.save()
 		canvas.clipRect(currentBeatCountRect)
 		paint.color = songTitleContrastBeatCounter
-		paint.alpha = 100
+		paint.alpha = 127
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
@@ -626,7 +633,7 @@ class SongView
 		canvas.save()
 		canvas.clipRect(scrollIndicatorRect)
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
