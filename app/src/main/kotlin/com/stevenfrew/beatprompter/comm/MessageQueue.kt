@@ -9,16 +9,16 @@ open class MessageQueue(capacity: Int) {
 	// disrupts timing-critical operations.
 	private val outBuffer = mutableListOf<Message>()
 
-	internal fun getMessages(): List<Message> {
-		outBuffer.clear()
-		// This take() will cause a block if empty
-		outBuffer.add(blockingQueue.take())
-		synchronized(blockingQueue) {
-			while (blockingQueue.isNotEmpty())
-				outBuffer.add(blockingQueue.remove())
-			return outBuffer
+	internal fun getMessages(): List<Message> =
+		outBuffer.apply {
+			clear()
+			// This take() will cause a block if empty
+			add(blockingQueue.take())
+			synchronized(blockingQueue) {
+				while (blockingQueue.isNotEmpty())
+					add(blockingQueue.remove())
+			}
 		}
-	}
 
 	internal fun putMessage(message: Message) =
 		synchronized(blockingQueue) {

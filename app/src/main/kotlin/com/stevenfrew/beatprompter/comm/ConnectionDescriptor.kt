@@ -7,11 +7,6 @@ data class ConnectionDescriptor(val name: String, val commType: CommunicationTyp
 		else
 			false
 
-	override fun hashCode(): Int {
-		var result = name.hashCode()
-		result = 31 * result + commType.hashCode()
-		return result
-	}
-
+	override fun hashCode(): Int = 31 * name.hashCode() + commType.hashCode()
 	override fun toString(): String = "$commType device '$name'"
 }
