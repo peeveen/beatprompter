@@ -33,7 +33,7 @@ class ReceiverTask(
 		try {
 			receiver.close()
 			true
-		} catch (exception: Exception) {
+		} catch (_: Exception) {
 			// At least we tried ...
 			false
 		}

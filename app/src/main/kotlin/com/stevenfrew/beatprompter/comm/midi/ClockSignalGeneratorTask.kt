@@ -81,7 +81,7 @@ object ClockSignalGeneratorTask : Task(false) {
 		try {
 			Logger.logComms("Sending $signalsNeeded clock messages.")
 			Midi.addBeatClockMessages(signalsNeeded)
-		} catch (interruptedException: InterruptedException) {
+		} catch (_: InterruptedException) {
 			// Task was interrupted by the song being paused or stopped
 		}
 		if (signalsNeeded > 0) {

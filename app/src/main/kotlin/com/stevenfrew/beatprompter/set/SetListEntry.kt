@@ -12,9 +12,6 @@ class SetListEntry private constructor(
 	private val normalizedArtist: String,
 	val variation: String
 ) {
-	private constructor(titleAndArtist: Triple<String, String, String>)
-		: this(titleAndArtist.first, titleAndArtist.second, titleAndArtist.third)
-
 	constructor(songFile: SongFile)
 		: this(
 		songFile.normalizedTitle,
@@ -24,6 +21,11 @@ class SetListEntry private constructor(
 
 	constructor(setListFileLine: String)
 		: this(getInfoFromSetListLine(setListFileLine))
+
+	// IDE says this is unused ... it is lying!
+	@Suppress("unused")
+	private constructor(titleAndArtist: Triple<String, String, String>)
+		: this(titleAndArtist.first, titleAndArtist.second, titleAndArtist.third)
 
 	fun matches(songFile: SongFile): SetListMatch =
 		if (songFile.normalizedTitle.equals(normalizedTitle, true)) {

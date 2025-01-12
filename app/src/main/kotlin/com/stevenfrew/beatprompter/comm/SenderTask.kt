@@ -22,7 +22,7 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 							groupedMessages[senders[f].messageType]?.also {
 								senders[f].send(it)
 							}
-						} catch (commException: Exception) {
+						} catch (_: Exception) {
 							// Problem with the I/O? This sender is now dead to us.
 							Logger.logComms("Sender threw an exception. Assuming it to be dead.")
 							removeSender(senders[f].name)
@@ -30,7 +30,7 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 					}
 				}
 			}
-		} catch (interruptedException: InterruptedException) {
+		} catch (_: InterruptedException) {
 			// Must have been signalled to stop ... main Task loop will cater for this.
 		}
 
@@ -69,7 +69,7 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 	private fun closeSender(sender: Sender?) =
 		try {
 			sender?.close()
-		} catch (closeException: Exception) {
+		} catch (_: Exception) {
 			// Couldn't close it? Who cares ...
 		}
 

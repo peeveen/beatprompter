@@ -22,7 +22,7 @@ class AudioFileParser(cachedCloudFile: CachedFile) : FileParser<AudioFile>(cache
 					AudioFile(cachedCloudFile, Utils.milliToNano(it.toLong()))
 				}
 			}
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Not bothered about what the exception is ... file is obviously shite.
 			null
 		} ?: throw InvalidBeatPrompterFileException(R.string.notAnAudioFile, cachedCloudFile.name)

@@ -26,7 +26,7 @@ abstract class AbstractPreferences(
 				R.string.pref_midiConnectionTypes_key,
 				appResources.getStringSet(R.array.pref_midiConnectionTypes_defaultValues)
 			).map { ConnectionType.valueOf(it) }.toSet()
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
 			setOf(ConnectionType.USBOnTheGo)
 		}
@@ -93,7 +93,7 @@ abstract class AbstractPreferences(
 					R.string.pref_bluetoothMode_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
 			BluetoothMode.None
 		}
@@ -129,7 +129,7 @@ abstract class AbstractPreferences(
 				SortingPreference.Title.name
 			)
 			stringPref.split(",").map { SortingPreference.valueOf(it) }.toTypedArray()
-		} catch (ignored: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			arrayOf(SortingPreference.Title)
 		}
@@ -244,7 +244,7 @@ abstract class AbstractPreferences(
 					R.string.pref_cloudStorageSystem_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			StorageType.GoogleDrive
 		}
@@ -364,7 +364,7 @@ abstract class AbstractPreferences(
 					R.string.pref_screenAction_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			SongView.ScreenAction.Scroll
 		}
@@ -377,7 +377,7 @@ abstract class AbstractPreferences(
 					R.string.pref_audioplayer_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			AudioPlayerType.MediaPlayer
 		}
@@ -396,7 +396,7 @@ abstract class AbstractPreferences(
 					R.string.pref_beatCounterTextOverlay_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			BeatCounterTextOverlay.Nothing
 		}
@@ -419,7 +419,7 @@ abstract class AbstractPreferences(
 					R.string.pref_midiTriggerSafetyCatch_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			SongView.TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine
 		}

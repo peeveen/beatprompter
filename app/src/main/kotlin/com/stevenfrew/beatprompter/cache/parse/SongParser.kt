@@ -938,11 +938,11 @@ class SongParser(
 		var startTime = 0L
 		if (countBars > 0) {
 			if (currentLineBeatInfo.bpm > 0.0) {
-				val countbpm = currentLineBeatInfo.bpm
-				val countbpb = currentLineBeatInfo.bpb
-				val nanoPerBeat = Utils.nanosecondsPerBeat(countbpm)
+				val countBpm = currentLineBeatInfo.bpm
+				val countBpb = currentLineBeatInfo.bpb
+				val nanoPerBeat = Utils.nanosecondsPerBeat(countBpm)
 				repeat(countBars) { bar ->
-					repeat(countbpb) { beat ->
+					repeat(countBpb) { beat ->
 						countInEvents.add(
 							BeatEvent(
 								startTime,
@@ -950,7 +950,7 @@ class SongParser(
 								currentLineBeatInfo.bpb,
 								beat,
 								click,
-								if (bar == countBars - 1) countbpb - 1 else -1
+								if (bar == countBars - 1) countBpb - 1 else -1
 							)
 						)
 						startTime += nanoPerBeat

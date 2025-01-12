@@ -139,7 +139,7 @@ object Utils {
 	fun safeThreadWait(amount: Long) =
 		try {
 			Thread.sleep(amount)
-		} catch (ie: InterruptedException) {
+		} catch (_: InterruptedException) {
 			// Ignore
 		}
 

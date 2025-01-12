@@ -179,7 +179,7 @@ internal class ChooseFolderDialog(
 		if (folderFetcher != null)
 			try {
 				folderFetcher!!.cancel("Cancelling folder fetcher ...")
-			} catch (e: IllegalStateException) {
+			} catch (_: IllegalStateException) {
 				// Fetcher wasn't running, so nothing to cancel.
 			}
 		folderFetcher = null

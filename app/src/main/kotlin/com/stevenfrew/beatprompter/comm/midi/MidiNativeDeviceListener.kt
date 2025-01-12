@@ -62,7 +62,7 @@ internal class MidiNativeDeviceListener(
 					)
 				}
 			}
-		} catch (exception: Exception) {
+		} catch (_: Exception) {
 			// Obviously not for us.
 		}
 	}

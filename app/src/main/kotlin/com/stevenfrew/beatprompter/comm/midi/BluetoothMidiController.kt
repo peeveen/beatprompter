@@ -117,7 +117,7 @@ object BluetoothMidiController {
 				listener,
 				null
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Not for us ...
 		}
 }

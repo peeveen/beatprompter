@@ -108,7 +108,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 			SongFile.readSongInfoFromAttributes(element, cachedCloudFile)?.also {
 				return it
 			}
-		} catch (exception: Exception) {
+		} catch (_: Exception) {
 			// Not bothered about what the exception is ... file tags are obviously broken.
 			// So re-parse the whole file.
 		}

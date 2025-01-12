@@ -265,7 +265,7 @@ object Cache {
 				BeatPrompter.addDebugMessage("Called itemSource.onComplete()")
 				compositeDisposable.dispose()
 				BeatPrompter.addDebugMessage("Disposed of CompositeDisposable.")
-			} catch (e: Exception) {
+			} catch (_: Exception) {
 				// Something went wrong with reading the XML.
 				// Database is lost, and will need rebuilt.
 				return false

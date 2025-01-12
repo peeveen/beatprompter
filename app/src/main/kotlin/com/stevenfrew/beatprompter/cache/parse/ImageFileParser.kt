@@ -21,7 +21,7 @@ class ImageFileParser(cachedCloudFile: CachedFile) : FileParser<ImageFile>(cache
 			).let {
 				ImageFile(cachedCloudFile, Size(it.width, it.height))
 			}
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Not bothered about what the exception is. File is obviously shite.
 			null
 		} ?: throw InvalidBeatPrompterFileException(
