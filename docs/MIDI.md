@@ -53,7 +53,7 @@ If you make frequent use of MIDI commands in your song files, you can create a f
 
 1. In your cloud storage, create a text document of any name, with `{midi_aliases:alias_set_name}` as the first line.
 2. In the following lines, create a tag `{midi_alias:alias_name}`, putting the name of your choice in place of `alias_name`.
-3. On the next lines, enter some MIDI message tags as usual (the usual hashtag comments are also allowed). You can parameterize your aliases using `?1`, `?2`, and `?3` to identify parameters. Also, any hexadecimal values that contain an underscore character will have this replaced by the optional channel parameter or the default output channel. See the [Built In MIDI Alias File](#builtInMidiAliasFile) section below for clarification.
+3. On the next lines, enter some MIDI message tags as usual (the usual hashtag comments are also allowed). You can parameterize your aliases using `?1`, `?2`, and `?3` to identify parameters. Also, any hexadecimal values that contain an underscore character will have this replaced by the optional channel parameter or the default output channel. See the [Built In MIDI Alias File](#built-in-midi-alias-file) section below for clarification.
 4. The first blank line, end-of-file, or new `{midi_alias}` tag found after the current `{midi_alias}` tag denotes the end of that alias.
 5. Now, whenever you want to use that sequence of aliased MIDI messages in your song file, simply put the tag `{alias_name}`. Obviously your alias name should not match any of the existing tags that BeatPrompter recognises!
 6. An alias can refer to any alias defined **earlier** in the same file, but not to aliases defined in other files.
@@ -77,7 +77,7 @@ If you make frequent use of MIDI commands in your song files, you can create a f
 {midi_control_change:38,127,#4}
 ```
 
-### <a name="builtInMidiAliasFile" /></a> Built-in MIDI alias file
+### Built-in MIDI alias file
 
 This is the content of the built-in list of MIDI aliases, and is included here to demonstrate how the parameterization of aliases works.
 
