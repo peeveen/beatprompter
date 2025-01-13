@@ -9,7 +9,7 @@ imperfect vision.
 
 ![BeatPrompterSongList](/media/beatprompterSongList.jpg)
 
-![BeatPrompterSongDisplay](/media/beatprompterSongDisplay.jpg)
+![BeatPrompterSongDisplay](/media/songDisplay.png)
 
 BeatPrompter reads song files that have been created in the popular ChordPro format. Due to nature of the app,
 it does not make use of the full ChordPro specification, though it introduces a few new features of its own.
