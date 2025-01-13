@@ -35,8 +35,8 @@ class ReadCacheTask(
 	override fun doInBackground(
 		params: Unit,
 		progressUpdater: suspend (Pair<String?, Boolean>) -> Unit
-	): Boolean {
-		val databaseReadListener = object : CacheReadListener {
+	): Boolean =
+		object : CacheReadListener {
 			override fun onItemRead(cachedFile: CachedItem) =
 				Cache.cachedCloudItems.add(cachedFile)
 
@@ -58,12 +58,12 @@ class ReadCacheTask(
 
 			override suspend fun onProgressMessageReceived(message: Pair<String?, Boolean>) =
 				progressUpdater(message)
+		}.let {
+			if (initialDatabaseReadHasBeenPerformed) {
+				it.onCacheReadComplete()
+				true
+			} else Cache.readDatabase(it)
 		}
-		return if (initialDatabaseReadHasBeenPerformed) {
-			databaseReadListener.onCacheReadComplete()
-			true
-		} else Cache.readDatabase(databaseReadListener)
-	}
 
 	override fun onPreExecute() {
 		if (!initialDatabaseReadHasBeenPerformed) {

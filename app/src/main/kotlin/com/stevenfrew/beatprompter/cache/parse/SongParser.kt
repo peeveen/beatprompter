@@ -762,9 +762,8 @@ class SongParser(
 		return Rect(0, 0, maxWidth - 1, maxHeight - 1)
 	}
 
-	private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
-		var maxLines = 0
-		repeat(lines.size) { start ->
+	private fun getMaximumGraphicsRequired(screenHeight: Int): Int =
+		lines.indices.maxOfOrNull { start ->
 			var heightCounter = 0
 			var lineCounter = 0
 			for (f in start until lines.size) {
@@ -779,10 +778,8 @@ class SongParser(
 					lineCounter += lines[f].measurements.lines
 				}
 			}
-			maxLines = max(maxLines, lineCounter)
-		}
-		return maxLines
-	}
+			lineCounter
+		} ?: 0
 
 	private fun generateBeatEvents(startTime: Long, click: Boolean): EventBlock? {
 		if (currentLineBeatInfo.scrollMode === ScrollingMode.Smooth)
