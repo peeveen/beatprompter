@@ -81,7 +81,7 @@ However, all being well, you are asked to tap the screen twice to start the song
 
 A song file is a plain text file that contains additional encoded information about the song. Here is a short example of a song file:
 
-```
+```custom
 {title:Happy Birthday}
 
 Happy [D]Birthday to [A]you
@@ -354,7 +354,7 @@ If you define fewer audio tags than variations, the last audio tag in the line w
 
 To create setlists (predefined lists of songs in a specific order) in BeatPrompter, simply create a text file in your cloud storage that looks something like this:
 
-```
+```custom
 {set:My Set List}
 Erica
 It All Depends On Me

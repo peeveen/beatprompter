@@ -20,7 +20,7 @@ These are the tags that can be added to song files to trigger their automatic lo
 
 | Tag                                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `{midi_program_change_trigger:pc,msb,lsb,channel}` | If you insert this tag into a song file, then BeatPrompter can automatically load the song if it receives a matching MIDI signal. For the song to be loaded, it would need to receive two Control Change MIDI signals that match the `msb` and `lsb` values, followed by a Program Change signal that matches the value of “pc”. The “channel” value is optional, but if specified, it means that the song will only be loaded if the signals are received on that channel.<br/><br/>NOTE: A value of `*` can be used as a wildcard for any of these values.<br/><br/>Example: `{midi_program_change_trigger:16,0,112}`<br/><br/>This would load the song automatically if it receives two Control Change values of MSB=0 and LSB=112 followed by a Program Change value of 16. In this example, because no explicit channel number has been specified, these signals can be received on any of the channels that BeatPrompter is listening to. |
+| `{midi_program_change_trigger:pc,msb,lsb,channel}` | If you insert this tag into a song file, then BeatPrompter can automatically load the song if it receives a matching MIDI signal. For the song to be loaded, it would need to receive two Control Change MIDI signals that match the `msb` and `lsb` values, followed by a Program Change signal that matches the value of `pc`. The “channel” value is optional, but if specified, it means that the song will only be loaded if the signals are received on that channel.<br/><br/>NOTE: A value of `*` can be used as a wildcard for any of these values.<br/><br/>Example: `{midi_program_change_trigger:16,0,112}`<br/><br/>This would load the song automatically if it receives two Control Change values of MSB=0 and LSB=112 followed by a Program Change value of 16. In this example, because no explicit channel number has been specified, these signals can be received on any of the channels that BeatPrompter is listening to. |
 | `{midi_song_select_trigger:n}`                     | Very similar to the tag above, this one will automatically load the song if BeatPrompter receives a Song Select MIDI signal with the given value. Song Select messages are broadcast across all channels, so there is no need to specify a channel with this tag.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 ## MIDI Message tags
@@ -29,8 +29,8 @@ The following tags instruct BeatPrompter to send out MIDI messages.
 
 - If the tag is defined before the first line of lyrics or chords in a song file, then the MIDI message is sent as soon as the song is loaded.
 - If the tag is defined on a line of lyrics or chords, then the MIDI message is sent as soon as that line begins.
-- For any tag that contains a `channel` parameter, this parameter is optional, but if provided, should be in the format “#N”, where N is the channel number, so, for example “#10” or “#1”. If omitted, then the default output MIDI channel (as defined in the app settings) is used.
-- Parameter values are, by default, interpreted as normal decimal values, unless the parameter starts with “0x”, or ends with “h”, or just “looks like” hexadecimal characters. For example, “30” would be interpreted as decimal, “0x30” or “30h” would be interpreted as hexadecimal, and “1E” or “3f” would be interpreted as hexadecimal.
+- For any tag that contains a `channel` parameter, this parameter is optional, but if provided, should be in the format `#N`, where N is the channel number, so, for example `#10` or `#1`. If omitted, then the default output MIDI channel (as defined in the app settings) is used.
+- Parameter values are, by default, interpreted as normal decimal values, unless the parameter starts with `0x`, or ends with `h`, or just “looks like” hexadecimal characters. For example, `30` would be interpreted as decimal, `0x30` or `30h` would be interpreted as hexadecimal, and `1E` or `3f` would be interpreted as hexadecimal.
 - All values should be in the range 0-127.
 - Channel values should be in the range 1-16.
 - If you want to send a Program Change or Song Select message when the song is loaded, and also use the same values as a trigger, you only need to define the trigger tag and choose the relevant value for the “Output MIDI Trigger” preference (though this functionality will not work if the trigger contains wildcards).
@@ -61,7 +61,7 @@ If you make frequent use of MIDI commands in your song files, you can create a f
 
 ### Example MIDI alias file
 
-```
+```custom
 {midi_aliases:Guitar And Vocal Effects}
 
 {midi_alias:distortion_on}
@@ -81,7 +81,7 @@ If you make frequent use of MIDI commands in your song files, you can create a f
 
 This is the content of the built-in list of MIDI aliases, and is included here to demonstrate how the parameterization of aliases works.
 
-```
+```custom
 {midi_aliases:Default}
 
 {midi_alias:midi_start}
@@ -122,7 +122,7 @@ This is the content of the built-in list of MIDI aliases, and is included here t
 
 When a song is started/resumed/stopped, BeatPrompter will send a MIDI Start/Continue/Stop command. If you add any of the following tags to an alias that does not use parameters, the commands defined by the alias will also be sent at these times.
 
-```
+```custom
 {with_midi_start}
 {with_midi_continue}
 {with_midi_stop}
