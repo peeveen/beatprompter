@@ -20,7 +20,7 @@ Before using the BeatPrompter app, you will probably need to do a few things.
 
 1. You cannot use BeatPrompter without some song files to play, so before going any further, you should get some, or create some. They can be created with any text editor. If you want some demo files to play with, try [here](../demo_files/).
 
-2. If you are coming to BeatPrompter with an existing library of ChordPro song files, then you will probably want to update those files with some BeatPrompter-specific tags. To see the full list of tags that BeatPrompter can use, see [Supported Song File Tags](#supportedSongFileTags).
+2. If you are coming to BeatPrompter with an existing library of ChordPro song files, then you will probably want to update those files with some BeatPrompter-specific tags. To see the full list of tags that BeatPrompter can use, see [Supported Song File Tags](#supported-song-file-tags).
 
 3. Make your song files available to the app. BeatPrompter currently reads files from the popular (and free) [Google Drive](https://www.google.com/drive/), [Dropbox](https://www.dropbox.com/) and [Microsoft OneDrive](https://onedrive.live.com/about/en-gb/) cloud storage services, so your files can be stored in one of these (Google Drive is recommended for the excellent editing facilities). You can also store your song files directly in your device storage. For instructions about synchronizing the content, see [Files](#files).
 
@@ -94,7 +94,7 @@ The `{title}` tag contains the name of the song, and the rest of the file is the
 
 BeatPrompter allows you to define the speed of a song, either in beats-per-minute for songs with a distinct rhythm, or in minutes and seconds for more fluid songs. You describe this information to the app by inserting tags into your song files, much like how the title and chords were inserted into the simple example above.
 
-## <a name="supportedSongFileTags"></a> Supported Song File Tags
+## Supported Song File Tags
 
 Below are the tags and symbols that BeatPrompter interprets from a song file.
 
