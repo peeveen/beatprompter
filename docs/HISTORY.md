@@ -13,6 +13,7 @@ Versions prior to 1.70 are not listed.
 - Removed the “Show song title” preference in favour of a new “Beat counter text overlay” preference. In this preference, you can choose what text to display over the top of the beat counter. Options are “Nothing” (default), “Song Title”, or “Current Time”. **If you have previously used the “show song title” preference, you will need to reconfigure this setting.**
 - You can now launch a text editor directly from the long-press menu. Only available for cloud storage systems that have built-in editing facilities (currently Google Drive).
 - Updated launcher icon.
+- Moved all documentation to GitHub.
 - Improvements to file handling and synchronization:
   - The song database update operation is now more atomic, so there is less chance of data corruption if the app closes during an update.
   - Even if the song database is corrupted, the synchronization operation will now check for existing files left behind in app storage that match checksums of remote files, and will use them (without downloading again) if found.
