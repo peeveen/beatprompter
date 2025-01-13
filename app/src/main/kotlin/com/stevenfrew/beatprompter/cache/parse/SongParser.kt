@@ -763,22 +763,17 @@ class SongParser(
 	}
 
 	private fun getMaximumGraphicsRequired(screenHeight: Int): Int =
-		lines.indices.maxOfOrNull { start ->
-			var heightCounter = 0
-			var lineCounter = 0
-			for (f in start until lines.size) {
+		lines.indices.maxOfOrNull {
+			// acc is a Pair of heightCounter and lineCounter
+			lines.subList(it, lines.size).fold(0 to 0) { acc, line ->
+				val (heightCounter, lineCounter) = acc
 				if (heightCounter < screenHeight) {
 					// Assume height of first line to be 1 pixel
 					// This is the state of affairs when the top line is almost
 					// scrolled offscreen, but not quite.
-					var lineHeight = 1
-					if (lineCounter > 0)
-						lineHeight = lines[f].measurements.lineHeight
-					heightCounter += lineHeight
-					lineCounter += lines[f].measurements.lines
-				}
-			}
-			lineCounter
+					(heightCounter + if (lineCounter > 0) line.measurements.lineHeight else 1) to (lineCounter + line.measurements.lines)
+				} else acc
+			}.second
 		} ?: 0
 
 	private fun generateBeatEvents(startTime: Long, click: Boolean): EventBlock? {
