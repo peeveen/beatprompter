@@ -1,0 +1,66 @@
+{t:I Ain’t Ever Satisfied}
+{st:Steve Earle}
+{bpm:130}{bpb:4}{bpl:2}{count:0}
+{audio:IAin’tEverSatisfied_Drums.mp3}
+{c:G Major}
+{time:track}
+
+{b:3}[Em][C]
+[G][C][D][G]
+[Em][C]
+[G][C][D][G]
+[G]I was born by the railroad tracks
+[G][C][D][G]
+[G]Train whistle wailed and I wailed right back
+[G][C][D][G]
+[G]Well, papa left mama when I was quite young
+[G][C][D][G]
+[G]He said "One of these days you're gonna follow me son"
+[G][C][D][G]
+
+[Em]{soh}Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied
+[Em]Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied{eoh}
+
+[G]Now I had me a woman, she was my world
+[G][C][D][G]
+[G]But I ran off with my backstreet girl
+[G][C][D][G]
+[G]Now my backstreet woman could not be true
+[G][C][D][G]
+[G]Left me standin' on the boulevard thinkin' ‘bout you
+[G][C][D][G]
+
+[Em]{soh}Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied
+[Em]Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied{eoh}
+
+{bpb:4}{b:2}[D]I got an empty feeling
+{bpb:9}{b:1}[C]{soh}Deep [Em]in[D]side{eoh}
+{bpb:4}{b:2}[D]I'm going over to the
+{bpb:10}{b:1}{soh}[C]Oth[Em]er [D]side{eoh}
+
+{bpb:4}
+[Em][C]
+[G][C][D][G]
+[Em][C]
+[G][C][D][G]
+
+[G]Last night I dreamed I made it to the promised land
+[G]{soh}(I ain’t [C]ever [D]satis[G]fied){eoh}
+[G]I was standin' at the gate and I had the key in my hand
+[G]{soh}(I ain’t [C]ever [D]satis[G]fied){eoh}
+[G]Saint Peter said "Come in boy, you're finally home"
+[G]{soh}(I ain’t [C]ever [D]satis[G]fied){eoh}
+[G]I said "No thanks Pete, I'll just be moving along"
+[G]{soh}(I ain’t [C]ever [D]satis[G]fied)
+
+[Em]Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied
+[Em]Woh-oh-oh-[C]oh-oh-oh-oh-oh
+[Em]I ain't [C]ever [D]satis[G]fied{eoh}
+
+[Em][C]
+[G][C][D][G]

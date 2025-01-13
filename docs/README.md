@@ -18,7 +18,7 @@ BeatPrompter reads song files that have been created in the popular ChordPro for
 
 Before using the BeatPrompter app, you will probably need to do a few things.
 
-1. You cannot use BeatPrompter without some song files to play, so before going any further, you should get some, or create some. They can be created with any text editor. If you want some demo files to play with, try [here](https://github.com/peeveen/beatprompter-demo-files).
+1. You cannot use BeatPrompter without some song files to play, so before going any further, you should get some, or create some. They can be created with any text editor. If you want some demo files to play with, try [here](../demo_files/).
 
 2. If you are coming to BeatPrompter with an existing library of ChordPro song files, then you will probably want to update those files with some BeatPrompter-specific tags. To see the full list of tags that BeatPrompter can use, see [Supported Song File Tags](#supportedSongFileTags).
 

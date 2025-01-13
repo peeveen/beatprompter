@@ -1,0 +1,54 @@
+{t:Have You Ever Seen The Rain?}
+{st:Creedence Clearwater Revival}
+{time:track}
+{c:CAPO 2}
+{c:D Major}
+{bpm:120}{count:0}{bpl:2}
+{audio:HaveYouEverSeenTheRain_Drums.mp3}
+
+{b:7}[Am] [F] [C] [G] [FILL] [C] [FILL]
+
+[C]Someone told me long ago,
+There's a calm before the storm,
+,{soh}I [G]know,
+,,,It's been coming [C]for some time{eoh}
+
+[C]When it's over, so they say,
+It'll rain a sunny day,
+,{soh}I [G]know,
+,,,Shining down like [C]water{eoh}
+
+{soh}[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+,,,,[F]Comin’ [G]down on a sunny [C]day{eoh}
+
+[C]Yesterday and days before,
+Sun is cold and rain is hard,
+,{soh}I [G]know,
+,,,Been that way for [C]all my time{eoh}
+
+[C]'Til forever on it goes,
+Through the circle fast and slow,
+,{soh}I [G]know,
+,,,It can't stop, I [C]wonder{eoh}
+
+{soh}[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+,,,,[F]Comin’ [G]down on a sunny [C]day{eoh}
+
+{soh}[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+[F]I wanna [G]know
+,Have you [C]ever [C/B]seen the
+,[Am]rain [Am/G]
+,,,[F]Comin’ [G]down on a sunny [C]day{eoh}
+

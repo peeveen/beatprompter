@@ -1,0 +1,52 @@
+{t:Life With You}
+{a:The Proclaimers}
+{count:0}{bpm:140}{bpl:4}
+{track:LifeWithYou_Drums.mp3}
+{c:CAPO 2}
+{time:track}
+{c:D Major}
+
+{b:3}[C]
+{b:2}[C]
+[C]When I was a younger [F]man
+[C]When I was a silly [F]boy
+,,[C]I didn't [F]need a thing, I
+,,[C]Was strong as [F]anything, I
+[Dm7]Viewed solitude as a [G7]joy
+
+[C]But since I met you I'm distr[F]aught
+[C]You wandered in and now I'm [F]caught
+,,[C]I never [F]thought I would see
+,,[C]Someone so [F]truly good, some-
+[Dm7]One who's so everything I'm [G7]not
+
+[C]I want to spend my life with [F]you[G]
+[C]Don't want to live all al[F]one[G]
+,,[C]I can't conc[Em]eive of the
+,,[F]Years left to [Am7]me
+[F]Without [G]you[STOP] in our home
+
+[C]But what if, what if, what if, [F]what
+[C]If it's not perfect then it's [F]not
+,,[C]But every [F]care I’ll take
+,,[C]Nothing I [F]won't forsake
+[Dm7]To dwell beside what you've [G7]got
+
+,,[F]Every time I think a[C]bout you
+,,I think I can't live with[Am]out you
+,,I tell you something: I am
+{b:3}[G7]Nothing without you
+
+[C]I want to spend my life with [F]you[G]
+[C]Don't want to live all al[F]one[G]
+,,[C]I can't conc[Em]eive of the
+,,,{soh:#00ff00}[F]Years left to [Am7]me{eoh}
+[F]Without [G]you in our [C]home[G][C]
+
+[C]I want to spend my life with [F]you[G]
+[C]Don't want to live all al[F]one[G]
+,,[C]I can't conc[Em]eive of the
+,,[F]Years left to [Am7]me
+[F]Without [G]you[STOP] in our [C]home
+[F]Without [G]you in our [C]home
+

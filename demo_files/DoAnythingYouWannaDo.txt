@@ -1,0 +1,74 @@
+{t:Do Anything You Wanna Do}
+{st:Eddie & The Hot Rods}
+{bpm:150}{bpb:4}{bpl:2}{count:0}
+{audio:DoAnythingYouWannaDo_Drums.mp3}
+{time:track}
+{c:C Major}
+
+{b:5}[C][F][Dm]
+{b:4}[C][F][Dm]
+Gonna [G]break out of this city<
+Leave the [C]people here be[F]hind
+[G]Searchin’ for adventure<
+Is the [C]type of life you’ll find
+[Dm]Tired of doin’ [Em]day jobs<
+With no [F]thanks for what I [G]do
+I’m [F]sure there must be [Em]someone<<
+Now I’m [Dm]gonna find out [C]who
+
+{soh}Why don’t you [F]ask them{eoh}
+[G]What they expect from [C]you?[F][C]
+{soh}Why don’t you [F]tell them{eoh}
+[G]What you are gonna [C]do?[F][C]
+{soh}You’ll get so [Dm]lonely[Em]{eoh}>>
+Maybe it’s [F]better that [G]way>
+{soh}It ain’t you [F]only[Em]{eoh}>>
+,,,[Dm]You got somethin’ to [C]say>
+
+,,,,{soh}Do anything you wanna [C]do[F][Dm]
+,,,,,Do anything you wanna [C]do[F][Dm]{eoh}<
+
+{bpl:2}Don't [G]need no politician<
+Tell me [C]things I shouldn't [F]be
+[G]Neither no optician<
+Tell me [C]what I oughta see
+[Dm]No-one tells you [Em]nothing<
+Even [F]when you know they [G]know<
+But they [F]tell you what [Em]you should do<
+They don't [Dm]like to see you [C]grow
+
+{soh}Why don’t you [F]ask them{eoh}
+[G]What they expect from [C]you?[F][C]
+{soh}Why don’t you [F]tell them{eoh}
+[G]What you are gonna [C]do?[F][C]
+{soh}You’ll get so [Dm]lonely[Em]{eoh}>>
+Maybe it’s [F]better that [G]way>
+{soh}It ain’t you [F]only[Em]{eoh}>>
+,,,[Dm]You got somethin’ to [C]say>
+
+,,,,{soh}Do anything you wanna [C]do[F][Dm]
+,,,,,Do anything you wanna [C]do[F][Dm]{eoh}<
+
+Gonna [G]break out of this city<
+Leave the [C]people here be[F]hind
+[G]Searchin’ for adventure<
+Is the [C]type of life you’ll find
+[Dm]Tired of doin’ [Em]day jobs<
+With no [F]thanks for what I [G]do
+I’m [F]sure there must be [Em]someone<<
+Now I’m [Dm]gonna find out [C]who
+
+{soh}Why don’t you [F]ask them{eoh}
+[G]What they expect from [C]you?[F][C]
+{soh}Why don’t you [F]tell them{eoh}
+[G]What you are gonna [C]do?[F][C]
+{soh}You’ll get so [Dm]lonely[Em]{eoh}>>
+Maybe it’s [F]better that [G]way>
+{soh}It ain’t you [F]only[Em]{eoh}>>
+,,,[Dm]You got somethin’ to [C]say>
+
+{bpl:4}{soh}Do anything you wanna [C]do[F][Dm]
+Do anything you wanna [C]do[F][Dm]
+Do anything you wanna [C]do[F][Dm]
+,,,,,Do anything you wanna [C]do[F][Dm]{eoh}
+[C]

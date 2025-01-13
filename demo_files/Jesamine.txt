@@ -1,0 +1,51 @@
+{t:Jesamine}
+{st:The Casuals}
+{count:0}{bpm:90}{bpb:4}{bpl:2}
+{c:CAPO 5}
+{c:F Major}
+{audio:Jesamine_Drums.mp3}
+{time:track}
+
+{b:3}[C]What am [F]I suppo[C]sed to [F]do
+With a [C]girl like [F]Jesa[C]mine?
+[C]Though my [F]eyes are [C]open [F]wide
+,,,{scrollbeat:2}She [C]makes my [F]life a [C]drea[G]m
+
+{soh}When [G]Jesamine [C]goes, a [F]part of me [C]knows
+,{scrollbeat:4}I’m [Dm]not really [G]living
+[G]A butterfly [C]child, so [F]free and so [C]wild
+{scrollbeat:2}And [Dm]so full of [G]living
+
+[G]When Jesamine [Em]stays, though time goes [Am]fast
+[Am]This is my [F]wor[C]ld at [G]last
+[G]Beautiful [Em]days lost in her [Am]eyes
+,,,But then the [F]whole [C]world [G]dies
+
+[*][G7]When Jesamine [C]goes, a [F]part of me [C]knows
+,{scrollbeat:4}I’m [Dm]not really [G]living
+[G]A butterfly [C]child, so [F]free and so [C]wild
+{scrollbeat:4}And [Dm]so full of [G]living{eoh}
+
+[G]What can you [G7]say
+,,,[G7]When a girl doesn’t [C]want to [C/G]know
+[Am]{soh}She’s too far [Fmaj7]away
+,,,{scrollbeat:2}And she [Fm]makes my life a [C]drea[G]m
+
+When [G]Jesamine [C]goes, a [F]part of me [C]knows
+,{scrollbeat:4}I’m [Dm]not really [G]living
+[G]A butterfly [C]child, so [F]free and so [C]wild
+{scrollbeat:4}And [Dm]so full of [G]living{eoh}
+
+[C]What am [F]I suppo[C]sed to [F]do {soh}(what can you ...){eoh}
+With a [C]girl like [F]Jesa[C]mine? {soh}(when a girl ...){eoh}
+[C]Though my [F]eyes are [C]open [F]wide {soh}(she’s too far ...){eoh}
+,,,{scrollbeat:2}{soh}She [C]makes my [F]life a [C]drea[G]m{eoh}
+
+{soh}When [G]Jesamine [C]goes, a [F]part of me [C]knows
+,{scrollbeat:4}I’m [Dm]not really [G]living
+[G]A butterfly [C]child, so [F]free and so [C]wild
+{scrollbeat:2}And [Dm]so full of [G]living
+
+[*]When [G]Jesamine [C]goes[F][C]
+[*]When [G]Jesamine [C]goes[F][C]
+,When [G]Jesamine [C]goes{eoh}

@@ -1,0 +1,52 @@
+{t:Fall At Your Feet}
+{st:Crowded House}
+{bpm:100}{bpb:4}{count:0}{bpl:2}
+{audio:FallAtYourFeet_Drums.mp3}
+{time:track}
+{c:C Major}
+{c:Starts on beat 2}
+
+I'm really close to[Am]night
+[C]And I feel like I'm [Bm]moving inside her[E]
+Lying in the [Am]dark
+[C]I think that I'm be[Bm]ginning to know her[E]
+Let it [Am]go [C]
+I'll be there when you[F] call
+
+Whenever I {soh}[C]fall
+[G]at your [Am]feet{eoh}
+[F]And you let your {soh}[C]tears
+[G]rain down [Am]on me{eoh}
+[F]Whenever I {soh}[C]touch
+[G]your slow turning [Am]pain{eoh}
+
+[F]You're hiding from me [Am]now
+[C]There's something in the [Bm]way that you're talking[E]
+The words don't [Am]sound right
+[C]But I hear them all [Bm]{soh:#00ff00}moving in[E]side you
+,,,[Am]Know, [C]I'll{eoh} be waiting when you [F]call
+
+Whenever I {soh}[C]fall
+[G]at your [Am]feet{eoh}
+[F]And you let your {soh}[C]tears
+[G]rain down [Am]on me{eoh}
+[F]Whenever I {soh}[C]touch
+[G]your slow turning [Am]pain{eoh}
+
+,[F]The finger of
+{soh}[C]blame has turned up[G]on itself and I’m
+[Am]More than willing to [F]offer myself, do you
+[C]Want my presence or [G]need my help?{eoh}
+[Am]Who knows where that might [F]lead?
+{b:4}And I {soh}[C]fall{eoh}[G][Am] [F]
+{b:4}And I {soh}[C]fall{eoh}[G][Am] [F]
+
+,Whenever I {soh}[C]fall
+[G]at your [Am]feet{eoh}
+[F]And you let your {soh}[C]tears
+[G]rain down [Am]on me{eoh}
+[F]Whenever I {soh}[C]fall,
+[G]Whenever I [Am]fall{eoh}
+[F]Whenever I {soh}[C]fall
+[G]Whenever I [Am]fall{eoh}[F]
+,[C]

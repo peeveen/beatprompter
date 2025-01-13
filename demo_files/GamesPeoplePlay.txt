@@ -1,0 +1,64 @@
+{t:Games People Play}
+{st:Joe South}
+{bpm:82.5}{bpb:4}{bpl:1}{scrollbeat:2}{count:0}
+{audio:GamesPeoplePlay_Drums.mp3}
+{time:track}
+{c:C Major}
+
+{b:5}[C] [G] [F] [G] [C]
+
+{soh}[BASS]Na na na na [C]na na na na,
+Na na na na [G]na na na nee..
+Talkin' bout [F]you and me[G],
+And the games people [C]play{eoh}
+
+Oh, the games people [C]play, now,
+Every night and every [G]day, now.
+Never meaning what they [F]say, now[G]
+Never sayin' what they [C]mean.
+{soh}While they while away the [C]hours,
+In their ivory [G]towers..
+'Til they're covered up with [F]flowers,
+In the [G]back of a black limou[C]sine.{eoh}
+
+{soh}[G]Na na na na [C]na na na na,
+Na na na na [G]na na na nee..
+Talkin' bout [F]you and me[G],
+And the games people [C]play{eoh}
+
+People walking up [C]to yah
+Singing glory halle[G]lujah,
+And they try to sock it [F]to yah,[G]
+In the name of the [C]Lord.
+{soh}They're gonna teach you how to [C]meditate,
+Read your horoscope, [G]change your fate,
+And furthermore to [F]hell with hate![G]
+Come on, gimme [C]more{eoh}
+
+{soh}[G]Na na na na [C]na na na na,
+Na na na na [G]na na na nee..
+Talkin' bout [F]you and me[G],
+And the games people [C]play{eoh}
+
+,,,,[F] [G] [F] [G]
+,,,,[C] [G] [F] [G] [C]
+
+Look around, tell me [C]what you see,
+What's happening to [G]you and me?
+God grant me the s[F]erenity[G]
+To just remember who I [C]am.
+{soh}'Cause you've given up your [C]sanity,
+For your pride and your [G]vanity..
+Turn your back on hu[F]manity, oh[G],
+And you don't give a [C]da- da- da da da ...{eoh}
+
+{soh}[G]Na na na na [C]na na na na,
+Na na na na [G]na na na nee..
+Talkin' bout [F]you and me[G],
+And the games people [C]play{eoh}
+
+{soh}[G]Na na na na [C]na na na na,
+Na na na na [G]na na na nee..
+Talkin' bout [F]you and me[G],
+And the games people [C]play{eoh}
+
