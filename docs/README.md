@@ -60,7 +60,7 @@ In this case, the song file has two errors.
 
 However, all being well, you are asked to tap the screen twice to start the song. The first tap will take you to the actual song display screen, and the second tap will start it moving.
 
-> It should be noted that, at this point, the screen orientation is locked. If you want to change orientation, you will have to go back to the song list screen first.
+> ⚠️ It should be noted that, at this point, the screen orientation is locked. If you want to change orientation, you will have to go back to the song list screen first.
 
 ## Song Display Screen
 
@@ -75,7 +75,7 @@ However, all being well, you are asked to tap the screen twice to start the song
 
 - For each line in the song, BeatPrompter will try to fit it on the screen horizontally, using as large a font as possible. Note that you can control the minimum and maximum font size that BeatPrompter will use in the preferences menu. See [Settings - Song Display](#settings---song-display) for details.
 - If a line is very long, or if the minimum font size means that the line cannot fit the screen, BeatPrompter will break it over multiple lines.
-- Note that BeatPrompter will not display blank lines. If your song file contains lines with no lyrics or chords, they will not be displayed, though any tags contained on that line will still be processed. The only exception is if you have a “blank” line that starts with commas (bar markers) ... in this case BeatPrompter will insert a ▼ blank-line marker into the song display.
+- ⚠️ Note that BeatPrompter will not display blank lines. If your song file contains lines with no lyrics or chords, they will not be displayed, though any tags contained on that line will still be processed. The only exception is if you have a “blank” line that starts with commas (bar markers) ... in this case BeatPrompter will insert a ▼ blank-line marker into the song display.
 
 ## Song Files
 
@@ -153,11 +153,13 @@ Before it can download your data, you must tell BeatPrompter where your data is 
 4. If BeatPrompter successfully connects to your storage, then all being well, you should see a folder browser. Browse to the location where your files are stored and press OK.
 5. BeatPrompter can now download your data. From the main app menu, select `Synchronize Files` from the menu. The amount of time that this process takes will depend on the type of storage that you are using, and the volume of data and the speed of the connection.
 
-> **Note that, if using Google Drive, your song files don’t have to be stored as .txt, or .chopro, or any particular text format.** Any format that can be interpreted as text can be used, including the Google Docs format. This format is particularly useful, as you can create and edit these files directly in the Google Drive app. Also, if you find the `{tags}` and annotations annoying when you are simply sight-reading your files, you can reduce their size to near-zero, or change their color to white/near-white so that they are largely invisible: BeatPrompter will still see them!
+> ℹ️ **Note that, if using Google Drive, your song files don’t have to be stored as .txt, or .chopro, or any particular text format.** Any format that can be interpreted as text can be used, including the Google Docs format. This format is particularly useful, as you can create and edit these files directly in the Google Drive app. Also, if you find the `{tags}` and annotations annoying when you are simply sight-reading your files, you can reduce their size to near-zero, or change their color to white/near-white so that they are largely invisible: BeatPrompter will still see them!
 
-> In Dropbox and OneDrive, your song files must be plain text (.txt) files.
+> ⚠️ In Dropbox and OneDrive, your song files must be plain text (.txt) files.
 
-Once all the data has been downloaded, the BeatPrompter app will scan the downloaded files and present you with a list of usable songs. Note that song files that do not contain a title (specified with `{title}` or `{t}`) will not be listed.
+Once all the data has been downloaded, the BeatPrompter app will scan the downloaded files and present you with a list of usable songs.
+
+> ⚠️ Note that song files that do not contain a title (specified with `{title}` or `{t}`) will **not** be listed.
 
 ## Single File Refresh
 
@@ -175,9 +177,9 @@ If you are currently displaying a set list, a third option of “Force refresh o
 
 ## Editing Files
 
-If the currently-selected storage system supports editing files, you will see one or more “edit” options on the long-press menu. Selecting these will launch a cloud-specific text editor, allowing you to make changes. Note that, by doing this, you are editing the remote cloud version of the file, and will still have to refresh/sync your file to see any changes in BeatPrompter.
+If the currently-selected storage system supports editing files, you will see one or more “edit” options on the long-press menu. Selecting these will launch a cloud-specific text editor, allowing you to make changes. Note that, by doing this, you are editing the **remote cloud version of the file**, and will still have to refresh/sync your file to see any changes in BeatPrompter.
 
-> Making lengthy edits on a mobile device is not really recommended! This function is really just included for making small corrections to existing files.
+> ⚠️ Making lengthy edits on a mobile device is not really recommended! This function is really just included for making small corrections to existing files.
 
 ## Settings
 
@@ -196,12 +198,12 @@ BeatPrompter has an extensive set of preferences which allow you to customize th
 
 ## Settings - Files
 
-| Setting            | Description                                                                                                                                                                                                                   |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Storage System     | This has four options: Google Drive, Dropbox, Microsoft OneDrive, or Local Storage. Choose the one that your song files are stored in. **Note that Local Storage is only available if enabled via the Permissions settings.** |
-| Storage Folder     | This option allows you to choose the folder that your songs are in. When you first select this option, you may be prompted to permit BeatPrompter to access your storage.                                                     |
-| Include Subfolders | Determines whether files within subfolders will also be fetched.                                                                                                                                                              |
-| Clear Cache        | Pressing this will delete all downloaded files.                                                                                                                                                                               |
+| Setting            | Description                                                                                                                                                                                                                      |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Storage System     | This has four options: Google Drive, Dropbox, Microsoft OneDrive, or Local Storage. Choose the one that your song files are stored in. ⚠️ **Note that Local Storage is only available if enabled via the Permissions settings.** |
+| Storage Folder     | This option allows you to choose the folder that your songs are in. When you first select this option, you may be prompted to permit BeatPrompter to access your storage.                                                        |
+| Include Subfolders | Determines whether files within subfolders will also be fetched.                                                                                                                                                                 |
+| Clear Cache        | Pressing this will delete all downloaded files.                                                                                                                                                                                  |
 
 ## Settings - Song List
 
@@ -270,10 +272,10 @@ BeatPrompter has an extensive set of preferences which allow you to customize th
 
 ## Settings - Permissions
 
-| Setting   | Description                                                                                                                                                                                                                                                                                                                |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bluetooth | To use BeatPrompter in a group context, or to use Bluetooth MIDI, your devices need to communicate via Bluetooth. On Android 12 (or later) devices, you will need to manually grant BeatPrompter the permission to use Bluetooth. If this is not granted, the Bluetooth settings screen will be disabled.                  |
-| Storage   | If you want to use locally-stored files, you must grant BeatPrompter the ability to read your local storage. If this is not granted, only cloud storage will be available. **Note that Android 12 (and later) devices have heavily restricted this permission, and it may not be possible to grant, even if you want to.** |
+| Setting   | Description                                                                                                                                                                                                                                                                                                                   |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bluetooth | To use BeatPrompter in a group context, or to use Bluetooth MIDI, your devices need to communicate via Bluetooth. On Android 12 (or later) devices, you will need to manually grant BeatPrompter the permission to use Bluetooth. If this is not granted, the Bluetooth settings screen will be disabled.                     |
+| Storage   | If you want to use locally-stored files, you must grant BeatPrompter the ability to read your local storage. If this is not granted, only cloud storage will be available. ⚠️ **Note that Android 12 (and later) devices have heavily restricted this permission, and it may not be possible to grant, even if you want to.** |
 
 > Each permission is shown as “Granted” or “Denied”. If the permission is currently Denied, clicking on it should start the permission-granting process. If you want to revoke previously-granted permissions, uninstall and re-install the app.
 
@@ -366,7 +368,7 @@ Backless Number###Acoustic
 … etc
 ```
 
-Once it has been downloaded, BeatPrompter will recognize this as a set list file (because of the `{set}` tag) and will add it to the filter combo box on the main song list view, with a “list” icon to differentiate it from tag sets. **Note that the titles of the songs in the set list must EXACTLY match the titles of the songs in your song collection**, otherwise BeatPrompter will display a warning when you open the set list, displaying the names of the unknown songs.
+Once it has been downloaded, BeatPrompter will recognize this as a set list file (because of the `{set}` tag) and will add it to the filter combo box on the main song list view, with a “list” icon to differentiate it from tag sets. ⚠️ **Note that the titles of the songs in the set list must EXACTLY match the titles of the songs in your song collection**, otherwise BeatPrompter will display a warning when you open the set list, displaying the names of the unknown songs.
 
 If your collection of songs contains multiple songs with the same title, you can disambiguate the set list entry by adding the artist, as shown in the example above. Use `===` (triple equals) as a delimiter.
 
