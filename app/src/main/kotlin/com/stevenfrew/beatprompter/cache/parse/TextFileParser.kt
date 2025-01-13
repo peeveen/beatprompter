@@ -148,5 +148,4 @@ abstract class TextFileParser<TFileResult>(
 		tagFinders
 			.mapNotNull { it.findTag(text) }
 			.minByOrNull { it.start }
-
 }

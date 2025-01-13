@@ -561,12 +561,13 @@ class SongParser(
 		return true
 	}
 
-	private fun getVariationAudioTag(index: Int): AudioTag? {
-		val tags = variationAudioTags[variation]
-		if ((tags?.count() ?: 0) > index)
-			return tags!![index]
-		return null
-	}
+	private fun getVariationAudioTag(index: Int): AudioTag? =
+		variationAudioTags[variation]?.let {
+			if (it.count() > index)
+				it[index]
+			else
+				null
+		}
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.

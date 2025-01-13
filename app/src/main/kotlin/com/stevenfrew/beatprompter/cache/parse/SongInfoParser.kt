@@ -194,36 +194,35 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private val firstChord: String?
 		get() = chords.firstOrNull { Chord.isChord(it) }
 
-	override fun getResult(): SongFile {
+	override fun getResult(): SongFile =
 		if (title.isNullOrBlank())
 			throw InvalidBeatPrompterFileException(R.string.noTitleFound, cachedCloudFile.name)
-
-		return SongFile(
-			cachedCloudFile,
-			lines,
-			bars,
-			title!!,
-			artist ?: "",
-			key ?: firstChord,
-			bpm,
-			duration,
-			mixedModeVariations.toList(),
-			totalPauseDuration,
-			variationAudioTags.mapValues { kvp -> kvp.value.map { it.normalizedFilename } },
-			imageFiles,
-			tags.toSet(),
-			midiProgramChangeTrigger
-				?: SongTrigger.DEAD_TRIGGER,
-			midiSongSelectTrigger
-				?: SongTrigger.DEAD_TRIGGER,
-			isFilterOnly,
-			rating,
-			year,
-			icon,
-			if (variations.isEmpty()) listOf("Default") else variations,
-			chords,
-			firstChord,
-			errors
-		)
-	}
+		else
+			SongFile(
+				cachedCloudFile,
+				lines,
+				bars,
+				title!!,
+				artist ?: "",
+				key ?: firstChord,
+				bpm,
+				duration,
+				mixedModeVariations.toList(),
+				totalPauseDuration,
+				variationAudioTags.mapValues { kvp -> kvp.value.map { it.normalizedFilename } },
+				imageFiles,
+				tags.toSet(),
+				midiProgramChangeTrigger
+					?: SongTrigger.DEAD_TRIGGER,
+				midiSongSelectTrigger
+					?: SongTrigger.DEAD_TRIGGER,
+				isFilterOnly,
+				rating,
+				year,
+				icon,
+				if (variations.isEmpty()) listOf("Default") else variations,
+				chords,
+				firstChord,
+				errors
+			)
 }
