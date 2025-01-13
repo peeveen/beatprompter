@@ -10,9 +10,9 @@ BeatPrompter reads song files that have been created in the popular ChordPro for
 
 **_BeatPrompter is FREE software. If you like it, please consider making a donation via:_**
 
-- [PayPal](https://www.paypal.com/donate/?hosted_button_id=4YW4C6YH3YE9J)
-- [Buy Me A Coffee](https://www.buymeacoffee.com/peeveen)
-- [Ko-Fi](https://ko-fi.com/stevenfrew)
+<a href="https://www.buymeacoffee.com/peeveen" target="_blank"><img src="../media/paypal.png" alt="Donate via PayPal" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/peeveen" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href='https://ko-fi.com/G2G817J2JM' target='_blank'><img height='60' style='border:0px;height:60px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ## Usage
 
@@ -396,9 +396,9 @@ See the [separate version history document](./HISTORY.md).
 
 I have put a lot of work into this largely-misunderstood app. If you’re one of those special people who “get it”, maybe buy me a drink for my efforts? I am happy to accept any donations via:
 
-- [PayPal](https://www.paypal.com/donate/?hosted_button_id=4YW4C6YH3YE9J)
-- [Buy Me A Coffee](https://www.buymeacoffee.com/peeveen)
-- [Ko-Fi](https://ko-fi.com/stevenfrew)
+<a href="https://www.buymeacoffee.com/peeveen" target="_blank"><img src="../media/paypal.png" alt="Donate via PayPal" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/peeveen" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href='https://ko-fi.com/G2G817J2JM' target='_blank'><img height='60' style='border:0px;height:60px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 Thanks!
 
