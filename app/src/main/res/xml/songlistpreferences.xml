@@ -2,39 +2,54 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showBeatStyleIcons_key"
-		android:title="@string/pref_showBeatStyleIcons_title"
 		android:summary="@string/pref_showBeatStyleIcons_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_showBeatStyleIcons_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showMusicIcon_key"
-		android:title="@string/pref_showMusicIcon_title"
 		android:summary="@string/pref_showMusicIcon_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_showMusicIcon_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showKeyInList_key"
-		android:title="@string/pref_showKeyInList_title"
 		android:summary="@string/pref_showKeyInList_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_showKeyInList_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_showRatingInList_key"
-		android:title="@string/pref_showRatingInList_title"
 		android:summary="@string/pref_showRatingInList_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_showRatingInList_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
+		android:key="@string/pref_showYearInList_key"
+		android:summary="@string/pref_showYearInList_summary"
+		android:title="@string/pref_showYearInList_title"
+		app:iconSpaceReserved="false" />
+	<ListPreference
+		android:defaultValue="@string/pref_songIconDisplayPosition_defaultValue"
+		android:dialogTitle="@string/pref_songIconDisplayPosition_title"
+		android:entries="@array/pref_songIconDisplayPosition_entries"
+		android:entryValues="@array/pref_songIconDisplayPosition_entryValues"
+		android:key="@string/pref_songIconDisplayPosition_key"
+		android:summary="@string/pref_songIconDisplayPosition_summary"
+		android:title="@string/pref_songIconDisplayPosition_title"
+		app:iconSpaceReserved="false" />
+	<CheckBoxPreference
+		android:defaultValue="false"
 		android:key="@string/pref_largePrintList_key"
-		android:title="@string/pref_largePrintList_title"
 		android:summary="@string/pref_largePrintList_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="false" />
+		android:title="@string/pref_largePrintList_title"
+		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
+		android:defaultValue="true"
 		android:key="@string/pref_clearTagFilterOnFolderChange_key"
-		android:title="@string/pref_clearTagFilterOnFolderChange_title"
 		android:summary="@string/pref_clearTagFilterOnFolderChange_summary"
-		app:iconSpaceReserved="false"
-		android:defaultValue="true" />
+		android:title="@string/pref_clearTagFilterOnFolderChange_title"
+		app:iconSpaceReserved="false" />
 </PreferenceScreen>

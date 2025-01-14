@@ -33,6 +33,8 @@ class SongFile(
 	val songSelectTrigger: SongTrigger,
 	val isFilterOnly: Boolean,
 	val rating: Int,
+	val year: Int?,
+	val icon: String?,
 	val variations: List<String>,
 	val chords: List<String>,
 	val firstChord: String?,
@@ -74,6 +76,8 @@ class SongFile(
 		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
 		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
 		element.setAttribute(RATING_ATTRIBUTE, "$rating")
+		year?.also { element.setAttribute(YEAR_ATTRIBUTE, "$year") }
+		icon?.also { element.setAttribute(ICON_ATTRIBUTE, icon) }
 		firstChord?.also { element.setAttribute(FIRST_CHORD_ATTRIBUTE, firstChord) }
 
 		writeStringsToElement(doc, element, TAGS_TAG, tags)
@@ -106,6 +110,8 @@ class SongFile(
 		private const val TOTAL_PAUSES_ATTRIBUTE = "totalPauses"
 		private const val FILTER_ONLY_ATTRIBUTE = "filterOnly"
 		private const val RATING_ATTRIBUTE = "rating"
+		private const val YEAR_ATTRIBUTE = "year"
+		private const val ICON_ATTRIBUTE = "icon"
 		private const val FIRST_CHORD_ATTRIBUTE = "firstChord"
 
 		private const val IMAGE_FILES_TAG = "imageFiles"
@@ -135,6 +141,12 @@ class SongFile(
 				val totalPausesString = element.getAttribute(TOTAL_PAUSES_ATTRIBUTE)
 				val filterOnlyString = element.getAttribute(FILTER_ONLY_ATTRIBUTE)
 				val ratingString = element.getAttribute(RATING_ATTRIBUTE)
+				var yearString: String? = element.getAttribute(YEAR_ATTRIBUTE)
+				if (yearString.isNullOrBlank())
+					yearString = null
+				var icon = element.getAttribute(ICON_ATTRIBUTE)
+				if (icon.isNullOrBlank())
+					icon = null
 				var firstChord: String? = element.getAttribute(FIRST_CHORD_ATTRIBUTE)
 				if (firstChord.isNullOrBlank())
 					firstChord = null
@@ -146,6 +158,7 @@ class SongFile(
 					val totalPauses = totalPausesString.toLong()
 					val filterOnly = filterOnlyString.toBoolean()
 					val rating = ratingString.toInt()
+					val year = yearString?.toInt()
 
 					val tags = getStringsFromElement(element, TAGS_TAG).toSet()
 					val imageFiles = getStringsFromElement(element, IMAGE_FILES_TAG)
@@ -182,6 +195,8 @@ class SongFile(
 						songSelectTrigger,
 						filterOnly,
 						rating,
+						year,
+						icon,
 						variations,
 						chords,
 						firstChord,

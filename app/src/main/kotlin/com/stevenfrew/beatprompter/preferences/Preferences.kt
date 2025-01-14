@@ -7,6 +7,8 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
+import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -61,11 +63,13 @@ interface Preferences {
 	val showBeatStyleIcons: Boolean
 	val showKeyInSongList: Boolean
 	val showRatingInSongList: Boolean
+	val showYearInSongList: Boolean
+	val songIconDisplayPosition: SongIconDisplayPosition
 	val showMusicIcon: Boolean
 	val screenAction: SongView.ScreenAction
 	val audioPlayer: AudioPlayerType
 	val showScrollIndicator: Boolean
-	val showSongTitle: Boolean
+	val beatCounterTextOverlay: BeatCounterTextOverlay
 	val commentDisplayTime: Int
 	val midiTriggerSafetyCatch: SongView.TriggerSafetyCatch
 	val highlightCurrentLine: Boolean
@@ -84,6 +88,8 @@ interface Preferences {
 	var dropboxAccessToken: String
 	var dropboxRefreshToken: String
 	var dropboxExpiryTime: Long
+	val trimTrailingPunctuation: Boolean
+	val useUnicodeEllipsis: Boolean
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

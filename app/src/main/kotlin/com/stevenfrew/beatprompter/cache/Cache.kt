@@ -28,6 +28,7 @@ import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.w3c.dom.Document
@@ -63,6 +64,7 @@ object Cache {
 	}
 
 	private const val XML_DATABASE_FILE_NAME = "bpdb.xml"
+	private const val TEMP_XML_DATABASE_FILE_NAME = "$XML_DATABASE_FILE_NAME.tmp"
 	private const val XML_DATABASE_FILE_ROOT_ELEMENT_TAG = "beatprompterDatabase"
 	private const val TEMPORARY_SET_LIST_FILENAME = "temporary_setlist.txt"
 	private const val DEFAULT_MIDI_ALIASES_FILENAME = "default_midi_aliases.txt"
@@ -132,6 +134,8 @@ object Cache {
 
 		temporarySetListFile = File(beatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
 		defaultMidiAliasesFile = File(beatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
+		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
+		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
 		initialiseTemporarySetListFile(false, context)
 		try {
 			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, defaultMidiAliasesFile!!)
@@ -146,7 +150,8 @@ object Cache {
 					FileInfo(
 						"idBeatPrompterTemporarySetList",
 						"BeatPrompterTemporarySetList",
-						Date()
+						Date(),
+						temporarySetListFileMd5Checksum
 					), temporarySetListFile!!
 				)
 			)
@@ -155,7 +160,8 @@ object Cache {
 					FileInfo(
 						"idBeatPrompterDefaultMidiAliases",
 						context.getString(R.string.default_alias_set_name),
-						Date()
+						Date(),
+						defaultMidiAliasesFileMd5Checksum
 					), defaultMidiAliasesFile!!
 				)
 			)
@@ -242,31 +248,37 @@ object Cache {
 			}
 
 			BeatPrompter.addDebugMessage("Reading XML database.")
-			val xml = DocumentBuilderFactory
-				.newInstance()
-				.newDocumentBuilder()
-				.parse(database)
-			if (readFromXML(
-					xml,
-					itemSource,
-					messageSource
+			try {
+				val xml = DocumentBuilderFactory
+					.newInstance()
+					.newDocumentBuilder()
+					.parse(database)
+				if (readFromXML(
+						xml,
+						itemSource,
+						messageSource
+					)
 				)
-			)
-				writeDatabase()
-			BeatPrompter.addDebugMessage("Calling itemSource.onComplete()")
-			itemSource.onComplete()
-			BeatPrompter.addDebugMessage("Called itemSource.onComplete()")
-			compositeDisposable.dispose()
-			BeatPrompter.addDebugMessage("Disposed of CompositeDisposable.")
+					writeDatabase()
+				BeatPrompter.addDebugMessage("Calling itemSource.onComplete()")
+				itemSource.onComplete()
+				BeatPrompter.addDebugMessage("Called itemSource.onComplete()")
+				compositeDisposable.dispose()
+				BeatPrompter.addDebugMessage("Disposed of CompositeDisposable.")
+			} catch (_: Exception) {
+				// Something went wrong with reading the XML.
+				// Database is lost, and will need rebuilt.
+				return false
+			}
 		}
 		return databaseExists
 	}
 
 	fun writeDatabase() {
 		try {
+			val tempDatabase = File(beatPrompterDataFolder, TEMP_XML_DATABASE_FILE_NAME)
 			val database = File(beatPrompterDataFolder, XML_DATABASE_FILE_NAME)
-			if (!database.delete())
-				Logger.log("Failed to delete database file.")
+			tempDatabase.delete()
 			val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 			val d = docBuilder.newDocument()
 			val root = d.createElement(XML_DATABASE_FILE_ROOT_ELEMENT_TAG)
@@ -277,9 +289,13 @@ object Cache {
 			d.appendChild(root)
 			cachedCloudItems.writeToXML(d, root)
 			val transformer = TransformerFactory.newInstance().newTransformer()
-			val output = StreamResult(database)
+			val output = StreamResult(tempDatabase)
 			val input = DOMSource(d)
 			transformer.transform(input, output)
+			// Rename temp database file to actual database.
+			// This limits potential for corruption caused by shutdown during write.
+			tempDatabase.copyTo(database, true)
+			tempDatabase.delete()
 		} catch (ioe: Exception) {
 			Logger.log(ioe)
 			EventRouter.sendEventToSongList(Events.DATABASE_WRITE_ERROR)

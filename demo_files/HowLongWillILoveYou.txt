@@ -1,0 +1,45 @@
+{t:How Long Will I Love You?}
+{st:The Waterboys}
+{bpm:124}{bpb:4}{bpl:2}{count:0}
+{audio:HowLongWillILoveYou_Drums.mp3}
+{c:C Major}
+{time:track}
+
+{b:3}[C]
+[C]How long will I [G]love you?
+[F]{soh}As long as [C]stars are above you{eoh}
+[Dm][C]And longer if I [G]can>
+,{bpb:6}[G]
+{bpb:4}[C]How long will I [G]need you?
+[F]{soh}As long as the [C]seasons need to{eoh}
+[Dm][C]Follow their [G]plan>
+,{bpb:6}[G]
+{bpb:4}[F]How long will I [Dm]be with you?
+[Em]{soh}As long as the [C]sea is bound to{eoh}
+[Dm][C]Wash upon the [G]sand>
+,{bpb:6}[G]
+{bpb:4}[C]How long will I [G]want you?
+[F]{soh}As long as [C]you want me to{eoh}
+[Dm][C]And longer by [G]far>
+,{bpb:6}[G]
+{bpb:4}[C]How long will I [G]hold you?
+[F]{soh}As long as your [C]father told you{eoh}
+[Dm][C]As looooong as you [G]are>
+,{bpb:6}[G]
+{bpb:4}[F]How long will I [Dm]give to you?
+[Em]{soh}As long as [C]I live through you{eoh}
+[Dm][C]However long you [G]say>
+,{bpb:6}[G]
+{bpb:4}[C]How long will I [G]love you?
+[F]{soh}As long as [C]stars are above you{eoh}
+[Dm][C]And longer if I [G]may>
+,{bpb:6}[G]
+{bpb:4}[C][G]
+[F][C]
+[Dm][C][G]
+,{bpb:6}[G][STOP]
+{bpb:4}[C]How long will I [G]love you?
+[F]{soh}As long as there’s [C]stars above you{eoh}
+[Dm][G][C]
+
+

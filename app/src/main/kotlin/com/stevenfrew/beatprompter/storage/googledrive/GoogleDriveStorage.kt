@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.storage.googledrive
 
 import android.content.Intent
+import android.net.Uri
 import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -9,6 +10,7 @@ import com.google.android.gms.common.api.Scope
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.HttpStatusCodes
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.ExponentialBackOff
@@ -17,6 +19,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.storage.DownloadResult
+import com.stevenfrew.beatprompter.storage.EditableStorage
 import com.stevenfrew.beatprompter.storage.FailedDownloadResult
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
@@ -29,6 +32,7 @@ import com.stevenfrew.beatprompter.ui.pref.FileSettingsFragment
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -41,7 +45,7 @@ import kotlin.coroutines.CoroutineContext
  * GoogleDrive implementation of the storage system.
  */
 class GoogleDriveStorage(parentFragment: Fragment) :
-	Storage(parentFragment, StorageType.GoogleDrive) {
+	Storage(parentFragment, StorageType.GoogleDrive), EditableStorage {
 
 	private val googleClientSignInOptions =
 		GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -75,7 +79,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		FileSettingsFragment.mOnGoogleDriveAuthenticationFailed = {
 			itemSource.onError(Exception(parentFragment.getString(R.string.googleDriveAccessFailed)))
 		}
-		(parentFragment as FileSettingsFragment).mGoogleDriveAuthenticator?.launch(intent)
+		(parentFragment as FileSettingsFragment).mGoogleDriveAuthenticator.launch(intent)
 	}
 
 	private fun <T> doGoogleDriveAction(itemSource: PublishSubject<T>, action: GoogleDriveAction) {
@@ -177,12 +181,20 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								break
 							// Ignore shortcuts
 							val resolvedChild = if (child.shortcutDetails != null)
-								mClient.files().get(child.shortcutDetails.targetId)
-									.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
+								try {
+									// Shortcuts can point to files that no longer exist!
+									mClient.files().get(child.shortcutDetails.targetId)
+										.setFields(GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN).execute()
+								} catch (e: GoogleJsonResponseException) {
+									if (e.statusCode == HttpStatusCodes.STATUS_CODE_NOT_FOUND)
+										continue
+									throw e
+								}
 							else
 								child
 							val fileID = resolvedChild.id
 							val title = resolvedChild.name
+							val md5Checksum = resolvedChild.md5Checksum ?: ""
 							val mimeType = resolvedChild.mimeType
 							Logger.log({ "File ID: $fileID" })
 							if (GOOGLE_DRIVE_FOLDER_MIMETYPE == mimeType) {
@@ -204,7 +216,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 								Logger.log({ "File title: $title" })
 								val modifiedTime = Date(resolvedChild.modifiedTime.value)
 								val newFile = FileInfo(
-									fileID, title, modifiedTime,
+									fileID, title, modifiedTime, md5Checksum,
 									if (currentFolder.parentFolder == null) "" else currentFolderID
 								)
 								mItemSource.onNext(newFile)
@@ -271,6 +283,7 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 							val localFile = downloadGoogleDriveFile(file, safeFilename)
 							val updatedCloudFile = FileInfo(
 								it.id, file.name, Date(file.modifiedTime.value),
+								file.md5Checksum ?: "",
 								it.subfolderIds
 							)
 							SuccessfulDownloadResult(updatedCloudFile, localFile)
@@ -292,6 +305,10 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 			filename: String
 		): File {
 			val localFile = File(mDownloadFolder, filename)
+			// If we already have the file, we must be downloading cos the database
+			// was corrupted. The existing file might be valid.
+			if (localFile.exists() && file.md5Checksum != null && localFile.getMd5Hash() == file.md5Checksum)
+				return localFile
 			val inputStream = getDriveFileInputStream(file)
 			inputStream?.use { inStream ->
 				Logger.log({ "Creating new local file, ${localFile.absolutePath}" })
@@ -374,11 +391,17 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 		})
 	}
 
+	override fun getEditIntent(id: String) =
+		Intent(Intent.ACTION_VIEW).apply {
+			data = Uri.parse("https://docs.google.com/file/d/$id/edit")
+		}
+
 	companion object {
 		private const val GOOGLE_DRIVE_ROOT_FOLDER_ID = "root"
 		private const val GOOGLE_DRIVE_ROOT_PATH = "/"
 		const val GOOGLE_DRIVE_CACHE_FOLDER_NAME = "google_drive"
-		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON = "id,name,mimeType,modifiedTime"
+		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON =
+			"id,name,mimeType,modifiedTime,md5Checksum"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_SCAN =
 			"${GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_COMMON},shortcutDetails"
 		private const val GOOGLE_DRIVE_REQUESTED_FILE_FIELDS_DOWNLOAD =

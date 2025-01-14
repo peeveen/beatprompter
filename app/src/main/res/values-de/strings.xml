@@ -6,7 +6,7 @@
 	<string name="badAudioVolume">Audio Track-Lautstärke ist nicht eine Zahl zwischen 0 und 100.</string>
 	<string name="beat_scrolling">Schlagen Scrolling</string>
 	<string name="byArtist">Durch Künstler</string>
-	<string name="byDate">Nach Datum</string>
+	<string name="byDate">Nach Datum der letzten Änderung</string>
 	<string name="byTitle">Mit dem Titel</string>
 	<string name="cancel">Stornieren</string>
 	<string name="cannotFindAudioFile">Kann nicht Audiodatei finden: %1$s</string>
@@ -162,8 +162,6 @@
 	<string name="pref_showChords_title">Zeige Akkorde</string>
 	<string name="pref_showFirstBeat_summary">Zeigt den ersten Schlag im Takt Indikatorabschnitt.</string>
 	<string name="pref_showFirstBeat_title">Zeigen ersten Schlag.</string>
-	<string name="pref_showSongTitle_summary">Zeigt den aktuellen Songtitel über den oberen Teil der Beatcounter Abschnitt.</string>
-	<string name="pref_showSongTitle_title">Zeigen Songtitel.</string>
 	<string name="song_display_options">Song-Anzeigeoptionen</string>
 	<string name="song_list_options">Songliste Optionen</string>
 	<string name="force_refresh_set">Force-Refresh-Set-Liste</string>
@@ -434,4 +432,25 @@ Em]zeigt den Beat Progression.\n
 	<string name="unknownVariations">varstart/varxstart-Tag enthält unbekannte Variationen: %1$s</string>
 	<string name="pref_preferredVariation_title">Bevorzugte Variante</string>
 	<string name="pref_preferredVariation_summary">Wenn ein Lied diese Variation enthält, wird sie standardmäßig geladen.</string>
+	<string name="stop">Stoppen</string>
+	<string name="stopping">Stoppen …</string>
+	<string name="pref_trimTrailingPunctuation_title">Kürzen Sie die nachfolgende Interpunktion</string>
+	<string name="pref_useUnicodeEllipsis_title">Unicode-Auslassungspunkte verwenden</string>
+	<string name="pref_useUnicodeEllipsis_summary">Ersetzen Sie Sequenzen von genau drei Punkten durch das Unicode-Auslassungszeichen.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Entfernen Sie einzelne Punkte oder Kommas am Zeilenende.</string>
+	<string name="byYear">Nach Jahr</string>
+	<string name="byIcon">Nach Symbol</string>
+	<string name="pref_showYearInList_title">Songjahr anzeigen</string>
+	<string name="pref_showYearInList_summary">Zeigen Sie in der Hauptsongliste das Jahr des Songs an (sofern definiert).</string>
+	<string name="pref_songIconDisplayPosition_title">Anzeigeposition des Songsymbols</string>
+	<string name="pref_songIconDisplayPosition_summary">Wo soll das Songsymbol (sofern definiert) angezeigt werden?</string>
+	<string name="songListDisplayPositionNoneName">Keiner</string>
+	<string name="songListDisplayPositionLeftName">Links</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Icon-Bereich, links</string>
+	<string name="songListDisplayPositionIconSectionRightName">Icon-Bereich, rechts</string>
+	<string name="pref_beatCounterTextOverlay_title">Textüberlagerung des Beat-Zählers.</string>
+	<string name="pref_beatCounterTextOverlay_summary">Welcher Text über dem Beatcounter angezeigt werden soll.</string>
+	<string name="beatCounterTextOverlayNothingName">Nichts</string>
+	<string name="beatCounterTextOverlaySongTitleName">Liedtitel</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Aktuelle Uhrzeit</string>
 </resources>

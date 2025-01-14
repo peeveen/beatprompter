@@ -19,15 +19,18 @@ import java.util.Date
 open class CachedFile : CachedItem {
 	val file: File
 	val lastModified: Date
+	val contentHash: String
 
 	constructor(
 		file: File,
 		id: String,
 		name: String,
 		lastModified: Date,
+		contentHash: String,
 		subfolderIDs: List<String>
 	) : super(id, name, subfolderIDs) {
 		this.file = file
+		this.contentHash = contentHash
 		this.lastModified = lastModified
 	}
 
@@ -36,40 +39,44 @@ open class CachedFile : CachedItem {
 		cachedFile.id,
 		cachedFile.name,
 		cachedFile.lastModified,
+		cachedFile.contentHash,
 		cachedFile.subfolderIds
 	)
 
 	constructor(element: Element) : super(element) {
 		lastModified = Date(element.getAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME).toLong())
 		file = File(element.getAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME))
+		contentHash = element.getAttribute(CONTENT_HASH_ATTRIBUTE_NAME)
 	}
 
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
 		element.setAttribute(CACHED_FILE_PATH_ATTRIBUTE_NAME, file.absolutePath)
 		element.setAttribute(CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME, "${lastModified.time}")
+		element.setAttribute(CONTENT_HASH_ATTRIBUTE_NAME, contentHash)
 	}
 
 	companion object {
 		private const val CACHED_FILE_PATH_ATTRIBUTE_NAME = "path"
 		private const val CACHED_FILE_LAST_MODIFIED_ATTRIBUTE_NAME = "lastModified"
+		private const val CONTENT_HASH_ATTRIBUTE_NAME = "contentHash"
 
 		fun createCachedCloudFile(result: SuccessfulDownloadResult): CachedFile =
 			try {
 				AudioFileParser(result.cachedCloudFile).parse()
-			} catch (ioe: InvalidBeatPrompterFileException) {
+			} catch (_: InvalidBeatPrompterFileException) {
 				try {
 					ImageFileParser(result.cachedCloudFile).parse()
-				} catch (exception1: InvalidBeatPrompterFileException) {
+				} catch (_: InvalidBeatPrompterFileException) {
 					try {
 						MidiAliasFileParser(result.cachedCloudFile).parse()
-					} catch (exception2: InvalidBeatPrompterFileException) {
+					} catch (_: InvalidBeatPrompterFileException) {
 						try {
 							SongInfoParser(result.cachedCloudFile).parse()
-						} catch (exception3: InvalidBeatPrompterFileException) {
+						} catch (_: InvalidBeatPrompterFileException) {
 							try {
 								SetListFileParser(result.cachedCloudFile).parse()
-							} catch (exception4: InvalidBeatPrompterFileException) {
+							} catch (_: InvalidBeatPrompterFileException) {
 								IrrelevantFile(result.cachedCloudFile)
 							}
 						}

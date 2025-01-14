@@ -30,7 +30,7 @@ class ChordMap private constructor(
 				shift(shiftAmount)
 			else
 				throw Exception(BeatPrompter.appResources.getString(R.string.excessiveTransposeMagnitude))
-		} catch (nfe: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			// Must be a key then!
 			toKey(amount)
 		}

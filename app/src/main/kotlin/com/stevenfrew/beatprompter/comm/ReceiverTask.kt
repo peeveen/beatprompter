@@ -24,6 +24,7 @@ class ReceiverTask(
 			super.stop()
 			Logger.logComms("Receiver is now stopped.")
 			ConnectionNotificationTask.addDisconnection(ConnectionDescriptor(name, receiver.type))
+			Unit
 		}
 
 	// Receivers often block when trying to receive data, so closing the socket or whatever behind
@@ -32,7 +33,7 @@ class ReceiverTask(
 		try {
 			receiver.close()
 			true
-		} catch (exception: Exception) {
+		} catch (_: Exception) {
 			// At least we tried ...
 			false
 		}

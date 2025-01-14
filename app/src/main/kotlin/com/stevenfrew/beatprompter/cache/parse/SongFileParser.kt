@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.parse.tag.find.ChordFinder
@@ -34,6 +35,8 @@ abstract class SongFileParser<TResultType>(
 ) : TextFileParser<TResultType>(
 	cachedCloudFile,
 	reportUnexpectedTags,
+	BeatPrompter.preferences.useUnicodeEllipsis,
+	BeatPrompter.preferences.trimTrailingPunctuation,
 	DirectiveFinder,
 	ChordFinder,
 	ShorthandFinder

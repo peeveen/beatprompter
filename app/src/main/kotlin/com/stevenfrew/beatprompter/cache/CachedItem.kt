@@ -38,11 +38,11 @@ abstract class CachedItem {
 		_subfolderIds = subfolderIDs
 	}
 
-	val name:String
+	val name: String
 		get() = _name
-	val normalizedName:String
+	val normalizedName: String
 		get() = _normalizedName
-	val subfolderIds:List<String>
+	val subfolderIds: List<String>
 		get() = _subfolderIds
 
 	open fun writeToXML(doc: Document, element: Element) =
@@ -56,10 +56,7 @@ abstract class CachedItem {
 			}
 		}
 
-	fun isInSubfolder(subfolder: String?): Boolean =
-		(subfolder.isNullOrBlank() && subfolderIds.isEmpty()) || subfolderIds.contains(subfolder)
-
-	fun update(newFileInfo: FileInfo){
+	fun update(newFileInfo: FileInfo) {
 		_name = newFileInfo.name
 		_subfolderIds = newFileInfo.subfolderIds
 	}

@@ -25,6 +25,9 @@ internal class Playlist private constructor(
 		Playlist(buildSongList(songFiles.sortedBy { it.first.sortableArtist }))
 
 	fun sortByKey(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.first.key }))
+	fun sortByYear(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.first.year }))
+	fun sortByIcon(): Playlist = Playlist(buildSongList(songFiles.sortedBy { it.first.icon }))
+
 	fun sortByDateModified(): Playlist =
 		Playlist(buildSongList(songFiles.sortedByDescending { it.first.lastModified }))
 

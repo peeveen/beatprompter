@@ -9,27 +9,23 @@ object ConnectionNotificationTask : Task(true) {
 	private val connections: MutableList<ConnectionDescriptor> = mutableListOf()
 	private val disconnections: MutableList<ConnectionDescriptor> = mutableListOf()
 
-	fun addConnection(connection: ConnectionDescriptor) {
+	fun addConnection(connection: ConnectionDescriptor) =
 		synchronized(connections) {
 			connections.add(connection)
 		}
-	}
 
-	fun addDisconnection(disconnection: ConnectionDescriptor) {
+	fun addDisconnection(disconnection: ConnectionDescriptor) =
 		synchronized(disconnection) {
 			disconnections.add(disconnection)
 		}
-	}
 
 	private fun report(
 		event: Int,
 		notifications: MutableList<ConnectionDescriptor>
-	) {
-		synchronized(notifications) {
-			for (f in notifications.size - 1 downTo 0) {
-				if (EventRouter.sendEventToSongList(event, notifications[f].toString()))
-					notifications.removeAt(f)
-			}
+	) = synchronized(notifications) {
+		for (f in notifications.size - 1 downTo 0) {
+			if (EventRouter.sendEventToSongList(event, notifications[f].toString()))
+				notifications.removeAt(f)
 		}
 	}
 

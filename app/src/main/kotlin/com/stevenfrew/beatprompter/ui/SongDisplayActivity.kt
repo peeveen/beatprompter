@@ -1,7 +1,5 @@
 package com.stevenfrew.beatprompter.ui
 
-import android.app.Activity
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.hardware.Sensor
@@ -146,11 +144,11 @@ class SongDisplayActivity
 		}
 
 		try {
-			sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+			sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 			if (sensorManager != null) {
 				proximitySensor = sensorManager!!.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 			}
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Nae sensors.
 		}
 
@@ -316,7 +314,7 @@ class SongDisplayActivity
 						?: Logger.log("MIDI stop signal received by SongDisplay before view was created.")
 
 					Events.END_SONG -> {
-						activity.setResult(Activity.RESULT_OK)
+						activity.setResult(RESULT_OK)
 						Logger.logLoader("End song message received. Finishing activity.")
 						activity.finish()
 					}

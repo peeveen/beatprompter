@@ -19,7 +19,7 @@
 	<string name="pref_bpl_text">BPL</string>
 	<string name="pref_bpm_text">BPM</string>
 	<string name="byArtist">Pelo artista</string>
-	<string name="byDate">Por data</string>
+	<string name="byDate">Pela data da última modificação</string>
 	<string name="byTitle">Por título</string>
 	<string name="cancel">Cancelar</string>
 	<string name="cannotFindAudioFile">Não é possível localizar arquivo de áudio: %1$s</string>
@@ -163,8 +163,6 @@
 	<string name="pref_showChords_title">Mostrar Chords</string>
 	<string name="pref_showFirstBeat_summary">Mostra a primeira batida na seção indicador de batida.</string>
 	<string name="pref_showFirstBeat_title">Mostrar primeiro tempo.</string>
-	<string name="pref_showSongTitle_summary">Mostra o título da música atual sobre a parte superior da seção batida contador.</string>
-	<string name="pref_showSongTitle_title">Mostrar o título da canção.</string>
 	<string name="song_display_options">Opções de música de Exibição</string>
 	<string name="song_list_options">Canção Opções da Lista</string>
 	<string name="force_refresh_set">Set list refresh vigor</string>
@@ -434,4 +432,25 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="unknownVariations">A etiqueta varstart/varxstart contém variações desconhecidas: %1$s</string>
 	<string name="pref_preferredVariation_title">Variação preferida</string>
 	<string name="pref_preferredVariation_summary">Se uma música contiver esta variação, esta será carregada por defeito.</string>
+	<string name="stop">Parar</string>
+	<string name="stopping">Parando …</string>
+	<string name="pref_trimTrailingPunctuation_title">Aparar pontuação final</string>
+	<string name="pref_useUnicodeEllipsis_title">Utilize reticências Unicode</string>
+	<string name="pref_useUnicodeEllipsis_summary">Substitua sequências de exatamente três pontos pelo caractere de reticências Unicode.</string>
+	<string name="pref_trimTrailingPunctuation_summary">Remova os pontos finais ou vírgulas do final das linhas.</string>
+	<string name="byYear">Por ano</string>
+	<string name="byIcon">Por ícone</string>
+	<string name="pref_showYearInList_title">Mostrar ano da música</string>
+	<string name="pref_showYearInList_summary">Na lista principal de músicas, mostre o ano da música (se definido).</string>
+	<string name="pref_songIconDisplayPosition_title">Posição de visualização do ícone da música</string>
+	<string name="pref_songIconDisplayPosition_summary">Onde deve ser apresentado o ícone da música (se definido)?</string>
+	<string name="songListDisplayPositionNoneName">Nenhum</string>
+	<string name="songListDisplayPositionLeftName">Esquerdo</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Secção de ícones, à esquerda</string>
+	<string name="songListDisplayPositionIconSectionRightName">Secção de ícones, à direita</string>
+	<string name="pref_beatCounterTextOverlay_title">Sobreposição de texto do contador de batimentos.</string>
+	<string name="pref_beatCounterTextOverlay_summary">Que texto apresentar sobre o contador de batidas.</string>
+	<string name="beatCounterTextOverlayNothingName">Nada</string>
+	<string name="beatCounterTextOverlaySongTitleName">Título da música</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Hora atual</string>
 </resources>

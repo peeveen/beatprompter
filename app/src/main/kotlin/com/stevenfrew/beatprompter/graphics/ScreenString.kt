@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.graphics.fonts.FontManager
 import kotlin.math.max
 
 class ScreenString private constructor(
-	val text: String,
+	private val displayTextFn: () -> String,
 	val fontSize: Float,
 	val color: Int,
 	width: Int,
@@ -16,6 +16,7 @@ class ScreenString private constructor(
 ) {
 	val width = max(0, width)
 	val height = max(0, height)
+	val text: String get() = displayTextFn()
 
 	companion object {
 		fun create(
@@ -25,16 +26,32 @@ class ScreenString private constructor(
 			maxHeight: Int,
 			color: Int,
 			bold: Boolean = false
+		): ScreenString = create(
+			{ text },
+			paint,
+			maxWidth,
+			maxHeight,
+			color,
+			bold
+		)
+
+		fun create(
+			textFn: () -> String,
+			paint: Paint,
+			maxWidth: Int,
+			maxHeight: Int,
+			color: Int,
+			bold: Boolean = false
 		): ScreenString {
 			val (fontSize, bestFontSizeRect) = BeatPrompter.platformUtils.fontManager.getBestFontSize(
-				text,
+				textFn(),
 				paint,
 				maxWidth,
 				maxHeight,
 				bold
 			)
 			return ScreenString(
-				text,
+				textFn,
 				fontSize.toFloat(),
 				color,
 				bestFontSizeRect.width,

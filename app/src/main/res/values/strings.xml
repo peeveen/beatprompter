@@ -187,7 +187,7 @@
 	<string name="lowerCaseThe">the</string>
 	<string name="byTitle">By title</string>
 	<string name="byArtist">By artist</string>
-	<string name="byDate">By date</string>
+	<string name="byDate">By last-modified date</string>
 	<string name="byKey">By key</string>
 	<string name="sortSongs">Sort songs …</string>
 	<string name="file_io_read_error">Error reading file.</string>
@@ -416,6 +416,16 @@
 	<string name="pref_showKeyInList_summary">In the main song list, show the key of the song.</string>
 	<string name="pref_showKeyInList_defaultValue" translatable="false">false</string>
 
+	<string name="pref_showYearInList_key" translatable="false">pref_showYearInList</string>
+	<string name="pref_showYearInList_title">Show song year</string>
+	<string name="pref_showYearInList_summary">In the main song list, show the year of the song (if defined).</string>
+	<string name="pref_showYearInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_songIconDisplayPosition_key" translatable="false">pref_songIconDisplayPosition</string>
+	<string name="pref_songIconDisplayPosition_title">Song icon display position</string>
+	<string name="pref_songIconDisplayPosition_summary">Where should the song icon (if defined) be displayed?</string>
+	<string name="pref_songIconDisplayPosition_defaultValue" translatable="false">Left</string>
+
 	<string name="pref_showRatingInList_key" translatable="false">pref_showRatingInList</string>
 	<string name="pref_showRatingInList_title">Show song rating</string>
 	<string name="pref_showRatingInList_summary">In the main song list, show the rating of the song.</string>
@@ -490,10 +500,10 @@
 	<string name="pref_showScrollIndicator_summary">In the beat counter section, highlight the beat that the display will scroll on.</string>
 	<string name="pref_showScrollIndicator_defaultValue" translatable="false">true</string>
 
-	<string name="pref_showSongTitle_key" translatable="false">pref_showSongTitle</string>
-	<string name="pref_showSongTitle_title">Show song title.</string>
-	<string name="pref_showSongTitle_summary">Displays the current song title over the top of the beat counter section.</string>
-	<string name="pref_showSongTitle_defaultValue" translatable="false">false</string>
+	<string name="pref_beatCounterTextOverlay_key" translatable="false">pref_beatCounterTextOverlay</string>
+	<string name="pref_beatCounterTextOverlay_title">Beat counter text overlay.</string>
+	<string name="pref_beatCounterTextOverlay_summary">What text to display over the beat counter.</string>
+	<string name="pref_beatCounterTextOverlay_defaultValue" translatable="false">Nothing</string>
 
 	<string name="pref_showSongKey_key" translatable="false">pref_showSongKey</string>
 	<string name="pref_showSongKey_title">Show song key on title screen.</string>
@@ -792,7 +802,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="buyMeACoffee">Buy me a coffee …</string>
 	<string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
 	<string name="errorTitle">Error</string>
-	<string name="instructionsUrl" translatable="false">https://drive.google.com/open?id=19Unw7FkSWNWGAncC_5D3DC0IANxvLMKG1pj6vfamnOI</string>
+	<string name="instructionsUrl" translatable="false">https://github.com/peeveen/beatprompter/blob/main/docs/README.md</string>
 	<string name="privacyPolicyUrl" translatable="false">https://github.com/peeveen/app-policies/blob/4bb1d77d9cb750f236dde266723f06caeb6cf708/beatprompter/privacy-policy.md</string>
 	<string name="gettingRootFolder">Getting root folder …</string>
 
@@ -810,13 +820,21 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
 
+	<string name="pref_useUnicodeEllipsis_key" translatable="false">pref_useUnicodeEllipsis</string>
+	<string name="pref_useUnicodeEllipsis_title">Use Unicode ellipsis</string>
+	<string name="pref_useUnicodeEllipsis_summary">Replace sequences of exactly three dots with the Unicode ellipsis character.</string>
+
+	<string name="pref_trimTrailingPunctuation_key" translatable="false">pref_trimTrailingPunctuation</string>
+	<string name="pref_trimTrailingPunctuation_title">Trim trailing punctuation</string>
+	<string name="pref_trimTrailingPunctuation_summary">Remove single full-stops or commas from the end of lines.</string>
+
 	<string name="pref_bluetoothMidiDevices_key" translatable="false">pref_bluetoothMidiDevices</string>
 	<string name="pref_bluetoothMidiDevices_title">Bluetooth MIDI Devices</string>
 	<string name="pref_bluetoothMidiDevices_summary">What Bluetooth devices should be considered for MIDI?</string>
 	<string name="pref_bluetoothMidiDevices_dialogTitle">Bluetooth MIDI Devices</string>
 	<string name="database_read_error">An error occurred while reading the database</string>
 	<string name="database_write_error">An error occurred while writing the database.</string>
-	<string name="showDebugLog" translatable="false">Show debug log ...</string>
+	<string name="showDebugLog" translatable="false">Show debug log …</string>
 	<string name="debugLogDialogCaption" translatable="false">Debug Log</string>
 	<string name="versionInfo" translatable="false">%1$s.%2$d</string>
 	<string name="rebuildingDatabase">Rebuilding database …</string>
@@ -830,5 +848,30 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="transpose">Transpose</string>
 
 	<string name="unknownVariations">varstart/varxstart tag contains unknown variations: %1$s.</string>
+	<string name="stop">Stop</string>
+	<string name="stopping">Stopping …</string>
+	<string name="byYear">By year</string>
+	<string name="byIcon">By icon</string>
+
+	<string name="songListDisplayPositionNoneName">None</string>
+	<string name="songListDisplayPositionLeftName">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Icon section, left</string>
+	<string name="songListDisplayPositionIconSectionRightName">Icon section, right</string>
+
+	<string name="songListDisplayPositionNoneValue" translatable="false">None</string>
+	<string name="songListDisplayPositionLeftValue" translatable="false">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftValue" translatable="false">IconSectionLeft</string>
+	<string name="songListDisplayPositionIconSectionRightValue" translatable="false">IconSectionRight</string>
+
+	<string name="beatCounterTextOverlayNothingName">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleName">Song title</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Current time</string>
+
+	<string name="beatCounterTextOverlayNothingValue" translatable="false">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleValue" translatable="false">SongTitle</string>
+	<string name="beatCounterTextOverlayCurrentTimeValue" translatable="false">CurrentTime</string>
+
+	<string name="edit_file">Edit file in cloud …</string>
+	<string name="edit_set_file">Edit set file in cloud …</string>
 
 </resources>

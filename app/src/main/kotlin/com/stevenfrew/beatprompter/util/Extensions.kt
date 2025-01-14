@@ -5,9 +5,15 @@ import android.graphics.RectF
 import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbInterface
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 fun String.splitAndTrim(separator: String): List<String> =
 	split(separator).run {
@@ -51,7 +57,7 @@ fun String?.looksLikeDecimal(): Boolean {
 	return try {
 		toInt()
 		true
-	} catch (e: Exception) {
+	} catch (_: Exception) {
 		// Wasn't decimal
 		false
 	}
@@ -126,3 +132,33 @@ fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 	}
 	return fallbackInterface
 }
+
+fun File.getMd5Hash(): String = getHash("MD5").toHashString(32)
+fun File.getHash(algorithm: String) = readBytes().getHash(algorithm)
+
+fun ByteArray.toHashString(minLength: Int) =
+	BigInteger(1, this).toString(16).padStart(minLength, '0')
+
+fun ByteArray.getHash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this)
+
+val timeFormatter = SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT)
+fun BeatCounterTextOverlay.getTextOverlayFn(songTitle: String): () -> String =
+	when (this) {
+		BeatCounterTextOverlay.Nothing -> {
+			{
+				""
+			}
+		}
+
+		BeatCounterTextOverlay.SongTitle -> {
+			{
+				songTitle
+			}
+		}
+
+		BeatCounterTextOverlay.CurrentTime -> {
+			{
+				timeFormatter.format(Calendar.getInstance().time)
+			}
+		}
+	}

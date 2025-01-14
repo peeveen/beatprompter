@@ -30,7 +30,7 @@ class ImageFile internal constructor(
 					val width = widthString.toInt()
 					val height = heightString.toInt()
 					Size(width, height)
-				} catch (numberFormatException: NumberFormatException) {
+				} catch (_: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
 					null
 				}

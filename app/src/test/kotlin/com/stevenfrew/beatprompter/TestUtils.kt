@@ -72,6 +72,7 @@ object TestUtils {
 				songFile.path,
 				songFile.name,
 				Date(songFile.lastModified()),
+				"testContentHash",
 				listOf(songFile.parent ?: "")
 			)
 		val songFileInfoParser = SongInfoParser(cachedFile)
@@ -263,7 +264,7 @@ object TestUtils {
 		val path = element.getAttribute(PATH_ATTRIBUTE)
 		val filename = element.getAttribute(FILENAME_ATTRIBUTE)
 		val id = element.getAttribute(ID_ATTRIBUTE)
-		val cachedFile = CachedFile(File(path), id, filename, Date(), listOf())
+		val cachedFile = CachedFile(File(path), id, filename, Date(), "testContentHash", listOf())
 		val audioFile = AudioFile(cachedFile, duration)
 		return AudioEvent(time, audioFile, volume, isBackingTrack)
 	}

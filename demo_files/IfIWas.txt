@@ -1,0 +1,92 @@
+{t:If I Was}
+{st:Midge Ure}
+{count:0}{track:IfIWas_Drums.mp3}{bpm:127}{bpb:4}{bpl:2}
+{c:A Major}
+{time:track}
+
+{b:9}[A][Bm][E][D]
+[A]If I was
+A [Bm]better man
+Would [E]fellow men
+[D]Take me to their hearts?
+
+[A]If I was
+A [Bm]stronger man
+,[E]Carrying the weight of
+,Popular demand, tell me
+[D]Would that alarm her?
+[F#m]I'd never harm her
+At [E]all
+
+{b:4}[A]If I was a [D]soldier
+[E]Captive arms I'd
+[D]Lay before her
+{b:4}[A]If I was a [D]sailor
+[E]Seven oceans
+[D]I'd sail to her
+
+[A]If I was
+A [Bm]wiser man
+Would [E]other men
+[D]Reach out and touch me?
+
+[A]If I was
+A [Bm]kinder man
+,[E]Dishing up love for a
+,Hungry world, tell me
+[D]Would that appease her?
+[F#m]I want to please her
+A[E]gain
+
+,[FILL][E]
+
+,,,,[A]If I was a [D]painter
+I'd [E]paint a world that
+[D]Couldn't taint her
+,,,,[A]If I was a [D]leader
+On [E]food of love from above
+[D]I would feed her
+
+[E]
+[D]
+[E]
+,[D]
+,[FILL][E]
+
+,,,,[A]If I was a [D]poet
+[E]All my love in burning words
+[D]I would show it
+,,,,[A]If I was her [D]lover
+Her [E]eyes in kisses
+[D]I would cover
+
+[A]Come here, my baby
+[Bm]Oh, they can't touch you [E]now
+I'll keep you safe and [D]warm
+I'll never leave you at [A]all
+[A]Come here my, baby
+[Bm]Oh, they won't touch you
+,[E]Dishing up love for a
+,Hungry world, tell me
+[D]Would that appease you?
+[F#m]I want to please you
+A[E]gain
+
+,[FILL] [E]
+,[FILL] [D]
+
+,,,,[A]If I was a [D]soldier
+[E]Captive arms I'd
+[D]Lay before her
+,,,,[A]If I was a [D]sailor
+[E]Seven oceans
+[D]I'd sail to her
+,,,,[A]If I was a [D]poet
+[E]All my love in burning words
+[D]I would show it
+,,,,[A]If I was her [D]lover
+Her [E]eyes in kisses
+[D]I would cover
+,[FILL][E]
+,[FILL][D]
+[A]

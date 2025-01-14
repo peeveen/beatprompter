@@ -12,7 +12,7 @@ import com.stevenfrew.beatprompter.set.SetListEntry
  * Parser for set list files.
  */
 class SetListFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<SetListFile>(cachedCloudFile, true, DirectiveFinder) {
+	TextFileParser<SetListFile>(cachedCloudFile, true, false, false, DirectiveFinder) {
 	private var setName: String = ""
 	private val setListEntries = mutableListOf<SetListEntry>()
 
@@ -32,9 +32,9 @@ class SetListFileParser(cachedCloudFile: CachedFile) :
 		return true
 	}
 
-	override fun getResult(): SetListFile {
+	override fun getResult(): SetListFile =
 		if (setName.isBlank())
 			throw InvalidBeatPrompterFileException(R.string.no_set_name_defined)
-		return SetListFile(cachedCloudFile, setName, setListEntries, errors)
-	}
+		else
+			SetListFile(cachedCloudFile, setName, setListEntries, errors)
 }

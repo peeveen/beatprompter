@@ -44,7 +44,7 @@ class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
 							lastChooseSongMessage = it
 						receivedMessages.add(it)
 					}.length
-				} catch (exception: UnknownMessageException) {
+				} catch (_: UnknownMessageException) {
 					Logger.logComms("Unknown Bluetooth message received.")
 					// If bad message, skip the byte that doesn't match any known message type
 					1
@@ -53,7 +53,7 @@ class Receiver(private val socket: BluetoothSocket, type: CommunicationType) :
 				dataParsed += messageLength
 				bufferCopy = bufferCopy.copyOfRange(messageLength, dataRemaining)
 				dataRemaining -= messageLength
-			} catch (exception: NotEnoughDataException) {
+			} catch (_: NotEnoughDataException) {
 				// Read again!
 				break
 			}

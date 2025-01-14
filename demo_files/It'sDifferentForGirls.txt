@@ -1,0 +1,69 @@
+{t:It’s Different For Girls}
+{st:Joe Jackson}
+{audio:It'sDifferentForGirls_Drums.mp3}{time:track}
+{bpm:119}{bpb:4}{bpl:2}{count:0}
+{c:E Major}
+
+{b:9}[INTRO]
+What the hell is wrong with you tonight?
+I can't seem to say or do the right
+,{bpb:6}thing
+{bpb:4}{soh}Wanted to be sure you're feeling right
+Wanted to be sure we want the same
+,{bpb:6}thing
+{bpb:4}[A]She [E]said, I can't be[A]lieve [E]it ,
+[C#m]You [G#m]can't possibly [C#m]mean [G#m]it,
+[A]Don't [E]we all want the [A]same [E]thing?
+,[C#m]Don't [G#m]we?{eoh}
+,Well, [D]who said any[A]thing about
+,{soh}[E]love?[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls? {soh}(don’t give me
+,[E]love)[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls?
+,,,[G]You're [A]all the [G]same
+{b:4}...
+Mama always told me save yourself
+Take a little time and find the right
+,{bpb:6}girl
+{bpb:4}{soh}Then again don't end up on the shelf
+Logical advice gets you in a
+,{bpb:6}whirl
+{bpb:4}[A]I [E]know, a lot of [A]things [E]that
+[C#m]you [G#m]don't. You want to [C#m]hear [G#m]some?
+[A]She [E]said, just give me [A]some[E]thing
+,[C#m]Anyt[G#m]hing{eoh}
+,Well [D]give me all you [A]got but not
+,{soh}[E]love[F#m]{eoh}
+,[E]No, not love[F#m] she said
+[G]Don't you [A]know that it's [G]different for [A]girls? {soh}(don’t give me
+,[E]love)[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls?
+,[G]You're [A]all the [G]same>
+,{soh}(you’re all the same){eoh}>
+,You're all the same>
+,{soh}(you’re all the same){eoh}>
+,You're all the same>
+,{soh}(you’re all the same){eoh}>
+You're all the same
+,Well who said anything about
+,{soh}[E]love{eoh}?[F#m]
+,[E]No, not love[F#m] she said
+[G]Don't you [A]know that it's [G]different for [A]girls? {soh}(don’t give me
+,[E]love)[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls? {soh}(don’t give me
+,[E]love)[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls? {soh}(don’t give me
+,[E]love)[F#m]{eoh}
+,[E]No, not [F#m]love she said
+[G]Don't you [A]know that it's [G]different for [A]girls?
+[G]You're [A]all the [G]same
+You're all the same
+You're all the same
+You're all the same
+
+

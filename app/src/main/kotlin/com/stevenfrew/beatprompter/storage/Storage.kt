@@ -79,29 +79,31 @@ abstract class Storage protected constructor(
 		downloadFn: (FileInfo) -> DownloadResult
 	) {
 		for (file in filesToDownload) {
+			if (listener.shouldCancel())
+				break
 			var attempt = 0
 			while (attempt <= DOWNLOAD_RETRY_LIMIT) {
-				if (!listener.shouldCancel()) {
-					messageSource.onNext(
-						BeatPrompter.appResources.getString(
-							if (attempt == 0) R.string.downloading else R.string.retryingDownload,
-							file.name,
-							attempt,
-							DOWNLOAD_RETRY_LIMIT
-						)
+				if (listener.shouldCancel())
+					break
+				messageSource.onNext(
+					BeatPrompter.appResources.getString(
+						if (attempt == 0) R.string.downloading else R.string.retryingDownload,
+						file.name,
+						attempt,
+						DOWNLOAD_RETRY_LIMIT
 					)
+				)
 
-					try {
-						val result = downloadFn(file)
-						itemSource.onNext(result)
-						break
-					} catch (e: Exception) {
-						if (attempt >= DOWNLOAD_RETRY_LIMIT) {
-							itemSource.onError(e)
-							return
-						}
-						attempt += 1
+				try {
+					val result = downloadFn(file)
+					itemSource.onNext(result)
+					break
+				} catch (e: Exception) {
+					if (attempt >= DOWNLOAD_RETRY_LIMIT) {
+						itemSource.onError(e)
+						return
 					}
+					attempt += 1
 				}
 			}
 		}

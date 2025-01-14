@@ -93,7 +93,6 @@ class SongView
 	private val beatSectionStartHighlightColors: IntArray
 	private val defaultPageDownLineHighlightColor: Int
 	private val showScrollIndicator: Boolean
-	private val showSongTitle: Boolean
 	private val commentDisplayTimeNanoseconds: Long
 	private val audioPlayerFactory: AudioPlayerFactory
 	private var audioPlayers = mapOf<AudioFile, AudioPlayer>()
@@ -137,7 +136,6 @@ class SongView
 
 		screenAction = BeatPrompter.preferences.screenAction
 		showScrollIndicator = BeatPrompter.preferences.showScrollIndicator
-		showSongTitle = BeatPrompter.preferences.showSongTitle
 		val commentDisplayTimeSeconds = BeatPrompter.preferences.commentDisplayTime
 		commentDisplayTimeNanoseconds = Utils.milliToNano(commentDisplayTimeSeconds * 1000)
 		externalTriggerSafetyCatch = BeatPrompter.preferences.midiTriggerSafetyCatch
@@ -408,8 +406,7 @@ class SongView
 			)
 			if (showPageDownMarker)
 				showPageDownMarkers(canvas)
-			if (showSongTitle)
-				showSongTitle(canvas)
+			showBeatCounterTextOverlay(canvas)
 			if (showTempMessage) {
 				if (endSongByPedalCounter == 0)
 					showTempMessage("$currentVolume%", 80, VOLUME_TEXT_COLOR, canvas)
@@ -598,16 +595,24 @@ class SongView
 		}
 	}
 
-	private fun showSongTitle(canvas: Canvas) = song?.apply {
+	private fun showBeatCounterTextOverlay(canvas: Canvas) = song?.apply {
+		val text = beatCounterTextOverlayScreenString.text
 		paint.apply {
-			BeatPrompter.platformUtils.fontManager.setTextSize(this, songTitleHeader.fontSize)
-			BeatPrompter.platformUtils.fontManager.setTypeface(this, songTitleHeader.bold)
+			BeatPrompter.platformUtils.fontManager.setTextSize(
+				this,
+				beatCounterTextOverlayScreenString.fontSize
+			)
+			BeatPrompter.platformUtils.fontManager.setTypeface(
+				this,
+				beatCounterTextOverlayScreenString.bold
+			)
 			flags = Paint.ANTI_ALIAS_FLAG
 			color = songTitleContrastBackground
+			alpha = 100
 		}
 
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
@@ -616,8 +621,9 @@ class SongView
 		canvas.save()
 		canvas.clipRect(currentBeatCountRect)
 		paint.color = songTitleContrastBeatCounter
+		paint.alpha = 127
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
@@ -627,7 +633,7 @@ class SongView
 		canvas.save()
 		canvas.clipRect(scrollIndicatorRect)
 		canvas.drawText(
-			songTitleHeader.text,
+			text,
 			songTitleHeaderLocation.x,
 			songTitleHeaderLocation.y,
 			paint
@@ -673,6 +679,8 @@ class SongView
 					if (currentLine.scrollMode === ScrollingMode.Manual) {
 						// Top of the page? Start. Else it's a continue.
 						if (songPixelPosition == 0) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (jumpToBeatStart())
+							return true
 						// Start the count in.
 						if (manualMetronomeThread != null) {
 							if (!manualMetronomeThread!!.isAlive) {
@@ -728,6 +736,8 @@ class SongView
 						)
 					)
 			} else {
+				if (jumpToBeatStart())
+					return true
 				if (screenAction == ScreenAction.Volume) {
 					if (e != null) {
 						if (e.y < displaySettings.screenSize.height * 0.5)
@@ -1160,20 +1170,25 @@ class SongView
 			changeVolume(+5)
 	}
 
+	private fun jumpToBeatStart(): Boolean =
+		(song!!.currentLine.scrollMode === ScrollingMode.Manual && manualScrollPositions.mBeatJumpScrollLine != null).also {
+			if (it) {
+				setSongTime(
+					manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
+					redraw = true,
+					broadcast = true,
+					setPixelPosition = true,
+					recalculateManualPositions = false
+				)
+			}
+		}
+
 	private fun changePage(down: Boolean) {
 		if (startState === PlayState.AtTitleScreen)
 			return
 		if (targetPixelPosition != -1 && targetPixelPosition != songPixelPosition)
 			return
-		if (down && manualScrollPositions.mBeatJumpScrollLine != null)
-			setSongTime(
-				manualScrollPositions.mBeatJumpScrollLine!!.lineTime,
-				redraw = true,
-				broadcast = true,
-				setPixelPosition = true,
-				recalculateManualPositions = false
-			)
-		else
+		if (!down || !jumpToBeatStart())
 			targetPixelPosition =
 				if (down)
 					manualScrollPositions.mPageDownPosition

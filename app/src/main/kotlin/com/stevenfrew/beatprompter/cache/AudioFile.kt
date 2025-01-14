@@ -24,7 +24,7 @@ class AudioFile internal constructor(
 				val lengthString = element.getAttribute(AUDIO_FILE_LENGTH_ATTRIBUTE)
 				try {
 					return lengthString.toLong()
-				} catch (numberFormatException: NumberFormatException) {
+				} catch (_: NumberFormatException) {
 					// Attribute is garbage, we'll need to actually examine the file.
 				}
 			}

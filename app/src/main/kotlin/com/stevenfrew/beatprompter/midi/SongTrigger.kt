@@ -113,7 +113,7 @@ class SongTrigger(
 					val triggerIndex = triggerIndexString.toByte()
 					val channel = channelString.toByte()
 					return SongTrigger(msb, lsb, triggerIndex, channel, type)
-				} catch (numberFormatException: NumberFormatException) {
+				} catch (_: NumberFormatException) {
 					// Can't be parsed. Oh well.
 				}
 			}

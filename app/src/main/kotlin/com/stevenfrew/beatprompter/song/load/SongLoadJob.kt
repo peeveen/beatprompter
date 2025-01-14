@@ -37,7 +37,7 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 					SongLoadQueueWatcherTask.onSongLoadFinished()
 					mLoadedSong = LoadedSong(loadedSong, thisSongLoadJob)
 					handler.obtainMessage(Events.SONG_LOAD_COMPLETED, songLoadInfo.loadId).sendToTarget()
-				} catch (e: SongLoadCancelledException) {
+				} catch (_: SongLoadCancelledException) {
 					Logger.logLoader("Song load was cancelled.")
 					SongLoadQueueWatcherTask.onSongLoadFinished()
 					handler.obtainMessage(Events.SONG_LOAD_CANCELLED).sendToTarget()

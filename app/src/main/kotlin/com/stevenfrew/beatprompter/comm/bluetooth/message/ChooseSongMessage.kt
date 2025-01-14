@@ -64,7 +64,7 @@ class ChooseSongMessage(
 								try {
 									audioLatency = readInt()
 									transposeShift = readInt()
-								} catch (e: Exception) {
+								} catch (_: Exception) {
 									// Old versions will not send these last two items of data.
 									// Try to cope.
 								}

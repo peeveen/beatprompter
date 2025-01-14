@@ -27,6 +27,8 @@ import kotlin.reflect.full.primaryConstructor
 abstract class TextFileParser<TFileResult>(
 	cachedCloudFile: CachedFile,
 	private val reportUnexpectedTags: Boolean,
+	private val useUnicodeEllipsis: Boolean,
+	private val trimTrailingPunctuation: Boolean,
 	private vararg val tagFinders: TagFinder
 ) : FileParser<TFileResult>(cachedCloudFile) {
 	override fun parse(element: Element?): TFileResult {
@@ -37,9 +39,17 @@ abstract class TextFileParser<TFileResult>(
 		cachedCloudFile.file.forEachLine { strLine ->
 			++lineNumber
 			val txt = strLine.trim().removeControlCharacters()
+
 			// Ignore empty lines and comments
 			if (txt.isNotEmpty() && !txt.startsWith('#')) {
-				val textLine = TextFileLine(txt, lineNumber, tagParseHelper, this)
+				val textLine = TextFileLine(
+					txt,
+					lineNumber,
+					tagParseHelper,
+					this,
+					useUnicodeEllipsis,
+					trimTrailingPunctuation
+				)
 				val lineTags = mutableSetOf<KClass<out Tag>>()
 				textLine.tags.forEach { tag ->
 					val tagClass = tag::class

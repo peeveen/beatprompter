@@ -16,8 +16,11 @@ class MidiChannelPreference(
 
 	private var defaultValue: Int = 0
 	val singleSelect: Boolean =
-		attrs?.getAttributeBooleanValue(SettingsFragment.STEVEN_FREW_NAMESPACE, "singleSelect", false)
-			?: false
+		attrs?.getAttributeBooleanValue(
+			SettingsFragment.STEVEN_FREW_NAMESPACE,
+			"singleSelect",
+			false
+		) == true
 
 	var channelMask: Int
 		get() = getPersistedInt(defaultValue)

@@ -1,0 +1,68 @@
+{t:Meet Me On The Corner}
+{st:Lindisfarne}
+{bpm:88}{bpb:4}{bpl:1}{count:0}
+{c:CAPO 3}
+{c:D# Major}
+{audio:MeetMeOnTheCorner_Drums.mp3}
+{time:track}
+
+,,[G][F]
+[C][G]
+[BASS][C][G]
+[Am][Em]
+[F][G]
+[C]
+
+[C]Hey Mister [G]Dream Seller
+[Am]Where have you [Em]been?
+Tell me, [F]have you [G]dreams<
+I can [C]see?[G]
+I’ve [F]been along[G]
+Just to [C]sing [C/B]you this [Am]song
+,,Won’t you [Dm]spare one [G]dream for [C]me?[G]
+
+[C]You won’t have [G]met me,
+And [Am]you'll soon for[Em]get.
+So don't [F]mind me [G]tugging<
+At your [C]sleeve.[G]
+I'm [F]asking you[G]
+Can we [C]fix a [C/B]rendezvous[Am]?
+,,For your [Dm]dreams are [G]all I be[C]lieve.
+
+[Dm]{soh}Meet me on the corner where the
+[Em]Lights are going [G]on<
+And I'll be [C]there<<
+I promise I'll be [Am]there
+[Dm]Down the empty streets<
+We'll disapp[Em]ear into the [Am]dawn<
+If you have [Dm]dreams [F]enough
+,,To [G]share{eoh}[F][C][G]
+
+[C]Throw down your [G]bundles<
+Of [Am]rags and re[Em]minders
+And [F]spread your [G]wares
+On the [C]ground[G]
+I [F]fix up [G]fine
+If you're [C]deal[C/B]ing in [Am]rhyme,
+,,[Dm]I'm still [G]hanging a[C]round.
+
+[Dm]{soh}Meet me on the corner where the
+[Em]Lights are going [G]on<
+And I'll be [C]there<<
+I promise I'll be [Am]there
+[Dm]Down the empty streets<
+We'll disapp[Em]ear into the [Am]dawn<
+If you have [Dm]dreams [F]enough
+,,To [G]share{eoh}[F][C][G]
+
+[C]Hey Mister [G]Dream Seller
+[Am]Where have you [Em]been?
+Tell me, [F]have you [G]dreams<
+I can [C]see?[G]
+I’ve [F]been along[G]
+Just to [C]sing [C/B]you this [Am]song
+Won’t you [Dm]spare one [G]dream
+For [C]me?[G]
+[Am][Em]
+[F][G]
+[C][F][C]

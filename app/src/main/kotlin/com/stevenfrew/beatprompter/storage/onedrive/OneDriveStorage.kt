@@ -27,6 +27,8 @@ import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getHash
+import com.stevenfrew.beatprompter.util.toHashString
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -115,6 +117,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 								mItemSource.onNext(
 									FileInfo(
 										child.id, child.name, child.lastModifiedDateTime.time,
+										child.file.hashes.sha1Hash ?: "",
 										if (nextFolder.parentFolder == null) "" else nextFolder.id
 									)
 								)
@@ -184,7 +187,7 @@ class OneDriveStorage(parentFragment: Fragment) :
 							val localFile = downloadOneDriveFile(mClient, driveFile, targetFile)
 							val updatedCloudFile = FileInfo(
 								it.id, driveFile.name, driveFile.lastModifiedDateTime.time,
-								it.subfolderIds
+								driveFile.file.hashes.sha1Hash ?: ""
 							)
 							SuccessfulDownloadResult(updatedCloudFile, localFile)
 						} else
@@ -199,15 +202,21 @@ class OneDriveStorage(parentFragment: Fragment) :
 				}
 			}
 
+		fun File.getSha1Hash(): String = getHash("SHA-1").toHashString(40).uppercase()
+
 		private fun downloadOneDriveFile(client: IOneDriveClient, file: Item, localFile: File): File =
 			localFile.also {
-				FileOutputStream(it).use {
-					client.drive.getItems(file.id).content.buildRequest().get().use { inStream ->
-						Utils.streamToStream(inStream, it)
+				// If we already have the file, we must be downloading cos the database
+				// was corrupted. The existing file might be valid.
+				if (!localFile.exists() || file.file.hashes.sha1Hash == null || localFile.getSha1Hash() != file.file.hashes.sha1Hash)
+					FileOutputStream(it).use {
+						client.drive.getItems(file.id).content.buildRequest().get().use { inStream ->
+							Utils.streamToStream(inStream, it)
+						}
 					}
-				}
 			}
 	}
+
 
 	private fun doOneDriveAction(action: OneDriveAction) {
 		val callback = object : ICallback<IOneDriveClient> {

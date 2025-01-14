@@ -51,7 +51,7 @@ object UsbMidiController {
 	internal fun attemptUsbMidiConnection(manager: UsbManager, permissionIntent: PendingIntent) {
 		if (BeatPrompter.preferences.midiConnectionTypes.contains(ConnectionType.USBOnTheGo)) {
 			val list = manager.deviceList
-			if (list != null && list.size > 0) {
+			if (list != null && list.isNotEmpty()) {
 				val devObjects = list.values
 				for (devObj in devObjects) {
 					val dev = devObj as UsbDevice

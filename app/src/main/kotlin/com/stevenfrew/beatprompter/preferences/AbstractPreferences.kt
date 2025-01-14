@@ -9,6 +9,8 @@ import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
+import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
@@ -24,7 +26,7 @@ abstract class AbstractPreferences(
 				R.string.pref_midiConnectionTypes_key,
 				appResources.getStringSet(R.array.pref_midiConnectionTypes_defaultValues)
 			).map { ConnectionType.valueOf(it) }.toSet()
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
 			setOf(ConnectionType.USBOnTheGo)
 		}
@@ -91,7 +93,7 @@ abstract class AbstractPreferences(
 					R.string.pref_bluetoothMode_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// Backwards compatibility with old shite values from previous app versions.
 			BluetoothMode.None
 		}
@@ -127,7 +129,7 @@ abstract class AbstractPreferences(
 				SortingPreference.Title.name
 			)
 			stringPref.split(",").map { SortingPreference.valueOf(it) }.toTypedArray()
-		} catch (ignored: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			arrayOf(SortingPreference.Title)
 		}
@@ -173,7 +175,7 @@ abstract class AbstractPreferences(
 					R.string.pref_showSongBPM_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			ShowBPMContext.No
 		}
@@ -186,7 +188,7 @@ abstract class AbstractPreferences(
 					R.string.pref_sendMidiTriggerOnStart_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			TriggerOutputContext.ManualStartOnly
 		}
@@ -199,7 +201,7 @@ abstract class AbstractPreferences(
 					R.string.pref_metronome_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			MetronomeContext.Off
 		}
@@ -242,7 +244,7 @@ abstract class AbstractPreferences(
 					R.string.pref_cloudStorageSystem_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			StorageType.GoogleDrive
 		}
@@ -329,6 +331,25 @@ abstract class AbstractPreferences(
 			R.string.pref_showRatingInList_defaultValue
 		)
 
+	override val showYearInSongList: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_showYearInList_key,
+			R.string.pref_showYearInList_defaultValue
+		)
+
+	override val songIconDisplayPosition: SongIconDisplayPosition
+		get() = try {
+			SongIconDisplayPosition.valueOf(
+				getStringPreference(
+					R.string.pref_songIconDisplayPosition_key,
+					R.string.pref_songIconDisplayPosition_defaultValue
+				)
+			)
+		} catch (_: Exception) {
+			// Default
+			SongIconDisplayPosition.Left
+		}
+
 	override val showMusicIcon: Boolean
 		get() = getBooleanPreference(
 			R.string.pref_showMusicIcon_key,
@@ -343,7 +364,7 @@ abstract class AbstractPreferences(
 					R.string.pref_screenAction_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			SongView.ScreenAction.Scroll
 		}
@@ -356,7 +377,7 @@ abstract class AbstractPreferences(
 					R.string.pref_audioplayer_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			AudioPlayerType.MediaPlayer
 		}
@@ -367,11 +388,18 @@ abstract class AbstractPreferences(
 			R.string.pref_showScrollIndicator_defaultValue
 		)
 
-	override val showSongTitle: Boolean
-		get() = getBooleanPreference(
-			R.string.pref_showSongTitle_key,
-			R.string.pref_showSongTitle_defaultValue
-		)
+	override val beatCounterTextOverlay: BeatCounterTextOverlay
+		get() = try {
+			BeatCounterTextOverlay.valueOf(
+				getStringPreference(
+					R.string.pref_beatCounterTextOverlay_key,
+					R.string.pref_beatCounterTextOverlay_defaultValue
+				)
+			)
+		} catch (_: Exception) {
+			// backward compatibility with old shite values.
+			BeatCounterTextOverlay.Nothing
+		}
 
 	private val commentDisplayTimeOffset =
 		Integer.parseInt(appResources.getString(R.string.pref_commentDisplayTime_offset))
@@ -391,7 +419,7 @@ abstract class AbstractPreferences(
 					R.string.pref_midiTriggerSafetyCatch_defaultValue
 				)
 			)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 			// backward compatibility with old shite values.
 			SongView.TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine
 		}
@@ -479,6 +507,12 @@ abstract class AbstractPreferences(
 	override var dropboxExpiryTime: Long
 		get() = getPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, 0L)
 		set(value) = setPrivateLongPreference(R.string.pref_dropboxExpiryTime_key, value)
+
+	override val trimTrailingPunctuation: Boolean
+		get() = getBooleanPreference(R.string.pref_trimTrailingPunctuation_key, true)
+
+	override val useUnicodeEllipsis: Boolean
+		get() = getBooleanPreference(R.string.pref_useUnicodeEllipsis_key, true)
 
 	private fun getIntPreference(
 		prefResourceString: Int,

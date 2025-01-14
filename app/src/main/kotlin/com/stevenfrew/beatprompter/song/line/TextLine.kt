@@ -241,7 +241,7 @@ class TextLine internal constructor(
 				var textDrawn = false
 				var firstOnscreenSection: LineSection? = null
 				var lastSplitWasPixelSplit = false
-				if (pixelSplits.size > 0)
+				if (pixelSplits.isNotEmpty())
 					lastSplitWasPixelSplit = pixelSplits[pixelSplits.size - 1]
 				for (sec in sections) {
 					if (songLoadCancelEvent?.isCancelled == true)
@@ -265,7 +265,7 @@ class TextLine internal constructor(
 				}
 				if (bothersomeSection != null) {
 					val previousSplit =
-						if (xSplits.size > 0) xSplits[xSplits.size - 1] else displaySettings.screenSize.width
+						if (xSplits.isNotEmpty()) xSplits[xSplits.size - 1] else displaySettings.screenSize.width
 					val leftoverSpaceOnPreviousLine = displaySettings.screenSize.width - previousSplit
 					val widthWithoutBothersomeSection = totalWidth - bothersomeSection.width
 					var xSplit = 0

@@ -19,6 +19,7 @@ class MockSupportFileResolver(private val testDataFolderPath: String) : SupportF
 					filename,
 					filename,
 					Date(),
+					"testContentHash",
 					listOf()
 				), 200000
 			)
@@ -32,6 +33,7 @@ class MockSupportFileResolver(private val testDataFolderPath: String) : SupportF
 					filename,
 					filename,
 					Date(),
+					"testContentHash",
 					listOf()
 				),
 				Size(100, 100)

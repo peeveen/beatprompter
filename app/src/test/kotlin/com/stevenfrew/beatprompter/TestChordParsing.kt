@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter
 
 import com.stevenfrew.beatprompter.chord.Chord
 import com.stevenfrew.beatprompter.chord.InvalidChordException
+import com.stevenfrew.beatprompter.chord.UnknownChord
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -165,10 +166,35 @@ class TestChordParsing {
 	}
 
 	@Test
+	fun testInvalidChordDisplayString() {
+		val nonUnicodeChordString = "blah#"
+		val nonUnicodeChord = UnknownChord(nonUnicodeChordString)
+		assertEquals(
+			nonUnicodeChordString,
+			nonUnicodeChord.toDisplayString(alwaysUseSharps = true, useUnicodeAccidentals = true)
+		)
+		assertEquals(
+			nonUnicodeChordString,
+			nonUnicodeChord.toDisplayString(alwaysUseSharps = false, useUnicodeAccidentals = false)
+		)
+		val unicodeChordString = "♭lah♯"
+		val unicodeChord = UnknownChord(unicodeChordString)
+		assertEquals(
+			unicodeChordString,
+			unicodeChord.toDisplayString(alwaysUseSharps = true, useUnicodeAccidentals = true)
+		)
+		assertEquals(
+			unicodeChordString,
+			unicodeChord.toDisplayString(alwaysUseSharps = false, useUnicodeAccidentals = false)
+		)
+	}
+
+	@Test
 	fun testInvalidChords() {
 		assertThrows<InvalidChordException> { parseChord("H") }
 		assertThrows<InvalidChordException> { parseChord("a") }
 		assertThrows<InvalidChordException> { parseChord("hello") }
+		assertThrows<InvalidChordException> { parseChord("blah#") }
 		assertThrows<InvalidChordException> { parseChord("D##m") }
 		assertThrows<InvalidChordException> { parseChord("0x3430") }
 		assertThrows<InvalidChordException> { parseChord("ABACAB") }

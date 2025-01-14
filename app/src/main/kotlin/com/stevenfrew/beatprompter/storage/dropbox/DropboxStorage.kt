@@ -24,6 +24,8 @@ import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.getHash
+import com.stevenfrew.beatprompter.util.toHashString
 import io.reactivex.subjects.PublishSubject
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -34,6 +36,8 @@ import java.io.FileOutputStream
  */
 class DropboxStorage(parentFragment: Fragment) :
 	Storage(parentFragment, StorageType.Dropbox) {
+
+	private val hashBuffer = ByteArray(HASH_BUFFER_SIZE)
 
 	private val requestConfig = DbxRequestConfig.newBuilder(BeatPrompter.APP_NAME)
 		.build()
@@ -77,6 +81,7 @@ class DropboxStorage(parentFragment: Fragment) :
 					val localFile = downloadDropboxFile(client, metadata, targetFile)
 					val updatedCloudFile = FileInfo(
 						it.id, metadata.name, metadata.serverModified,
+						metadata.contentHash ?: "",
 						it.subfolderIds
 					)
 					SuccessfulDownloadResult(updatedCloudFile, localFile)
@@ -92,13 +97,39 @@ class DropboxStorage(parentFragment: Fragment) :
 		}
 	}
 
+	fun ByteArray.getSha256Hash() = getHash("SHA-256")
+
+	fun File.getDropboxHash(): String {
+		val inputStream = this.inputStream()
+		val sha256s = mutableListOf<ByteArray>()
+		while (true) {
+			val bytesRead = inputStream.read(hashBuffer)
+			if (bytesRead > 0) {
+				val bytes = if (bytesRead == HASH_BUFFER_SIZE) hashBuffer else hashBuffer.copyOfRange(
+					0,
+					bytesRead
+				)
+				sha256s.add(bytes.getSha256Hash())
+			}
+			if (bytesRead != HASH_BUFFER_SIZE)
+				break
+		}
+		val allBytes = sha256s.reduce { a1, a2 -> a1 + a2 }
+		val finalHash = allBytes.getSha256Hash()
+		val finalHashString = finalHash.toHashString(64)
+		return finalHashString
+	}
+
 	private fun downloadDropboxFile(client: DbxClientV2, file: FileMetadata, localFile: File): File =
 		localFile.also {
-			FileOutputStream(it).use { stream ->
-				client.files().download(file.id).use { downloader ->
-					downloader.download(stream)
+			// If we already have the file, we must be downloading cos the database
+			// was corrupted. The existing file might be valid.
+			if (!localFile.exists() || localFile.getDropboxHash() != file.contentHash)
+				FileOutputStream(it).use { stream ->
+					client.files().download(file.id).use { downloader ->
+						downloader.download(stream)
+					}
 				}
-			}
 		}
 
 	private fun readFolderContents(
@@ -141,6 +172,7 @@ class DropboxStorage(parentFragment: Fragment) :
 								itemSource.onNext(
 									FileInfo(
 										metadata.id, metadata.name, metadata.serverModified,
+										metadata.contentHash ?: "",
 										if (folderToSearch.parentFolder == null) "" else currentFolderID
 									)
 								)
@@ -148,9 +180,9 @@ class DropboxStorage(parentFragment: Fragment) :
 							Logger.log("Adding folder to list of folders to query ...")
 							val newFolder = FolderInfo(
 								folderToSearch,
-								metadata.getPathLower(),
+								metadata.getPathLower() ?: "",
 								metadata.getName(),
-								metadata.getPathDisplay()
+								metadata.getPathDisplay() ?: ""
 							)
 							if (recurseSubfolders)
 								foldersToSearch.add(newFolder)
@@ -202,9 +234,9 @@ class DropboxStorage(parentFragment: Fragment) :
 						DROPBOX_APP_KEY
 					)
 					updateDropboxCredentials(newCred)
-				} catch (authEx: DbxOAuthException) {
+				} catch (_: DbxOAuthException) {
 					return null
-				} catch (ex: DbxException) {
+				} catch (_: DbxException) {
 					return null
 				}
 			} else cred
@@ -263,6 +295,7 @@ class DropboxStorage(parentFragment: Fragment) :
 
 	companion object {
 		const val DROPBOX_CACHE_FOLDER_NAME = "dropbox"
+		private const val HASH_BUFFER_SIZE = 4 * 1024 * 1024
 
 		@Suppress("SpellCheckingInspection")
 		private const val DROPBOX_APP_KEY = "hay1puzmg41f02r"

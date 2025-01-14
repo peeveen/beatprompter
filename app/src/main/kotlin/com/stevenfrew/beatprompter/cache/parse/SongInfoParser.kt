@@ -19,6 +19,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationInclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.IconTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
@@ -36,6 +37,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TagTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
 import com.stevenfrew.beatprompter.chord.Chord
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -68,7 +70,9 @@ import org.w3c.dom.Element
 	BeatStopTag::class,
 	AudioTag::class,
 	VariationsTag::class,
-	ChordTag::class
+	ChordTag::class,
+	YearTag::class,
+	IconTag::class
 )
 @IgnoreTags(
 	LegacyTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,
@@ -96,13 +100,15 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private val mixedModeVariations = mutableSetOf<String>()
 	private var lines = 0
 	private var rating = 0
+	private var year: Int? = null
+	private var icon: String? = null
 
 	override fun parse(element: Element?): SongFile {
 		try {
 			SongFile.readSongInfoFromAttributes(element, cachedCloudFile)?.also {
 				return it
 			}
-		} catch (exception: Exception) {
+		} catch (_: Exception) {
 			// Not bothered about what the exception is ... file tags are obviously broken.
 			// So re-parse the whole file.
 		}
@@ -131,6 +137,8 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val pauseTag = tagSequence.filterIsInstance<PauseTag>().firstOrNull()
 		val tagTags = tagSequence.filterIsInstance<TagTag>()
 		val ratingTag = tagSequence.filterIsInstance<RatingTag>().firstOrNull()
+		val yearTag = tagSequence.filterIsInstance<YearTag>().firstOrNull()
+		val iconTag = tagSequence.filterIsInstance<IconTag>().firstOrNull()
 
 		if (titleTag != null)
 			title = titleTag.title
@@ -167,6 +175,12 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		if (ratingTag != null)
 			rating = ratingTag.rating
 
+		if (yearTag != null)
+			year = yearTag.year
+
+		if (iconTag != null)
+			icon = iconTag.icon
+
 		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTags.any()) {
 			bars += currentLineBeatInfo.bpl
 			beats += currentLineBeatInfo.beats
@@ -180,34 +194,35 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private val firstChord: String?
 		get() = chords.firstOrNull { Chord.isChord(it) }
 
-	override fun getResult(): SongFile {
+	override fun getResult(): SongFile =
 		if (title.isNullOrBlank())
 			throw InvalidBeatPrompterFileException(R.string.noTitleFound, cachedCloudFile.name)
-
-		return SongFile(
-			cachedCloudFile,
-			lines,
-			bars,
-			title!!,
-			artist ?: "",
-			key ?: firstChord,
-			bpm,
-			duration,
-			mixedModeVariations.toList(),
-			totalPauseDuration,
-			variationAudioTags.mapValues { kvp -> kvp.value.map { it.normalizedFilename } },
-			imageFiles,
-			tags.toSet(),
-			midiProgramChangeTrigger
-				?: SongTrigger.DEAD_TRIGGER,
-			midiSongSelectTrigger
-				?: SongTrigger.DEAD_TRIGGER,
-			isFilterOnly,
-			rating,
-			if (variations.isEmpty()) listOf("Default") else variations,
-			chords,
-			firstChord,
-			errors
-		)
-	}
+		else
+			SongFile(
+				cachedCloudFile,
+				lines,
+				bars,
+				title!!,
+				artist ?: "",
+				key ?: firstChord,
+				bpm,
+				duration,
+				mixedModeVariations.toList(),
+				totalPauseDuration,
+				variationAudioTags.mapValues { kvp -> kvp.value.map { it.normalizedFilename } },
+				imageFiles,
+				tags.toSet(),
+				midiProgramChangeTrigger
+					?: SongTrigger.DEAD_TRIGGER,
+				midiSongSelectTrigger
+					?: SongTrigger.DEAD_TRIGGER,
+				isFilterOnly,
+				rating,
+				year,
+				icon,
+				if (variations.isEmpty()) listOf("Default") else variations,
+				chords,
+				firstChord,
+				errors
+			)
 }

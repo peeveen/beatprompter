@@ -25,6 +25,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfHighlightTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationExclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.EndOfVariationInclusionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.FilterOnlyTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.IconTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
@@ -46,6 +47,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TimeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
 import com.stevenfrew.beatprompter.chord.ChordMap
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
@@ -75,8 +77,10 @@ import com.stevenfrew.beatprompter.song.line.TextLine
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelEvent
 import com.stevenfrew.beatprompter.song.load.SongLoadCancelledException
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.getTextOverlayFn
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -125,6 +129,8 @@ import kotlin.math.roundToInt
 	KeyTag::class,
 	RatingTag::class,
 	TagTag::class,
+	YearTag::class,
+	IconTag::class,
 	FilterOnlyTag::class
 )
 /**
@@ -148,6 +154,7 @@ class SongParser(
 	private val showKey: Boolean
 	private val showBpm: ShowBPMContext
 	private val triggerContext: TriggerOutputContext
+	private val beatCounterTextOverlay: BeatCounterTextOverlay
 	private val nativeDeviceSettings: DisplaySettings
 	private val initialMidiMessages = mutableListOf<MidiMessage>()
 	private var stopAddingStartupItems = false
@@ -185,6 +192,7 @@ class SongParser(
 
 		sendMidiClock = BeatPrompter.preferences.sendMIDIClock
 		countIn = BeatPrompter.preferences.defaultCountIn
+		beatCounterTextOverlay = BeatPrompter.preferences.beatCounterTextOverlay
 		metronomeContext = BeatPrompter.preferences.metronomeContext
 		defaultHighlightColor = BeatPrompter.preferences.defaultHighlightColor
 		customCommentsUser = BeatPrompter.preferences.customCommentsUser
@@ -553,12 +561,13 @@ class SongParser(
 		return true
 	}
 
-	private fun getVariationAudioTag(index: Int): AudioTag? {
-		val tags = variationAudioTags[variation]
-		if ((tags?.count() ?: 0) > index)
-			return tags!![index]
-		return null
-	}
+	private fun getVariationAudioTag(index: Int): AudioTag? =
+		variationAudioTags[variation]?.let {
+			if (it.count() > index)
+				it[index]
+			else
+				null
+		}
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
@@ -612,17 +621,19 @@ class SongParser(
 		val maxSongTitleWidth = nativeDeviceSettings.screenSize.width * 0.9f
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
-		val songTitleHeader = ScreenString.create(
-			songLoadInfo.songFile.title,
+		val beatCounterTextOverlayScreenString = ScreenString.create(
+			beatCounterTextOverlay.getTextOverlayFn(songLoadInfo.songFile.title),
 			paint,
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
 			Utils.makeHighlightColour(Color.BLACK, 0x80.toByte()),
 			false
 		)
-		val extraMargin = (maxSongTitleHeight - songTitleHeader.height) / 2.0f
-		val x = ((nativeDeviceSettings.screenSize.width - songTitleHeader.width) / 2.0).toFloat()
-		val y = beatCounterHeight - (extraMargin + songTitleHeader.descenderOffset.toFloat() + vMargin)
+		val extraMargin = (maxSongTitleHeight - beatCounterTextOverlayScreenString.height) / 2.0f
+		val x =
+			((nativeDeviceSettings.screenSize.width - beatCounterTextOverlayScreenString.width) / 2.0).toFloat()
+		val y =
+			beatCounterHeight - (extraMargin + beatCounterTextOverlayScreenString.descenderOffset.toFloat() + vMargin)
 		val songTitleHeaderLocation = PointF(x, y)
 
 		// First of all, find beat events that have the "click" flag set and
@@ -713,7 +724,7 @@ class SongParser(
 			scrollEndPixel,
 			noScrollLines,
 			nativeDeviceSettings.beatCounterRect,
-			songTitleHeader,
+			beatCounterTextOverlayScreenString,
 			songTitleHeaderLocation,
 			songLoadInfo.loadId,
 			songLoadInfo.audioLatency
@@ -751,27 +762,19 @@ class SongParser(
 		return Rect(0, 0, maxWidth - 1, maxHeight - 1)
 	}
 
-	private fun getMaximumGraphicsRequired(screenHeight: Int): Int {
-		var maxLines = 0
-		repeat(lines.size) { start ->
-			var heightCounter = 0
-			var lineCounter = 0
-			for (f in start until lines.size) {
+	private fun getMaximumGraphicsRequired(screenHeight: Int): Int =
+		lines.indices.maxOfOrNull {
+			// acc is a Pair of heightCounter and lineCounter
+			lines.subList(it, lines.size).fold(0 to 0) { acc, line ->
+				val (heightCounter, lineCounter) = acc
 				if (heightCounter < screenHeight) {
 					// Assume height of first line to be 1 pixel
 					// This is the state of affairs when the top line is almost
 					// scrolled offscreen, but not quite.
-					var lineHeight = 1
-					if (lineCounter > 0)
-						lineHeight = lines[f].measurements.lineHeight
-					heightCounter += lineHeight
-					lineCounter += lines[f].measurements.lines
-				}
-			}
-			maxLines = max(maxLines, lineCounter)
-		}
-		return maxLines
-	}
+					(heightCounter + if (lineCounter > 0) line.measurements.lineHeight else 1) to (lineCounter + line.measurements.lines)
+				} else acc
+			}.second
+		} ?: 0
 
 	private fun generateBeatEvents(startTime: Long, click: Boolean): EventBlock? {
 		if (currentLineBeatInfo.scrollMode === ScrollingMode.Smooth)
@@ -928,11 +931,11 @@ class SongParser(
 		var startTime = 0L
 		if (countBars > 0) {
 			if (currentLineBeatInfo.bpm > 0.0) {
-				val countbpm = currentLineBeatInfo.bpm
-				val countbpb = currentLineBeatInfo.bpb
-				val nanoPerBeat = Utils.nanosecondsPerBeat(countbpm)
+				val countBpm = currentLineBeatInfo.bpm
+				val countBpb = currentLineBeatInfo.bpb
+				val nanoPerBeat = Utils.nanosecondsPerBeat(countBpm)
 				repeat(countBars) { bar ->
-					repeat(countbpb) { beat ->
+					repeat(countBpb) { beat ->
 						countInEvents.add(
 							BeatEvent(
 								startTime,
@@ -940,7 +943,7 @@ class SongParser(
 								currentLineBeatInfo.bpb,
 								beat,
 								click,
-								if (bar == countBars - 1) countbpb - 1 else -1
+								if (bar == countBars - 1) countBpb - 1 else -1
 							)
 						)
 						startTime += nanoPerBeat

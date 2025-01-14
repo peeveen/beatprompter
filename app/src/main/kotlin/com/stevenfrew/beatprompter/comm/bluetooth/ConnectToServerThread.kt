@@ -40,7 +40,7 @@ internal class ConnectToServerThread(
 						"A Bluetooth security exception was thrown, despite the controller being connected to the server.",
 						se
 					)
-				} catch (connectException: Exception) {
+				} catch (_: Exception) {
 					// There probably isn't a server to connect to. Wait a bit and try again.
 					Logger.logComms({ "Failed to connect to a server on '${device.name}'." })
 					Utils.safeThreadWait(1000)

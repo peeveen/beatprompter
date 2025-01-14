@@ -43,7 +43,7 @@ class ImageTag internal constructor(
 				val locale = Locale.getDefault()
 				ImageScalingMode.valueOf(value.lowercase()
 					.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() })
-			} catch (e: Exception) {
+			} catch (_: Exception) {
 				throw MalformedTagException(R.string.unknown_image_scaling_mode)
 			}
 	}

@@ -13,8 +13,8 @@ android {
 		multiDexEnabled true
 		targetSdkVersion 34
 		resourceConfigurations += ['en', 'fr', 'pt', 'de', 'es', 'it']
-		versionCode 593
-		versionName "1.76"
+		versionCode 596
+		versionName "1.77"
 	}
 	signingConfigs {
 		debug {
@@ -76,6 +76,7 @@ dependencies {
 	implementation libs.hsv.alpha.color.picker.android
 	implementation libs.appintro
 	implementation libs.dropbox.core.sdk
+	implementation libs.dropbox.android.sdk
 	implementation libs.rxjava
 	implementation libs.commons.io
 	implementation libs.gson

@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
@@ -53,6 +54,7 @@ import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.set.Playlist
@@ -64,6 +66,8 @@ import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
 import com.stevenfrew.beatprompter.song.load.SongLoadJob
 import com.stevenfrew.beatprompter.song.load.SongLoadQueueWatcherTask
+import com.stevenfrew.beatprompter.storage.EditableStorage
+import com.stevenfrew.beatprompter.storage.Storage
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.filter.AllSongsFilter
 import com.stevenfrew.beatprompter.ui.filter.Filter
@@ -99,7 +103,7 @@ class SongListFragment
 	private val coroutineJob = Job()
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main + coroutineJob
-	private var songLauncher: ActivityResultLauncher<Intent>? = null
+
 	private var listAdapter: BaseAdapter? = null
 	private var menu: Menu? = null
 
@@ -112,6 +116,14 @@ class SongListFragment
 	private var filters = listOf<Filter>()
 	private val selectedTagFilters = mutableListOf<TagFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
+	private var imageDictionary: Map<String, Bitmap> = mapOf()
+	private var missingIconBitmap: android.graphics.Bitmap? = null
+
+	private val songLauncher: ActivityResultLauncher<Intent> =
+		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+			if (result.resultCode == Activity.RESULT_OK)
+				startNextSong()
+		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		if (selectedFilter is MIDIAliasFilesFilter) {
@@ -129,7 +141,7 @@ class SongListFragment
 		val intent = Intent(context, SongDisplayActivity::class.java)
 		intent.putExtra("loadID", ParcelUuid(loadID))
 		Logger.logLoader({ "Starting SongDisplayActivity for $loadID!" })
-		songLauncher?.launch(intent)
+		songLauncher.launch(intent)
 	}
 
 	internal fun startSongViaMidiProgramChange(
@@ -411,40 +423,36 @@ class SongListFragment
 		val includeRefreshSet = selectedSet != null && selectedFilter !== tempSetListFilter
 		val includeClearSet = selectedFilter === tempSetListFilter
 
-		val arrayID: Int = if (includeRefreshSet)
-			if (addAllowed)
-				R.array.song_options_array_with_refresh_and_add
-			else
-				R.array.song_options_array_with_refresh
-		else if (includeClearSet)
-			R.array.song_options_array_with_clear
-		else if (addAllowed)
-			R.array.song_options_array_with_add
-		else
-			R.array.song_options_array
+		val options = mutableListOf<Pair<Int, () -> Unit>>()
+		options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSong) })
+		options.add(R.string.force_refresh to {
+			performingCloudSync =
+				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
+		})
+		options.add(R.string.force_refresh_with_dependencies to {
+			performingCloudSync =
+				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
+		})
+		if (includeRefreshSet)
+			options.add(R.string.force_refresh_set to {
+				performingCloudSync =
+					Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+			})
+		if (includeClearSet)
+			options.add(R.string.clear_set to { Cache.clearTemporarySetList(requireContext()) })
+		if (addAllowed)
+			options.add(R.string.add_to_temporary_set to { addToTemporarySet(selectedSong) })
+		val storage = Storage.getInstance(BeatPrompter.preferences.storageSystem, this)
+		if (storage is EditableStorage) {
+			options.add(R.string.edit_file to { startActivity(storage.getEditIntent(selectedSong.id)) })
+			if (selectedSet != null)
+				options.add(R.string.edit_set_file to { startActivity(storage.getEditIntent(selectedSet.id)) })
+		}
 
+		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
 		AlertDialog.Builder(context).apply {
 			setTitle(R.string.song_options)
-			setItems(arrayID) { _, which ->
-				when (which) {
-					0 -> showPlayDialog(selectedNode, selectedSong)
-					1 -> performingCloudSync =
-						Cache.performCloudSync(selectedSong, false, this@SongListFragment)
-
-					2 -> performingCloudSync =
-						Cache.performCloudSync(selectedSong, true, this@SongListFragment)
-
-					3 -> when {
-						includeRefreshSet -> performingCloudSync =
-							Cache.performCloudSync(selectedSet, false, this@SongListFragment)
-
-						includeClearSet -> Cache.clearTemporarySetList(requireContext())
-						else -> addToTemporarySet(selectedSong)
-					}
-
-					4 -> addToTemporarySet(selectedSong)
-				}
-			}
+			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
@@ -593,17 +601,21 @@ class SongListFragment
 	private fun onMIDIAliasListLongClick(position: Int) {
 		val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
 		val showErrors = maf.errors.isNotEmpty()
-		val arrayID =
-			if (showErrors) R.array.midi_alias_options_array_with_show_errors else R.array.midi_alias_options_array
 
+		val options = mutableListOf<Pair<Int, () -> Unit>>()
+		options.add(R.string.force_refresh_midi_alias to {
+			performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
+		})
+		if (showErrors)
+			options.add(R.string.show_midi_alias_errors to { showMIDIAliasErrors(maf.errors) })
+		val storage = Storage.getInstance(BeatPrompter.preferences.storageSystem, this)
+		if (storage is EditableStorage)
+			options.add(R.string.edit_file to { startActivity(storage.getEditIntent(maf.id)) })
+
+		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
 		AlertDialog.Builder(context).apply {
 			setTitle(R.string.midi_alias_list_options)
-				.setItems(arrayID) { _, which ->
-					if (which == 0)
-						performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
-					else if (which == 1)
-						showMIDIAliasErrors(maf.errors)
-				}
+			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
 			create().apply {
 				setCanceledOnTouchOutside(true)
 				show()
@@ -654,16 +666,15 @@ class SongListFragment
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		requireActivity().addMenuProvider(MenuProvider())
+		val activity = requireActivity()
+		activity.addMenuProvider(MenuProvider())
+		missingIconBitmap = BitmapFactory.decodeResource(
+			activity.resources,
+			R.drawable.ic_missing
+		)
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		songLauncher =
-			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-				if (result.resultCode == Activity.RESULT_OK)
-					startNextSong()
-			}
-
 		super.onCreate(savedInstanceState)
 
 		registerEventHandler()
@@ -752,6 +763,8 @@ class SongListFragment
 					SortingPreference.Mode -> playlist.sortByMode()
 					SortingPreference.Rating -> playlist.sortByRating()
 					SortingPreference.Key -> playlist.sortByKey()
+					SortingPreference.Year -> playlist.sortByYear()
+					SortingPreference.Icon -> playlist.sortByIcon()
 				}
 			}
 		}
@@ -771,7 +784,12 @@ class SongListFragment
 					it
 				)
 			else
-				SongListAdapter(filterPlaylistNodes(playlist), it)
+				SongListAdapter(
+					filterPlaylistNodes(playlist),
+					imageDictionary,
+					missingIconBitmap!!,
+					it
+				)
 		}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
@@ -869,6 +887,8 @@ class SongListFragment
 					getString(R.string.byKey),
 					getString(R.string.byMode),
 					getString(R.string.byRating),
+					getString(R.string.byYear),
+					getString(R.string.byIcon),
 				)
 				setItems(items) { d, n ->
 					d.dismiss()
@@ -879,6 +899,8 @@ class SongListFragment
 							3 -> SortingPreference.Key
 							4 -> SortingPreference.Mode
 							5 -> SortingPreference.Rating
+							6 -> SortingPreference.Year
+							7 -> SortingPreference.Icon
 							else -> SortingPreference.Title
 						}
 					)
@@ -996,9 +1018,21 @@ class SongListFragment
 			}
 	}
 
+	private fun buildImageDictionary(cache: CachedCloudCollection): Map<String, Bitmap> =
+		BeatPrompter.platformUtils.bitmapFactory.let { factory ->
+			cache.imageFiles.mapNotNull {
+				try {
+					it.name to factory.createBitmap(it.file.path)
+				} catch (_: Exception) {
+					null
+				}
+			}.toMap()
+		}
+
 	internal fun onCacheUpdated(cache: CachedCloudCollection) {
 		val listView = requireView().findViewById<ListView>(R.id.listView)
 		savedListIndex = listView.firstVisiblePosition
+		imageDictionary = buildImageDictionary(cache)
 		val v = listView.getChildAt(0)
 		savedListOffset = if (v == null) 0 else v.top - listView.paddingTop
 		initialiseList(cache)
@@ -1044,6 +1078,8 @@ class SongListFragment
 			|| key == getString(R.string.pref_showBeatStyleIcons_key)
 			|| key == getString(R.string.pref_showMusicIcon_key)
 			|| key == getString(R.string.pref_showKeyInList_key)
+			|| key == getString(R.string.pref_songIconDisplayPosition_key)
+			|| key == getString(R.string.pref_showYearInList_key)
 		) {
 			listAdapter = buildListAdapter()
 			updateListView()
@@ -1210,8 +1246,10 @@ class SongListFragment
 					Logger.logLoader({ "Song ${msg.obj} was fully loaded successfully." })
 					songList.showLoadingProgressUI(false)
 					// No point starting up the activity if there are songs in the load queue
-					if (SongLoadQueueWatcherTask.hasASongToLoad || SongLoadQueueWatcherTask.isLoadingASong)
+					if (SongLoadQueueWatcherTask.hasASongToLoad)
 						Logger.logLoader("Abandoning loaded song: there appears to be another song incoming.")
+					else if (SongLoadQueueWatcherTask.isLoadingASong)
+						Logger.logLoader("Abandoning loaded song: there appears to be another song already loading.")
 					else
 						songList.startSongActivity(msg.obj as UUID)
 				}

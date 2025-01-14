@@ -27,7 +27,7 @@ class RecursiveAliasComponent(
 				.resolve(aliases, arguments.map {
 					it.resolve(parameters, channelValue?.value ?: channel)
 				}.toByteArray(), channelValue?.value ?: channel)
-		} catch (exception: NoSuchElementException) {
+		} catch (_: NoSuchElementException) {
 			throw ResolutionException(
 				BeatPrompter.appResources.getString(
 					R.string.unknown_midi_directive,

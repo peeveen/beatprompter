@@ -11,12 +11,11 @@ import android.content.Intent
  */
 abstract class AdapterReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
-		if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+		if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED)
 			when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
 				BluetoothAdapter.STATE_TURNING_OFF -> onBluetoothDisabled()
 				BluetoothAdapter.STATE_ON -> onBluetoothEnabled(context)
 			}
-		}
 	}
 
 	abstract fun onBluetoothDisabled()

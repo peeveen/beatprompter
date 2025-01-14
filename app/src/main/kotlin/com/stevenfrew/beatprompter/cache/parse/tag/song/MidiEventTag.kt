@@ -161,7 +161,7 @@ class MidiEventTag internal constructor(
 							trimmedOffsetString.toInt(),
 							EventOffsetType.Milliseconds, lineNumber
 						)
-					} catch (e: NumberFormatException) {
+					} catch (_: NumberFormatException) {
 						// Might be in the beat format
 						val offsetChars = trimmedOffsetString.toCharArray()
 						val upDiff = offsetChars.count { it == '>' }

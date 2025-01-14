@@ -12,7 +12,9 @@ open class TextFileLine<TFileType>(
 	line: String,
 	val lineNumber: Int,
 	tagParseHelper: TagParsingHelper<TFileType>,
-	parser: TextFileParser<TFileType>
+	parser: TextFileParser<TFileType>,
+	private val useUnicodeEllipsis: Boolean,
+	private val trimTrailingPunctuation: Boolean
 ) {
 	private val line: String
 	val lineWithNoTags: String
@@ -22,7 +24,12 @@ open class TextFileLine<TFileType>(
 		get() = line.isEmpty()
 
 	init {
-		var currentLine = line.trim()
+		var currentLine = line.trim().let {
+			if (useUnicodeEllipsis)
+				it.replace(ellipsisReplaceRegex, "$1…$2")
+			else
+				it
+		}
 		if (currentLine.length > MAX_LINE_LENGTH) {
 			currentLine = currentLine.substring(0, MAX_LINE_LENGTH)
 			parser.addError(
@@ -52,11 +59,18 @@ open class TextFileLine<TFileType>(
 			currentLine = lineWithoutTag.trim()
 		}
 
-		lineWithNoTags = currentLine.trim()
+		lineWithNoTags = currentLine.trim().let {
+			if (trimTrailingPunctuation)
+				it.replace(trimTrailingPunctuationRegex, "$1")
+			else
+				it
+		}
 		tags = tagCollection
 	}
 
 	companion object {
 		private const val MAX_LINE_LENGTH = 256
+		private val ellipsisReplaceRegex = Regex("([^.])\\.\\.\\.([^.])")
+		private val trimTrailingPunctuationRegex = Regex("([^.|,]\\s*)[.|,]$")
 	}
 }

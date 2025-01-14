@@ -45,7 +45,7 @@ object SongLoadQueueWatcherTask : Task(true) {
 		}
 		try {
 			Thread.sleep(250)
-		} catch (interruptedException: InterruptedException) {
+		} catch (_: InterruptedException) {
 			// Thread was interrupted in order to be paused or stopped.
 		}
 	}

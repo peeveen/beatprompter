@@ -30,11 +30,14 @@
 		android:summary="@string/pref_showScrollIndicator_summary"
 		android:title="@string/pref_showScrollIndicator_title"
 		app:iconSpaceReserved="false" />
-	<CheckBoxPreference
-		android:defaultValue="false"
-		android:key="@string/pref_showSongTitle_key"
-		android:summary="@string/pref_showSongTitle_summary"
-		android:title="@string/pref_showSongTitle_title"
+	<ListPreference
+		android:defaultValue="@string/pref_beatCounterTextOverlay_defaultValue"
+		android:dialogTitle="@string/pref_beatCounterTextOverlay_title"
+		android:entries="@array/pref_beatCounterTextOverlay_entries"
+		android:entryValues="@array/pref_beatCounterTextOverlay_entryValues"
+		android:key="@string/pref_beatCounterTextOverlay_key"
+		android:summary="@string/pref_beatCounterTextOverlay_summary"
+		android:title="@string/pref_beatCounterTextOverlay_title"
 		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
 		android:defaultValue="false"
@@ -73,6 +76,18 @@
 		android:key="@string/pref_displayUnicodeAccidentals_key"
 		android:summary="@string/pref_displayUnicodeAccidentals_summary"
 		android:title="@string/pref_displayUnicodeAccidentals_title"
+		app:iconSpaceReserved="false" />
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:key="@string/pref_trimTrailingPunctuation_key"
+		android:summary="@string/pref_trimTrailingPunctuation_summary"
+		android:title="@string/pref_trimTrailingPunctuation_title"
+		app:iconSpaceReserved="false" />
+	<CheckBoxPreference
+		android:defaultValue="false"
+		android:key="@string/pref_useUnicodeEllipsis_key"
+		android:summary="@string/pref_useUnicodeEllipsis_summary"
+		android:title="@string/pref_useUnicodeEllipsis_title"
 		app:iconSpaceReserved="false" />
 	<CheckBoxPreference
 		android:defaultValue="false"

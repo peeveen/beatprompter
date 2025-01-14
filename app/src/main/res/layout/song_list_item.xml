@@ -1,70 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-android:layout_height="50dip">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="fill_parent"
+	android:layout_height="50dip">
 
-    <LinearLayout
-        android:id="@+id/songlisticonsection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layoutDirection="rtl"
-        android:layout_centerVertical="true"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/beaticon"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_bass_drum"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
-            android:layout_margin="2dip"
-            android:contentDescription="@string/pointlessString"
-            />
-        <ImageView
-            android:id="@+id/smoothicon"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_document"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
-            android:layout_margin="2dip"
-            android:contentDescription="@string/pointlessString"
-            />
-        <ImageView
-            android:id="@+id/musicicon"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_musical_notes"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
-            android:layout_margin="2dip"
-            android:contentDescription="@string/pointlessString"
-            />
-    </LinearLayout>
+	<ImageView
+		android:id="@+id/songIconLeft"
+		android:layout_width="30dip"
+		android:layout_height="30dip"
+		android:layout_alignParentStart="true"
+		android:layout_centerVertical="true"
+		android:layout_margin="2dp"
+		android:paddingStart="0dip"
+		android:paddingEnd="6dip"
+		android:scaleType="fitCenter"
+		app:srcCompat="@drawable/blank_icon"
+		tools:layout_centerVertical="true" />
 
-    <TextView
-    android:id="@+id/songartist"
-    android:layout_width="fill_parent"
-    android:layout_height="20dip"
-    android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@id/songlisticonsection"
-    android:ellipsize="end"
-    android:maxLines="1"
-    android:layout_marginTop="0dp"
-    android:textSize="12sp" />
+	<LinearLayout
+		android:id="@+id/songlisticonsection"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
+		android:layout_centerVertical="true"
+		android:layoutDirection="rtl"
+		android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/songtitle"
-        android:layout_width="fill_parent"
-        android:layout_above="@id/songartist"
-        android:layout_height="30dip"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="0dp"
-        android:layout_alignWithParentIfMissing="true"
-        android:gravity="center_vertical"
-        android:layout_toStartOf="@id/songlisticonsection"
-        android:textSize="18sp" />
+		<ImageView
+			android:id="@+id/songIconSectionRight"
+			android:layout_width="30dip"
+			android:layout_height="30dip"
+			android:layout_margin="2dip"
+			android:contentDescription="@string/pointlessString"
+			android:scaleType="fitCenter"
+			android:src="@drawable/blank_icon" />
+
+		<ImageView
+			android:id="@+id/beaticon"
+			android:layout_width="30dip"
+			android:layout_height="30dip"
+			android:layout_margin="2dip"
+			android:contentDescription="@string/pointlessString"
+			android:scaleType="fitCenter"
+			android:src="@drawable/ic_bass_drum" />
+
+		<ImageView
+			android:id="@+id/smoothicon"
+			android:layout_width="30dip"
+			android:layout_height="30dip"
+			android:layout_margin="2dip"
+			android:contentDescription="@string/pointlessString"
+			android:scaleType="fitCenter"
+			android:src="@drawable/ic_document" />
+
+		<ImageView
+			android:id="@+id/musicicon"
+			android:layout_width="30dip"
+			android:layout_height="30dip"
+			android:layout_margin="2dip"
+			android:contentDescription="@string/pointlessString"
+			android:scaleType="fitCenter"
+			android:src="@drawable/ic_musical_notes" />
+
+		<ImageView
+			android:id="@+id/songIconSectionLeft"
+			android:layout_width="30dip"
+			android:layout_height="30dip"
+			android:layout_margin="2dip"
+			android:contentDescription="@string/pointlessString"
+			android:scaleType="fitCenter"
+			android:src="@drawable/blank_icon" />
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/songartist"
+		android:layout_width="fill_parent"
+		android:layout_height="20dip"
+		android:layout_alignParentBottom="true"
+		android:layout_marginTop="0dp"
+		android:layout_toStartOf="@id/songlisticonsection"
+		android:layout_toEndOf="@id/songIconLeft"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:textSize="12sp" />
+
+	<TextView
+		android:id="@+id/songtitle"
+		android:layout_width="fill_parent"
+		android:layout_height="30dip"
+		android:layout_alignWithParentIfMissing="true"
+		android:layout_above="@id/songartist"
+		android:layout_alignParentTop="true"
+		android:layout_marginBottom="0dp"
+		android:layout_toStartOf="@id/songlisticonsection"
+		android:layout_toEndOf="@id/songIconLeft"
+		android:ellipsize="end"
+		android:gravity="center_vertical"
+		android:maxLines="1"
+		android:textSize="18sp" />
 
 </RelativeLayout>
