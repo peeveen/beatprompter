@@ -134,14 +134,16 @@ object Cache {
 
 		temporarySetListFile = File(beatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
 		defaultMidiAliasesFile = File(beatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
-		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
-		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
+
 		initialiseTemporarySetListFile(false, context)
 		try {
 			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, defaultMidiAliasesFile!!)
 		} catch (ioe: IOException) {
 			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
 		}
+
+		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
+		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
 
 		defaultDownloads.apply {
 			clear()
