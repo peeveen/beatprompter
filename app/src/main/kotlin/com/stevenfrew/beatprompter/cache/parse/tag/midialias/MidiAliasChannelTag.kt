@@ -19,5 +19,5 @@ class MidiAliasChannelTag internal constructor(
 	position: Int,
 	value: String
 ) : Tag(name, lineNumber, position) {
-	val channel = TagParsingUtility.parseIntegerValue(value, 1, 16)
+	val channel = TagParsingUtility.parseIntegerValue(value, 1, 16) - 1
 }
