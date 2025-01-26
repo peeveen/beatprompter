@@ -13,7 +13,7 @@ android {
 		multiDexEnabled true
 		targetSdkVersion 34
 		resourceConfigurations += ['en', 'fr', 'pt', 'de', 'es', 'it']
-		versionCode 596
+		versionCode 598
 		versionName "1.77"
 	}
 	signingConfigs {

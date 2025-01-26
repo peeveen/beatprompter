@@ -453,4 +453,8 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="beatCounterTextOverlayNothingName">Nada</string>
 	<string name="beatCounterTextOverlaySongTitleName">Título de la canción</string>
 	<string name="beatCounterTextOverlayCurrentTimeName">Hora actual</string>
+	<string name="edit_file">Editar archivo en la nube …</string>
+	<string name="edit_set_file">Editar archivo de conjunto en la nube …</string>
+	<string name="pref_beatCounterHeight_title">Altura del contador de ritmo</string>
+	<string name="pref_beatCounterHeight_message">La altura del contador de ritmo, como porcentaje de la altura de la pantalla en modo vertical.</string>
 </resources>

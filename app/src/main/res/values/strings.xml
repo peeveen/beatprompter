@@ -156,6 +156,15 @@
 	<string name="pref_countIn_text">bars</string>
 	<string name="pref_countIn_title">Default count-in</string>
 
+	<string name="pref_beatCounterHeight_key" translatable="false">pref_beatCounterHeight</string>
+	<string name="pref_beatCounterHeight_offset" translatable="false">1</string>
+	<string name="pref_beatCounterHeight_min" translatable="false">0</string>
+	<string name="pref_beatCounterHeight_max" translatable="false">9</string>
+	<string name="pref_beatCounterHeight_default" translatable="false">4</string>
+	<string name="pref_beatCounterHeight_message">The height of the beat counter, as a percentage of the portrait-mode screen height.</string>
+	<string name="pref_beatCounterHeight_suffix" translatable="false">%</string>
+	<string name="pref_beatCounterHeight_title">Beat counter height</string>
+
 	<string name="pref_defaultPause_key" translatable="false">pref_defaultPause</string>
 	<string name="pref_defaultPause_offset" translatable="false">0</string>
 	<string name="pref_defaultPause_min" translatable="false">0</string>
