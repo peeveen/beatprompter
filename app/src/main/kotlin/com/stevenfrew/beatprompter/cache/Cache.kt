@@ -134,8 +134,7 @@ object Cache {
 
 		temporarySetListFile = File(beatPrompterDataFolder, TEMPORARY_SET_LIST_FILENAME)
 		defaultMidiAliasesFile = File(beatPrompterDataFolder, DEFAULT_MIDI_ALIASES_FILENAME)
-		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
-		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
+
 		initialiseTemporarySetListFile(false, context)
 		try {
 			copyAssetsFileToLocalFolder(DEFAULT_MIDI_ALIASES_FILENAME, defaultMidiAliasesFile!!)
@@ -151,7 +150,7 @@ object Cache {
 						"idBeatPrompterTemporarySetList",
 						"BeatPrompterTemporarySetList",
 						Date(),
-						temporarySetListFileMd5Checksum
+						temporarySetListFile!!.getMd5Hash(),
 					), temporarySetListFile!!
 				)
 			)
@@ -161,7 +160,7 @@ object Cache {
 						"idBeatPrompterDefaultMidiAliases",
 						context.getString(R.string.default_alias_set_name),
 						Date(),
-						defaultMidiAliasesFileMd5Checksum
+						defaultMidiAliasesFile!!.getMd5Hash()
 					), defaultMidiAliasesFile!!
 				)
 			)
