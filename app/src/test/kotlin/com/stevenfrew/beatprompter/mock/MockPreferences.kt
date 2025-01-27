@@ -8,8 +8,6 @@ import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.storage.StorageType
-import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
-import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference

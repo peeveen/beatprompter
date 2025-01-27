@@ -134,7 +134,8 @@ fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 }
 
 fun File.getMd5Hash(): String = getHash("MD5").toHashString(32)
-fun File.getHash(algorithm: String) = readBytes().getHash(algorithm)
+fun File.getHash(algorithm: String) =
+	(if (exists()) readBytes() else ByteArray(0)).getHash(algorithm)
 
 fun ByteArray.toHashString(minLength: Int) =
 	BigInteger(1, this).toString(16).padStart(minLength, '0')
