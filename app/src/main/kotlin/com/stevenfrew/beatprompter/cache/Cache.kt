@@ -28,6 +28,7 @@ import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.execute
+import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.w3c.dom.Document
