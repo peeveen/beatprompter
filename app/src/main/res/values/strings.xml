@@ -812,7 +812,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
 	<string name="errorTitle">Error</string>
 	<string name="instructionsUrl" translatable="false">https://github.com/peeveen/beatprompter/blob/main/docs/README.md</string>
-	<string name="privacyPolicyUrl" translatable="false">https://github.com/peeveen/app-policies/blob/4bb1d77d9cb750f236dde266723f06caeb6cf708/beatprompter/privacy-policy.md</string>
+	<string name="privacyPolicyUrl" translatable="false">https://sites.google.com/view/beatprompterprivacypolicy/home</string>
 	<string name="gettingRootFolder">Getting root folder …</string>
 
 	<string name="byRating">By rating</string>
