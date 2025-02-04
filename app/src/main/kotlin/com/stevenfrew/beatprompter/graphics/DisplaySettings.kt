@@ -1,6 +1,8 @@
 package com.stevenfrew.beatprompter.graphics
 
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
+import kotlin.math.max
 
 class DisplaySettings internal constructor(
 	val orientation: Int,
@@ -21,7 +23,10 @@ class DisplaySettings internal constructor(
 	// Top 5% of screen is used for beat counter
 	private val beatCounterHeight =
 		if (showBeatCounter)
-			(screenSize.height / 20.0).toInt()
+			((max(
+				screenSize.width,
+				screenSize.height
+			) / 100.0) * BeatPrompter.preferences.beatCounterHeight).toInt()
 		else
 			0
 

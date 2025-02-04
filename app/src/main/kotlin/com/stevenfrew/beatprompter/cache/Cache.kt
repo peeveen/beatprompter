@@ -142,9 +142,6 @@ object Cache {
 			Toast.makeText(context, ioe.message, Toast.LENGTH_LONG).show()
 		}
 
-		val temporarySetListFileMd5Checksum = temporarySetListFile!!.getMd5Hash()
-		val defaultMidiAliasesFileMd5Checksum = defaultMidiAliasesFile!!.getMd5Hash()
-
 		defaultDownloads.apply {
 			clear()
 			add(
@@ -153,7 +150,7 @@ object Cache {
 						"idBeatPrompterTemporarySetList",
 						"BeatPrompterTemporarySetList",
 						Date(),
-						temporarySetListFileMd5Checksum
+						temporarySetListFile!!.getMd5Hash(),
 					), temporarySetListFile!!
 				)
 			)
@@ -163,7 +160,7 @@ object Cache {
 						"idBeatPrompterDefaultMidiAliases",
 						context.getString(R.string.default_alias_set_name),
 						Date(),
-						defaultMidiAliasesFileMd5Checksum
+						defaultMidiAliasesFile!!.getMd5Hash()
 					), defaultMidiAliasesFile!!
 				)
 			)

@@ -453,4 +453,8 @@ Em]zeigt den Beat Progression.\n
 	<string name="beatCounterTextOverlayNothingName">Nichts</string>
 	<string name="beatCounterTextOverlaySongTitleName">Liedtitel</string>
 	<string name="beatCounterTextOverlayCurrentTimeName">Aktuelle Uhrzeit</string>
+	<string name="edit_file">Datei in der Cloud bearbeiten …</string>
+	<string name="edit_set_file">Set-Datei in der Cloud bearbeiten …</string>
+	<string name="pref_beatCounterHeight_message">Die Höhe des Beat-Zählers als Prozentsatz der Bildschirmhöhe im Hochformat.</string>
+	<string name="pref_beatCounterHeight_title">Höhe des Beatzählers</string>
 </resources>

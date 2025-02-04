@@ -453,4 +453,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
 	<string name="beatCounterTextOverlayNothingName">Niente</string>
 	<string name="beatCounterTextOverlaySongTitleName">Titolo della canzone</string>
 	<string name="beatCounterTextOverlayCurrentTimeName">Ora corrente</string>
+	<string name="edit_file">Modifica file nel cloud …</string>
+	<string name="edit_set_file">Modifica il file impostato nel cloud …</string>
+	<string name="pref_beatCounterHeight_message">L\'altezza del contatore dei battiti, come percentuale dell\'altezza dello schermo in modalità verticale.</string>
+	<string name="pref_beatCounterHeight_title">Altezza del contatore dei battiti</string>
 </resources>

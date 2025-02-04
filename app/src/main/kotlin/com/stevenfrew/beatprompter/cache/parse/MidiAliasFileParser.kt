@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.cache.MIDIAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
+import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasChannelTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
@@ -31,6 +32,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiStartTag::class,
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
+	MidiAliasChannelTag::class
 )
 /**
  * Parser for MIDI alias files.
@@ -40,6 +42,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private var aliasSetName: String? = null
 	private var currentAliasName: String? = null
+	private var defaultChannel: ChannelValue? = null
 	private var currentAliasComponents = mutableListOf<AliasComponent>()
 	private var aliases = mutableListOf<Alias>()
 	private var withMidiStart = false
@@ -51,6 +54,12 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	override fun parseLine(line: TextFileLine<MIDIAliasFile>): Boolean {
 		line.tags.asSequence().apply {
+			filterIsInstance<MidiAliasChannelTag>()
+				.firstOrNull()
+				?.also {
+					defaultChannel = ChannelValue(it.channel.toByte())
+				}
+
 			filterIsInstance<MidiAliasSetNameTag>()
 				.firstOrNull()
 				?.also {
@@ -145,7 +154,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
 		val channelArg = when (channelArgs.size) {
-			0 -> null
+			0 -> defaultChannel
 			1 -> channelArgs.first().also {
 				if (componentArgs.last() != it)
 					addError(FileParseError(tag, R.string.channel_must_be_last_parameter))
@@ -154,7 +163,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 			else -> {
 				addError(FileParseError(tag, R.string.multiple_channel_args))
-				null
+				defaultChannel
 			}
 		}
 		return if (name.equals(MidiEventTag.MIDI_SEND_TAG, ignoreCase = true))

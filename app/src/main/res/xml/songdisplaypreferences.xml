@@ -30,6 +30,19 @@
 		android:summary="@string/pref_showScrollIndicator_summary"
 		android:title="@string/pref_showScrollIndicator_title"
 		app:iconSpaceReserved="false" />
+	<com.stevenfrew.beatprompter.ui.pref.SeekBarPreference
+		android:defaultValue="@string/pref_beatCounterHeight_default"
+		android:dialogLayout="@layout/seek_bar_dialog"
+		android:dialogMessage="@string/pref_beatCounterHeight_message"
+		android:key="@string/pref_beatCounterHeight_key"
+		android:layout="@layout/preference"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_beatCounterHeight_message"
+		android:title="@string/pref_beatCounterHeight_title"
+		sf:max="@string/pref_beatCounterHeight_max"
+		sf:offset="@string/pref_beatCounterHeight_offset"
+		sf:suffix="@string/pref_beatCounterHeight_suffix" />
 	<ListPreference
 		android:defaultValue="@string/pref_beatCounterTextOverlay_defaultValue"
 		android:dialogTitle="@string/pref_beatCounterTextOverlay_title"
