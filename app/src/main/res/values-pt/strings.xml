@@ -453,4 +453,8 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="beatCounterTextOverlayNothingName">Nada</string>
 	<string name="beatCounterTextOverlaySongTitleName">Título da música</string>
 	<string name="beatCounterTextOverlayCurrentTimeName">Hora atual</string>
+	<string name="edit_file">Editar ficheiro na nuvem …</string>
+	<string name="edit_set_file">Editar ficheiro definido na nuvem …</string>
+	<string name="pref_beatCounterHeight_title">Altura do contador de batimentos</string>
+	<string name="pref_beatCounterHeight_message">A altura do contador de batimentos, em percentagem da altura do ecrã no modo retrato.</string>
 </resources>

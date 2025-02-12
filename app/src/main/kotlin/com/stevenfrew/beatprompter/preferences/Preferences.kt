@@ -90,6 +90,7 @@ interface Preferences {
 	var dropboxExpiryTime: Long
 	val trimTrailingPunctuation: Boolean
 	val useUnicodeEllipsis: Boolean
+	val beatCounterHeight: Int
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

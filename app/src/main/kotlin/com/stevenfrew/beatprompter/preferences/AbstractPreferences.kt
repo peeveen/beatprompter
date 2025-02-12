@@ -141,10 +141,25 @@ abstract class AbstractPreferences(
 		}
 
 	override val defaultCountIn: Int
-		get() = getIntPreference(R.string.pref_countIn_key, R.string.pref_countIn_default, 0)
+		get() = getIntPreference(
+			R.string.pref_countIn_key,
+			R.string.pref_countIn_default,
+			appResources.getString(R.string.pref_countIn_offset).toInt()
+		)
+
+	override val beatCounterHeight: Int
+		get() = getIntPreference(
+			R.string.pref_beatCounterHeight_key,
+			R.string.pref_beatCounterHeight_default,
+			appResources.getString(R.string.pref_beatCounterHeight_offset).toInt()
+		)
 
 	override val audioLatency: Int
-		get() = getIntPreference(R.string.pref_audioLatency_key, R.string.pref_countIn_default, 0)
+		get() = getIntPreference(
+			R.string.pref_audioLatency_key,
+			R.string.pref_countIn_default,
+			appResources.getString(R.string.pref_audioLatency_offset).toInt()
+		)
 
 	override val sendMIDIClock: Boolean
 		get() = getBooleanPreference(R.string.pref_sendMidi_key, false)

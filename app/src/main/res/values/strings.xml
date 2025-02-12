@@ -156,6 +156,15 @@
 	<string name="pref_countIn_text">bars</string>
 	<string name="pref_countIn_title">Default count-in</string>
 
+	<string name="pref_beatCounterHeight_key" translatable="false">pref_beatCounterHeight</string>
+	<string name="pref_beatCounterHeight_offset" translatable="false">1</string>
+	<string name="pref_beatCounterHeight_min" translatable="false">0</string>
+	<string name="pref_beatCounterHeight_max" translatable="false">9</string>
+	<string name="pref_beatCounterHeight_default" translatable="false">4</string>
+	<string name="pref_beatCounterHeight_message">The height of the beat counter, as a percentage of the portrait-mode screen height.</string>
+	<string name="pref_beatCounterHeight_suffix" translatable="false">%</string>
+	<string name="pref_beatCounterHeight_title">Beat counter height</string>
+
 	<string name="pref_defaultPause_key" translatable="false">pref_defaultPause</string>
 	<string name="pref_defaultPause_offset" translatable="false">0</string>
 	<string name="pref_defaultPause_min" translatable="false">0</string>
@@ -803,7 +812,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
 	<string name="errorTitle">Error</string>
 	<string name="instructionsUrl" translatable="false">https://github.com/peeveen/beatprompter/blob/main/docs/README.md</string>
-	<string name="privacyPolicyUrl" translatable="false">https://github.com/peeveen/app-policies/blob/4bb1d77d9cb750f236dde266723f06caeb6cf708/beatprompter/privacy-policy.md</string>
+	<string name="privacyPolicyUrl" translatable="false">https://sites.google.com/view/beatprompterprivacypolicy/home</string>
 	<string name="gettingRootFolder">Getting root folder …</string>
 
 	<string name="byRating">By rating</string>

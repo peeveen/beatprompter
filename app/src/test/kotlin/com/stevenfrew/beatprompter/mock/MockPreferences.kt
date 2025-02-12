@@ -8,6 +8,7 @@ import com.stevenfrew.beatprompter.comm.midi.ConnectionType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.storage.StorageType
+import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import com.stevenfrew.beatprompter.ui.SongIconDisplayPosition
 import com.stevenfrew.beatprompter.ui.SongView
 import com.stevenfrew.beatprompter.ui.pref.MetronomeContext
@@ -69,7 +70,7 @@ class MockPreferences(
 	override val screenAction: SongView.ScreenAction = SongView.ScreenAction.Scroll,
 	override val audioPlayer: AudioPlayerType = AudioPlayerType.ExoPlayer,
 	override val showScrollIndicator: Boolean = true,
-	override val showSongTitle: Boolean = false,
+	override val beatCounterTextOverlay: BeatCounterTextOverlay = BeatCounterTextOverlay.Nothing,
 	override val commentDisplayTime: Int = 3,
 	override val midiTriggerSafetyCatch: SongView.TriggerSafetyCatch = SongView.TriggerSafetyCatch.WhenAtTitleScreenOrPausedOrLastLine,
 	override val highlightCurrentLine: Boolean = true,
@@ -89,7 +90,8 @@ class MockPreferences(
 	override var dropboxRefreshToken: String = "",
 	override var dropboxExpiryTime: Long = Long.MAX_VALUE,
 	override val trimTrailingPunctuation: Boolean = false,
-	override val useUnicodeEllipsis: Boolean = false
+	override val useUnicodeEllipsis: Boolean = false,
+	override val beatCounterHeight: Int = 4
 ) : Preferences {
 	override fun getStringPreference(key: String, default: String): String {
 		TODO("Not yet implemented")
