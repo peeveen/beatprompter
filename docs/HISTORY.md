@@ -2,6 +2,14 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.78
+
+- Added new "MIDI command" filter. If a parameterless MIDI alias contains a `{midi_command}` tag,
+	it will be listed under this filter, and can be run directly from the main list by tapping on it.
+- Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
+	- Also added corresponding "Show capo setting on title screen" preference.
+- Added ability to pull tabs and chords from Ultimate Guitar.
+
 ## 1.77
 
 - You can now jump to an upcoming on-screen `{beatstart}` section by tapping the screen, just like

@@ -171,6 +171,15 @@ by the alias will also be sent at these times.
 {with_midi_stop}
 ```
 
+### MIDI commands
+
+If an alias contains a `{midi_command}` tag, it will be shown in the main list under the "MIDI
+Commands" filter. You can then click on these list items to send the MIDI commands. This is useful
+for triggering MIDI events manually, such as changing lighting, BGM, whatever.
+
+You should only add the `{midi_command}` tag to aliases that do *not* accept parameters. If you add
+it to an alias that requires parameters, the alias will fail to parse correctly.
+
 ## MIDI Beat Clock Signals
 
 This is obviously a timing-critical feature. Due to the nature of the operating system, the
