@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasChannelTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiCommandTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidi
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiContinueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStartTag
@@ -32,7 +33,8 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiStartTag::class,
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
-	MidiAliasChannelTag::class
+	MidiAliasChannelTag::class,
+	MidiCommandTag::class
 )
 /**
  * Parser for MIDI alias files.
@@ -41,6 +43,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
+	private var isCommand: Boolean = false
 	private var useByDefault: Boolean = true
 	private var currentAliasName: String? = null
 	private var defaultChannel: ChannelValue? = null
@@ -72,6 +75,10 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 					}
 				}
 
+			filterIsInstance<MidiCommandTag>().firstOrNull()?.also {
+				isCommand = true
+			}
+
 			filterIsInstance<MidiAliasNameTag>()
 				.firstOrNull()
 				?.also { startNewAlias(it) }
@@ -96,6 +103,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			currentAliasName = aliasNameTag.aliasName
 		else {
 			finishCurrentAlias()
+			isCommand = false
 			currentAliasName = aliasNameTag.aliasName
 			if (currentAliasName.isNullOrBlank()) {
 				addError(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
@@ -124,15 +132,24 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		currentAliasName?.also {
 			if (currentAliasComponents.isNotEmpty()) {
 				val hasArguments = currentAliasComponents.any { it.parameterCount > 0 }
-				if (hasArguments && withMidiSet)
+				if (hasArguments && withMidiSet) {
 					addError(FileParseError(R.string.cannot_use_with_midi_with_parameters))
+					withMidiStart = false
+					withMidiContinue = false
+					withMidiStop = false
+				}
+				if (hasArguments && isCommand) {
+					addError(FileParseError(R.string.cannot_use_midi_command_with_parameters))
+					isCommand = false
+				}
 				aliases.add(
 					Alias(
 						it,
 						currentAliasComponents,
 						withMidiStart,
 						withMidiContinue,
-						withMidiStop
+						withMidiStop,
+						isCommand
 					)
 				)
 				currentAliasComponents = mutableListOf()

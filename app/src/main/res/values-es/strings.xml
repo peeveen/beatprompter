@@ -422,6 +422,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_alwaysDisplaySharpChords_summary">Cualquier acorde bemol se convertirá en un acorde sostenido apropiado.</string>
 	<string name="pref_displayUnicodeAccidentals_title">Mostrar alteraciones accidentales de Unicode</string>
 	<string name="pref_displayUnicodeAccidentals_summary">Los acordes que contienen caracteres b/# se convertirán para utilizar ♭/♯.</string>
+	<string name="cannot_use_midi_command_with_parameters">La etiqueta {midi_command} no se puede utilizar en alias que contengan parámetros</string>
 	<string name="failedToParseKey">\'%1$s\' no se pudo analizar como una clave válida</string>
 	<string name="couldNotShiftKey">Impossibile calcolare la nuova tonalità (spostamento di %1$s di %2$d semitoni)</string>
 	<string name="failedToParseChord">No se pudo analizar el acorde \'%1$s\'</string>

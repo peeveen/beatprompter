@@ -422,6 +422,7 @@ Em]zeigt den Beat Progression.\n
 	<string name="pref_alwaysDisplaySharpChords_summary">Alle B-Akkorde werden in entsprechende Kreuz-Akkorde umgewandelt.</string>
 	<string name="pref_displayUnicodeAccidentals_title">Unicode-Vorzeichen anzeigen</string>
 	<string name="pref_displayUnicodeAccidentals_summary">Akkorde, die die Zeichen b/# enthalten, werden in ♭/♯ umgewandelt.</string>
+	<string name="cannot_use_midi_command_with_parameters">Das Tag {midi_command} kann nicht in Aliasnamen verwendet werden, die Parameter enthalten</string>
 	<string name="failedToParseKey">\'%1$s\' konnte nicht als gültiger Schlüssel analysiert werden</string>
 	<string name="couldNotShiftKey">Die Berechnung der neuen Tonart ist fehlgeschlagen (Verschiebung von %1$s um %2$d Halbtöne)</string>
 	<string name="failedToParseChord">Akkord \'%1$s\' konnte nicht analysiert werden.</string>

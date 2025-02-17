@@ -8,6 +8,7 @@ class Alias(
 	val withMidiStart: Boolean = false,
 	val withMidiContinue: Boolean = false,
 	val withMidiStop: Boolean = false,
+	val isCommand: Boolean = false
 ) : AliasComponent {
 	override val parameterCount
 		get() = components.maxOf { it.parameterCount }
