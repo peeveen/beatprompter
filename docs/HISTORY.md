@@ -5,7 +5,7 @@ Versions prior to 1.70 are not listed.
 ## 1.78
 
 - Added optional `active_by_default` true/false argument to the `{midi_aliases}` tag, allowing
-	for sets of MIDI aliases to be inactive by default, but activated on a per-song or per-variation
+	for sets of MIDI aliases to be inactive by default, but activated on a per-song (or per-variation)
 	basis using a new `{activate_midi_aliases:set_name}` song tag.
 - Added new "MIDI command" filter. If a parameterless MIDI alias contains a `{midi_command}` tag,
 	it will be listed under this filter, and can be executed directly from the main list by tapping
