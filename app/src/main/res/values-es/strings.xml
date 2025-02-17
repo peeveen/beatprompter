@@ -199,6 +199,7 @@
 	<string name="midiTriggerSafetyCatchPaused">Cuando está en pausa, o en la pantalla de título</string>
 	<string name="midiTriggerSafetyCatchPausedOrLastLine">Cuando está en pausa, en la pantalla de título o en la última línea de la canción</string>
 	<string name="midiTriggerSafetyCatchTitleScreen">Cuando en la pantalla de título</string>
+	<string name="midi_commands">Comandos MIDI</string>
 	<string name="midi_alias_file_errors">Errores de archivo de alias MIDI</string>
 	<string name="midi_alias_files">Alias de MIDI</string>
 	<string name="midi_alias_list_options">Alias de MIDI</string>
@@ -459,4 +460,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_beatCounterHeight_title">Altura del contador de ritmo</string>
 	<string name="pref_beatCounterHeight_message">La altura del contador de ritmo, como porcentaje de la altura de la pantalla en modo vertical.</string>
 	<string name="no_such_midi_alias_set">No se puede encontrar un conjunto de alias MIDI llamado \'%1$s\'</string>
+	<string name="executed_midi_command">Comando MIDI enviado \'%1$s\'</string>
 </resources>

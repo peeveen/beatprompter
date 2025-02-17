@@ -30,7 +30,7 @@ class FilterComparator private constructor() : Comparator<Filter> {
 
 			is SetListFilter -> when (p1) {
 				is SetListFilter -> p0.name.compareTo(p1.name)
-				is MIDIAliasFilesFilter -> 1
+				is MidiAliasFilesFilter -> 1
 				else -> 1
 			}
 

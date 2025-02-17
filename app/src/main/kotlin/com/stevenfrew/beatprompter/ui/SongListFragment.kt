@@ -41,7 +41,7 @@ import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.CachedCloudCollection
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.MidiAliasFile
 import com.stevenfrew.beatprompter.cache.ReadCacheTask
 import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.cache.parse.FileParseError
@@ -50,6 +50,8 @@ import com.stevenfrew.beatprompter.chord.KeySignature
 import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.comm.midi.Midi
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -57,6 +59,7 @@ import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
+import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
@@ -73,7 +76,8 @@ import com.stevenfrew.beatprompter.ui.filter.AllSongsFilter
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FilterComparator
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
-import com.stevenfrew.beatprompter.ui.filter.MIDIAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiCommandsFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFileFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.SongFilter
@@ -126,10 +130,24 @@ class SongListFragment
 		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-		if (selectedFilter is MIDIAliasFilesFilter) {
-			val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+		if (selectedFilter is MidiAliasFilesFilter) {
+			val maf = filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
 			if (maf.errors.isNotEmpty())
 				showMIDIAliasErrors(maf.errors)
+		} else if (selectedFilter is MidiCommandsFilter) {
+			val alias = filterMidiCommands(Cache.cachedCloudItems.midiCommands)[position]
+			val (messages, _) = alias.resolve(
+				Cache.cachedCloudItems.defaultMidiAliasSet,
+				Cache.cachedCloudItems.midiAliasSets,
+				byteArrayOf(),
+				MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+			)
+			Midi.putMessages(messages)
+			Toast.makeText(
+				context,
+				BeatPrompter.appResources.getString(R.string.executed_midi_command, alias.name),
+				Toast.LENGTH_SHORT
+			).show()
 		} else {
 			val songToLoad = filterPlaylistNodes(playlist)[position]
 			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songFile))
@@ -599,7 +617,7 @@ class SongListFragment
 	}
 
 	private fun onMIDIAliasListLongClick(position: Int) {
-		val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+		val maf = filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
 		val showErrors = maf.errors.isNotEmpty()
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
@@ -650,7 +668,7 @@ class SongListFragment
 		position: Int,
 		id: Long
 	): Boolean {
-		if (selectedFilter is MIDIAliasFilesFilter)
+		if (selectedFilter is MidiAliasFilesFilter)
 			onMIDIAliasListLongClick(position)
 		else
 			onSongListLongClick(position)
@@ -778,9 +796,14 @@ class SongListFragment
 
 	private fun buildListAdapter(): BaseAdapter =
 		requireActivity().let {
-			if (selectedFilter is MIDIAliasFilesFilter)
-				MIDIAliasListAdapter(
-					filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
+			if (selectedFilter is MidiAliasFilesFilter)
+				MidiAliasListAdapter(
+					filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
+					it
+				)
+			else if (selectedFilter is MidiCommandsFilter)
+				MidiCommandListAdapter(
+					filterMidiCommands(Cache.cachedCloudItems.midiCommands),
 					it
 				)
 			else
@@ -843,7 +866,14 @@ class SongListFragment
 		// if there aren't any more, don't bother creating a filter.
 		val midiAliasFilesFilter =
 			if (cache.midiAliasFiles.size > 1)
-				MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
+				MidiAliasFilesFilter()
+			else
+				null
+
+		// Same thing for MIDI commands ... if there aren't any, don't bother creating a filter.
+		val midiCommandsFilter =
+			if (cache.midiCommands.count() != 0)
+				MidiCommandsFilter()
 			else
 				null
 
@@ -852,7 +882,8 @@ class SongListFragment
 			allSongsFilter,
 			tempSetListFilter,
 			tagAndFolderFilters,
-			midiAliasFilesFilter
+			midiAliasFilesFilter,
+			midiCommandsFilter
 		)
 			.flattenAll()
 			.filterIsInstance<Filter>()
@@ -1095,12 +1126,16 @@ class SongListFragment
 		return true
 	}
 
-	private fun filterMIDIAliasFiles(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
-		return fileList.filter {
+	private fun filterMidiAliasFiles(fileList: List<MidiAliasFile>): List<MidiAliasFile> =
+		fileList.filter {
 			it.file != Cache.defaultMidiAliasesFile &&
 				(searchText.isBlank() || it.normalizedName.contains(searchText))
-		}
-	}
+		}.sortedBy { it.name }
+
+	private fun filterMidiCommands(aliases: List<Alias>): List<Alias> =
+		aliases.filter {
+			searchText.isBlank() || it.name.contains(searchText)
+		}.sortedBy { it.name }
 
 	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
 		playlist.nodes.filter {

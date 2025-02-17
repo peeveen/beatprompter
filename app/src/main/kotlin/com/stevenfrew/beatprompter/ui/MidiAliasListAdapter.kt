@@ -9,10 +9,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.MidiAliasFile
 
-class MIDIAliasListAdapter(private val values: List<MIDIAliasFile>, context: Context) :
-	ArrayAdapter<MIDIAliasFile>(context, -1, values) {
+class MidiAliasListAdapter(private val values: List<MidiAliasFile>, context: Context) :
+	ArrayAdapter<MidiAliasFile>(context, -1, values) {
 	private val layoutId =
 		if (BeatPrompter.preferences.largePrint)
 			R.layout.midi_alias_list_item_large

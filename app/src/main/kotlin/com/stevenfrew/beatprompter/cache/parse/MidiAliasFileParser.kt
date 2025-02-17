@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.MidiAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
@@ -40,7 +40,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
  * Parser for MIDI alias files.
  */
 class MidiAliasFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
+	TextFileParser<MidiAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
 	private var isCommand: Boolean = false
@@ -56,7 +56,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	private val withMidiSet
 		get() = withMidiStart || withMidiContinue || withMidiStop
 
-	override fun parseLine(line: TextFileLine<MIDIAliasFile>): Boolean {
+	override fun parseLine(line: TextFileLine<MidiAliasFile>): Boolean {
 		line.tags.asSequence().apply {
 			filterIsInstance<MidiAliasChannelTag>()
 				.firstOrNull()
@@ -94,7 +94,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		return true
 	}
 
-	override fun getResult(): MIDIAliasFile = MIDIAliasFile(cachedCloudFile, getAliasSet(), errors)
+	override fun getResult(): MidiAliasFile = MidiAliasFile(cachedCloudFile, getAliasSet(), errors)
 
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (aliasSetName.isNullOrBlank())

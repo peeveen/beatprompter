@@ -10,7 +10,8 @@ import android.widget.TextView
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
-import com.stevenfrew.beatprompter.ui.filter.MIDIAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiCommandsFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
@@ -46,7 +47,8 @@ class FilterListAdapter(
 				is TagFilter -> R.drawable.tag
 				is TemporarySetListFilter -> R.drawable.pencil
 				is SetListFilter -> R.drawable.ic_document
-				is MIDIAliasFilesFilter -> R.drawable.midi
+				is MidiAliasFilesFilter -> R.drawable.midi
+				is MidiCommandsFilter -> R.drawable.midi
 				is FolderFilter -> R.drawable.ic_folder
 				else -> R.drawable.blank_icon
 			}

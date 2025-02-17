@@ -47,9 +47,6 @@ class MidiEventTag internal constructor(
 	companion object {
 		const val MIDI_SEND_TAG = "midi_send"
 
-		// This MUST match the name in the default MIDI aliases resource file.
-		private const val DEFAULT_MIDI_ALIAS_SET_NAME = "Defaults"
-
 		fun parseMIDIEvent(
 			name: String,
 			value: String,
@@ -86,7 +83,7 @@ class MidiEventTag internal constructor(
 						}
 					}
 					when {
-						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes)) to setOf<AliasSet>(Cache.cachedCloudItems.midiAliasSets.first { it.name == DEFAULT_MIDI_ALIAS_SET_NAME })
+						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes)) to setOf<AliasSet>(Cache.cachedCloudItems.defaultMidiAliasSet)
 						matchedAliasAndSet != null -> matchedAliasAndSet.first.resolve(
 							matchedAliasAndSet.second,
 							aliasSets,

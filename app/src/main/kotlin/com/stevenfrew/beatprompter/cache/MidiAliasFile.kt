@@ -7,7 +7,7 @@ import com.stevenfrew.beatprompter.midi.alias.AliasSet
 /**
  * A MIDI alias file in our cache.
  */
-class MIDIAliasFile internal constructor(
+class MidiAliasFile internal constructor(
 	cachedFile: CachedFile,
 	val aliasSet: AliasSet,
 	errors: List<FileParseError>
