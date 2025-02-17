@@ -1,7 +1,7 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.Logger
-import com.stevenfrew.beatprompter.midi.alias.Alias
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.util.flattenAll
@@ -169,8 +169,8 @@ class CachedCloudCollection {
 			songFiles.filter { it.subfolderIds.intersect(folderIDs).isNotEmpty() }
 		}
 
-	internal val midiAliases: List<Alias>
-		get() = midiAliasFiles.flatMap { it.aliasSet.aliases }.toList()
+	internal val midiAliasSets: List<AliasSet>
+		get() = midiAliasFiles.map { it.aliasSet }
 
 	companion object {
 		const val FILTER_ONLY_FILENAME = ".filter_only"

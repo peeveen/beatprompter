@@ -4,8 +4,12 @@ Versions prior to 1.70 are not listed.
 
 ## 1.78
 
+- Added optional `active_by_default` true/false argument to the `{midi_aliases}` tag, allowing
+	for sets of MIDI aliases to be inactive by default, but activated on a per-song basis using
+	a new `{activate_midi_aliases:set_name}` song tag.
 - Added new "MIDI command" filter. If a parameterless MIDI alias contains a `{midi_command}` tag,
-	it will be listed under this filter, and can be run directly from the main list by tapping on it.
+	it will be listed under this filter, and can be executed directly from the main list by tapping
+	on it.
 - Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
 	- Also added corresponding "Show capo setting on title screen" preference.
 - Added ability to pull tabs and chords from Ultimate Guitar.

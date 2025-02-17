@@ -457,4 +457,5 @@ letras e [em]acordes no tempo, com uma batida.\n
 	<string name="edit_set_file">Editar ficheiro definido na nuvem …</string>
 	<string name="pref_beatCounterHeight_title">Altura do contador de batimentos</string>
 	<string name="pref_beatCounterHeight_message">A altura do contador de batimentos, em percentagem da altura do ecrã no modo retrato.</string>
+	<string name="no_such_midi_alias_set">Não é possível encontrar um conjunto de alias MIDI denominado \'%1$s\'</string>
 </resources>

@@ -7,6 +7,8 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -58,6 +60,7 @@ import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
 import com.stevenfrew.beatprompter.song.event.AudioEvent
@@ -117,7 +120,8 @@ import kotlin.math.roundToInt
 	EndOfChorusTag::class,
 	TransposeTag::class,
 	ChordMapTag::class,
-	NoChordsTag::class
+	NoChordsTag::class,
+	ActivateMidiAliasesTag::class
 )
 @IgnoreTags(
 	LegacyTag::class,
@@ -148,6 +152,8 @@ class SongParser(
 	songLoadInfo.variation,
 	true
 ) {
+	private val activeMidiAliasSets: MutableSet<AliasSet> =
+		Cache.cachedCloudItems.midiAliasSets.filter { it.useByDefault }.toMutableSet()
 	private val metronomeContext: MetronomeContext
 	private val customCommentsUser: String
 	private var showChords: Boolean
@@ -265,6 +271,9 @@ class SongParser(
 			}
 		}
 
+		activeMidiAliasSets.addAll(
+			tagSequence.filterIsInstance<ActivateMidiAliasesTag>().flatMap { it.midiAliasSets })
+
 		val chordMapTags = tagSequence.filterIsInstance<ChordMapTag>()
 		chordMapTags.forEach {
 			chordMap = chordMap?.addChordMapping(it.from, it.to)
@@ -342,6 +351,12 @@ class SongParser(
 
 		tags
 			.filterIsInstance<MidiEventTag>()
+			// Only use MIDI events generated from alias sets that are ALL active.
+			// We could have a recursive chain of aliases between sets, but if even
+			// one set is inactive, the whole thing is invalid.
+			.filter {
+				activeMidiAliasSets.containsAll(it.aliasSetsUsed)
+			}
 			.forEach {
 				if (stopAddingStartupItems || isLineContentOrPause)
 					events.add(it.toMIDIEvent(songTime))
@@ -727,7 +742,8 @@ class SongParser(
 			beatCounterTextOverlayScreenString,
 			songTitleHeaderLocation,
 			songLoadInfo.loadId,
-			songLoadInfo.audioLatency
+			songLoadInfo.audioLatency,
+			activeMidiAliasSets
 		)
 	}
 

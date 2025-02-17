@@ -457,4 +457,5 @@ Paroles et [Em]accords dans le temps avec un battement.\n
 	<string name="edit_set_file">Modifier le fichier d\'ensemble dans le cloud …</string>
 	<string name="pref_beatCounterHeight_message">La hauteur du compteur de battements, en pourcentage de la hauteur de l\'écran en mode portrait.</string>
 	<string name="pref_beatCounterHeight_title">Hauteur du compteur de battements</string>
+	<string name="no_such_midi_alias_set">Impossible de trouver un ensemble d\'alias MIDI appelé \'%1$s\'</string>
 </resources>

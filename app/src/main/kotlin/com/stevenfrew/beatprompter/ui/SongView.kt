@@ -32,6 +32,7 @@ import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
@@ -678,7 +679,9 @@ class SongView
 				if (startState === PlayState.Playing) {
 					if (currentLine.scrollMode === ScrollingMode.Manual) {
 						// Top of the page? Start. Else it's a continue.
-						if (songPixelPosition == 0) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (songPixelPosition == 0) Midi.putStartMessage(activeMidiAliasSets) else Midi.putContinueMessage(
+							activeMidiAliasSets
+						)
 						if (jumpToBeatStart())
 							return true
 						// Start the count in.
@@ -716,7 +719,9 @@ class SongView
 								recalculateManualPositions = true
 							)
 						}
-						if (time == 0L) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (time == 0L) Midi.putStartMessage(activeMidiAliasSets) else Midi.putContinueMessage(
+							activeMidiAliasSets
+						)
 						Bluetooth.putMessage(
 							ToggleStartStopMessage(
 								ToggleStartStopMessage.StartStopToggleInfo(
@@ -816,7 +821,7 @@ class SongView
 	}
 
 	private fun processClickEvent() {
-		val playClick = metronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
+		val playClick = metronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying
 		if (startState === PlayState.Playing && song!!.currentLine.scrollMode !== ScrollingMode.Manual && playClick)
 			clickSoundPool.play(clickAudioId, 1.0f, 1.0f, 1, 0, 1.0f)
 	}
@@ -851,7 +856,9 @@ class SongView
 			Rect(originalBeatCountRect)
 	}
 
-	private fun isTrackPlaying(): Boolean = audioPlayers.values.any { it.isPlaying }
+	private val isTrackPlaying: Boolean get() = audioPlayers.values.any { it.isPlaying }
+
+	internal val activeMidiAliasSets: Set<AliasSet> get() = song?.activeMidiAliasSets ?: setOf()
 
 	fun hasSong(title: String, artist: String): Boolean =
 		song?.songFile?.normalizedArtist == artist && song?.songFile?.normalizedTitle == title

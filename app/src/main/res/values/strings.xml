@@ -883,4 +883,6 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="edit_file">Edit file in cloud …</string>
 	<string name="edit_set_file">Edit set file in cloud …</string>
 
+	<string name="no_such_midi_alias_set">Can\'t find a MIDI alias set called \'%1$s\'</string>
+
 </resources>

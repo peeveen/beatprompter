@@ -8,10 +8,18 @@ class Alias(
 	val withMidiStart: Boolean = false,
 	val withMidiContinue: Boolean = false,
 	val withMidiStop: Boolean = false,
-) {
-	val parameterCount
+) : AliasComponent {
+	override val parameterCount
 		get() = components.maxOf { it.parameterCount }
 
-	fun resolve(aliases: List<Alias>, arguments: ByteArray, channel: Byte): List<MidiMessage> =
-		components.flatMap { it.resolve(aliases, arguments, channel) }
+	override fun resolve(
+		sourceAliasSet: AliasSet,
+		aliasSets: List<AliasSet>,
+		arguments: ByteArray,
+		channel: Byte
+	): Pair<List<MidiMessage>, Set<AliasSet>> =
+		components.map { it.resolve(sourceAliasSet, aliasSets, arguments, channel) }.let {
+			it.flatMap { it.first } to it.flatMap { it.second }
+				.toSet()
+		}
 }

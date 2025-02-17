@@ -457,4 +457,5 @@ Em]zeigt den Beat Progression.\n
 	<string name="edit_set_file">Set-Datei in der Cloud bearbeiten …</string>
 	<string name="pref_beatCounterHeight_message">Die Höhe des Beat-Zählers als Prozentsatz der Bildschirmhöhe im Hochformat.</string>
 	<string name="pref_beatCounterHeight_title">Höhe des Beatzählers</string>
+	<string name="no_such_midi_alias_set">Ein MIDI-Alias-Set mit dem Namen \'%1$s\' kann nicht gefunden werden</string>
 </resources>

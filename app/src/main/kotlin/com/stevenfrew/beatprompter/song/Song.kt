@@ -11,6 +11,7 @@ import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
@@ -41,7 +42,8 @@ class Song(
 	val beatCounterTextOverlayScreenString: ScreenString,
 	val songTitleHeaderLocation: PointF,
 	val loadId: UUID,
-	private val audioLatency: Int
+	private val audioLatency: Int,
+	val activeMidiAliasSets: Set<AliasSet>
 ) {
 	internal var currentLine: Line = lines.first()
 	internal var currentEvent = firstEvent // Last event that executed.

@@ -13,26 +13,29 @@ class RecursiveAliasComponent(
 		get() = (arguments.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
 
 	override fun resolve(
-		aliases: List<Alias>,
+		sourceAliasSet: AliasSet,
+		aliasSets: List<AliasSet>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<MidiMessage> =
-		try {
-			aliases.first {
+	): Pair<List<MidiMessage>, Set<AliasSet>> {
+		val (alias, set) = aliasSets.firstNotNullOfOrNull { set ->
+			set.aliases.firstOrNull {
 				it.name.equals(
 					referencedAliasName,
 					ignoreCase = true
 				) && it.parameterCount == arguments.size
+			}?.let {
+				it to set
 			}
-				.resolve(aliases, arguments.map {
-					it.resolve(parameters, channelValue?.value ?: channel)
-				}.toByteArray(), channelValue?.value ?: channel)
-		} catch (_: NoSuchElementException) {
-			throw ResolutionException(
-				BeatPrompter.appResources.getString(
-					R.string.unknown_midi_directive,
-					referencedAliasName
-				)
+		} ?: throw ResolutionException(
+			BeatPrompter.appResources.getString(
+				R.string.unknown_midi_directive,
+				referencedAliasName
 			)
-		}
+		)
+		val (midiMessages, usedSets) = alias.resolve(set, aliasSets, arguments.map {
+			it.resolve(parameters, channelValue?.value ?: channel)
+		}.toByteArray(), channelValue?.value ?: channel)
+		return midiMessages to mutableSetOf(sourceAliasSet, *usedSets.toTypedArray())
+	}
 }

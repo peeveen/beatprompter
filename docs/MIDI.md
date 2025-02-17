@@ -72,8 +72,9 @@ The following tags instruct BeatPrompter to send out MIDI messages.
 If you make frequent use of MIDI commands in your song files, you can create a file of MIDI aliases
 to save you having to remember the numeric values all the time.
 
-1. In your cloud storage, create a text document of any name, with `{midi_aliases:alias_set_name}`
-	 as the first line.
+1. In your cloud storage, create a text document of any name, with
+	 `{midi_aliases:alias_set_name,active_by_default}`
+	 as the first line (see below for meaning of the `active_by_default` argument).
 2. In the following lines, create a tag `{midi_alias:alias_name}`, putting the name of your choice
 	 in place of `alias_name`.
 3. On the next lines, enter some MIDI message tags as usual (the usual hashtag comments are also
@@ -90,6 +91,20 @@ to save you having to remember the numeric values all the time.
 	 in other files.
 7. Multiple aliases can have the same name with different numbers of parameters. The appropriate one
 	 will be selected when they are executed.
+
+### Inactive alias sets, and how to activate them
+
+The `active_by_default` argument in the `{midi_aliases}` tag can be `true` (which is the default
+value if omitted) or `false`.
+
+Any aliases in an alias set that is _inactive_ will effectively become no-op commands. This
+means that any songs using them will _not_ generate "unknown MIDI command" errors, but the commands
+will simply not do anything. This applies even if the alias set is used _indirectly_, .e.g. as part
+of a recursive alias from an active set.
+
+You can activate an alias set in a song file using the
+`{activate_midi_aliases:alias_set_name_1,alias_set_name_2,...}` tag. This tag can take any number
+of comma-separated set names as a value.
 
 ### Alias MIDI Channel
 

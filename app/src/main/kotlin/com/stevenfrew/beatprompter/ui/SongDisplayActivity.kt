@@ -268,7 +268,7 @@ class SongDisplayActivity
 
 	private fun pauseClockSignalGeneratorTask() {
 		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
-		Midi.putStopMessage()
+		Midi.putStopMessage(songView?.activeMidiAliasSets ?: setOf())
 	}
 
 	class SongDisplayEventHandler internal constructor(

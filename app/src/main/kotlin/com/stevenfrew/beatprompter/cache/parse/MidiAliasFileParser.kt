@@ -41,6 +41,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
+	private var useByDefault: Boolean = true
 	private var currentAliasName: String? = null
 	private var defaultChannel: ChannelValue? = null
 	private var currentAliasComponents = mutableListOf<AliasComponent>()
@@ -65,8 +66,10 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				?.also {
 					if (aliasSetName != null)
 						addError(FileParseError(it, R.string.midi_alias_set_name_defined_multiple_times))
-					else
+					else {
 						aliasSetName = it.aliasSetName
+						useByDefault = it.useByDefault
+					}
 				}
 
 			filterIsInstance<MidiAliasNameTag>()
@@ -175,7 +178,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	private fun getAliasSet(): AliasSet {
 		finishCurrentAlias()
 		return aliasSetName?.let {
-			AliasSet(it, aliases)
+			AliasSet(it, aliases, useByDefault)
 		} ?: throw InvalidBeatPrompterFileException(
 			R.string.not_a_valid_midi_alias_file,
 			cachedCloudFile.name

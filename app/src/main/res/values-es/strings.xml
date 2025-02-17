@@ -457,4 +457,5 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="edit_set_file">Editar archivo de conjunto en la nube …</string>
 	<string name="pref_beatCounterHeight_title">Altura del contador de ritmo</string>
 	<string name="pref_beatCounterHeight_message">La altura del contador de ritmo, como porcentaje de la altura de la pantalla en modo vertical.</string>
+	<string name="no_such_midi_alias_set">No se puede encontrar un conjunto de alias MIDI llamado \'%1$s\'</string>
 </resources>
