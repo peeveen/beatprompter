@@ -38,6 +38,7 @@ class SongFile(
 	val variations: List<String>,
 	val chords: List<String>,
 	val firstChord: String?,
+	val capo: Int,
 	errors: List<FileParseError>
 ) : CachedTextFile(cachedFile, errors) {
 	val normalizedArtist = artist.normalize()
@@ -72,6 +73,7 @@ class SongFile(
 		element.setAttribute(BARS_ATTRIBUTE, "$bars")
 		key?.also { element.setAttribute(KEY_ATTRIBUTE, key) }
 		element.setAttribute(BPM_ATTRIBUTE, "$bpm")
+		element.setAttribute(CAPO_ATTRIBUTE, "$capo")
 		element.setAttribute(DURATION_ATTRIBUTE, "$duration")
 		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
 		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
@@ -94,7 +96,7 @@ class SongFile(
 	}
 
 	val keySignature: String?
-		get() = KeySignatureDefinition.getKeySignature(key, firstChord)
+		get() = KeySignatureDefinition.getKeySignature(key, firstChord, capo)
 			?.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)
 
 	companion object {
@@ -112,6 +114,7 @@ class SongFile(
 		private const val RATING_ATTRIBUTE = "rating"
 		private const val YEAR_ATTRIBUTE = "year"
 		private const val ICON_ATTRIBUTE = "icon"
+		private const val CAPO_ATTRIBUTE = "capo"
 		private const val FIRST_CHORD_ATTRIBUTE = "firstChord"
 
 		private const val IMAGE_FILES_TAG = "imageFiles"
@@ -137,6 +140,7 @@ class SongFile(
 				val linesString = element.getAttribute(LINES_ATTRIBUTE)
 				val barsString = element.getAttribute(BARS_ATTRIBUTE)
 				val bpmString = element.getAttribute(BPM_ATTRIBUTE)
+				val capoString = element.getAttribute(CAPO_ATTRIBUTE)
 				val durationString = element.getAttribute(DURATION_ATTRIBUTE)
 				val totalPausesString = element.getAttribute(TOTAL_PAUSES_ATTRIBUTE)
 				val filterOnlyString = element.getAttribute(FILTER_ONLY_ATTRIBUTE)
@@ -158,6 +162,7 @@ class SongFile(
 					val totalPauses = totalPausesString.toLong()
 					val filterOnly = filterOnlyString.toBoolean()
 					val rating = ratingString.toInt()
+					val capo = capoString?.toInt() ?: 0
 					val year = yearString?.toInt()
 
 					val tags = getStringsFromElement(element, TAGS_TAG).toSet()
@@ -200,6 +205,7 @@ class SongFile(
 						variations,
 						chords,
 						firstChord,
+						capo,
 						listOf()
 					)
 				} catch (_: NumberFormatException) {

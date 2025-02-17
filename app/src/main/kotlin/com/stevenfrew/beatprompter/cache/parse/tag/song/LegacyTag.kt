@@ -33,7 +33,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 	"column_break",
 	"colb",
 	"pagetype",
-	"capo",
 	"zoom-android",
 	"zoom",
 	"tempo",

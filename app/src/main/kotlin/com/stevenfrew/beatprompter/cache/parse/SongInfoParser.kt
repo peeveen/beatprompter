@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache.parse
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -12,6 +13,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStartTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStopTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.CapoTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CountTag
@@ -72,11 +74,17 @@ import org.w3c.dom.Element
 	VariationsTag::class,
 	ChordTag::class,
 	YearTag::class,
-	IconTag::class
+	IconTag::class,
+	CapoTag::class
 )
 @IgnoreTags(
-	LegacyTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,
-	StartOfHighlightTag::class, EndOfHighlightTag::class
+	LegacyTag::class,
+	SendMIDIClockTag::class,
+	CommentTag::class,
+	CountTag::class,
+	StartOfHighlightTag::class,
+	EndOfHighlightTag::class,
+	ActivateMidiAliasesTag::class
 )
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
@@ -86,6 +94,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private var title: String? = null
 	private var artist: String? = null
 	private var key: String? = null
+	private var capo: Int = 0
 	private var bpm: Double = 0.0
 	private var bars: Int = 0
 	private var beats: Int = 0
@@ -139,6 +148,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val ratingTag = tagSequence.filterIsInstance<RatingTag>().firstOrNull()
 		val yearTag = tagSequence.filterIsInstance<YearTag>().firstOrNull()
 		val iconTag = tagSequence.filterIsInstance<IconTag>().firstOrNull()
+		val capoTag = tagSequence.filterIsInstance<CapoTag>().firstOrNull()
 
 		if (titleTag != null)
 			title = titleTag.title
@@ -181,6 +191,9 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		if (iconTag != null)
 			icon = iconTag.icon
 
+		if (capoTag != null)
+			capo = capoTag.value
+
 		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTags.any()) {
 			bars += currentLineBeatInfo.bpl
 			beats += currentLineBeatInfo.beats
@@ -204,7 +217,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 				bars,
 				title!!,
 				artist ?: "",
-				key ?: firstChord,
+				key,
 				bpm,
 				duration,
 				mixedModeVariations.toList(),
@@ -223,6 +236,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 				if (variations.isEmpty()) listOf("Default") else variations,
 				chords,
 				firstChord,
+				capo,
 				errors
 			)
 }

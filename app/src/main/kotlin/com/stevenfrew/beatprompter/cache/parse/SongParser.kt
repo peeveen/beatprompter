@@ -18,6 +18,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStartTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStopTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.CapoTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordMapTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
@@ -133,6 +134,7 @@ import kotlin.math.roundToInt
 	KeyTag::class,
 	RatingTag::class,
 	TagTag::class,
+	CapoTag::class,
 	YearTag::class,
 	IconTag::class,
 	FilterOnlyTag::class
