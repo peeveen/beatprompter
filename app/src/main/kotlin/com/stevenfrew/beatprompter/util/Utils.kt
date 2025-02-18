@@ -110,7 +110,6 @@ object Utils {
 			}
 			throw nfe
 		}
-
 	}
 
 	fun streamToStream(inStream: InputStream, outStream: OutputStream) {
@@ -149,4 +148,77 @@ object Utils {
 				listener.onProgressMessageReceived(message)
 			}
 		}
+
+	private fun getReachableCitiesAndDistances(
+		currentCity: Int,
+		currentResults: Map<Int, List<Pair<Int, Int>>>,
+		edges: List<IntArray>,
+		distanceThreshold: Int
+	): List<Pair<Int, Int>> {
+		val (edgesToOrFromThisCity, otherEdges) =
+			edges.partition { it[0] == currentCity || it[1] == currentCity }
+		// Cities we can reach directly.
+		val directTraversals =
+			edgesToOrFromThisCity.filter { it[2] <= distanceThreshold }
+				.map { Pair(if (it[1] == currentCity) it[0] else it[1], it[2]) }
+		println("Direct traversals from $currentCity = ${directTraversals.count()}")
+		// Cities we ALREADY KNOW we can reach based on previous results.
+		val traversalsFromResults =
+			currentResults.flatMap { currentResult ->
+				currentResult.value.filter { it.first == currentCity }.map {
+					Pair(
+						currentResult.key,
+						it.second
+					)
+				}
+			}
+		println("Traversals from results from $currentCity = ${traversalsFromResults.count()}")
+		// Cities we ALREADY KNOW we can reach indirectly based on previous results.
+		val indirectTraversalsFromResults = directTraversals.flatMap { directTraversal ->
+			currentResults[directTraversal.first]?.filter {
+				it.first != currentCity && it.second + directTraversal.second <= distanceThreshold
+			}?.map { Pair(it.first, it.second + directTraversal.second) }
+				?: listOf()
+		}
+		println("Indirect traversals from results from $currentCity = ${indirectTraversalsFromResults.count()}")
+		// Cities we can reach indirectly by calculation.
+		val indirectTraversals = directTraversals.flatMap {
+			if (distanceThreshold - it.second > 0)
+				getReachableCitiesAndDistances(
+					it.first,
+					currentResults,
+					otherEdges,
+					distanceThreshold - it.second
+				)
+			else listOf()
+		}
+		println("Indirect traversals from $currentCity = ${indirectTraversals.count()}")
+		return listOf(
+			directTraversals,
+			traversalsFromResults,
+			indirectTraversalsFromResults,
+			indirectTraversals
+		).flatten()
+	}
+
+	fun findTheCity(n: Int, edges: Array<IntArray>, distanceThreshold: Int): Int =
+		// Key is city number, value is list of tuples (reachable city number, and distance to it)
+		mutableMapOf<Int, List<Pair<Int, Int>>>().let { results ->
+			edges.toList().let { edgesList ->
+				((n - 1).downTo(0))
+					.fold(results) { acc, city ->
+						acc.also {
+							it[city] =
+								getReachableCitiesAndDistances(
+									city,
+									acc,
+									// Get rid of edges that will already have been traversed in earlier results.
+									edgesList.filter { edge -> edge[0] <= city && edge[1] <= city },
+									distanceThreshold
+								)
+							println("Reachable from $city = ${it[city]?.distinctBy { x -> x.first }?.count()}")
+						}
+					}
+			}
+		}.minBy { kvp -> kvp.value.distinctBy { it.first }.count() }.key
 }
