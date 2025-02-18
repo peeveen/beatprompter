@@ -2,6 +2,8 @@ package com.stevenfrew.beatprompter.comm
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
+import com.stevenfrew.beatprompter.events.EventRouter
+import com.stevenfrew.beatprompter.events.Events
 
 class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 	private val senders = mutableListOf<Sender>()
@@ -22,7 +24,7 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 							groupedMessages[senders[f].messageType]?.also {
 								senders[f].send(it)
 							}
-						} catch (commException: Exception) {
+						} catch (_: Exception) {
 							// Problem with the I/O? This sender is now dead to us.
 							Logger.logComms("Sender threw an exception. Assuming it to be dead.")
 							removeSender(senders[f].name)
@@ -36,19 +38,19 @@ class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
 
 	fun addSender(id: String, sender: Sender) =
 		synchronized(sendersLock) {
-			Logger.logComms { "Adding new sender '$id' (${sender.name}) to the collection" }
+			Logger.logComms({ "Adding new sender '$id' (${sender.name}) to the collection" })
 			senders.add(sender)
 		}
 
 	fun removeSender(id: String) =
 		getSender(id)?.also { sender ->
-			Logger.logComms { "Removing sender '$id' from the collection" }
+			Logger.logComms({ "Removing sender '$id' from the collection" })
 			closeSender(sender)
-			Logger.logComms { "Sender '$id' has been closed." }
+			Logger.logComms({ "Sender '$id' has been closed." })
 			synchronized(sendersLock) {
 				senders.removeAll { it.name == id }
 			}
-			Logger.logComms { "Sender '$id' is now dead ... notifying main activity for UI." }
+			Logger.logComms({ "Sender '$id' is now dead ... notifying main activity for UI." })
 			EventRouter.sendEventToSongList(Events.CONNECTION_LOST, sender.name)
 		}
 
