@@ -12,7 +12,10 @@ Versions prior to 1.70 are not listed.
 	on it.
 - Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
 	- Also added corresponding "Show capo setting on title screen" preference.
-- Added ability to pull tabs and chords from Ultimate Guitar.
+- No longer notifies you of each device disconnection twice (this was happening because, for most
+	devices, there is an output and an input virtual device, and they are treated separately). Any
+	identical connection/disconnection notification message that is received within one second of
+	another is now ignored.
 
 ## 1.77
 
