@@ -47,7 +47,7 @@ import javax.xml.transform.stream.StreamResult
 import kotlin.io.path.pathString
 
 object TestUtils {
-	internal fun setMocks() {
+	init {
 		BeatPrompter.appResources = MockGlobalAppResources()
 		BeatPrompter.preferences = MockPreferences()
 		BeatPrompter.platformUtils = MockPlatformUtils()

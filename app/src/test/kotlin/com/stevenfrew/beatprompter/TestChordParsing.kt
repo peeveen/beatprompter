@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
 
 class TestChordParsing {
 	init {
-		TestUtils.setMocks()
+		TestUtils
 	}
 
 	@Test

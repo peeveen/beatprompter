@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class TestSongParsing {
 	init {
-		TestUtils.setMocks()
+		TestUtils
 	}
 
 	@Test
