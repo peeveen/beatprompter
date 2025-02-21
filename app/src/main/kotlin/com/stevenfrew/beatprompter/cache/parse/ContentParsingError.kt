@@ -6,7 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.Tag
 /**
  * A description of a parsing error that can be shown to the user.
  */
-class FileParseError private constructor(val lineNumber: Int, val message: String) {
+class ContentParsingError private constructor(val lineNumber: Int, val message: String) {
 
 	internal constructor(lineNumber: Int, resourceId: Int, vararg args: Any)
 		: this(lineNumber, BeatPrompter.appResources.getString(resourceId, *args))
@@ -30,7 +30,7 @@ class FileParseError private constructor(val lineNumber: Int, val message: Strin
 	override fun equals(other: Any?): Boolean =
 		if (this === other) true
 		else if (javaClass != other?.javaClass) false
-		else (other as FileParseError).let {
+		else (other as ContentParsingError).let {
 			if (message != other.message)
 				false
 			else if (lineNumber != other.lineNumber)

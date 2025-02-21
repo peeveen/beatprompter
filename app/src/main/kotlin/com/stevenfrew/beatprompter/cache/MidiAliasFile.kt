@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
 
 @CacheXmlTag("midialiases")
@@ -10,5 +10,5 @@ import com.stevenfrew.beatprompter.midi.alias.AliasSet
 class MidiAliasFile internal constructor(
 	cachedFile: CachedFile,
 	val aliasSet: AliasSet,
-	errors: List<FileParseError>
+	errors: List<ContentParsingError>
 ) : CachedTextFile(cachedFile, errors)

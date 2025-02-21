@@ -191,7 +191,7 @@ class SongView
 	fun init(songDisplayActivity: SongDisplayActivity, song: Song) {
 		this.songDisplayActivity = songDisplayActivity
 
-		if (song.songFile.bpm > 0.0) {
+		if (song.songInfo.bpm > 0.0) {
 			val metronomeOnPref = metronomePref == MetronomeContext.On
 			val metronomeOnWhenNoBackingTrackPref = metronomePref == MetronomeContext.OnWhenNoTrack
 			// We switch the metronome on (full time) if the pref says "on"
@@ -252,7 +252,7 @@ class SongView
 			initialized = true
 			if (manualMode) {
 				if (metronomeOn) {
-					manualMetronomeTask = ManualMetronomeTask(songFile.bpm)
+					manualMetronomeTask = ManualMetronomeTask(songInfo.bpm)
 					manualMetronomeThread = Thread(manualMetronomeTask).apply { start() }
 				}
 			}
@@ -796,8 +796,8 @@ class SongView
 			song?.apply {
 				Bluetooth.putMessage(
 					QuitSongMessage(
-						songFile.normalizedTitle,
-						songFile.normalizedArtist
+						songInfo.normalizedTitle,
+						songInfo.normalizedArtist
 					)
 				)
 				recycleGraphics()
@@ -861,7 +861,7 @@ class SongView
 	internal val activeMidiAliasSets: Set<AliasSet> get() = song?.activeMidiAliasSets ?: setOf()
 
 	fun hasSong(title: String, artist: String): Boolean =
-		song?.songFile?.normalizedArtist == artist && song?.songFile?.normalizedTitle == title
+		song?.songInfo?.normalizedArtist == artist && song?.songInfo?.normalizedTitle == title
 
 	private fun processPauseEvent(event: PauseEvent) {
 		lastBeatTime = -1

@@ -6,6 +6,7 @@ import com.stevenfrew.beatprompter.cache.parse.InvalidBeatPrompterFileException
 import com.stevenfrew.beatprompter.cache.parse.MidiAliasFileParser
 import com.stevenfrew.beatprompter.cache.parse.SetListFileParser
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
+import com.stevenfrew.beatprompter.cache.parse.TextContentProvider
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -16,7 +17,7 @@ import java.util.Date
  * A description of a cached storage file. Basically a file on the filesystem, and relevant info about
  * it's source.
  */
-open class CachedFile : CachedItem {
+open class CachedFile : CachedItem, TextContentProvider {
 	val file: File
 	val lastModified: Date
 	val contentHash: String
@@ -84,4 +85,6 @@ open class CachedFile : CachedItem {
 				}
 			}
 	}
+
+	override fun getContent(): String = file.readText()
 }

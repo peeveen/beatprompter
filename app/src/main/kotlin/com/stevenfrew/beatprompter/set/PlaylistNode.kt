@@ -1,12 +1,13 @@
 package com.stevenfrew.beatprompter.set
 
-import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.song.SongInfoProvider
+import com.stevenfrew.beatprompter.ui.UltimateGuitarListItem
 
 data class PlaylistNode(
-	val songFile: SongFile,
+	override val songInfo: SongInfo,
 	val variation: String? = null,
 	val nextSong: PlaylistNode? = null
 ) : SongInfoProvider {
-	override val songInfo = songFile
+	constructor(ugListItem: UltimateGuitarListItem) : this(ugListItem, null, null)
 }

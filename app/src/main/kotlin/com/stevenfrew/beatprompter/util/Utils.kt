@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.util
 import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AlertDialog
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,6 +32,10 @@ object Utils {
 			mSineLookup[it] = sin(radians)
 		}
 	}
+
+	private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
+
+	fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
 
 	fun showExceptionDialog(t: Throwable, context: Context) =
 		showMessageDialog(t.message ?: "<unknown>", R.string.errorTitle, context)

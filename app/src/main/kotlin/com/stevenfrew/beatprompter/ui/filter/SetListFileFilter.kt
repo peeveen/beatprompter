@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter.ui.filter
 
 import com.stevenfrew.beatprompter.cache.SetListFile
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.set.SetListEntry
+import com.stevenfrew.beatprompter.song.SongInfo
 
 open class SetListFileFilter(
 	var setListFile: SetListFile,
-	setSongs: List<SongFile>
+	setSongs: List<SongInfo>
 ) : SetListFilter(setListFile.setTitle, getSongList(setListFile.setListEntries, setSongs)) {
 	var mMissingSetListEntries = getMissingSetListEntries(
 		setListFile.setListEntries,
@@ -17,8 +17,8 @@ open class SetListFileFilter(
 	companion object {
 		private fun getSongList(
 			setListEntries: List<SetListEntry>,
-			songFiles: List<SongFile>
-		): List<Pair<SongFile, String?>> =
+			songFiles: List<SongInfo>
+		): List<Pair<SongInfo, String?>> =
 			getMatches(setListEntries, songFiles)
 				.filter { it.second != null || it.third != null }
 				.map {
@@ -28,7 +28,7 @@ open class SetListFileFilter(
 
 		private fun getMissingSetListEntries(
 			setListEntries: List<SetListEntry>,
-			songFiles: List<SongFile>
+			songFiles: List<SongInfo>
 		): MutableList<SetListEntry> =
 			getMatches(setListEntries, songFiles)
 				.filter { it.second == null && it.third == null }
@@ -37,8 +37,8 @@ open class SetListFileFilter(
 
 		private fun getMatches(
 			setListEntries: List<SetListEntry>,
-			songFiles: List<SongFile>
-		): List<Triple<SetListEntry, SongFile?, SongFile?>> =
+			songFiles: List<SongInfo>
+		): List<Triple<SetListEntry, SongInfo?, SongInfo?>> =
 			setListEntries.map { entry ->
 				val exactMatch =
 					songFiles.firstOrNull { song ->
@@ -55,7 +55,7 @@ open class SetListFileFilter(
 				Triple(entry, exactMatch, inexactMatch)
 			}
 
-		private fun songHasVariation(song: SongFile, variation: String): Boolean =
+		private fun songHasVariation(song: SongInfo, variation: String): Boolean =
 			variation.isBlank() || song.variations.contains(variation)
 	}
 }

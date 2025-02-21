@@ -15,7 +15,7 @@ import kotlin.coroutines.CoroutineContext
 
 class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 	private val handler = SongLoadJobEventHandler()
-	private val cancelEvent = SongLoadCancelEvent(songLoadInfo.songFile.title)
+	private val cancelEvent = SongLoadCancelEvent(songLoadInfo.songInfo.title)
 	private val coRoutineJob = Job()
 
 	override val coroutineContext: CoroutineContext
@@ -28,7 +28,7 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 			launch {
 				System.gc()
 				try {
-					Logger.logLoader({ "Starting to load '${songLoadInfo.songFile.title}'." })
+					Logger.logLoader({ "Starting to load '${songLoadInfo.songInfo.title}'." })
 					val loadedSong =
 						SongParser(songLoadInfo, Cache.supportFileResolver, cancelEvent, handler).parse()
 					if (cancelEvent.isCancelled)

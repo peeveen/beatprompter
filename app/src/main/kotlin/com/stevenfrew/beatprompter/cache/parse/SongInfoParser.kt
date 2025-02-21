@@ -89,8 +89,8 @@ import org.w3c.dom.Element
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser(cachedCloudFile: CachedFile) :
-	SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, null, false) {
+class SongInfoParser(private val cachedCloudFile: CachedFile) :
+	SongContentParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, null, false) {
 	private var title: String? = null
 	private var artist: String? = null
 	private var key: String? = null

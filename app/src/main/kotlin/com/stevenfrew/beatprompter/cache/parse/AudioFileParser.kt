@@ -10,7 +10,7 @@ import org.w3c.dom.Element
 /**
  * "Parses" audio files. Basically validates that the file IS ACTUALLY an audio file.
  */
-class AudioFileParser(cachedCloudFile: CachedFile) : FileParser<AudioFile>(cachedCloudFile) {
+class AudioFileParser(private val cachedCloudFile: CachedFile) : ContentParser<AudioFile>() {
 	override fun parse(element: Element?): AudioFile =
 		try {
 			// Try to read the length of the track. If it fails, it's not an audio file.

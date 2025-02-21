@@ -39,8 +39,8 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 /**
  * Parser for MIDI alias files.
  */
-class MidiAliasFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<MidiAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
+class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
+	TextContentParser<MidiAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
 	private var isCommand: Boolean = false
@@ -68,7 +68,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				.firstOrNull()
 				?.also {
 					if (aliasSetName != null)
-						addError(FileParseError(it, R.string.midi_alias_set_name_defined_multiple_times))
+						addError(ContentParsingError(it, R.string.midi_alias_set_name_defined_multiple_times))
 					else {
 						aliasSetName = it.aliasSetName
 						useByDefault = it.useByDefault
@@ -98,7 +98,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (aliasSetName.isNullOrBlank())
-			addError(FileParseError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
+			addError(ContentParsingError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
 		else if (currentAliasName == null)
 			currentAliasName = aliasNameTag.aliasName
 		else {
@@ -106,7 +106,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			isCommand = false
 			currentAliasName = aliasNameTag.aliasName
 			if (currentAliasName.isNullOrBlank()) {
-				addError(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
+				addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))
 				currentAliasName = null
 			}
 		}
@@ -114,9 +114,9 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 
 	private fun addInstructionToCurrentAlias(instructionTag: MidiAliasInstructionTag) {
 		if (aliasSetName.isNullOrBlank())
-			addError(FileParseError(instructionTag, R.string.no_midi_alias_set_name_defined))
+			addError(ContentParsingError(instructionTag, R.string.no_midi_alias_set_name_defined))
 		else if (currentAliasName == null)
-			addError(FileParseError(instructionTag, R.string.no_midi_alias_name_defined))
+			addError(ContentParsingError(instructionTag, R.string.no_midi_alias_name_defined))
 		else
 			currentAliasComponents.add(createAliasComponent(instructionTag))
 	}
@@ -133,13 +133,13 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			if (currentAliasComponents.isNotEmpty()) {
 				val hasArguments = currentAliasComponents.any { it.parameterCount > 0 }
 				if (hasArguments && withMidiSet) {
-					addError(FileParseError(R.string.cannot_use_with_midi_with_parameters))
+					addError(ContentParsingError(R.string.cannot_use_with_midi_with_parameters))
 					withMidiStart = false
 					withMidiContinue = false
 					withMidiStop = false
 				}
 				if (hasArguments && isCommand) {
-					addError(FileParseError(R.string.cannot_use_midi_command_with_parameters))
+					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
 					isCommand = false
 				}
 				aliases.add(
@@ -157,7 +157,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				withMidiContinue = false
 				withMidiStop = false
 			} else
-				addError(FileParseError(R.string.midi_alias_has_no_components, it))
+				addError(ContentParsingError(R.string.midi_alias_has_no_components, it))
 		}
 
 	private fun createAliasComponent(tag: MidiAliasInstructionTag): AliasComponent {
@@ -169,7 +169,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
 				componentArgs.add(aliasValue)
 			} catch (mte: MalformedTagException) {
-				addError(FileParseError(tag, mte))
+				addError(ContentParsingError(tag, mte))
 			}
 		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
@@ -177,12 +177,12 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			0 -> defaultChannel
 			1 -> channelArgs.first().also {
 				if (componentArgs.last() != it)
-					addError(FileParseError(tag, R.string.channel_must_be_last_parameter))
+					addError(ContentParsingError(tag, R.string.channel_must_be_last_parameter))
 				componentArgs.remove(it)
 			}
 
 			else -> {
-				addError(FileParseError(tag, R.string.multiple_channel_args))
+				addError(ContentParsingError(tag, R.string.multiple_channel_args))
 				defaultChannel
 			}
 		}

@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
@@ -21,7 +20,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.UUID
 
 class Song(
-	val songFile: SongFile,
+	val songInfo: SongInfo,
 	val displaySettings: DisplaySettings,
 	firstEvent: LinkedEvent,
 	private val lines: List<Line>,

@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter.cache.parse.tag
 
 import com.stevenfrew.beatprompter.cache.parse.IgnoreTags
 import com.stevenfrew.beatprompter.cache.parse.ParseTags
-import com.stevenfrew.beatprompter.cache.parse.TextFileParser
+import com.stevenfrew.beatprompter.cache.parse.TextContentParser
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -11,7 +11,7 @@ import kotlin.reflect.full.findAnnotation
  * Collects all tag parsing metadata into one place (well, three places).
  * We could do all this work each time we reach a tag, but this saves a lot of processing.
  */
-class TagParsingHelper<FileResultType>(parser: TextFileParser<FileResultType>) {
+class TagParsingHelper<FileResultType>(parser: TextContentParser<FileResultType>) {
 	val nameToClassMap: Map<Pair<Type, String>, KClass<out Tag>>
 	val noNameToClassMap: Map<Type, KClass<out Tag>>
 	val ignoreTagNames: List<String>

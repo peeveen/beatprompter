@@ -5,6 +5,8 @@ import android.graphics.RectF
 import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbInterface
+import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -106,6 +108,14 @@ fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TRes
 			}
 		}
 	}
+
+val SongInfo.bestScrollingMode: ScrollingMode
+	get() =
+		when {
+			isBeatScrollable -> ScrollingMode.Beat
+			isSmoothScrollable -> ScrollingMode.Smooth
+			else -> ScrollingMode.Manual
+		}
 
 fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 	val interfaceCount = interfaceCount

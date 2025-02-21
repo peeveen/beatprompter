@@ -2,7 +2,6 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.parse.tag.find.ChordFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
 import com.stevenfrew.beatprompter.cache.parse.tag.find.ShorthandFinder
@@ -26,14 +25,14 @@ import com.stevenfrew.beatprompter.song.ScrollingMode
 /**
  * Base class for song file parsing.
  */
-abstract class SongFileParser<TResultType>(
-	cachedCloudFile: CachedFile,
+abstract class SongContentParser<TResultType>(
+	contentProvider: TextContentProvider,
 	initialScrollMode: ScrollingMode,
 	private val allowModeChange: Boolean,
 	protected val variation: String?,
 	reportUnexpectedTags: Boolean
-) : TextFileParser<TResultType>(
-	cachedCloudFile,
+) : TextContentParser<TResultType>(
+	contentProvider,
 	reportUnexpectedTags,
 	BeatPrompter.preferences.useUnicodeEllipsis,
 	BeatPrompter.preferences.trimTrailingPunctuation,
@@ -74,7 +73,7 @@ abstract class SongFileParser<TResultType>(
 		val unknownNamedVariations = namedVariations.subtract(variations.toSet())
 		if (unknownNamedVariations.any())
 			addError(
-				FileParseError(
+				ContentParsingError(
 					line.lineNumber,
 					R.string.unknownVariations,
 					unknownNamedVariations.joinToString(", ")
@@ -116,7 +115,7 @@ abstract class SongFileParser<TResultType>(
 					variationAudioTags[it] = mutableListOf()
 				}
 			} else
-				addError(FileParseError(line.lineNumber, R.string.variationsAlreadyDefined))
+				addError(ContentParsingError(line.lineNumber, R.string.variationsAlreadyDefined))
 		}
 
 		// Each audio file defined on a line now maps to a variation.
@@ -161,7 +160,7 @@ abstract class SongFileParser<TResultType>(
 		thisScrollBeatTotalOffset += scrollBeatTagDiff
 
 		if ((beatsPerBarInThisLine != 0) && (thisScrollBeatTotalOffset < -beatsPerBarInThisLine || thisScrollBeatTotalOffset >= beatsPerBarInThisLine)) {
-			addError(FileParseError(line.lineNumber, R.string.scrollbeatOffTheMap))
+			addError(ContentParsingError(line.lineNumber, R.string.scrollbeatOffTheMap))
 			thisScrollBeatTotalOffset = 0
 		}
 
@@ -174,7 +173,7 @@ abstract class SongFileParser<TResultType>(
 			if (allowModeChange && beatModeTags.size == 1)
 				if (beatStartTags.isNotEmpty())
 					if (ongoingBeatInfo.bpm == 0.0) {
-						addError(FileParseError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
+						addError(ContentParsingError(beatStartTags.first(), R.string.beatstart_with_no_bpm))
 						lastLineBeatInfo.scrollMode
 					} else
 						ScrollingMode.Beat
@@ -231,7 +230,7 @@ abstract class SongFileParser<TResultType>(
 			variationAudioTags[filename] = mutableListOf()
 			return listOf(filename)
 		}
-		addError(FileParseError(lineNumber, R.string.tooManyAudioTags))
+		addError(ContentParsingError(lineNumber, R.string.tooManyAudioTags))
 		return null
 	}
 

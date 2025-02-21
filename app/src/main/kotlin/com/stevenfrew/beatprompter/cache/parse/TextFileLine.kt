@@ -12,7 +12,7 @@ open class TextFileLine<TFileType>(
 	line: String,
 	val lineNumber: Int,
 	tagParseHelper: TagParsingHelper<TFileType>,
-	parser: TextFileParser<TFileType>,
+	parser: TextContentParser<TFileType>,
 	private val useUnicodeEllipsis: Boolean,
 	private val trimTrailingPunctuation: Boolean
 ) {
@@ -33,7 +33,7 @@ open class TextFileLine<TFileType>(
 		if (currentLine.length > MAX_LINE_LENGTH) {
 			currentLine = currentLine.substring(0, MAX_LINE_LENGTH)
 			parser.addError(
-				FileParseError(
+				ContentParsingError(
 					lineNumber,
 					R.string.lineTooLong,
 					lineNumber,
@@ -54,7 +54,7 @@ open class TextFileLine<TFileType>(
 				if (tag != null)
 					tagCollection.add(tag)
 			} catch (mte: MalformedTagException) {
-				parser.addError(FileParseError(lineNumber, mte))
+				parser.addError(ContentParsingError(lineNumber, mte))
 			}
 			currentLine = lineWithoutTag.trim()
 		}

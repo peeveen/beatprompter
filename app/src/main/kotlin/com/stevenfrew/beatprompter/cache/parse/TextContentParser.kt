@@ -1,7 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.parse.tag.EndedBy
 import com.stevenfrew.beatprompter.cache.parse.tag.LineExclusive
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
@@ -24,19 +23,20 @@ import kotlin.reflect.full.primaryConstructor
 /**
  * Base class for text file parsers.
  */
-abstract class TextFileParser<TFileResult>(
-	cachedCloudFile: CachedFile,
+abstract class TextContentParser<TFileResult>(
+	private val contentProvider: TextContentProvider,
 	private val reportUnexpectedTags: Boolean,
 	private val useUnicodeEllipsis: Boolean,
 	private val trimTrailingPunctuation: Boolean,
 	private vararg val tagFinders: TagFinder
-) : FileParser<TFileResult>(cachedCloudFile) {
+) : ContentParser<TFileResult>() {
 	override fun parse(element: Element?): TFileResult {
 		val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
 		var lineNumber = 0
 		val fileTags = mutableSetOf<KClass<out Tag>>()
 		val livePairings = mutableSetOf<Pair<KClass<out Tag>, KClass<out Tag>>>()
-		cachedCloudFile.file.forEachLine { strLine ->
+		val content: String = contentProvider.getContent()
+		content.split('\r', '\n').forEach { strLine ->
 			++lineNumber
 			val txt = strLine.trim().removeControlCharacters()
 
@@ -63,16 +63,16 @@ abstract class TextFileParser<TFileResult>(
 					fileTags.add(tagClass)
 					lineTags.add(tagClass)
 					if (isOncePerFile && alreadyUsedInFile)
-						addError(FileParseError(tag, R.string.tag_used_multiple_times_in_file, tag.name))
+						addError(ContentParsingError(tag, R.string.tag_used_multiple_times_in_file, tag.name))
 					if (isOncePerLine && alreadyUsedInLine)
-						addError(FileParseError(tag, R.string.tag_used_multiple_times_in_line, tag.name))
+						addError(ContentParsingError(tag, R.string.tag_used_multiple_times_in_line, tag.name))
 					if (startedByAnnotation != null) {
 						val startedByClass = startedByAnnotation.startedBy
 						val startedByEndedByAnnotation = startedByClass.findAnnotation<EndedBy>()!!
 						val endedByClass = startedByEndedByAnnotation.endedBy
 						if (!livePairings.remove(startedByClass to endedByClass))
 							addError(
-								FileParseError(
+								ContentParsingError(
 									tag,
 									R.string.ending_tag_found_before_starting_tag,
 									tag.name
@@ -85,7 +85,7 @@ abstract class TextFileParser<TFileResult>(
 						val pairing = startedByClass to endedByClass
 						if (livePairings.contains(pairing))
 							addError(
-								FileParseError(
+								ContentParsingError(
 									tag,
 									R.string.starting_tag_found_after_starting_tag,
 									tag.name
@@ -97,7 +97,7 @@ abstract class TextFileParser<TFileResult>(
 					lineExclusiveTags.forEach {
 						if (lineTags.contains(it.cannotShareWith))
 							addError(
-								FileParseError(
+								ContentParsingError(
 									tag, R.string.tag_cant_share_line_with,
 									tag.name,
 									it.cannotShareWith.findAnnotation<TagName>()!!.names.first()
