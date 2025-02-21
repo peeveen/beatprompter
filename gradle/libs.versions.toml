@@ -68,7 +68,7 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 play-services-plus = { module = "com.google.android.gms:play-services-plus", version.ref = "playServicesPlus" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
-ultimateguitar = { group = "com.stevenfrew", name = "ultimateguitar", version.ref = "ultimateGuitar" }
+ultimateguitar = { group = "com.github.peeveen", name = "ultimateguitar", version.ref = "ultimateGuitar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
