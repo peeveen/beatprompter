@@ -4,6 +4,7 @@ Versions prior to 1.70 are not listed.
 
 ## 1.78
 
+- Added Ultimate Guitar chord/lyrics filter.
 - Added optional `active_by_default` true/false argument to the `{midi_aliases}` tag, allowing
 	for sets of MIDI aliases to be inactive by default, but activated on a per-song (or per-variation)
 	basis using a new `{activate_midi_aliases:set_name}` song tag.

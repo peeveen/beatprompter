@@ -80,7 +80,6 @@ object TestUtils {
 		songFileValidator?.invoke(parsedSongFile)
 		val songLoadInfo = SongLoadInfo(
 			parsedSongFile,
-			parsedSongFile,
 			parsedSongFile.variations.first(),
 			scrollingMode,
 			TestDisplaySettings,

@@ -27,7 +27,8 @@ Before using the BeatPrompter app, you will probably need to do a few things.
 
 1. You cannot use BeatPrompter without some song files to play, so before going any further, you
 	 should get some, or create some. They can be created with any text editor. If you want some demo
-	 files to play with, try [here](../demo_files/).
+	 files to play with, try [here](../demo_files/). You could also use the Ultimate Guitar lookup
+	 filter, but as you probably know, the chords/lyrics on UG are of __varying__ quality.
 
 2. If you are coming to BeatPrompter with an existing library of ChordPro song files, then you will
 	 probably want to update those files with some BeatPrompter-specific tags. To see the full list of
@@ -537,6 +538,27 @@ skip the current song by clicking on this section.
 You can compile a temporary set list by long-pressing on songs and choosing “Add to temporary set
 list”. The set list called “Temporary” will then appear in the dropdown list. A long-press on any of
 the songs in the Temporary set list will give you the option to clear the temporary setlist.
+
+## Ultimate Guitar
+
+In the filters list, you will find a filter for content
+from [Ultimate Guitar](https://www.ultimate-guitar.com).
+This will show as an empty list until you search for something, at which point, it will pull back
+search results from the Ultimate Guitar website. Only the first page of search results from UG is
+displayed.
+
+You can then select any of those search results to load the lyrics and chords directly from the
+UG website.
+
+There are several limitations to the content that Ultimate Guitar provides:
+
+1) Songs from UG don't contain any timing information, so you can only display the songs in
+	 manual mode.
+2) Ultimate Guitar does not use the ChordPro format, so there is no particularly strict
+	 definition of what a song should look like. To display them in BeatPrompter, the content is first
+	 automatically converted to ChordPro. However, random comments, section indicators, etc, will
+	 probably appear on your screen as part of the song. If this bothers you, copy the content from
+	 UG and create your own nice-looking ChordPro version.
 
 ## Version History
 
