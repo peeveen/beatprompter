@@ -83,6 +83,7 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.SongFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
+import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
@@ -148,6 +149,8 @@ class SongListFragment
 				BeatPrompter.appResources.getString(R.string.executed_midi_command, alias.name),
 				Toast.LENGTH_SHORT
 			).show()
+		} else if (selectedFilter is UltimateGuitarFilter) {
+			// TODO UG
 		} else {
 			val songToLoad = filterPlaylistNodes(playlist)[position]
 			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songFile))
@@ -806,6 +809,8 @@ class SongListFragment
 					filterMidiCommands(Cache.cachedCloudItems.midiCommands),
 					it
 				)
+			else if (selectedFilter is UltimateGuitarFilter)
+				UltimateGuitarListAdapter(it)
 			else
 				SongListAdapter(
 					filterPlaylistNodes(playlist),
@@ -872,10 +877,13 @@ class SongListFragment
 
 		// Same thing for MIDI commands ... if there aren't any, don't bother creating a filter.
 		val midiCommandsFilter =
-			if (cache.midiCommands.count() != 0)
+			if (cache.midiCommands.isNotEmpty())
 				MidiCommandsFilter()
 			else
 				null
+
+		// Add the UG filter.
+		val ultimateGuitarFilter = UltimateGuitarFilter()
 
 		// Now bundle them altogether into one list.
 		filters = listOf(
@@ -883,7 +891,8 @@ class SongListFragment
 			tempSetListFilter,
 			tagAndFolderFilters,
 			midiAliasFilesFilter,
-			midiCommandsFilter
+			midiCommandsFilter,
+			ultimateGuitarFilter
 		)
 			.flattenAll()
 			.filterIsInstance<Filter>()
@@ -1136,6 +1145,9 @@ class SongListFragment
 		aliases.filter {
 			searchText.isBlank() || it.name.contains(searchText)
 		}.sortedBy { it.name }
+
+	// TODO UG
+	private fun filterUltimateGuitar(): List<String> = listOf()
 
 	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
 		playlist.nodes.filter {

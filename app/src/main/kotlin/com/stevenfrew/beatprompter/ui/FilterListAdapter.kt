@@ -15,6 +15,7 @@ import com.stevenfrew.beatprompter.ui.filter.MidiCommandsFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
+import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
 
 class FilterListAdapter(
 	private val values: List<Filter>,
@@ -50,6 +51,7 @@ class FilterListAdapter(
 				is MidiAliasFilesFilter -> R.drawable.midi
 				is MidiCommandsFilter -> R.drawable.midi
 				is FolderFilter -> R.drawable.ic_folder
+				is UltimateGuitarFilter -> R.drawable.ic_ultimateguitar
 				else -> R.drawable.blank_icon
 			}
 			if (filter is TagFilter) {

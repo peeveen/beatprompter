@@ -38,7 +38,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\steve\Desktop\missing.png" />
+                                                <entry key="imagePath" value="C:\Users\steven.frew\Downloads\ultimate-guitar.png" />
                                                 <entry key="opacityPercent" value="60" />
                                                 <entry key="paddingPercent" value="5" />
                                                 <entry key="trimmed" value="true" />
@@ -78,8 +78,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\steve\Desktop\missing.png" />
-                                      <entry key="outputName" value="ic_missing" />
+                                      <entry key="imageAsset" value="C:\Users\steven.frew\Downloads\ultimate-guitar.png" />
+                                      <entry key="outputName" value="ic_ultimateguitar" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -107,7 +107,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\steven.frew\Desktop\ic_launcher.png" />
+                                                <entry key="imagePath" value="C:\Users\steven.frew\Desktop" />
                                                 <entry key="scalingPercent" value="68" />
                                               </map>
                                             </option>
@@ -332,6 +332,11 @@
                                 </PersistentState>
                               </value>
                             </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>

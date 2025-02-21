@@ -887,5 +887,6 @@ lyrics and [Em]chords in time with a beat.\n
 
 	<string name="no_such_midi_alias_set">Can\'t find a MIDI alias set called \'%1$s\'</string>
 	<string name="executed_midi_command">Sent MIDI command \'%1$s\'</string>
+	<string name="ultimate_guitar" translatable="false">Ultimate Guitar</string>
 
 </resources>
