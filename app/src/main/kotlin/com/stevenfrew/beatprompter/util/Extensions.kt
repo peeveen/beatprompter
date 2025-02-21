@@ -6,6 +6,7 @@ import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbInterface
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -85,9 +86,15 @@ fun List<Any?>.flattenAll(): List<Any?> =
 		}
 	}
 
-fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(params: TParameters) =
+fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(
+	params: TParameters,
+	preExecuteContext: CoroutineDispatcher? = null
+) =
 	launch {
-		onPreExecute()
+		if (preExecuteContext == null)
+			onPreExecute()
+		else
+			withContext(preExecuteContext) { onPreExecute() }
 		withContext(Dispatchers.IO) {
 			try {
 				val result = doInBackground(params) {

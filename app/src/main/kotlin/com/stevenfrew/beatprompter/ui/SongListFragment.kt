@@ -35,6 +35,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
@@ -131,12 +132,13 @@ class SongListFragment
 		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+		val adapter = parent.adapter as ArrayAdapter<*>
 		if (selectedFilter is MidiAliasFilesFilter) {
-			val maf = filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+			val maf = adapter.getItem(position) as MidiAliasFile
 			if (maf.errors.isNotEmpty())
 				showMIDIAliasErrors(maf.errors)
 		} else if (selectedFilter is MidiCommandsFilter) {
-			val alias = filterMidiCommands(Cache.cachedCloudItems.midiCommands)[position]
+			val alias = adapter.getItem(position) as Alias
 			val (messages, _) = alias.resolve(
 				Cache.cachedCloudItems.defaultMidiAliasSet,
 				Cache.cachedCloudItems.midiAliasSets,
@@ -152,7 +154,7 @@ class SongListFragment
 		} else if (selectedFilter is UltimateGuitarFilter) {
 			// TODO UG
 		} else {
-			val songToLoad = filterPlaylistNodes(playlist)[position]
+			val songToLoad = adapter.getItem(position) as PlaylistNode
 			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songFile))
 				playPlaylistNode(songToLoad, false)
 		}
@@ -425,8 +427,9 @@ class SongListFragment
 		}
 	}
 
-	private fun onSongListLongClick(position: Int) {
-		val selectedNode = filterPlaylistNodes(playlist)[position]
+	private fun onSongListLongClick(position: Int, parentAdapterView: AdapterView<*>) {
+		val adapter = parentAdapterView.adapter
+		val selectedNode = adapter.getItem(position) as PlaylistNode
 		val selectedSong = selectedNode.songFile
 		val selectedSet =
 			if (selectedFilter is SetListFileFilter) (selectedFilter as SetListFileFilter).setListFile else null
@@ -619,8 +622,9 @@ class SongListFragment
 		}
 	}
 
-	private fun onMIDIAliasListLongClick(position: Int) {
-		val maf = filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+	private fun onMIDIAliasListLongClick(position: Int, parentAdapterView: AdapterView<*>) {
+		val adapter = parentAdapterView.adapter
+		val maf = adapter.getItem(position) as MidiAliasFile
 		val showErrors = maf.errors.isNotEmpty()
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
@@ -672,9 +676,9 @@ class SongListFragment
 		id: Long
 	): Boolean {
 		if (selectedFilter is MidiAliasFilesFilter)
-			onMIDIAliasListLongClick(position)
+			onMIDIAliasListLongClick(position, parent)
 		else
-			onSongListLongClick(position)
+			onSongListLongClick(position, parent)
 		return true
 	}
 
@@ -798,26 +802,44 @@ class SongListFragment
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
-		requireActivity().let {
-			if (selectedFilter is MidiAliasFilesFilter)
-				MidiAliasListAdapter(
-					filterMidiAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
-					it
-				)
-			else if (selectedFilter is MidiCommandsFilter)
-				MidiCommandListAdapter(
-					filterMidiCommands(Cache.cachedCloudItems.midiCommands),
-					it
-				)
-			else if (selectedFilter is UltimateGuitarFilter)
-				UltimateGuitarListAdapter(it)
-			else
-				SongListAdapter(
-					filterPlaylistNodes(playlist),
-					imageDictionary,
-					missingIconBitmap!!,
-					it
-				)
+		requireActivity().let { context ->
+			when (selectedFilter) {
+				is MidiAliasFilesFilter ->
+					MidiAliasListAdapter(
+						Cache.cachedCloudItems.midiAliasFiles.filter {
+							it.file != Cache.defaultMidiAliasesFile &&
+								(searchText.isBlank() || it.normalizedName.contains(searchText))
+						}.sortedBy { it.name },
+						context
+					)
+
+				is MidiCommandsFilter ->
+					MidiCommandListAdapter(
+						Cache.cachedCloudItems.midiCommands.filter {
+							searchText.isBlank() || it.name.contains(searchText)
+						}.sortedBy { it.name },
+						context
+					)
+
+				is UltimateGuitarFilter ->
+					UltimateGuitarListAdapter(
+						searchText,
+						mutableListOf(),
+						context
+					)
+
+				else ->
+					SongListAdapter(
+						playlist.nodes.filter {
+							searchText.isBlank() ||
+								it.songFile.normalizedArtist.contains(searchText) ||
+								it.songFile.normalizedTitle.contains(searchText)
+						},
+						imageDictionary,
+						missingIconBitmap!!,
+						context
+					)
+			}
 		}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
@@ -1128,33 +1150,15 @@ class SongListFragment
 
 	override fun onQueryTextSubmit(searchText: String?): Boolean = true
 
+	private val queryDebouncer = Debouncer(lifecycleScope)
 	override fun onQueryTextChange(searchText: String?): Boolean {
-		this.searchText = searchText?.lowercase() ?: ""
-		listAdapter = buildListAdapter()
-		updateListView()
+		queryDebouncer.debounce(300L) {
+			this.searchText = searchText?.lowercase() ?: ""
+			listAdapter = buildListAdapter()
+			updateListView()
+		}
 		return true
 	}
-
-	private fun filterMidiAliasFiles(fileList: List<MidiAliasFile>): List<MidiAliasFile> =
-		fileList.filter {
-			it.file != Cache.defaultMidiAliasesFile &&
-				(searchText.isBlank() || it.normalizedName.contains(searchText))
-		}.sortedBy { it.name }
-
-	private fun filterMidiCommands(aliases: List<Alias>): List<Alias> =
-		aliases.filter {
-			searchText.isBlank() || it.name.contains(searchText)
-		}.sortedBy { it.name }
-
-	// TODO UG
-	private fun filterUltimateGuitar(): List<String> = listOf()
-
-	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
-		playlist.nodes.filter {
-			searchText.isBlank() ||
-				it.songFile.normalizedArtist.contains(searchText) ||
-				it.songFile.normalizedTitle.contains(searchText)
-		}
 
 	companion object {
 		var mSongListEventHandler: SongListEventHandler? = null

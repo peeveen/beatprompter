@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -19,35 +20,36 @@ class SongFile(
 	cachedFile: CachedFile,
 	val lines: Int,
 	val bars: Int,
-	val title: String,
-	val artist: String,
+	override val title: String,
+	override val artist: String,
 	val key: String?,
 	val bpm: Double,
 	val duration: Long,
 	val mixedModeVariations: List<String>,
 	val totalPauseDuration: Long,
-	val audioFiles: Map<String, List<String>>,
+	override val audioFiles: Map<String, List<String>>,
 	val imageFiles: List<String>,
 	val tags: Set<String>,
 	val programChangeTrigger: SongTrigger,
 	val songSelectTrigger: SongTrigger,
 	val isFilterOnly: Boolean,
-	val rating: Int,
-	val year: Int?,
-	val icon: String?,
+	override val rating: Int,
+	override val year: Int?,
+	override val icon: String?,
 	val variations: List<String>,
 	val chords: List<String>,
 	val firstChord: String?,
 	val capo: Int,
 	errors: List<FileParseError>
-) : CachedTextFile(cachedFile, errors) {
+) : CachedTextFile(cachedFile, errors), SongInfo {
 	val normalizedArtist = artist.normalize()
 	val normalizedTitle = title.normalize()
 	val sortableArtist = sortableString(artist)
 	val sortableTitle = sortableString(title)
-	val isSmoothScrollable
+	override val isSmoothScrollable
 		get() = duration != 0L
-	val isBeatScrollable
+	override val votes = 0
+	override val isBeatScrollable
 		get() = bpm > 0.0
 	val bestScrollingMode
 		get() = when {
@@ -95,7 +97,7 @@ class SongFile(
 			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
 	}
 
-	val keySignature: String?
+	override val keySignature: String?
 		get() = KeySignatureDefinition.getKeySignature(key, firstChord, capo)
 			?.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)
 

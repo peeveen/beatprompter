@@ -89,6 +89,7 @@ dependencies {
 	implementation libs.androidx.media3.exoplayer
 	implementation libs.androidx.preference.ktx
 	implementation libs.androidx.lifecycle.viewmodel.android
+	implementation libs.ultimateguitar
 
 	// OneDrive
 	implementation "com.microsoft.services.msa:msa-auth:0.8.6@aar"

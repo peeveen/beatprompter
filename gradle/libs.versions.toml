@@ -32,6 +32,7 @@ preferenceKtx = "1.2.1"
 rxjava = "2.2.21"
 junitJupiter = "5.8.2"
 junitVersion = "1.2.1"
+ultimateGuitar = "1.0.0"
 
 [libraries]
 adal = { module = "com.microsoft.aad:adal", version.ref = "adal" }
@@ -67,6 +68,7 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 play-services-plus = { module = "com.google.android.gms:play-services-plus", version.ref = "playServicesPlus" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+ultimateguitar = { group = "com.stevenfrew", name = "ultimateguitar", version.ref = "ultimateGuitar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
