@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.ui
 import android.content.Context
 import android.graphics.Bitmap
 import com.stevenfrew.beatprompter.set.PlaylistNode
+import com.stevenfrew.beatprompter.song.UltimateGuitarSongInfo
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.ultimateguitar.ChordSearcher
@@ -51,7 +52,7 @@ class UltimateGuitarListAdapter(
 		override fun onPostExecute(result: List<TabInfo>) {
 			listItems.clear()
 			if (result.any())
-				listItems.addAll(result.map { PlaylistNode(UltimateGuitarListItem(it)) })
+				listItems.addAll(result.map { PlaylistNode(UltimateGuitarSongInfo(it)) })
 			else
 				listItems.add(NoResultsNode)
 			notifyDataSetChanged()
@@ -71,11 +72,11 @@ class UltimateGuitarListAdapter(
 		internal const val MINIMUM_SEARCH_TEXT_LENGTH = 3
 
 		private val SearchingNode =
-			PlaylistNode(UltimateGuitarListItem(UltimateGuitarSearchStatus.Searching))
+			PlaylistNode(UltimateGuitarSearchStatusNode(UltimateGuitarSearchStatus.Searching))
 		private val NoResultsNode =
-			PlaylistNode(UltimateGuitarListItem(UltimateGuitarSearchStatus.NoResults))
+			PlaylistNode(UltimateGuitarSearchStatusNode(UltimateGuitarSearchStatus.NoResults))
 		private val NotEnoughSearchTextNode =
-			PlaylistNode(UltimateGuitarListItem(UltimateGuitarSearchStatus.NotEnoughSearchText))
+			PlaylistNode(UltimateGuitarSearchStatusNode(UltimateGuitarSearchStatus.NotEnoughSearchText))
 
 		private fun isSearchTextSufficient(searchText: String): Boolean =
 			searchText.split(' ').any { it.length >= MINIMUM_SEARCH_TEXT_LENGTH }

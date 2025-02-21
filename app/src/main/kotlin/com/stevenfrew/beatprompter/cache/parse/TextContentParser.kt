@@ -29,7 +29,7 @@ abstract class TextContentParser<TFileResult>(
 	private val useUnicodeEllipsis: Boolean,
 	private val trimTrailingPunctuation: Boolean,
 	private vararg val tagFinders: TagFinder
-) : ContentParser<TFileResult>() {
+) : ContentParser<TFileResult> {
 	override fun parse(element: Element?): TFileResult {
 		val tagParseHelper = TagParsingUtility.getTagParsingHelper(this)
 		var lineNumber = 0
@@ -42,7 +42,7 @@ abstract class TextContentParser<TFileResult>(
 
 			// Ignore empty lines and comments
 			if (txt.isNotEmpty() && !txt.startsWith('#')) {
-				val textLine = TextFileLine(
+				val textLine = TextContentLine(
 					txt,
 					lineNumber,
 					tagParseHelper,
@@ -113,7 +113,7 @@ abstract class TextContentParser<TFileResult>(
 
 	abstract fun getResult(): TFileResult
 
-	abstract fun parseLine(line: TextFileLine<TFileResult>): Boolean
+	abstract fun parseLine(line: TextContentLine<TFileResult>): Boolean
 
 	fun parseTag(
 		foundTag: FoundTag,
@@ -148,4 +148,8 @@ abstract class TextContentParser<TFileResult>(
 		tagFinders
 			.mapNotNull { it.findTag(text) }
 			.minByOrNull { it.start }
+
+	private val errorList = mutableListOf<ContentParsingError>()
+	val errors: List<ContentParsingError> get() = errorList
+	fun addError(error: ContentParsingError) = errorList.add(error)
 }

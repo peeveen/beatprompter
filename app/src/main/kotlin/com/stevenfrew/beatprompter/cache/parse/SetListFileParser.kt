@@ -16,7 +16,7 @@ class SetListFileParser(private val cachedCloudFile: CachedFile) :
 	private var setName: String = ""
 	private val setListEntries = mutableListOf<SetListEntry>()
 
-	override fun parseLine(line: TextFileLine<SetListFile>): Boolean {
+	override fun parseLine(line: TextContentLine<SetListFile>): Boolean {
 		val setNameTag = line
 			.tags
 			.asSequence()

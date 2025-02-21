@@ -10,7 +10,7 @@ import org.w3c.dom.Element
 /**
  * "Parser" for image files. Basically validates that the file is actually an image.
  */
-class ImageFileParser(private val cachedCloudFile: CachedFile) : ContentParser<ImageFile>() {
+class ImageFileParser(private val cachedCloudFile: CachedFile) : ContentParser<ImageFile> {
 	override fun parse(element: Element?): ImageFile =
 		try {
 			ImageFile.readDimensionsFromAttributes(element)?.let {

@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingHelper
 /**
  * Represents a line from a parsed text file.
  */
-open class TextFileLine<TFileType>(
+open class TextContentLine<TFileType>(
 	line: String,
 	val lineNumber: Int,
 	tagParseHelper: TagParsingHelper<TFileType>,

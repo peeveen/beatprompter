@@ -56,7 +56,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	private val withMidiSet
 		get() = withMidiStart || withMidiContinue || withMidiStop
 
-	override fun parseLine(line: TextFileLine<MidiAliasFile>): Boolean {
+	override fun parseLine(line: TextContentLine<MidiAliasFile>): Boolean {
 		line.tags.asSequence().apply {
 			filterIsInstance<MidiAliasChannelTag>()
 				.firstOrNull()

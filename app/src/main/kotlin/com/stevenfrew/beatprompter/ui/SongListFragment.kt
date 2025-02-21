@@ -66,6 +66,7 @@ import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.SongInfo
+import com.stevenfrew.beatprompter.song.UltimateGuitarSongInfo
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
@@ -155,9 +156,9 @@ class SongListFragment
 			).show()
 		} else if (selectedFilter is UltimateGuitarFilter) {
 			val songToLoad = adapter.getItem(position) as PlaylistNode
-			if (songToLoad.songInfo is UltimateGuitarListItem &&
-				songToLoad.songInfo.searchStatus == UltimateGuitarSearchStatus.Complete &&
-				!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songInfo)
+			if (songToLoad.songInfo is UltimateGuitarSongInfo && !SongLoadQueueWatcherTask.isAlreadyLoadingSong(
+					songToLoad.songInfo
+				)
 			)
 				playPlaylistNode(songToLoad, false)
 
@@ -443,8 +444,9 @@ class SongListFragment
 			if (selectedFilter is SetListFileFilter) (selectedFilter as SetListFileFilter).setListFile else null
 		val tempSetListFilter =
 			filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
+		val isUgSearchNode = selectedSongInfo is UltimateGuitarSearchStatusNode
 
-		val addAllowed =
+		val addAllowed = !isUgSearchNode &&
 			if (tempSetListFilter != null)
 				if (selectedFilter !== tempSetListFilter)
 					!tempSetListFilter.containsSong(selectedSongInfo)
@@ -456,7 +458,9 @@ class SongListFragment
 		val includeClearSet = selectedFilter === tempSetListFilter
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
-		options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSongInfo) })
+		if (!isUgSearchNode)
+			options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSongInfo) })
+
 		if (selectedSongInfo is SongFile) {
 			options.add(R.string.force_refresh to {
 				performingCloudSync =
@@ -485,13 +489,15 @@ class SongListFragment
 			}
 		}
 
-		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
-		AlertDialog.Builder(context).apply {
-			setTitle(R.string.song_options)
-			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
-			create().apply {
-				setCanceledOnTouchOutside(true)
-				show()
+		if (options.any()) {
+			val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
+			AlertDialog.Builder(context).apply {
+				setTitle(R.string.song_options)
+				setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
+				create().apply {
+					setCanceledOnTouchOutside(true)
+					show()
+				}
 			}
 		}
 	}

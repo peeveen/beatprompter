@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
@@ -124,7 +125,7 @@ class SongInfoParser(private val cachedCloudFile: CachedFile) :
 		return super.parse(element)
 	}
 
-	override fun parseLine(line: TextFileLine<SongFile>): Boolean {
+	override fun parseLine(line: TextContentLine<SongFile>): Boolean {
 		super.parseLine(line)
 		++lines
 
@@ -233,7 +234,7 @@ class SongInfoParser(private val cachedCloudFile: CachedFile) :
 				rating,
 				year,
 				icon,
-				if (variations.isEmpty()) listOf("Default") else variations,
+				if (variations.isEmpty()) listOf(BeatPrompter.appResources.getString(R.string.defaultVariationName)) else variations,
 				chords,
 				firstChord,
 				capo,

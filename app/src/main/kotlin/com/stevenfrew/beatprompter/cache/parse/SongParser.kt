@@ -251,7 +251,7 @@ class SongParser(
 				0
 	}
 
-	override fun parseLine(line: TextFileLine<Song>): Boolean {
+	override fun parseLine(line: TextContentLine<Song>): Boolean {
 		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))

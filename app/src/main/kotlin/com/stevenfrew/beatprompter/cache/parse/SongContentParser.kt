@@ -49,7 +49,7 @@ abstract class SongContentParser<TResultType>(
 
 	protected val variationExclusions: ArrayDeque<List<String>> = ArrayDeque()
 
-	override fun parseLine(line: TextFileLine<TResultType>): Boolean {
+	override fun parseLine(line: TextContentLine<TResultType>): Boolean {
 		val lastLineBeatInfo = currentLineBeatInfo
 
 		val commaBars = line.tags.filterIsInstance<BarMarkerTag>().size

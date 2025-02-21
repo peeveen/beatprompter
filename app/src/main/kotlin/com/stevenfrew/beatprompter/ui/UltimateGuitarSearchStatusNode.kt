@@ -9,31 +9,17 @@ import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.song.SongInfoProvider
 import com.stevenfrew.beatprompter.util.Utils.sortableString
 import com.stevenfrew.beatprompter.util.normalize
-import com.stevenfrew.ultimateguitar.SongFetcher
-import com.stevenfrew.ultimateguitar.TabInfo
 import java.util.Date
 
-class UltimateGuitarListItem : SongInfoProvider, SongInfo {
-	val searchStatus: UltimateGuitarSearchStatus
-	val tabInfo: TabInfo?
-
-	constructor(searchStatus: UltimateGuitarSearchStatus) {
-		this.searchStatus = searchStatus
-		this.tabInfo = null
-	}
-
-	constructor(tabInfo: TabInfo) {
-		this.tabInfo = tabInfo
-		this.searchStatus = UltimateGuitarSearchStatus.Complete
-	}
-
+class UltimateGuitarSearchStatusNode(private val searchStatus: UltimateGuitarSearchStatus) :
+	SongInfoProvider, SongInfo {
 	override val songInfo: SongInfo = this
 	override val title
-		get() = tabInfo?.songName ?: BeatPrompter.appResources.getString(
+		get() = BeatPrompter.appResources.getString(
 			getSearchStatusText(searchStatus)
 		)
 	override val artist
-		get() = tabInfo?.artistName ?: BeatPrompter.appResources.getString(
+		get() = BeatPrompter.appResources.getString(
 			getSearchStatusSubtext(searchStatus),
 			UltimateGuitarListAdapter.MINIMUM_SEARCH_TEXT_LENGTH
 		)
@@ -41,12 +27,12 @@ class UltimateGuitarListItem : SongInfoProvider, SongInfo {
 	override val normalizedArtist get() = artist.normalize()
 	override val sortableTitle get() = sortableString(title)
 	override val sortableArtist get() = sortableString(artist)
-	override val votes get() = tabInfo?.votes ?: 0
-	override val id get() = tabInfo?.tabUrl ?: searchStatus.toString()
-	override val icon: String? get() = null
+	override val votes = 0
+	override val id = searchStatus.toString()
+	override val icon = null
 	override val isBeatScrollable = false
 	override val isSmoothScrollable = false
-	override val rating: Int get() = Math.round(tabInfo?.rating ?: 0.0).toInt()
+	override val rating = 0
 	override val year: Int? = null
 	override val lastModified: Date = Date()
 	override val variations = listOf<String>()
@@ -62,13 +48,10 @@ class UltimateGuitarListItem : SongInfoProvider, SongInfo {
 	override val duration: Long = 0L
 	override val totalPauseDuration: Long = 0L
 	override val songContentProvider: TextContentProvider
-		get() = if (tabInfo == null) object : TextContentProvider {
+		get() = object : TextContentProvider {
 			override fun getContent(): String = ""
-		} else object : TextContentProvider {
-			override fun getContent(): String =
-				SongFetcher.fetch(tabInfo)?.toChordPro()?.fold("") { a, v -> a + "\n" + v } ?: ""
 		}
-	override val keySignature: String? get() = tabInfo?.key
+	override val keySignature = null
 	override val audioFiles = mapOf<String, List<String>>()
 	override val defaultVariation: String = ""
 

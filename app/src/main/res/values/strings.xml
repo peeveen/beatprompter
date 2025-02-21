@@ -894,6 +894,7 @@ lyrics and [Em]chords in time with a beat.\n
 	<string name="searching">Searching …</string>
 	<string name="please_wait">Please wait …</string>
 	<string name="no_results">No results.</string>
+	<string name="defaultVariationName">Default</string>
 	<string name="try_some_different_search_terms">Try some different search terms.</string>
 
 </resources>
