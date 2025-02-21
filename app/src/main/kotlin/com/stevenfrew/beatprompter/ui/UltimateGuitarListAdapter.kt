@@ -2,12 +2,12 @@ package com.stevenfrew.beatprompter.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.github.peeveen.ultimateguitar.ChordSearcher
+import com.github.peeveen.ultimateguitar.TabInfo
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.song.UltimateGuitarSongInfo
 import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.execute
-import com.stevenfrew.ultimateguitar.ChordSearcher
-import com.stevenfrew.ultimateguitar.TabInfo
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 

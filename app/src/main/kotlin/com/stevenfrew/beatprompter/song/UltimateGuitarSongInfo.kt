@@ -1,5 +1,7 @@
 package com.stevenfrew.beatprompter.song
 
+import com.github.peeveen.ultimateguitar.SongFetcher
+import com.github.peeveen.ultimateguitar.TabInfo
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
@@ -7,8 +9,6 @@ import com.stevenfrew.beatprompter.cache.parse.TextContentProvider
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.util.Utils.sortableString
 import com.stevenfrew.beatprompter.util.normalize
-import com.stevenfrew.ultimateguitar.SongFetcher
-import com.stevenfrew.ultimateguitar.TabInfo
 import java.util.Date
 
 class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, SongInfo {
