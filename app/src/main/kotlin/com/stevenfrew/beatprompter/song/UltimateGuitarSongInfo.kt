@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.util.Utils.sortableString
 import com.stevenfrew.beatprompter.util.normalize
 import java.util.Date
+import kotlin.math.roundToInt
 
 class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, SongInfo {
 	override val songInfo: SongInfo = this
@@ -24,7 +25,7 @@ class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, S
 	override val icon: String? get() = null
 	override val isBeatScrollable = false
 	override val isSmoothScrollable = false
-	override val rating: Int get() = Math.round(tabInfo.rating).toInt()
+	override val rating: Int get() = tabInfo.rating.roundToInt()
 	override val year: Int? = null
 	override val lastModified: Date = Date()
 	override val variations =

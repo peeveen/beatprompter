@@ -2,8 +2,10 @@ package com.stevenfrew.beatprompter.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Handler
 import com.github.peeveen.ultimateguitar.ChordSearcher
 import com.github.peeveen.ultimateguitar.TabInfo
+import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.song.UltimateGuitarSongInfo
 import com.stevenfrew.beatprompter.util.CoroutineTask
@@ -13,6 +15,7 @@ import kotlin.coroutines.CoroutineContext
 
 class UltimateGuitarListAdapter(
 	searchText: String,
+	private val handler: Handler,
 	private val listItems: MutableList<PlaylistNode>,
 	context: Context,
 ) : AbstractSongListAdapter<PlaylistNode>(listItems, context) {
@@ -41,9 +44,8 @@ class UltimateGuitarListAdapter(
 			notifyDataSetChanged()
 		}
 
-		override fun onError(t: Throwable) {
-			// TODO
-		}
+		override fun onError(t: Throwable) =
+			handler.obtainMessage(Events.SEARCH_ERROR, t.message).sendToTarget()
 
 		override fun onProgressUpdate(progress: Int) {
 			// Do nothing

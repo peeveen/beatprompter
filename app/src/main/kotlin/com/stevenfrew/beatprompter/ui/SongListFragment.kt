@@ -842,6 +842,7 @@ class SongListFragment
 				is UltimateGuitarFilter ->
 					UltimateGuitarListAdapter(
 						searchText,
+						mSongListEventHandler!!,
 						mutableListOf(),
 						context
 					)
@@ -1337,6 +1338,13 @@ class SongListFragment
 						Toast.LENGTH_LONG
 					).show()
 				}
+
+				Events.SEARCH_ERROR ->
+					Toast.makeText(
+						songList.context,
+						msg.obj.toString(),
+						Toast.LENGTH_LONG
+					).show()
 			}
 		}
 	}
