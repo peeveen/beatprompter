@@ -12,6 +12,7 @@ import com.stevenfrew.beatprompter.util.CoroutineTask
 import com.stevenfrew.beatprompter.util.execute
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 
 class UltimateGuitarListAdapter(
 	searchText: String,
@@ -63,8 +64,32 @@ class UltimateGuitarListAdapter(
 		override fun doInBackground(
 			params: String,
 			progressUpdater: suspend (Int) -> Unit
-		): List<TabInfo> =
-			ChordSearcher.search(params)
+		): List<TabInfo> {
+			val searchResults = ChordSearcher.search(params)
+			// Sort by rating, then votes
+			val sortedSearchResults = searchResults.sortedWith(object : Comparator<TabInfo> {
+				override fun compare(
+					p0: TabInfo,
+					p1: TabInfo
+				): Int {
+					val originalIndex0 =
+						searchResults.indexOfFirst { it.songName == p0.songName && it.artistName == p0.artistName }
+					val originalIndex1 =
+						searchResults.indexOfFirst { it.songName == p1.songName && it.artistName == p1.artistName }
+					if (originalIndex0 == originalIndex1) {
+						val rating0 = p0.rating.roundToInt()
+						val rating1 = p1.rating.roundToInt()
+						return if (rating0 == rating1)
+							p1.votes - p0.votes
+						else
+							rating1 - rating0
+					}
+					return originalIndex0 - originalIndex1
+				}
+			})
+
+			return sortedSearchResults
+		}
 
 		override val coroutineContext: CoroutineContext
 			get() = Dispatchers.IO
