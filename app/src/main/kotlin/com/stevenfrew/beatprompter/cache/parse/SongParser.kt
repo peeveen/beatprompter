@@ -257,15 +257,14 @@ class SongParser(
 	}
 
 	private fun getLineChordMap(chordTags: List<ChordTag>): ChordMap {
-		val chords = chordTags.mapNotNull {
+		firstParsedChord = firstParsedChord ?: chordTags.firstNotNullOfOrNull {
 			try {
 				Chord.parse(it.name)
 			} catch (_: InvalidChordException) {
 				// Oh well!
 				null
 			}
-		}
-		firstParsedChord = firstParsedChord ?: chords.firstOrNull()?.toDisplayString()
+		}?.toDisplayString()
 		return ChordMap(
 			chordTags.map { it.name }.toSet(),
 			songLoadInfo.songInfo.firstChord ?: firstParsedChord ?: "C",
