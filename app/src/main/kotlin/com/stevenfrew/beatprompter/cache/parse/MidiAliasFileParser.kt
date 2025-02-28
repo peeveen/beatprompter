@@ -90,19 +90,24 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 
 	override fun getResult(): MidiAliasFile = MidiAliasFile(cachedCloudFile, getAliasSet(), errors)
 
+	private fun setNewAliasProperties(aliasNameTag: MidiAliasNameTag) {
+		isCommand = aliasNameTag.isCommand
+		currentAliasName = aliasNameTag.aliasName
+		if (currentAliasName.isNullOrBlank()) {
+			addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))
+			currentAliasName = null
+			isCommand = false
+		}
+	}
+
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (aliasSetName.isNullOrBlank())
 			addError(ContentParsingError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
 		else if (currentAliasName == null)
-			currentAliasName = aliasNameTag.aliasName
+			setNewAliasProperties(aliasNameTag)
 		else {
 			finishCurrentAlias()
-			isCommand = aliasNameTag.isCommand
-			currentAliasName = aliasNameTag.aliasName
-			if (currentAliasName.isNullOrBlank()) {
-				addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))
-				currentAliasName = null
-			}
+			setNewAliasProperties(aliasNameTag)
 		}
 	}
 
@@ -125,7 +130,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	private fun finishCurrentAlias() =
 		currentAliasName?.also {
 			if (currentAliasComponents.isNotEmpty()) {
-				val hasArguments = currentAliasComponents.any { it.parameterCount > 0 }
+				val hasArguments = currentAliasComponents.any { component -> component.parameterCount > 0 }
 				if (hasArguments && withMidiSet) {
 					addError(ContentParsingError(R.string.cannot_use_with_midi_with_parameters))
 					withMidiStart = false
