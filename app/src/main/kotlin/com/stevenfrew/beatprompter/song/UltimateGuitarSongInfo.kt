@@ -1,5 +1,6 @@
 package com.stevenfrew.beatprompter.song
 
+import com.github.peeveen.ultimateguitar.Song
 import com.github.peeveen.ultimateguitar.SongFetcher
 import com.github.peeveen.ultimateguitar.TabInfo
 import com.stevenfrew.beatprompter.BeatPrompter
@@ -13,7 +14,7 @@ import java.util.Date
 import kotlin.math.roundToInt
 
 class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, SongInfo {
-	override val songInfo: SongInfo = this
+	override val songInfo = this
 	override val title = tabInfo.songName
 	override val artist = tabInfo.artistName
 	override val normalizedTitle = title.normalize()
@@ -22,33 +23,43 @@ class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, S
 	override val sortableArtist = sortableString(artist)
 	override val votes get() = tabInfo.votes
 	override val id get() = tabInfo.tabUrl
-	override val icon: String? get() = null
+	override val icon get() = null
 	override val isBeatScrollable = false
 	override val isSmoothScrollable = false
-	override val rating: Int get() = tabInfo.rating.roundToInt()
-	override val year: Int? = null
-	override val lastModified: Date = Date()
+	override val rating get() = tabInfo.rating.roundToInt()
+	override val year = null
+	override val lastModified = Date()
 	override val variations =
 		listOf(BeatPrompter.appResources.getString(R.string.defaultVariationName))
 	override val mixedModeVariations = listOf<String>()
-	override val firstChord: String? = null
-	override val lines: Int = 1
-	override val bars: Int = 4
+	override val firstChord = null
+	override val lines = 1
+	override val bars = 4
+	override val capo get() = getSong()?.tabView?.meta?.capo ?: 0
 	override val bpm: Double = 120.0
-	override val programChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
-	override val songSelectTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
+	override val programChangeTrigger = SongTrigger.DEAD_TRIGGER
+	override val songSelectTrigger = SongTrigger.DEAD_TRIGGER
 	override val chords = listOf<String>()
 	override val errors = listOf<ContentParsingError>()
-	override val duration: Long = 0L
-	override val totalPauseDuration: Long = 0L
-	override val songContentProvider: TextContentProvider
+	override val duration = 0L
+	override val totalPauseDuration = 0L
+	override val songContentProvider
 		get() = object : TextContentProvider {
-			override fun getContent(): String =
-				SongFetcher.fetch(tabInfo)?.toChordPro()?.fold("") { a, v -> a + "\n" + v } ?: ""
+			override fun getContent(): String {
+				val songContent = getSong()?.toChordPro()?.fold("") { a, v -> a + "\n" + v } ?: ""
+				return songContent
+			}
 		}
-	override val keySignature: String? = tabInfo.key.ifBlank { null }
+	override val keySignature = tabInfo.key.ifBlank { null }
 	override val audioFiles = mapOf<String, List<String>>()
-	override val defaultVariation: String = ""
-
+	override val defaultVariation = ""
 	override fun matchesTrigger(trigger: SongTrigger): Boolean = false
+
+	private var fetchedSong: Song? = null
+	private fun getSong(): Song? {
+		if (fetchedSong != null)
+			return fetchedSong
+		fetchedSong = SongFetcher.fetch(tabInfo)
+		return fetchedSong
+	}
 }

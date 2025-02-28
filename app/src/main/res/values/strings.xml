@@ -520,6 +520,11 @@
 	<string name="pref_showSongKey_summary">Displays the key of the song on the song title screen.</string>
 	<string name="pref_showSongKey_defaultValue" translatable="false">false</string>
 
+	<string name="pref_showSongCapo_key" translatable="false">pref_showSongCapo</string>
+	<string name="pref_showSongCapo_title">Show capo setting on title screen.</string>
+	<string name="pref_showSongCapo_summary">Displays the capo setting on the song title screen.</string>
+	<string name="pref_showSongCapo_defaultValue" translatable="false">false</string>
+
 	<string name="pref_showFirstBeat_key" translatable="false">pref_showFirstBeat</string>
 	<string name="pref_showFirstBeat_title">Show first beat.</string>
 	<string name="pref_showFirstBeat_summary">Shows the first beat in the beat indicator section.</string>
@@ -573,6 +578,7 @@
 
 	<string name="bpmPrefix" translatable="false">BPM</string>
 	<string name="keyPrefix">Key</string>
+	<string name="capoPrefix">Capo</string>
 
 	<string name="pref_useExternalStorage_key" translatable="false">pref_useExternalStorage</string>
 	<string name="pref_useExternalStorage_title">Use External Storage</string>

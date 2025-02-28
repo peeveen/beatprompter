@@ -27,6 +27,7 @@ interface SongInfo {
 	val mixedModeVariations: List<String>
 	val firstChord: String?
 	val lines: Int
+	val capo: Int
 	val bars: Int
 	val bpm: Double
 	val programChangeTrigger: SongTrigger

@@ -182,6 +182,12 @@ abstract class AbstractPreferences(
 			R.string.pref_showSongKey_defaultValue
 		)
 
+	override val showCapo: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_showSongCapo_key,
+			R.string.pref_showSongKey_defaultValue
+		)
+
 	override val showBPMContext: ShowBPMContext
 		get() = try {
 			ShowBPMContext.valueOf(

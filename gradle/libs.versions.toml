@@ -32,7 +32,7 @@ preferenceKtx = "1.2.1"
 rxjava = "2.2.21"
 junitJupiter = "5.8.2"
 junitVersion = "1.2.1"
-ultimateGuitar = "1.1.0"
+ultimateGuitar = "1.2.0"
 
 [libraries]
 adal = { module = "com.microsoft.aad:adal", version.ref = "adal" }

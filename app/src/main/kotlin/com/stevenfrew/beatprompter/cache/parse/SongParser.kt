@@ -162,6 +162,7 @@ class SongParser(
 	private val customCommentsUser: String
 	private var showChords: Boolean
 	private val showKey: Boolean
+	private val showCapo: Boolean
 	private val showBpm: ShowBPMContext
 	private val triggerContext: TriggerOutputContext
 	private val beatCounterTextOverlay: BeatCounterTextOverlay
@@ -215,6 +216,8 @@ class SongParser(
 		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
 		showKey =
 			BeatPrompter.preferences.showKey && !songLoadInfo.songInfo.keySignature.isNullOrBlank()
+		showCapo =
+			BeatPrompter.preferences.showCapo && songLoadInfo.songInfo.capo != 0
 		showBpm =
 			if (songLoadInfo.songInfo.bpm > 0.0) BeatPrompter.preferences.showBPMContext else ShowBPMContext.No
 
@@ -1092,6 +1095,8 @@ class SongParser(
 			++messages
 		if (showKey)
 			++messages
+		if (showCapo)
+			++messages
 		if (messages > 0) {
 			val remainingScreenSpace = nativeDeviceSettings.screenSize.height - twentyPercent * 2
 			var spacePerMessageLine = floor((remainingScreenSpace / messages).toDouble()).toInt()
@@ -1148,6 +1153,20 @@ class SongParser(
 						nativeDeviceSettings.screenSize.width,
 						spacePerMessageLine,
 						START_SCREEN_KEY_COLOR,
+						false
+					)
+				)
+			}
+			if (showCapo) {
+				val keyString =
+					BeatPrompter.appResources.getString(R.string.capoPrefix) + " " + songLoadInfo.songInfo.capo
+				startScreenStrings.add(
+					ScreenString.create(
+						keyString,
+						paint,
+						nativeDeviceSettings.screenSize.width,
+						spacePerMessageLine,
+						START_SCREEN_CAPO_COLOR,
 						false
 					)
 				)
@@ -1394,6 +1413,7 @@ class SongParser(
 		private const val START_SCREEN_ARTIST_COLOR = Color.YELLOW
 		private const val START_SCREEN_BPM_COLOR = Color.CYAN
 		private const val START_SCREEN_KEY_COLOR = Color.CYAN
+		private const val START_SCREEN_CAPO_COLOR = Color.CYAN
 		private const val START_SCREEN_TAP_TO_START_COLOR = Color.GREEN
 
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =

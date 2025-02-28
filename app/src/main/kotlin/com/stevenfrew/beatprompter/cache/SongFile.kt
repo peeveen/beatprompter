@@ -39,7 +39,7 @@ class SongFile(
 	override val variations: List<String>,
 	override val chords: List<String>,
 	override val firstChord: String?,
-	val capo: Int,
+	override val capo: Int,
 	errors: List<ContentParsingError>
 ) : CachedTextFile(cachedFile, errors), SongInfo {
 	override val normalizedArtist = artist.normalize()
