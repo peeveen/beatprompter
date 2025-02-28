@@ -190,11 +190,13 @@ class SongParser(
 	private var isInChorusSection = false
 	private var pendingAudioTag: AudioTag? = null
 	private var audioTagIndex: Int = 0
-	private var chordMap: ChordMap? = if (songLoadInfo.songInfo.firstChord != null) ChordMap(
-		songLoadInfo.songInfo.chords.toSet(),
-		songLoadInfo.songInfo.firstChord!!,
-		songLoadInfo.songInfo.keySignature
-	).transpose(songLoadInfo.transposeShift) else null
+	private var chordMap: ChordMap? = songLoadInfo.songInfo.firstChord?.let {
+		ChordMap(
+			songLoadInfo.songInfo.chords.toSet(),
+			it,
+			songLoadInfo.songInfo.keySignature
+		).transpose(songLoadInfo.transposeShift)
+	}
 	private var firstParsedChord: String? = null
 
 	init {
