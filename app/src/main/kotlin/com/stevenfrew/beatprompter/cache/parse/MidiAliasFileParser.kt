@@ -10,7 +10,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasChannelTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiCommandTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidi
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiContinueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStartTag
@@ -33,8 +32,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiStartTag::class,
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
-	MidiAliasChannelTag::class,
-	MidiCommandTag::class
+	MidiAliasChannelTag::class
 )
 /**
  * Parser for MIDI alias files.
@@ -75,10 +73,6 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 					}
 				}
 
-			filterIsInstance<MidiCommandTag>().firstOrNull()?.also {
-				isCommand = true
-			}
-
 			filterIsInstance<MidiAliasNameTag>()
 				.firstOrNull()
 				?.also { startNewAlias(it) }
@@ -103,7 +97,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 			currentAliasName = aliasNameTag.aliasName
 		else {
 			finishCurrentAlias()
-			isCommand = false
+			isCommand = aliasNameTag.isCommand
 			currentAliasName = aliasNameTag.aliasName
 			if (currentAliasName.isNullOrBlank()) {
 				addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))

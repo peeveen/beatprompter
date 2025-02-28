@@ -188,12 +188,17 @@ by the alias will also be sent at these times.
 
 ### MIDI commands
 
-If an alias contains a `{midi_command}` tag, it will be shown in the main list under the "MIDI
-Commands" filter. You can then click on these list items to send the MIDI commands. This is useful
-for triggering MIDI events manually, such as changing lighting, BGM, whatever.
+The `{midi_alias:name}` tag accepts a second, optional true/false argument, e.g.:
 
-You should only add the `{midi_command}` tag to aliases that do *not* accept parameters. If you add
-it to an alias that requires parameters, the alias will fail to parse correctly.
+`{midi_alias:MyExcellentAlias,false}`
+
+This indicates whether the alias is to be included in the "MIDI Commands" filter. The default is
+`false`, but an alias _must_ also be parameterless to be considered as a MIDI command, so if you
+provide a value of `true` on an alias that accept parameters, you will see an error.
+
+MIDI commands will be shown in the main list under the "MIDI Commands" filter. You can then click
+on these list items to send the MIDI commands. This is useful for triggering MIDI events manually,
+such as changing lighting, BGM, whatever.
 
 ## MIDI Beat Clock Signals
 

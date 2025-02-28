@@ -8,9 +8,9 @@ Versions prior to 1.70 are not listed.
 - Added optional `active_by_default` true/false argument to the `{midi_aliases}` tag, allowing
 	for sets of MIDI aliases to be inactive by default, but activated on a per-song (or per-variation)
 	basis using a new `{activate_midi_aliases:set_name}` song tag.
-- Added new "MIDI command" filter. If a parameterless MIDI alias contains a `{midi_command}` tag,
-	it will be listed under this filter, and can be executed directly from the main list by tapping
-	on it.
+- Added new "MIDI command" filter. Parameterless MIDI aliases will be listed under this filter, and
+	can be executed directly from the main list by tapping on it. You can exclude such aliases from
+	the list by using the new optional "is command" true/false value on the `{midi_alias}` tag.
 - Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
 	- Also added corresponding "Show capo setting on title screen" preference.
 - No longer notifies you of each device disconnection twice (this was happening because, for most
