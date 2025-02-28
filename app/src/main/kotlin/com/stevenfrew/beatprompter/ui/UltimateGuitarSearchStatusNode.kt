@@ -39,6 +39,7 @@ class UltimateGuitarSearchStatusNode(private val searchStatus: UltimateGuitarSea
 	override val mixedModeVariations = listOf<String>()
 	override val firstChord: String? = null
 	override val lines: Int = 1
+	override val capo: Int = 0
 	override val bars: Int = 4
 	override val bpm: Double = 120.0
 	override val programChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
