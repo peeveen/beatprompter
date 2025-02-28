@@ -51,7 +51,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
+import com.stevenfrew.beatprompter.chord.Chord
 import com.stevenfrew.beatprompter.chord.ChordMap
+import com.stevenfrew.beatprompter.chord.InvalidChordException
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -193,6 +195,7 @@ class SongParser(
 		songLoadInfo.songInfo.firstChord!!,
 		songLoadInfo.songInfo.keySignature
 	).transpose(songLoadInfo.transposeShift) else null
+	private var firstParsedChord: String? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
@@ -251,6 +254,23 @@ class SongParser(
 				0
 	}
 
+	private fun getLineChordMap(chordTags: List<ChordTag>): ChordMap {
+		val chords = chordTags.mapNotNull {
+			try {
+				Chord.parse(it.name)
+			} catch (_: InvalidChordException) {
+				// Oh well!
+				null
+			}
+		}
+		firstParsedChord = firstParsedChord ?: chords.firstOrNull()?.toDisplayString()
+		return ChordMap(
+			chordTags.map { it.name }.toSet(),
+			songLoadInfo.songInfo.firstChord ?: firstParsedChord ?: "C",
+			songLoadInfo.songInfo.keySignature
+		)
+	}
+
 	override fun parseLine(line: TextContentLine<Song>): Boolean {
 		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
@@ -260,6 +280,7 @@ class SongParser(
 		showChords = showChords and !line.tags.filterIsInstance<NoChordsTag>().any()
 		val chordTags = line.tags.filterIsInstance<ChordTag>()
 		val nonChordTags = line.tags.filter { it !is ChordTag }
+		var lineChordMap = chordMap ?: getLineChordMap(chordTags).transpose(songLoadInfo.transposeShift)
 		val chordsFound = chordTags.isNotEmpty()
 		val chordsFoundButNotShowingThem = !showChords && chordsFound
 		val tags = if (showChords) line.tags.toList() else nonChordTags
@@ -268,7 +289,9 @@ class SongParser(
 		val transposeTags = tagSequence.filterIsInstance<TransposeTag>()
 		transposeTags.forEach {
 			try {
-				chordMap = chordMap?.transpose(it.value)
+				lineChordMap = lineChordMap.transpose(it.value)
+				if (chordMap != null)
+					chordMap = lineChordMap
 			} catch (e: Exception) {
 				addError(ContentParsingError(it, e))
 			}
@@ -279,7 +302,9 @@ class SongParser(
 
 		val chordMapTags = tagSequence.filterIsInstance<ChordMapTag>()
 		chordMapTags.forEach {
-			chordMap = chordMap?.addChordMapping(it.from, it.to)
+			lineChordMap = lineChordMap.addChordMapping(it.from, it.to)
+			if (chordMap != null)
+				chordMap = lineChordMap
 		}
 
 		var workLine = line.lineWithNoTags
@@ -530,7 +555,7 @@ class SongParser(
 						songHeight,
 						thisLineIsInChorus,
 						startAndStopScrollTimes,
-						chordMap,
+						lineChordMap,
 						songLoadCancelEvent
 					)
 
