@@ -17,6 +17,8 @@ Versions prior to 1.70 are not listed.
 	devices, there is an output and an input virtual device, and they are treated separately). Any
 	identical connection/disconnection notification message that is received within one second of
 	another is now ignored.
+- Fixed tag filtering from the "All Songs" playlist. Songs marked as "filter only" were not being
+	selected when a tag filter was chosen.
 
 ## 1.77
 
