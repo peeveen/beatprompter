@@ -247,15 +247,18 @@ class SongListFragment
 
 	private fun applyFileFilter(filter: Filter) {
 		selectedFilter = filter
-		playlist = if (filter is SongFilter)
+		playlist = if (filter is SongFilter) {
+			val isAllSongsFilter = filter is AllSongsFilter
+			val tagFiltersSelected = selectedTagFilters.isNotEmpty()
 			Playlist(filter.songs.filter {
-				if (selectedTagFilters.isNotEmpty()) selectedTagFilters.any { filter ->
-					filter.songs.contains(
-						it
-					)
-				} else true
+				val songInfo = it.first
+				if (tagFiltersSelected)
+					selectedTagFilters.any { filter -> filter.songs.contains(it) }
+				else if (isAllSongsFilter && songInfo is SongFile)
+					!Cache.cachedCloudItems.isFilterOnly(songInfo)
+				else true
 			})
-		else
+		} else
 			Playlist()
 		sortSongList()
 		listAdapter = buildListAdapter()
@@ -947,11 +950,9 @@ class SongListFragment
 		requireActivity().invalidateOptionsMenu()
 	}
 
-	private fun createAllSongsFilter(cache: CachedCloudCollection): Filter = AllSongsFilter(cache
-		.songFiles
-		.asSequence()
-		.filterNot { cache.isFilterOnly(it) }
-		.toList())
+	private fun createAllSongsFilter(cache: CachedCloudCollection): Filter = AllSongsFilter(
+		cache.songFiles.toList()
+	)
 
 	private fun findFilter(filter: Filter, cache: CachedCloudCollection): Filter =
 		filters.find { it == filter } ?: filters.find { it is AllSongsFilter } ?: createAllSongsFilter(
