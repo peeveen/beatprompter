@@ -86,5 +86,5 @@ open class CachedFile : CachedItem, TextContentProvider {
 			}
 	}
 
-	override fun getContent(): String = file.readText()
+	override fun getContent(): String = if (file.exists()) file.readText() else ""
 }
