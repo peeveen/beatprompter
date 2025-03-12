@@ -12,7 +12,6 @@ class Debouncer(private val scope: CoroutineScope) {
 	// The job is cancelled if a new event comes in before the delay period ends.
 	private var debounceJob: Job? = null
 
-
 	/**
 	 * Delays the execution of the specified [action] by the [interval].
 	 *

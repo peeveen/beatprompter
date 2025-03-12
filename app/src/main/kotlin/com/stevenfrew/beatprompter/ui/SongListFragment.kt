@@ -8,7 +8,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Point
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -34,6 +33,7 @@ import android.widget.ToggleButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.stevenfrew.beatprompter.BeatPrompter
@@ -1000,7 +1000,7 @@ class SongListFragment
 	}
 
 	private fun openBrowser(uriResource: Int) {
-		val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(uriResource)))
+		val browserIntent = Intent(Intent.ACTION_VIEW, getString(uriResource).toUri())
 		startActivity(browserIntent)
 	}
 

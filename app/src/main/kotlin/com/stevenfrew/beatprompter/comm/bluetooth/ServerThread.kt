@@ -52,7 +52,7 @@ class ServerThread internal constructor(
 					Logger.logComms("Found a client connection.")
 					onConnectedFunction(it)
 				}
-			} catch (e: Exception) {
+			} catch (_: Exception) {
 				//Log.e(BLUETOOTH_TAG, "Failed to accept new Bluetooth connection.",e);
 			}
 		}

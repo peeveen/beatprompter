@@ -54,7 +54,7 @@ abstract class AbstractSongListAdapter<T : SongInfoProvider>(
 				val image = getIconBitmap(icon)
 				songIconDisplayed?.setImageBitmap(image)
 				songIconDisplayed != null && it != null
-			} ?: false
+			} == true
 			notesIcon.visibility =
 				if (song.audioFiles.values.flatten()
 						.isEmpty() || !showMusicIcon

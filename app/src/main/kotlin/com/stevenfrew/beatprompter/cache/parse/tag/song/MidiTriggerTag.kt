@@ -35,10 +35,7 @@ open class MidiTriggerTag protected constructor(
 
 		val channel = if (bits.size > 3) {
 			val value = TagParsingUtility.parseMIDIValue(bits[3], 3, bits.size)
-			if (value is ChannelValue)
-				value
-			else
-				WildcardValue()
+			value as? ChannelValue ?: WildcardValue()
 		} else
 			WildcardValue()
 

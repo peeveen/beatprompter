@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.withClip
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -619,27 +620,25 @@ class SongView
 			paint
 		)
 
-		canvas.save()
-		canvas.clipRect(currentBeatCountRect)
-		paint.color = songTitleContrastBeatCounter
-		paint.alpha = 127
-		canvas.drawText(
-			text,
-			songTitleHeaderLocation.x,
-			songTitleHeaderLocation.y,
-			paint
-		)
-		canvas.restore()
+		canvas.withClip(currentBeatCountRect) {
+			paint.color = songTitleContrastBeatCounter
+			paint.alpha = 127
+			drawText(
+				text,
+				songTitleHeaderLocation.x,
+				songTitleHeaderLocation.y,
+				paint
+			)
+		}
 
-		canvas.save()
-		canvas.clipRect(scrollIndicatorRect)
-		canvas.drawText(
-			text,
-			songTitleHeaderLocation.x,
-			songTitleHeaderLocation.y,
-			paint
-		)
-		canvas.restore()
+		canvas.withClip(scrollIndicatorRect) {
+			drawText(
+				text,
+				songTitleHeaderLocation.x,
+				songTitleHeaderLocation.y,
+				paint
+			)
+		}
 
 		paint.alpha = 255
 	}

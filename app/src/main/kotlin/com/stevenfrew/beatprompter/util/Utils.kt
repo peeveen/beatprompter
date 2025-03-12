@@ -205,25 +205,4 @@ object Utils {
 			indirectTraversals
 		).flatten()
 	}
-
-	fun findTheCity(n: Int, edges: Array<IntArray>, distanceThreshold: Int): Int =
-		// Key is city number, value is list of tuples (reachable city number, and distance to it)
-		mutableMapOf<Int, List<Pair<Int, Int>>>().let { results ->
-			edges.toList().let { edgesList ->
-				((n - 1).downTo(0))
-					.fold(results) { acc, city ->
-						acc.also {
-							it[city] =
-								getReachableCitiesAndDistances(
-									city,
-									acc,
-									// Get rid of edges that will already have been traversed in earlier results.
-									edgesList.filter { edge -> edge[0] <= city && edge[1] <= city },
-									distanceThreshold
-								)
-							println("Reachable from $city = ${it[city]?.distinctBy { x -> x.first }?.count()}")
-						}
-					}
-			}
-		}.minBy { kvp -> kvp.value.distinctBy { it.first }.count() }.key
 }

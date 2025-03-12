@@ -64,7 +64,6 @@ class UltimateGuitarSearchStatusNode(private val searchStatus: UltimateGuitarSea
 				UltimateGuitarSearchStatus.NoResults -> R.string.no_results
 				UltimateGuitarSearchStatus.Searching -> R.string.searching
 				UltimateGuitarSearchStatus.NotEnoughSearchText -> R.string.not_enough_search_text
-				else -> R.string.empty
 			}
 
 		private fun getSearchStatusSubtext(searchStatus: UltimateGuitarSearchStatus): Int =
@@ -72,7 +71,6 @@ class UltimateGuitarSearchStatusNode(private val searchStatus: UltimateGuitarSea
 				UltimateGuitarSearchStatus.NoResults -> R.string.try_some_different_search_terms
 				UltimateGuitarSearchStatus.Searching -> R.string.please_wait
 				UltimateGuitarSearchStatus.NotEnoughSearchText -> R.string.search_characters_required
-				else -> R.string.empty
 			}
 	}
 }
