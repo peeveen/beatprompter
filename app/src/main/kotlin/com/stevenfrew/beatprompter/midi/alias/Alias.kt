@@ -1,10 +1,12 @@
 package com.stevenfrew.beatprompter.midi.alias
 
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 
 class Alias(
 	val name: String,
 	private val components: List<AliasComponent>,
+	val triggers: List<MidiTrigger>,
 	val withMidiStart: Boolean = false,
 	val withMidiContinue: Boolean = false,
 	val withMidiStop: Boolean = false,
@@ -15,11 +17,11 @@ class Alias(
 
 	override fun resolve(
 		sourceAliasSet: AliasSet,
-		aliasSets: List<AliasSet>,
-		arguments: ByteArray,
+		aliases: List<AliasSet>,
+		parameters: ByteArray,
 		channel: Byte
 	): Pair<List<MidiMessage>, Set<AliasSet>> =
-		components.map { it.resolve(sourceAliasSet, aliasSets, arguments, channel) }.let {
+		components.map { it.resolve(sourceAliasSet, aliases, parameters, channel) }.let {
 			it.flatMap { it.first } to it.flatMap { it.second }
 				.toSet()
 		}

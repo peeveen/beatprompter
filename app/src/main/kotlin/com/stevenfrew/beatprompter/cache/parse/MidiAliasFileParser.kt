@@ -6,16 +6,18 @@ import com.stevenfrew.beatprompter.cache.MidiAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasChannelTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidi
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiContinueTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStartTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStopTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasChannelTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasInstructionTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasSetNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidi
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiContinueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiStartTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiStopTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiControlChangeTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiEventTag
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.AliasComponent
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
@@ -32,7 +34,8 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiStartTag::class,
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
-	MidiAliasChannelTag::class
+	MidiAliasChannelTag::class,
+	MidiControlChangeTriggerTag::class
 )
 /**
  * Parser for MIDI alias files.
@@ -41,11 +44,12 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	TextContentParser<MidiAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
+	private val currentAliasComponents = mutableListOf<AliasComponent>()
+	private val triggers = mutableListOf<MidiTrigger>()
 	private var isCommand: Boolean = false
 	private var useByDefault: Boolean = true
 	private var currentAliasName: String? = null
 	private var defaultChannel: ChannelValue? = null
-	private var currentAliasComponents = mutableListOf<AliasComponent>()
 	private var aliases = mutableListOf<Alias>()
 	private var withMidiStart = false
 	private var withMidiContinue = false
@@ -76,6 +80,10 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 			filterIsInstance<MidiAliasNameTag>()
 				.firstOrNull()
 				?.also { startNewAlias(it) }
+
+			filterIsInstance<MidiControlChangeTriggerTag>()
+				.firstOrNull()
+				?.also { triggers.add(it.trigger) }
 
 			filterIsInstance<MidiAliasInstructionTag>()
 				.firstOrNull()
@@ -141,17 +149,23 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
 					isCommand = false
 				}
+				if (triggers.any() && !isCommand) {
+					addError(ContentParsingError(R.string.cannot_use_triggers_in_non_command_aliases))
+					triggers.clear()
+				}
 				aliases.add(
 					Alias(
 						it,
 						currentAliasComponents,
+						triggers,
 						withMidiStart,
 						withMidiContinue,
 						withMidiStop,
-						isCommand
+						isCommand,
 					)
 				)
-				currentAliasComponents = mutableListOf()
+				currentAliasComponents.clear()
+				triggers.clear()
 				withMidiStart = false
 				withMidiContinue = false
 				withMidiStop = false

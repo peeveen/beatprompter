@@ -58,6 +58,7 @@ import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
+import com.stevenfrew.beatprompter.midi.CommandTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.midi.alias.Alias
@@ -134,6 +135,27 @@ class SongListFragment
 				startNextSong()
 		}
 
+	private fun triggerMidiCommands(commandTrigger: CommandTrigger) =
+		Cache.cachedCloudItems.midiAliasSets.flatMap { set ->
+			set.aliases.filter { alias ->
+				alias.triggers.any {
+					it == commandTrigger
+				}
+			}
+		}.forEach {
+			executeMidiCommand(it)
+		}
+
+	private fun executeMidiCommand(alias: Alias) {
+		val (messages, _) = alias.resolve(
+			Cache.cachedCloudItems.defaultMidiAliasSet,
+			Cache.cachedCloudItems.midiAliasSets,
+			byteArrayOf(),
+			MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+		)
+		Midi.putMessages(messages)
+	}
+
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		val adapter = parent.adapter as ArrayAdapter<*>
 		if (selectedFilter is MidiAliasFilesFilter) {
@@ -142,13 +164,7 @@ class SongListFragment
 				showMIDIAliasErrors(maf.errors)
 		} else if (selectedFilter is MidiCommandsFilter) {
 			val alias = adapter.getItem(position) as Alias
-			val (messages, _) = alias.resolve(
-				Cache.cachedCloudItems.defaultMidiAliasSet,
-				Cache.cachedCloudItems.midiAliasSets,
-				byteArrayOf(),
-				MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
-			)
-			Midi.putMessages(messages)
+			executeMidiCommand(alias)
 			Toast.makeText(
 				context,
 				BeatPrompter.appResources.getString(R.string.executed_midi_command, alias.name),
@@ -1275,6 +1291,11 @@ class SongListFragment
 				Events.MIDI_PROGRAM_CHANGE -> {
 					val bytes = msg.obj as ByteArray
 					songList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
+				}
+
+				Events.MIDI_CONTROL_CHANGE -> {
+					val bytes = msg.obj as ByteArray
+					songList.triggerMidiCommands(CommandTrigger(bytes[0], bytes[1], bytes[2]))
 				}
 
 				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())

@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.song
 
 import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.cache.parse.TextContentProvider
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import java.util.Date
 
@@ -30,8 +31,8 @@ interface SongInfo {
 	val capo: Int
 	val bars: Int
 	val bpm: Double
-	val programChangeTrigger: SongTrigger
-	val songSelectTrigger: SongTrigger
+	val programChangeTrigger: MidiTrigger
+	val songSelectTrigger: MidiTrigger
 	val chords: List<String>
 	val errors: List<ContentParsingError>
 	val duration: Long

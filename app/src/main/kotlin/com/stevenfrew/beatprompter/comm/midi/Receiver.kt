@@ -77,15 +77,24 @@ abstract class Receiver(name: String, type: CommunicationType) : ReceiverBase(na
 												break
 
 										MidiMessage.MIDI_CONTROL_CHANGE_BYTE ->
-											// The only control change value we care about are bank selects.
 											// Control change messages have two additional bytes.
 											if (dataStart < dataEnd - 2) {
 												val controller = buffer[++dataStart]
-												val bankValue = buffer[++dataStart]
-												if (controller == MidiMessage.MIDI_MSB_BANK_SELECT_CONTROLLER)
-													midiBankMSBs[channel.toInt()] = bankValue
-												else if (controller == MidiMessage.MIDI_LSB_BANK_SELECT_CONTROLLER)
-													midiBankLSBs[channel.toInt()] = bankValue
+												val value = buffer[++dataStart]
+												when (controller) {
+													MidiMessage.MIDI_MSB_BANK_SELECT_CONTROLLER -> midiBankMSBs[channel.toInt()] =
+														value
+
+													MidiMessage.MIDI_LSB_BANK_SELECT_CONTROLLER -> midiBankLSBs[channel.toInt()] =
+														value
+
+													// If it's not bank select, it might be something that will trigger a MIDI
+													// command. Pass it to the SongList event handler.
+													else -> EventRouter.sendEventToSongList(
+														Events.MIDI_CONTROL_CHANGE,
+														byteArrayOf(controller, value, channel)
+													)
+												}
 											} else
 												break
 									}

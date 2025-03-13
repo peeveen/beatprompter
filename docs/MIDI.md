@@ -200,6 +200,18 @@ MIDI commands will be shown in the main list under the "MIDI Commands" filter. Y
 on these list items to send the MIDI commands. This is useful for triggering MIDI events manually,
 such as changing lighting, BGM, whatever.
 
+### Triggering MIDI commands via incoming Control Change messages
+
+You can configure a parameterless MIDI alias to be triggered when BeatPrompter receives a
+specific Control Change message. Just add the
+`{midi_control_change_trigger:controller,value,channel}`
+tag to your alias definition. Just like the `midi_program_change_trigger` tag (documented above),
+the `channel` argument is optional, and you can use wildcards (`*`) for the other values.
+
+> You should not use a value of 0 or 32 for the `controller` argument, as these are reserved for
+> MSB/LSB Program Change bank select messages. Incoming bank select messages will never trigger any
+> commands.
+
 ## MIDI Beat Clock Signals
 
 This is obviously a timing-critical feature. Due to the nature of the operating system, the

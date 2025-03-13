@@ -1,4 +1,4 @@
-package com.stevenfrew.beatprompter.cache.parse.tag.midialias
+package com.stevenfrew.beatprompter.cache.parse.tag.midi.alias
 
 import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName

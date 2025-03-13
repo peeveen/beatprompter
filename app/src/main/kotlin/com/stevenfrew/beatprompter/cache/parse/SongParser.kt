@@ -8,6 +8,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiProgramChangeTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
@@ -33,8 +35,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiEventTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiProgramChangeTriggerTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.NoChordsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag

@@ -4,6 +4,8 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiProgramChangeTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
@@ -26,8 +28,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.IconTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiProgramChangeTriggerTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
@@ -42,6 +42,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
 import com.stevenfrew.beatprompter.chord.Chord
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import org.w3c.dom.Element
@@ -105,8 +106,8 @@ class SongInfoParser(private val cachedCloudFile: CachedFile) :
 	private val imageFiles = mutableListOf<String>()
 	private var isFilterOnly = false
 	private val tags = mutableListOf<String>()
-	private var midiProgramChangeTrigger: SongTrigger? = null
-	private var midiSongSelectTrigger: SongTrigger? = null
+	private var midiProgramChangeTrigger: MidiTrigger? = null
+	private var midiSongSelectTrigger: MidiTrigger? = null
 	private val mixedModeVariations = mutableSetOf<String>()
 	private var lines = 0
 	private var rating = 0

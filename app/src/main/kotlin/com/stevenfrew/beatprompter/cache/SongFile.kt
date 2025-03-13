@@ -4,6 +4,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.cache.parse.TextContentProvider
 import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
 import com.stevenfrew.beatprompter.song.SongInfo
@@ -30,8 +31,8 @@ class SongFile(
 	override val audioFiles: Map<String, List<String>>,
 	val imageFiles: List<String>,
 	val tags: Set<String>,
-	override val programChangeTrigger: SongTrigger,
-	override val songSelectTrigger: SongTrigger,
+	override val programChangeTrigger: MidiTrigger,
+	override val songSelectTrigger: MidiTrigger,
 	val isFilterOnly: Boolean,
 	override val rating: Int,
 	override val year: Int?,
@@ -87,9 +88,9 @@ class SongFile(
 
 		writeAudioFilesToElement(doc, element, audioFiles)
 		if (!songSelectTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
+			writeTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
 		if (!programChangeTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
+			writeTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
 	}
 
 	override val keySignature: String?
@@ -265,13 +266,13 @@ class SongFile(
 			}
 		}
 
-		private fun writeSongTriggerToElement(
+		private fun writeTriggerToElement(
 			doc: Document,
 			element: Element,
 			tag: String,
-			songTrigger: SongTrigger
+			trigger: MidiTrigger
 		) = doc.createElement(tag).run {
-			songTrigger.writeToXML(this)
+			trigger.writeToXML(this)
 			element.appendChild(this)
 		}
 	}
