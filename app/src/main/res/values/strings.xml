@@ -579,7 +579,7 @@
 
 	<string name="bpmPrefix" translatable="false">BPM</string>
 	<string name="keyPrefix">Key</string>
-	<string name="capoPrefix">Capo</string>
+	<string name="capoPrefix" translatable="false">Capo</string>
 
 	<string name="pref_useExternalStorage_key" translatable="false">pref_useExternalStorage</string>
 	<string name="pref_useExternalStorage_title">Use External Storage</string>
