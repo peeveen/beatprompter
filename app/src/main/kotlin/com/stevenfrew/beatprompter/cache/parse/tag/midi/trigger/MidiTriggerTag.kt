@@ -30,14 +30,14 @@ open class MidiTriggerTag protected constructor(
 			TriggerType.ProgramChange -> intArrayOf(
 				1,
 				4,
-				4,
+				3,
 				R.string.program_change_must_have_one_to_four_values
 			)
 
 			TriggerType.ControlChange -> intArrayOf(
 				2,
 				3,
-				3,
+				2,
 				R.string.control_change_must_have_two_or_three_values
 			)
 		}
@@ -59,12 +59,12 @@ open class MidiTriggerTag protected constructor(
 		trigger = if (type == TriggerType.ControlChange) {
 			val controller =
 				if (bits.isNotEmpty())
-					TagParsingUtility.parseMIDIValue(bits[1], 1, bits.size)
+					TagParsingUtility.parseMIDIValue(bits[0], 0, bits.size)
 				else
 					WildcardValue()
 			val value =
 				if (bits.size > 1)
-					TagParsingUtility.parseMIDIValue(bits[2], 2, bits.size)
+					TagParsingUtility.parseMIDIValue(bits[1], 1, bits.size)
 				else
 					WildcardValue()
 			CommandTrigger(controller, value, channel)

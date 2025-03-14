@@ -149,7 +149,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
 					isCommand = false
 				}
-				if (triggers.any() && !isCommand) {
+				if (triggers.any() && hasArguments) {
 					addError(ContentParsingError(R.string.cannot_use_triggers_in_non_command_aliases))
 					triggers.clear()
 				}
