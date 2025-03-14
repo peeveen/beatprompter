@@ -44,7 +44,8 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 				} catch (e: Exception) {
 					Logger.logLoader("Song load failed.")
 					SongLoadQueueWatcherTask.onSongLoadFinished()
-					handler.obtainMessage(Events.SONG_LOAD_FAILED, e.message).sendToTarget()
+					handler.obtainMessage(Events.SONG_LOAD_FAILED, e.message ?: e.toString())
+						.sendToTarget()
 				} finally {
 					System.gc()
 				}

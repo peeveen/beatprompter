@@ -13,7 +13,7 @@ class Alias(
 	val isCommand: Boolean = false
 ) : AliasComponent {
 	override val parameterCount
-		get() = components.maxOf { it.parameterCount }
+		get() = components.maxOfOrNull { it.parameterCount } ?: 0
 
 	override fun resolve(
 		sourceAliasSet: AliasSet,

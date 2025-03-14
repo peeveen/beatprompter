@@ -156,8 +156,8 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 				aliases.add(
 					Alias(
 						it,
-						currentAliasComponents,
-						triggers,
+						currentAliasComponents.toList(),
+						triggers.toList(),
 						withMidiStart,
 						withMidiContinue,
 						withMidiStop,
