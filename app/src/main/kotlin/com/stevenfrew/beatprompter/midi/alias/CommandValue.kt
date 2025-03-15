@@ -1,3 +1,3 @@
 package com.stevenfrew.beatprompter.midi.alias
 
-internal class CommandValue(value: Byte) : ByteValue(value)
+internal open class CommandValue(value: Byte) : ByteValue(value)

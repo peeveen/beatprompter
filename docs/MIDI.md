@@ -25,36 +25,39 @@ particular MIDI message is received.
 | `{midi_program_change_trigger:pc,msb,lsb,channel}` | If you insert this tag into a song file, then BeatPrompter can automatically load the song if it receives a matching MIDI signal. For the song to be loaded, it would need to receive two Control Change MIDI signals that match the `msb` and `lsb` values, followed by a Program Change signal that matches the value of `pc`. The “channel” value is optional, but if specified, it means that the song will only be loaded if the signals are received on that channel.<br/><br/>NOTE: A value of `*` can be used as a wildcard for any of these values.<br/><br/>Example: `{midi_program_change_trigger:16,0,112}`<br/><br/>This would load the song automatically if it receives two Control Change values of MSB=0 and LSB=112 followed by a Program Change value of 16. In this example, because no explicit channel number has been specified, these signals can be received on any of the channels that BeatPrompter is listening to. |
 | `{midi_song_select_trigger:n}`                     | Very similar to the tag above, this one will automatically load the song if BeatPrompter receives a Song Select MIDI signal with the given value. Song Select messages are broadcast across all channels, so there is no need to specify a channel with this tag.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
+> For non-channel values, you can also use (e.g.) `<64`, or `>=96` to specify that a trigger should
+> activate if it receives a value greater/less-than (or equal to) a particular value.
+
 ## MIDI Message tags
 
 The following tags instruct BeatPrompter to send out MIDI messages.
 
 - If the tag is defined before the first line of lyrics or chords in a song file, then the MIDI
-	message is sent as soon as the song is loaded.
+  message is sent as soon as the song is loaded.
 - If the tag is defined on a line of lyrics or chords, then the MIDI message is sent as soon as that
-	line begins.
+  line begins.
 - For any tag that contains a `channel` parameter, this parameter is optional, but if provided,
-	should be in the format `#N`, where N is the channel number, so, for example `#10` or `#1`. If
-	omitted, then the default output MIDI channel (as defined in the app settings) is used.
+  should be in the format `#N`, where N is the channel number, so, for example `#10` or `#1`. If
+  omitted, then the default output MIDI channel (as defined in the app settings) is used.
 - Parameter values are, by default, interpreted as normal decimal values, unless the parameter
-	starts with `0x`, or ends with `h`, or just “looks like” hexadecimal characters. For example, `30`
-	would be interpreted as decimal, `0x30` or `30h` would be interpreted as hexadecimal, and `1E` or
-	`3f` would be interpreted as hexadecimal.
+  starts with `0x`, or ends with `h`, or just “looks like” hexadecimal characters. For example, `30`
+  would be interpreted as decimal, `0x30` or `30h` would be interpreted as hexadecimal, and `1E` or
+  `3f` would be interpreted as hexadecimal.
 - All values should be in the range 0-127.
 - Channel values should be in the range 1-16.
 - If you want to send a Program Change or Song Select message when the song is loaded, and also use
-	the same values as a trigger, you only need to define the trigger tag and choose the relevant
-	value for the “Output MIDI Trigger” preference (though this functionality will not work if the
-	trigger contains wildcards).
+  the same values as a trigger, you only need to define the trigger tag and choose the relevant
+  value for the “Output MIDI Trigger” preference (though this functionality will not work if the
+  trigger contains wildcards).
 - Although not listed below, all these tags can have an extra parameter: a timing offset. If you
-	don’t want the MIDI message to be sent as soon as the line begins, you can offset it by a certain
-	number of beats, or an exact number of milliseconds. To include this parameter, put it at the end
-	of the tag, separated from the rest of the tag by a semi-colon, e.g.
-	`{midi_program_change:14,0,112;>>}` will make this message be sent two beats later than usual,
-	whereas `{midi_continue;-750}` will make this message be sent be sent 750 milliseconds before the
-	line is reached. NOTE: If your offset moves the MIDI message to before the start of the song, you
-	will be shown an error message on the song title screen. The maximum offset is 16 beats or 10
-	seconds.
+  don’t want the MIDI message to be sent as soon as the line begins, you can offset it by a certain
+  number of beats, or an exact number of milliseconds. To include this parameter, put it at the end
+  of the tag, separated from the rest of the tag by a semi-colon, e.g.
+  `{midi_program_change:14,0,112;>>}` will make this message be sent two beats later than usual,
+  whereas `{midi_continue;-750}` will make this message be sent be sent 750 milliseconds before the
+  line is reached. NOTE: If your offset moves the MIDI message to before the start of the song, you
+  will be shown an error message on the song title screen. The maximum offset is 16 beats or 10
+  seconds.
 
 | Tag                                              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 |--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -73,24 +76,24 @@ If you make frequent use of MIDI commands in your song files, you can create a f
 to save you having to remember the numeric values all the time.
 
 1. In your cloud storage, create a text document of any name, with
-	 `{midi_aliases:alias_set_name,active_by_default}`
-	 as the first line (see below for meaning of the `active_by_default` argument).
+   `{midi_aliases:alias_set_name,active_by_default}`
+   as the first line (see below for meaning of the `active_by_default` argument).
 2. In the following lines, create a tag `{midi_alias:alias_name}`, putting the name of your choice
-	 in place of `alias_name`.
+   in place of `alias_name`.
 3. On the next lines, enter some MIDI message tags as usual (the usual hashtag comments are also
-	 allowed). You can parameterize your aliases using `?1`, `?2`, and `?3` to identify parameters.
-	 Also, any hexadecimal values that contain an underscore character will have this replaced by the
-	 optional channel parameter or the default output channel. See
-	 the [Built In MIDI Alias File](#built-in-midi-alias-file) section below for clarification.
+   allowed). You can parameterize your aliases using `?1`, `?2`, and `?3` to identify parameters.
+   Also, any hexadecimal values that contain an underscore character will have this replaced by the
+   optional channel parameter or the default output channel. See
+   the [Built In MIDI Alias File](#built-in-midi-alias-file) section below for clarification.
 4. The first blank line, end-of-file, or new `{midi_alias}` tag found after the current
-	 `{midi_alias}` tag denotes the end of that alias.
+   `{midi_alias}` tag denotes the end of that alias.
 5. Now, whenever you want to use that sequence of aliased MIDI messages in your song file, simply
-	 put the tag `{alias_name}`. Obviously your alias name should not match any of the existing tags
-	 that BeatPrompter recognises!
+   put the tag `{alias_name}`. Obviously your alias name should not match any of the existing tags
+   that BeatPrompter recognises!
 6. An alias can refer to any alias defined **earlier** in the same file, but not to aliases defined
-	 in other files.
+   in other files.
 7. Multiple aliases can have the same name with different numbers of parameters. The appropriate one
-	 will be selected when they are executed.
+   will be selected when they are executed.
 
 ### Inactive alias sets, and how to activate them
 
@@ -206,11 +209,12 @@ You can configure a parameterless MIDI alias to be triggered when BeatPrompter r
 specific Control Change message. Just add the
 `{midi_control_change_trigger:controller,value,channel}`
 tag to your alias definition. Just like the `midi_program_change_trigger` tag (documented above),
-the `channel` argument is optional, and you can use wildcards (`*`) for the other values.
+the `channel` argument is optional, and you can use wildcards (`*`) and greater-than/less-than
+ranges.
 
-> You should not use a value of 0 or 32 for the `controller` argument, as these are reserved for
-> MSB/LSB Program Change bank select messages. Incoming bank select messages will never trigger any
-> commands.
+> ⚠ You should not use a value of 0 or 32 for the `controller` argument, as these are reserved for
+> MSB/LSB Program Change bank select messages. Incoming bank select messages will _never_ trigger
+> any commands.
 
 ## MIDI Beat Clock Signals
 
