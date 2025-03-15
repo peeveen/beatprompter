@@ -9,14 +9,15 @@ Versions prior to 1.70 are not listed.
   for sets of MIDI aliases to be inactive by default, but activated on a per-song (or per-variation)
   basis using a new `{activate_midi_aliases:set_name}` song tag.
 - Added new "MIDI command" filter. Parameterless MIDI aliases will be listed under this filter, and
-  can be executed directly from the main list by tapping on it. You can exclude such aliases from
-  the list by using the new optional "is command" true/false value on the `{midi_alias}` tag.
+  can be executed directly from the main list by tapping on it. However, only parameterless MIDI
+  aliases that have been given a display name (via the newly-expanded `{midi_alias}` tag) will be
+  listed here.
 - Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
     - Also added corresponding "Show capo setting on title screen" preference.
 - No longer notifies you of each device disconnection twice (this was happening because, for most
   devices, there is an output and an input virtual device, and they are treated separately). Any
   identical connection/disconnection notification message that is received within one second of
-  another is now ignored.
+  each other are now ignored.
 - Fixed tag filtering from the "All Songs" playlist. Songs marked as "filter only" were not being
   selected when a tag filter was chosen.
 - Fixed Google Drive sync where it failed upon encountering a Google Sheets/Slides/Forms/etc file.
@@ -24,6 +25,8 @@ Versions prior to 1.70 are not listed.
   `{midi_control_change_trigger:controller,value,channel}` tag.
 - MIDI triggers can now specify a greater/less-than (or equal to) comparison value that the trigger
   should activate on.
+- MIDI parsing errors no longer appear as white-against-white in dark mode.
+- The "Shuffle" menu option is now disabled when viewing lists of non-song items.
 
 ## 1.77
 

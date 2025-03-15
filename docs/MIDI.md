@@ -191,13 +191,13 @@ by the alias will also be sent at these times.
 
 ### MIDI commands
 
-The `{midi_alias:name}` tag accepts a second, optional true/false argument, e.g.:
+The `{midi_alias:name}` tag accepts a second, optional display-name argument, e.g.:
 
-`{midi_alias:MyExcellentAlias,false}`
+`{midi_alias:MyExcellentAlias,This Is How It Appears In The List}`
 
 This indicates whether the alias is to be included in the "MIDI Commands" filter. The default is
-`false`, but an alias _must_ also be parameterless to be considered as a MIDI command, so if you
-provide a value of `true` on an alias that accept parameters, you will see an error.
+blank, but an alias _must_ also be parameterless to be considered as a MIDI command, so if you
+provide a value for the display name on an alias that accept parameters, you will see an error.
 
 MIDI commands will be shown in the main list under the "MIDI Commands" filter. You can then click
 on these list items to send the MIDI commands. This is useful for triggering MIDI events manually,

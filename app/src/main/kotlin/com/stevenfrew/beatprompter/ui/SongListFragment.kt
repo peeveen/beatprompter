@@ -167,7 +167,10 @@ class SongListFragment
 			executeMidiCommand(alias)
 			Toast.makeText(
 				context,
-				BeatPrompter.appResources.getString(R.string.executed_midi_command, alias.name),
+				BeatPrompter.appResources.getString(
+					R.string.executed_midi_command,
+					alias.commandName ?: alias.name
+				),
 				Toast.LENGTH_SHORT
 			).show()
 		} else if (selectedFilter is UltimateGuitarFilter) {
@@ -853,7 +856,7 @@ class SongListFragment
 				is MidiCommandsFilter ->
 					MidiCommandListAdapter(
 						Cache.cachedCloudItems.midiCommands.filter {
-							searchText.isBlank() || it.name.contains(searchText)
+							searchText.isBlank() || it.commandName?.contains(searchText) == true
 						}.sortedBy { it.name },
 						context
 					)
@@ -1224,6 +1227,7 @@ class SongListFragment
 
 		override fun onPrepareMenu(menu: Menu) {
 			menu.findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
+			menu.findItem(R.id.shuffle)?.isEnabled = selectedFilter.canSort
 			menu.findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}
 

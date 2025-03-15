@@ -22,14 +22,14 @@ class MidiAliasNameTag internal constructor(
 	value: String
 ) : Tag(name, lineNumber, position) {
 	val aliasName: String
-	val isCommand: Boolean
+	val commandName: String?
 
 	init {
 		val bits = value.splitAndTrim(",")
 		aliasName = bits[0].ifBlank { throw MalformedTagException(R.string.tag_has_blank_value, name) }
-		isCommand = if (bits.size > 1)
-			bits[1].toBoolean()
+		commandName = if (bits.size > 1 && bits[1].isNotEmpty())
+			bits[1]
 		else
-			false
+			null
 	}
 }

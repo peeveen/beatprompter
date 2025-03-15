@@ -10,7 +10,7 @@ class Alias(
 	val withMidiStart: Boolean = false,
 	val withMidiContinue: Boolean = false,
 	val withMidiStop: Boolean = false,
-	val isCommand: Boolean = false
+	val commandName: String? = null
 ) : AliasComponent {
 	override val parameterCount
 		get() = components.maxOfOrNull { it.parameterCount } ?: 0

@@ -46,7 +46,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	private var aliasSetName: String? = null
 	private val currentAliasComponents = mutableListOf<AliasComponent>()
 	private val triggers = mutableListOf<MidiTrigger>()
-	private var isCommand: Boolean = false
+	private var commandName: String? = null
 	private var useByDefault: Boolean = true
 	private var currentAliasName: String? = null
 	private var defaultChannel: ChannelValue? = null
@@ -99,12 +99,12 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	override fun getResult(): MidiAliasFile = MidiAliasFile(cachedCloudFile, getAliasSet(), errors)
 
 	private fun setNewAliasProperties(aliasNameTag: MidiAliasNameTag) {
-		isCommand = aliasNameTag.isCommand
+		commandName = aliasNameTag.commandName
 		currentAliasName = aliasNameTag.aliasName
 		if (currentAliasName.isNullOrBlank()) {
 			addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))
 			currentAliasName = null
-			isCommand = false
+			commandName = null
 		}
 	}
 
@@ -145,9 +145,9 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 					withMidiContinue = false
 					withMidiStop = false
 				}
-				if (hasArguments && isCommand) {
+				if (hasArguments && commandName !== null) {
 					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
-					isCommand = false
+					commandName = null
 				}
 				if (triggers.any() && hasArguments) {
 					addError(ContentParsingError(R.string.cannot_use_triggers_in_non_command_aliases))
@@ -161,7 +161,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 						withMidiStart,
 						withMidiContinue,
 						withMidiStop,
-						isCommand,
+						commandName,
 					)
 				)
 				currentAliasComponents.clear()

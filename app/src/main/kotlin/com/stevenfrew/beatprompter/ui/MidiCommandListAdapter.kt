@@ -27,6 +27,6 @@ class MidiCommandListAdapter(private val values: List<Alias>, context: Context) 
 			val errorIcon = it.findViewById<ImageView>(R.id.erroricon)
 			val alias = values[position]
 			errorIcon.visibility = View.GONE
-			titleView.text = alias.name
+			titleView.text = alias.commandName ?: alias.name
 		}
 }

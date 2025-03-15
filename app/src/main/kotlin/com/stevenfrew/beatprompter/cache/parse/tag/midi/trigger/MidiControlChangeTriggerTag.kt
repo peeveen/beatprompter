@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger
 
-import com.stevenfrew.beatprompter.cache.parse.tag.OncePerFile
+import com.stevenfrew.beatprompter.cache.parse.tag.OncePerLine
 import com.stevenfrew.beatprompter.cache.parse.tag.TagName
 import com.stevenfrew.beatprompter.cache.parse.tag.TagType
 import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.midi.TriggerType
 
-@OncePerFile
+@OncePerLine
 @TagName("midi_control_change_trigger", "midicontrolchangetrigger")
 @TagType(Type.Directive)
 /**
