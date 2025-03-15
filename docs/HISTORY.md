@@ -20,7 +20,6 @@ Versions prior to 1.70 are not listed.
   each other are now ignored.
 - Fixed tag filtering from the "All Songs" playlist. Songs marked as "filter only" were not being
   selected when a tag filter was chosen.
-- Fixed Google Drive sync where it failed upon encountering a Google Sheets/Slides/Forms/etc file.
 - MIDI commands can now be triggered by incoming Control Change MIDI messages using the new
   `{midi_control_change_trigger:controller,value,channel}` tag.
 - MIDI triggers can now specify a greater/less-than (or equal to) comparison value that the trigger
