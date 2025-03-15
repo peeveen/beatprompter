@@ -16,7 +16,7 @@ Versions prior to 1.70 are not listed.
     - Also added corresponding "Show capo setting on title screen" preference.
 - No longer notifies you of each device disconnection twice (this was happening because, for most
   devices, there is an output and an input virtual device, and they are treated separately). Any
-  identical connection/disconnection notification message that is received within one second of
+  identical connection/disconnection notification messages that are received within one second of
   each other are now ignored.
 - Fixed tag filtering from the "All Songs" playlist. Songs marked as "filter only" were not being
   selected when a tag filter was chosen.
