@@ -1291,7 +1291,7 @@ class SongListFragment
 	class UltimateGuitarChordProContentCopyToClipboardTask(
 		private val clipboardManager: ClipboardManager?,
 		private val songInfo: UltimateGuitarSongInfo
-	) : Task(true) {
+	) : Task(true, true) {
 		override fun doWork() {
 			try {
 				if (clipboardManager != null) {
