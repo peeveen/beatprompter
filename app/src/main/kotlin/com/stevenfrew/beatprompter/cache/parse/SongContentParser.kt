@@ -85,8 +85,8 @@ abstract class SongContentParser<TResultType>(
 			variationExclusions.add(variations.minus(variationInclusionStartTag.variations.toSet()))
 		// Are we in a variation exclusion section?
 		// Does it instruct us to exclude this line for the current variation?
-		val excludeLine =
-			variationExclusions.any { it.contains(variation ?: variations.firstOrNull() ?: "") }
+		val excludeLine = if (variation == null) false else
+			variationExclusions.any { it.contains(variation) }
 		// Now that we've figured out whether this is an exclusion section, we need to look for varxstop/varstop tags
 		// on this line.
 		val variationExclusionEndTag =
