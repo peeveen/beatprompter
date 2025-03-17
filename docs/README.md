@@ -544,11 +544,20 @@ the songs in the Temporary set list will give you the option to clear the tempor
 In the filters list, you will find a filter for content
 from [Ultimate Guitar](https://www.ultimate-guitar.com).
 This will show as an empty list until you search for something, at which point, it will pull back
-search results from the Ultimate Guitar website. Only the first page of search results from UG is
-displayed.
+search results from the Ultimate Guitar website.
+
+> Only the first page of search results from UG is displayed.
 
 You can then select any of those search results to load the lyrics and chords directly from the
 UG website.
+
+> This functionality is **hugely** dependent on the Ultimate Guitar third-party provider.
+> BeatPrompter
+> is not affiliated with Ultimate Guitar, and has no control over the workings of the Ultimate
+> Guitar website. If the creators of the Ultimate Guitar website change how their website operates
+> under the
+> hood, then this functionality will probably stop working until BeatPrompter is adapted to use
+> those changes. Put simply, **do not rely on this functionality for your performances**.
 
 There are several limitations to the content that Ultimate Guitar provides:
 
