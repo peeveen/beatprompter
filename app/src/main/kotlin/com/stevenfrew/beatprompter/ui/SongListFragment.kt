@@ -3,6 +3,8 @@ package com.stevenfrew.beatprompter.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
@@ -33,6 +35,7 @@ import android.widget.ToggleButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +43,7 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.CachedCloudCollection
 import com.stevenfrew.beatprompter.cache.MidiAliasFile
@@ -101,6 +105,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+
 
 class SongListFragment
 	: Fragment(),
@@ -458,6 +463,16 @@ class SongListFragment
 		}
 	}
 
+	private fun copyUltimateGuitarChordProToClipboard(songInfo: UltimateGuitarSongInfo) =
+		Thread(
+			UltimateGuitarChordProContentCopyToClipboardTask(
+				getSystemService(
+					requireContext(),
+					ClipboardManager::class.java
+				), songInfo
+			)
+		).start()
+
 	private fun onSongListLongClick(position: Int, parentAdapterView: AdapterView<*>) {
 		val adapter = parentAdapterView.adapter
 		val selectedNode = adapter.getItem(position) as PlaylistNode
@@ -497,7 +512,10 @@ class SongListFragment
 					performingCloudSync =
 						Cache.performCloudSync(selectedSet, false, this@SongListFragment)
 				})
-		}
+		} else if (selectedSongInfo is UltimateGuitarSongInfo)
+			options.add(R.string.copy_ug_to_clipboard to {
+				copyUltimateGuitarChordProToClipboard(selectedSongInfo)
+			})
 		if (includeClearSet)
 			options.add(R.string.clear_set to { Cache.clearTemporarySetList(requireContext()) })
 		if (addAllowed)
@@ -1270,6 +1288,24 @@ class SongListFragment
 		}
 	}
 
+	class UltimateGuitarChordProContentCopyToClipboardTask(
+		private val clipboardManager: ClipboardManager?,
+		private val songInfo: UltimateGuitarSongInfo
+	) : Task(true) {
+		override fun doWork() {
+			try {
+				if (clipboardManager != null) {
+					val content = songInfo.songContentProvider.getContent()
+					val clip = ClipData.newPlainText("UG-ChordPro", content)
+					clipboardManager.setPrimaryClip(clip)
+				} else throw Exception("No clipboard functionality available.")
+				EventRouter.sendEventToSongList(Events.COPY_TO_CLIPBOARD_SUCCEEDED)
+			} catch (e: Exception) {
+				EventRouter.sendEventToSongList(Events.COPY_TO_CLIPBOARD_FAILED, e.message ?: e.toString())
+			}
+		}
+	}
+
 	class SongListEventHandler internal constructor(private val songList: SongListFragment) :
 		Handler() {
 		override fun handleMessage(msg: Message) {
@@ -1337,6 +1373,16 @@ class SongListFragment
 					songList.showLoadingProgressUI(false)
 					Toast.makeText(songList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
 				}
+
+				Events.COPY_TO_CLIPBOARD_SUCCEEDED ->
+					Toast.makeText(
+						songList.context,
+						BeatPrompter.appResources.getString(R.string.copied),
+						Toast.LENGTH_SHORT
+					).show()
+
+				Events.COPY_TO_CLIPBOARD_FAILED ->
+					Toast.makeText(songList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
 
 				Events.SONG_LOAD_COMPLETED -> {
 					Logger.logLoader({ "Song ${msg.obj} was fully loaded successfully." })

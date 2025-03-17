@@ -559,6 +559,9 @@ UG website.
 > hood, then this functionality will probably stop working until BeatPrompter is adapted to use
 > those changes. Put simply, **do not rely on this functionality for your performances**.
 
+A long-press on an Ultimate Guitar song will offer you the copy the song content to the clipboard
+in ChordPro format.
+
 There are several limitations to the content that Ultimate Guitar provides:
 
 1) Songs from UG don't contain any timing information, so you can only display the songs in
