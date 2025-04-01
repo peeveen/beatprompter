@@ -3,12 +3,13 @@ package com.stevenfrew.beatprompter.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Point
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -34,33 +35,43 @@ import android.widget.ToggleButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.Cache
 import com.stevenfrew.beatprompter.cache.CachedCloudCollection
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.MidiAliasFile
 import com.stevenfrew.beatprompter.cache.ReadCacheTask
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.chord.ChordMap
 import com.stevenfrew.beatprompter.chord.KeySignature
 import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
+import com.stevenfrew.beatprompter.comm.midi.Midi
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
+import com.stevenfrew.beatprompter.midi.CommandTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
+import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.set.Playlist
 import com.stevenfrew.beatprompter.set.PlaylistNode
 import com.stevenfrew.beatprompter.set.SetListEntry
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
+import com.stevenfrew.beatprompter.song.UltimateGuitarSongInfo
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
 import com.stevenfrew.beatprompter.song.load.SongLoadInfo
@@ -73,15 +84,18 @@ import com.stevenfrew.beatprompter.ui.filter.AllSongsFilter
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FilterComparator
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
-import com.stevenfrew.beatprompter.ui.filter.MIDIAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiAliasFilesFilter
+import com.stevenfrew.beatprompter.ui.filter.MidiCommandsFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFileFilter
 import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.SongFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
+import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
+import com.stevenfrew.beatprompter.util.bestScrollingMode
 import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.beatprompter.util.flattenAll
 import kotlinx.coroutines.CoroutineScope
@@ -91,6 +105,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+
 
 class SongListFragment
 	: Fragment(),
@@ -125,14 +140,55 @@ class SongListFragment
 				startNextSong()
 		}
 
+	private fun triggerMidiCommands(commandTrigger: CommandTrigger) =
+		Cache.cachedCloudItems.midiAliasSets.flatMap { set ->
+			set.aliases.filter { alias ->
+				alias.triggers.any {
+					it == commandTrigger
+				}
+			}
+		}.forEach {
+			executeMidiCommand(it)
+		}
+
+	private fun executeMidiCommand(alias: Alias) {
+		val (messages, _) = alias.resolve(
+			Cache.cachedCloudItems.defaultMidiAliasSet,
+			Cache.cachedCloudItems.midiAliasSets,
+			byteArrayOf(),
+			MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+		)
+		Midi.putMessages(messages)
+	}
+
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-		if (selectedFilter is MIDIAliasFilesFilter) {
-			val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+		val adapter = parent.adapter as ArrayAdapter<*>
+		if (selectedFilter is MidiAliasFilesFilter) {
+			val maf = adapter.getItem(position) as MidiAliasFile
 			if (maf.errors.isNotEmpty())
 				showMIDIAliasErrors(maf.errors)
+		} else if (selectedFilter is MidiCommandsFilter) {
+			val alias = adapter.getItem(position) as Alias
+			executeMidiCommand(alias)
+			Toast.makeText(
+				context,
+				BeatPrompter.appResources.getString(
+					R.string.executed_midi_command,
+					alias.commandName ?: alias.name
+				),
+				Toast.LENGTH_SHORT
+			).show()
+		} else if (selectedFilter is UltimateGuitarFilter) {
+			val songToLoad = adapter.getItem(position) as PlaylistNode
+			if (songToLoad.songInfo is UltimateGuitarSongInfo && !SongLoadQueueWatcherTask.isAlreadyLoadingSong(
+					songToLoad.songInfo
+				)
+			)
+				playPlaylistNode(songToLoad, false)
+
 		} else {
-			val songToLoad = filterPlaylistNodes(playlist)[position]
-			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songFile))
+			val songToLoad = adapter.getItem(position) as PlaylistNode
+			if (!SongLoadQueueWatcherTask.isAlreadyLoadingSong(songToLoad.songInfo))
 				playPlaylistNode(songToLoad, false)
 		}
 	}
@@ -215,15 +271,18 @@ class SongListFragment
 
 	private fun applyFileFilter(filter: Filter) {
 		selectedFilter = filter
-		playlist = if (filter is SongFilter)
+		playlist = if (filter is SongFilter) {
+			val isAllSongsFilter = filter is AllSongsFilter
+			val tagFiltersSelected = selectedTagFilters.isNotEmpty()
 			Playlist(filter.songs.filter {
-				if (selectedTagFilters.isNotEmpty()) selectedTagFilters.any { filter ->
-					filter.songs.contains(
-						it
-					)
-				} else true
+				val songInfo = it.first
+				if (tagFiltersSelected)
+					selectedTagFilters.any { filter -> filter.songs.contains(it) }
+				else if (isAllSongsFilter && songInfo is SongFile)
+					!Cache.cachedCloudItems.isFilterOnly(songInfo)
+				else true
 			})
-		else
+		} else
 			Playlist()
 		sortSongList()
 		listAdapter = buildListAdapter()
@@ -267,8 +326,8 @@ class SongListFragment
 
 	private fun startSongViaMidiSongTrigger(mst: SongTrigger) {
 		for (node in playlist.nodes)
-			if (node.songFile.matchesTrigger(mst)) {
-				Logger.log({ "Found trigger match: '${node.songFile.title}'." })
+			if (node.songInfo.matchesTrigger(mst)) {
+				Logger.log({ "Found trigger match: '${node.songInfo.title}'." })
 				playPlaylistNode(node, true)
 				return
 			}
@@ -277,17 +336,17 @@ class SongListFragment
 		for (sf in Cache.cachedCloudItems.songFiles)
 			if (sf.matchesTrigger(mst)) {
 				Logger.log({ "Found trigger match: '${sf.title}'." })
-				playSongFile(sf, PlaylistNode(sf), true)
+				playSong(sf, PlaylistNode(sf), true)
 			}
 	}
 
 	private fun playPlaylistNode(node: PlaylistNode, startedByMidiTrigger: Boolean) {
-		val selectedSong = node.songFile
-		playSongFile(selectedSong, node, startedByMidiTrigger)
+		val selectedSong = node.songInfo
+		playSong(selectedSong, node, startedByMidiTrigger)
 	}
 
-	private fun playSongFile(
-		selectedSong: SongFile,
+	private fun playSong(
+		selectedSong: SongInfo,
 		node: PlaylistNode,
 		startedByMidiTrigger: Boolean
 	) {
@@ -376,10 +435,10 @@ class SongListFragment
 		nowPlayingNode = selectedNode
 
 		val nextSongName =
-			if (selectedNode.nextSong != null && shouldPlayNextSong()) selectedNode.nextSong.songFile.title else ""
+			if (selectedNode.nextSong != null && shouldPlayNextSong()) selectedNode.nextSong.songInfo.title else ""
 		val songLoadInfo = SongLoadInfo(
-			selectedNode.songFile,
-			if (selectedNode.variation.isNullOrBlank()) selectedNode.songFile.defaultVariation else selectedNode.variation,
+			selectedNode.songInfo,
+			if (selectedNode.variation.isNullOrBlank()) selectedNode.songInfo.defaultVariation else selectedNode.variation,
 			scrollMode,
 			nativeSettings,
 			sourceSettings,
@@ -394,7 +453,7 @@ class SongListFragment
 		SongLoadQueueWatcherTask.loadSong(songLoadJob)
 	}
 
-	private fun addToTemporarySet(song: SongFile) {
+	private fun addToTemporarySet(song: SongInfo) {
 		filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()?.addSong(song)
 		try {
 			Cache.initialiseTemporarySetListFile(false, requireContext())
@@ -404,18 +463,30 @@ class SongListFragment
 		}
 	}
 
-	private fun onSongListLongClick(position: Int) {
-		val selectedNode = filterPlaylistNodes(playlist)[position]
-		val selectedSong = selectedNode.songFile
+	private fun copyUltimateGuitarChordProToClipboard(songInfo: UltimateGuitarSongInfo) =
+		Thread(
+			UltimateGuitarChordProContentCopyToClipboardTask(
+				getSystemService(
+					requireContext(),
+					ClipboardManager::class.java
+				), songInfo
+			)
+		).start()
+
+	private fun onSongListLongClick(position: Int, parentAdapterView: AdapterView<*>) {
+		val adapter = parentAdapterView.adapter
+		val selectedNode = adapter.getItem(position) as PlaylistNode
+		val selectedSongInfo = selectedNode.songInfo
 		val selectedSet =
 			if (selectedFilter is SetListFileFilter) (selectedFilter as SetListFileFilter).setListFile else null
 		val tempSetListFilter =
 			filters.asSequence().filterIsInstance<TemporarySetListFilter>().firstOrNull()
+		val isUgSearchNode = selectedSongInfo is UltimateGuitarSearchStatusNode
 
-		val addAllowed =
+		val addAllowed = !isUgSearchNode &&
 			if (tempSetListFilter != null)
 				if (selectedFilter !== tempSetListFilter)
-					!tempSetListFilter.containsSong(selectedSong)
+					!tempSetListFilter.containsSong(selectedSongInfo)
 				else
 					false
 			else
@@ -424,45 +495,56 @@ class SongListFragment
 		val includeClearSet = selectedFilter === tempSetListFilter
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
-		options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSong) })
-		options.add(R.string.force_refresh to {
-			performingCloudSync =
-				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
-		})
-		options.add(R.string.force_refresh_with_dependencies to {
-			performingCloudSync =
-				Cache.performCloudSync(selectedSong, false, this@SongListFragment)
-		})
-		if (includeRefreshSet)
-			options.add(R.string.force_refresh_set to {
+		if (!isUgSearchNode)
+			options.add(R.string.play_submenu to { showPlayDialog(selectedNode, selectedSongInfo) })
+
+		if (selectedSongInfo is SongFile) {
+			options.add(R.string.force_refresh to {
 				performingCloudSync =
-					Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+					Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
+			})
+			options.add(R.string.force_refresh_with_dependencies to {
+				performingCloudSync =
+					Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
+			})
+			if (includeRefreshSet)
+				options.add(R.string.force_refresh_set to {
+					performingCloudSync =
+						Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+				})
+		} else if (selectedSongInfo is UltimateGuitarSongInfo)
+			options.add(R.string.copy_ug_to_clipboard to {
+				copyUltimateGuitarChordProToClipboard(selectedSongInfo)
 			})
 		if (includeClearSet)
 			options.add(R.string.clear_set to { Cache.clearTemporarySetList(requireContext()) })
 		if (addAllowed)
-			options.add(R.string.add_to_temporary_set to { addToTemporarySet(selectedSong) })
+			options.add(R.string.add_to_temporary_set to { addToTemporarySet(selectedSongInfo) })
 		val storage = Storage.getInstance(BeatPrompter.preferences.storageSystem, this)
-		if (storage is EditableStorage) {
-			options.add(R.string.edit_file to { startActivity(storage.getEditIntent(selectedSong.id)) })
-			if (selectedSet != null)
-				options.add(R.string.edit_set_file to { startActivity(storage.getEditIntent(selectedSet.id)) })
+		if (selectedSongInfo is SongFile) {
+			if (storage is EditableStorage) {
+				options.add(R.string.edit_file to { startActivity(storage.getEditIntent(selectedSongInfo.id)) })
+				if (selectedSet != null)
+					options.add(R.string.edit_set_file to { startActivity(storage.getEditIntent(selectedSet.id)) })
+			}
 		}
 
-		val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
-		AlertDialog.Builder(context).apply {
-			setTitle(R.string.song_options)
-			setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
-			create().apply {
-				setCanceledOnTouchOutside(true)
-				show()
+		if (options.any()) {
+			val optionStrings = options.map { BeatPrompter.appResources.getString(it.first) }
+			AlertDialog.Builder(context).apply {
+				setTitle(R.string.song_options)
+				setItems(optionStrings.toTypedArray()) { _, which -> options[which].second() }
+				create().apply {
+					setCanceledOnTouchOutside(true)
+					show()
+				}
 			}
 		}
 	}
 
 	private fun showPlayDialog(
 		selectedNode: PlaylistNode,
-		selectedSong: SongFile
+		selectedSong: SongInfo
 	) {
 		// Get the layout inflater
 		val inflater = layoutInflater
@@ -477,7 +559,7 @@ class SongListFragment
 			android.R.layout.simple_spinner_item, selectedSong.variations
 		)
 		val transposeOptions =
-			TransposeOption.getTransposeOptions(selectedSong.key, selectedSong.firstChord)
+			TransposeOption.getTransposeOptions(selectedSong.keySignature, selectedSong.firstChord)
 
 		val transposeSpinner = view
 			.findViewById<Spinner>(R.id.transposeSpinner)
@@ -581,7 +663,7 @@ class SongListFragment
 					}
 				val sds = getSongDisplaySettings(mode)
 				playSong(
-					PlaylistNode(selectedNode.songFile, selectedVariation, selectedNode.nextSong),
+					PlaylistNode(selectedNode.songInfo, selectedVariation, selectedNode.nextSong),
 					mode,
 					false,
 					sds,
@@ -598,8 +680,9 @@ class SongListFragment
 		}
 	}
 
-	private fun onMIDIAliasListLongClick(position: Int) {
-		val maf = filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles)[position]
+	private fun onMIDIAliasListLongClick(position: Int, parentAdapterView: AdapterView<*>) {
+		val adapter = parentAdapterView.adapter
+		val maf = adapter.getItem(position) as MidiAliasFile
 		val showErrors = maf.errors.isNotEmpty()
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
@@ -623,7 +706,7 @@ class SongListFragment
 		}
 	}
 
-	private fun showMIDIAliasErrors(errors: List<FileParseError>) {
+	private fun showMIDIAliasErrors(errors: List<ContentParsingError>) {
 		@SuppressLint("InflateParams")
 		val view = layoutInflater.inflate(R.layout.parse_errors_dialog, null)
 		val tv = view.findViewById<TextView>(R.id.errors)
@@ -650,10 +733,10 @@ class SongListFragment
 		position: Int,
 		id: Long
 	): Boolean {
-		if (selectedFilter is MIDIAliasFilesFilter)
-			onMIDIAliasListLongClick(position)
-		else
-			onSongListLongClick(position)
+		if (selectedFilter is MidiAliasFilesFilter)
+			onMIDIAliasListLongClick(position, parent)
+		else if (selectedFilter !is MidiCommandsFilter)
+			onSongListLongClick(position, parent)
 		return true
 	}
 
@@ -777,19 +860,45 @@ class SongListFragment
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
-		requireActivity().let {
-			if (selectedFilter is MIDIAliasFilesFilter)
-				MIDIAliasListAdapter(
-					filterMIDIAliasFiles(Cache.cachedCloudItems.midiAliasFiles),
-					it
-				)
-			else
-				SongListAdapter(
-					filterPlaylistNodes(playlist),
-					imageDictionary,
-					missingIconBitmap!!,
-					it
-				)
+		requireActivity().let { context ->
+			when (selectedFilter) {
+				is MidiAliasFilesFilter ->
+					MidiAliasListAdapter(
+						Cache.cachedCloudItems.midiAliasFiles.filter {
+							it.file != Cache.defaultMidiAliasesFile &&
+								(searchText.isBlank() || it.normalizedName.contains(searchText))
+						}.sortedBy { it.name },
+						context
+					)
+
+				is MidiCommandsFilter ->
+					MidiCommandListAdapter(
+						Cache.cachedCloudItems.midiCommands.filter {
+							searchText.isBlank() || it.commandName?.contains(searchText) == true
+						}.sortedBy { it.name },
+						context
+					)
+
+				is UltimateGuitarFilter ->
+					UltimateGuitarListAdapter(
+						searchText,
+						mSongListEventHandler!!,
+						mutableListOf(),
+						context
+					)
+
+				else ->
+					SongListAdapter(
+						playlist.nodes.filter {
+							searchText.isBlank() ||
+								it.songInfo.normalizedArtist.contains(searchText) ||
+								it.songInfo.normalizedTitle.contains(searchText)
+						},
+						imageDictionary,
+						missingIconBitmap!!,
+						context
+					)
+			}
 		}
 
 	private fun buildFilterList(cache: CachedCloudCollection) {
@@ -843,16 +952,28 @@ class SongListFragment
 		// if there aren't any more, don't bother creating a filter.
 		val midiAliasFilesFilter =
 			if (cache.midiAliasFiles.size > 1)
-				MIDIAliasFilesFilter(getString(R.string.midi_alias_files))
+				MidiAliasFilesFilter()
 			else
 				null
+
+		// Same thing for MIDI commands ... if there aren't any, don't bother creating a filter.
+		val midiCommandsFilter =
+			if (cache.midiCommands.isNotEmpty())
+				MidiCommandsFilter()
+			else
+				null
+
+		// Add the UG filter.
+		val ultimateGuitarFilter = UltimateGuitarFilter()
 
 		// Now bundle them altogether into one list.
 		filters = listOf(
 			allSongsFilter,
 			tempSetListFilter,
 			tagAndFolderFilters,
-			midiAliasFilesFilter
+			midiAliasFilesFilter,
+			midiCommandsFilter,
+			ultimateGuitarFilter
 		)
 			.flattenAll()
 			.filterIsInstance<Filter>()
@@ -866,11 +987,9 @@ class SongListFragment
 		requireActivity().invalidateOptionsMenu()
 	}
 
-	private fun createAllSongsFilter(cache: CachedCloudCollection): Filter = AllSongsFilter(cache
-		.songFiles
-		.asSequence()
-		.filterNot { cache.isFilterOnly(it) }
-		.toList())
+	private fun createAllSongsFilter(cache: CachedCloudCollection): Filter = AllSongsFilter(
+		cache.songFiles.toList()
+	)
 
 	private fun findFilter(filter: Filter, cache: CachedCloudCollection): Filter =
 		filters.find { it == filter } ?: filters.find { it is AllSongsFilter } ?: createAllSongsFilter(
@@ -918,7 +1037,7 @@ class SongListFragment
 	}
 
 	private fun openBrowser(uriResource: Int) {
-		val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(uriResource)))
+		val browserIntent = Intent(Intent.ACTION_VIEW, getString(uriResource).toUri())
 		startActivity(browserIntent)
 	}
 
@@ -1088,26 +1207,15 @@ class SongListFragment
 
 	override fun onQueryTextSubmit(searchText: String?): Boolean = true
 
+	private val queryDebouncer = Debouncer(lifecycleScope)
 	override fun onQueryTextChange(searchText: String?): Boolean {
-		this.searchText = searchText?.lowercase() ?: ""
-		listAdapter = buildListAdapter()
-		updateListView()
+		queryDebouncer.debounce(300L) {
+			this.searchText = searchText?.lowercase() ?: ""
+			listAdapter = buildListAdapter()
+			updateListView()
+		}
 		return true
 	}
-
-	private fun filterMIDIAliasFiles(fileList: List<MIDIAliasFile>): List<MIDIAliasFile> {
-		return fileList.filter {
-			it.file != Cache.defaultMidiAliasesFile &&
-				(searchText.isBlank() || it.normalizedName.contains(searchText))
-		}
-	}
-
-	private fun filterPlaylistNodes(playlist: Playlist): List<PlaylistNode> =
-		playlist.nodes.filter {
-			searchText.isBlank() ||
-				it.songFile.normalizedArtist.contains(searchText) ||
-				it.songFile.normalizedTitle.contains(searchText)
-		}
 
 	companion object {
 		var mSongListEventHandler: SongListEventHandler? = null
@@ -1137,6 +1245,7 @@ class SongListFragment
 
 		override fun onPrepareMenu(menu: Menu) {
 			menu.findItem(R.id.sort_songs)?.isEnabled = selectedFilter.canSort
+			menu.findItem(R.id.shuffle)?.isEnabled = selectedFilter.canSort
 			menu.findItem(R.id.synchronize)?.isEnabled = Cache.canPerformCloudSync()
 		}
 
@@ -1179,6 +1288,24 @@ class SongListFragment
 		}
 	}
 
+	class UltimateGuitarChordProContentCopyToClipboardTask(
+		private val clipboardManager: ClipboardManager?,
+		private val songInfo: UltimateGuitarSongInfo
+	) : Task(true, true) {
+		override fun doWork() {
+			try {
+				if (clipboardManager != null) {
+					val content = songInfo.songContentProvider.getContent()
+					val clip = ClipData.newPlainText("UG-ChordPro", content)
+					clipboardManager.setPrimaryClip(clip)
+				} else throw Exception("No clipboard functionality available.")
+				EventRouter.sendEventToSongList(Events.COPY_TO_CLIPBOARD_SUCCEEDED)
+			} catch (e: Exception) {
+				EventRouter.sendEventToSongList(Events.COPY_TO_CLIPBOARD_FAILED, e.message ?: e.toString())
+			}
+		}
+	}
+
 	class SongListEventHandler internal constructor(private val songList: SongListFragment) :
 		Handler() {
 		override fun handleMessage(msg: Message) {
@@ -1204,6 +1331,11 @@ class SongListFragment
 				Events.MIDI_PROGRAM_CHANGE -> {
 					val bytes = msg.obj as ByteArray
 					songList.startSongViaMidiProgramChange(bytes[0], bytes[1], bytes[2], bytes[3])
+				}
+
+				Events.MIDI_CONTROL_CHANGE -> {
+					val bytes = msg.obj as ByteArray
+					songList.triggerMidiCommands(CommandTrigger(bytes[0], bytes[1], bytes[2]))
 				}
 
 				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())
@@ -1242,6 +1374,16 @@ class SongListFragment
 					Toast.makeText(songList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
 				}
 
+				Events.COPY_TO_CLIPBOARD_SUCCEEDED ->
+					Toast.makeText(
+						songList.context,
+						BeatPrompter.appResources.getString(R.string.copied),
+						Toast.LENGTH_SHORT
+					).show()
+
+				Events.COPY_TO_CLIPBOARD_FAILED ->
+					Toast.makeText(songList.context, msg.obj.toString(), Toast.LENGTH_LONG).show()
+
 				Events.SONG_LOAD_COMPLETED -> {
 					Logger.logLoader({ "Song ${msg.obj} was fully loaded successfully." })
 					songList.showLoadingProgressUI(false)
@@ -1268,6 +1410,13 @@ class SongListFragment
 						Toast.LENGTH_LONG
 					).show()
 				}
+
+				Events.SEARCH_ERROR ->
+					Toast.makeText(
+						songList.context,
+						msg.obj.toString(),
+						Toast.LENGTH_LONG
+					).show()
 			}
 		}
 	}

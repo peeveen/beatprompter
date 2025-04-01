@@ -11,7 +11,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.find.Type
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.midi.EventOffset
 import com.stevenfrew.beatprompter.midi.EventOffsetType
-import com.stevenfrew.beatprompter.midi.alias.Alias
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ResolutionException
 import com.stevenfrew.beatprompter.midi.alias.Value
@@ -30,14 +30,16 @@ class MidiEventTag internal constructor(
 ) : Tag(name, lineNumber, position) {
 	val messages: List<MidiMessage>
 	val offset: EventOffset
+	val aliasSetsUsed: Set<AliasSet>
 
 	init {
 		val parsedEvent = parseMIDIEvent(
 			name,
-			value, lineNumber, Cache.cachedCloudItems.midiAliases
+			value, lineNumber, Cache.cachedCloudItems.midiAliasSets
 		)
-		messages = parsedEvent.first
+		messages = parsedEvent.first.first
 		offset = parsedEvent.second
+		aliasSetsUsed = parsedEvent.first.second
 	}
 
 	fun toMIDIEvent(time: Long): MidiEvent = MidiEvent(time, messages, offset)
@@ -49,8 +51,8 @@ class MidiEventTag internal constructor(
 			name: String,
 			value: String,
 			lineNumber: Int,
-			aliases: List<Alias>
-		): Pair<List<MidiMessage>, EventOffset> =
+			aliasSets: List<AliasSet>
+		): Pair<Pair<List<MidiMessage>, Set<AliasSet>>, EventOffset> =
 			normalizeMIDIValues(name, value, lineNumber).let { (tagName, tagValue, eventOffset) ->
 				val firstPassParamValues =
 					tagValue
@@ -70,16 +72,21 @@ class MidiEventTag internal constructor(
 					val resolvedBytes = params
 						.map { it.resolve() }
 						.toByteArray()
-					val matchedAlias = aliases.firstOrNull {
-						it.name.equals(
-							tagName,
-							ignoreCase = true
-						) && it.parameterCount == resolvedBytes.size
+					val matchedAliasAndSet = aliasSets.firstNotNullOfOrNull { set ->
+						set.aliases.firstOrNull {
+							it.name.equals(
+								tagName,
+								ignoreCase = true
+							) && it.parameterCount == resolvedBytes.size
+						}?.let {
+							it to set
+						}
 					}
 					when {
-						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes))
-						matchedAlias != null -> matchedAlias.resolve(
-							aliases,
+						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes)) to setOf<AliasSet>(Cache.cachedCloudItems.defaultMidiAliasSet)
+						matchedAliasAndSet != null -> matchedAliasAndSet.first.resolve(
+							matchedAliasAndSet.second,
+							aliasSets,
 							resolvedBytes,
 							channelValue.resolve()
 						)

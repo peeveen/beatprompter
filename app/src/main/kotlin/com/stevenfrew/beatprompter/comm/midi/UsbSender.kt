@@ -13,6 +13,7 @@ class UsbSender(
 	type: CommunicationType
 ) : MidiSenderBase(name, type) {
 	override fun close() = connection.close()
+
 	override fun sendMessageData(bytes: ByteArray, length: Int) {
 		connection.bulkTransfer(endpoint, bytes, length, 5000)
 	}

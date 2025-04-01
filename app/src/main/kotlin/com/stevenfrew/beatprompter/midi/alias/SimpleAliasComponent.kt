@@ -13,11 +13,12 @@ class SimpleAliasComponent(
 		get() = (values.maxOfOrNull { (it as? ArgumentValue)?.argumentIndex ?: -1 } ?: -1) + 1
 
 	override fun resolve(
-		aliases: List<Alias>,
+		sourceAliasSet: AliasSet,
+		aliases: List<AliasSet>,
 		parameters: ByteArray,
 		channel: Byte
-	): List<MidiMessage> =
+	): Pair<List<MidiMessage>, Set<AliasSet>> =
 		listOf(MidiMessage(values.map {
 			it.resolve(parameters, channelValue?.value ?: channel)
-		}.toByteArray()))
+		}.toByteArray())) to setOf(sourceAliasSet)
 }

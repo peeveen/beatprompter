@@ -16,7 +16,7 @@ class SongTrigger(
 	private val triggerIndex: Value,
 	private val channel: Value,
 	private val type: TriggerType
-) {
+) : MidiTrigger {
 	constructor(msb: Byte, lsb: Byte, triggerIndex: Byte, channel: Byte, type: TriggerType) : this(
 		CommandValue(msb),
 		CommandValue(lsb),
@@ -25,10 +25,10 @@ class SongTrigger(
 		type
 	)
 
-	val isDeadTrigger: Boolean
+	override val isDeadTrigger: Boolean
 		get() = type == TriggerType.SongSelect && bankSelectMSB is NoValue && bankSelectLSB is NoValue && triggerIndex is NoValue && channel is NoValue
 
-	fun writeToXML(element: Element) {
+	override fun writeToXML(element: Element) {
 		element.setAttribute(MSB_ATTRIBUTE, "${bankSelectMSB.resolve()}")
 		element.setAttribute(LSB_ATTRIBUTE, "${bankSelectLSB.resolve()}")
 		element.setAttribute(TRIGGER_INDEX_ATTRIBUTE, "${triggerIndex.resolve()}")
@@ -50,7 +50,7 @@ class SongTrigger(
 			&& bankSelectLSB is CommandValue
 			&& bankSelectMSB is CommandValue
 
-	fun getMIDIMessages(defaultOutputChannel: Byte): List<MidiMessage> =
+	override fun getMIDIMessages(defaultOutputChannel: Byte): List<MidiMessage> =
 		mutableListOf<MidiMessage>().apply {
 			if (canSend())
 				if (type == TriggerType.SongSelect)

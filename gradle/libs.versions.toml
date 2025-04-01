@@ -1,22 +1,22 @@
 [versions]
 adal = "1.16.3"
-agp = "8.8.0"
+agp = "8.9.0"
 appcompat = "1.7.0"
 appintro = "v4.2.2"
 browser = "1.8.0"
-commonsIo = "2.13.0"
+commonsIo = "2.16.1"
 dropboxCoreSdk = "7.0.0"
 dropboxAndroidSdk = "7.0.0"
 googleApiClientAndroid = "1.32.1"
 googleApiServicesDrive = "v3-rev20211107-1.32.1"
-gradle = "8.8.0"
+gradle = "8.9.0"
 gson = "2.10.1"
 hsvAlphaColorPickerAndroid = "3.1.0"
 kotlin = "2.0.0"
 ioMockk = "1.13.13"
 junit = "4.13.2"
-kotlinReflect = "2.0.21"
-kotlinStdlibJdk7 = "2.0.21"
+kotlinReflect = "2.1.0"
+kotlinStdlibJdk7 = "2.1.0"
 kotlinxCoroutinesAndroid = "1.9.0"
 kotlinxCoroutinesCore = "1.9.0"
 legacySupportV4 = "1.0.0"
@@ -32,6 +32,7 @@ preferenceKtx = "1.2.1"
 rxjava = "2.2.21"
 junitJupiter = "5.8.2"
 junitVersion = "1.2.1"
+ultimateGuitar = "1.2.0"
 
 [libraries]
 adal = { module = "com.microsoft.aad:adal", version.ref = "adal" }
@@ -67,6 +68,7 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 play-services-plus = { module = "com.google.android.gms:play-services-plus", version.ref = "playServicesPlus" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+ultimateguitar = { group = "com.github.peeveen", name = "ultimateguitar", version.ref = "ultimateGuitar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -2,13 +2,13 @@ package com.stevenfrew.beatprompter.ui.pref
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
 import com.stevenfrew.beatprompter.BuildConfig
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.events.EventRouter
@@ -77,7 +77,7 @@ class PermissionsSettingsFragment : BaseSettingsFragment(getPermissionPreference
 
 				Events.ENABLE_STORAGE -> {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-						val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
+						val uri = "package:${BuildConfig.APPLICATION_ID}".toUri()
 						fragment.startActivity(
 							Intent(
 								Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,

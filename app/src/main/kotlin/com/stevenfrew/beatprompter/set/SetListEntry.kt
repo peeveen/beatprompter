@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.set
 
-import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.ui.filter.SetListMatch
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
@@ -12,11 +12,11 @@ class SetListEntry private constructor(
 	private val normalizedArtist: String,
 	val variation: String
 ) {
-	constructor(songFile: SongFile)
+	constructor(songInfo: SongInfo)
 		: this(
-		songFile.normalizedTitle,
-		songFile.normalizedArtist,
-		songFile.defaultVariation
+		songInfo.normalizedTitle,
+		songInfo.normalizedArtist,
+		songInfo.defaultVariation
 	)
 
 	constructor(setListFileLine: String)
@@ -27,7 +27,7 @@ class SetListEntry private constructor(
 	private constructor(titleAndArtist: Triple<String, String, String>)
 		: this(titleAndArtist.first, titleAndArtist.second, titleAndArtist.third)
 
-	fun matches(songFile: SongFile): SetListMatch =
+	fun matches(songFile: SongInfo): SetListMatch =
 		if (songFile.normalizedTitle.equals(normalizedTitle, true)) {
 			if (songFile.normalizedArtist.equals(normalizedArtist, true))
 				SetListMatch.TitleAndArtistMatch

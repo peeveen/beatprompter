@@ -39,6 +39,7 @@ interface Preferences {
 	val customCommentsUser: String
 	val showChords: Boolean
 	val showKey: Boolean
+	val showCapo: Boolean
 	val showBPMContext: ShowBPMContext
 	val sendMIDITriggerOnStart: TriggerOutputContext
 	val metronomeContext: MetronomeContext

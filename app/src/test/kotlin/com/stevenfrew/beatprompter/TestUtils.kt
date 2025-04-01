@@ -5,7 +5,7 @@ import android.graphics.Paint
 import com.stevenfrew.beatprompter.cache.AudioFile
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.cache.parse.SongInfoParser
 import com.stevenfrew.beatprompter.cache.parse.SongParser
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
@@ -47,7 +47,7 @@ import javax.xml.transform.stream.StreamResult
 import kotlin.io.path.pathString
 
 object TestUtils {
-	internal fun setMocks() {
+	init {
 		BeatPrompter.appResources = MockGlobalAppResources()
 		BeatPrompter.preferences = MockPreferences()
 		BeatPrompter.platformUtils = MockPlatformUtils()
@@ -65,7 +65,7 @@ object TestUtils {
 		songFile: File,
 		scrollingMode: ScrollingMode = ScrollingMode.Beat,
 		songFileValidator: ((SongFile) -> Unit)? = null
-	): Pair<Song, List<FileParseError>> {
+	): Pair<Song, List<ContentParsingError>> {
 		val cachedFile =
 			CachedFile(
 				songFile,
@@ -79,7 +79,10 @@ object TestUtils {
 		val parsedSongFile = songFileInfoParser.parse()
 		songFileValidator?.invoke(parsedSongFile)
 		val songLoadInfo = SongLoadInfo(
-			parsedSongFile, parsedSongFile.variations.first(), scrollingMode, TestDisplaySettings,
+			parsedSongFile,
+			parsedSongFile.variations.first(),
+			scrollingMode,
+			TestDisplaySettings,
 			TestDisplaySettings
 		)
 		val songParser =
@@ -99,7 +102,11 @@ object TestUtils {
 		return song
 	}
 
-	private fun checkExpectedSongEvents(songFile: File, song: Song, errors: List<FileParseError>) {
+	private fun checkExpectedSongEvents(
+		songFile: File,
+		song: Song,
+		errors: List<ContentParsingError>
+	) {
 		val nameWithoutExtension = songFile.nameWithoutExtension
 		val songEvents = getSongEvents(song)
 		val expectedEventsPath =

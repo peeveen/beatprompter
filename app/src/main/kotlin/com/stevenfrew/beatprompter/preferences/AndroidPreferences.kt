@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.preferences
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
@@ -77,29 +78,29 @@ class AndroidPreferences(
 	@Suppress("SameParameterValue")
 	override fun setBooleanPreference(prefResourceString: Int, value: Boolean) =
 		publicPreferences
-			.edit()
-			.putBoolean(appResources.getString(prefResourceString), value)
-			.apply()
+			.edit {
+				putBoolean(appResources.getString(prefResourceString), value)
+			}
 
 	override fun setStringPreference(prefResourceString: Int, value: String) =
 		publicPreferences
-			.edit()
-			.putString(appResources.getString(prefResourceString), value)
-			.apply()
+			.edit {
+				putString(appResources.getString(prefResourceString), value)
+			}
 
 	@Suppress("SameParameterValue")
 	override fun setPrivateStringPreference(prefResourceString: Int, value: String) =
 		privatePreferences
-			.edit()
-			.putString(appResources.getString(prefResourceString), value)
-			.apply()
+			.edit {
+				putString(appResources.getString(prefResourceString), value)
+			}
 
 	@Suppress("SameParameterValue")
 	override fun setPrivateLongPreference(prefResourceString: Int, value: Long) =
 		privatePreferences
-			.edit()
-			.putLong(appResources.getString(prefResourceString), value)
-			.apply()
+			.edit {
+				putLong(appResources.getString(prefResourceString), value)
+			}
 
 	override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) =
 		publicPreferences.registerOnSharedPreferenceChangeListener(listener)

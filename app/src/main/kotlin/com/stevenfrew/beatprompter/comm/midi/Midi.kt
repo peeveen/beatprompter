@@ -14,6 +14,7 @@ import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StartMessage
 import com.stevenfrew.beatprompter.comm.midi.message.StopMessage
 import com.stevenfrew.beatprompter.midi.alias.Alias
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 
 object Midi {
 	private const val MIDI_QUEUE_SIZE = 4096
@@ -52,30 +53,33 @@ object Midi {
 			Logger.logComms({ "Failed to add MIDI $messageName signal to output queue." }, e)
 		}
 
-	private fun tryPutWithMidiMessages(predicate: (Alias) -> Boolean) {
-		Cache.cachedCloudItems.midiAliases.filter(predicate).forEach {
-			val messages = it.resolve(
-				Cache.cachedCloudItems.midiAliases,
-				byteArrayOf(),
-				MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
-			)
-			messages.forEach { msg -> tryPutMessage(msg, it.name) }
+	private fun tryPutWithMidiMessages(aliasSets: Set<AliasSet>, predicate: (Alias) -> Boolean) =
+		aliasSets.forEach { aliasSet ->
+			aliasSet.aliases.filter(predicate).forEach {
+				val (messages, resolutionSets) = it.resolve(
+					aliasSet,
+					Cache.cachedCloudItems.midiAliasSets,
+					byteArrayOf(),
+					MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+				)
+				if (aliasSets.containsAll(resolutionSets))
+					messages.forEach { msg -> tryPutMessage(msg, it.name) }
+			}
 		}
-	}
 
-	fun putStartMessage() {
+	fun putStartMessage(aliasSets: Set<AliasSet>) {
 		tryPutMessage(StartMessage, "Start")
-		tryPutWithMidiMessages { a -> a.withMidiStart }
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStart }
 	}
 
-	fun putContinueMessage() {
+	fun putContinueMessage(aliasSets: Set<AliasSet>) {
 		tryPutMessage(ContinueMessage, "Continue")
-		tryPutWithMidiMessages { a -> a.withMidiContinue }
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiContinue }
 	}
 
-	fun putStopMessage() {
+	fun putStopMessage(aliasSets: Set<AliasSet>) {
 		tryPutMessage(StopMessage, "Stop")
-		tryPutWithMidiMessages { a -> a.withMidiStop }
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStop }
 	}
 
 	internal fun putMessages(messages: List<Message>) {

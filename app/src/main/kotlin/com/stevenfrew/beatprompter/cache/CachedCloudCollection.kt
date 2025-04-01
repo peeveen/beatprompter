@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.midi.alias.Alias
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.util.flattenAll
@@ -28,9 +29,18 @@ class CachedCloudCollection {
 		get() =
 			items.values.filterIsInstance<SetListFile>()
 
-	val midiAliasFiles: List<MIDIAliasFile>
+	val midiAliasFiles: List<MidiAliasFile>
 		get() =
-			items.values.filterIsInstance<MIDIAliasFile>()
+			items.values.filterIsInstance<MidiAliasFile>()
+
+	internal val midiAliasSets: List<AliasSet>
+		get() = midiAliasFiles.map { it.aliasSet }
+
+	internal val defaultMidiAliasSet: AliasSet
+		get() = midiAliasSets.first { it.name == DEFAULT_MIDI_ALIAS_SET_NAME }
+
+	internal val midiCommands: List<Alias>
+		get() = midiAliasSets.flatMap { it.aliases.filter { it.commandName != null } }
 
 	private val audioFiles: List<AudioFile>
 		get() =
@@ -169,10 +179,10 @@ class CachedCloudCollection {
 			songFiles.filter { it.subfolderIds.intersect(folderIDs).isNotEmpty() }
 		}
 
-	internal val midiAliases: List<Alias>
-		get() = midiAliasFiles.flatMap { it.aliasSet.aliases }.toList()
-
 	companion object {
 		const val FILTER_ONLY_FILENAME = ".filter_only"
+
+		// This MUST match the name in the default MIDI aliases resource file.
+		private const val DEFAULT_MIDI_ALIAS_SET_NAME = "Defaults"
 	}
 }

@@ -2,20 +2,22 @@ package com.stevenfrew.beatprompter.cache.parse
 
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
-import com.stevenfrew.beatprompter.cache.MIDIAliasFile
+import com.stevenfrew.beatprompter.cache.MidiAliasFile
 import com.stevenfrew.beatprompter.cache.parse.tag.MalformedTagException
 import com.stevenfrew.beatprompter.cache.parse.tag.TagParsingUtility
 import com.stevenfrew.beatprompter.cache.parse.tag.find.DirectiveFinder
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasChannelTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasInstructionTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.MidiAliasSetNameTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidi
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiContinueTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStartTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiStopTag
-import com.stevenfrew.beatprompter.cache.parse.tag.midialias.WithMidiTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasChannelTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasInstructionTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasSetNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidi
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiContinueTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiStartTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiStopTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiControlChangeTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiEventTag
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.AliasComponent
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
@@ -32,18 +34,22 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiStartTag::class,
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
-	MidiAliasChannelTag::class
+	MidiAliasChannelTag::class,
+	MidiControlChangeTriggerTag::class
 )
 /**
  * Parser for MIDI alias files.
  */
-class MidiAliasFileParser(cachedCloudFile: CachedFile) :
-	TextFileParser<MIDIAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
+class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
+	TextContentParser<MidiAliasFile>(cachedCloudFile, false, false, false, DirectiveFinder) {
 
 	private var aliasSetName: String? = null
+	private val currentAliasComponents = mutableListOf<AliasComponent>()
+	private val triggers = mutableListOf<MidiTrigger>()
+	private var commandName: String? = null
+	private var useByDefault: Boolean = true
 	private var currentAliasName: String? = null
 	private var defaultChannel: ChannelValue? = null
-	private var currentAliasComponents = mutableListOf<AliasComponent>()
 	private var aliases = mutableListOf<Alias>()
 	private var withMidiStart = false
 	private var withMidiContinue = false
@@ -52,7 +58,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	private val withMidiSet
 		get() = withMidiStart || withMidiContinue || withMidiStop
 
-	override fun parseLine(line: TextFileLine<MIDIAliasFile>): Boolean {
+	override fun parseLine(line: TextContentLine<MidiAliasFile>): Boolean {
 		line.tags.asSequence().apply {
 			filterIsInstance<MidiAliasChannelTag>()
 				.firstOrNull()
@@ -64,14 +70,20 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				.firstOrNull()
 				?.also {
 					if (aliasSetName != null)
-						addError(FileParseError(it, R.string.midi_alias_set_name_defined_multiple_times))
-					else
+						addError(ContentParsingError(it, R.string.midi_alias_set_name_defined_multiple_times))
+					else {
 						aliasSetName = it.aliasSetName
+						useByDefault = it.useByDefault
+					}
 				}
 
 			filterIsInstance<MidiAliasNameTag>()
 				.firstOrNull()
 				?.also { startNewAlias(it) }
+
+			filterIsInstance<MidiControlChangeTriggerTag>()
+				.firstOrNull()
+				?.also { triggers.add(it.trigger) }
 
 			filterIsInstance<MidiAliasInstructionTag>()
 				.firstOrNull()
@@ -84,28 +96,34 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 		return true
 	}
 
-	override fun getResult(): MIDIAliasFile = MIDIAliasFile(cachedCloudFile, getAliasSet(), errors)
+	override fun getResult(): MidiAliasFile = MidiAliasFile(cachedCloudFile, getAliasSet(), errors)
+
+	private fun setNewAliasProperties(aliasNameTag: MidiAliasNameTag) {
+		commandName = aliasNameTag.commandName
+		currentAliasName = aliasNameTag.aliasName
+		if (currentAliasName.isNullOrBlank()) {
+			addError(ContentParsingError(aliasNameTag, R.string.midi_alias_without_a_name))
+			currentAliasName = null
+			commandName = null
+		}
+	}
 
 	private fun startNewAlias(aliasNameTag: MidiAliasNameTag) {
 		if (aliasSetName.isNullOrBlank())
-			addError(FileParseError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
+			addError(ContentParsingError(aliasNameTag, R.string.no_midi_alias_set_name_defined))
 		else if (currentAliasName == null)
-			currentAliasName = aliasNameTag.aliasName
+			setNewAliasProperties(aliasNameTag)
 		else {
 			finishCurrentAlias()
-			currentAliasName = aliasNameTag.aliasName
-			if (currentAliasName.isNullOrBlank()) {
-				addError(FileParseError(aliasNameTag, R.string.midi_alias_without_a_name))
-				currentAliasName = null
-			}
+			setNewAliasProperties(aliasNameTag)
 		}
 	}
 
 	private fun addInstructionToCurrentAlias(instructionTag: MidiAliasInstructionTag) {
 		if (aliasSetName.isNullOrBlank())
-			addError(FileParseError(instructionTag, R.string.no_midi_alias_set_name_defined))
+			addError(ContentParsingError(instructionTag, R.string.no_midi_alias_set_name_defined))
 		else if (currentAliasName == null)
-			addError(FileParseError(instructionTag, R.string.no_midi_alias_name_defined))
+			addError(ContentParsingError(instructionTag, R.string.no_midi_alias_name_defined))
 		else
 			currentAliasComponents.add(createAliasComponent(instructionTag))
 	}
@@ -120,24 +138,39 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	private fun finishCurrentAlias() =
 		currentAliasName?.also {
 			if (currentAliasComponents.isNotEmpty()) {
-				val hasArguments = currentAliasComponents.any { it.parameterCount > 0 }
-				if (hasArguments && withMidiSet)
-					addError(FileParseError(R.string.cannot_use_with_midi_with_parameters))
+				val hasArguments = currentAliasComponents.any { component -> component.parameterCount > 0 }
+				if (hasArguments && withMidiSet) {
+					addError(ContentParsingError(R.string.cannot_use_with_midi_with_parameters))
+					withMidiStart = false
+					withMidiContinue = false
+					withMidiStop = false
+				}
+				if (hasArguments && commandName !== null) {
+					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
+					commandName = null
+				}
+				if (triggers.any() && hasArguments) {
+					addError(ContentParsingError(R.string.cannot_use_triggers_in_non_command_aliases))
+					triggers.clear()
+				}
 				aliases.add(
 					Alias(
 						it,
-						currentAliasComponents,
+						currentAliasComponents.toList(),
+						triggers.toList(),
 						withMidiStart,
 						withMidiContinue,
-						withMidiStop
+						withMidiStop,
+						commandName,
 					)
 				)
-				currentAliasComponents = mutableListOf()
+				currentAliasComponents.clear()
+				triggers.clear()
 				withMidiStart = false
 				withMidiContinue = false
 				withMidiStop = false
 			} else
-				addError(FileParseError(R.string.midi_alias_has_no_components, it))
+				addError(ContentParsingError(R.string.midi_alias_has_no_components, it))
 		}
 
 	private fun createAliasComponent(tag: MidiAliasInstructionTag): AliasComponent {
@@ -149,7 +182,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 				val aliasValue = TagParsingUtility.parseMIDIValue(paramBit, paramCounter, paramBits.size)
 				componentArgs.add(aliasValue)
 			} catch (mte: MalformedTagException) {
-				addError(FileParseError(tag, mte))
+				addError(ContentParsingError(tag, mte))
 			}
 		}
 		val channelArgs = componentArgs.filterIsInstance<ChannelValue>()
@@ -157,12 +190,12 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 			0 -> defaultChannel
 			1 -> channelArgs.first().also {
 				if (componentArgs.last() != it)
-					addError(FileParseError(tag, R.string.channel_must_be_last_parameter))
+					addError(ContentParsingError(tag, R.string.channel_must_be_last_parameter))
 				componentArgs.remove(it)
 			}
 
 			else -> {
-				addError(FileParseError(tag, R.string.multiple_channel_args))
+				addError(ContentParsingError(tag, R.string.multiple_channel_args))
 				defaultChannel
 			}
 		}
@@ -175,7 +208,7 @@ class MidiAliasFileParser(cachedCloudFile: CachedFile) :
 	private fun getAliasSet(): AliasSet {
 		finishCurrentAlias()
 		return aliasSetName?.let {
-			AliasSet(it, aliases)
+			AliasSet(it, aliases, useByDefault)
 		} ?: throw InvalidBeatPrompterFileException(
 			R.string.not_a_valid_midi_alias_file,
 			cachedCloudFile.name

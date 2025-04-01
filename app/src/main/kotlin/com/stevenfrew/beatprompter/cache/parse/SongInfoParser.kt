@@ -1,8 +1,12 @@
 package com.stevenfrew.beatprompter.cache.parse
 
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.CachedFile
 import com.stevenfrew.beatprompter.cache.SongFile
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiProgramChangeTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiSongSelectTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -12,6 +16,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStartTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStopTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.CapoTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CountTag
@@ -23,8 +28,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.IconTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiProgramChangeTriggerTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ScrollBeatModifierTag
@@ -39,6 +42,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
 import com.stevenfrew.beatprompter.chord.Chord
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import org.w3c.dom.Element
@@ -72,20 +76,27 @@ import org.w3c.dom.Element
 	VariationsTag::class,
 	ChordTag::class,
 	YearTag::class,
-	IconTag::class
+	IconTag::class,
+	CapoTag::class
 )
 @IgnoreTags(
-	LegacyTag::class, SendMIDIClockTag::class, CommentTag::class, CountTag::class,
-	StartOfHighlightTag::class, EndOfHighlightTag::class
+	LegacyTag::class,
+	SendMIDIClockTag::class,
+	CommentTag::class,
+	CountTag::class,
+	StartOfHighlightTag::class,
+	EndOfHighlightTag::class,
+	ActivateMidiAliasesTag::class
 )
 /**
  * Song file parser. This returns ENOUGH information to display the songs in the song list.
  */
-class SongInfoParser(cachedCloudFile: CachedFile) :
-	SongFileParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, null, false) {
+class SongInfoParser(private val cachedCloudFile: CachedFile) :
+	SongContentParser<SongFile>(cachedCloudFile, ScrollingMode.Beat, false, null, false) {
 	private var title: String? = null
 	private var artist: String? = null
 	private var key: String? = null
+	private var capo: Int = 0
 	private var bpm: Double = 0.0
 	private var bars: Int = 0
 	private var beats: Int = 0
@@ -95,8 +106,8 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 	private val imageFiles = mutableListOf<String>()
 	private var isFilterOnly = false
 	private val tags = mutableListOf<String>()
-	private var midiProgramChangeTrigger: SongTrigger? = null
-	private var midiSongSelectTrigger: SongTrigger? = null
+	private var midiProgramChangeTrigger: MidiTrigger? = null
+	private var midiSongSelectTrigger: MidiTrigger? = null
 	private val mixedModeVariations = mutableSetOf<String>()
 	private var lines = 0
 	private var rating = 0
@@ -115,7 +126,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		return super.parse(element)
 	}
 
-	override fun parseLine(line: TextFileLine<SongFile>): Boolean {
+	override fun parseLine(line: TextContentLine<SongFile>): Boolean {
 		super.parseLine(line)
 		++lines
 
@@ -139,6 +150,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		val ratingTag = tagSequence.filterIsInstance<RatingTag>().firstOrNull()
 		val yearTag = tagSequence.filterIsInstance<YearTag>().firstOrNull()
 		val iconTag = tagSequence.filterIsInstance<IconTag>().firstOrNull()
+		val capoTag = tagSequence.filterIsInstance<CapoTag>().firstOrNull()
 
 		if (titleTag != null)
 			title = titleTag.title
@@ -181,6 +193,9 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 		if (iconTag != null)
 			icon = iconTag.icon
 
+		if (capoTag != null)
+			capo = capoTag.value
+
 		if (line.lineWithNoTags.isNotBlank() || imageTags.isNotEmpty() || chordTags.any()) {
 			bars += currentLineBeatInfo.bpl
 			beats += currentLineBeatInfo.beats
@@ -204,7 +219,7 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 				bars,
 				title!!,
 				artist ?: "",
-				key ?: firstChord,
+				key,
 				bpm,
 				duration,
 				mixedModeVariations.toList(),
@@ -220,9 +235,10 @@ class SongInfoParser(cachedCloudFile: CachedFile) :
 				rating,
 				year,
 				icon,
-				if (variations.isEmpty()) listOf("Default") else variations,
+				if (variations.isEmpty()) listOf(BeatPrompter.appResources.getString(R.string.defaultVariationName)) else variations,
 				chords,
 				firstChord,
+				capo,
 				errors
 			)
 }

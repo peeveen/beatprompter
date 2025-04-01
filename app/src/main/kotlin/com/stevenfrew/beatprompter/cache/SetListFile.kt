@@ -1,6 +1,6 @@
 package com.stevenfrew.beatprompter.cache
 
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
 import com.stevenfrew.beatprompter.set.SetListEntry
 
 @CacheXmlTag("set")
@@ -11,5 +11,5 @@ class SetListFile internal constructor(
 	cachedFile: CachedFile,
 	val setTitle: String,
 	val setListEntries: MutableList<SetListEntry>,
-	errors: List<FileParseError>
+	errors: List<ContentParsingError>
 ) : CachedTextFile(cachedFile, errors)

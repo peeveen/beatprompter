@@ -1,12 +1,12 @@
 package com.stevenfrew.beatprompter.song.load
 
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
 import java.util.UUID
 
 data class SongLoadInfo(
-	val songFile: SongFile,
+	val songInfo: SongInfo,
 	val variation: String,
 	val songLoadMode: ScrollingMode,
 	val nativeDisplaySettings: DisplaySettings,
@@ -22,5 +22,5 @@ data class SongLoadInfo(
 	val initialScrollMode
 		get() = if (mixedModeActive) ScrollingMode.Manual else songLoadMode
 	val mixedModeActive
-		get() = songFile.mixedModeVariations.contains(variation) && songLoadMode == ScrollingMode.Beat
+		get() = songInfo.mixedModeVariations.contains(variation) && songLoadMode == ScrollingMode.Beat
 }

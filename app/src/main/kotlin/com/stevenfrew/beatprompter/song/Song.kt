@@ -4,13 +4,13 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
 import com.stevenfrew.beatprompter.cache.AudioFile
-import com.stevenfrew.beatprompter.cache.SongFile
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.ScreenComment
 import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.event.AudioEvent
 import com.stevenfrew.beatprompter.song.event.LineEvent
 import com.stevenfrew.beatprompter.song.event.LinkedEvent
@@ -20,7 +20,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 import java.util.UUID
 
 class Song(
-	val songFile: SongFile,
+	val songInfo: SongInfo,
 	val displaySettings: DisplaySettings,
 	firstEvent: LinkedEvent,
 	private val lines: List<Line>,
@@ -41,7 +41,8 @@ class Song(
 	val beatCounterTextOverlayScreenString: ScreenString,
 	val songTitleHeaderLocation: PointF,
 	val loadId: UUID,
-	private val audioLatency: Int
+	private val audioLatency: Int,
+	val activeMidiAliasSets: Set<AliasSet>
 ) {
 	internal var currentLine: Line = lines.first()
 	internal var currentEvent = firstEvent // Last event that executed.

@@ -1,12 +1,14 @@
 package com.stevenfrew.beatprompter.cache
 
 import com.stevenfrew.beatprompter.BeatPrompter
-import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.FileParseError
+import com.stevenfrew.beatprompter.cache.parse.ContentParsingError
+import com.stevenfrew.beatprompter.cache.parse.TextContentProvider
 import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
+import com.stevenfrew.beatprompter.midi.MidiTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
-import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
+import com.stevenfrew.beatprompter.util.Utils.sortableString
 import com.stevenfrew.beatprompter.util.normalize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -17,52 +19,49 @@ import org.w3c.dom.Element
  */
 class SongFile(
 	cachedFile: CachedFile,
-	val lines: Int,
-	val bars: Int,
-	val title: String,
-	val artist: String,
+	override val lines: Int,
+	override val bars: Int,
+	override val title: String,
+	override val artist: String,
 	val key: String?,
-	val bpm: Double,
-	val duration: Long,
-	val mixedModeVariations: List<String>,
-	val totalPauseDuration: Long,
-	val audioFiles: Map<String, List<String>>,
+	override val bpm: Double,
+	override val duration: Long,
+	override val mixedModeVariations: List<String>,
+	override val totalPauseDuration: Long,
+	override val audioFiles: Map<String, List<String>>,
 	val imageFiles: List<String>,
 	val tags: Set<String>,
-	val programChangeTrigger: SongTrigger,
-	val songSelectTrigger: SongTrigger,
+	override val programChangeTrigger: MidiTrigger,
+	override val songSelectTrigger: MidiTrigger,
 	val isFilterOnly: Boolean,
-	val rating: Int,
-	val year: Int?,
-	val icon: String?,
-	val variations: List<String>,
-	val chords: List<String>,
-	val firstChord: String?,
-	errors: List<FileParseError>
-) : CachedTextFile(cachedFile, errors) {
-	val normalizedArtist = artist.normalize()
-	val normalizedTitle = title.normalize()
-	val sortableArtist = sortableString(artist)
-	val sortableTitle = sortableString(title)
-	val isSmoothScrollable
+	override val rating: Int,
+	override val year: Int?,
+	override val icon: String?,
+	override val variations: List<String>,
+	override val chords: List<String>,
+	override val firstChord: String?,
+	override val capo: Int,
+	errors: List<ContentParsingError>
+) : CachedTextFile(cachedFile, errors), SongInfo {
+	override val normalizedArtist = artist.normalize()
+	override val normalizedTitle = title.normalize()
+	override val sortableArtist = sortableString(artist)
+	override val sortableTitle = sortableString(title)
+	override val isSmoothScrollable
 		get() = duration != 0L
-	val isBeatScrollable
+	override val votes = 0
+	override val isBeatScrollable
 		get() = bpm > 0.0
-	val bestScrollingMode
-		get() = when {
-			isBeatScrollable -> ScrollingMode.Beat
-			isSmoothScrollable -> ScrollingMode.Smooth
-			else -> ScrollingMode.Manual
-		}
 
-	fun matchesTrigger(trigger: SongTrigger): Boolean =
+	override fun matchesTrigger(trigger: SongTrigger): Boolean =
 		songSelectTrigger == trigger || programChangeTrigger == trigger
 
-	val defaultVariation: String
+	override val defaultVariation: String
 		get() =
 			BeatPrompter.preferences.preferredVariation.let {
 				if (variations.contains(it)) it else variations.firstOrNull() ?: ""
 			}
+	override val songContentProvider: TextContentProvider = cachedFile
 
 	override fun writeToXML(doc: Document, element: Element) {
 		super.writeToXML(doc, element)
@@ -72,6 +71,7 @@ class SongFile(
 		element.setAttribute(BARS_ATTRIBUTE, "$bars")
 		key?.also { element.setAttribute(KEY_ATTRIBUTE, key) }
 		element.setAttribute(BPM_ATTRIBUTE, "$bpm")
+		element.setAttribute(CAPO_ATTRIBUTE, "$capo")
 		element.setAttribute(DURATION_ATTRIBUTE, "$duration")
 		element.setAttribute(TOTAL_PAUSES_ATTRIBUTE, "$totalPauseDuration")
 		element.setAttribute(FILTER_ONLY_ATTRIBUTE, "$isFilterOnly")
@@ -88,18 +88,16 @@ class SongFile(
 
 		writeAudioFilesToElement(doc, element, audioFiles)
 		if (!songSelectTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
+			writeTriggerToElement(doc, element, SONG_SELECT_TRIGGER_TAG, songSelectTrigger)
 		if (!programChangeTrigger.isDeadTrigger)
-			writeSongTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
+			writeTriggerToElement(doc, element, PROGRAM_CHANGE_TRIGGER_TAG, programChangeTrigger)
 	}
 
-	val keySignature: String?
-		get() = KeySignatureDefinition.getKeySignature(key, firstChord)
+	override val keySignature: String?
+		get() = KeySignatureDefinition.getKeySignature(key, firstChord, capo)
 			?.getDisplayString(BeatPrompter.preferences.displayUnicodeAccidentals)
 
 	companion object {
-		private var thePrefix = "${BeatPrompter.appResources.getString(R.string.lowerCaseThe)} "
-
 		private const val TITLE_ATTRIBUTE = "title"
 		private const val ARTIST_ATTRIBUTE = "artist"
 		private const val LINES_ATTRIBUTE = "lines"
@@ -112,6 +110,7 @@ class SongFile(
 		private const val RATING_ATTRIBUTE = "rating"
 		private const val YEAR_ATTRIBUTE = "year"
 		private const val ICON_ATTRIBUTE = "icon"
+		private const val CAPO_ATTRIBUTE = "capo"
 		private const val FIRST_CHORD_ATTRIBUTE = "firstChord"
 
 		private const val IMAGE_FILES_TAG = "imageFiles"
@@ -137,6 +136,7 @@ class SongFile(
 				val linesString = element.getAttribute(LINES_ATTRIBUTE)
 				val barsString = element.getAttribute(BARS_ATTRIBUTE)
 				val bpmString = element.getAttribute(BPM_ATTRIBUTE)
+				val capoString = element.getAttribute(CAPO_ATTRIBUTE)
 				val durationString = element.getAttribute(DURATION_ATTRIBUTE)
 				val totalPausesString = element.getAttribute(TOTAL_PAUSES_ATTRIBUTE)
 				val filterOnlyString = element.getAttribute(FILTER_ONLY_ATTRIBUTE)
@@ -158,6 +158,7 @@ class SongFile(
 					val totalPauses = totalPausesString.toLong()
 					val filterOnly = filterOnlyString.toBoolean()
 					val rating = ratingString.toInt()
+					val capo = capoString?.toInt() ?: 0
 					val year = yearString?.toInt()
 
 					val tags = getStringsFromElement(element, TAGS_TAG).toSet()
@@ -200,6 +201,7 @@ class SongFile(
 						variations,
 						chords,
 						firstChord,
+						capo,
 						listOf()
 					)
 				} catch (_: NumberFormatException) {
@@ -264,16 +266,14 @@ class SongFile(
 			}
 		}
 
-		private fun writeSongTriggerToElement(
+		private fun writeTriggerToElement(
 			doc: Document,
 			element: Element,
 			tag: String,
-			songTrigger: SongTrigger
+			trigger: MidiTrigger
 		) = doc.createElement(tag).run {
-			songTrigger.writeToXML(this)
+			trigger.writeToXML(this)
 			element.appendChild(this)
 		}
-
-		fun sortableString(inStr: String?): String = inStr?.lowercase()?.removePrefix(thePrefix) ?: ""
 	}
 }

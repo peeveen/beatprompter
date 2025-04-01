@@ -5,13 +5,17 @@ import android.graphics.RectF
 import android.hardware.usb.UsbConstants.USB_ENDPOINT_XFER_BULK
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbInterface
+import com.stevenfrew.beatprompter.song.ScrollingMode
+import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -85,9 +89,15 @@ fun List<Any?>.flattenAll(): List<Any?> =
 		}
 	}
 
-fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(params: TParameters) =
+fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TResult>.execute(
+	params: TParameters,
+	preExecuteContext: CoroutineDispatcher? = null
+) =
 	launch {
-		onPreExecute()
+		if (preExecuteContext == null)
+			onPreExecute()
+		else
+			withContext(preExecuteContext) { onPreExecute() }
 		withContext(Dispatchers.IO) {
 			try {
 				val result = doInBackground(params) {
@@ -99,6 +109,14 @@ fun <TParameters, TProgress, TResult> CoroutineTask<TParameters, TProgress, TRes
 			}
 		}
 	}
+
+val SongInfo.bestScrollingMode: ScrollingMode
+	get() =
+		when {
+			isBeatScrollable -> ScrollingMode.Beat
+			isSmoothScrollable -> ScrollingMode.Smooth
+			else -> ScrollingMode.Manual
+		}
 
 fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 	val interfaceCount = interfaceCount
@@ -134,15 +152,16 @@ fun UsbDevice.getUsbDeviceMidiInterface(): UsbInterface? {
 }
 
 fun File.getMd5Hash(): String = getHash("MD5").toHashString(32)
-fun File.getHash(algorithm: String) =
+fun File.getHash(algorithm: String): ByteArray =
 	(if (exists()) readBytes() else ByteArray(0)).getHash(algorithm)
 
 fun ByteArray.toHashString(minLength: Int) =
 	BigInteger(1, this).toString(16).padStart(minLength, '0')
 
-fun ByteArray.getHash(algorithm: String) = MessageDigest.getInstance(algorithm).digest(this)
+fun ByteArray.getHash(algorithm: String): ByteArray =
+	MessageDigest.getInstance(algorithm).digest(this)
 
-val timeFormatter = SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT)
+val timeFormatter: DateFormat = SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT)
 fun BeatCounterTextOverlay.getTextOverlayFn(songTitle: String): () -> String =
 	when (this) {
 		BeatCounterTextOverlay.Nothing -> {

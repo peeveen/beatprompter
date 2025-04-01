@@ -2,6 +2,32 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.78
+
+- Added Ultimate Guitar chord/lyrics filter.
+- Added optional `active_by_default` true/false argument to the `{midi_aliases}` tag, allowing
+	for sets of MIDI aliases to be inactive by default, but activated on a per-song (or per-variation)
+	basis using a new `{activate_midi_aliases:set_name}` song tag.
+- Added new "MIDI command" filter. Parameterless MIDI aliases will be listed under this filter, and
+	can be executed directly from the main list by tapping on it. However, only parameterless MIDI
+	aliases that have been given a display name (via the newly-expanded `{midi_alias}` tag) will be
+	listed here.
+- Added new `{capo:n}` tag, allowing the key of the song to be derived more accurately.
+	- Also added corresponding "Show capo setting on title screen" preference.
+- No longer notifies you of each device disconnection twice (this was happening because, for most
+	devices, there is an output and an input virtual device, and they are treated separately). Any
+	identical connection/disconnection notification messages that are received within one second of
+	each other are now ignored.
+- Fixed tag filtering from the "All Songs" playlist. Songs marked as "filter only" were not being
+	selected when a tag filter was chosen.
+- MIDI commands can now be triggered by incoming Control Change MIDI messages using the new
+	`{midi_control_change_trigger:controller,value,channel}` tag.
+- MIDI triggers can now specify a greater/less-than (or equal to) comparison value that the trigger
+	should activate on.
+- MIDI parsing errors no longer appear as white-against-white in dark mode.
+- The "Shuffle" menu option is now disabled when viewing lists of non-song items.
+- Music icon in song list was not appearing correctly for some song/variation configurations.
+
 ## 1.77
 
 - You can now jump to an upcoming on-screen `{beatstart}` section by tapping the screen, just like
@@ -32,7 +58,8 @@ Versions prior to 1.70 are not listed.
 		existing files left behind in app storage that match checksums of remote files, and will use
 		them (without downloading again) if found.
 	- Added a “stop” button to the synchronization dialog. If pressed, the database will be updated
-		with everything that has been downloaded so far (so if you have a huge amount of files, you can
+		with everything that has been downloaded so far (so if you have a huge amount of files, you
+		can
 		now download chunks incrementally).
 	- Google Drive sync now ignores shortcut links to files that no longer exist.
 
@@ -41,7 +68,8 @@ Versions prior to 1.70 are not listed.
 - More variation support
 	- Added “Preferred Variation” preference
 	- Added variation support to set lists
-	- If a `{varstart}` or `{varxstart}` tag contains any variation names that were not defined in the
+	- If a `{varstart}` or `{varxstart}` tag contains any variation names that were not defined in
+		the
 		`{variations}` tag, an error will now be shown when the song is loaded.
 - Added `{no_chords}` tag
 - Fixed rendering of `{pause}` progress bar
@@ -106,11 +134,13 @@ Versions prior to 1.70 are not listed.
 	- Fixed bug where MIDI tags on the same line as a `{beatstart}` tag would be ignored.
 	- Fixed USB MIDI bug where some messages were not being padded to four bytes.
 	- Fixed MIDI alias overloading.
-	- Native MIDI receiver thread now stops correctly after device disconnection, allowing successful
+	- Native MIDI receiver thread now stops correctly after device disconnection, allowing
+		successful
 		reconnection.
 - Added new chord features
 	- `{transpose}` and `{chord_map}` tags
-	- Transpose option on long-press play dialog. This is also a new data item that is included in the
+	- Transpose option on long-press play dialog. This is also a new data item that is included in
+		the
 		Bluetooth message that band leaders send, so if you are using this version, ensure all band
 		members are using it too, otherwise there will (probably) be communication errors.
 	- New chord display preferences (“Always Use Sharps” and “Display Unicode Accidentals”)
@@ -132,7 +162,9 @@ Versions prior to 1.70 are not listed.
 	enabled).
 - Some small beat-calculation fixes:
 	- Changed precedence of `{bpl}`, `{b}` and comma-shorthand tags (note that this is a **potential
-		breaking change** if any of your song files have more than one of these tags on the same line).
-		Commas take precedence, then `{b}`, then `{bpl}` (though, of course, `{bpl}` is a lasting change
+		breaking change** if any of your song files have more than one of these tags on the same
+		line).
+		Commas take precedence, then `{b}`, then `{bpl}` (though, of course, `{bpl}` is a lasting
+		change
 		that affects any later lines).
 	- Fixed buggy scroll indicator size change when `{bpb}` changes during scrollbeat changes.

@@ -393,7 +393,7 @@ object Cache {
 					if (useXmlData) element else null
 				)
 			},
-			MIDIAliasFile::class to { element, useXmlData ->
+			MidiAliasFile::class to { element, useXmlData ->
 				MidiAliasFileParser(CachedFile(element)).parse(
 					if (useXmlData) element else null
 				)

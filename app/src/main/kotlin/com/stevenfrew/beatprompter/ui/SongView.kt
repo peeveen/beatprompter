@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.widget.OverScroller
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.withClip
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -32,6 +33,7 @@ import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
@@ -190,7 +192,7 @@ class SongView
 	fun init(songDisplayActivity: SongDisplayActivity, song: Song) {
 		this.songDisplayActivity = songDisplayActivity
 
-		if (song.songFile.bpm > 0.0) {
+		if (song.songInfo.bpm > 0.0) {
 			val metronomeOnPref = metronomePref == MetronomeContext.On
 			val metronomeOnWhenNoBackingTrackPref = metronomePref == MetronomeContext.OnWhenNoTrack
 			// We switch the metronome on (full time) if the pref says "on"
@@ -251,7 +253,7 @@ class SongView
 			initialized = true
 			if (manualMode) {
 				if (metronomeOn) {
-					manualMetronomeTask = ManualMetronomeTask(songFile.bpm)
+					manualMetronomeTask = ManualMetronomeTask(songInfo.bpm)
 					manualMetronomeThread = Thread(manualMetronomeTask).apply { start() }
 				}
 			}
@@ -618,27 +620,25 @@ class SongView
 			paint
 		)
 
-		canvas.save()
-		canvas.clipRect(currentBeatCountRect)
-		paint.color = songTitleContrastBeatCounter
-		paint.alpha = 127
-		canvas.drawText(
-			text,
-			songTitleHeaderLocation.x,
-			songTitleHeaderLocation.y,
-			paint
-		)
-		canvas.restore()
+		canvas.withClip(currentBeatCountRect) {
+			paint.color = songTitleContrastBeatCounter
+			paint.alpha = 127
+			drawText(
+				text,
+				songTitleHeaderLocation.x,
+				songTitleHeaderLocation.y,
+				paint
+			)
+		}
 
-		canvas.save()
-		canvas.clipRect(scrollIndicatorRect)
-		canvas.drawText(
-			text,
-			songTitleHeaderLocation.x,
-			songTitleHeaderLocation.y,
-			paint
-		)
-		canvas.restore()
+		canvas.withClip(scrollIndicatorRect) {
+			drawText(
+				text,
+				songTitleHeaderLocation.x,
+				songTitleHeaderLocation.y,
+				paint
+			)
+		}
 
 		paint.alpha = 255
 	}
@@ -678,7 +678,9 @@ class SongView
 				if (startState === PlayState.Playing) {
 					if (currentLine.scrollMode === ScrollingMode.Manual) {
 						// Top of the page? Start. Else it's a continue.
-						if (songPixelPosition == 0) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (songPixelPosition == 0) Midi.putStartMessage(activeMidiAliasSets) else Midi.putContinueMessage(
+							activeMidiAliasSets
+						)
 						if (jumpToBeatStart())
 							return true
 						// Start the count in.
@@ -716,7 +718,9 @@ class SongView
 								recalculateManualPositions = true
 							)
 						}
-						if (time == 0L) Midi.putStartMessage() else Midi.putContinueMessage()
+						if (time == 0L) Midi.putStartMessage(activeMidiAliasSets) else Midi.putContinueMessage(
+							activeMidiAliasSets
+						)
 						Bluetooth.putMessage(
 							ToggleStartStopMessage(
 								ToggleStartStopMessage.StartStopToggleInfo(
@@ -791,8 +795,8 @@ class SongView
 			song?.apply {
 				Bluetooth.putMessage(
 					QuitSongMessage(
-						songFile.normalizedTitle,
-						songFile.normalizedArtist
+						songInfo.normalizedTitle,
+						songInfo.normalizedArtist
 					)
 				)
 				recycleGraphics()
@@ -816,7 +820,7 @@ class SongView
 	}
 
 	private fun processClickEvent() {
-		val playClick = metronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying()
+		val playClick = metronomePref !== MetronomeContext.OnWhenNoTrack || !isTrackPlaying
 		if (startState === PlayState.Playing && song!!.currentLine.scrollMode !== ScrollingMode.Manual && playClick)
 			clickSoundPool.play(clickAudioId, 1.0f, 1.0f, 1, 0, 1.0f)
 	}
@@ -851,10 +855,12 @@ class SongView
 			Rect(originalBeatCountRect)
 	}
 
-	private fun isTrackPlaying(): Boolean = audioPlayers.values.any { it.isPlaying }
+	private val isTrackPlaying: Boolean get() = audioPlayers.values.any { it.isPlaying }
+
+	internal val activeMidiAliasSets: Set<AliasSet> get() = song?.activeMidiAliasSets ?: setOf()
 
 	fun hasSong(title: String, artist: String): Boolean =
-		song?.songFile?.normalizedArtist == artist && song?.songFile?.normalizedTitle == title
+		song?.songInfo?.normalizedArtist == artist && song?.songInfo?.normalizedTitle == title
 
 	private fun processPauseEvent(event: PauseEvent) {
 		lastBeatTime = -1

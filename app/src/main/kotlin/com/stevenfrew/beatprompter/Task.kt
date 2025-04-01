@@ -2,7 +2,7 @@ package com.stevenfrew.beatprompter
 
 import android.util.Log
 
-abstract class Task(private var running: Boolean) : Runnable {
+abstract class Task(private var running: Boolean, private val runOnce: Boolean = false) : Runnable {
 	private var stop = false
 	private val runningSync = Any()
 	private val stopSync = Any()
@@ -28,6 +28,8 @@ abstract class Task(private var running: Boolean) : Runnable {
 		initialise()
 		Log.d(TASK_TAG, "Task starting.")
 		while (!shouldStop) {
+			if (runOnce)
+				setShouldStop()
 			if (isRunning) {
 				doWork()
 			} else {

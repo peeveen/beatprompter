@@ -8,7 +8,7 @@ import com.stevenfrew.beatprompter.comm.SenderBase
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
 class Sender(private val clientSocket: BluetoothSocket, type: CommunicationType) :
-	SenderBase(clientSocket.remoteDevice.name, type) {
+	SenderBase(clientSocket.remoteDevice.name, type, MessageType.Band) {
 	override fun sendMessageData(bytes: ByteArray, length: Int) =
 		clientSocket.outputStream.write(
 			if (bytes.size == length) bytes else bytes.copyOfRange(
@@ -16,8 +16,6 @@ class Sender(private val clientSocket: BluetoothSocket, type: CommunicationType)
 				length
 			)
 		)
-
-	override val messageType: MessageType = MessageType.Band
 
 	override fun close() = clientSocket.close()
 }

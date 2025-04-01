@@ -94,11 +94,11 @@ class SongDisplayActivity
 		} else {
 			Logger.logLoader({ "Successful load ID match: ${song.loadId}" })
 			if (BeatPrompter.preferences.bluetoothMode == BluetoothMode.Server) {
-				Logger.logLoader({ "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle}\"" })
+				Logger.logLoader({ "Sending ChooseSongMessage for \"${loadedSong.loadJob.songLoadInfo.songInfo.normalizedTitle}\"" })
 				val csm = ChooseSongMessage(
 					SongChoiceInfo(
-						loadedSong.loadJob.songLoadInfo.songFile.normalizedTitle,
-						loadedSong.loadJob.songLoadInfo.songFile.normalizedArtist,
+						loadedSong.loadJob.songLoadInfo.songInfo.normalizedTitle,
+						loadedSong.loadJob.songLoadInfo.songInfo.normalizedArtist,
 						loadedSong.loadJob.songLoadInfo.variation,
 						loadedSong.loadJob.songLoadInfo.nativeDisplaySettings.orientation,
 						loadedSong.loadJob.songLoadInfo.songLoadMode === ScrollingMode.Beat,
@@ -268,7 +268,7 @@ class SongDisplayActivity
 
 	private fun pauseClockSignalGeneratorTask() {
 		Task.pauseTask(ClockSignalGeneratorTask, BeatPrompter.midiClockOutTaskThread)
-		Midi.putStopMessage()
+		Midi.putStopMessage(songView?.activeMidiAliasSets ?: setOf())
 	}
 
 	class SongDisplayEventHandler internal constructor(
@@ -333,7 +333,7 @@ class SongDisplayActivity
 
 				return when {
 					// Trying to interrupt a song with itself is pointless!
-					loadedSong.song.songFile.id == interruptJob.songLoadInfo.songFile.id -> SongInterruptResult.SongAlreadyLoaded
+					loadedSong.song.songInfo.id == interruptJob.songLoadInfo.songInfo.id -> SongInterruptResult.SongAlreadyLoaded
 					songDisplayInstance.canYieldToExternalTrigger() -> {
 						loadedSong.song.cancelled = true
 						SongLoadQueueWatcherTask.setSongToLoadOnResume(interruptJob)

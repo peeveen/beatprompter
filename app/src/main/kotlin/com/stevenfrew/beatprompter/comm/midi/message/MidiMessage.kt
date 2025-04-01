@@ -26,7 +26,7 @@ open class MidiMessage(bytes: ByteArray) : Message(MessageType.Midi, bytes) {
 		internal const val MIDI_PROGRAM_CHANGE_BYTE = 0xc0.toByte()
 
 		internal const val MIDI_MSB_BANK_SELECT_CONTROLLER: Byte = 0
-		internal const val MIDI_LSB_BANK_SELECT_CONTROLLER = 32.toByte()
+		internal const val MIDI_LSB_BANK_SELECT_CONTROLLER = 0x20.toByte()
 
 		internal fun mergeMessageByteWithChannel(message: Byte, channel: Byte): Byte =
 			(message and 0xf0.toByte()) or (channel and 0x0f)

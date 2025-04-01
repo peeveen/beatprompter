@@ -2,11 +2,13 @@ package com.stevenfrew.beatprompter.cache.parse.tag
 
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.cache.parse.TextFileParser
+import com.stevenfrew.beatprompter.cache.parse.TextContentParser
 import com.stevenfrew.beatprompter.midi.alias.ArgumentValue
 import com.stevenfrew.beatprompter.midi.alias.ChannelValue
 import com.stevenfrew.beatprompter.midi.alias.ChanneledCommandValue
 import com.stevenfrew.beatprompter.midi.alias.CommandValue
+import com.stevenfrew.beatprompter.midi.alias.ComparisonType
+import com.stevenfrew.beatprompter.midi.alias.ComparisonValue
 import com.stevenfrew.beatprompter.midi.alias.NoValue
 import com.stevenfrew.beatprompter.midi.alias.Value
 import com.stevenfrew.beatprompter.midi.alias.ValueException
@@ -24,7 +26,7 @@ object TagParsingUtility {
 	private val helperMap = mutableMapOf<KClass<out Any>, TagParsingHelper<Any>>()
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T> getTagParsingHelper(parser: TextFileParser<T>): TagParsingHelper<T> =
+	fun <T> getTagParsingHelper(parser: TextContentParser<T>): TagParsingHelper<T> =
 		helperMap.getOrPut(parser::class) {
 			TagParsingHelper(parser) as TagParsingHelper<Any>
 		} as TagParsingHelper<T>
@@ -115,6 +117,13 @@ object TagParsingUtility {
 			}
 		}
 
+	private fun parseByteValue(value: String): Byte =
+		when {
+			value.looksLikeHex() -> Utils.parseHexByte(value)
+			value.looksLikeDecimal() -> Utils.parseByte(value)
+			else -> throw MalformedTagException(BeatPrompter.appResources.getString(R.string.not_a_valid_byte_value))
+		}
+
 	fun parseMIDIValue(valueStr: String, argIndex: Int, argCount: Int): Value =
 		valueStr.trim().let {
 			if (it.isEmpty())
@@ -149,9 +158,28 @@ object TagParsingUtility {
 							throw MalformedTagException(BeatPrompter.appResources.getString(R.string.underscore_in_decimal_value))
 					}
 
-					it.looksLikeHex() -> CommandValue(Utils.parseHexByte(it))
-					it.looksLikeDecimal() -> CommandValue(Utils.parseByte(it))
-					else -> throw MalformedTagException(BeatPrompter.appResources.getString(R.string.not_a_valid_byte_value))
+					// Order is IMPORTANT here!
+					it.startsWith("<=") -> ComparisonValue(
+						ComparisonType.LessThanOrEqualTo,
+						parseByteValue(it.substring(2))
+					)
+
+					it.startsWith(">=") -> ComparisonValue(
+						ComparisonType.GreaterThanOrEqualTo,
+						parseByteValue(it.substring(2))
+					)
+
+					it.startsWith("<") -> ComparisonValue(
+						ComparisonType.LessThan,
+						parseByteValue(it.substring(1))
+					)
+
+					it.startsWith(">") -> ComparisonValue(
+						ComparisonType.GreaterThan,
+						parseByteValue(it.substring(1))
+					)
+
+					else -> CommandValue(parseByteValue(it))
 				}
 			} catch (valueEx: ValueException) {
 				throw MalformedTagException(valueEx.message!!)

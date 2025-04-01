@@ -40,6 +40,7 @@ class MockPreferences(
 	override val customCommentsUser: String = "",
 	override val showChords: Boolean = true,
 	override val showKey: Boolean = false,
+	override val showCapo: Boolean = false,
 	override val showBPMContext: ShowBPMContext = ShowBPMContext.No,
 	override val sendMIDITriggerOnStart: TriggerOutputContext = TriggerOutputContext.Never,
 	override val metronomeContext: MetronomeContext = MetronomeContext.Off,

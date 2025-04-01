@@ -7,6 +7,10 @@ import android.os.Handler
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.AudioFile
+import com.stevenfrew.beatprompter.cache.Cache
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiProgramChangeTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.trigger.MidiSongSelectTriggerTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.ActivateMidiAliasesTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ArtistTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.AudioTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BarMarkerTag
@@ -16,6 +20,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStartTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatStopTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerBarTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.BeatsPerMinuteTag
+import com.stevenfrew.beatprompter.cache.parse.tag.song.CapoTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordMapTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.ChordTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.CommentTag
@@ -30,8 +35,6 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.ImageTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.KeyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.LegacyTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiEventTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiProgramChangeTriggerTag
-import com.stevenfrew.beatprompter.cache.parse.tag.song.MidiSongSelectTriggerTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.NoChordsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.PauseTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.RatingTag
@@ -48,7 +51,9 @@ import com.stevenfrew.beatprompter.cache.parse.tag.song.TitleTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.TransposeTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.VariationsTag
 import com.stevenfrew.beatprompter.cache.parse.tag.song.YearTag
+import com.stevenfrew.beatprompter.chord.Chord
 import com.stevenfrew.beatprompter.chord.ChordMap
+import com.stevenfrew.beatprompter.chord.InvalidChordException
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -58,6 +63,7 @@ import com.stevenfrew.beatprompter.graphics.ScreenString
 import com.stevenfrew.beatprompter.midi.BeatBlock
 import com.stevenfrew.beatprompter.midi.EventOffsetType
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
+import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.Song
 import com.stevenfrew.beatprompter.song.event.AudioEvent
@@ -117,7 +123,8 @@ import kotlin.math.roundToInt
 	EndOfChorusTag::class,
 	TransposeTag::class,
 	ChordMapTag::class,
-	NoChordsTag::class
+	NoChordsTag::class,
+	ActivateMidiAliasesTag::class
 )
 @IgnoreTags(
 	LegacyTag::class,
@@ -129,6 +136,7 @@ import kotlin.math.roundToInt
 	KeyTag::class,
 	RatingTag::class,
 	TagTag::class,
+	CapoTag::class,
 	YearTag::class,
 	IconTag::class,
 	FilterOnlyTag::class
@@ -141,17 +149,20 @@ class SongParser(
 	private val supportFileResolver: SupportFileResolver,
 	private val songLoadCancelEvent: SongLoadCancelEvent? = null,
 	private val songLoadHandler: Handler? = null
-) : SongFileParser<Song>(
-	songLoadInfo.songFile,
+) : SongContentParser<Song>(
+	songLoadInfo.songInfo.songContentProvider,
 	songLoadInfo.initialScrollMode,
 	songLoadInfo.mixedModeActive,
 	songLoadInfo.variation,
 	true
 ) {
+	private val activeMidiAliasSets: MutableSet<AliasSet> =
+		Cache.cachedCloudItems.midiAliasSets.filter { it.useByDefault }.toMutableSet()
 	private val metronomeContext: MetronomeContext
 	private val customCommentsUser: String
 	private var showChords: Boolean
 	private val showKey: Boolean
+	private val showCapo: Boolean
 	private val showBpm: ShowBPMContext
 	private val triggerContext: TriggerOutputContext
 	private val beatCounterTextOverlay: BeatCounterTextOverlay
@@ -180,15 +191,18 @@ class SongParser(
 	private var isInChorusSection = false
 	private var pendingAudioTag: AudioTag? = null
 	private var audioTagIndex: Int = 0
-	private var chordMap: ChordMap? = if (songLoadInfo.songFile.firstChord != null) ChordMap(
-		songLoadInfo.songFile.chords.toSet(),
-		songLoadInfo.songFile.firstChord,
-		songLoadInfo.songFile.key
-	).transpose(songLoadInfo.transposeShift) else null
+	private var chordMap: ChordMap? = songLoadInfo.songInfo.firstChord?.let {
+		ChordMap(
+			songLoadInfo.songInfo.chords.toSet(),
+			it,
+			songLoadInfo.songInfo.keySignature
+		).transpose(songLoadInfo.transposeShift)
+	}
+	private var firstParsedChord: String? = null
 
 	init {
 		// All songFile info parsing errors count as our errors too.
-		songLoadInfo.songFile.errors.forEach { addError(it) }
+		songLoadInfo.songInfo.errors.forEach { addError(it) }
 
 		sendMidiClock = BeatPrompter.preferences.sendMIDIClock
 		countIn = BeatPrompter.preferences.defaultCountIn
@@ -200,9 +214,12 @@ class SongParser(
 		triggerContext = BeatPrompter.preferences.sendMIDITriggerOnStart
 		val defaultMIDIOutputChannelPrefValue = BeatPrompter.preferences.defaultMIDIOutputChannel
 		defaultMidiOutputChannel = MidiMessage.getChannelFromBitmask(defaultMIDIOutputChannelPrefValue)
-		showKey = BeatPrompter.preferences.showKey && !songLoadInfo.songFile.key.isNullOrBlank()
+		showKey =
+			BeatPrompter.preferences.showKey && !songLoadInfo.songInfo.keySignature.isNullOrBlank()
+		showCapo =
+			BeatPrompter.preferences.showCapo && songLoadInfo.songInfo.capo != 0
 		showBpm =
-			if (songLoadInfo.songFile.bpm > 0.0) BeatPrompter.preferences.showBPMContext else ShowBPMContext.No
+			if (songLoadInfo.songInfo.bpm > 0.0) BeatPrompter.preferences.showBPMContext else ShowBPMContext.No
 
 		// Figure out the screen size
 		nativeDeviceSettings = translateSourceDeviceSettingsToNative(
@@ -213,23 +230,23 @@ class SongParser(
 		// Start the progress message dialog
 		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
-			0, songLoadInfo.songFile.lines
+			0, songLoadInfo.songInfo.lines
 		)?.sendToTarget()
 
 		val selectedVariation = songLoadInfo.variation
 		val audioFilenamesForThisVariation =
-			songLoadInfo.songFile.audioFiles[selectedVariation] ?: listOf()
+			songLoadInfo.songInfo.audioFiles[selectedVariation] ?: listOf()
 		flatAudioFiles = audioFilenamesForThisVariation.mapNotNull {
 			supportFileResolver.getMappedAudioFiles(it).firstOrNull()
 		}
 		val lengthOfBackingTrack = flatAudioFiles.firstOrNull()?.duration ?: 0L
 		var songTime =
-			if (songLoadInfo.songFile.duration == Utils.milliToNano(Utils.TRACK_AUDIO_LENGTH_VALUE))
+			if (songLoadInfo.songInfo.duration == Utils.milliToNano(Utils.TRACK_AUDIO_LENGTH_VALUE))
 				lengthOfBackingTrack
 			else
-				songLoadInfo.songFile.duration
-		if (songTime > 0 && songLoadInfo.songFile.totalPauseDuration > songTime) {
-			addError(FileParseError(R.string.pauseLongerThanSong))
+				songLoadInfo.songInfo.duration
+		if (songTime > 0 && songLoadInfo.songInfo.totalPauseDuration > songTime) {
+			addError(ContentParsingError(R.string.pauseLongerThanSong))
 			ongoingBeatInfo = SongBeatInfo(scrollMode = ScrollingMode.Manual)
 			currentLineBeatInfo = LineBeatInfo(ongoingBeatInfo)
 			songTime = 0
@@ -237,12 +254,28 @@ class SongParser(
 
 		timePerBar =
 			if (songTime > 0L)
-				(songTime.toDouble() / songLoadInfo.songFile.bars).toLong()
+				(songTime.toDouble() / songLoadInfo.songInfo.bars).toLong()
 			else
 				0
 	}
 
-	override fun parseLine(line: TextFileLine<Song>): Boolean {
+	private fun getLineChordMap(chordTags: List<ChordTag>): ChordMap {
+		firstParsedChord = firstParsedChord ?: chordTags.firstNotNullOfOrNull {
+			try {
+				Chord.parse(it.name)
+			} catch (_: InvalidChordException) {
+				// Oh well!
+				null
+			}
+		}?.toDisplayString()
+		return ChordMap(
+			chordTags.map { it.name }.toSet(),
+			songLoadInfo.songInfo.firstChord ?: firstParsedChord ?: "C",
+			songLoadInfo.songInfo.keySignature
+		)
+	}
+
+	override fun parseLine(line: TextContentLine<Song>): Boolean {
 		if (songLoadCancelEvent?.isCancelled == true)
 			throw SongLoadCancelledException()
 		if (!super.parseLine(line))
@@ -251,6 +284,7 @@ class SongParser(
 		showChords = showChords and !line.tags.filterIsInstance<NoChordsTag>().any()
 		val chordTags = line.tags.filterIsInstance<ChordTag>()
 		val nonChordTags = line.tags.filter { it !is ChordTag }
+		var lineChordMap = chordMap ?: getLineChordMap(chordTags).transpose(songLoadInfo.transposeShift)
 		val chordsFound = chordTags.isNotEmpty()
 		val chordsFoundButNotShowingThem = !showChords && chordsFound
 		val tags = if (showChords) line.tags.toList() else nonChordTags
@@ -259,15 +293,22 @@ class SongParser(
 		val transposeTags = tagSequence.filterIsInstance<TransposeTag>()
 		transposeTags.forEach {
 			try {
-				chordMap = chordMap?.transpose(it.value)
+				lineChordMap = lineChordMap.transpose(it.value)
+				if (chordMap != null)
+					chordMap = lineChordMap
 			} catch (e: Exception) {
-				addError(FileParseError(it, e))
+				addError(ContentParsingError(it, e))
 			}
 		}
 
+		activeMidiAliasSets.addAll(
+			tagSequence.filterIsInstance<ActivateMidiAliasesTag>().flatMap { it.midiAliasSets })
+
 		val chordMapTags = tagSequence.filterIsInstance<ChordMapTag>()
 		chordMapTags.forEach {
-			chordMap = chordMap?.addChordMapping(it.from, it.to)
+			lineChordMap = lineChordMap.addChordMapping(it.from, it.to)
+			if (chordMap != null)
+				chordMap = lineChordMap
 		}
 
 		var workLine = line.lineWithNoTags
@@ -342,13 +383,19 @@ class SongParser(
 
 		tags
 			.filterIsInstance<MidiEventTag>()
+			// Only use MIDI events generated from alias sets that are ALL active.
+			// We could have a recursive chain of aliases between sets, but if even
+			// one set is inactive, the whole thing is invalid.
+			.filter {
+				activeMidiAliasSets.containsAll(it.aliasSetsUsed)
+			}
 			.forEach {
 				if (stopAddingStartupItems || isLineContentOrPause)
 					events.add(it.toMIDIEvent(songTime))
 				else {
 					initialMidiMessages.addAll(it.messages)
 					if (it.offset.amount != 0)
-						addError(FileParseError(it, R.string.midi_offset_before_first_line))
+						addError(ContentParsingError(it, R.string.midi_offset_before_first_line))
 				}
 			}
 
@@ -386,10 +433,10 @@ class SongParser(
 				val mappedTracks =
 					supportFileResolver.getMappedAudioFiles(it.normalizedFilename)
 				if (mappedTracks.isEmpty())
-					addError(FileParseError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
+					addError(ContentParsingError(it, R.string.cannotFindAudioFile, it.normalizedFilename))
 				else if (mappedTracks.size > 1)
 					addError(
-						FileParseError(
+						ContentParsingError(
 							it,
 							R.string.multipleFilenameMatches,
 							it.normalizedFilename
@@ -399,7 +446,7 @@ class SongParser(
 					val audioFile = mappedTracks.first()
 					if (!audioFile.file.exists())
 						addError(
-							FileParseError(
+							ContentParsingError(
 								it,
 								R.string.cannotFindAudioFile,
 								it.normalizedFilename
@@ -424,7 +471,7 @@ class SongParser(
 			stopAddingStartupItems = true
 
 			if (imageTag != null && (workLine.isNotBlank() || chordsFound))
-				addError(FileParseError(line.lineNumber, R.string.text_found_with_image))
+				addError(ContentParsingError(line.lineNumber, R.string.text_found_with_image))
 
 			// Measuring a blank line will result in a 0x0 measurement, so we
 			// need to have SOMETHING to measure. A nice wee "down arrow" should look OK.
@@ -440,11 +487,11 @@ class SongParser(
 			if (isLineContent) {
 				// First line should always have a time of zero, so that if the user scrolls
 				// back to the start of the song, it still picks up any count-in beat events.
-				val lineStartTime = if (lines.isEmpty) 0L else songTime
+				val lineStartTime = if (lines.isEmpty()) 0L else songTime
 
 				// If the first line is a pause event, we need to adjust the total line time accordingly
 				// to include any count-in
-				val addToPause = if (lines.isEmpty) songTime else 0L
+				val addToPause = if (lines.isEmpty()) songTime else 0L
 
 				// Generate beat events (may return null in smooth mode)
 				pauseEvents?.maxOf { it.eventTime }
@@ -490,11 +537,11 @@ class SongParser(
 							)
 						} catch (t: Throwable) {
 							// Bitmap loading could cause error here. Even OutOfMemory!
-							addError(FileParseError(imageTag, t))
+							addError(ContentParsingError(imageTag, t))
 						}
 					else {
 						workLine = BeatPrompter.appResources.getString(R.string.missing_image_file_warning)
-						addError(FileParseError(imageTag, R.string.missing_image_file_warning))
+						addError(ContentParsingError(imageTag, R.string.missing_image_file_warning))
 						imageTag = null
 					}
 				}
@@ -512,7 +559,7 @@ class SongParser(
 						songHeight,
 						thisLineIsInChorus,
 						startAndStopScrollTimes,
-						chordMap,
+						lineChordMap,
 						songLoadCancelEvent
 					)
 
@@ -556,7 +603,7 @@ class SongParser(
 
 		songLoadHandler?.obtainMessage(
 			Events.SONG_LOAD_LINE_PROCESSED,
-			line.lineNumber, songLoadInfo.songFile.lines
+			line.lineNumber, songLoadInfo.songInfo.lines
 		)?.sendToTarget()
 		return true
 	}
@@ -571,7 +618,7 @@ class SongParser(
 
 	override fun getResult(): Song {
 		// Song has no lines? Make a dummy line so we don't have to check for null everywhere in the code.
-		if (lines.isEmpty)
+		if (lines.isEmpty())
 			throw InvalidBeatPrompterFileException(R.string.no_lines_in_song_file)
 
 		val lineSequence = lines.asSequence()
@@ -622,7 +669,7 @@ class SongParser(
 		val maxSongTitleHeight = beatCounterHeight * 0.9f
 		val vMargin = (beatCounterHeight - maxSongTitleHeight) / 2.0f
 		val beatCounterTextOverlayScreenString = ScreenString.create(
-			beatCounterTextOverlay.getTextOverlayFn(songLoadInfo.songFile.title),
+			beatCounterTextOverlay.getTextOverlayFn(songLoadInfo.songInfo.title),
 			paint,
 			maxSongTitleWidth.toInt(),
 			maxSongTitleHeight.toInt(),
@@ -694,19 +741,19 @@ class SongParser(
 			|| (triggerContext == TriggerOutputContext.ManualStartOnly && !songLoadInfo.wasStartedByMidiTrigger)
 		) {
 			initialMidiMessages.addAll(
-				songLoadInfo.songFile.programChangeTrigger.getMIDIMessages(
+				songLoadInfo.songInfo.programChangeTrigger.getMIDIMessages(
 					defaultMidiOutputChannel
 				)
 			)
 			initialMidiMessages.addAll(
-				songLoadInfo.songFile.songSelectTrigger.getMIDIMessages(
+				songLoadInfo.songInfo.songSelectTrigger.getMIDIMessages(
 					defaultMidiOutputChannel
 				)
 			)
 		}
 
 		return Song(
-			songLoadInfo.songFile,
+			songLoadInfo.songInfo,
 			nativeDeviceSettings,
 			firstEvent,
 			lines,
@@ -727,7 +774,8 @@ class SongParser(
 			beatCounterTextOverlayScreenString,
 			songTitleHeaderLocation,
 			songLoadInfo.loadId,
-			songLoadInfo.audioLatency
+			songLoadInfo.audioLatency,
+			activeMidiAliasSets
 		)
 	}
 
@@ -977,7 +1025,7 @@ class SongParser(
 		minimumFontSize *= ratioMultiplier.toFloat()
 		maximumFontSize *= ratioMultiplier.toFloat()
 		if (minimumFontSize > maximumFontSize) {
-			addError(FileParseError(0, R.string.fontSizesAllMessedUp))
+			addError(ContentParsingError(0, R.string.fontSizesAllMessedUp))
 			maximumFontSize = minimumFontSize
 		}
 		return DisplaySettings(
@@ -1019,7 +1067,7 @@ class SongParser(
 		val twentyPercent = (availableScreenHeight / 5.0).toInt()
 		startScreenStrings.add(
 			ScreenString.create(
-				songLoadInfo.songFile.title,
+				songLoadInfo.songInfo.title,
 				paint,
 				nativeDeviceSettings.screenSize.width,
 				twentyPercent,
@@ -1027,10 +1075,10 @@ class SongParser(
 				true
 			)
 		)
-		if (songLoadInfo.songFile.artist.isNotBlank())
+		if (songLoadInfo.songInfo.artist.isNotBlank())
 			startScreenStrings.add(
 				ScreenString.create(
-					songLoadInfo.songFile.artist,
+					songLoadInfo.songInfo.artist,
 					paint,
 					nativeDeviceSettings.screenSize.width,
 					tenPercent,
@@ -1046,6 +1094,8 @@ class SongParser(
 		if (showBPM)
 			++messages
 		if (showKey)
+			++messages
+		if (showCapo)
 			++messages
 		if (messages > 0) {
 			val remainingScreenSpace = nativeDeviceSettings.screenSize.height - twentyPercent * 2
@@ -1095,7 +1145,7 @@ class SongParser(
 				)
 			if (showKey) {
 				val keyString =
-					BeatPrompter.appResources.getString(R.string.keyPrefix) + ": " + songLoadInfo.songFile.key
+					BeatPrompter.appResources.getString(R.string.keyPrefix) + ": " + songLoadInfo.songInfo.keySignature
 				startScreenStrings.add(
 					ScreenString.create(
 						keyString,
@@ -1107,15 +1157,29 @@ class SongParser(
 					)
 				)
 			}
+			if (showCapo) {
+				val keyString =
+					BeatPrompter.appResources.getString(R.string.capoPrefix) + " " + songLoadInfo.songInfo.capo
+				startScreenStrings.add(
+					ScreenString.create(
+						keyString,
+						paint,
+						nativeDeviceSettings.screenSize.width,
+						spacePerMessageLine,
+						START_SCREEN_CAPO_COLOR,
+						false
+					)
+				)
+			}
 			if (showBpm != ShowBPMContext.No) {
 				val rounded =
-					showBpm == ShowBPMContext.Rounded || songLoadInfo.songFile.bpm == songLoadInfo.songFile.bpm.toInt()
+					showBpm == ShowBPMContext.Rounded || songLoadInfo.songInfo.bpm == songLoadInfo.songInfo.bpm.toInt()
 						.toDouble()
 				var bpmString = BeatPrompter.appResources.getString(R.string.bpmPrefix) + ": "
 				bpmString += if (rounded)
-					songLoadInfo.songFile.bpm.roundToInt()
+					songLoadInfo.songInfo.bpm.roundToInt()
 				else
-					songLoadInfo.songFile.bpm
+					songLoadInfo.songInfo.bpm
 				startScreenStrings.add(
 					ScreenString.create(
 						bpmString,
@@ -1331,7 +1395,7 @@ class SongParser(
 			}
 			if (newTime < 0) {
 				addError(
-					FileParseError(
+					ContentParsingError(
 						midiEvent.offset.sourceFileLineNumber,
 						R.string.midi_offset_is_before_start_of_song
 					)
@@ -1349,6 +1413,7 @@ class SongParser(
 		private const val START_SCREEN_ARTIST_COLOR = Color.YELLOW
 		private const val START_SCREEN_BPM_COLOR = Color.CYAN
 		private const val START_SCREEN_KEY_COLOR = Color.CYAN
+		private const val START_SCREEN_CAPO_COLOR = Color.CYAN
 		private const val START_SCREEN_TAP_TO_START_COLOR = Color.GREEN
 
 		private fun BaseEvent.shouldCompensateForAudioLatency(lineEventFound: Boolean): Boolean =

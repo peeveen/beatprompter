@@ -199,6 +199,7 @@
 	<string name="midiTriggerSafetyCatchPaused">Cuando está en pausa, o en la pantalla de título</string>
 	<string name="midiTriggerSafetyCatchPausedOrLastLine">Cuando está en pausa, en la pantalla de título o en la última línea de la canción</string>
 	<string name="midiTriggerSafetyCatchTitleScreen">Cuando en la pantalla de título</string>
+	<string name="midi_commands">Comandos MIDI</string>
 	<string name="midi_alias_file_errors">Errores de archivo de alias MIDI</string>
 	<string name="midi_alias_files">Alias de MIDI</string>
 	<string name="midi_alias_list_options">Alias de MIDI</string>
@@ -233,8 +234,8 @@
 	<string name="sendMidiTriggerOnStartManualStartOnly">Cuando se inicia manualmente</string>
 	<string name="sendMidiTriggerOnStartNever">Nunca</string>
 	<string name="show_midi_alias_errors">Mostrar errores de archivo de alias de MIDI</string>
-	<string name="song_index_must_have_one_two_or_three_values">Las etiquetas de activación de cambio de programa deben contener entre uno y cuatro valores.</string>
-	<string name="song_index_must_have_one_value">Las etiquetas de disparo de selección de canción deben contener sólo un valor.</string>
+	<string name="program_change_must_have_one_to_four_values">Las etiquetas de activación de cambio de programa deben contener entre uno y cuatro valores.</string>
+	<string name="song_select_must_have_one_value">Las etiquetas de disparo de selección de canción deben contener sólo un valor.</string>
 	<string name="temporary">Temporal</string>
 	<string name="underscore_in_decimal_value">Los valores que contienen subrayados deben estar en hexadecimal.</string>
 	<string name="unknown_midi_directive">La etiqueta "%1$s" no coincide con ningún comando MIDI y alias conocidos.</string>
@@ -301,6 +302,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="force_refresh_with_dependencies">Actualización de fuerzas (incluidas las dependencias)</string>
 	<string name="byKey">Por clave</string>
 	<string name="cannotFindImageFile">No se puede encontrar el archivo de imagen: %1$s</string>
+	<string name="control_change_must_have_two_or_three_values">Las etiquetas desencadenantes de cambio de control deben contener dos o tres valores.</string>
 	<string name="could_not_read_image_file">No se pudo leer el archivo de imagen: %1$s</string>
 	<string name="keyPrefix">Llave</string>
 	<string name="metronomeOnWhenNoBackingTrack">Encendido cuando no hay pista de acompañamiento</string>
@@ -422,6 +424,7 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="pref_alwaysDisplaySharpChords_summary">Cualquier acorde bemol se convertirá en un acorde sostenido apropiado.</string>
 	<string name="pref_displayUnicodeAccidentals_title">Mostrar alteraciones accidentales de Unicode</string>
 	<string name="pref_displayUnicodeAccidentals_summary">Los acordes que contienen caracteres b/# se convertirán para utilizar ♭/♯.</string>
+	<string name="cannot_use_triggers_in_non_command_aliases">Los activadores de cambio de control MIDI solo son válidos para alias que no tienen argumentos.</string>
 	<string name="failedToParseKey">\'%1$s\' no se pudo analizar como una clave válida</string>
 	<string name="couldNotShiftKey">Impossibile calcolare la nuova tonalità (spostamento di %1$s di %2$d semitoni)</string>
 	<string name="failedToParseChord">No se pudo analizar el acorde \'%1$s\'</string>
@@ -457,4 +460,18 @@ letras y acordes [Em]en el tiempo con el ritmo.\n
 	<string name="edit_set_file">Editar archivo de conjunto en la nube …</string>
 	<string name="pref_beatCounterHeight_title">Altura del contador de ritmo</string>
 	<string name="pref_beatCounterHeight_message">La altura del contador de ritmo, como porcentaje de la altura de la pantalla en modo vertical.</string>
+	<string name="no_such_midi_alias_set">No se puede encontrar un conjunto de alias MIDI llamado \'%1$s\'</string>
+	<string name="executed_midi_command">Comando MIDI enviado \'%1$s\'</string>
+	<string name="search_characters_required">Se requieren al menos %1$d caracteres consecutivos.</string>
+	<string name="not_enough_search_text">No hay suficiente texto de búsqueda.</string>
+	<string name="searching">Buscando…</string>
+	<string name="please_wait">Espere por favor …</string>
+	<string name="no_results">No hay resultados.</string>
+	<string name="defaultVariationName">Por defecto</string>
+	<string name="try_some_different_search_terms">Pruebe algunos términos de búsqueda diferentes.</string>
+	<string name="pref_showSongCapo_title">Mostrar la configuración del capo en la pantalla de título.</string>
+	<string name="pref_showSongCapo_summary">Muestra la configuración del capo en la pantalla del título de la canción.</string>
+	<string name="cannot_use_midi_command_with_parameters">Un alias MIDI que esté marcado como un comando MIDI no debe tener parámetros</string>
+	<string name="copy_ug_to_clipboard">Copiar como ChordPro al portapapeles</string>
+	<string name="copied">Copiada</string>
 </resources>
