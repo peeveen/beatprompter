@@ -2,6 +2,7 @@ package com.stevenfrew.beatprompter.set
 
 import com.stevenfrew.beatprompter.song.SongInfo
 import com.stevenfrew.beatprompter.ui.filter.SetListMatch
+import com.stevenfrew.beatprompter.util.normalize
 import com.stevenfrew.beatprompter.util.splitAndTrim
 
 /**
@@ -25,7 +26,11 @@ class SetListEntry private constructor(
 	// IDE says this is unused ... it is lying!
 	@Suppress("unused")
 	private constructor(titleAndArtist: Triple<String, String, String>)
-		: this(titleAndArtist.first, titleAndArtist.second, titleAndArtist.third)
+		: this(
+		titleAndArtist.first.normalize(),
+		titleAndArtist.second.normalize(),
+		titleAndArtist.third
+	)
 
 	fun matches(songFile: SongInfo): SetListMatch =
 		if (songFile.normalizedTitle.equals(normalizedTitle, true)) {
