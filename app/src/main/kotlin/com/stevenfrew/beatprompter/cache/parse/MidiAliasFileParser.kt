@@ -36,6 +36,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
 	MidiAliasChannelTag::class,
+	MidiInitTag::class,
 	MidiControlChangeTriggerTag::class
 )
 /**
