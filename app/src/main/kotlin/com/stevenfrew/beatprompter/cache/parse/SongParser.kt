@@ -167,7 +167,8 @@ class SongParser(
 	private val triggerContext: TriggerOutputContext
 	private val beatCounterTextOverlay: BeatCounterTextOverlay
 	private val nativeDeviceSettings: DisplaySettings
-	private val initialMidiMessages = mutableListOf<MidiMessage>()
+	private val initialMidiMessages =
+		Cache.cachedCloudItems.initialMidiMessages.toMutableList()
 	private var stopAddingStartupItems = false
 	private val startScreenComments = mutableListOf<Song.Comment>()
 	private val events = mutableListOf<BaseEvent>()

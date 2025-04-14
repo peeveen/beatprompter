@@ -13,6 +13,7 @@ abstract class WithMidiTag internal constructor(
 ) : Tag(name, lineNumber, position)
 
 enum class WithMidi {
+	SongLoad,
 	Start,
 	Stop,
 	Continue

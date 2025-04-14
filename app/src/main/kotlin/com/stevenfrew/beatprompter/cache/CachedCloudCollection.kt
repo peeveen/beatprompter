@@ -1,6 +1,8 @@
 package com.stevenfrew.beatprompter.cache
 
+import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.storage.FileInfo
@@ -49,6 +51,23 @@ class CachedCloudCollection {
 	val imageFiles: List<ImageFile>
 		get() =
 			items.values.filterIsInstance<ImageFile>()
+
+	val initialMidiMessages: List<MidiMessage>
+		get() =
+			midiAliasSets.flatMap { set ->
+				set.aliases
+					.filter { it.withSongLoad }
+					.map { set to it }
+			}
+				.sortedBy { it.second.withSongLoadOrder }
+				.flatMap {
+					it.second.resolve(
+						it.first,
+						midiAliasSets,
+						byteArrayOf(),
+						MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+					).first
+				}
 
 	fun writeToXML(doc: Document, root: Element) =
 		items.values.forEach { item ->

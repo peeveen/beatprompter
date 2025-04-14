@@ -216,6 +216,18 @@ ranges.
 > MSB/LSB Program Change bank select messages. Incoming bank select messages will _never_ trigger
 > any commands.
 
+### Triggering MIDI commands when _any_ song is loaded
+
+If you add a `{midi_init}` tag to any parameterless MIDI alias, that MIDI command will be sent
+as soon as a song is loaded, and before any other MIDI commands specified in the song file.
+
+If the order of all `{midi_init}`-enabled commands is important, you can add a numeric order value
+(e.g. `{midi_init:5}`) and the commands will be executed in ascending numerical order. Directives
+without this order value effectively have an order of zero.
+
+The `{midi_init}` directive is useful if there are devices/settings that you want to deactivate at
+the start of every song, in case an earlier song has left them in an active state.
+
 ## MIDI Beat Clock Signals
 
 This is obviously a timing-critical feature. Due to the nature of the operating system, the
