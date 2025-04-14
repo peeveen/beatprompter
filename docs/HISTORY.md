@@ -2,6 +2,10 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.79
+
+- Fixed set list bug where titles with apostrophes in them would sometimes not match correctly.
+
 ## 1.78
 
 - Added Ultimate Guitar chord/lyrics filter.
