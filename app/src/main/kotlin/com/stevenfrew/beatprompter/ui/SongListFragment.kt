@@ -119,7 +119,6 @@ class SongListFragment
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main + coroutineJob
 
-	private var listAdapter: BaseAdapter? = null
 	private var menu: Menu? = null
 
 	private var playlist = Playlist()
@@ -285,8 +284,7 @@ class SongListFragment
 		} else
 			Playlist()
 		sortSongList()
-		listAdapter = buildListAdapter()
-		updateListView()
+		updateListView(buildListAdapter())
 		showSetListMissingSongs()
 	}
 
@@ -294,23 +292,28 @@ class SongListFragment
 		//applyFileFilter(null)
 	}
 
-	override fun onConfigurationChanged(newConfig: Configuration) {
+	private fun maintainListPosition(buildAdapterFn: () -> BaseAdapter) {
 		val beforeListView = requireView().findViewById<ListView>(R.id.listView)
 		val currentPosition = beforeListView.firstVisiblePosition
 		val v = beforeListView.getChildAt(0)
 		val top = if (v == null) 0 else v.top - beforeListView.paddingTop
-
-		super.onConfigurationChanged(newConfig)
-		registerEventHandler()
-		listAdapter = buildListAdapter()
-		updateListView().setSelectionFromTop(currentPosition, top)
+		buildAdapterFn().also {
+			updateListView(it).setSelectionFromTop(currentPosition, top)
+		}
 	}
 
-	private fun updateListView(): ListView =
+	override fun onConfigurationChanged(newConfig: Configuration) =
+		maintainListPosition {
+			super.onConfigurationChanged(newConfig)
+			registerEventHandler()
+			buildListAdapter()
+		}
+
+	private fun updateListView(baseAdapter: BaseAdapter): ListView =
 		requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
-			adapter = listAdapter
+			adapter = baseAdapter
 		}
 
 	private fun setFilters(initialSelection: Int = 0) {
@@ -808,8 +811,8 @@ class SongListFragment
 
 		updateBluetoothIcon()
 
-		if (listAdapter != null)
-			listAdapter!!.notifyDataSetChanged()
+		val listView = requireView().findViewById<ListView>(R.id.listView)
+		(listView?.adapter as? BaseAdapter)?.notifyDataSetChanged()
 
 		SongLoadQueueWatcherTask.onResume()
 	}
@@ -855,8 +858,7 @@ class SongListFragment
 
 	private fun shuffleSongList() {
 		playlist = playlist.shuffle()
-		listAdapter = buildListAdapter()
-		updateListView()
+		updateListView(buildListAdapter())
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
@@ -1024,8 +1026,7 @@ class SongListFragment
 						}
 					)
 					sortSongList()
-					listAdapter = buildListAdapter()
-					updateListView()
+					updateListView(buildListAdapter())
 				}
 				setTitle(getString(R.string.sortSongs))
 				create().apply {
@@ -1200,8 +1201,7 @@ class SongListFragment
 			|| key == getString(R.string.pref_songIconDisplayPosition_key)
 			|| key == getString(R.string.pref_showYearInList_key)
 		) {
-			listAdapter = buildListAdapter()
-			updateListView()
+			updateListView(buildListAdapter())
 		}
 	}
 
@@ -1211,8 +1211,7 @@ class SongListFragment
 	override fun onQueryTextChange(searchText: String?): Boolean {
 		queryDebouncer.debounce(300L) {
 			this.searchText = searchText?.lowercase() ?: ""
-			listAdapter = buildListAdapter()
-			updateListView()
+			updateListView(buildListAdapter())
 		}
 		return true
 	}
