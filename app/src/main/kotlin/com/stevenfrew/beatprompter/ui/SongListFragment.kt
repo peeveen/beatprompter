@@ -507,7 +507,7 @@ class SongListFragment
 				Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
 			})
 			options.add(R.string.force_refresh_with_dependencies to {
-				Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
+				Cache.performCloudSync(selectedSongInfo, true, this@SongListFragment)
 			})
 			if (includeRefreshSet)
 				options.add(R.string.force_refresh_set to {

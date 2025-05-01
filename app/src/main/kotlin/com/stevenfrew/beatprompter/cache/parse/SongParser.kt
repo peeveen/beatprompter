@@ -961,16 +961,19 @@ class SongParser(
 			return null
 		// pauseTime is in milliseconds.
 		// We don't want to generate thousands of events, so let's say every 1/10th of a second.
+		// Or, if the pause is pretty big, 1% of the pause length. Whichever is bigger.
 		var eventTime = startTime
+		val onePercentOfPause = (pauseTag.duration / 100.0).toLong()
 		val pauseEvents = mutableListOf<PauseEvent>()
-		val deciSeconds = ceil(Utils.nanoToMilli(pauseTag.duration).toDouble() / 100.0).toInt()
-		val remainder = pauseTag.duration - Utils.milliToNano(deciSeconds * 100)
-		val oneDeciSecondInNanoseconds = Utils.milliToNano(100)
+		val pauseEventGranularity = max(onePercentOfPause, ONE_DECISECOND_IN_NANOSECONDS)
+		val events =
+			ceil(pauseTag.duration.toDouble() / pauseEventGranularity).toInt()
+		val remainder = pauseTag.duration % pauseEventGranularity
 		eventTime += remainder
-		repeat(deciSeconds) {
-			val pauseEvent = PauseEvent(eventTime, deciSeconds, it)
+		repeat(events) {
+			val pauseEvent = PauseEvent(eventTime, events, it)
 			pauseEvents.add(pauseEvent)
-			eventTime += oneDeciSecondInNanoseconds
+			eventTime += pauseEventGranularity
 		}
 		return pauseEvents
 	}
@@ -1408,6 +1411,8 @@ class SongParser(
 			midiEvent
 
 	companion object {
+		private val ONE_DECISECOND_IN_NANOSECONDS = Utils.milliToNano(100)
+
 		private const val DEFAULT_START_SCREEN_COMMENT_COLOR = Color.WHITE
 		private const val START_SCREEN_ERROR_COLOR = Color.RED
 		private const val START_SCREEN_TITLE_COLOR = Color.YELLOW
