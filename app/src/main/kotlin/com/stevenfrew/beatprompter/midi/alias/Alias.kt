@@ -10,6 +10,8 @@ class Alias(
 	val withMidiStart: Boolean = false,
 	val withMidiContinue: Boolean = false,
 	val withMidiStop: Boolean = false,
+	val withSongLoad: Boolean = false,
+	val withSongLoadOrder: Int = 0,
 	val commandName: String? = null
 ) : AliasComponent {
 	override val parameterCount

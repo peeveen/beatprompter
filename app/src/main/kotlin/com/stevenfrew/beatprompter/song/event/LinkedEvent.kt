@@ -52,8 +52,9 @@ class LinkedEvent(eventList: List<BaseEvent>, private val previousEvent: LinkedE
 		}
 
 	init {
-		val eventsGroupedByTime = eventList.groupBy { it.eventTime }.toSortedMap()
-		val firstGroup = eventsGroupedByTime.getValue(eventsGroupedByTime.firstKey())
+		val eventsGroupedByTime = eventList.groupBy { it.eventTime }
+		val eventsGroupedByTimeAndSorted = eventsGroupedByTime.toSortedMap()
+		val firstGroup = eventsGroupedByTimeAndSorted.getValue(eventsGroupedByTimeAndSorted.firstKey())
 		event = firstGroup.first()
 		previousLineEvent =
 			firstGroup.firstNotNullOfOrNull { it as? LineEvent } ?: previousEvent?.previousLineEvent

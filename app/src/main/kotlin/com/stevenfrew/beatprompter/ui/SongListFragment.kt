@@ -119,15 +119,12 @@ class SongListFragment
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Main + coroutineJob
 
-	private var listAdapter: BaseAdapter? = null
 	private var menu: Menu? = null
 
 	private var playlist = Playlist()
 	private var nowPlayingNode: PlaylistNode? = null
 	private var searchText = ""
-	private var performingCloudSync = false
-	private var savedListIndex = 0
-	private var savedListOffset = 0
+	private var maintainedListPositions: Pair<Int, Int>? = null
 	private var filters = listOf<Filter>()
 	private val selectedTagFilters = mutableListOf<TagFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
@@ -262,14 +259,15 @@ class SongListFragment
 		if (BeatPrompter.preferences.clearTagsOnFolderChange)
 			selectedTagFilters.clear()
 		applyFileFilter(filters[position])
-		if (performingCloudSync) {
-			performingCloudSync = false
+		maintainedListPositions?.also {
 			val listView = requireView().findViewById<ListView>(R.id.listView)
-			listView.setSelectionFromTop(savedListIndex, savedListOffset)
+			listView.setSelectionFromTop(it.first, it.second)
 		}
+		maintainedListPositions = null
 	}
 
 	private fun applyFileFilter(filter: Filter) {
+		val sameFilterAsBefore = selectedFilter.name == filter.name
 		selectedFilter = filter
 		playlist = if (filter is SongFilter) {
 			val isAllSongsFilter = filter is AllSongsFilter
@@ -285,8 +283,12 @@ class SongListFragment
 		} else
 			Playlist()
 		sortSongList()
-		listAdapter = buildListAdapter()
-		updateListView()
+		if (sameFilterAsBefore)
+			maintainListPosition {
+				buildListAdapter()
+			}
+		else
+			updateListView(buildListAdapter())
 		showSetListMissingSongs()
 	}
 
@@ -294,23 +296,25 @@ class SongListFragment
 		//applyFileFilter(null)
 	}
 
-	override fun onConfigurationChanged(newConfig: Configuration) {
-		val beforeListView = requireView().findViewById<ListView>(R.id.listView)
-		val currentPosition = beforeListView.firstVisiblePosition
-		val v = beforeListView.getChildAt(0)
-		val top = if (v == null) 0 else v.top - beforeListView.paddingTop
-
-		super.onConfigurationChanged(newConfig)
-		registerEventHandler()
-		listAdapter = buildListAdapter()
-		updateListView().setSelectionFromTop(currentPosition, top)
+	private fun maintainListPosition(buildAdapterFn: () -> BaseAdapter) {
+		val maintainedPositions = getListPositions()
+		buildAdapterFn().also {
+			updateListView(it).setSelectionFromTop(maintainedPositions.first, maintainedPositions.second)
+		}
 	}
 
-	private fun updateListView(): ListView =
+	override fun onConfigurationChanged(newConfig: Configuration) =
+		maintainListPosition {
+			super.onConfigurationChanged(newConfig)
+			registerEventHandler()
+			buildListAdapter()
+		}
+
+	private fun updateListView(baseAdapter: BaseAdapter): ListView =
 		requireView().findViewById<ListView>(R.id.listView).apply {
 			onItemClickListener = this@SongListFragment
 			onItemLongClickListener = this@SongListFragment
-			adapter = listAdapter
+			adapter = baseAdapter
 		}
 
 	private fun setFilters(initialSelection: Int = 0) {
@@ -500,17 +504,14 @@ class SongListFragment
 
 		if (selectedSongInfo is SongFile) {
 			options.add(R.string.force_refresh to {
-				performingCloudSync =
-					Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
+				Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
 			})
 			options.add(R.string.force_refresh_with_dependencies to {
-				performingCloudSync =
-					Cache.performCloudSync(selectedSongInfo, false, this@SongListFragment)
+				Cache.performCloudSync(selectedSongInfo, true, this@SongListFragment)
 			})
 			if (includeRefreshSet)
 				options.add(R.string.force_refresh_set to {
-					performingCloudSync =
-						Cache.performCloudSync(selectedSet, false, this@SongListFragment)
+					Cache.performCloudSync(selectedSet, false, this@SongListFragment)
 				})
 		} else if (selectedSongInfo is UltimateGuitarSongInfo)
 			options.add(R.string.copy_ug_to_clipboard to {
@@ -687,7 +688,7 @@ class SongListFragment
 
 		val options = mutableListOf<Pair<Int, () -> Unit>>()
 		options.add(R.string.force_refresh_midi_alias to {
-			performingCloudSync = Cache.performCloudSync(maf, false, this@SongListFragment)
+			Cache.performCloudSync(maf, false, this@SongListFragment)
 		})
 		if (showErrors)
 			options.add(R.string.show_midi_alias_errors to { showMIDIAliasErrors(maf.errors) })
@@ -792,7 +793,9 @@ class SongListFragment
 		}
 	}
 
-	private fun initialiseList(cache: CachedCloudCollection) {
+	internal fun onCacheUpdated(cache: CachedCloudCollection) {
+		maintainedListPositions = getListPositions()
+		imageDictionary = buildImageDictionary(cache)
 		playlist = Playlist()
 		buildFilterList(cache)
 	}
@@ -808,8 +811,8 @@ class SongListFragment
 
 		updateBluetoothIcon()
 
-		if (listAdapter != null)
-			listAdapter!!.notifyDataSetChanged()
+		val listView = requireView().findViewById<ListView>(R.id.listView)
+		(listView?.adapter as? BaseAdapter)?.notifyDataSetChanged()
 
 		SongLoadQueueWatcherTask.onResume()
 	}
@@ -855,8 +858,7 @@ class SongListFragment
 
 	private fun shuffleSongList() {
 		playlist = playlist.shuffle()
-		listAdapter = buildListAdapter()
-		updateListView()
+		updateListView(buildListAdapter())
 	}
 
 	private fun buildListAdapter(): BaseAdapter =
@@ -1024,8 +1026,7 @@ class SongListFragment
 						}
 					)
 					sortSongList()
-					listAdapter = buildListAdapter()
-					updateListView()
+					updateListView(buildListAdapter())
 				}
 				setTitle(getString(R.string.sortSongs))
 				create().apply {
@@ -1148,13 +1149,12 @@ class SongListFragment
 			}.toMap()
 		}
 
-	internal fun onCacheUpdated(cache: CachedCloudCollection) {
+	private fun getListPositions(): Pair<Int, Int> {
 		val listView = requireView().findViewById<ListView>(R.id.listView)
-		savedListIndex = listView.firstVisiblePosition
-		imageDictionary = buildImageDictionary(cache)
+		val index = listView.firstVisiblePosition
 		val v = listView.getChildAt(0)
-		savedListOffset = if (v == null) 0 else v.top - listView.paddingTop
-		initialiseList(cache)
+		val offset = if (v == null) 0 else v.top - listView.paddingTop
+		return index to offset
 	}
 
 	internal fun onCacheCleared(report: Boolean) {
@@ -1200,8 +1200,7 @@ class SongListFragment
 			|| key == getString(R.string.pref_songIconDisplayPosition_key)
 			|| key == getString(R.string.pref_showYearInList_key)
 		) {
-			listAdapter = buildListAdapter()
-			updateListView()
+			updateListView(buildListAdapter())
 		}
 	}
 
@@ -1211,8 +1210,9 @@ class SongListFragment
 	override fun onQueryTextChange(searchText: String?): Boolean {
 		queryDebouncer.debounce(300L) {
 			this.searchText = searchText?.lowercase() ?: ""
-			listAdapter = buildListAdapter()
-			updateListView()
+			maintainListPosition {
+				buildListAdapter()
+			}
 		}
 		return true
 	}

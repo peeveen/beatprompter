@@ -10,6 +10,7 @@ import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasChannelTa
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasInstructionTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasNameTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiAliasSetNameTag
+import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.MidiInitTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidi
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiContinueTag
 import com.stevenfrew.beatprompter.cache.parse.tag.midi.alias.WithMidiStartTag
@@ -35,6 +36,7 @@ import com.stevenfrew.beatprompter.util.splitAndTrim
 	WithMidiContinueTag::class,
 	WithMidiStopTag::class,
 	MidiAliasChannelTag::class,
+	MidiInitTag::class,
 	MidiControlChangeTriggerTag::class
 )
 /**
@@ -54,6 +56,8 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 	private var withMidiStart = false
 	private var withMidiContinue = false
 	private var withMidiStop = false
+	private var withSongLoad = false
+	private var withSongLoadOrder = 0
 
 	private val withMidiSet
 		get() = withMidiStart || withMidiContinue || withMidiStop
@@ -92,6 +96,13 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 			filterIsInstance<WithMidiTag>()
 				.firstOrNull()
 				?.also { flagCurrentAlias(it.with) }
+
+			filterIsInstance<MidiInitTag>()
+				.firstOrNull()
+				?.also {
+					flagCurrentAlias(WithMidi.SongLoad)
+					withSongLoadOrder = it.order
+				}
 		}
 		return true
 	}
@@ -133,17 +144,24 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 			WithMidi.Start -> withMidiStart = true
 			WithMidi.Continue -> withMidiContinue = true
 			WithMidi.Stop -> withMidiStop = true
+			WithMidi.SongLoad -> withSongLoad = true
 		}
 
 	private fun finishCurrentAlias() =
 		currentAliasName?.also {
 			if (currentAliasComponents.isNotEmpty()) {
 				val hasArguments = currentAliasComponents.any { component -> component.parameterCount > 0 }
-				if (hasArguments && withMidiSet) {
-					addError(ContentParsingError(R.string.cannot_use_with_midi_with_parameters))
+				if (hasArguments && (withMidiSet || withSongLoad)) {
+					addError(
+						ContentParsingError(
+							R.string.cannot_use_with_midi_with_parameters,
+							if (withMidiSet) "with_midi_*" else "midi_init"
+						)
+					)
 					withMidiStart = false
 					withMidiContinue = false
 					withMidiStop = false
+					withSongLoad = false
 				}
 				if (hasArguments && commandName !== null) {
 					addError(ContentParsingError(R.string.cannot_use_midi_command_with_parameters))
@@ -161,6 +179,8 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 						withMidiStart,
 						withMidiContinue,
 						withMidiStop,
+						withSongLoad,
+						withSongLoadOrder,
 						commandName,
 					)
 				)
@@ -169,6 +189,7 @@ class MidiAliasFileParser(private val cachedCloudFile: CachedFile) :
 				withMidiStart = false
 				withMidiContinue = false
 				withMidiStop = false
+				withSongLoad = false
 			} else
 				addError(ContentParsingError(R.string.midi_alias_has_no_components, it))
 		}
