@@ -16,12 +16,14 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
+import com.stevenfrew.beatprompter.ui.filter.VariationFilter
 
 class FilterListAdapter(
 	private val values: List<Filter>,
 	private val selectedTagFilters: MutableList<TagFilter>,
+	private val selectedVariationFilters: MutableList<VariationFilter>,
 	context: Context,
-	private val onSelectedTagsChanged: () -> Unit
+	private val onSelectedFiltersChanged: () -> Unit
 ) :
 	ArrayAdapter<Filter>(context, -1, values) {
 	private val inflater = context
@@ -33,6 +35,27 @@ class FilterListAdapter(
 			val filter = values[position]
 			titleView.text = filter.name
 		}
+
+	private fun <T> applySelectionClickListener(
+		filter: T,
+		filterListItem: View,
+		filterSelectedImageView: ImageView,
+		selectedFilters: MutableList<T>
+	) {
+		filterSelectedImageView.visibility =
+			if (selectedFilters.contains(filter)) View.VISIBLE else View.GONE
+		val selectedIcon =
+			if (selectedFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
+		filterSelectedImageView.setImageResource(selectedIcon)
+		filterListItem.setOnClickListener {
+			if (selectedFilters.contains(filter))
+				selectedFilters.remove(filter)
+			else
+				selectedFilters.add(filter)
+			notifyDataSetChanged()
+			onSelectedFiltersChanged()
+		}
+	}
 
 	override fun getDropDownView(
 		position: Int,
@@ -46,6 +69,7 @@ class FilterListAdapter(
 			val filter = values[position]
 			val iconResource = when (filter) {
 				is TagFilter -> R.drawable.tag
+				is VariationFilter -> R.drawable.variation
 				is TemporarySetListFilter -> R.drawable.pencil
 				is SetListFilter -> R.drawable.ic_document
 				is MidiAliasFilesFilter -> R.drawable.midi
@@ -54,21 +78,23 @@ class FilterListAdapter(
 				is UltimateGuitarFilter -> R.drawable.ic_ultimateguitar
 				else -> R.drawable.blank_icon
 			}
-			if (filter is TagFilter) {
-				filterSelectedIcon.visibility = View.VISIBLE
-				val selectedIcon =
-					if (selectedTagFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
-				filterSelectedIcon.setImageResource(selectedIcon)
-				it.setOnClickListener {
-					if (selectedTagFilters.contains(filter))
-						selectedTagFilters.remove(filter)
-					else
-						selectedTagFilters.add(filter)
-					notifyDataSetChanged()
-					onSelectedTagsChanged()
-				}
-			} else
-				filterSelectedIcon.visibility = View.GONE
+			when (filter) {
+				is TagFilter -> applySelectionClickListener(
+					filter,
+					it,
+					filterSelectedIcon,
+					selectedTagFilters
+				)
+
+				is VariationFilter -> applySelectionClickListener(
+					filter,
+					it,
+					filterSelectedIcon,
+					selectedVariationFilters
+				)
+
+				else -> filterSelectedIcon.visibility = View.GONE
+			}
 			filterIcon.setImageResource(iconResource)
 			titleView.text = filter.name
 		}

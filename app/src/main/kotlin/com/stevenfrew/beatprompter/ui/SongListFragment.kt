@@ -92,12 +92,14 @@ import com.stevenfrew.beatprompter.ui.filter.SongFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
+import com.stevenfrew.beatprompter.ui.filter.VariationFilter
 import com.stevenfrew.beatprompter.ui.pref.SettingsActivity
 import com.stevenfrew.beatprompter.ui.pref.SortingPreference
 import com.stevenfrew.beatprompter.util.Utils
 import com.stevenfrew.beatprompter.util.bestScrollingMode
 import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.beatprompter.util.flattenAll
+import com.stevenfrew.beatprompter.util.normalize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -127,6 +129,7 @@ class SongListFragment
 	private var maintainedListPositions: Pair<Int, Int>? = null
 	private var filters = listOf<Filter>()
 	private val selectedTagFilters = mutableListOf<TagFilter>()
+	private val selectedVariationFilters = mutableListOf<VariationFilter>()
 	private var selectedFilter: Filter = AllSongsFilter(mutableListOf())
 	private var imageDictionary: Map<String, Bitmap> = mapOf()
 	private var missingIconBitmap: android.graphics.Bitmap? = null
@@ -256,8 +259,10 @@ class SongListFragment
 	}
 
 	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-		if (BeatPrompter.preferences.clearTagsOnFolderChange)
+		if (BeatPrompter.preferences.clearTagsOnFolderChange) {
 			selectedTagFilters.clear()
+			selectedVariationFilters.clear()
+		}
 		applyFileFilter(filters[position])
 		maintainedListPositions?.also {
 			val listView = requireView().findViewById<ListView>(R.id.listView)
@@ -272,10 +277,14 @@ class SongListFragment
 		playlist = if (filter is SongFilter) {
 			val isAllSongsFilter = filter is AllSongsFilter
 			val tagFiltersSelected = selectedTagFilters.isNotEmpty()
+			val variationFiltersSelected = selectedVariationFilters.isNotEmpty()
 			Playlist(filter.songs.filter {
 				val songInfo = it.first
-				if (tagFiltersSelected)
-					selectedTagFilters.any { filter -> filter.songs.contains(it) }
+				if (tagFiltersSelected || variationFiltersSelected)
+					(tagFiltersSelected && selectedTagFilters.any { filter -> filter.songs.contains(it) }) ||
+						(variationFiltersSelected && selectedVariationFilters.any { filter ->
+							filter.songs.contains(it)
+						})
 				else if (isAllSongsFilter && songInfo is SongFile)
 					!Cache.cachedCloudItems.isFilterOnly(songInfo)
 				else true
@@ -321,7 +330,12 @@ class SongListFragment
 		val spinnerLayout = menu?.findItem(R.id.tagspinnerlayout)?.actionView as? LinearLayout
 		spinnerLayout?.findViewById<Spinner>(R.id.tagspinner)?.apply {
 			onItemSelectedListener = this@SongListFragment
-			adapter = FilterListAdapter(filters, selectedTagFilters, requireActivity()) {
+			adapter = FilterListAdapter(
+				filters,
+				selectedTagFilters,
+				selectedVariationFilters,
+				requireActivity()
+			) {
 				applyFileFilter(selectedFilter)
 			}
 			setSelection(initialSelection)
@@ -906,14 +920,32 @@ class SongListFragment
 	private fun buildFilterList(cache: CachedCloudCollection) {
 		Logger.log("Building tag list ...")
 		val lastSelectedFilter = selectedFilter
-		val tagAndFolderFilters = mutableListOf<Filter>()
+		val songFilters = mutableListOf<Filter>()
 
-		// Create filters from song tags and sub-folders. Many songs can share the same
-		// tag/subfolder, so a bit of clever collection management is required here.
+		// Create filters from song tags, variations and sub-folders. Many songs can share the same
+		// tag/variation/subfolder, so a bit of clever collection management is required here.
 		val tagDictionaries = HashMap<String, MutableList<SongFile>>()
 		cache.songFiles.forEach {
 			it.tags.forEach { tag -> tagDictionaries.getOrPut(tag) { mutableListOf() }.add(it) }
 		}
+
+		val variationDictionaries = HashMap<String, MutableList<SongFile>>()
+		val defaultVariationName = BeatPrompter.appResources.getString(R.string.defaultVariationName)
+		if (BeatPrompter.preferences.includeVariationsInFilterList)
+			cache.songFiles.forEach {
+				val audioFilenamesLowerCase = it.audioFiles.values.flatten().toSet()
+				it.variations
+					// Don't include variations that are just audio filenames
+					// or the Default variation
+					.filter { variation ->
+						variation != defaultVariationName && !audioFilenamesLowerCase.contains(
+							variation.normalize().lowercase()
+						)
+					}
+					.forEach { variation ->
+						variationDictionaries.getOrPut(variation) { mutableListOf() }.add(it)
+					}
+			}
 
 		val folderDictionaries = HashMap<String, List<SongFile>>()
 		cache.folders.forEach {
@@ -924,18 +956,23 @@ class SongListFragment
 		}
 
 		tagDictionaries.forEach {
-			tagAndFolderFilters.add(TagFilter(it.key, it.value))
+			songFilters.add(TagFilter(it.key, it.value))
+		}
+		variationDictionaries.forEach {
+			songFilters.add(VariationFilter(it.key, it.value))
 		}
 		folderDictionaries.forEach {
-			tagAndFolderFilters.add(FolderFilter(it.key, it.value))
+			songFilters.add(FolderFilter(it.key, it.value))
 		}
-		tagAndFolderFilters.addAll(cache.setListFiles.mapNotNull {
-			if (it.file != Cache.temporarySetListFile)
-				SetListFileFilter(it, cache.songFiles)
-			else
-				null
-		})
-		tagAndFolderFilters.sortBy { it.name.lowercase() }
+		songFilters.addAll(
+			cache.setListFiles.mapNotNull {
+				if (it.file != Cache.temporarySetListFile)
+					SetListFileFilter(it, cache.songFiles)
+				else
+					null
+			}
+		)
+		songFilters.sortBy { it.name.lowercase() }
 
 		// Now create the basic "all songs" filter, dead easy ...
 		val allSongsFilter = createAllSongsFilter(cache)
@@ -972,7 +1009,7 @@ class SongListFragment
 		filters = listOf(
 			allSongsFilter,
 			tempSetListFilter,
-			tagAndFolderFilters,
+			songFilters,
 			midiAliasFilesFilter,
 			midiCommandsFilter,
 			ultimateGuitarFilter
@@ -1199,9 +1236,10 @@ class SongListFragment
 			|| key == getString(R.string.pref_showKeyInList_key)
 			|| key == getString(R.string.pref_songIconDisplayPosition_key)
 			|| key == getString(R.string.pref_showYearInList_key)
-		) {
+		)
 			updateListView(buildListAdapter())
-		}
+		else if (key == getString(R.string.pref_includeVariationsInFilterList_key))
+			buildFilterList(Cache.cachedCloudItems)
 	}
 
 	override fun onQueryTextSubmit(searchText: String?): Boolean = true

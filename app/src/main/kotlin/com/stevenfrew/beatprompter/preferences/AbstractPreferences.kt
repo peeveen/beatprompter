@@ -535,6 +535,9 @@ abstract class AbstractPreferences(
 	override val useUnicodeEllipsis: Boolean
 		get() = getBooleanPreference(R.string.pref_useUnicodeEllipsis_key, true)
 
+	override val includeVariationsInFilterList: Boolean
+		get() = getBooleanPreference(R.string.pref_includeVariationsInFilterList_key, false)
+
 	private fun getIntPreference(
 		prefResourceString: Int,
 		prefDefaultResourceString: Int,

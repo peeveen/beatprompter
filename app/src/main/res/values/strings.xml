@@ -1,745 +1,745 @@
 <resources>
-    <string name="midiButton1" translatable="false">1</string>
-    <string name="midiButton2" translatable="false">2</string>
-    <string name="midiButton3" translatable="false">3</string>
-    <string name="midiButton4" translatable="false">4</string>
-    <string name="midiButton5" translatable="false">5</string>
-    <string name="midiButton6" translatable="false">6</string>
-    <string name="midiButton7" translatable="false">7</string>
-    <string name="midiButton8" translatable="false">8</string>
-    <string name="midiButton9" translatable="false">9</string>
-    <string name="midiButton10" translatable="false">10</string>
-    <string name="midiButton11" translatable="false">11</string>
-    <string name="midiButton12" translatable="false">12</string>
-    <string name="midiButton13" translatable="false">13</string>
-    <string name="midiButton14" translatable="false">14</string>
-    <string name="midiButton15" translatable="false">15</string>
-    <string name="midiButton16" translatable="false">16</string>
-    <string name="pointlessString" translatable="false">abc</string>
-    <string name="app_name">BeatPrompter</string>
-    <string name="author_name" translatable="false">Steven Frew</string>
-    <string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
-    <string name="docs_url" translatable="false">tinyurl.com/beatprompterdocs</string>
-    <string name="google_drive_string" translatable="false">Google Drive</string>
-    <string name="local_storage_string">Local Storage</string>
-    <string name="shuffle">Shuffle</string>
-    <string name="dropbox_string" translatable="false">Dropbox</string>
-    <string name="onedrive_string" translatable="false">OneDrive</string>
-    <string name="connection_added">Connected to %1$s</string>
-    <string name="connection_lost">Lost connection to %1$s</string>
-    <string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
-    <string name="set_name_defined_multiple_times">Set name has already been defined.</string>
-    <string name="image_too_large">Image after scaling exceeds maximum size of 8192 x 8192. Ignoring line.</string>
-    <string name="midi_alias_has_no_components">A MIDI alias has been defined with only a name.</string>
-    <string name="multiple_channel_args">A MIDI alias can only have one channel value.</string>
-    <string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
-    <string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
-    <string name="multipleFilenameMatches">There are multiple files in the cache that match the filename \'{%1$s}\'.</string>
-    <string name="unexpected_tag_in_file">Unexpected tag found in file: {%1$s}</string>
-    <string name="tag_cant_share_line_with">A {%1$s} tag was found on the same line as a {%2$s} tag. This is not allowed.</string>
-    <string name="connect_to_leader_string">Connect to leader</string>
-    <string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
-    <string name="clear_cache_string">Clear cache</string>
-    <string name="tag_used_multiple_times_in_file">The single-use tag {%1$s} has been used multiple times in this file.</string>
-    <string name="tag_used_multiple_times_in_line">The tag {%1$s} has been used multiple times in this line.</string>
-    <string name="starting_tag_found_after_starting_tag">The tag {%1$s} has been used multiple times in succession without an intervening ending tag.</string>
-    <string name="ending_tag_found_before_starting_tag">The tag {%1$s} has been found before a corresponding starting tag.</string>
-    <string name="tag_has_blank_value">The tag {%1$s} has been found with no specified value.</string>
-    <string name="no_set_name_defined">No set name defined in set list file.</string>
-    <string name="sort_songs">Sort …</string>
-    <string name="settings">Settings …</string>
-    <string name="multiple_beatstart_beatstop_same_line">Multiple beatstart or beatstop tags were found on the same line. Ignoring all but the first.</string>
-    <string name="could_not_find_cloud_root_error">Could not find the root folder of the storage system.</string>
-    <string name="beatstart_with_no_bpm">A beatstart tag can only be used in a song with a defined BPM speed.</string>
-    <string name="no_tag_selected">All Songs</string>
-    <string name="colours">Colours</string>
-    <string name="fontSizes">Font Sizes</string>
-    <string name="google_api_not_connected">Google API not connected.</string>
-    <string name="one_drive_not_connected">OneDrive API not connected.</string>
-    <string name="not_a_valid_set_list">No {set} found in set file "%1$s".</string>
-    <string name="unknown_tag">Unexpected tag: %1$s.</string>
-    <string name="missing_songs_message">This set list contains %1$d unknown songs, including:</string>
-    <string name="missing_songs_dialog_title">Unknown Songs In Set List</string>
-    <string name="program_change_must_have_one_to_four_values">Program change trigger tags must contain between one and four values.</string>
-    <string name="song_select_must_have_one_value">Song select trigger tags must contain only one value.</string>
-    <string name="control_change_must_have_two_or_three_values">Control change trigger tags must contain two or three values.</string>
-    <string name="could_not_read_image_file">Could not read image file: %1$s</string>
-    <string name="value_must_be_zero_to_onehundredtwentyseven">MIDI parameters must be a value between 0 and 127.</string>
-    <string name="invalid_channel_value">MIDI channel values must be between 1 and 16.</string>
-    <string name="multiple_underscores_in_midi_value">An alias value cannot contain multiple underscores.</string>
-    <string name="channel_specifier_cannot_merge_with_channel_specifier">The channel specifier value cannot contain underscores.</string>
-    <string name="underscore_in_decimal_value">Values containing underscores must be in hexadecimal.</string>
-    <string name="merge_with_channel_non_zero_lower_nibble">Only the lower nibble of a value can be merged with the channel specifier.</string>
-    <string name="not_a_valid_midi_alias_file">File "%1$s" is not a valid MIDI aliasing file.</string>
-    <string name="midi_alias_without_a_name">MIDI alias found with no name.</string>
-    <string name="invalid_midi_alias_argument_index">Invalid MIDI alias argument index.</string>
-    <string name="midi_alias_message_contains_more_than_two_parts">MIDI alias message found with more than two parts.</string>
-    <string name="midi_alias_name_contains_more_than_two_parts">A "midi_alias" tag contains more than two parts.</string>
-    <string name="midi_message_not_understood">Can\'t parse this MIDI message.</string>
-    <string name="unknown_midi_directive">Tag "%1$s" does not match any known MIDI commands or aliases.</string>
-    <string name="unknown_image_scaling_mode">Unknown image scaling mode, defaulting to stretch mode.</string>
-    <string name="multiple_images_in_one_line">Multiple images found in one line. Only using the first one.</string>
-    <string name="text_found_with_image">Text was found on a line where an image was specified. Ignoring text.</string>
-    <string name="midi_alias_files">MIDI Aliases</string>
-    <string name="midi_commands">MIDI Commands</string>
-    <string name="midi_alias_file_errors">MIDI Alias File Errors</string>
-    <string name="badly_formed_tag">Badly-formed tag.</string>
-    <string name="empty_tag">Tag is empty.</string>
-    <string name="channel_must_be_last_parameter">The MIDI channel must be the last parameter.</string>
-    <string name="not_enough_parameters_supplied">Not enough parameters supplied to MIDI command.</string>
-    <string name="default_alias_set_name">Default MIDI Alias Set</string>
-
-    <string name="about">About …</string>
-    <string name="temporary">Temporary</string>
-    <string name="song_options">Song Options</string>
-    <string name="song_list_options">Song List</string>
-    <string name="midi_alias_list_options">MIDI Aliases</string>
-    <string name="miscellaneous_options">Miscellaneous</string>
-    <string name="song_display_options">Song Display</string>
-    <string name="written_by">Created by</string>
-    <string name="docs_at">Documentation can be found at</string>
-    <string name="force_refresh_set">Force refresh set list</string>
-    <string name="force_refresh_midi_alias">Force refresh MIDI alias file</string>
-    <string name="show_midi_alias_errors">Show MIDI alias file errors</string>
-    <string name="clear_set">Clear temporary set list</string>
-    <string name="force_refresh">Force refresh (song file only)</string>
-    <string name="add_to_temporary_set">Add to temporary set list</string>
-    <string name="force_refresh_with_dependencies">Force refresh (including dependencies)</string>
-    <string name="play_submenu">Play …</string>
-
-    <string name="play">Play</string>
-    <string name="cancel">Cancel</string>
-    <string name="no_audio">No backing track</string>
-    <string name="play_options">Play Options</string>
-    <string name="backing_track">Backing Track</string>
-    <string name="scroll_mode">Scrolling Mode</string>
-    <string name="beat_scrolling">Beat Scrolling</string>
-    <string name="smooth_scrolling">Smooth Scrolling</string>
-    <string name="manual_scrolling">Manual Scrolling</string>
-
-    <string name="title_activity_settings">Settings</string>
-    <string name="title_activity_song_display" translatable="false">SongDisplayActivity</string>
-    <string name="dummy_button" translatable="false">Dummy Button</string>
-    <string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
-    <string name="midi" translatable="false">MIDI</string>
-
-    <string name="title_activity_test_fullscreen" translatable="false">TestFullscreenActivity</string>
-
-    <string name="pref_bpm_offset" translatable="false">10</string>
-    <string name="pref_bpm_min" translatable="false">0</string>
-    <string name="pref_bpm_max" translatable="false">230</string>
-    <string name="pref_bpm_default" translatable="false">110</string>
-    <string name="pref_bpm_message">If a tempo is not defined by a file, this speed will be used.</string>
-    <string name="pref_bpm_text">BPM</string>
-    <string name="pref_bpm_title">Default tempo</string>
-
-    <string name="pref_bpb_offset" translatable="false">1</string>
-    <string name="pref_bpb_min" translatable="false">0</string>
-    <string name="pref_bpb_max" translatable="false">31</string>
-    <string name="pref_bpb_default" translatable="false">3</string>
-    <string name="pref_bpb_message">If beats-per-bar is not defined by a file, this value will be used.</string>
-    <string name="pref_bpb_text">BPB</string>
-    <string name="pref_bpb_title">Default beats-per-bar</string>
-
-    <string name="pref_bpl_offset" translatable="false">1</string>
-    <string name="pref_bpl_min" translatable="false">0</string>
-    <string name="pref_bpl_max" translatable="false">31</string>
-    <string name="pref_bpl_default" translatable="false">0</string>
-    <string name="pref_bpl_message">If bars-per-line is not defined by a file, this value will be used.</string>
-    <string name="pref_bpl_text">BPL</string>
-    <string name="pref_bpl_title">Default bars-per-line</string>
-
-    <string name="pref_countIn_key" translatable="false">pref_countIn</string>
-    <string name="pref_countIn_offset" translatable="false">0</string>
-    <string name="pref_countIn_min" translatable="false">0</string>
-    <string name="pref_countIn_max" translatable="false">4</string>
-    <string name="pref_countIn_default" translatable="false">0</string>
-    <string name="pref_countIn_message">If the number of "count-in" bars is not defined by a file, this value will be used. Only applicable to beat-scrolling songs.</string>
-    <string name="pref_countIn_text">bars</string>
-    <string name="pref_countIn_title">Default count-in</string>
-
-    <string name="pref_beatCounterHeight_key" translatable="false">pref_beatCounterHeight</string>
-    <string name="pref_beatCounterHeight_offset" translatable="false">1</string>
-    <string name="pref_beatCounterHeight_min" translatable="false">0</string>
-    <string name="pref_beatCounterHeight_max" translatable="false">9</string>
-    <string name="pref_beatCounterHeight_default" translatable="false">4</string>
-    <string name="pref_beatCounterHeight_message">The height of the beat counter, as a percentage of the portrait-mode screen height.</string>
-    <string name="pref_beatCounterHeight_suffix" translatable="false">%</string>
-    <string name="pref_beatCounterHeight_title">Beat counter height</string>
-
-    <string name="pref_defaultPause_key" translatable="false">pref_defaultPause</string>
-    <string name="pref_defaultPause_offset" translatable="false">0</string>
-    <string name="pref_defaultPause_min" translatable="false">0</string>
-    <string name="pref_defaultPause_max" translatable="false">120</string>
-    <string name="pref_defaultPause_default" translatable="false">0</string>
-    <string name="pref_defaultPause_message">If a song is being shown in "smooth scrolling mode", then this setting creates an automatic pause at the start of the song, factored into the total song length.</string>
-    <string name="pref_defaultPause_text">seconds</string>
-    <string name="pref_defaultPause_title">Default initial pause</string>
-
-    <string name="please_buy">Please buy BeatPrompter</string>
-    <string name="buy_full_version">Buy full version</string>
-    <string name="thankyou">Thanks! You are officially a nice person! :)</string>
-    <string name="tapTwiceToStart">TAP TWICE TO START</string>
-    <string name="hasConnected">has connected</string>
-    <string name="hasDisconnected">has disconnected</string>
-    <string name="connectedToBandLeader">Connected to band leader</string>
-    <string name="disconnectedFromBandLeader">Lost connection to band leader</string>
-    <string name="otherErrorCount">… and %1$d other error(s).</string>
-    <string name="fileNotFound">File "%1$s" not found!</string>
-    <string name="noTitleFound">No {title} found in song file "%1$s"</string>
-    <string name="notAnAudioFile">"%1$s" is not a valid audio file.</string>
-    <string name="checking">Checking %1$s</string>
-    <string name="downloading">Synchronizing %1$s</string>
-    <string name="scanningFolder">Scanning %1$s</string>
-    <string name="deleting">Deleting %1$s</string>
-    <string name="downloadingFiles">Synchronizing Files</string>
-    <string name="accessingCloudStorage">Accessing %1$s</string>
-    <string name="chooseSyncFolder">Choose Sync Folder</string>
-    <string name="lowerCaseThe">the</string>
-    <string name="byTitle">By title</string>
-    <string name="byArtist">By artist</string>
-    <string name="byDate">By last-modified date</string>
-    <string name="byKey">By key</string>
-    <string name="sortSongs">Sort songs …</string>
-    <string name="file_io_read_error">Error reading file.</string>
-    <string name="intValueTooLow">Minimum value is %1$d, value found was %2$d.</string>
-    <string name="intValueTooHigh">Maximum value is %1$d, value found was %2$d.</string>
-    <string name="intValueUnreadable">Could not parse "%1$s" as an integer value.</string>
-    <string name="durationValueUnreadable">Could not parse "%1$s" as a duration value (use mm:ss or just seconds).</string>
-    <string name="doubleValueTooLow">Minimum value is %1$d, value found was %2$.2f.</string>
-    <string name="doubleValueTooHigh">Maximum value is %1$d, value found was %2$.2f.</string>
-    <string name="doubleValueUnreadable">Could not parse "%1$s" as a numeric value.</string>
-    <string name="colorValueUnreadable">Could not parse "%1$s" as a color.</string>
-    <string name="fontSizesAllMessedUp">The minimum font size preference is larger than the maximum font size. Using minimum for all.</string>
-    <string name="cannotFindAudioFile">Cannot find audio file: %1$s</string>
-    <string name="cannotFindImageFile">Cannot find image file: %1$s</string>
-    <string name="badAudioVolume">Audio track volume is not a number between 0 and 100.</string>
-    <string name="oneShotTagDefinedTwice">A value has already been defined for {%1$s}.</string>
-    <string name="lineTooLong">Line %1$d was longer than %2$d characters. Truncating …</string>
-    <string name="pauseLongerThanSong">Total {pause} time exceeds designated song time. Disabling smooth scrolling mode.</string>
-    <string name="scrollbeatOffTheMap">Scrollbeat offset is greater than or equal to the number of beats in the bar. Resetting to zero.</string>
-    <string name="loadingSong">Loading:\u0020</string>
-    <string name="processingSong">Processing song: %1$s</string>
-
-    <string name="pref_lyricsHeight_key" translatable="false">pref_lyricsHeight</string>
-    <string name="pref_lyricsHeight_offset" translatable="false">10</string>
-    <string name="pref_lyricsHeight_min" translatable="false">0</string>
-    <string name="pref_lyricsHeight_max" translatable="false">80</string>
-    <string name="pref_lyricsHeight_default" translatable="false">40</string>
-    <string name="pref_lyricsHeight_message">The maximum percentage of the maximum line height that the lyrics will occupy.</string>
-    <string name="pref_lyricsHeight_text" translatable="false">%</string>
-    <string name="pref_lyricsHeight_title">Maximum lyrics height</string>
-
-    <string name="pref_commentDisplayTime_key" translatable="false">pref_commentDisplayTime</string>
-    <string name="pref_commentDisplayTime_offset" translatable="false">1</string>
-    <string name="pref_commentDisplayTime_min" translatable="false">0</string>
-    <string name="pref_commentDisplayTime_max" translatable="false">19</string>
-    <string name="pref_commentDisplayTime_default" translatable="false">4</string>
-    <string name="pref_commentDisplayTime_message">The amount of time that an in-song comment will remain onscreen.</string>
-    <string name="pref_commentDisplayTime_text" translatable="false">s</string>
-    <string name="pref_commentDisplayTime_title">Comment display time</string>
-
-    <string name="pref_firstRun_key" translatable="false">pref_firstRun</string>
-
-    <string name="pref_oneDriveAccessToken_key" translatable="false">pref_oneDriveAccessToken</string>
-    <string name="pref_dropboxAccessToken_key" translatable="false">pref_dropboxV2AccessToken</string>
-    <string name="pref_dropboxRefreshToken_key" translatable="false">pref_dropboxV2RefreshToken</string>
-    <string name="pref_dropboxExpiryTime_key" translatable="false">pref_dropboxV2ExpiryTime</string>
-    <string name="pref_songSource_key" translatable="false">pref_songSource</string>
-
-    <string name="pref_sorting_key" translatable="false">pref_sorting</string>
-
-    <string name="pref_minLines_key" translatable="false">pref_minLines</string>
-    <string name="pref_minLines_offset" translatable="false">1</string>
-    <string name="pref_minLines_min" translatable="false">1</string>
-    <string name="pref_minLines_max" translatable="false">7</string>
-    <string name="pref_minLines_default" translatable="false">1</string>
-    <string name="pref_minLines_message">The minimum number of lines that should be visible at any one time.</string>
-    <string name="pref_minLines_text">lines</string>
-    <string name="pref_minLines_title">Minimum visible lines</string>
-
-    <string name="pref_trackOffset_offset" translatable="false">-600000</string>
-    <string name="pref_trackOffset_min" translatable="false">0</string>
-    <string name="pref_trackOffset_max" translatable="false">1200000</string>
-    <string name="pref_trackOffset_default" translatable="false">600000</string>
-    <string name="pref_trackOffset_message">The offset from the start of the song, in milliseconds, at which the backing audio track will begin.</string>
-    <string name="pref_trackOffset_text">ms</string>
-    <string name="pref_trackOffset_title">Audio track start offset</string>
-
-    <string name="pref_beatCounterColor_key" translatable="false">pref_beatCounterColor</string>
-    <string name="pref_beatCounterColor_title">Beat counter colour</string>
-    <string name="pref_beatCounterColor_summary">The colour of the beat counter bar at the top of the screen.</string>
-    <string name="pref_beatCounterColor_default" translatable="false">#ff008800</string>
-
-    <string name="pref_pageDownScrollHighlightColor_key" translatable="false">pref_pageDownScrollHighlightColor</string>
-    <string name="pref_pageDownScrollHighlightColor_title">Page-down position indicator colour</string>
-    <string name="pref_pageDownScrollHighlightColor_summary">Colour for the page-down scroll position indicators.</string>
-    <string name="pref_pageDownScrollHighlightColor_default" translatable="false">#ff990099</string>
-
-    <string name="pref_beatSectionStartHighlightColor_key" translatable="false">pref_beatSectionStartHighlightColor</string>
-    <string name="pref_beatSectionStartHighlightColor_title">Beat-section start highlight colour</string>
-    <string name="pref_beatSectionStartHighlightColor_summary">Highlight color for the line that is the start of a beat section.</string>
-    <string name="pref_beatSectionStartHighlightColor_default" translatable="false">#ffaaaa00</string>
-
-    <string name="pref_chorusSectionHighlightColor_key" translatable="false">pref_chorusSectionHighlightColor</string>
-    <string name="pref_chorusSectionHighlightColor_title">Chorus section highlight colour</string>
-    <string name="pref_chorusSectionHighlightColor_summary">Highlight color for choruses.</string>
-    <string name="pref_chorusSectionHighlightColor_default" translatable="false">#ff888888</string>
-
-    <string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
-    <string name="pref_clearCache_title">Clear cache</string>
-    <string name="pref_clearCache_summary">Deletes all cached files.</string>
-
-    <string name="pref_mimicBandLeaderDisplay_key" translatable="false">pref_mimicBandLeaderDisplay</string>
-    <string name="pref_mimicBandLeaderDisplay_title">Mimic band leader display in manual mode</string>
-    <string name="pref_mimicBandLeaderDisplay_summary">If performing a song with a band leader in manual mode, this will automatically set your display to the same orientation and font sizes.</string>
-
-    <string name="pref_proximityScroll_key" translatable="false">pref_proximityScroll</string>
-    <string name="pref_proximityScroll_title">Proximity sensor scrolls page.</string>
-    <string name="pref_proximityScroll_summary">If your device has a proximity sensor, triggering it will act like pressing a "page down" pedal.</string>
-
-    <string name="pref_anyOtherKeyPageDown_key" translatable="false">pref_anyOtherKeyPageDown</string>
-    <string name="pref_anyOtherKeyPageDown_title">Any other key is page-down.</string>
-    <string name="pref_anyOtherKeyPageDown_summary">Any other key pressed on a connected keyboard will act like page-down.</string>
-
-    <string name="pref_includeSubfolders_key" translatable="false">pref_includeSubfolders</string>
-    <string name="pref_includeSubfolders_title">Include Subfolders</string>
-    <string name="pref_includeSubfolders_summary">Fetch files from subfolders also?</string>
-
-    <string name="pref_powerwash_key" translatable="false">pref_powerwash</string>
-    <string name="pref_powerwash_title">Powerwash</string>
-    <string name="pref_powerwash_summary">Deletes all cached files, and clears all stored cloud credentials.</string>
-
-    <string name="pref_scrollMarkerColor_key" translatable="false">pref_scrollMarker</string>
-    <string name="pref_scrollMarkerColor_title">Scroll marker colour</string>
-    <string name="pref_scrollMarkerColor_summary">The colour of the marker that shows when the display will scroll.</string>
-    <string name="pref_scrollMarkerColor_default" translatable="false">#ff000000</string>
-
-    <string name="pref_midiIncomingChannels_key" translatable="false">pref_midiIncomingChannels</string>
-    <string name="pref_midiIncomingChannels_title">Active Incoming MIDI Channels</string>
-    <string name="pref_midiIncomingChannels_summary">What MIDI channels should BeatPrompter listen to?</string>
-    <string name="pref_midiIncomingChannels_default" translatable="false">65535</string>
-
-    <string name="pref_defaultMIDIOutputChannel_key" translatable="false">pref_defaultMIDIOutputChannel</string>
-    <string name="pref_defaultMIDIOutputChannel_title">Default output MIDI channel</string>
-    <string name="pref_defaultMIDIOutputChannel_summary">What is the default MIDI channel to write to, unless otherwise specified?</string>
-    <string name="pref_defaultMIDIOutputChannel_default" translatable="false">1</string>
-
-    <string name="pref_chordColor_key" translatable="false">pref_chordColor</string>
-    <string name="pref_chordColor_title">Chords colour</string>
-    <string name="pref_chordColor_default" translatable="false">#ffff0000</string>
-
-    <string name="pref_commentTextColor_key" translatable="false">pref_commentTextColor</string>
-    <string name="pref_commentTextColor_title">Comment text colour</string>
-    <string name="pref_commentTextColor_default" translatable="false">#ffff00ff</string>
-
-    <string name="pref_lyricColor_key" translatable="false">pref_lyricColor</string>
-    <string name="pref_lyricColor_title">Lyrics colour</string>
-    <string name="pref_lyricColor_default" translatable="false">#ff000000</string>
-
-    <string name="pref_backgroundColor_key" translatable="false">pref_backgroundColor</string>
-    <string name="pref_backgroundColor_title">Background colour</string>
-    <string name="pref_backgroundColor_default" translatable="false">#ffffffff</string>
-
-    <string name="pref_manualMode_key" translatable="false">pref_manualMode</string>
-    <string name="pref_manualMode_title">Manual Mode</string>
-    <string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
-
-    <string name="pref_mute_key" translatable="false">pref_mute</string>
-    <string name="pref_mute_title">Mute</string>
-    <string name="pref_mute_summary">Never play audio.</string>
-
-    <string name="pref_sendMidi_key" translatable="false">pref_sendMidi</string>
-    <string name="pref_sendMidi_title">Send MIDI clock signals</string>
-    <string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals.</string>
-
-    <string name="pref_highlightColor_key" translatable="false">pref_highlightColor</string>
-    <string name="pref_highlightColor_title">Highlight colour</string>
-    <string name="pref_highlightColor_summary">Highlight colour to apply to highlighted lyric text.</string>
-    <string name="pref_highlightColor_default" translatable="false">#ff00ffff</string>
-
-    <string name="pref_preferredVariation_key" translatable="false">pref_preferredVariation</string>
-    <string name="pref_preferredVariation_title">Preferred variation</string>
-    <string name="pref_preferredVariation_summary">If a song contains this variation, it will be loaded by default.</string>
-
-    <string name="pref_alwaysDisplaySharpChords_key" translatable="false">pref_alwaysDisplaySharpChords</string>
-    <string name="pref_alwaysDisplaySharpChords_title">Always display sharp chords</string>
-    <string name="pref_alwaysDisplaySharpChords_summary">Any flat chords will be converted to appropriate sharp chords.</string>
-    <string name="pref_alwaysDisplaySharpChords_default" translatable="false">false</string>
-
-    <string name="pref_displayUnicodeAccidentals_key" translatable="false">pref_displayUnicodeAccidentals</string>
-    <string name="pref_displayUnicodeAccidentals_title">Display Unicode accidentals</string>
-    <string name="pref_displayUnicodeAccidentals_summary">Chords that contain b/# characters will be converted to use ♭/♯.</string>
-    <string name="pref_displayUnicodeAccidentals_default" translatable="false">false</string>
-
-    <string name="pref_currentLineHighlightColor_key" translatable="false">pref_currentLineHighlightColor</string>
-    <string name="pref_currentLineHighlightColor_title">Current Line Highlight colour</string>
-    <string name="pref_currentLineHighlightColor_summary">Highlight colour to apply to the current line.</string>
-    <string name="pref_currentLineHighlightColor_default" translatable="false">#ffffaa00</string>
-
-    <string name="pref_pulseColor_key" translatable="false">pref_pulseColor</string>
-    <string name="pref_pulseColor_title">Background pulse colour</string>
-    <string name="pref_pulseColor_summary">The background will pulse this colour in time to the rhythm.</string>
-    <string name="pref_pulseColor_default" translatable="false">#ffdddddd</string>
-
-    <string name="pref_annotationColor_key" translatable="false">pref_annotationColor</string>
-    <string name="pref_annotationColor_title">Colour of non-chord annotations</string>
-    <string name="pref_annotationColor_summary">Any chord text that isn\'t recognised as a valid chord will be shown in this color.</string>
-    <string name="pref_annotationColor_default" translatable="false">#ff00aa00</string>
-
-    <string name="pref_ignoreColorInfo_key" translatable="false">pref_ignoreColorInfo</string>
-    <string name="pref_ignoreColorInfo_title">Ignore colours in files</string>
-    <string name="pref_ignoreColorInfo_summary">Always uses default colours.</string>
-    <string name="pref_ignoreColorInfo_defaultValue" translatable="false">false</string>
-
-    <string name="pref_showBeatStyleIcons_key" translatable="false">pref_showBeatStyleIcons</string>
-    <string name="pref_showBeatStyleIcons_title">Show scroll style icons</string>
-    <string name="pref_showBeatStyleIcons_summary">Shows the scrolling style of the song as an icon in the main list.</string>
-    <string name="pref_showBeatStyleIcons_defaultValue" translatable="false">true</string>
-
-    <string name="pref_showChords_key" translatable="false">pref_showChords</string>
-    <string name="pref_showChords_title">Show Chords</string>
-    <string name="pref_showChords_summary">Displays the song chords above the lyrics at the correct point.</string>
-    <string name="pref_showChords_defaultValue" translatable="false">true</string>
-
-    <string name="pref_highlightCurrentLine_key" translatable="false">pref_highlightCurrentLine</string>
-    <string name="pref_highlightCurrentLine_title">Highlight Current Line</string>
-    <string name="pref_highlightCurrentLine_summary">Highlights the current line with your chosen highlight colour.</string>
-    <string name="pref_highlightCurrentLine_defaultValue" translatable="false">true</string>
-
-    <string name="pref_highlightBeatSectionStart_key" translatable="false">pref_highlightBeatSectionStart</string>
-    <string name="pref_highlightBeatSectionStart_title">Highlight start of beat sections</string>
-    <string name="pref_highlightBeatSectionStart_summary">Highlights the start of beat sections with your chosen highlight colour.</string>
-    <string name="pref_highlightBeatSectionStart_defaultValue" translatable="false">true</string>
-
-    <string name="pref_highlightPageDownLine_key" translatable="false">pref_highlightPageDownLine</string>
-    <string name="pref_highlightPageDownLine_title">Show page down scroll position markers</string>
-    <string name="pref_highlightPageDownLine_summary">Shows the position that the display will be scrolled to when you press page-down.</string>
-    <string name="pref_highlightPageDownLine_defaultValue" translatable="false">true</string>
-
-    <string name="pref_showMusicIcon_key" translatable="false">pref_showMusicIcon</string>
-    <string name="pref_showMusicIcon_title">Show music icon</string>
-    <string name="pref_showMusicIcon_summary">In the main song list, show an icon indicating that a song has a backing track.</string>
-    <string name="pref_showMusicIcon_defaultValue" translatable="false">true</string>
-
-    <string name="pref_showKeyInList_key" translatable="false">pref_showKeyInList</string>
-    <string name="pref_showKeyInList_title">Show song key</string>
-    <string name="pref_showKeyInList_summary">In the main song list, show the key of the song.</string>
-    <string name="pref_showKeyInList_defaultValue" translatable="false">false</string>
-
-    <string name="pref_showYearInList_key" translatable="false">pref_showYearInList</string>
-    <string name="pref_showYearInList_title">Show song year</string>
-    <string name="pref_showYearInList_summary">In the main song list, show the year of the song (if defined).</string>
-    <string name="pref_showYearInList_defaultValue" translatable="false">false</string>
-
-    <string name="pref_songIconDisplayPosition_key" translatable="false">pref_songIconDisplayPosition</string>
-    <string name="pref_songIconDisplayPosition_title">Song icon display position</string>
-    <string name="pref_songIconDisplayPosition_summary">Where should the song icon (if defined) be displayed?</string>
-    <string name="pref_songIconDisplayPosition_defaultValue" translatable="false">Left</string>
-
-    <string name="pref_showRatingInList_key" translatable="false">pref_showRatingInList</string>
-    <string name="pref_showRatingInList_title">Show song rating</string>
-    <string name="pref_showRatingInList_summary">In the main song list, show the rating of the song.</string>
-    <string name="pref_showRatingInList_defaultValue" translatable="false">false</string>
-
-    <string name="pref_largePrintList_key" translatable="false">pref_largePrintList</string>
-    <string name="pref_largePrintList_title">Bigger text</string>
-    <string name="pref_largePrintList_summary">Displays the song list in larger text.</string>
-    <string name="pref_largePrintList_defaultValue" translatable="false">false</string>
-
-    <string name="pref_pulse_key" translatable="false">pref_pulse</string>
-    <string name="pref_pulse_title">Background pulse</string>
-    <string name="pref_pulse_summary">The background will pulse in time to the rhythm.</string>
-    <string name="pref_pulse_defaultValue" translatable="false">true</string>
-
-    <string name="pref_clearTagFilterOnFolderChange_key" translatable="false">pref_clearTagFilterOnFolderChange</string>
-    <string name="pref_clearTagFilterOnFolderChange_title">Clear tags when filter changes?</string>
-    <string name="pref_clearTagFilterOnFolderChange_summary">If true, any selected tag filters will be cleared whenever you switch folders/setlists/etc.</string>
-
-    <string name="pref_cloudPath_key" translatable="false">pref_cloudPath</string>
-    <string name="pref_cloudPath_title">Storage Folder</string>
-    <string name="pref_cloudPath_summary">This is the folder that the BeatPrompter song files are stored in.</string>
-    <string name="pref_cloudPath_defaultValue" translatable="false"></string>
-
-    <string name="pref_cloudDisplayPath_key" translatable="false">pref_cloudDisplayPath</string>
-
-    <string name="pref_customComments_key" translatable="false">pref_customComments</string>
-    <string name="pref_customComments_title">Custom Comments User</string>
-    <string name="pref_customComments_summary">To only see the comments that are meant for you on the song introduction screen, enter your name(s) here.</string>
-    <string name="pref_customComments_defaultValue" translatable="false"></string>
-
-    <string name="fontSizeMin" translatable="false">8</string>
-    <string name="fontSizeMax" translatable="false">150</string>
-
-    <string name="pref_minFontSize_key" translatable="false">pref_minFontSize</string>
-    <string name="pref_minFontSize_title">Minimum font size (beat-scrolling)</string>
-    <string name="pref_minFontSize_summary">The smallest font size that will be used in beat-scrolling mode.</string>
-    <string name="pref_minFontSize_default" translatable="false">8</string>
-
-    <string name="pref_maxFontSize_key" translatable="false">pref_maxFontSize</string>
-    <string name="pref_maxFontSize_title">Maximum font size (beat-scrolling)</string>
-    <string name="pref_maxFontSize_summary">The largest font size that will be used in beat-scrolling mode.</string>
-    <string name="pref_maxFontSize_default" translatable="false">52</string>
-
-    <string name="pref_minFontSizeSmooth_key" translatable="false">pref_minFontSizeSmooth</string>
-    <string name="pref_minFontSizeSmooth_title">Minimum font size (smooth scrolling)</string>
-    <string name="pref_minFontSizeSmooth_summary">The smallest font size that will be used in smooth-scrolling mode.</string>
-    <string name="pref_minFontSizeSmooth_default" translatable="false">8</string>
-
-    <string name="pref_maxFontSizeSmooth_key" translatable="false">pref_maxFontSizeSmooth</string>
-    <string name="pref_maxFontSizeSmooth_title">Maximum font size (smooth scrolling)</string>
-    <string name="pref_maxFontSizeSmooth_summary">The largest font size that will be used in smooth-scrolling mode.</string>
-    <string name="pref_maxFontSizeSmooth_default" translatable="false">52</string>
-
-    <string name="pref_minFontSizeManual_key" translatable="false">pref_minFontSizeManual</string>
-    <string name="pref_minFontSizeManual_title">Minimum font size (manual scrolling)</string>
-    <string name="pref_minFontSizeManual_summary">The smallest font size that will be used in manual-scrolling mode.</string>
-    <string name="pref_minFontSizeManual_default" translatable="false">8</string>
-
-    <string name="pref_maxFontSizeManual_key" translatable="false">pref_maxFontSizeManual</string>
-    <string name="pref_maxFontSizeManual_title">Maximum font size (manual scrolling)</string>
-    <string name="pref_maxFontSizeManual_summary">The largest font size that will be used in manual-scrolling mode.</string>
-    <string name="pref_maxFontSizeManual_default" translatable="false">52</string>
-
-    <string name="pref_alwaysUseBeatFontPrefs_key" translatable="false">pref_alwaysUseBeatFontPrefs</string>
-    <string name="pref_alwaysUseBeatFontPrefs_title">Always use the beat-scrolling font size preferences.</string>
-    <string name="pref_alwaysUseBeatFontPrefs_summary">Uses the beat-scrolling font size preferences for all songs.</string>
-    <string name="pref_alwaysUseBeatFontPrefs_defaultValue" translatable="false">false</string>
-
-    <string name="pref_showScrollIndicator_key" translatable="false">pref_showScrollIndicator</string>
-    <string name="pref_showScrollIndicator_title">Show scroll indicator.</string>
-    <string name="pref_showScrollIndicator_summary">In the beat counter section, highlight the beat that the display will scroll on.</string>
-    <string name="pref_showScrollIndicator_defaultValue" translatable="false">true</string>
-
-    <string name="pref_beatCounterTextOverlay_key" translatable="false">pref_beatCounterTextOverlay</string>
-    <string name="pref_beatCounterTextOverlay_title">Beat counter text overlay.</string>
-    <string name="pref_beatCounterTextOverlay_summary">What text to display over the beat counter.</string>
-    <string name="pref_beatCounterTextOverlay_defaultValue" translatable="false">Nothing</string>
-
-    <string name="pref_showSongKey_key" translatable="false">pref_showSongKey</string>
-    <string name="pref_showSongKey_title">Show song key on title screen.</string>
-    <string name="pref_showSongKey_summary">Displays the key of the song on the song title screen.</string>
-    <string name="pref_showSongKey_defaultValue" translatable="false">false</string>
-
-    <string name="pref_showSongCapo_key" translatable="false">pref_showSongCapo</string>
-    <string name="pref_showSongCapo_title">Show capo setting on title screen.</string>
-    <string name="pref_showSongCapo_summary">Displays the capo setting on the song title screen.</string>
-    <string name="pref_showSongCapo_defaultValue" translatable="false">false</string>
-
-    <string name="pref_showFirstBeat_key" translatable="false">pref_showFirstBeat</string>
-    <string name="pref_showFirstBeat_title">Show first beat.</string>
-    <string name="pref_showFirstBeat_summary">Shows the first beat in the beat indicator section.</string>
-    <string name="pref_showFirstBeat_defaultValue" translatable="false">true</string>
-
-    <string name="pref_scrollingStyle_key" translatable="false">pref_scrollingStyle</string>
-    <string name="pref_scrollingStyle_title">Scrolling style</string>
-    <string name="pref_scrollingStyle_defaultValue" translatable="false">jump</string>
-    <string name="pref_scrollingStyle_dialogTitle">Scrolling Style</string>
-    <string name="jumpScrollingStyle">Jump</string>
-    <string name="smoothScrollingStyle">Smooth</string>
-    <string name="jumpScrollingStyleValue" translatable="false">jump</string>
-    <string name="smoothScrollingStyleValue" translatable="false">smooth</string>
-
-    <string name="pref_lineJustification_key" translatable="false">pref_lineJustification</string>
-    <string name="pref_lineJustification_title">Line justification</string>
-    <string name="pref_lineJustification_defaultValue" translatable="false">left</string>
-    <string name="pref_lineJustification_dialogTitle">Line Justification</string>
-    <string name="leftJustified">Left</string>
-    <string name="centerJustified">Centre</string>
-    <string name="rightJustified">Right</string>
-    <string name="leftJustifiedValue" translatable="false">left</string>
-    <string name="centerJustifiedValue" translatable="false">centre</string>
-    <string name="rightJustifiedValue" translatable="false">right</string>
-
-    <string name="pref_metronome_key" translatable="false">pref_metronome</string>
-    <string name="pref_metronome_title">Metronome click</string>
-    <string name="pref_metronome_defaultValue" translatable="false">DuringCountIn</string>
-    <string name="pref_metronome_summary">Creates a clicking sound in time with the beat. Only applicable to beat-scrolling songs.</string>
-    <string name="pref_metronome_dialogTitle">Metronome Click</string>
-    <string name="metronomeOn">On</string>
-    <string name="metronomeOnWhenNoBackingTrack">On when there is no backing track</string>
-    <string name="metronomeOff">Off</string>
-    <string name="metronomeDuringCount">During count-in</string>
-    <string name="metronomeOnValue" translatable="false">On</string>
-    <string name="metronomeOnWhenNoBackingTrackValue" translatable="false">OnWhenNoTrack</string>
-    <string name="metronomeOffValue" translatable="false">Off</string>
-    <string name="metronomeDuringCountValue" translatable="false">DuringCountIn</string>
-
-    <string name="pref_showSongBPM_key" translatable="false">pref_showSongBPM</string>
-    <string name="pref_showSongBPM_title">Show song BPM on title screen</string>
-    <string name="pref_showSongBPM_defaultValue" translatable="false">No</string>
-    <string name="pref_showSongBPM_summary">Should the initial BPM of the song be shown on the song title screen?</string>
-    <string name="pref_showSongBPM_dialogTitle">Show Song BPM</string>
-    <string name="showBPMYes">Yes</string>
-    <string name="showBPMYesRounded">Yes, rounded to integer</string>
-    <string name="showBPMNo">No</string>
-    <string name="showBPMYesValue" translatable="false">Yes</string>
-    <string name="showBPMYesRoundedValue" translatable="false">Rounded</string>
-    <string name="showBPMNoValue" translatable="false">No</string>
-
-    <string name="bpmPrefix" translatable="false">BPM</string>
-    <string name="keyPrefix">Key</string>
-    <string name="capoPrefix" translatable="false">Capo</string>
-
-    <string name="pref_useExternalStorage_key" translatable="false">pref_useExternalStorage</string>
-    <string name="pref_useExternalStorage_title">Use External Storage</string>
-    <string name="pref_useExternalStorage_summary">Stores data on external storage (SD card, etc). Changing this will clear the cache.</string>
-
-    <string name="pref_useCustomStorageLocation_key" translatable="false">pref_useCustomStorageLocation</string>
-    <string name="pref_useCustomStorageLocation_title">Use Custom Storage Location</string>
-    <string name="pref_useCustomStorageLocation_summary">If selected, song data will be stored in the custom location. Changing this will clear the cache.</string>
-
-    <string name="pref_storageLocation_key" translatable="false">pref_storageLocation</string>
-    <string name="pref_storageLocation_title">Storage Location</string>
-    <string name="pref_storageLocation_summary">Where should BeatPrompter store cached song and audio files? Changing this will clear the cache.</string>
-
-    <string name="pref_screenAction_key" translatable="false">pref_screenaction</string>
-    <string name="pref_screenAction_title">Controls during performance</string>
-    <string name="pref_screenAction_defaultValue" translatable="false">Scroll</string>
-    <string name="pref_screenAction_summary">What controls should be available while a song is playing?</string>
-    <string name="pref_screenAction_dialogTitle">Controls During Performance</string>
-    <string name="screenActionScrollPauseAndRestart">Scrolling, pausing, restarting</string>
-    <string name="screenActionVolume">Volume</string>
-    <string name="screenActionNone">Nothing</string>
-    <string name="screenActionScrollPauseAndRestartValue" translatable="false">Scroll</string>
-    <string name="screenActionVolumeValue" translatable="false">Volume</string>
-    <string name="screenActionNoneValue" translatable="false">None</string>
-
-    <string name="localStorageValue" translatable="false">Local</string>
-    <string name="googleDriveValue" translatable="false">GoogleDrive</string>
-    <string name="dropboxValue" translatable="false">Dropbox</string>
-    <string name="oneDriveValue" translatable="false">OneDrive</string>
-
-    <string name="pref_cloudStorageSystem_key" translatable="false">pref_cloudStorageSystem</string>
-    <string name="pref_cloudStorageSystem_title">Storage System</string>
-    <string name="pref_cloudStorageSystem_defaultValue" translatable="false">Demo</string>
-    <string name="pref_cloudStorageSystem_summary">Where are your song files stored?</string>
-    <string name="pref_cloudStorageSystem_dialogTitle">Storage System</string>
-
-    <string name="pref_midiConnectionTypes_key" translatable="false">pref_midiConnectionTypes</string>
-    <string name="pref_midiConnectionTypes_title">Connection Type</string>
-    <string name="pref_midiConnectionTypes_defaultValue" translatable="false">USBOnTheGo,Native,Bluetooth</string>
-    <string name="pref_midiConnectionTypes_summary">What type of MIDI connection do you use?</string>
-    <string name="pref_midiConnectionTypes_dialogTitle">Connection Type</string>
-
-    <string name="cloud_sync">Files</string>
-
-    <string name="pref_automaticallyPlayNextSong_key" translatable="false">pref_automaticallyPlayNextSong</string>
-    <string name="pref_automaticallyPlayNextSong_title">Automatically play next song</string>
-    <string name="pref_automaticallyPlayNextSong_defaultValue" translatable="false">sets</string>
-    <string name="pref_automaticallyPlayNextSong_summary">Should the next song start automatically when the current song ends?</string>
-    <string name="pref_automaticallyPlayNextSong_dialogTitle">Automatically Play Next Song</string>
-    <string name="playNextSongNever">Never</string>
-    <string name="playNextSongAlways">Always</string>
-    <string name="playNextSongSetListsOnly">Set Lists Only</string>
-    <string name="playNextSongNeverValue" translatable="false">never</string>
-    <string name="playNextSongAlwaysValue" translatable="false">always</string>
-    <string name="playNextSongSetListsOnlyValue" translatable="false">sets</string>
-
-    <string name="pref_sendMidiTriggerOnStart_key" translatable="false">pref_sendMidiTriggerOnStart</string>
-    <string name="pref_sendMidiTriggerOnStart_title">Output MIDI trigger</string>
-    <string name="pref_sendMidiTriggerOnStart_defaultValue" translatable="false">ManualStartOnly</string>
-    <string name="pref_sendMidiTriggerOnStart_summary">Should the MIDI trigger message be output when the song starts?</string>
-    <string name="pref_sendMidiTriggerOnStart_dialogTitle">Output MIDI trigger message</string>
-    <string name="sendMidiTriggerOnStartNever">Never</string>
-    <string name="sendMidiTriggerOnStartAlways">Always</string>
-    <string name="sendMidiTriggerOnStartManualStartOnly">When started manually</string>
-    <string name="sendMidiTriggerOnStartNeverValue" translatable="false">Never</string>
-    <string name="sendMidiTriggerOnStartAlwaysValue" translatable="false">Always</string>
-    <string name="sendMidiTriggerOnStartManualStartOnlyValue" translatable="false">ManualStartOnly</string>
-
-    <string name="pref_bluetoothMode_key" translatable="false">pref_bluetoothMode</string>
-    <string name="pref_bluetoothMode_title">Bluetooth mode</string>
-    <string name="pref_bluetoothMode_defaultValue" translatable="false">None</string>
-    <string name="pref_bluetoothMode_summary">Configure how your device communicates with band members.</string>
-    <string name="pref_bluetoothMode_dialogTitle">Bluetooth Mode</string>
-
-    <string name="pref_bandLeaderDevice_key" translatable="false">pref_bandLeaderDevice</string>
-    <string name="pref_bandLeaderDevice_title">Band Leader Device</string>
-    <string name="pref_bandLeaderDevice_defaultValue" translatable="false">_</string>
-    <string name="pref_bandLeaderDevice_summary">Specify which device to connect to when in band-member mode.</string>
-    <string name="pref_bandLeaderDevice_dialogTitle">Band Leader Device</string>
-
-    <string name="pref_midiTriggerSafetyCatch_key" translatable="false">pref_midiTriggerSafetyCatch</string>
-    <string name="pref_midiTriggerSafetyCatch_title">Trigger safety catch</string>
-    <string name="pref_midiTriggerSafetyCatch_defaultValue" translatable="false">WhenAtTitleScreenOrPausedOrLastLine</string>
-    <string name="pref_midiTriggerSafetyCatch_summary">Can MIDI trigger messages interrupt the current song?</string>
-    <string name="pref_midiTriggerSafetyCatch_dialogTitle">MIDI triggers during song display</string>
-
-    <string name="none">None</string>
-    <string name="bluetoothModeBandLeader">Band Leader (server)</string>
-    <string name="bluetoothModeBandMember">Band Member (client)</string>
-
-    <string name="bluetoothModeNoneValue" translatable="false">None</string>
-    <string name="bluetoothModeBandLeaderValue" translatable="false">Server</string>
-    <string name="bluetoothModeBandMemberValue" translatable="false">Client</string>
-
-    <string name="midiTriggerSafetyCatchNever">Never</string>
-    <string name="midiTriggerSafetyCatchTitleScreen">When at title screen</string>
-    <string name="midiTriggerSafetyCatchPaused">When paused, or at title screen</string>
-    <string name="midiTriggerSafetyCatchPausedOrLastLine">When paused, at title screen, or on last line of song</string>
-    <string name="midiTriggerSafetyCatchAlways">Always</string>
-    <string name="midiTriggerSafetyCatchNeverValue" translatable="false">Never</string>
-    <string name="midiTriggerSafetyCatchTitleScreenValue" translatable="false">WhenAtTitleScreen</string>
-    <string name="midiTriggerSafetyCatchPausedValue" translatable="false">WhenAtTitleScreenOrPaused</string>
-    <string name="midiTriggerSafetyCatchPausedOrLastLineValue" translatable="false">WhenAtTitleScreenOrPausedOrLastLine</string>
-    <string name="midiTriggerSafetyCatchAlwaysValue" translatable="false">Always</string>
-
-    <string name="pref_defaultTrackVolume_key" translatable="false">pref_defaultTrackVolume</string>
-    <string name="pref_defaultTrackVolume_offset" translatable="false">1</string>
-    <string name="pref_defaultTrackVolume_min" translatable="false">0</string>
-    <string name="pref_defaultTrackVolume_max" translatable="false">99</string>
-    <string name="pref_defaultTrackVolume_default" translatable="false">99</string>
-    <string name="pref_defaultTrackVolume_message">Unless specified in the file, this is the default volume that backing tracks will play at.</string>
-    <string name="pref_defaultTrackVolume_text" translatable="false">%</string>
-    <string name="pref_defaultTrackVolume_title">Default track volume</string>
-
-    <string name="pref_audioLatency_key" translatable="false">pref_audioLatency</string>
-    <string name="pref_audioLatency_offset" translatable="false">0</string>
-    <string name="pref_audioLatency_min" translatable="false">0</string>
-    <string name="pref_audioLatency_max" translatable="false">1000</string>
-    <string name="pref_audioLatency_default" translatable="false">0</string>
-    <string name="pref_audioLatency_message">Amount of latency to compensate for in audio playback.</string>
-    <string name="pref_audioLatency_text" translatable="false">ms</string>
-    <string name="pref_audioLatency_title">Audio latency</string>
-
-    <string name="pref_fixedLineHeight_key" translatable="false">pref_fixedLineHeight</string>
-    <string name="pref_fixedLineHeight_default" translatable="false">false</string>
-    <string name="pref_fixedLineHeight_title">Fixed line height</string>
-    <string name="pref_fixedLineHeight_summary">Makes all lines the same height</string>
-
-    <string name="use_internal_storage">Use Internal Storage</string>
-    <string name="crap_audio_file_warning">Could not load audio file. Is it missing or corrupt?</string>
-    <string name="missing_audio_file_warning">Could not find audio file.</string>
-    <string name="missing_image_file_warning">*Could not find image file*</string>
-
-    <string name="title_activity_intro" translatable="false">IntroActivity</string>
-
-    <string name="welcome_to_beatprompter">Welcome to BeatPrompter</string>
-    <string name="works_best_in_landscape">Although you can use it in portrait mode, BeatPrompter works best in landscape mode.</string>
-    <string name="cloud_sync_explanation_title" translatable="false">Mr Blue Sky</string>
-    <string name="cloud_sync_explanation">BeatPrompter reads all your song files, audio files, set lists and more from cloud or local storage. It currently supports Google Drive, Dropbox or Microsoft OneDrive.</string>
-    <string name="keep_the_beat_title" translatable="false">We Got The Beat</string>
-    <string name="keep_the_beat">With a bit of modification to your song files, BeatPrompter will keep the display perfectly in time with the beat. Never too fast, never too slow, and always nice and big and readable!</string>
-    <string name="not_just_text_title" translatable="false">More Than Words</string>
-    <string name="not_just_text">BeatPrompter doesn\'t just display lyrics and chords. It can play backing tracks, and control (and respond to) external MIDI devices too.</string>
-    <string name="turn_turn_turn" translatable="false">Turn, Turn, Turn</string>
-    <string name="welcome_to_beatprompter_description">BeatPrompter is a lyrics and chords prompter app that places the emphasis on timing and readability.</string>
-
-    <string name="non_beat_characters_in_midi_offset">MIDI offset should be a numerical value or beat offset characters.</string>
-    <string name="multiple_semi_colons_in_midi_tag">MIDI tags can contain a maximum of one semi-colon character.</string>
-    <string name="midi_offset_is_before_start_of_song">MIDI event offset puts it before the start of the song.</string>
-    <string name="blank_midi_value">Blank value found in MIDI directive.</string>
-    <string name="not_a_valid_argument_index">Invalid argument index found in MIDI directive.</string>
-    <string name="not_a_valid_byte_value">Invalid byte value found in MIDI directive.</string>
-
-    <string name="pref_wasPowerwashed_key" translatable="false">pref_wasPowerwashed</string>
-    <string name="cache_cleared">Cache cleared.</string>
-    <string name="powerwashed">Powerwash complete.</string>
-
-    <string name="midi_offset_before_first_line">Only MIDI tags that are on or after the first song line can have offsets.</string>
-    <string name="max_midi_offset_exceeded">The maximum MIDI event offset is 16 beats or 10 seconds.</string>
-    <string name="demo_song">{t:BeatPrompter Demo Song}\n
+	<string name="midiButton1" translatable="false">1</string>
+	<string name="midiButton2" translatable="false">2</string>
+	<string name="midiButton3" translatable="false">3</string>
+	<string name="midiButton4" translatable="false">4</string>
+	<string name="midiButton5" translatable="false">5</string>
+	<string name="midiButton6" translatable="false">6</string>
+	<string name="midiButton7" translatable="false">7</string>
+	<string name="midiButton8" translatable="false">8</string>
+	<string name="midiButton9" translatable="false">9</string>
+	<string name="midiButton10" translatable="false">10</string>
+	<string name="midiButton11" translatable="false">11</string>
+	<string name="midiButton12" translatable="false">12</string>
+	<string name="midiButton13" translatable="false">13</string>
+	<string name="midiButton14" translatable="false">14</string>
+	<string name="midiButton15" translatable="false">15</string>
+	<string name="midiButton16" translatable="false">16</string>
+	<string name="pointlessString" translatable="false">abc</string>
+	<string name="app_name">BeatPrompter</string>
+	<string name="author_name" translatable="false">Steven Frew</string>
+	<string name="author_email" translatable="false">Email: steven.fullhouse@gmail.com</string>
+	<string name="docs_url" translatable="false">tinyurl.com/beatprompterdocs</string>
+	<string name="google_drive_string" translatable="false">Google Drive</string>
+	<string name="local_storage_string">Local Storage</string>
+	<string name="shuffle">Shuffle</string>
+	<string name="dropbox_string" translatable="false">Dropbox</string>
+	<string name="onedrive_string" translatable="false">OneDrive</string>
+	<string name="connection_added">Connected to %1$s</string>
+	<string name="connection_lost">Lost connection to %1$s</string>
+	<string name="midi_alias_set_name_defined_multiple_times">MIDI alias set name has already been defined.</string>
+	<string name="set_name_defined_multiple_times">Set name has already been defined.</string>
+	<string name="image_too_large">Image after scaling exceeds maximum size of 8192 x 8192. Ignoring line.</string>
+	<string name="midi_alias_has_no_components">A MIDI alias has been defined with only a name.</string>
+	<string name="multiple_channel_args">A MIDI alias can only have one channel value.</string>
+	<string name="no_midi_alias_name_defined">Instructions found, but no MIDI alias name has been defined yet.</string>
+	<string name="no_midi_alias_set_name_defined">A MIDI alias file must contain a {midi_aliases} set name definition.</string>
+	<string name="multipleFilenameMatches">There are multiple files in the cache that match the filename \'{%1$s}\'.</string>
+	<string name="unexpected_tag_in_file">Unexpected tag found in file: {%1$s}</string>
+	<string name="tag_cant_share_line_with">A {%1$s} tag was found on the same line as a {%2$s} tag. This is not allowed.</string>
+	<string name="connect_to_leader_string">Connect to leader</string>
+	<string name="both_bars_tag_and_commas">Both a &lt;bars&gt; tag and commas were found on the same line. Using tag value.</string>
+	<string name="clear_cache_string">Clear cache</string>
+	<string name="tag_used_multiple_times_in_file">The single-use tag {%1$s} has been used multiple times in this file.</string>
+	<string name="tag_used_multiple_times_in_line">The tag {%1$s} has been used multiple times in this line.</string>
+	<string name="starting_tag_found_after_starting_tag">The tag {%1$s} has been used multiple times in succession without an intervening ending tag.</string>
+	<string name="ending_tag_found_before_starting_tag">The tag {%1$s} has been found before a corresponding starting tag.</string>
+	<string name="tag_has_blank_value">The tag {%1$s} has been found with no specified value.</string>
+	<string name="no_set_name_defined">No set name defined in set list file.</string>
+	<string name="sort_songs">Sort …</string>
+	<string name="settings">Settings …</string>
+	<string name="multiple_beatstart_beatstop_same_line">Multiple beatstart or beatstop tags were found on the same line. Ignoring all but the first.</string>
+	<string name="could_not_find_cloud_root_error">Could not find the root folder of the storage system.</string>
+	<string name="beatstart_with_no_bpm">A beatstart tag can only be used in a song with a defined BPM speed.</string>
+	<string name="no_tag_selected">All Songs</string>
+	<string name="colours">Colours</string>
+	<string name="fontSizes">Font Sizes</string>
+	<string name="google_api_not_connected">Google API not connected.</string>
+	<string name="one_drive_not_connected">OneDrive API not connected.</string>
+	<string name="not_a_valid_set_list">No {set} found in set file "%1$s".</string>
+	<string name="unknown_tag">Unexpected tag: %1$s.</string>
+	<string name="missing_songs_message">This set list contains %1$d unknown songs, including:</string>
+	<string name="missing_songs_dialog_title">Unknown Songs In Set List</string>
+	<string name="program_change_must_have_one_to_four_values">Program change trigger tags must contain between one and four values.</string>
+	<string name="song_select_must_have_one_value">Song select trigger tags must contain only one value.</string>
+	<string name="control_change_must_have_two_or_three_values">Control change trigger tags must contain two or three values.</string>
+	<string name="could_not_read_image_file">Could not read image file: %1$s</string>
+	<string name="value_must_be_zero_to_onehundredtwentyseven">MIDI parameters must be a value between 0 and 127.</string>
+	<string name="invalid_channel_value">MIDI channel values must be between 1 and 16.</string>
+	<string name="multiple_underscores_in_midi_value">An alias value cannot contain multiple underscores.</string>
+	<string name="channel_specifier_cannot_merge_with_channel_specifier">The channel specifier value cannot contain underscores.</string>
+	<string name="underscore_in_decimal_value">Values containing underscores must be in hexadecimal.</string>
+	<string name="merge_with_channel_non_zero_lower_nibble">Only the lower nibble of a value can be merged with the channel specifier.</string>
+	<string name="not_a_valid_midi_alias_file">File "%1$s" is not a valid MIDI aliasing file.</string>
+	<string name="midi_alias_without_a_name">MIDI alias found with no name.</string>
+	<string name="invalid_midi_alias_argument_index">Invalid MIDI alias argument index.</string>
+	<string name="midi_alias_message_contains_more_than_two_parts">MIDI alias message found with more than two parts.</string>
+	<string name="midi_alias_name_contains_more_than_two_parts">A "midi_alias" tag contains more than two parts.</string>
+	<string name="midi_message_not_understood">Can\'t parse this MIDI message.</string>
+	<string name="unknown_midi_directive">Tag "%1$s" does not match any known MIDI commands or aliases.</string>
+	<string name="unknown_image_scaling_mode">Unknown image scaling mode, defaulting to stretch mode.</string>
+	<string name="multiple_images_in_one_line">Multiple images found in one line. Only using the first one.</string>
+	<string name="text_found_with_image">Text was found on a line where an image was specified. Ignoring text.</string>
+	<string name="midi_alias_files">MIDI Aliases</string>
+	<string name="midi_commands">MIDI Commands</string>
+	<string name="midi_alias_file_errors">MIDI Alias File Errors</string>
+	<string name="badly_formed_tag">Badly-formed tag.</string>
+	<string name="empty_tag">Tag is empty.</string>
+	<string name="channel_must_be_last_parameter">The MIDI channel must be the last parameter.</string>
+	<string name="not_enough_parameters_supplied">Not enough parameters supplied to MIDI command.</string>
+	<string name="default_alias_set_name">Default MIDI Alias Set</string>
+
+	<string name="about">About …</string>
+	<string name="temporary">Temporary</string>
+	<string name="song_options">Song Options</string>
+	<string name="song_list_options">Song List</string>
+	<string name="midi_alias_list_options">MIDI Aliases</string>
+	<string name="miscellaneous_options">Miscellaneous</string>
+	<string name="song_display_options">Song Display</string>
+	<string name="written_by">Created by</string>
+	<string name="docs_at">Documentation can be found at</string>
+	<string name="force_refresh_set">Force refresh set list</string>
+	<string name="force_refresh_midi_alias">Force refresh MIDI alias file</string>
+	<string name="show_midi_alias_errors">Show MIDI alias file errors</string>
+	<string name="clear_set">Clear temporary set list</string>
+	<string name="force_refresh">Force refresh (song file only)</string>
+	<string name="add_to_temporary_set">Add to temporary set list</string>
+	<string name="force_refresh_with_dependencies">Force refresh (including dependencies)</string>
+	<string name="play_submenu">Play …</string>
+
+	<string name="play">Play</string>
+	<string name="cancel">Cancel</string>
+	<string name="no_audio">No backing track</string>
+	<string name="play_options">Play Options</string>
+	<string name="backing_track">Backing Track</string>
+	<string name="scroll_mode">Scrolling Mode</string>
+	<string name="beat_scrolling">Beat Scrolling</string>
+	<string name="smooth_scrolling">Smooth Scrolling</string>
+	<string name="manual_scrolling">Manual Scrolling</string>
+
+	<string name="title_activity_settings">Settings</string>
+	<string name="title_activity_song_display" translatable="false">SongDisplayActivity</string>
+	<string name="dummy_button" translatable="false">Dummy Button</string>
+	<string name="dummy_content" translatable="false">DUMMY\nCONTENT</string>
+	<string name="midi" translatable="false">MIDI</string>
+
+	<string name="title_activity_test_fullscreen" translatable="false">TestFullscreenActivity</string>
+
+	<string name="pref_bpm_offset" translatable="false">10</string>
+	<string name="pref_bpm_min" translatable="false">0</string>
+	<string name="pref_bpm_max" translatable="false">230</string>
+	<string name="pref_bpm_default" translatable="false">110</string>
+	<string name="pref_bpm_message">If a tempo is not defined by a file, this speed will be used.</string>
+	<string name="pref_bpm_text">BPM</string>
+	<string name="pref_bpm_title">Default tempo</string>
+
+	<string name="pref_bpb_offset" translatable="false">1</string>
+	<string name="pref_bpb_min" translatable="false">0</string>
+	<string name="pref_bpb_max" translatable="false">31</string>
+	<string name="pref_bpb_default" translatable="false">3</string>
+	<string name="pref_bpb_message">If beats-per-bar is not defined by a file, this value will be used.</string>
+	<string name="pref_bpb_text">BPB</string>
+	<string name="pref_bpb_title">Default beats-per-bar</string>
+
+	<string name="pref_bpl_offset" translatable="false">1</string>
+	<string name="pref_bpl_min" translatable="false">0</string>
+	<string name="pref_bpl_max" translatable="false">31</string>
+	<string name="pref_bpl_default" translatable="false">0</string>
+	<string name="pref_bpl_message">If bars-per-line is not defined by a file, this value will be used.</string>
+	<string name="pref_bpl_text">BPL</string>
+	<string name="pref_bpl_title">Default bars-per-line</string>
+
+	<string name="pref_countIn_key" translatable="false">pref_countIn</string>
+	<string name="pref_countIn_offset" translatable="false">0</string>
+	<string name="pref_countIn_min" translatable="false">0</string>
+	<string name="pref_countIn_max" translatable="false">4</string>
+	<string name="pref_countIn_default" translatable="false">0</string>
+	<string name="pref_countIn_message">If the number of "count-in" bars is not defined by a file, this value will be used. Only applicable to beat-scrolling songs.</string>
+	<string name="pref_countIn_text">bars</string>
+	<string name="pref_countIn_title">Default count-in</string>
+
+	<string name="pref_beatCounterHeight_key" translatable="false">pref_beatCounterHeight</string>
+	<string name="pref_beatCounterHeight_offset" translatable="false">1</string>
+	<string name="pref_beatCounterHeight_min" translatable="false">0</string>
+	<string name="pref_beatCounterHeight_max" translatable="false">9</string>
+	<string name="pref_beatCounterHeight_default" translatable="false">4</string>
+	<string name="pref_beatCounterHeight_message">The height of the beat counter, as a percentage of the portrait-mode screen height.</string>
+	<string name="pref_beatCounterHeight_suffix" translatable="false">%</string>
+	<string name="pref_beatCounterHeight_title">Beat counter height</string>
+
+	<string name="pref_defaultPause_key" translatable="false">pref_defaultPause</string>
+	<string name="pref_defaultPause_offset" translatable="false">0</string>
+	<string name="pref_defaultPause_min" translatable="false">0</string>
+	<string name="pref_defaultPause_max" translatable="false">120</string>
+	<string name="pref_defaultPause_default" translatable="false">0</string>
+	<string name="pref_defaultPause_message">If a song is being shown in "smooth scrolling mode", then this setting creates an automatic pause at the start of the song, factored into the total song length.</string>
+	<string name="pref_defaultPause_text">seconds</string>
+	<string name="pref_defaultPause_title">Default initial pause</string>
+
+	<string name="please_buy">Please buy BeatPrompter</string>
+	<string name="buy_full_version">Buy full version</string>
+	<string name="thankyou">Thanks! You are officially a nice person! :)</string>
+	<string name="tapTwiceToStart">TAP TWICE TO START</string>
+	<string name="hasConnected">has connected</string>
+	<string name="hasDisconnected">has disconnected</string>
+	<string name="connectedToBandLeader">Connected to band leader</string>
+	<string name="disconnectedFromBandLeader">Lost connection to band leader</string>
+	<string name="otherErrorCount">… and %1$d other error(s).</string>
+	<string name="fileNotFound">File "%1$s" not found!</string>
+	<string name="noTitleFound">No {title} found in song file "%1$s"</string>
+	<string name="notAnAudioFile">"%1$s" is not a valid audio file.</string>
+	<string name="checking">Checking %1$s</string>
+	<string name="downloading">Synchronizing %1$s</string>
+	<string name="scanningFolder">Scanning %1$s</string>
+	<string name="deleting">Deleting %1$s</string>
+	<string name="downloadingFiles">Synchronizing Files</string>
+	<string name="accessingCloudStorage">Accessing %1$s</string>
+	<string name="chooseSyncFolder">Choose Sync Folder</string>
+	<string name="lowerCaseThe">the</string>
+	<string name="byTitle">By title</string>
+	<string name="byArtist">By artist</string>
+	<string name="byDate">By last-modified date</string>
+	<string name="byKey">By key</string>
+	<string name="sortSongs">Sort songs …</string>
+	<string name="file_io_read_error">Error reading file.</string>
+	<string name="intValueTooLow">Minimum value is %1$d, value found was %2$d.</string>
+	<string name="intValueTooHigh">Maximum value is %1$d, value found was %2$d.</string>
+	<string name="intValueUnreadable">Could not parse "%1$s" as an integer value.</string>
+	<string name="durationValueUnreadable">Could not parse "%1$s" as a duration value (use mm:ss or just seconds).</string>
+	<string name="doubleValueTooLow">Minimum value is %1$d, value found was %2$.2f.</string>
+	<string name="doubleValueTooHigh">Maximum value is %1$d, value found was %2$.2f.</string>
+	<string name="doubleValueUnreadable">Could not parse "%1$s" as a numeric value.</string>
+	<string name="colorValueUnreadable">Could not parse "%1$s" as a color.</string>
+	<string name="fontSizesAllMessedUp">The minimum font size preference is larger than the maximum font size. Using minimum for all.</string>
+	<string name="cannotFindAudioFile">Cannot find audio file: %1$s</string>
+	<string name="cannotFindImageFile">Cannot find image file: %1$s</string>
+	<string name="badAudioVolume">Audio track volume is not a number between 0 and 100.</string>
+	<string name="oneShotTagDefinedTwice">A value has already been defined for {%1$s}.</string>
+	<string name="lineTooLong">Line %1$d was longer than %2$d characters. Truncating …</string>
+	<string name="pauseLongerThanSong">Total {pause} time exceeds designated song time. Disabling smooth scrolling mode.</string>
+	<string name="scrollbeatOffTheMap">Scrollbeat offset is greater than or equal to the number of beats in the bar. Resetting to zero.</string>
+	<string name="loadingSong">Loading:\u0020</string>
+	<string name="processingSong">Processing song: %1$s</string>
+
+	<string name="pref_lyricsHeight_key" translatable="false">pref_lyricsHeight</string>
+	<string name="pref_lyricsHeight_offset" translatable="false">10</string>
+	<string name="pref_lyricsHeight_min" translatable="false">0</string>
+	<string name="pref_lyricsHeight_max" translatable="false">80</string>
+	<string name="pref_lyricsHeight_default" translatable="false">40</string>
+	<string name="pref_lyricsHeight_message">The maximum percentage of the maximum line height that the lyrics will occupy.</string>
+	<string name="pref_lyricsHeight_text" translatable="false">%</string>
+	<string name="pref_lyricsHeight_title">Maximum lyrics height</string>
+
+	<string name="pref_commentDisplayTime_key" translatable="false">pref_commentDisplayTime</string>
+	<string name="pref_commentDisplayTime_offset" translatable="false">1</string>
+	<string name="pref_commentDisplayTime_min" translatable="false">0</string>
+	<string name="pref_commentDisplayTime_max" translatable="false">19</string>
+	<string name="pref_commentDisplayTime_default" translatable="false">4</string>
+	<string name="pref_commentDisplayTime_message">The amount of time that an in-song comment will remain onscreen.</string>
+	<string name="pref_commentDisplayTime_text" translatable="false">s</string>
+	<string name="pref_commentDisplayTime_title">Comment display time</string>
+
+	<string name="pref_firstRun_key" translatable="false">pref_firstRun</string>
+
+	<string name="pref_oneDriveAccessToken_key" translatable="false">pref_oneDriveAccessToken</string>
+	<string name="pref_dropboxAccessToken_key" translatable="false">pref_dropboxV2AccessToken</string>
+	<string name="pref_dropboxRefreshToken_key" translatable="false">pref_dropboxV2RefreshToken</string>
+	<string name="pref_dropboxExpiryTime_key" translatable="false">pref_dropboxV2ExpiryTime</string>
+	<string name="pref_songSource_key" translatable="false">pref_songSource</string>
+
+	<string name="pref_sorting_key" translatable="false">pref_sorting</string>
+
+	<string name="pref_minLines_key" translatable="false">pref_minLines</string>
+	<string name="pref_minLines_offset" translatable="false">1</string>
+	<string name="pref_minLines_min" translatable="false">1</string>
+	<string name="pref_minLines_max" translatable="false">7</string>
+	<string name="pref_minLines_default" translatable="false">1</string>
+	<string name="pref_minLines_message">The minimum number of lines that should be visible at any one time.</string>
+	<string name="pref_minLines_text">lines</string>
+	<string name="pref_minLines_title">Minimum visible lines</string>
+
+	<string name="pref_trackOffset_offset" translatable="false">-600000</string>
+	<string name="pref_trackOffset_min" translatable="false">0</string>
+	<string name="pref_trackOffset_max" translatable="false">1200000</string>
+	<string name="pref_trackOffset_default" translatable="false">600000</string>
+	<string name="pref_trackOffset_message">The offset from the start of the song, in milliseconds, at which the backing audio track will begin.</string>
+	<string name="pref_trackOffset_text">ms</string>
+	<string name="pref_trackOffset_title">Audio track start offset</string>
+
+	<string name="pref_beatCounterColor_key" translatable="false">pref_beatCounterColor</string>
+	<string name="pref_beatCounterColor_title">Beat counter colour</string>
+	<string name="pref_beatCounterColor_summary">The colour of the beat counter bar at the top of the screen.</string>
+	<string name="pref_beatCounterColor_default" translatable="false">#ff008800</string>
+
+	<string name="pref_pageDownScrollHighlightColor_key" translatable="false">pref_pageDownScrollHighlightColor</string>
+	<string name="pref_pageDownScrollHighlightColor_title">Page-down position indicator colour</string>
+	<string name="pref_pageDownScrollHighlightColor_summary">Colour for the page-down scroll position indicators.</string>
+	<string name="pref_pageDownScrollHighlightColor_default" translatable="false">#ff990099</string>
+
+	<string name="pref_beatSectionStartHighlightColor_key" translatable="false">pref_beatSectionStartHighlightColor</string>
+	<string name="pref_beatSectionStartHighlightColor_title">Beat-section start highlight colour</string>
+	<string name="pref_beatSectionStartHighlightColor_summary">Highlight color for the line that is the start of a beat section.</string>
+	<string name="pref_beatSectionStartHighlightColor_default" translatable="false">#ffaaaa00</string>
+
+	<string name="pref_chorusSectionHighlightColor_key" translatable="false">pref_chorusSectionHighlightColor</string>
+	<string name="pref_chorusSectionHighlightColor_title">Chorus section highlight colour</string>
+	<string name="pref_chorusSectionHighlightColor_summary">Highlight color for choruses.</string>
+	<string name="pref_chorusSectionHighlightColor_default" translatable="false">#ff888888</string>
+
+	<string name="pref_clearCache_key" translatable="false">pref_clearCache</string>
+	<string name="pref_clearCache_title">Clear cache</string>
+	<string name="pref_clearCache_summary">Deletes all cached files.</string>
+
+	<string name="pref_mimicBandLeaderDisplay_key" translatable="false">pref_mimicBandLeaderDisplay</string>
+	<string name="pref_mimicBandLeaderDisplay_title">Mimic band leader display in manual mode</string>
+	<string name="pref_mimicBandLeaderDisplay_summary">If performing a song with a band leader in manual mode, this will automatically set your display to the same orientation and font sizes.</string>
+
+	<string name="pref_proximityScroll_key" translatable="false">pref_proximityScroll</string>
+	<string name="pref_proximityScroll_title">Proximity sensor scrolls page.</string>
+	<string name="pref_proximityScroll_summary">If your device has a proximity sensor, triggering it will act like pressing a "page down" pedal.</string>
+
+	<string name="pref_anyOtherKeyPageDown_key" translatable="false">pref_anyOtherKeyPageDown</string>
+	<string name="pref_anyOtherKeyPageDown_title">Any other key is page-down.</string>
+	<string name="pref_anyOtherKeyPageDown_summary">Any other key pressed on a connected keyboard will act like page-down.</string>
+
+	<string name="pref_includeSubfolders_key" translatable="false">pref_includeSubfolders</string>
+	<string name="pref_includeSubfolders_title">Include Subfolders</string>
+	<string name="pref_includeSubfolders_summary">Fetch files from subfolders also?</string>
+
+	<string name="pref_powerwash_key" translatable="false">pref_powerwash</string>
+	<string name="pref_powerwash_title">Powerwash</string>
+	<string name="pref_powerwash_summary">Deletes all cached files, and clears all stored cloud credentials.</string>
+
+	<string name="pref_scrollMarkerColor_key" translatable="false">pref_scrollMarker</string>
+	<string name="pref_scrollMarkerColor_title">Scroll marker colour</string>
+	<string name="pref_scrollMarkerColor_summary">The colour of the marker that shows when the display will scroll.</string>
+	<string name="pref_scrollMarkerColor_default" translatable="false">#ff000000</string>
+
+	<string name="pref_midiIncomingChannels_key" translatable="false">pref_midiIncomingChannels</string>
+	<string name="pref_midiIncomingChannels_title">Active Incoming MIDI Channels</string>
+	<string name="pref_midiIncomingChannels_summary">What MIDI channels should BeatPrompter listen to?</string>
+	<string name="pref_midiIncomingChannels_default" translatable="false">65535</string>
+
+	<string name="pref_defaultMIDIOutputChannel_key" translatable="false">pref_defaultMIDIOutputChannel</string>
+	<string name="pref_defaultMIDIOutputChannel_title">Default output MIDI channel</string>
+	<string name="pref_defaultMIDIOutputChannel_summary">What is the default MIDI channel to write to, unless otherwise specified?</string>
+	<string name="pref_defaultMIDIOutputChannel_default" translatable="false">1</string>
+
+	<string name="pref_chordColor_key" translatable="false">pref_chordColor</string>
+	<string name="pref_chordColor_title">Chords colour</string>
+	<string name="pref_chordColor_default" translatable="false">#ffff0000</string>
+
+	<string name="pref_commentTextColor_key" translatable="false">pref_commentTextColor</string>
+	<string name="pref_commentTextColor_title">Comment text colour</string>
+	<string name="pref_commentTextColor_default" translatable="false">#ffff00ff</string>
+
+	<string name="pref_lyricColor_key" translatable="false">pref_lyricColor</string>
+	<string name="pref_lyricColor_title">Lyrics colour</string>
+	<string name="pref_lyricColor_default" translatable="false">#ff000000</string>
+
+	<string name="pref_backgroundColor_key" translatable="false">pref_backgroundColor</string>
+	<string name="pref_backgroundColor_title">Background colour</string>
+	<string name="pref_backgroundColor_default" translatable="false">#ffffffff</string>
+
+	<string name="pref_manualMode_key" translatable="false">pref_manualMode</string>
+	<string name="pref_manualMode_title">Manual Mode</string>
+	<string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
+
+	<string name="pref_mute_key" translatable="false">pref_mute</string>
+	<string name="pref_mute_title">Mute</string>
+	<string name="pref_mute_summary">Never play audio.</string>
+
+	<string name="pref_sendMidi_key" translatable="false">pref_sendMidi</string>
+	<string name="pref_sendMidi_title">Send MIDI clock signals</string>
+	<string name="pref_sendMidi_summary">If a song has beat timings, this will send MIDI clock signals.</string>
+
+	<string name="pref_highlightColor_key" translatable="false">pref_highlightColor</string>
+	<string name="pref_highlightColor_title">Highlight colour</string>
+	<string name="pref_highlightColor_summary">Highlight colour to apply to highlighted lyric text.</string>
+	<string name="pref_highlightColor_default" translatable="false">#ff00ffff</string>
+
+	<string name="pref_preferredVariation_key" translatable="false">pref_preferredVariation</string>
+	<string name="pref_preferredVariation_title">Preferred variation</string>
+	<string name="pref_preferredVariation_summary">If a song contains this variation, it will be loaded by default.</string>
+
+	<string name="pref_alwaysDisplaySharpChords_key" translatable="false">pref_alwaysDisplaySharpChords</string>
+	<string name="pref_alwaysDisplaySharpChords_title">Always display sharp chords</string>
+	<string name="pref_alwaysDisplaySharpChords_summary">Any flat chords will be converted to appropriate sharp chords.</string>
+	<string name="pref_alwaysDisplaySharpChords_default" translatable="false">false</string>
+
+	<string name="pref_displayUnicodeAccidentals_key" translatable="false">pref_displayUnicodeAccidentals</string>
+	<string name="pref_displayUnicodeAccidentals_title">Display Unicode accidentals</string>
+	<string name="pref_displayUnicodeAccidentals_summary">Chords that contain b/# characters will be converted to use ♭/♯.</string>
+	<string name="pref_displayUnicodeAccidentals_default" translatable="false">false</string>
+
+	<string name="pref_currentLineHighlightColor_key" translatable="false">pref_currentLineHighlightColor</string>
+	<string name="pref_currentLineHighlightColor_title">Current Line Highlight colour</string>
+	<string name="pref_currentLineHighlightColor_summary">Highlight colour to apply to the current line.</string>
+	<string name="pref_currentLineHighlightColor_default" translatable="false">#ffffaa00</string>
+
+	<string name="pref_pulseColor_key" translatable="false">pref_pulseColor</string>
+	<string name="pref_pulseColor_title">Background pulse colour</string>
+	<string name="pref_pulseColor_summary">The background will pulse this colour in time to the rhythm.</string>
+	<string name="pref_pulseColor_default" translatable="false">#ffdddddd</string>
+
+	<string name="pref_annotationColor_key" translatable="false">pref_annotationColor</string>
+	<string name="pref_annotationColor_title">Colour of non-chord annotations</string>
+	<string name="pref_annotationColor_summary">Any chord text that isn\'t recognised as a valid chord will be shown in this color.</string>
+	<string name="pref_annotationColor_default" translatable="false">#ff00aa00</string>
+
+	<string name="pref_ignoreColorInfo_key" translatable="false">pref_ignoreColorInfo</string>
+	<string name="pref_ignoreColorInfo_title">Ignore colours in files</string>
+	<string name="pref_ignoreColorInfo_summary">Always uses default colours.</string>
+	<string name="pref_ignoreColorInfo_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showBeatStyleIcons_key" translatable="false">pref_showBeatStyleIcons</string>
+	<string name="pref_showBeatStyleIcons_title">Show scroll style icons</string>
+	<string name="pref_showBeatStyleIcons_summary">Shows the scrolling style of the song as an icon in the main list.</string>
+	<string name="pref_showBeatStyleIcons_defaultValue" translatable="false">true</string>
+
+	<string name="pref_showChords_key" translatable="false">pref_showChords</string>
+	<string name="pref_showChords_title">Show Chords</string>
+	<string name="pref_showChords_summary">Displays the song chords above the lyrics at the correct point.</string>
+	<string name="pref_showChords_defaultValue" translatable="false">true</string>
+
+	<string name="pref_highlightCurrentLine_key" translatable="false">pref_highlightCurrentLine</string>
+	<string name="pref_highlightCurrentLine_title">Highlight Current Line</string>
+	<string name="pref_highlightCurrentLine_summary">Highlights the current line with your chosen highlight colour.</string>
+	<string name="pref_highlightCurrentLine_defaultValue" translatable="false">true</string>
+
+	<string name="pref_highlightBeatSectionStart_key" translatable="false">pref_highlightBeatSectionStart</string>
+	<string name="pref_highlightBeatSectionStart_title">Highlight start of beat sections</string>
+	<string name="pref_highlightBeatSectionStart_summary">Highlights the start of beat sections with your chosen highlight colour.</string>
+	<string name="pref_highlightBeatSectionStart_defaultValue" translatable="false">true</string>
+
+	<string name="pref_highlightPageDownLine_key" translatable="false">pref_highlightPageDownLine</string>
+	<string name="pref_highlightPageDownLine_title">Show page down scroll position markers</string>
+	<string name="pref_highlightPageDownLine_summary">Shows the position that the display will be scrolled to when you press page-down.</string>
+	<string name="pref_highlightPageDownLine_defaultValue" translatable="false">true</string>
+
+	<string name="pref_showMusicIcon_key" translatable="false">pref_showMusicIcon</string>
+	<string name="pref_showMusicIcon_title">Show music icon</string>
+	<string name="pref_showMusicIcon_summary">In the main song list, show an icon indicating that a song has a backing track.</string>
+	<string name="pref_showMusicIcon_defaultValue" translatable="false">true</string>
+
+	<string name="pref_showKeyInList_key" translatable="false">pref_showKeyInList</string>
+	<string name="pref_showKeyInList_title">Show song key</string>
+	<string name="pref_showKeyInList_summary">In the main song list, show the key of the song.</string>
+	<string name="pref_showKeyInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showYearInList_key" translatable="false">pref_showYearInList</string>
+	<string name="pref_showYearInList_title">Show song year</string>
+	<string name="pref_showYearInList_summary">In the main song list, show the year of the song (if defined).</string>
+	<string name="pref_showYearInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_songIconDisplayPosition_key" translatable="false">pref_songIconDisplayPosition</string>
+	<string name="pref_songIconDisplayPosition_title">Song icon display position</string>
+	<string name="pref_songIconDisplayPosition_summary">Where should the song icon (if defined) be displayed?</string>
+	<string name="pref_songIconDisplayPosition_defaultValue" translatable="false">Left</string>
+
+	<string name="pref_showRatingInList_key" translatable="false">pref_showRatingInList</string>
+	<string name="pref_showRatingInList_title">Show song rating</string>
+	<string name="pref_showRatingInList_summary">In the main song list, show the rating of the song.</string>
+	<string name="pref_showRatingInList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_largePrintList_key" translatable="false">pref_largePrintList</string>
+	<string name="pref_largePrintList_title">Bigger text</string>
+	<string name="pref_largePrintList_summary">Displays the song list in larger text.</string>
+	<string name="pref_largePrintList_defaultValue" translatable="false">false</string>
+
+	<string name="pref_pulse_key" translatable="false">pref_pulse</string>
+	<string name="pref_pulse_title">Background pulse</string>
+	<string name="pref_pulse_summary">The background will pulse in time to the rhythm.</string>
+	<string name="pref_pulse_defaultValue" translatable="false">true</string>
+
+	<string name="pref_clearTagFilterOnFolderChange_key" translatable="false">pref_clearTagFilterOnFolderChange</string>
+	<string name="pref_clearTagFilterOnFolderChange_title">Clear tags when filter changes?</string>
+	<string name="pref_clearTagFilterOnFolderChange_summary">If true, any selected tag filters will be cleared whenever you switch folders/setlists/etc.</string>
+
+	<string name="pref_cloudPath_key" translatable="false">pref_cloudPath</string>
+	<string name="pref_cloudPath_title">Storage Folder</string>
+	<string name="pref_cloudPath_summary">This is the folder that the BeatPrompter song files are stored in.</string>
+	<string name="pref_cloudPath_defaultValue" translatable="false"></string>
+
+	<string name="pref_cloudDisplayPath_key" translatable="false">pref_cloudDisplayPath</string>
+
+	<string name="pref_customComments_key" translatable="false">pref_customComments</string>
+	<string name="pref_customComments_title">Custom Comments User</string>
+	<string name="pref_customComments_summary">To only see the comments that are meant for you on the song introduction screen, enter your name(s) here.</string>
+	<string name="pref_customComments_defaultValue" translatable="false"></string>
+
+	<string name="fontSizeMin" translatable="false">8</string>
+	<string name="fontSizeMax" translatable="false">150</string>
+
+	<string name="pref_minFontSize_key" translatable="false">pref_minFontSize</string>
+	<string name="pref_minFontSize_title">Minimum font size (beat-scrolling)</string>
+	<string name="pref_minFontSize_summary">The smallest font size that will be used in beat-scrolling mode.</string>
+	<string name="pref_minFontSize_default" translatable="false">8</string>
+
+	<string name="pref_maxFontSize_key" translatable="false">pref_maxFontSize</string>
+	<string name="pref_maxFontSize_title">Maximum font size (beat-scrolling)</string>
+	<string name="pref_maxFontSize_summary">The largest font size that will be used in beat-scrolling mode.</string>
+	<string name="pref_maxFontSize_default" translatable="false">52</string>
+
+	<string name="pref_minFontSizeSmooth_key" translatable="false">pref_minFontSizeSmooth</string>
+	<string name="pref_minFontSizeSmooth_title">Minimum font size (smooth scrolling)</string>
+	<string name="pref_minFontSizeSmooth_summary">The smallest font size that will be used in smooth-scrolling mode.</string>
+	<string name="pref_minFontSizeSmooth_default" translatable="false">8</string>
+
+	<string name="pref_maxFontSizeSmooth_key" translatable="false">pref_maxFontSizeSmooth</string>
+	<string name="pref_maxFontSizeSmooth_title">Maximum font size (smooth scrolling)</string>
+	<string name="pref_maxFontSizeSmooth_summary">The largest font size that will be used in smooth-scrolling mode.</string>
+	<string name="pref_maxFontSizeSmooth_default" translatable="false">52</string>
+
+	<string name="pref_minFontSizeManual_key" translatable="false">pref_minFontSizeManual</string>
+	<string name="pref_minFontSizeManual_title">Minimum font size (manual scrolling)</string>
+	<string name="pref_minFontSizeManual_summary">The smallest font size that will be used in manual-scrolling mode.</string>
+	<string name="pref_minFontSizeManual_default" translatable="false">8</string>
+
+	<string name="pref_maxFontSizeManual_key" translatable="false">pref_maxFontSizeManual</string>
+	<string name="pref_maxFontSizeManual_title">Maximum font size (manual scrolling)</string>
+	<string name="pref_maxFontSizeManual_summary">The largest font size that will be used in manual-scrolling mode.</string>
+	<string name="pref_maxFontSizeManual_default" translatable="false">52</string>
+
+	<string name="pref_alwaysUseBeatFontPrefs_key" translatable="false">pref_alwaysUseBeatFontPrefs</string>
+	<string name="pref_alwaysUseBeatFontPrefs_title">Always use the beat-scrolling font size preferences.</string>
+	<string name="pref_alwaysUseBeatFontPrefs_summary">Uses the beat-scrolling font size preferences for all songs.</string>
+	<string name="pref_alwaysUseBeatFontPrefs_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showScrollIndicator_key" translatable="false">pref_showScrollIndicator</string>
+	<string name="pref_showScrollIndicator_title">Show scroll indicator.</string>
+	<string name="pref_showScrollIndicator_summary">In the beat counter section, highlight the beat that the display will scroll on.</string>
+	<string name="pref_showScrollIndicator_defaultValue" translatable="false">true</string>
+
+	<string name="pref_beatCounterTextOverlay_key" translatable="false">pref_beatCounterTextOverlay</string>
+	<string name="pref_beatCounterTextOverlay_title">Beat counter text overlay.</string>
+	<string name="pref_beatCounterTextOverlay_summary">What text to display over the beat counter.</string>
+	<string name="pref_beatCounterTextOverlay_defaultValue" translatable="false">Nothing</string>
+
+	<string name="pref_showSongKey_key" translatable="false">pref_showSongKey</string>
+	<string name="pref_showSongKey_title">Show song key on title screen.</string>
+	<string name="pref_showSongKey_summary">Displays the key of the song on the song title screen.</string>
+	<string name="pref_showSongKey_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showSongCapo_key" translatable="false">pref_showSongCapo</string>
+	<string name="pref_showSongCapo_title">Show capo setting on title screen.</string>
+	<string name="pref_showSongCapo_summary">Displays the capo setting on the song title screen.</string>
+	<string name="pref_showSongCapo_defaultValue" translatable="false">false</string>
+
+	<string name="pref_showFirstBeat_key" translatable="false">pref_showFirstBeat</string>
+	<string name="pref_showFirstBeat_title">Show first beat.</string>
+	<string name="pref_showFirstBeat_summary">Shows the first beat in the beat indicator section.</string>
+	<string name="pref_showFirstBeat_defaultValue" translatable="false">true</string>
+
+	<string name="pref_scrollingStyle_key" translatable="false">pref_scrollingStyle</string>
+	<string name="pref_scrollingStyle_title">Scrolling style</string>
+	<string name="pref_scrollingStyle_defaultValue" translatable="false">jump</string>
+	<string name="pref_scrollingStyle_dialogTitle">Scrolling Style</string>
+	<string name="jumpScrollingStyle">Jump</string>
+	<string name="smoothScrollingStyle">Smooth</string>
+	<string name="jumpScrollingStyleValue" translatable="false">jump</string>
+	<string name="smoothScrollingStyleValue" translatable="false">smooth</string>
+
+	<string name="pref_lineJustification_key" translatable="false">pref_lineJustification</string>
+	<string name="pref_lineJustification_title">Line justification</string>
+	<string name="pref_lineJustification_defaultValue" translatable="false">left</string>
+	<string name="pref_lineJustification_dialogTitle">Line Justification</string>
+	<string name="leftJustified">Left</string>
+	<string name="centerJustified">Centre</string>
+	<string name="rightJustified">Right</string>
+	<string name="leftJustifiedValue" translatable="false">left</string>
+	<string name="centerJustifiedValue" translatable="false">centre</string>
+	<string name="rightJustifiedValue" translatable="false">right</string>
+
+	<string name="pref_metronome_key" translatable="false">pref_metronome</string>
+	<string name="pref_metronome_title">Metronome click</string>
+	<string name="pref_metronome_defaultValue" translatable="false">DuringCountIn</string>
+	<string name="pref_metronome_summary">Creates a clicking sound in time with the beat. Only applicable to beat-scrolling songs.</string>
+	<string name="pref_metronome_dialogTitle">Metronome Click</string>
+	<string name="metronomeOn">On</string>
+	<string name="metronomeOnWhenNoBackingTrack">On when there is no backing track</string>
+	<string name="metronomeOff">Off</string>
+	<string name="metronomeDuringCount">During count-in</string>
+	<string name="metronomeOnValue" translatable="false">On</string>
+	<string name="metronomeOnWhenNoBackingTrackValue" translatable="false">OnWhenNoTrack</string>
+	<string name="metronomeOffValue" translatable="false">Off</string>
+	<string name="metronomeDuringCountValue" translatable="false">DuringCountIn</string>
+
+	<string name="pref_showSongBPM_key" translatable="false">pref_showSongBPM</string>
+	<string name="pref_showSongBPM_title">Show song BPM on title screen</string>
+	<string name="pref_showSongBPM_defaultValue" translatable="false">No</string>
+	<string name="pref_showSongBPM_summary">Should the initial BPM of the song be shown on the song title screen?</string>
+	<string name="pref_showSongBPM_dialogTitle">Show Song BPM</string>
+	<string name="showBPMYes">Yes</string>
+	<string name="showBPMYesRounded">Yes, rounded to integer</string>
+	<string name="showBPMNo">No</string>
+	<string name="showBPMYesValue" translatable="false">Yes</string>
+	<string name="showBPMYesRoundedValue" translatable="false">Rounded</string>
+	<string name="showBPMNoValue" translatable="false">No</string>
+
+	<string name="bpmPrefix" translatable="false">BPM</string>
+	<string name="keyPrefix">Key</string>
+	<string name="capoPrefix" translatable="false">Capo</string>
+
+	<string name="pref_useExternalStorage_key" translatable="false">pref_useExternalStorage</string>
+	<string name="pref_useExternalStorage_title">Use External Storage</string>
+	<string name="pref_useExternalStorage_summary">Stores data on external storage (SD card, etc). Changing this will clear the cache.</string>
+
+	<string name="pref_useCustomStorageLocation_key" translatable="false">pref_useCustomStorageLocation</string>
+	<string name="pref_useCustomStorageLocation_title">Use Custom Storage Location</string>
+	<string name="pref_useCustomStorageLocation_summary">If selected, song data will be stored in the custom location. Changing this will clear the cache.</string>
+
+	<string name="pref_storageLocation_key" translatable="false">pref_storageLocation</string>
+	<string name="pref_storageLocation_title">Storage Location</string>
+	<string name="pref_storageLocation_summary">Where should BeatPrompter store cached song and audio files? Changing this will clear the cache.</string>
+
+	<string name="pref_screenAction_key" translatable="false">pref_screenaction</string>
+	<string name="pref_screenAction_title">Controls during performance</string>
+	<string name="pref_screenAction_defaultValue" translatable="false">Scroll</string>
+	<string name="pref_screenAction_summary">What controls should be available while a song is playing?</string>
+	<string name="pref_screenAction_dialogTitle">Controls During Performance</string>
+	<string name="screenActionScrollPauseAndRestart">Scrolling, pausing, restarting</string>
+	<string name="screenActionVolume">Volume</string>
+	<string name="screenActionNone">Nothing</string>
+	<string name="screenActionScrollPauseAndRestartValue" translatable="false">Scroll</string>
+	<string name="screenActionVolumeValue" translatable="false">Volume</string>
+	<string name="screenActionNoneValue" translatable="false">None</string>
+
+	<string name="localStorageValue" translatable="false">Local</string>
+	<string name="googleDriveValue" translatable="false">GoogleDrive</string>
+	<string name="dropboxValue" translatable="false">Dropbox</string>
+	<string name="oneDriveValue" translatable="false">OneDrive</string>
+
+	<string name="pref_cloudStorageSystem_key" translatable="false">pref_cloudStorageSystem</string>
+	<string name="pref_cloudStorageSystem_title">Storage System</string>
+	<string name="pref_cloudStorageSystem_defaultValue" translatable="false">Demo</string>
+	<string name="pref_cloudStorageSystem_summary">Where are your song files stored?</string>
+	<string name="pref_cloudStorageSystem_dialogTitle">Storage System</string>
+
+	<string name="pref_midiConnectionTypes_key" translatable="false">pref_midiConnectionTypes</string>
+	<string name="pref_midiConnectionTypes_title">Connection Type</string>
+	<string name="pref_midiConnectionTypes_defaultValue" translatable="false">USBOnTheGo,Native,Bluetooth</string>
+	<string name="pref_midiConnectionTypes_summary">What type of MIDI connection do you use?</string>
+	<string name="pref_midiConnectionTypes_dialogTitle">Connection Type</string>
+
+	<string name="cloud_sync">Files</string>
+
+	<string name="pref_automaticallyPlayNextSong_key" translatable="false">pref_automaticallyPlayNextSong</string>
+	<string name="pref_automaticallyPlayNextSong_title">Automatically play next song</string>
+	<string name="pref_automaticallyPlayNextSong_defaultValue" translatable="false">sets</string>
+	<string name="pref_automaticallyPlayNextSong_summary">Should the next song start automatically when the current song ends?</string>
+	<string name="pref_automaticallyPlayNextSong_dialogTitle">Automatically Play Next Song</string>
+	<string name="playNextSongNever">Never</string>
+	<string name="playNextSongAlways">Always</string>
+	<string name="playNextSongSetListsOnly">Set Lists Only</string>
+	<string name="playNextSongNeverValue" translatable="false">never</string>
+	<string name="playNextSongAlwaysValue" translatable="false">always</string>
+	<string name="playNextSongSetListsOnlyValue" translatable="false">sets</string>
+
+	<string name="pref_sendMidiTriggerOnStart_key" translatable="false">pref_sendMidiTriggerOnStart</string>
+	<string name="pref_sendMidiTriggerOnStart_title">Output MIDI trigger</string>
+	<string name="pref_sendMidiTriggerOnStart_defaultValue" translatable="false">ManualStartOnly</string>
+	<string name="pref_sendMidiTriggerOnStart_summary">Should the MIDI trigger message be output when the song starts?</string>
+	<string name="pref_sendMidiTriggerOnStart_dialogTitle">Output MIDI trigger message</string>
+	<string name="sendMidiTriggerOnStartNever">Never</string>
+	<string name="sendMidiTriggerOnStartAlways">Always</string>
+	<string name="sendMidiTriggerOnStartManualStartOnly">When started manually</string>
+	<string name="sendMidiTriggerOnStartNeverValue" translatable="false">Never</string>
+	<string name="sendMidiTriggerOnStartAlwaysValue" translatable="false">Always</string>
+	<string name="sendMidiTriggerOnStartManualStartOnlyValue" translatable="false">ManualStartOnly</string>
+
+	<string name="pref_bluetoothMode_key" translatable="false">pref_bluetoothMode</string>
+	<string name="pref_bluetoothMode_title">Bluetooth mode</string>
+	<string name="pref_bluetoothMode_defaultValue" translatable="false">None</string>
+	<string name="pref_bluetoothMode_summary">Configure how your device communicates with band members.</string>
+	<string name="pref_bluetoothMode_dialogTitle">Bluetooth Mode</string>
+
+	<string name="pref_bandLeaderDevice_key" translatable="false">pref_bandLeaderDevice</string>
+	<string name="pref_bandLeaderDevice_title">Band Leader Device</string>
+	<string name="pref_bandLeaderDevice_defaultValue" translatable="false">_</string>
+	<string name="pref_bandLeaderDevice_summary">Specify which device to connect to when in band-member mode.</string>
+	<string name="pref_bandLeaderDevice_dialogTitle">Band Leader Device</string>
+
+	<string name="pref_midiTriggerSafetyCatch_key" translatable="false">pref_midiTriggerSafetyCatch</string>
+	<string name="pref_midiTriggerSafetyCatch_title">Trigger safety catch</string>
+	<string name="pref_midiTriggerSafetyCatch_defaultValue" translatable="false">WhenAtTitleScreenOrPausedOrLastLine</string>
+	<string name="pref_midiTriggerSafetyCatch_summary">Can MIDI trigger messages interrupt the current song?</string>
+	<string name="pref_midiTriggerSafetyCatch_dialogTitle">MIDI triggers during song display</string>
+
+	<string name="none">None</string>
+	<string name="bluetoothModeBandLeader">Band Leader (server)</string>
+	<string name="bluetoothModeBandMember">Band Member (client)</string>
+
+	<string name="bluetoothModeNoneValue" translatable="false">None</string>
+	<string name="bluetoothModeBandLeaderValue" translatable="false">Server</string>
+	<string name="bluetoothModeBandMemberValue" translatable="false">Client</string>
+
+	<string name="midiTriggerSafetyCatchNever">Never</string>
+	<string name="midiTriggerSafetyCatchTitleScreen">When at title screen</string>
+	<string name="midiTriggerSafetyCatchPaused">When paused, or at title screen</string>
+	<string name="midiTriggerSafetyCatchPausedOrLastLine">When paused, at title screen, or on last line of song</string>
+	<string name="midiTriggerSafetyCatchAlways">Always</string>
+	<string name="midiTriggerSafetyCatchNeverValue" translatable="false">Never</string>
+	<string name="midiTriggerSafetyCatchTitleScreenValue" translatable="false">WhenAtTitleScreen</string>
+	<string name="midiTriggerSafetyCatchPausedValue" translatable="false">WhenAtTitleScreenOrPaused</string>
+	<string name="midiTriggerSafetyCatchPausedOrLastLineValue" translatable="false">WhenAtTitleScreenOrPausedOrLastLine</string>
+	<string name="midiTriggerSafetyCatchAlwaysValue" translatable="false">Always</string>
+
+	<string name="pref_defaultTrackVolume_key" translatable="false">pref_defaultTrackVolume</string>
+	<string name="pref_defaultTrackVolume_offset" translatable="false">1</string>
+	<string name="pref_defaultTrackVolume_min" translatable="false">0</string>
+	<string name="pref_defaultTrackVolume_max" translatable="false">99</string>
+	<string name="pref_defaultTrackVolume_default" translatable="false">99</string>
+	<string name="pref_defaultTrackVolume_message">Unless specified in the file, this is the default volume that backing tracks will play at.</string>
+	<string name="pref_defaultTrackVolume_text" translatable="false">%</string>
+	<string name="pref_defaultTrackVolume_title">Default track volume</string>
+
+	<string name="pref_audioLatency_key" translatable="false">pref_audioLatency</string>
+	<string name="pref_audioLatency_offset" translatable="false">0</string>
+	<string name="pref_audioLatency_min" translatable="false">0</string>
+	<string name="pref_audioLatency_max" translatable="false">1000</string>
+	<string name="pref_audioLatency_default" translatable="false">0</string>
+	<string name="pref_audioLatency_message">Amount of latency to compensate for in audio playback.</string>
+	<string name="pref_audioLatency_text" translatable="false">ms</string>
+	<string name="pref_audioLatency_title">Audio latency</string>
+
+	<string name="pref_fixedLineHeight_key" translatable="false">pref_fixedLineHeight</string>
+	<string name="pref_fixedLineHeight_default" translatable="false">false</string>
+	<string name="pref_fixedLineHeight_title">Fixed line height</string>
+	<string name="pref_fixedLineHeight_summary">Makes all lines the same height</string>
+
+	<string name="use_internal_storage">Use Internal Storage</string>
+	<string name="crap_audio_file_warning">Could not load audio file. Is it missing or corrupt?</string>
+	<string name="missing_audio_file_warning">Could not find audio file.</string>
+	<string name="missing_image_file_warning">*Could not find image file*</string>
+
+	<string name="title_activity_intro" translatable="false">IntroActivity</string>
+
+	<string name="welcome_to_beatprompter">Welcome to BeatPrompter</string>
+	<string name="works_best_in_landscape">Although you can use it in portrait mode, BeatPrompter works best in landscape mode.</string>
+	<string name="cloud_sync_explanation_title" translatable="false">Mr Blue Sky</string>
+	<string name="cloud_sync_explanation">BeatPrompter reads all your song files, audio files, set lists and more from cloud or local storage. It currently supports Google Drive, Dropbox or Microsoft OneDrive.</string>
+	<string name="keep_the_beat_title" translatable="false">We Got The Beat</string>
+	<string name="keep_the_beat">With a bit of modification to your song files, BeatPrompter will keep the display perfectly in time with the beat. Never too fast, never too slow, and always nice and big and readable!</string>
+	<string name="not_just_text_title" translatable="false">More Than Words</string>
+	<string name="not_just_text">BeatPrompter doesn\'t just display lyrics and chords. It can play backing tracks, and control (and respond to) external MIDI devices too.</string>
+	<string name="turn_turn_turn" translatable="false">Turn, Turn, Turn</string>
+	<string name="welcome_to_beatprompter_description">BeatPrompter is a lyrics and chords prompter app that places the emphasis on timing and readability.</string>
+
+	<string name="non_beat_characters_in_midi_offset">MIDI offset should be a numerical value or beat offset characters.</string>
+	<string name="multiple_semi_colons_in_midi_tag">MIDI tags can contain a maximum of one semi-colon character.</string>
+	<string name="midi_offset_is_before_start_of_song">MIDI event offset puts it before the start of the song.</string>
+	<string name="blank_midi_value">Blank value found in MIDI directive.</string>
+	<string name="not_a_valid_argument_index">Invalid argument index found in MIDI directive.</string>
+	<string name="not_a_valid_byte_value">Invalid byte value found in MIDI directive.</string>
+
+	<string name="pref_wasPowerwashed_key" translatable="false">pref_wasPowerwashed</string>
+	<string name="cache_cleared">Cache cleared.</string>
+	<string name="powerwashed">Powerwash complete.</string>
+
+	<string name="midi_offset_before_first_line">Only MIDI tags that are on or after the first song line can have offsets.</string>
+	<string name="max_midi_offset_exceeded">The maximum MIDI event offset is 16 beats or 10 seconds.</string>
+	<string name="demo_song">{t:BeatPrompter Demo Song}\n
 {st:Demo Song}\n
 {audio:demo_song.mp3}\n
 {bpm:110}{bpb:4}{bpl:2}{count:0}\n
@@ -767,144 +767,148 @@ lyrics and [Em]chords in time with a beat.\n
 [Em]I hope you like it!
 </string>
 
-    <string name="no_cloud_storage_system_set">No storage system has been selected.</string>
-    <string name="no_cloud_folder_currently_set">No storage folder has been selected.</string>
-    <string name="synchronize_string">Synchronize files …</string>
-    <string name="scanningCloudFolder">Loading …</string>
-    <string name="itemsFound">%1$d items found.</string>
-    <string name="itemsFoundWithMax">%1$d/%2$d items found.</string>
-    <string name="no_lines_in_song_file">The selected song file has no lines.</string>
+	<string name="no_cloud_storage_system_set">No storage system has been selected.</string>
+	<string name="no_cloud_folder_currently_set">No storage folder has been selected.</string>
+	<string name="synchronize_string">Synchronize files …</string>
+	<string name="scanningCloudFolder">Loading …</string>
+	<string name="itemsFound">%1$d items found.</string>
+	<string name="itemsFoundWithMax">%1$d/%2$d items found.</string>
+	<string name="no_lines_in_song_file">The selected song file has no lines.</string>
 
-    <string name="cloudSyncErrorMessage">There was an error communicating with the storage service ("%1$s").\n\nNot all of the files were fetched or scanned successfully.\n\nCheck your connection and try again.</string>
-    <string name="cloudSyncErrorTitle">Sync Error</string>
+	<string name="cloudSyncErrorMessage">There was an error communicating with the storage service ("%1$s").\n\nNot all of the files were fetched or scanned successfully.\n\nCheck your connection and try again.</string>
+	<string name="cloudSyncErrorTitle">Sync Error</string>
 
-    <string name="instructions">Instructions …</string>
-    <string name="privacy_policy">Privacy policy …</string>
+	<string name="instructions">Instructions …</string>
+	<string name="privacy_policy">Privacy policy …</string>
 
-    <string name="midi_usb_on_the_go_string" translatable="false">USB On-The-Go</string>
-    <string name="midi_native_string">Native</string>
-    <string name="midi_bluetooth_string">Bluetooth</string>
+	<string name="midi_usb_on_the_go_string" translatable="false">USB On-The-Go</string>
+	<string name="midi_native_string">Native</string>
+	<string name="midi_bluetooth_string">Bluetooth</string>
 
-    <string name="midi_usb_on_the_go_value" translatable="false">USBOnTheGo</string>
-    <string name="midi_native_value" translatable="false">Native</string>
-    <string name="midi_bluetooth_value" translatable="false">Bluetooth</string>
+	<string name="midi_usb_on_the_go_value" translatable="false">USBOnTheGo</string>
+	<string name="midi_native_value" translatable="false">Native</string>
+	<string name="midi_bluetooth_value" translatable="false">Bluetooth</string>
 
-    <string name="pref_bluetoothPermission_key" translatable="false">pref_bluetoothPermission</string>
-    <string name="bluetooth" translatable="false">Bluetooth</string>
-    <string name="pref_bluetoothPermission_summary">Allow BeatPrompter to communicate with other devices via Bluetooth.</string>
+	<string name="pref_bluetoothPermission_key" translatable="false">pref_bluetoothPermission</string>
+	<string name="bluetooth" translatable="false">Bluetooth</string>
+	<string name="pref_bluetoothPermission_summary">Allow BeatPrompter to communicate with other devices via Bluetooth.</string>
 
-    <string name="permissionPref_currentStatus">Current status: </string>
-    <string name="permissionPref_granted">Granted</string>
-    <string name="permissionPref_denied">Denied</string>
-    <string name="permissions">Permissions</string>
+	<string name="permissionPref_currentStatus">Current status: </string>
+	<string name="permissionPref_granted">Granted</string>
+	<string name="permissionPref_denied">Denied</string>
+	<string name="permissions">Permissions</string>
 
-    <string name="audio">Audio</string>
+	<string name="audio">Audio</string>
 
-    <string name="pref_localStoragePermission_key" translatable="false">pref_localStoragePermission</string>
-    <string name="pref_localStoragePermission_summary">Allow BeatPrompter to read files from local folders.</string>
+	<string name="pref_localStoragePermission_key" translatable="false">pref_localStoragePermission</string>
+	<string name="pref_localStoragePermission_summary">Allow BeatPrompter to read files from local folders.</string>
 
-    <string name="mediaplayer" translatable="false">MediaPlayer</string>
-    <string name="exoplayer" translatable="false">ExoPlayer</string>
-    <string name="mediaplayer_name" translatable="false">MediaPlayer</string>
-    <string name="exoplayer_name" translatable="false">ExoPlayer</string>
-    <string name="audio_player">Audio Player</string>
-    <string name="pref_audioplayer_key" translatable="false">pref_audioplayer</string>
-    <string name="pref_audioplayer_summary">What player should the app use for audio playback?</string>
-    <string name="pref_audioplayer_defaultValue" translatable="false">MediaPlayer</string>
+	<string name="mediaplayer" translatable="false">MediaPlayer</string>
+	<string name="exoplayer" translatable="false">ExoPlayer</string>
+	<string name="mediaplayer_name" translatable="false">MediaPlayer</string>
+	<string name="exoplayer_name" translatable="false">ExoPlayer</string>
+	<string name="audio_player">Audio Player</string>
+	<string name="pref_audioplayer_key" translatable="false">pref_audioplayer</string>
+	<string name="pref_audioplayer_summary">What player should the app use for audio playback?</string>
+	<string name="pref_audioplayer_defaultValue" translatable="false">MediaPlayer</string>
 
-    <string name="googleDriveAccessFailed">Failed to authenticate for Google Drive access.</string>
-    <string name="byMode">By mode</string>
+	<string name="googleDriveAccessFailed">Failed to authenticate for Google Drive access.</string>
+	<string name="byMode">By mode</string>
 
-    <string name="pref_buyMeACoffee_key" translatable="false">pref_buyMeACoffee</string>
-    <string name="buyMeACoffee">Buy me a coffee …</string>
-    <string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
-    <string name="errorTitle">Error</string>
-    <string name="instructionsUrl" translatable="false">https://github.com/peeveen/beatprompter/blob/main/docs/README.md</string>
-    <string name="privacyPolicyUrl" translatable="false">https://sites.google.com/view/beatprompterprivacypolicy/home</string>
-    <string name="gettingRootFolder">Getting root folder …</string>
+	<string name="pref_buyMeACoffee_key" translatable="false">pref_buyMeACoffee</string>
+	<string name="buyMeACoffee">Buy me a coffee …</string>
+	<string name="buyMeACoffeeUrl" translatable="false">https://www.buymeacoffee.com/peeveen</string>
+	<string name="errorTitle">Error</string>
+	<string name="instructionsUrl" translatable="false">https://github.com/peeveen/beatprompter/blob/main/docs/README.md</string>
+	<string name="privacyPolicyUrl" translatable="false">https://sites.google.com/view/beatprompterprivacypolicy/home</string>
+	<string name="gettingRootFolder">Getting root folder …</string>
 
-    <string name="byRating">By rating</string>
-    <string name="variation">Variation</string>
-    <string name="noAudio">No Audio</string>
-    <string name="variationsAlreadyDefined">Variation names have already been defined.</string>
-    <string name="tooManyAudioTags">Audio tags outnumber variations.</string>
+	<string name="byRating">By rating</string>
+	<string name="variation">Variation</string>
+	<string name="noAudio">No Audio</string>
+	<string name="variationsAlreadyDefined">Variation names have already been defined.</string>
+	<string name="tooManyAudioTags">Audio tags outnumber variations.</string>
 
-    <string name="pref_darkMode_key" translatable="false">pref_darkMode</string>
-    <string name="darkMode">Toggle Dark Mode</string>
+	<string name="pref_darkMode_key" translatable="false">pref_darkMode</string>
+	<string name="darkMode">Toggle Dark Mode</string>
 
-    <string name="readingDatabase">Reading database …</string>
-    <string name="failedToReadDatabaseItem">Failed to read database item</string>
+	<string name="readingDatabase">Reading database …</string>
+	<string name="failedToReadDatabaseItem">Failed to read database item</string>
 
-    <string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
+	<string name="retryingDownload">Synchronizing %1$s (retry %2$d/%3$d)</string>
 
-    <string name="pref_useUnicodeEllipsis_key" translatable="false">pref_useUnicodeEllipsis</string>
-    <string name="pref_useUnicodeEllipsis_title">Use Unicode ellipsis</string>
-    <string name="pref_useUnicodeEllipsis_summary">Replace sequences of exactly three dots with the Unicode ellipsis character.</string>
+	<string name="pref_useUnicodeEllipsis_key" translatable="false">pref_useUnicodeEllipsis</string>
+	<string name="pref_useUnicodeEllipsis_title">Use Unicode ellipsis</string>
+	<string name="pref_useUnicodeEllipsis_summary">Replace sequences of exactly three dots with the Unicode ellipsis character.</string>
 
-    <string name="pref_trimTrailingPunctuation_key" translatable="false">pref_trimTrailingPunctuation</string>
-    <string name="pref_trimTrailingPunctuation_title">Trim trailing punctuation</string>
-    <string name="pref_trimTrailingPunctuation_summary">Remove single full-stops or commas from the end of lines.</string>
+	<string name="pref_includeVariationsInFilterList_key" translatable="false">pref_includeVariationsInFilterList</string>
+	<string name="pref_includeVariationsInFilterList_title">Include variations in filter list</string>
+	<string name="pref_includeVariationsInFilterList_summary">If selected, variations will be shown in the filter list.</string>
 
-    <string name="pref_bluetoothMidiDevices_key" translatable="false">pref_bluetoothMidiDevices</string>
-    <string name="pref_bluetoothMidiDevices_title">Bluetooth MIDI Devices</string>
-    <string name="pref_bluetoothMidiDevices_summary">What Bluetooth devices should be considered for MIDI?</string>
-    <string name="pref_bluetoothMidiDevices_dialogTitle">Bluetooth MIDI Devices</string>
-    <string name="database_read_error">An error occurred while reading the database</string>
-    <string name="database_write_error">An error occurred while writing the database.</string>
-    <string name="showDebugLog" translatable="false">Show debug log …</string>
-    <string name="debugLogDialogCaption" translatable="false">Debug Log</string>
-    <string name="versionInfo" translatable="false">%1$s.%2$d</string>
-    <string name="rebuildingDatabase">Rebuilding database …</string>
-    <string name="cannot_use_with_midi_with_parameters">%1$s directives cannot be used in aliases that contain parameters</string>
-    <string name="cannot_use_midi_command_with_parameters">A MIDI alias that is flagged as a MIDI command must not have parameters</string>
-    <string name="cannot_use_triggers_in_non_command_aliases">MIDI Control Change triggers are only valid for aliases that have no arguments.</string>
-    <string name="failedToParseKey">\'%1$s\' could not be parsed as a valid key</string>
-    <string name="couldNotShiftKey">Failed to calculate new key (shifting %1$s by %2$d semitones)</string>
-    <string name="failedToParseChord">Failed to parse chord \'%1$s\'</string>
-    <string name="failedToParseNote">Failed to parse note \'%1$s\'</string>
-    <string name="excessiveTransposeMagnitude">{transpose} tag should not contain a numeric value greater than 11, or less than -11</string>
-    <string name="chordMapTagMustContainTwoValues">{chord_map} tag must contain two values separated by =</string>
-    <string name="transpose">Transpose</string>
+	<string name="pref_trimTrailingPunctuation_key" translatable="false">pref_trimTrailingPunctuation</string>
+	<string name="pref_trimTrailingPunctuation_title">Trim trailing punctuation</string>
+	<string name="pref_trimTrailingPunctuation_summary">Remove single full-stops or commas from the end of lines.</string>
 
-    <string name="unknownVariations">varstart/varxstart tag contains unknown variations: %1$s.</string>
-    <string name="stop">Stop</string>
-    <string name="stopping">Stopping …</string>
-    <string name="byYear">By year</string>
-    <string name="byIcon">By icon</string>
+	<string name="pref_bluetoothMidiDevices_key" translatable="false">pref_bluetoothMidiDevices</string>
+	<string name="pref_bluetoothMidiDevices_title">Bluetooth MIDI Devices</string>
+	<string name="pref_bluetoothMidiDevices_summary">What Bluetooth devices should be considered for MIDI?</string>
+	<string name="pref_bluetoothMidiDevices_dialogTitle">Bluetooth MIDI Devices</string>
+	<string name="database_read_error">An error occurred while reading the database</string>
+	<string name="database_write_error">An error occurred while writing the database.</string>
+	<string name="showDebugLog" translatable="false">Show debug log …</string>
+	<string name="debugLogDialogCaption" translatable="false">Debug Log</string>
+	<string name="versionInfo" translatable="false">%1$s.%2$d</string>
+	<string name="rebuildingDatabase">Rebuilding database …</string>
+	<string name="cannot_use_with_midi_with_parameters">%1$s directives cannot be used in aliases that contain parameters</string>
+	<string name="cannot_use_midi_command_with_parameters">A MIDI alias that is flagged as a MIDI command must not have parameters</string>
+	<string name="cannot_use_triggers_in_non_command_aliases">MIDI Control Change triggers are only valid for aliases that have no arguments.</string>
+	<string name="failedToParseKey">\'%1$s\' could not be parsed as a valid key</string>
+	<string name="couldNotShiftKey">Failed to calculate new key (shifting %1$s by %2$d semitones)</string>
+	<string name="failedToParseChord">Failed to parse chord \'%1$s\'</string>
+	<string name="failedToParseNote">Failed to parse note \'%1$s\'</string>
+	<string name="excessiveTransposeMagnitude">{transpose} tag should not contain a numeric value greater than 11, or less than -11</string>
+	<string name="chordMapTagMustContainTwoValues">{chord_map} tag must contain two values separated by =</string>
+	<string name="transpose">Transpose</string>
 
-    <string name="songListDisplayPositionNoneName">None</string>
-    <string name="songListDisplayPositionLeftName">Left</string>
-    <string name="songListDisplayPositionIconSectionLeftName">Icon section, left</string>
-    <string name="songListDisplayPositionIconSectionRightName">Icon section, right</string>
+	<string name="unknownVariations">varstart/varxstart tag contains unknown variations: %1$s.</string>
+	<string name="stop">Stop</string>
+	<string name="stopping">Stopping …</string>
+	<string name="byYear">By year</string>
+	<string name="byIcon">By icon</string>
 
-    <string name="songListDisplayPositionNoneValue" translatable="false">None</string>
-    <string name="songListDisplayPositionLeftValue" translatable="false">Left</string>
-    <string name="songListDisplayPositionIconSectionLeftValue" translatable="false">IconSectionLeft</string>
-    <string name="songListDisplayPositionIconSectionRightValue" translatable="false">IconSectionRight</string>
+	<string name="songListDisplayPositionNoneName">None</string>
+	<string name="songListDisplayPositionLeftName">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftName">Icon section, left</string>
+	<string name="songListDisplayPositionIconSectionRightName">Icon section, right</string>
 
-    <string name="beatCounterTextOverlayNothingName">Nothing</string>
-    <string name="beatCounterTextOverlaySongTitleName">Song title</string>
-    <string name="beatCounterTextOverlayCurrentTimeName">Current time</string>
+	<string name="songListDisplayPositionNoneValue" translatable="false">None</string>
+	<string name="songListDisplayPositionLeftValue" translatable="false">Left</string>
+	<string name="songListDisplayPositionIconSectionLeftValue" translatable="false">IconSectionLeft</string>
+	<string name="songListDisplayPositionIconSectionRightValue" translatable="false">IconSectionRight</string>
 
-    <string name="beatCounterTextOverlayNothingValue" translatable="false">Nothing</string>
-    <string name="beatCounterTextOverlaySongTitleValue" translatable="false">SongTitle</string>
-    <string name="beatCounterTextOverlayCurrentTimeValue" translatable="false">CurrentTime</string>
+	<string name="beatCounterTextOverlayNothingName">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleName">Song title</string>
+	<string name="beatCounterTextOverlayCurrentTimeName">Current time</string>
 
-    <string name="edit_file">Edit file in cloud …</string>
-    <string name="edit_set_file">Edit set file in cloud …</string>
+	<string name="beatCounterTextOverlayNothingValue" translatable="false">Nothing</string>
+	<string name="beatCounterTextOverlaySongTitleValue" translatable="false">SongTitle</string>
+	<string name="beatCounterTextOverlayCurrentTimeValue" translatable="false">CurrentTime</string>
 
-    <string name="no_such_midi_alias_set">Can\'t find a MIDI alias set called \'%1$s\'</string>
-    <string name="executed_midi_command">Sent MIDI command \'%1$s\'</string>
-    <string name="ultimate_guitar" translatable="false">Ultimate Guitar</string>
-    <string name="empty" translatable="false"></string>
-    <string name="search_characters_required">At least %1$d consecutive characters required.</string>
-    <string name="not_enough_search_text">Not enough search text.</string>
-    <string name="searching">Searching …</string>
-    <string name="please_wait">Please wait …</string>
-    <string name="no_results">No results.</string>
-    <string name="defaultVariationName">Default</string>
-    <string name="try_some_different_search_terms">Try some different search terms.</string>
+	<string name="edit_file">Edit file in cloud …</string>
+	<string name="edit_set_file">Edit set file in cloud …</string>
 
-    <string name="copy_ug_to_clipboard">Copy as ChordPro to clipboard</string>
-    <string name="copied">Copied</string>
+	<string name="no_such_midi_alias_set">Can\'t find a MIDI alias set called \'%1$s\'</string>
+	<string name="executed_midi_command">Sent MIDI command \'%1$s\'</string>
+	<string name="ultimate_guitar" translatable="false">Ultimate Guitar</string>
+	<string name="empty" translatable="false"></string>
+	<string name="search_characters_required">At least %1$d consecutive characters required.</string>
+	<string name="not_enough_search_text">Not enough search text.</string>
+	<string name="searching">Searching …</string>
+	<string name="please_wait">Please wait …</string>
+	<string name="no_results">No results.</string>
+	<string name="defaultVariationName">Default</string>
+	<string name="try_some_different_search_terms">Try some different search terms.</string>
+
+	<string name="copy_ug_to_clipboard">Copy as ChordPro to clipboard</string>
+	<string name="copied">Copied</string>
 </resources>
