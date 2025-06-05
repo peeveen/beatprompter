@@ -5,6 +5,8 @@ import android.graphics.Color
 import androidx.appcompat.app.AlertDialog
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.BufferedWriter
@@ -153,4 +155,24 @@ object Utils {
 				listener.onProgressMessageReceived(message)
 			}
 		}
+
+	fun getIconBitmap(
+		icon: String?,
+		tags: Set<String>,
+		imageDict: Map<String, Bitmap>,
+		missingIconBitmap: android.graphics.Bitmap
+	): android.graphics.Bitmap? {
+		if (icon != null)
+			return (imageDict[icon] as AndroidBitmap?)?.androidBitmap ?: missingIconBitmap
+		return tags.firstNotNullOfOrNull {
+			val desiredFilenameWithoutExtension = "for-tag-$it".lowercase()
+			imageDict.firstNotNullOfOrNull { kvp ->
+				val filenameWithoutExtension = File(kvp.key).nameWithoutExtension.lowercase()
+				if (filenameWithoutExtension == desiredFilenameWithoutExtension)
+					(kvp.value as AndroidBitmap?)?.androidBitmap ?: missingIconBitmap
+				else
+					null
+			}
+		}
+	}
 }

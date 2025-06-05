@@ -45,6 +45,7 @@ class UltimateGuitarSearchStatusNode(private val searchStatus: UltimateGuitarSea
 	override val programChangeTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
 	override val songSelectTrigger: SongTrigger = SongTrigger.DEAD_TRIGGER
 	override val chords = listOf<String>()
+	override val tags = setOf<String>()
 	override val errors = listOf<ContentParsingError>()
 	override val duration: Long = 0L
 	override val totalPauseDuration: Long = 0L

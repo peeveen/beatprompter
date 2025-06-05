@@ -27,7 +27,7 @@ class UltimateGuitarListAdapter(
 	override val songIconDisplayPosition = SongIconDisplayPosition.None
 	override val showMusicIcon = false
 
-	override fun getIconBitmap(icon: String): Bitmap? = null
+	override fun getIconBitmap(icon: String?, tags: Set<String>): Bitmap? = null
 
 	init {
 		if (isSearchTextSufficient(searchText))

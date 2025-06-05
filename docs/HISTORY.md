@@ -6,6 +6,7 @@ Versions prior to 1.70 are not listed.
 
 - Added variations to the filter list (and a preference to include/exclude them)
 - Fixed variation/audio tag problem in database file
+- Added "implicit icon from tag" functionality.
 
 ## 1.80
 

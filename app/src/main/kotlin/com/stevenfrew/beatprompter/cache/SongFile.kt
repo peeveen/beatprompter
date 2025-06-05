@@ -30,7 +30,7 @@ class SongFile(
 	override val totalPauseDuration: Long,
 	override val audioFiles: Map<String, List<String>>,
 	val imageFiles: List<String>,
-	val tags: Set<String>,
+	override val tags: Set<String>,
 	override val programChangeTrigger: MidiTrigger,
 	override val songSelectTrigger: MidiTrigger,
 	val isFilterOnly: Boolean,

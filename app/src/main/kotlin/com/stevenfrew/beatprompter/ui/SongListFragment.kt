@@ -280,11 +280,14 @@ class SongListFragment
 			val variationFiltersSelected = selectedVariationFilters.isNotEmpty()
 			Playlist(filter.songs.filter {
 				val songInfo = it.first
+				val tagMatched =
+					if (tagFiltersSelected) selectedTagFilters.any { filter -> filter.songs.contains(it) } else true
+				val variationMatched =
+					if (variationFiltersSelected) selectedVariationFilters.any { filter ->
+						filter.songs.contains(it)
+					} else true
 				if (tagFiltersSelected || variationFiltersSelected)
-					(tagFiltersSelected && selectedTagFilters.any { filter -> filter.songs.contains(it) }) ||
-						(variationFiltersSelected && selectedVariationFilters.any { filter ->
-							filter.songs.contains(it)
-						})
+					tagMatched && variationMatched
 				else if (isAllSongsFilter && songInfo is SongFile)
 					!Cache.cachedCloudItems.isFilterOnly(songInfo)
 				else true
@@ -334,7 +337,9 @@ class SongListFragment
 				filters,
 				selectedTagFilters,
 				selectedVariationFilters,
-				requireActivity()
+				requireActivity(),
+				imageDictionary,
+				missingIconBitmap!!
 			) {
 				applyFileFilter(selectedFilter)
 			}

@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
 import com.stevenfrew.beatprompter.ui.filter.MidiAliasFilesFilter
@@ -17,12 +18,15 @@ import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
 import com.stevenfrew.beatprompter.ui.filter.VariationFilter
+import com.stevenfrew.beatprompter.util.Utils
 
 class FilterListAdapter(
 	private val values: List<Filter>,
 	private val selectedTagFilters: MutableList<TagFilter>,
 	private val selectedVariationFilters: MutableList<VariationFilter>,
 	context: Context,
+	private val imageDictionary: Map<String, Bitmap>,
+	private val missingIconBitmap: android.graphics.Bitmap,
 	private val onSelectedFiltersChanged: () -> Unit
 ) :
 	ArrayAdapter<Filter>(context, -1, values) {
@@ -67,6 +71,16 @@ class FilterListAdapter(
 			val filterIcon = it.findViewById<ImageView>(R.id.filterIcon)
 			val filterSelectedIcon = it.findViewById<ImageView>(R.id.filterSelectedIcon)
 			val filter = values[position]
+			val imageBitmap = when (filter) {
+				is TagFilter -> Utils.getIconBitmap(
+					null,
+					setOf(filter.name),
+					imageDictionary,
+					missingIconBitmap
+				)
+
+				else -> null
+			}
 			val iconResource = when (filter) {
 				is TagFilter -> R.drawable.tag
 				is VariationFilter -> R.drawable.variation
@@ -95,7 +109,10 @@ class FilterListAdapter(
 
 				else -> filterSelectedIcon.visibility = View.GONE
 			}
-			filterIcon.setImageResource(iconResource)
+			if (imageBitmap == null)
+				filterIcon.setImageResource(iconResource)
+			else
+				filterIcon.setImageBitmap(imageBitmap)
 			titleView.text = filter.name
 		}
 }
