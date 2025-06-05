@@ -933,14 +933,15 @@ class SongListFragment
 		val defaultVariationName = BeatPrompter.appResources.getString(R.string.defaultVariationName)
 		if (BeatPrompter.preferences.includeVariationsInFilterList)
 			cache.songFiles.forEach {
-				val audioFilenamesLowerCase = it.audioFiles.values.flatten().toSet()
+				val audioFilenamesLowerCase =
+					it.audioFiles.values.flatten().map { filename -> filename.normalize() }.toSet()
 				it.variations
 					// Don't include variations that are just audio filenames
 					// or the Default variation
 					.filter { variation ->
-						variation != defaultVariationName && !audioFilenamesLowerCase.contains(
-							variation.normalize().lowercase()
-						)
+						variation.isNotBlank() &&
+							variation != defaultVariationName &&
+							!audioFilenamesLowerCase.contains(variation.normalize())
 					}
 					.forEach { variation ->
 						variationDictionaries.getOrPut(variation) { mutableListOf() }.add(it)

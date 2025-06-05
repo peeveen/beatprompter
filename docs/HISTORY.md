@@ -5,6 +5,7 @@ Versions prior to 1.70 are not listed.
 ## 1.81
 
 - Added variations to the filter list (and a preference to include/exclude them)
+- Fixed variation/audio tag problem in database file
 
 ## 1.80
 
