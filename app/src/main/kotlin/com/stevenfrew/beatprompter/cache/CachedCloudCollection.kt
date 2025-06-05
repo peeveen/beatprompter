@@ -42,7 +42,7 @@ class CachedCloudCollection {
 		get() = midiAliasSets.first { it.name == DEFAULT_MIDI_ALIAS_SET_NAME }
 
 	internal val midiCommands: List<Alias>
-		get() = midiAliasSets.flatMap { it.aliases.filter { it.commandName != null } }
+		get() = midiAliasSets.flatMap { it.aliases.filter { alias -> alias.commandName != null } }
 
 	private val audioFiles: List<AudioFile>
 		get() =

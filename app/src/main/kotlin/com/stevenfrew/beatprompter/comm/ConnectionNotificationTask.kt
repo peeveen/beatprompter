@@ -22,7 +22,7 @@ object ConnectionNotificationTask : Task(true) {
 			return lastNotificationDate?.let {
 				val calendar = Calendar.getInstance()
 				calendar.add(Calendar.SECOND, -1)
-				val oneSecondAgo = calendar.getTime()
+				val oneSecondAgo = calendar.time
 				it >= oneSecondAgo
 			} == true
 		}

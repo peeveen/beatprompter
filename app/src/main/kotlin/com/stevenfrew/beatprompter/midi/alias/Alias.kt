@@ -23,8 +23,9 @@ class Alias(
 		parameters: ByteArray,
 		channel: Byte
 	): Pair<List<MidiMessage>, Set<AliasSet>> =
-		components.map { it.resolve(sourceAliasSet, aliases, parameters, channel) }.let {
-			it.flatMap { it.first } to it.flatMap { it.second }
-				.toSet()
-		}
+		components.map { it.resolve(sourceAliasSet, aliases, parameters, channel) }
+			.let { comp ->
+				comp.flatMap { it.first } to comp.flatMap { it.second }
+					.toSet()
+			}
 }

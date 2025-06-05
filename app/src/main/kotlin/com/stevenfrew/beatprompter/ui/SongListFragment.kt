@@ -1228,18 +1228,23 @@ class SongListFragment
 		}
 
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-		if (key == getString(R.string.pref_storageLocation_key) || key == getString(R.string.pref_useExternalStorage_key))
-			Cache.initialiseLocalStorage(requireContext())
-		else if (key == getString(R.string.pref_largePrintList_key)
-			|| key == getString(R.string.pref_showBeatStyleIcons_key)
-			|| key == getString(R.string.pref_showMusicIcon_key)
-			|| key == getString(R.string.pref_showKeyInList_key)
-			|| key == getString(R.string.pref_songIconDisplayPosition_key)
-			|| key == getString(R.string.pref_showYearInList_key)
-		)
-			updateListView(buildListAdapter())
-		else if (key == getString(R.string.pref_includeVariationsInFilterList_key))
-			buildFilterList(Cache.cachedCloudItems)
+		when (key) {
+			getString(R.string.pref_storageLocation_key),
+			getString(R.string.pref_useExternalStorage_key) -> Cache.initialiseLocalStorage(requireContext())
+
+			getString(R.string.pref_largePrintList_key),
+			getString(R.string.pref_showBeatStyleIcons_key),
+			getString(
+				R.string.pref_showMusicIcon_key
+			),
+			getString(R.string.pref_showKeyInList_key),
+			getString(R.string.pref_songIconDisplayPosition_key),
+			getString(R.string.pref_showYearInList_key) -> updateListView(buildListAdapter())
+
+			getString(R.string.pref_includeVariationsInFilterList_key) -> buildFilterList(Cache.cachedCloudItems)
+
+			else -> {}
+		}
 	}
 
 	override fun onQueryTextSubmit(searchText: String?): Boolean = true
