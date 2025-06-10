@@ -26,20 +26,20 @@ custom additions.
 Before using the BeatPrompter app, you will probably need to do a few things.
 
 1. You cannot use BeatPrompter without some song files to play, so before going any further, you
-   should get some, or create some. They can be created with any text editor. If you want some demo
-   files to play with, try [here](../demo_files/). You could also use the Ultimate Guitar lookup
-   filter, but as you probably know, the chords/lyrics on UG are of __varying__ quality.
+	 should get some, or create some. They can be created with any text editor. If you want some demo
+	 files to play with, try [here](../demo_files/). You could also use the Ultimate Guitar lookup
+	 filter, but as you probably know, the chords/lyrics on UG are of __varying__ quality.
 
 2. If you are coming to BeatPrompter with an existing library of ChordPro song files, then you will
-   probably want to update those files with some BeatPrompter-specific tags. To see the full list of
-   tags that BeatPrompter can use, see [Supported Song File Tags](#supported-song-file-tags).
+	 probably want to update those files with some BeatPrompter-specific tags. To see the full list of
+	 tags that BeatPrompter can use, see [Supported Song File Tags](#supported-song-file-tags).
 
 3. Make your song files available to the app. BeatPrompter currently reads files from the popular (
-   and free) [Google Drive](https://www.google.com/drive/), [Dropbox](https://www.dropbox.com/)
-   and [Microsoft OneDrive](https://onedrive.live.com/about/en-gb/) cloud storage services, so your
-   files can be stored in one of these (Google Drive is recommended for the excellent editing
-   facilities). You can also store your song files directly in your device storage. For instructions
-   about synchronizing the content, see [Files](#files).
+	 and free) [Google Drive](https://www.google.com/drive/), [Dropbox](https://www.dropbox.com/)
+	 and [Microsoft OneDrive](https://onedrive.live.com/about/en-gb/) cloud storage services, so your
+	 files can be stored in one of these (Google Drive is recommended for the excellent editing
+	 facilities). You can also store your song files directly in your device storage. For instructions
+	 about synchronizing the content, see [Files](#files).
 
 ## Song List
 
@@ -53,29 +53,29 @@ the app also has a dark mode) ...
 ![Song List](../media/songList.png)
 
 1. Bluetooth connectivity indicator. This icon will not be shown if you are not using Bluetooth
-   functionality. Also, it will look different depending on whether you are the band leader or not,
-   and whether or not you are connected.
+	 functionality. Also, it will look different depending on whether you are the band leader or not,
+	 and whether or not you are connected.
 2. This is the song and set list filter. If your songs contain any `{tag}` fields that specify
-   grouping tags (see the `{tag}` documentation
-   in [Supported Song File Tags](#supported-song-file-tags)), then this will be populated with those
-   values, allowing you to filter the list accordingly. Or if your songs exist in subfolders, the
-   folder names will be listed here. Also, any setlists you have created will be listed here (see
-   Setlists).
+	 grouping tags (see the `{tag}` documentation
+	 in [Supported Song File Tags](#supported-song-file-tags)), then this will be populated with those
+	 values, allowing you to filter the list accordingly. Or if your songs exist in subfolders, the
+	 folder names will be listed here. Also, any setlists you have created will be listed here (see
+	 Setlists).
 3. This button allows you to perform a simple text search of the current list of songs.
 4. This is the main app menu. From here you can adjust preferences, synchronize your files, or sort
-   the song list according to various criteria.
+	 the song list according to various criteria.
 5. This is the main list of songs.
 6. A drum icon next to a song means that it can be played in “beat mode”, i.e. the song file has
-   timing information encoded into it, such as beats-per-minute, etc.
+	 timing information encoded into it, such as beats-per-minute, etc.
 7. A document icon next to a song means that it can be played in “smooth mode”, where the song just
-   scrolls automatically at a fixed speed.
+	 scrolls automatically at a fixed speed.
 8. It is possible for a song to use no scrolling modes (if it does not contain a `{bpm}` or `{time}`
-   tag). Such songs can be displayed by BeatPrompter, but will not scroll automatically (“manual
-   mode”).
+	 tag). Such songs can be displayed by BeatPrompter, but will not scroll automatically (“manual
+	 mode”).
 9. A music-note icon indicates that a song is associated with an audio file, which will be used as a
-   backing track when playing the song.
+	 backing track when playing the song.
 10. If a song supports multiple scrolling modes, it will use beat-scrolling by default, but you can
-    choose what mode to use with a long-press on the song to display the advanced options menu.
+		choose what mode to use with a long-press on the song to display the advanced options menu.
 
 ## Playing A Song
 
@@ -96,7 +96,7 @@ In this case, the song file has two errors.
 
 - The `{count}` tag has been specified twice on line 3, which makes no sense.
 - Also, on line 12, the `scrollbeat` offset has been moved to beyond the end of the following line
-  or before the start of the current line, neither of which are permitted.
+	or before the start of the current line, neither of which are permitted.
 
 However, all being well, you are asked to tap the screen twice to start the song. The first tap will
 take you to the actual song display screen, and the second tap will start it moving.
@@ -109,17 +109,17 @@ take you to the actual song display screen, and the second tap will start it mov
 ![Song Display](../media/songDisplay.png)
 
 - All colors (background, background pulse color, lyrics, chords, beat indicator, current-line
-  highlight, etc) can be customized in the preferences menu.
+	highlight, etc) can be customized in the preferences menu.
 - The lyric at the top of the display is what you should currently be playing/singing.
 - In beat scrolling mode, the bar along the top of the display shows what beat the song is currently
-  on, and the small white marker shows on which beat the display will scroll to the next line.
-  Additionally, the entire background will gently pulse in time to the beat, though this can be
-  disabled.
+	on, and the small white marker shows on which beat the display will scroll to the next line.
+	Additionally, the entire background will gently pulse in time to the beat, though this can be
+	disabled.
 - Tapping the screen will pause/resume the song, and you can also scroll around the song using
-  normal scrolling techniques. The song will automatically pause once you start scrolling. If you
-  have a backing track, the track will stop while you are scrolling, and resume playing at the
-  correct point when the song is started again. You can prevent accidental pausing/scrolling during
-  performance by using one of the preference settings.
+	normal scrolling techniques. The song will automatically pause once you start scrolling. If you
+	have a backing track, the track will stop while you are scrolling, and resume playing at the
+	correct point when the song is started again. You can prevent accidental pausing/scrolling during
+	performance by using one of the preference settings.
 
 > This feature requires precise audio positioning, which is highly dependent on the audio format,
 > the audio player, and your device capabilities. For best results, use the ExoPlayer audio player (
@@ -129,15 +129,15 @@ take you to the actual song display screen, and the second tap will start it mov
 > operating system.
 
 - For each line in the song, BeatPrompter will try to fit it on the screen horizontally, using as
-  large a font as possible. Note that you can control the minimum and maximum font size that
-  BeatPrompter will use in the preferences menu.
-  See [Settings - Song Display](#settings---song-display) for details.
+	large a font as possible. Note that you can control the minimum and maximum font size that
+	BeatPrompter will use in the preferences menu.
+	See [Settings - Song Display](#settings---song-display) for details.
 - If a line is very long, or if the minimum font size means that the line cannot fit the screen,
-  BeatPrompter will break it over multiple lines.
+	BeatPrompter will break it over multiple lines.
 - ⚠️ Note that BeatPrompter will not display blank lines. If your song file contains lines with no
-  lyrics or chords, they will not be displayed, though any tags contained on that line will still be
-  processed. The only exception is if you have a “blank” line that starts with commas (bar
-  markers) ... in this case BeatPrompter will insert a ▼ blank-line marker into the song display.
+	lyrics or chords, they will not be displayed, though any tags contained on that line will still be
+	processed. The only exception is if you have a “blank” line that starts with commas (bar
+	markers) ... in this case BeatPrompter will insert a ▼ blank-line marker into the song display.
 
 ## Song Files
 
@@ -176,7 +176,7 @@ In cases where a tag has various synonymous names, all are listed.
 | `{title:abcd}` `{t:abcd}`                                                                                                 | Defines the title of the song. Unlike other apps that use the ChordPro format, this tag is **mandatory** in a BeatPrompter song file. If a song has no title, it will not be listed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `{subtitle:abcd}` `{st:abcd}` `{artist:abcd}` `{a:abcd}`                                                                  | Defines the subtitle for the song. In most cases, this is used to describe the original recording artist.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `{count:n}` `{countin:n}`                                                                                                 | _This setting is ignored when not using beat mode._ Defines how many bars of count-in there should be before the song (and any backing track) starts.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `{tag:blah}`                                                                                                              | Defines a grouping tag for the song. You can define as many of these in a song file as you like. On the main song list screen, you can filter the list by the contents of these grouping tags, so you can ask the app to show only songs marked as “Folk” or “80s”, etc.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `{tag:blah}`                                                                                                              | Defines a grouping tag for the song. You can define as many of these in a song file as you like. On the main song list screen, you can filter the list by the contents of these grouping tags, so you can ask the app to show only songs marked as “Folk” or “80s”, etc.<br/><br/>Additionally, if any image files exist with a name of `for-tag-TAGNAME.*` (case-insensitive, where `TAGNAME` matches the `{tag}` value), they will be implicitly used as the icon for the tagged song. If multiple tags match multiple image files, only the first match will be shown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `{bpm:n}` `{beatsperminute:n}` `{metronome:n}`                                                                            | Defines the beats-per-minute speed of the song. This can be a non-integer number if necessary, e.g. `{bpm:74.561}`. This can be redefined as often as once-per-line if a song changes speed throughout.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `{beatsperbar:n}` `{bpb:n}`                                                                                               | Defines the number of beats to each bar. This can be redefined as often as once-per-line if a song changes timing throughout. _When BPB changes, the {scrollbeat} is automatically changed. If the difference between the scrollbeat value and the previous BPB can be applied to the new BPB, then the scrollbeat will be set with the same difference. Otherwise, it will be set to the last beat of the bar._                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `{barsperline:n}` `{bpl:n}`                                                                                               | Defines how many bars each line of the song covers. This can be redefined as often as once-per-line if a song changes timing throughout. _Because it is fairly common for a song to have a varying number of bars to each line, a shorthand way of defining the number of bars for individual lines has been implemented. See `{bars}` immediately below._                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -195,7 +195,7 @@ In cases where a tag has various synonymous names, all are listed.
 | `{soc}` `{eoc}`                                                                                                           | Defines the start and end of a chorus section, which will be highlighted with the chorus color preference. Note that, unlike `{soh}` and `{eoh}`, these operate on a line-by-line basis: you cannot denote a line as being partially in the chorus.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `{rating:n}` `{r:n}`                                                                                                      | Give the song a rating of your choice, from 1 to 5. You can sort the list by this rating, in descending order of preference, to keep your favourites at the top.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `{year:nnnn}` `{y:nnnn}`                                                                                                  | The year of release of a song. It can be shown in the song list, and used as sort criteria.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `{icon:blah.png}` `{i:foo.jpg}`                                                                                           | An icon that is associated with the song.It can be shown in the song list, and used as sort criteria. The value should be the name of an image file that is found in your cache of files (most image formats are supported). The image will be scaled down to fit the icon size, so there is not much point in using large detailed images. If the named icon is not found in your cache of files, a placeholder icon will be shown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `{icon:blah.png}` `{i:foo.jpg}`                                                                                           | An icon that is associated with the song.It can be shown in the song list, and used as sort criteria. The value should be the name of an image file that is found in your cache of files (most image formats are supported). The image will be scaled down to fit the icon size, so there is not much point in using large detailed images. If the named icon is not found in your cache of files, a placeholder icon will be shown.<br/><br/>Note that this overrides any implicit `{tag}` icon.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `{variations:a,b,c,...}`                                                                                                  | Defines named song variations, separated by commas. This tag should exist at an early point in your song file.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `{varxstart:a,b,...}` `{varxend}` `{varxstop}` `{varstart:a,b,...}` `{varend}` `{varstop}`                                | Defines “variation exclusion” sections. Lines between the `{varxstart}` and `{varxstop/varxend}` tags (inclusive) are discarded when performing any of the named variations. The “variation inclusion” tags (`varstart` and `varstop/varend`) are included for convenience. Internally, they are converted to exclusion tags with an “opposite” set of variation names.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `{transpose:value}`                                                                                                       | Transposes all chords by the given amount. The `value` can be a number of semitones to shift by (from -11 to 11), or a new key signature, in which case the chords will be shifted from the song key (defined by `{key}`, or estimated from the first chord) to the target key. _Note that this tag only affects chords that are on or after the line that the {transpose} tag is defined on._                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -222,20 +222,20 @@ Before it can download your data, you must tell BeatPrompter where your data is 
 
 1. Go to the `Settings` > `Files` page.
 2. Select `Storage System`. You will be prompted to choose which of the available systems you want
-   to use.
+	 to use.
 3. Select `Storage Folder`.
-    - If this is the first time you have done this, you might see one or more security prompts
-      asking
-      you to verify that you want to allow BeatPrompter to access your storage. You have to agree to
-      this in order to use BeatPrompter.
-    - Depending on what storage system you are using, you may also see a prompt asking you to choose
-      a
-      user account. You should respond appropriately.
+	- If this is the first time you have done this, you might see one or more security prompts
+		asking
+		you to verify that you want to allow BeatPrompter to access your storage. You have to agree to
+		this in order to use BeatPrompter.
+	- Depending on what storage system you are using, you may also see a prompt asking you to choose
+		a
+		user account. You should respond appropriately.
 4. If BeatPrompter successfully connects to your storage, then all being well, you should see a
-   folder browser. Browse to the location where your files are stored and press OK.
+	 folder browser. Browse to the location where your files are stored and press OK.
 5. BeatPrompter can now download your data. From the main app menu, select `Synchronize Files` from
-   the menu. The amount of time that this process takes will depend on the type of storage that you
-   are using, and the volume of data and the speed of the connection.
+	 the menu. The amount of time that this process takes will depend on the type of storage that you
+	 are using, and the volume of data and the speed of the connection.
 
 > ℹ️ **Note that, if using Google Drive, your song files don’t have to be stored as .txt, or
 .chopro, or any particular text format.** Any format that can be interpreted as text can be used,
@@ -252,6 +252,34 @@ present you with a list of usable songs.
 
 > ⚠️ Note that song files that do not contain a title (specified with `{title}` or `{t}`) will **not
 ** be listed.
+
+## Song List Filter
+
+The filter dropdown allows you to filter/change the list of items that are displayed.
+
+There are various types of filters:
+
+- The "All Songs" filter will show all songs (apart from those that have been marked as "filter
+	only",
+	or are contained within a folder that has been marked as "filter only").
+- The "Temporary" filter will only show songs that have been added to the temporary song list.
+- Folder filters will only show songs from the chosen folder (and its subfolders).
+- Tag filters will only show songs that have the selected tag(s).
+- Variation filters will only show songs that have the selected variation(s).
+- Set list filters will only show songs contained in the selected set list.
+- The "MIDI Aliases" filter will list MIDI alias files.
+- The "MIDI Commands" filter will list all MIDI commands (e.g. aliases with no parameters that have
+	marked as commands).
+- The "Ultimate Guitar" filter will list all songs from Ultimate Guitar that are returned by the
+	search (based on what you enter into the search text box).
+
+__Note that multiple tag and variation filters can be selected simultaneously.__
+
+- If you select multiple tags, _all_ songs that have _any_ of the chosen tags are shown.
+- Similarly, if you select multiple variations, _all_ songs that have _any_ of the chosen
+	variations are shown.
+- However, if you choose a mixture of tag __and__ variation filters, the list will show the
+	_intersection_ of the set of songs that each filter returns.
 
 ## Single File Refresh
 
@@ -311,16 +339,17 @@ within.
 
 ## Settings - Song List
 
-| Setting                         | Description                                                                                                                                                                                                                                                                                                                                                                     |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Show scroll style icons         | If this preference is set, then the scroll-style indicators (the drum and/or the document) will be shown in the song list. If you don’t want to see these, switch this preference off.                                                                                                                                                                                          |
-| Show music icon                 | If this preference is set, an icon against each song will indicate whether it has a backing track or not. If you don’t want to see this, switch this preference off.                                                                                                                                                                                                            |
-| Bigger text                     | Displays the song list in larger text. Best suited to larger display devices like tablets.                                                                                                                                                                                                                                                                                      |
-| Show key                        | The key of the song (either calculated from the song chords, or explicitly defined by a `{key}` tag) will be shown next to each song in the list.                                                                                                                                                                                                                               |
-| Show rating                     | The rating of the song will be shown next to each song in the list.                                                                                                                                                                                                                                                                                                             |
-| Show year                       | The year of release of the song will be shown in the list (if defined).                                                                                                                                                                                                                                                                                                         |
-| Song icon display position      | Where/whether to show song icons (if defined)? You can choose “None” to never show song icons, “Left” to display any icons to the left of the song title, “Icon Section, Left” to display the song icon as the leftmost icon in the icon section (to the right of the song title), or “Icon Section, Right” to display the song icon as the rightmost icon in the icon section. |
-| Clear tags when filter changes? | When you change the “main” filter (folder/setlist/etc), all selected tag filters will be cleared. If you’d prefer to keep them selected as you move between folders, switch this off.                                                                                                                                                                                           |
+| Setting                           | Description                                                                                                                                                                                                                                                                                                                                                                     |
+|-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Show scroll style icons           | If this preference is set, then the scroll-style indicators (the drum and/or the document) will be shown in the song list. If you don’t want to see these, switch this preference off.                                                                                                                                                                                          |
+| Show music icon                   | If this preference is set, an icon against each song will indicate whether it has a backing track or not. If you don’t want to see this, switch this preference off.                                                                                                                                                                                                            |
+| Bigger text                       | Displays the song list in larger text. Best suited to larger display devices like tablets.                                                                                                                                                                                                                                                                                      |
+| Show key                          | The key of the song (either calculated from the song chords, or explicitly defined by a `{key}` tag) will be shown next to each song in the list.                                                                                                                                                                                                                               |
+| Show rating                       | The rating of the song will be shown next to each song in the list.                                                                                                                                                                                                                                                                                                             |
+| Show year                         | The year of release of the song will be shown in the list (if defined).                                                                                                                                                                                                                                                                                                         |
+| Song icon display position        | Where/whether to show song icons (if defined)? You can choose “None” to never show song icons, “Left” to display any icons to the left of the song title, “Icon Section, Left” to display the song icon as the leftmost icon in the icon section (to the right of the song title), or “Icon Section, Right” to display the song icon as the rightmost icon in the icon section. |
+| Clear tags when filter changes?   | When you change the “main” filter (folder/setlist/etc), all selected tag filters will be cleared. If you’d prefer to keep them selected as you move between folders, switch this off.                                                                                                                                                                                           |
+| Include variations in filter list | If selected, variations will be included in the filter list.                                                                                                                                                                                                                                                                                                                    |
 
 ## Settings - Song Display
 
@@ -424,12 +453,12 @@ display, either by:
 You can also use the pedal to control the volume of any backing tracks while they are playing.
 
 - In beat scrolling or smooth scrolling modes, any of the pedal modes will control the backing track
-  volume, raising or lowering the volume by 5% with each press.
+	volume, raising or lowering the volume by 5% with each press.
 - In manual scrolling mode, the volume is controlled by the left/right arrow function of the pedal
-  device.
+	device.
 - In manual scrolling mode, if it is not possible to scroll any further, then three quick presses of
-  the “down” pedal will take you back to the song list screen (or if you are currently using a set
-  list, to the next song).
+	the “down” pedal will take you back to the song list screen (or if you are currently using a set
+	list, to the next song).
 
 Consult your pedal documentation for instructions on how to change the mode of your pedal.
 
@@ -567,12 +596,12 @@ in ChordPro format.
 There are several limitations to the content that Ultimate Guitar provides:
 
 1) Songs from UG don't contain any timing information, so you can only display the songs in
-   manual mode.
+	 manual mode.
 2) Ultimate Guitar does not use the ChordPro format, so there is no particularly strict
-   definition of what a song should look like. To display them in BeatPrompter, the content is first
-   automatically converted to ChordPro. However, random comments, section indicators, etc, will
-   probably appear on your screen as part of the song. If this bothers you, copy the content from
-   UG and create your own nice-looking ChordPro version.
+	 definition of what a song should look like. To display them in BeatPrompter, the content is first
+	 automatically converted to ChordPro. However, random comments, section indicators, etc, will
+	 probably appear on your screen as part of the song. If this bothers you, copy the content from
+	 UG and create your own nice-looking ChordPro version.
 
 ## Version History
 
@@ -628,22 +657,22 @@ So far, MIDI functionality has been tested with the following devices and softwa
 ## Known Bugs
 
 - If a song contains a `{pause}`, MIDI song position pointer messages can produce out-of-sync
-  results. Mixing these two features is not really advised.
+	results. Mixing these two features is not really advised.
 - No version checking in Bluetooth communication messages. If you attempt to synchronize different
-  versions of the app via Bluetooth, expect crashes. Just make sure everyone is using the latest (or
-  at least, the same) version.
+	versions of the app via Bluetooth, expect crashes. Just make sure everyone is using the latest (or
+	at least, the same) version.
 - Metronome functionality in mixed-mode songs has not yet been properly implemented.
 - Due to how Google Drive converts carriage returns in Google Docs files to text, the line numbers
-  in any error messages might be slightly off.
+	in any error messages might be slightly off.
 
 ## Troubleshooting
 
 - If you have problems using any of the cloud services, try deleting all cached data pertaining to
-  the particular cloud app using your Android application manager settings.
+	the particular cloud app using your Android application manager settings.
 - If your files are downloading but not appearing in the song list, make sure there is at least a
-  `{title:Blah}` or `{t:Blah}` tag in the song file. Any text file that is downloaded that does *
-  *not** have a title declared **within** it is assumed **not** to be a song file, and will not be
-  treated as one.
+	`{title:Blah}` or `{t:Blah}` tag in the song file. Any text file that is downloaded that does *
+	*not** have a title declared **within** it is assumed **not** to be a song file, and will not be
+	treated as one.
 
 ## Acknowledgements
 

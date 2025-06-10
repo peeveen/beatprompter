@@ -40,6 +40,7 @@ class UltimateGuitarSongInfo(private val tabInfo: TabInfo) : SongInfoProvider, S
 	override val programChangeTrigger = SongTrigger.DEAD_TRIGGER
 	override val songSelectTrigger = SongTrigger.DEAD_TRIGGER
 	override val chords = listOf<String>()
+	override val tags = setOf<String>()
 	override val errors = listOf<ContentParsingError>()
 	override val duration = 0L
 	override val totalPauseDuration = 0L

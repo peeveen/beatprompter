@@ -30,7 +30,7 @@ class SongFile(
 	override val totalPauseDuration: Long,
 	override val audioFiles: Map<String, List<String>>,
 	val imageFiles: List<String>,
-	val tags: Set<String>,
+	override val tags: Set<String>,
 	override val programChangeTrigger: MidiTrigger,
 	override val songSelectTrigger: MidiTrigger,
 	val isFilterOnly: Boolean,
@@ -119,7 +119,7 @@ class SongFile(
 		private const val MIXED_MODE_VARIATIONS_TAG = "mixedModeVariations"
 		private const val VARIATIONS_TAG = "variations"
 
-		private const val AUDIO_FILE_TAG = "audioFiles"
+		private const val AUDIO_FILE_TAG = "audioFile"
 		private const val VARIATION_ATTRIBUTE = "variation"
 		private const val AUDIO_FILES_FOR_VARIATION_TAG = "audioFilesForVariation"
 
@@ -260,7 +260,7 @@ class SongFile(
 			audioFiles: Map<String, List<String>>
 		) = audioFiles.forEach {
 			doc.createElement(AUDIO_FILES_FOR_VARIATION_TAG).apply {
-				setAttribute(VARIATIONS_TAG, it.key)
+				setAttribute(VARIATION_ATTRIBUTE, it.key)
 				writeStringsToElement(doc, this, AUDIO_FILE_TAG, it.value)
 				element.appendChild(this)
 			}

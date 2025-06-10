@@ -5,6 +5,8 @@ import android.graphics.Color
 import androidx.appcompat.app.AlertDialog
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.BufferedWriter
@@ -154,55 +156,23 @@ object Utils {
 			}
 		}
 
-	private fun getReachableCitiesAndDistances(
-		currentCity: Int,
-		currentResults: Map<Int, List<Pair<Int, Int>>>,
-		edges: List<IntArray>,
-		distanceThreshold: Int
-	): List<Pair<Int, Int>> {
-		val (edgesToOrFromThisCity, otherEdges) =
-			edges.partition { it[0] == currentCity || it[1] == currentCity }
-		// Cities we can reach directly.
-		val directTraversals =
-			edgesToOrFromThisCity.filter { it[2] <= distanceThreshold }
-				.map { Pair(if (it[1] == currentCity) it[0] else it[1], it[2]) }
-		println("Direct traversals from $currentCity = ${directTraversals.count()}")
-		// Cities we ALREADY KNOW we can reach based on previous results.
-		val traversalsFromResults =
-			currentResults.flatMap { currentResult ->
-				currentResult.value.filter { it.first == currentCity }.map {
-					Pair(
-						currentResult.key,
-						it.second
-					)
-				}
+	fun getIconBitmap(
+		icon: String?,
+		tags: Set<String>,
+		imageDict: Map<String, Bitmap>,
+		missingIconBitmap: android.graphics.Bitmap
+	): android.graphics.Bitmap? {
+		if (icon != null)
+			return (imageDict[icon] as AndroidBitmap?)?.androidBitmap ?: missingIconBitmap
+		return tags.firstNotNullOfOrNull {
+			val desiredFilenameWithoutExtension = "for-tag-$it".lowercase()
+			imageDict.firstNotNullOfOrNull { kvp ->
+				val filenameWithoutExtension = File(kvp.key).nameWithoutExtension.lowercase()
+				if (filenameWithoutExtension == desiredFilenameWithoutExtension)
+					(kvp.value as AndroidBitmap?)?.androidBitmap ?: missingIconBitmap
+				else
+					null
 			}
-		println("Traversals from results from $currentCity = ${traversalsFromResults.count()}")
-		// Cities we ALREADY KNOW we can reach indirectly based on previous results.
-		val indirectTraversalsFromResults = directTraversals.flatMap { directTraversal ->
-			currentResults[directTraversal.first]?.filter {
-				it.first != currentCity && it.second + directTraversal.second <= distanceThreshold
-			}?.map { Pair(it.first, it.second + directTraversal.second) }
-				?: listOf()
 		}
-		println("Indirect traversals from results from $currentCity = ${indirectTraversalsFromResults.count()}")
-		// Cities we can reach indirectly by calculation.
-		val indirectTraversals = directTraversals.flatMap {
-			if (distanceThreshold - it.second > 0)
-				getReachableCitiesAndDistances(
-					it.first,
-					currentResults,
-					otherEdges,
-					distanceThreshold - it.second
-				)
-			else listOf()
-		}
-		println("Indirect traversals from $currentCity = ${indirectTraversals.count()}")
-		return listOf(
-			directTraversals,
-			traversalsFromResults,
-			indirectTraversalsFromResults,
-			indirectTraversals
-		).flatten()
 	}
 }

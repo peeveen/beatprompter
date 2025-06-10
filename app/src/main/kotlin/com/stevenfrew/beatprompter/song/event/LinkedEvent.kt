@@ -28,7 +28,7 @@ class LinkedEvent(eventList: List<BaseEvent>, private val previousEvent: LinkedE
 					lastCheckedEvent = e
 					if (e.previousEvent == null)
 						return e.firstEventWithSameTime
-					e = e.previousEvent
+					e = e.previousEvent!!
 				}
 
 				else -> { // e.mEventTime<=time
@@ -37,7 +37,7 @@ class LinkedEvent(eventList: List<BaseEvent>, private val previousEvent: LinkedE
 					lastCheckedEvent = e
 					if (e.nextEvent == null)
 						return e
-					e = e.nextEvent
+					e = e.nextEvent!!
 				}
 			}
 		}
@@ -47,7 +47,7 @@ class LinkedEvent(eventList: List<BaseEvent>, private val previousEvent: LinkedE
 		get() {
 			var e = this
 			while (e.previousEvent?.time == e.time)
-				e = e.previousEvent
+				e = e.previousEvent!!
 			return e
 		}
 

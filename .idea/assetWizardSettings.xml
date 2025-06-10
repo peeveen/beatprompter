@@ -38,7 +38,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\steven.frew\Downloads\ultimate-guitar.png" />
+                                                <entry key="imagePath" value="C:\Users\steven.frew\Desktop\UI_Basic_outline-65-512-1788697695.png" />
                                                 <entry key="opacityPercent" value="60" />
                                                 <entry key="paddingPercent" value="5" />
                                                 <entry key="trimmed" value="true" />
@@ -78,8 +78,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\steven.frew\Downloads\ultimate-guitar.png" />
-                                      <entry key="outputName" value="ic_ultimateguitar" />
+                                      <entry key="imageAsset" value="C:\Users\steven.frew\Desktop\UI_Basic_outline-65-512-1788697695.png" />
+                                      <entry key="outputName" value="variation" />
                                     </map>
                                   </option>
                                 </PersistentState>

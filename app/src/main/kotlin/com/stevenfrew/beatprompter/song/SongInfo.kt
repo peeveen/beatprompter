@@ -38,5 +38,6 @@ interface SongInfo {
 	val duration: Long
 	val totalPauseDuration: Long
 	val songContentProvider: TextContentProvider
+	val tags: Set<String>
 	fun matchesTrigger(trigger: SongTrigger): Boolean
 }

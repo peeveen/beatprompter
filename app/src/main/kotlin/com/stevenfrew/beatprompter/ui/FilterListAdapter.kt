@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
 import com.stevenfrew.beatprompter.ui.filter.Filter
 import com.stevenfrew.beatprompter.ui.filter.FolderFilter
 import com.stevenfrew.beatprompter.ui.filter.MidiAliasFilesFilter
@@ -16,12 +17,17 @@ import com.stevenfrew.beatprompter.ui.filter.SetListFilter
 import com.stevenfrew.beatprompter.ui.filter.TagFilter
 import com.stevenfrew.beatprompter.ui.filter.TemporarySetListFilter
 import com.stevenfrew.beatprompter.ui.filter.UltimateGuitarFilter
+import com.stevenfrew.beatprompter.ui.filter.VariationFilter
+import com.stevenfrew.beatprompter.util.Utils
 
 class FilterListAdapter(
 	private val values: List<Filter>,
 	private val selectedTagFilters: MutableList<TagFilter>,
+	private val selectedVariationFilters: MutableList<VariationFilter>,
 	context: Context,
-	private val onSelectedTagsChanged: () -> Unit
+	private val imageDictionary: Map<String, Bitmap>,
+	private val missingIconBitmap: android.graphics.Bitmap,
+	private val onSelectedFiltersChanged: () -> Unit
 ) :
 	ArrayAdapter<Filter>(context, -1, values) {
 	private val inflater = context
@@ -34,6 +40,27 @@ class FilterListAdapter(
 			titleView.text = filter.name
 		}
 
+	private fun <T> applySelectionClickListener(
+		filter: T,
+		filterListItem: View,
+		filterSelectedImageView: ImageView,
+		selectedFilters: MutableList<T>
+	) {
+		filterSelectedImageView.visibility =
+			if (selectedFilters.contains(filter)) View.VISIBLE else View.GONE
+		val selectedIcon =
+			if (selectedFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
+		filterSelectedImageView.setImageResource(selectedIcon)
+		filterListItem.setOnClickListener {
+			if (selectedFilters.contains(filter))
+				selectedFilters.remove(filter)
+			else
+				selectedFilters.add(filter)
+			notifyDataSetChanged()
+			onSelectedFiltersChanged()
+		}
+	}
+
 	override fun getDropDownView(
 		position: Int,
 		convertView: View?,
@@ -44,8 +71,19 @@ class FilterListAdapter(
 			val filterIcon = it.findViewById<ImageView>(R.id.filterIcon)
 			val filterSelectedIcon = it.findViewById<ImageView>(R.id.filterSelectedIcon)
 			val filter = values[position]
+			val imageBitmap = when (filter) {
+				is TagFilter -> Utils.getIconBitmap(
+					null,
+					setOf(filter.name),
+					imageDictionary,
+					missingIconBitmap
+				)
+
+				else -> null
+			}
 			val iconResource = when (filter) {
 				is TagFilter -> R.drawable.tag
+				is VariationFilter -> R.drawable.variation
 				is TemporarySetListFilter -> R.drawable.pencil
 				is SetListFilter -> R.drawable.ic_document
 				is MidiAliasFilesFilter -> R.drawable.midi
@@ -54,22 +92,27 @@ class FilterListAdapter(
 				is UltimateGuitarFilter -> R.drawable.ic_ultimateguitar
 				else -> R.drawable.blank_icon
 			}
-			if (filter is TagFilter) {
-				filterSelectedIcon.visibility = View.VISIBLE
-				val selectedIcon =
-					if (selectedTagFilters.contains(filter)) R.drawable.tick else R.drawable.blank_icon
-				filterSelectedIcon.setImageResource(selectedIcon)
-				it.setOnClickListener {
-					if (selectedTagFilters.contains(filter))
-						selectedTagFilters.remove(filter)
-					else
-						selectedTagFilters.add(filter)
-					notifyDataSetChanged()
-					onSelectedTagsChanged()
-				}
-			} else
-				filterSelectedIcon.visibility = View.GONE
-			filterIcon.setImageResource(iconResource)
+			when (filter) {
+				is TagFilter -> applySelectionClickListener(
+					filter,
+					it,
+					filterSelectedIcon,
+					selectedTagFilters
+				)
+
+				is VariationFilter -> applySelectionClickListener(
+					filter,
+					it,
+					filterSelectedIcon,
+					selectedVariationFilters
+				)
+
+				else -> filterSelectedIcon.visibility = View.GONE
+			}
+			if (imageBitmap == null)
+				filterIcon.setImageResource(iconResource)
+			else
+				filterIcon.setImageBitmap(imageBitmap)
 			titleView.text = filter.name
 		}
 }

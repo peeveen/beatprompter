@@ -92,7 +92,8 @@ class MockPreferences(
 	override var dropboxExpiryTime: Long = Long.MAX_VALUE,
 	override val trimTrailingPunctuation: Boolean = false,
 	override val useUnicodeEllipsis: Boolean = false,
-	override val beatCounterHeight: Int = 4
+	override val beatCounterHeight: Int = 4,
+	override val includeVariationsInFilterList: Boolean = false
 ) : Preferences {
 	override fun getStringPreference(key: String, default: String): String {
 		TODO("Not yet implemented")

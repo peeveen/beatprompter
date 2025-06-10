@@ -83,7 +83,7 @@ class MidiEventTag internal constructor(
 						}
 					}
 					when {
-						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes)) to setOf<AliasSet>(Cache.cachedCloudItems.defaultMidiAliasSet)
+						tagName == MIDI_SEND_TAG -> listOf(MidiMessage(resolvedBytes)) to setOf(Cache.cachedCloudItems.defaultMidiAliasSet)
 						matchedAliasAndSet != null -> matchedAliasAndSet.first.resolve(
 							matchedAliasAndSet.second,
 							aliasSets,

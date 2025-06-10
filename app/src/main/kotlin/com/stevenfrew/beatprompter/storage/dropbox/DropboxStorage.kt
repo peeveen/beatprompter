@@ -97,9 +97,9 @@ class DropboxStorage(parentFragment: Fragment) :
 		}
 	}
 
-	fun ByteArray.getSha256Hash() = getHash("SHA-256")
+	private fun ByteArray.getSha256Hash() = getHash("SHA-256")
 
-	fun File.getDropboxHash(): String {
+	private fun File.getDropboxHash(): String {
 		val inputStream = this.inputStream()
 		val sha256s = mutableListOf<ByteArray>()
 		while (true) {

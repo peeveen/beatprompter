@@ -92,6 +92,7 @@ interface Preferences {
 	val trimTrailingPunctuation: Boolean
 	val useUnicodeEllipsis: Boolean
 	val beatCounterHeight: Int
+	val includeVariationsInFilterList: Boolean
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

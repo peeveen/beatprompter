@@ -28,7 +28,7 @@ abstract class AbstractSongListAdapter<T : SongInfoProvider>(
 	abstract val showVotes: Boolean
 	abstract val songIconDisplayPosition: SongIconDisplayPosition
 	abstract val showMusicIcon: Boolean
-	abstract fun getIconBitmap(icon: String): Bitmap?
+	abstract fun getIconBitmap(icon: String?, tags: Set<String>): Bitmap?
 
 	private val inflater = context
 		.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -43,17 +43,16 @@ abstract class AbstractSongListAdapter<T : SongInfoProvider>(
 			val songIconLeft = it.findViewById<ImageView>(R.id.songIconLeft)
 			val songIconSectionLeft = it.findViewById<ImageView>(R.id.songIconSectionLeft)
 			val songIconSectionRight = it.findViewById<ImageView>(R.id.songIconSectionRight)
-			val songIconDisplayed = when (songIconDisplayPosition) {
+			val songIconView = when (songIconDisplayPosition) {
 				SongIconDisplayPosition.Left -> songIconLeft
 				SongIconDisplayPosition.IconSectionLeft -> songIconSectionLeft
 				SongIconDisplayPosition.IconSectionRight -> songIconSectionRight
 				else -> null
 			}
 			val song = values[position].songInfo
-			val iconShown = song.icon?.let { icon ->
-				val image = getIconBitmap(icon)
-				songIconDisplayed?.setImageBitmap(image)
-				songIconDisplayed != null && it != null
+			val iconShown = getIconBitmap(song.icon, song.tags)?.let {
+				songIconView?.setImageBitmap(it)
+				songIconView != null
 			} == true
 			notesIcon.visibility =
 				if (song.audioFiles.values.flatten()
