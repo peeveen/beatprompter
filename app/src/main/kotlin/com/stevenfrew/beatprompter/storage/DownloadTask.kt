@@ -185,6 +185,10 @@ class DownloadTask(
 				BeatPrompter.appResources.getString(R.string.stop),
 				null as DialogInterface.OnClickListener?
 			)
+			setOnDismissListener { _ ->
+				val parentActivity = fragment.activity
+				parentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+			}
 			setOnShowListener { dialog ->
 				val stopButton = (dialog as ProgressDialog).getButton(ProgressDialog.BUTTON_NEGATIVE)
 				stopButton.setOnClickListener {
@@ -201,7 +205,6 @@ class DownloadTask(
 	}
 
 	override fun onPostExecute(result: Boolean) {
-		val parentActivity = fragment.activity
-		parentActivity?.window?.setFlags(0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		// Don't care.
 	}
 }
