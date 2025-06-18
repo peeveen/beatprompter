@@ -114,8 +114,6 @@ class DownloadTask(
 		}
 
 		override fun onDownloadComplete() {
-			val parentActivity = fragment.activity
-			parentActivity?.window?.setFlags(0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 			if (!isRefreshingSelectedFiles)
 				Cache.cachedCloudItems.removeNonExistent(
 					cloudItemsFound.values.asSequence().map { c -> c.id }.toSet()
@@ -203,6 +201,7 @@ class DownloadTask(
 	}
 
 	override fun onPostExecute(result: Boolean) {
-		// Don't care.
+		val parentActivity = fragment.activity
+		parentActivity?.window?.setFlags(0, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 	}
 }
