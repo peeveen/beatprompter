@@ -359,7 +359,7 @@ object Cache {
 			false
 		} else {
 			DownloadTask(
-				parentFragment.requireContext(),
+				parentFragment,
 				cs,
 				CacheEventHandler,
 				cloudPath,
