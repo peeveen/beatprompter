@@ -168,8 +168,6 @@ class DownloadTask(
 
 	override fun onPreExecute() {
 		stopDownload = false
-		val parentActivity = fragment.activity
-		parentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 		progressDialog = ProgressDialog(fragment.requireContext()).apply {
 			setTitle(BeatPrompter.appResources.getString(R.string.downloadingFiles))
 			setMessage(
@@ -190,6 +188,8 @@ class DownloadTask(
 				parentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 			}
 			setOnShowListener { dialog ->
+				val parentActivity = fragment.activity
+				parentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 				val stopButton = (dialog as ProgressDialog).getButton(ProgressDialog.BUTTON_NEGATIVE)
 				stopButton.setOnClickListener {
 					stopDownload = true
