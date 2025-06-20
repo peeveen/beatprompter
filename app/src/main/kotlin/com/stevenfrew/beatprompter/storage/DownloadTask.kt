@@ -4,6 +4,8 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Handler
+import android.view.WindowManager
+import androidx.fragment.app.Fragment
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
 import com.stevenfrew.beatprompter.cache.Cache
@@ -21,7 +23,7 @@ import kotlin.coroutines.CoroutineContext
  * Task that downloads files from a storage system.
  */
 class DownloadTask(
-	private val context: Context,
+	private val fragment: Fragment,
 	private val storage: Storage,
 	private val handler: Handler,
 	private val cloudPath: String,
@@ -166,7 +168,7 @@ class DownloadTask(
 
 	override fun onPreExecute() {
 		stopDownload = false
-		progressDialog = ProgressDialog(context).apply {
+		progressDialog = ProgressDialog(fragment.requireContext()).apply {
 			setTitle(BeatPrompter.appResources.getString(R.string.downloadingFiles))
 			setMessage(
 				BeatPrompter.appResources.getString(
@@ -181,7 +183,13 @@ class DownloadTask(
 				BeatPrompter.appResources.getString(R.string.stop),
 				null as DialogInterface.OnClickListener?
 			)
+			setOnDismissListener { _ ->
+				val parentActivity = fragment.activity
+				parentActivity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+			}
 			setOnShowListener { dialog ->
+				val parentActivity = fragment.activity
+				parentActivity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 				val stopButton = (dialog as ProgressDialog).getButton(ProgressDialog.BUTTON_NEGATIVE)
 				stopButton.setOnClickListener {
 					stopDownload = true
