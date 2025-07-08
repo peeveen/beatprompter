@@ -84,7 +84,8 @@
 			android:name="com.dropbox.core.android.AuthActivity"
 			android:configChanges="orientation"
 			android:exported="true"
-			android:launchMode="singleTask">
+			android:launchMode="singleTask"
+			android:theme="@style/AppTheme">
 			<intent-filter>
 
 				<!-- Change this to be db- followed by your app key -->
