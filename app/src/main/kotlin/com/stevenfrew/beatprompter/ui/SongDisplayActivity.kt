@@ -52,7 +52,6 @@ class SongDisplayActivity
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		window.decorView.setOnApplyWindowInsetsListener(WindowInsetListener())
 
 		songDisplayInstance = this
 

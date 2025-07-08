@@ -78,7 +78,8 @@
 			android:name="com.stevenfrew.beatprompter.ui.pref.SettingsActivity"
 			android:configChanges="orientation|screenSize"
 			android:label="@string/title_activity_settings"
-			android:launchMode="singleTask" />
+			android:launchMode="singleTask"
+			android:theme="@style/AppTheme" />
 		<activity
 			android:name="com.dropbox.core.android.AuthActivity"
 			android:configChanges="orientation"
