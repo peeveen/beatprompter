@@ -109,7 +109,7 @@ object Cache {
 		try {
 			val m = context.packageManager
 			val p = m.getPackageInfo(s, 0)
-			beatPrompterDataFolder = File(p.applicationInfo.dataDir)
+			beatPrompterDataFolder = File(p.applicationInfo!!.dataDir)
 		} catch (e: PackageManager.NameNotFoundException) {
 			// There is no way that this can happen.
 			Logger.log("Package name not found ", e)
