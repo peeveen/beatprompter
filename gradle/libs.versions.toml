@@ -1,5 +1,5 @@
 [versions]
-adal = "1.16.3"
+adal = "1.16.3" # never ever change this
 agp = "8.11.0"
 appcompat = "1.7.1"
 appintro = "v4.2.2"

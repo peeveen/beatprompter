@@ -20,6 +20,7 @@ import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
+import com.stevenfrew.beatprompter.storage.StorageException
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
@@ -248,7 +249,7 @@ class DropboxStorage(parentFragment: Fragment) :
 		// Did we authenticate last time it failed?
 		val authCred = Auth.getDbxCredential()
 		val storedCred = getStoredDropboxCredentials()
-		val cred = storedCred ?: authCred
+		val cred: DbxCredential? = storedCred ?: authCred
 		if (cred == null) {
 			action.onAuthenticationRequired()
 			Auth.startOAuth2PKCE(
@@ -270,7 +271,13 @@ class DropboxStorage(parentFragment: Fragment) :
 			override fun onConnected(client: DbxClientV2) =
 				downloadFiles(client, storageListener, itemSource, messageSource, filesToRefresh)
 
-			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 
@@ -285,7 +292,13 @@ class DropboxStorage(parentFragment: Fragment) :
 			override fun onConnected(client: DbxClientV2) =
 				readFolderContents(client, folder, listener, itemSource, messageSource, recurseSubFolders)
 
-			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 

@@ -118,10 +118,6 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 
 				override fun onFolderSelectionComplete() = progressDialog.dismiss()
 
-				override fun onAuthenticationRequired() {
-					// Don't need to do anything.
-				}
-
 				override fun shouldCancel(): Boolean = false
 			})
 		} else

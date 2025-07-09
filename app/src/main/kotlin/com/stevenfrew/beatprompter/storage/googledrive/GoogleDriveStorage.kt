@@ -25,6 +25,7 @@ import com.stevenfrew.beatprompter.storage.FileInfo
 import com.stevenfrew.beatprompter.storage.FolderInfo
 import com.stevenfrew.beatprompter.storage.ItemInfo
 import com.stevenfrew.beatprompter.storage.Storage
+import com.stevenfrew.beatprompter.storage.StorageException
 import com.stevenfrew.beatprompter.storage.StorageListener
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.storage.SuccessfulDownloadResult
@@ -361,7 +362,13 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				).execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 
@@ -387,7 +394,13 @@ class GoogleDriveStorage(parentFragment: Fragment) :
 				}.execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 
