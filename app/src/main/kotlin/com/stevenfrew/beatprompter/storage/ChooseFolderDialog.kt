@@ -233,12 +233,6 @@ internal class ChooseFolderDialog(
 		// Do nothing.
 	}
 
-	override fun onAuthenticationRequired() {
-		// Cancel the dialog.
-		dialog.cancel()
-		shouldCancel = true
-	}
-
 	override fun shouldCancel(): Boolean = shouldCancel
 
 	companion object {

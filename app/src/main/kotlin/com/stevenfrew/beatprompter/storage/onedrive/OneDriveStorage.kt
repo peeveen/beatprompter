@@ -296,7 +296,13 @@ class OneDriveStorage(parentFragment: Fragment) :
 				}
 			}
 
-			override fun onAuthenticationRequired() = storageListener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 
@@ -320,7 +326,13 @@ class OneDriveStorage(parentFragment: Fragment) :
 				).execute(Unit)
 			}
 
-			override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
+			override fun onAuthenticationRequired() = itemSource.onError(
+				StorageException(
+					BeatPrompter.appResources.getString(
+						R.string.storage_authentication_required
+					)
+				)
+			)
 		})
 	}
 

@@ -92,7 +92,6 @@ class DownloadTask(
 		override suspend fun onProgressMessageReceived(message: String) =
 			progressUpdater?.invoke(message) ?: Unit
 
-		override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
 		override fun shouldCancel(): Boolean = errorOccurred || stopDownload
 	}
 
@@ -124,7 +123,6 @@ class DownloadTask(
 			closeProgressDialog()
 		}
 
-		override fun onAuthenticationRequired() = cancelWhenAuthenticationRequired()
 		override fun shouldCancel(): Boolean = errorOccurred || stopDownload
 	}
 

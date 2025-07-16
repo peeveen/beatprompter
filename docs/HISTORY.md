@@ -2,6 +2,13 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.83
+
+- Now targets Android SDK 36 (hopefully no ill-effects)
+- Cloud path and Dropbox token preferences are now cleared whenever you select a different cloud
+  storage system
+- Fixed authentication bug, most noticeable in Dropbox.
+
 ## 1.82
 
 - Screen now stays on during file sync (some devices drop wifi connection when screen goes off)

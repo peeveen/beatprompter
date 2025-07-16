@@ -150,8 +150,6 @@ abstract class Storage protected constructor(
 				override fun onRootPathError(t: Throwable) =
 					listener.onFolderSelectedError(t, parentFragment.requireContext())
 
-				override fun onAuthenticationRequired() = listener.onAuthenticationRequired()
-
 				override fun shouldCancel(): Boolean = listener.shouldCancel()
 			})
 		} catch (e: Exception) {

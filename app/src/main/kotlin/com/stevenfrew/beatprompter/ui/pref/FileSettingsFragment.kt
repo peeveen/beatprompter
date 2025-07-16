@@ -34,6 +34,13 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
 		if (key == getString(R.string.pref_cloudPath_key))
 			onCloudPathChanged(prefs.getString(key, null))
+		if (key == getString(R.string.pref_cloudStorageSystem_key)) {
+			BeatPrompter.preferences.cloudPath = ""
+			BeatPrompter.preferences.dropboxAccessToken = ""
+			BeatPrompter.preferences.dropboxRefreshToken = ""
+			BeatPrompter.preferences.dropboxExpiryTime = 0
+			BeatPrompter.preferences.cloudDisplayPath = ""
+		}
 	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -53,6 +60,7 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
 		cloudPathPref?.setOnPreferenceClickListener {
 			setCloudPath()
+			cloudPathPref.forceUpdate()
 			true
 		}
 
@@ -80,9 +88,11 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 		val cloudPathPrefName = getString(R.string.pref_cloudPath_key)
 		val cloudPathPref = findPreference<CloudPathPreference>(cloudPathPrefName)
 
-		if (cloudPathPref != null)
+		if (cloudPathPref != null) {
 			cloudPathPref.summary =
 				if (newValue == null) getString(R.string.no_cloud_folder_currently_set) else displayPath
+			cloudPathPref.forceUpdate()
+		}
 	}
 
 	private fun setCloudPath() {
@@ -107,10 +117,6 @@ class FileSettingsFragment : PreferenceFragmentCompat(),
 					Utils.showExceptionDialog(t, context)
 
 				override fun onFolderSelectionComplete() = progressDialog.dismiss()
-
-				override fun onAuthenticationRequired() {
-					// Don't need to do anything.
-				}
 
 				override fun shouldCancel(): Boolean = false
 			})

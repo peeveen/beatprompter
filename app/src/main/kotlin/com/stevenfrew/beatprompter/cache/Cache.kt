@@ -31,6 +31,7 @@ import com.stevenfrew.beatprompter.util.execute
 import com.stevenfrew.beatprompter.util.getMd5Hash
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.Job
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.File
@@ -109,7 +110,7 @@ object Cache {
 		try {
 			val m = context.packageManager
 			val p = m.getPackageInfo(s, 0)
-			beatPrompterDataFolder = File(p.applicationInfo.dataDir)
+			beatPrompterDataFolder = File(p.applicationInfo!!.dataDir)
 		} catch (e: PackageManager.NameNotFoundException) {
 			// There is no way that this can happen.
 			Logger.log("Package name not found ", e)
@@ -327,7 +328,7 @@ object Cache {
 	fun canPerformCloudSync(): Boolean =
 		BeatPrompter.preferences.storageSystem !== StorageType.Demo && cloudPath.isNotBlank()
 
-	fun performFullCloudSync(parentFragment: Fragment): Boolean =
+	fun performFullCloudSync(parentFragment: Fragment): Job? =
 		performCloudSync(null, false, parentFragment)
 
 	fun clearTemporarySetList(context: Context) {
@@ -343,7 +344,7 @@ object Cache {
 		fileToUpdate: CachedFile?,
 		dependenciesToo: Boolean,
 		parentFragment: Fragment
-	): Boolean {
+	): Job? {
 		val context = parentFragment.requireContext()
 		if (fileToUpdate == null)
 			clearTemporarySetList(context)
@@ -356,7 +357,7 @@ object Cache {
 				Toast.LENGTH_LONG
 			)
 				.show()
-			false
+			null
 		} else {
 			DownloadTask(
 				parentFragment,
@@ -366,7 +367,6 @@ object Cache {
 				includeSubFolders,
 				cachedCloudItems.getFilesToRefresh(fileToUpdate, dependenciesToo)
 			).execute(Unit)
-			true
 		}
 	}
 
