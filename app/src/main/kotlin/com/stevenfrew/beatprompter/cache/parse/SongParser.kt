@@ -380,7 +380,7 @@ class SongParser(
 			.filterIsInstance<PauseTag>()
 			.firstOrNull()
 
-		val isLineContentOrPause = isLineContent || pauseTag != null
+		val isPause = pauseTag != null
 
 		tags
 			.filterIsInstance<MidiEventTag>()
@@ -391,7 +391,7 @@ class SongParser(
 				activeMidiAliasSets.containsAll(it.aliasSetsUsed)
 			}
 			.forEach {
-				if (stopAddingStartupItems || isLineContentOrPause)
+				if (stopAddingStartupItems || isLineContent || isPause)
 					events.add(it.toMIDIEvent(songTime))
 				else {
 					initialMidiMessages.addAll(it.messages)
@@ -408,7 +408,7 @@ class SongParser(
 				audioTagIndex++
 			) else pendingAudioTag
 
-		if (isLineContentOrPause) {
+		if (isLineContent || isPause) {
 			// We definitely have a line!
 			// So now is when we want to create the count-in (if any)
 			if (countIn > 0) {
@@ -589,9 +589,10 @@ class SongParser(
 				songTime += pauseTag.duration
 			}
 		}
-		if (!isLineContent || currentLineBeatInfo.scrollMode !== ScrollingMode.Beat)
-		// If there is no actual line data (or if the line is a manual mode line), then the scroll beat offset never took effect.
-		// Clear it so that the next line (which MIGHT be a proper line) doesn't take it into account.
+		if (!isLineContent || currentLineBeatInfo.scrollMode !== ScrollingMode.Beat || isPause)
+		// If there is no actual line data (or if the line is a manual mode line, or a pause), then
+		// the scroll beat offset never took effect. Clear it so that the next line (which MIGHT be
+		// a proper line) doesn't take it into account.
 			currentLineBeatInfo = LineBeatInfo(
 				currentLineBeatInfo.beats,
 				currentLineBeatInfo.bpl,

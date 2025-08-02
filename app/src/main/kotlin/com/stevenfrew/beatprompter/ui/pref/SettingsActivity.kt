@@ -38,7 +38,8 @@ class SettingsActivity : AppCompatActivity(),
 	}
 
 	override fun onRequestPermissionsResult(
-		requestCode: Int, permissions: Array<String?>,
+		requestCode: Int,
+		permissions: Array<out String>,
 		grantResults: IntArray
 	) {
 		EventRouter.sendEventToSettings(Events.PERMISSIONS_UPDATED)
