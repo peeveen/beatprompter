@@ -2,6 +2,10 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.84
+
+- Another `{scrollbeat}` vs `{pause}` fix.
+
 ## 1.83
 
 - Now targets Android SDK 36 (hopefully no ill-effects)

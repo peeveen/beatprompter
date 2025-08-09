@@ -13,8 +13,8 @@ android {
 		multiDexEnabled true
 		targetSdkVersion 36
 		resourceConfigurations += ['en', 'fr', 'pt', 'de', 'es', 'it']
-		versionCode 609
-		versionName "1.83"
+		versionCode 610
+		versionName "1.84"
 	}
 	signingConfigs {
 		debug {
