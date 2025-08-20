@@ -2,6 +2,10 @@
 
 Versions prior to 1.70 are not listed.
 
+## 1.85
+
+- Bluetooth device names that appear in UI will now use the user-defined alias name (if available).
+
 ## 1.84
 
 - Another `{scrollbeat}` vs `{pause}` fix.
