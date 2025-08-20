@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -263,7 +264,8 @@ object BandBluetoothController : CoroutineScope {
 				)
 				ConnectionNotificationTask.addConnection(
 					ConnectionDescriptor(
-						socket.remoteDevice.name,
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) socket.remoteDevice.name else socket.remoteDevice.alias
+							?: socket.remoteDevice.name,
 						CommunicationType.Bluetooth
 					)
 				)
@@ -289,7 +291,8 @@ object BandBluetoothController : CoroutineScope {
 				)
 				ConnectionNotificationTask.addConnection(
 					ConnectionDescriptor(
-						socket.remoteDevice.name,
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) socket.remoteDevice.name else socket.remoteDevice.alias
+							?: socket.remoteDevice.name,
 						CommunicationType.Bluetooth
 					)
 				)
