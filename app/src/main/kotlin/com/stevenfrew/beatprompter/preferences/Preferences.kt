@@ -26,6 +26,7 @@ interface Preferences {
 	val preferredVariation: String
 	val bluetoothMode: BluetoothMode
 	val incomingMIDIChannels: Int
+	val outgoingMIDIChannels: Int
 	var cloudDisplayPath: String
 	var cloudPath: String
 	val includeSubFolders: Boolean

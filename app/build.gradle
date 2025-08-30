@@ -4,8 +4,6 @@ plugins {
 }
 
 android {
-	compileSdk 36
-
 	defaultConfig {
 		applicationId "com.stevenfrew.beatprompter"
 		minSdkVersion 23
@@ -13,7 +11,7 @@ android {
 		multiDexEnabled true
 		targetSdkVersion 36
 		resourceConfigurations += ['en', 'fr', 'pt', 'de', 'es', 'it']
-		versionCode 611
+		versionCode 612
 		versionName "1.85"
 	}
 	signingConfigs {

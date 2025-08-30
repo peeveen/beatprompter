@@ -24,6 +24,16 @@
 		app:iconSpaceReserved="false"
 		sf:singleSelect="false" />
 	<com.stevenfrew.beatprompter.ui.pref.MidiChannelPreference
+		android:defaultValue="@string/pref_midiIncomingChannels_default"
+		android:dialogLayout="@layout/midi_channel_preference_dialog"
+		android:key="@string/pref_midiOutgoingChannels_key"
+		android:negativeButtonText="@android:string/cancel"
+		android:positiveButtonText="@android:string/ok"
+		android:summary="@string/pref_midiOutgoingChannels_summary"
+		android:title="@string/pref_midiOutgoingChannels_title"
+		app:iconSpaceReserved="false"
+		sf:singleSelect="false" />
+	<com.stevenfrew.beatprompter.ui.pref.MidiChannelPreference
 		android:defaultValue="@string/pref_defaultMIDIOutputChannel_default"
 		android:dialogLayout="@layout/midi_channel_preference_dialog"
 		android:key="@string/pref_defaultMIDIOutputChannel_key"

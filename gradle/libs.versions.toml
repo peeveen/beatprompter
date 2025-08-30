@@ -1,6 +1,6 @@
 [versions]
 adal = "1.16.3" # never ever change this
-agp = "8.12.1"
+agp = "8.12.2"
 appcompat = "1.7.1"
 appintro = "v4.2.2"
 browser = "1.9.0"
@@ -9,7 +9,7 @@ dropboxCoreSdk = "7.0.0"
 dropboxAndroidSdk = "7.0.0"
 googleApiClientAndroid = "2.8.1"
 googleApiServicesDrive = "v3-rev20211107-1.32.1"
-gradle = "8.12.1"
+gradle = "8.12.2"
 gson = "2.13.1"
 hsvAlphaColorPickerAndroid = "3.1.0"
 kotlin = "2.2.10"

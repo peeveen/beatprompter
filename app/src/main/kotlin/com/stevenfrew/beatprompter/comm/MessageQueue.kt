@@ -20,14 +20,20 @@ open class MessageQueue(capacity: Int) {
 			}
 		}
 
+	open fun shouldPutMessage(message: Message): Boolean = true
+
 	internal fun putMessage(message: Message) =
 		synchronized(blockingQueue) {
-			blockingQueue.put(message)
+			if (shouldPutMessage(message))
+				blockingQueue.put(message)
 		}
 
 	internal fun putMessages(messages: List<Message>) =
 		synchronized(blockingQueue) {
-			for (f in messages.indices)
-				blockingQueue.put(messages[f])
+			for (f in messages.indices) {
+				val msg = messages[f]
+				if (shouldPutMessage(msg))
+					blockingQueue.put(msg)
+			}
 		}
 }

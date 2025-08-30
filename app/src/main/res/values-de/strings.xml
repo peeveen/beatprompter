@@ -477,4 +477,6 @@ Em]zeigt den Beat Progression.\n
     <string name="pref_includeVariationsInFilterList_title">Variationen in Filterliste einschließen</string>
     <string name="pref_includeVariationsInFilterList_summary">Wenn ausgewählt, werden Variationen in der Filterliste angezeigt.</string>
     <string name="storage_authentication_required">Eine Authentifizierung (oder erneute Authentifizierung) ist erforderlich.</string>
+    <string name="pref_midiOutgoingChannels_title">Aktive ausgehende MIDI-Kanäle</string>
+    <string name="pref_midiOutgoingChannels_summary">Welche Ausgabekanäle sind aktiviert?</string>
 </resources>

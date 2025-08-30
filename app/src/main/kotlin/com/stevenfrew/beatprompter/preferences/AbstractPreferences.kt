@@ -101,6 +101,9 @@ abstract class AbstractPreferences(
 	override val incomingMIDIChannels: Int
 		get() = getIntPreference(R.string.pref_midiIncomingChannels_key, 65535)
 
+	override val outgoingMIDIChannels: Int
+		get() = getIntPreference(R.string.pref_midiOutgoingChannels_key, 65535)
+
 	override var cloudDisplayPath: String
 		get() = getStringPreference(R.string.pref_cloudDisplayPath_key, "")
 		set(value) = setStringPreference(R.string.pref_cloudDisplayPath_key, value)

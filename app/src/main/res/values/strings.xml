@@ -320,6 +320,11 @@
     <string name="pref_midiIncomingChannels_summary">What MIDI channels should BeatPrompter listen to?</string>
     <string name="pref_midiIncomingChannels_default" translatable="false">65535</string>
 
+    <string name="pref_midiOutgoingChannels_key" translatable="false">pref_midiOutgoingChannels</string>
+    <string name="pref_midiOutgoingChannels_title">Active Outgoing MIDI Channels</string>
+    <string name="pref_midiOutgoingChannels_summary">Which output channels are enabled?</string>
+    <string name="pref_midiOutgoingChannels_default" translatable="false">65535</string>
+
     <string name="pref_defaultMIDIOutputChannel_key" translatable="false">pref_defaultMIDIOutputChannel</string>
     <string name="pref_defaultMIDIOutputChannel_title">Default output MIDI channel</string>
     <string name="pref_defaultMIDIOutputChannel_summary">What is the default MIDI channel to write to, unless otherwise specified?</string>
