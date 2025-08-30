@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+	compileSdk 36
+	
 	defaultConfig {
 		applicationId "com.stevenfrew.beatprompter"
 		minSdkVersion 23
