@@ -3,12 +3,11 @@ package com.stevenfrew.beatprompter.comm.midi
 import android.content.SharedPreferences
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.R
-import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.midi.message.ClockMessage
 import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
-class MidiMessageQueue(capacity: Int) : MessageQueue(capacity) {
+class MidiMessageQueue(capacity: Int) : MessageQueue<MidiMessage>(capacity) {
 	internal fun addBeatClockMessages(amount: Int) =
 		synchronized(blockingQueue)
 		{
@@ -17,9 +16,8 @@ class MidiMessageQueue(capacity: Int) : MessageQueue(capacity) {
 			}
 		}
 
-	override fun shouldPutMessage(message: Message): Boolean =
-		message is MidiMessage &&
-			(getOutgoingChannels() and (1 shl message.channel.toInt())) != 0
+	override fun shouldPutMessage(message: MidiMessage): Boolean =
+		getOutgoingChannels() and (1 shl message.channel.toInt()) != 0
 
 	companion object : SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -27,7 +25,10 @@ class MidiMessageQueue(capacity: Int) : MessageQueue(capacity) {
 			BeatPrompter.preferences.registerOnSharedPreferenceChangeListener(this)
 		}
 
-		override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+		override fun onSharedPreferenceChanged(
+			sharedPreferences: SharedPreferences?,
+			key: String?
+		) {
 			if (key == BeatPrompter.appResources.getString(R.string.pref_midiOutgoingChannels_key))
 				setOutgoingChannels()
 		}
@@ -35,7 +36,8 @@ class MidiMessageQueue(capacity: Int) : MessageQueue(capacity) {
 		private var outgoingChannels = getOutgoingChannelsPrefValue()
 		private val outgoingChannelsLock = Any()
 
-		private fun getOutgoingChannelsPrefValue(): Int = BeatPrompter.preferences.outgoingMIDIChannels
+		private fun getOutgoingChannelsPrefValue(): Int =
+			BeatPrompter.preferences.outgoingMIDIChannels
 
 		private fun getOutgoingChannels(): Int =
 			synchronized(outgoingChannelsLock) {

@@ -3,7 +3,7 @@ package com.stevenfrew.beatprompter.comm
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 
-class SenderTask(private val messageQueue: MessageQueue) : Task(false) {
+class SenderTask<T>(private val messageQueue: MessageQueue<T>) : Task(false) where T : Message {
 	private val senders = mutableListOf<Sender>()
 	private val sendersLock = Any()
 

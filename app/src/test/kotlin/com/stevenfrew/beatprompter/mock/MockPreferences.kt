@@ -27,6 +27,7 @@ class MockPreferences(
 	override val preferredVariation: String = "",
 	override val bluetoothMode: BluetoothMode = BluetoothMode.None,
 	override val incomingMIDIChannels: Int = 65535,
+	override val outgoingMIDIChannels: Int = 65535,
 	override var cloudDisplayPath: String = "/",
 	override var cloudPath: String = "/",
 	override val includeSubFolders: Boolean = true,

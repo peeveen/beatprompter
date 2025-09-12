@@ -5,7 +5,6 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 import com.stevenfrew.beatprompter.cache.Cache
-import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
@@ -42,11 +41,11 @@ object Midi {
 		if (initialised) midiOutQueue.addBeatClockMessages(amount)
 	}
 
-	internal fun putMessage(message: Message) {
+	internal fun putMessage(message: MidiMessage) {
 		if (initialised) midiOutQueue.putMessage(message)
 	}
 
-	private fun tryPutMessage(message: Message, messageName: String) =
+	private fun tryPutMessage(message: MidiMessage, messageName: String) =
 		try {
 			putMessage(message)
 		} catch (e: Exception) {
@@ -82,7 +81,7 @@ object Midi {
 		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStop }
 	}
 
-	internal fun putMessages(messages: List<Message>) {
+	internal fun putMessages(messages: List<MidiMessage>) {
 		if (initialised) midiOutQueue.putMessages(messages)
 	}
 }

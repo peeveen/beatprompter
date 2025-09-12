@@ -11,11 +11,12 @@ import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
 import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 internal class MidiNativeDeviceListener(
 	private val commType: CommunicationType,
 	private val manager: MidiManager,
-	private val senderTask: SenderTask,
+	private val senderTask: SenderTask<MidiMessage>,
 	private val receiverTasks: ReceiverTasks,
 	private val addDeviceFn: ((deviceInfo: MidiDeviceInfo, manager: MidiManager) -> Unit)?
 ) : MidiManager.OnDeviceOpenedListener, MidiManager.DeviceCallback() {

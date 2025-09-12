@@ -11,17 +11,18 @@ import android.os.Build
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
 import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
+import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.midi.UsbMidiController.attemptUsbMidiConnection
 import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
-internal class UsbBroadcastReceiver(
-	private val senderTask: SenderTask,
+internal class UsbBroadcastReceiver<T>(
+	private val senderTask: SenderTask<T>,
 	private val receiverTasks: ReceiverTasks,
 	private val manager: UsbManager,
 	private val permissionIntent: PendingIntent
-) : BroadcastReceiver() {
+) : BroadcastReceiver() where T : Message {
 	override fun onReceive(context: Context, intent: Intent) {
 		val action = intent.action
 		when (action) {
@@ -38,7 +39,8 @@ internal class UsbBroadcastReceiver(
 			UsbMidiController.ACTION_USB_PERMISSION -> {
 				synchronized(this) {
 					getDeviceFromIntent(intent)?.apply {
-						val displayName = if (productName.isNullOrBlank()) deviceName else productName!!
+						val displayName =
+							if (productName.isNullOrBlank()) deviceName else productName!!
 						if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 							val midiInterface = getUsbDeviceMidiInterface()
 							if (midiInterface != null) {
@@ -51,13 +53,23 @@ internal class UsbBroadcastReceiver(
 											if (endPoint.direction == UsbConstants.USB_DIR_OUT)
 												senderTask.addSender(
 													deviceName,
-													UsbSender(conn, endPoint, deviceName, CommunicationType.UsbMidi)
+													UsbSender(
+														conn,
+														endPoint,
+														deviceName,
+														CommunicationType.UsbMidi
+													)
 												)
 											else if (endPoint.direction == UsbConstants.USB_DIR_IN)
 												receiverTasks.addReceiver(
 													deviceName,
 													deviceName,
-													UsbReceiver(conn, endPoint, deviceName, CommunicationType.UsbMidi)
+													UsbReceiver(
+														conn,
+														endPoint,
+														deviceName,
+														CommunicationType.UsbMidi
+													)
 												)
 											ConnectionNotificationTask.addConnection(
 												ConnectionDescriptor(
