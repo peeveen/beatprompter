@@ -4,7 +4,7 @@ import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
 
 class SenderTask<T>(private val messageQueue: MessageQueue<T>) : Task(false) where T : Message {
-	private val senders = mutableListOf<Sender>()
+	private val senders = mutableListOf<Sender<T>>()
 	private val sendersLock = Any()
 
 	override fun doWork() =
@@ -34,7 +34,7 @@ class SenderTask<T>(private val messageQueue: MessageQueue<T>) : Task(false) whe
 			// Must have been signalled to stop ... main Task loop will cater for this.
 		}
 
-	fun addSender(id: String, sender: Sender) =
+	fun addSender(id: String, sender: Sender<T>) =
 		synchronized(sendersLock) {
 			Logger.logComms({ "Adding new sender '$id' (${sender.name}) to the collection" })
 			senders.add(sender)
@@ -61,12 +61,12 @@ class SenderTask<T>(private val messageQueue: MessageQueue<T>) : Task(false) whe
 		}
 	}
 
-	private fun getSender(id: String): Sender? =
+	private fun getSender(id: String): Sender<T>? =
 		synchronized(sendersLock) {
 			return senders.firstOrNull { it.name == id }
 		}
 
-	private fun closeSender(sender: Sender?) =
+	private fun closeSender(sender: Sender<T>?) =
 		try {
 			sender?.close()
 		} catch (_: Exception) {

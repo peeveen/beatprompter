@@ -15,14 +15,15 @@ import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.midi.UsbMidiController.attemptUsbMidiConnection
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
-internal class UsbBroadcastReceiver<T>(
-	private val senderTask: SenderTask<T>,
+internal class UsbBroadcastReceiver(
+	private val senderTask: SenderTask<MidiMessage>,
 	private val receiverTasks: ReceiverTasks,
 	private val manager: UsbManager,
 	private val permissionIntent: PendingIntent
-) : BroadcastReceiver() where T : Message {
+) : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
 		val action = intent.action
 		when (action) {
