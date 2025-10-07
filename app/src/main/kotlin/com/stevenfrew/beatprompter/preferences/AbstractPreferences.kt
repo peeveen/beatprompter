@@ -43,6 +43,12 @@ abstract class AbstractPreferences(
 			false
 		)
 
+	override val sendInitialMidiMessagesAtTitleScreen: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_sendInitialMidiMessagesAtTitleScreen_key,
+			true
+		)
+
 	override val bluetoothMidiDevices: Set<String>
 		get() = getStringSetPreference(
 			R.string.pref_bluetoothMidiDevices_key,

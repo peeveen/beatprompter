@@ -94,6 +94,7 @@ interface Preferences {
 	val useUnicodeEllipsis: Boolean
 	val beatCounterHeight: Int
 	val includeVariationsInFilterList: Boolean
+	val sendInitialMidiMessagesAtTitleScreen: Boolean
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

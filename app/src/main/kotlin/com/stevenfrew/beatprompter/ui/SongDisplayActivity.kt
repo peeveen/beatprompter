@@ -123,7 +123,8 @@ class SongDisplayActivity
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 		requestedOrientation = this.orientation
 
-		Midi.putMessages(song.initialMidiMessages)
+		if(BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen)
+			Midi.putMessages(song.initialMidiMessages)
 
 		window.setFlags(
 			WindowManager.LayoutParams.FLAG_FULLSCREEN,

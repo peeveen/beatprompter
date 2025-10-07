@@ -350,6 +350,10 @@
     <string name="pref_manualMode_title">Manual Mode</string>
     <string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
 
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_key" translatable="false">pref_sendInitialMidiMessagesAtTitleScreen</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Send Initial MIDI Messages at Title Screen</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">If set, initial MIDI messages will be sent at the title screen. If not set, they will be sent when the song is first displayed.</string>
+
     <string name="pref_mute_key" translatable="false">pref_mute</string>
     <string name="pref_mute_title">Mute</string>
     <string name="pref_mute_summary">Never play audio.</string>

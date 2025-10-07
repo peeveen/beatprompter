@@ -479,4 +479,6 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="storage_authentication_required">É necessária autenticação (ou reautenticação).</string>
     <string name="pref_midiOutgoingChannels_title">Canais MIDI de saída ativos</string>
     <string name="pref_midiOutgoingChannels_summary">Que canais de saída estão habilitados?</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Enviar mensagens MIDI iniciais no ecrã de título</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">Se definido, as mensagens MIDI iniciais serão enviadas no ecrã de título. Se não estiver definido, serão enviadas quando a música for apresentada pela primeira vez.</string>
 </resources>

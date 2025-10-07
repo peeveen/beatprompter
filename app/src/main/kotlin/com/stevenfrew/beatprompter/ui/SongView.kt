@@ -731,6 +731,8 @@ class SongView
 						)
 					}
 				} else
+					if(!BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen && song!=null)
+						Midi.putMessages(song!!.initialMidiMessages)
 					Bluetooth.putMessage(
 						ToggleStartStopMessage(
 							ToggleStartStopMessage.StartStopToggleInfo(
