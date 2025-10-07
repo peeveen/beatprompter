@@ -17,103 +17,103 @@ import com.stevenfrew.beatprompter.midi.alias.Alias
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
 
 object Midi {
-    private const val MIDI_QUEUE_SIZE = 4096
+	private const val MIDI_QUEUE_SIZE = 4096
 
-    private var initialised = false
-    private val midiOutQueue = MidiMessageQueue(MIDI_QUEUE_SIZE)
-    private val senderTask = SenderTask(midiOutQueue)
-    private val receiverTasks = ReceiverTasks()
-    private val senderTaskThread = Thread(senderTask).also { it.priority = Thread.MAX_PRIORITY }
+	private var initialised = false
+	private val midiOutQueue = MidiMessageQueue(MIDI_QUEUE_SIZE)
+	private val senderTask = SenderTask(midiOutQueue)
+	private val receiverTasks = ReceiverTasks()
+	private val senderTaskThread = Thread(senderTask).also { it.priority = Thread.MAX_PRIORITY }
 
-    fun initialize(context: Context) {
-        senderTaskThread.start()
-        Task.resumeTask(senderTask, senderTaskThread)
+	fun initialize(context: Context) {
+		senderTaskThread.start()
+		Task.resumeTask(senderTask, senderTaskThread)
 
-        NativeMidiController.initialize(context, senderTask, receiverTasks)
-        UsbMidiController.initialize(context, senderTask, receiverTasks)
-        BluetoothMidiController.initialize(context, senderTask, receiverTasks)
+		NativeMidiController.initialize(context, senderTask, receiverTasks)
+		UsbMidiController.initialize(context, senderTask, receiverTasks)
+		BluetoothMidiController.initialize(context, senderTask, receiverTasks)
 
-        initialised = true
-    }
+		initialised = true
+	}
 
-    fun removeReceiver(task: ReceiverTask) = receiverTasks.stopAndRemoveReceiver(task.name)
+	fun removeReceiver(task: ReceiverTask) = receiverTasks.stopAndRemoveReceiver(task.name)
 
-    internal fun addBeatClockMessages(amount: Int) {
-        if (initialised) midiOutQueue.addBeatClockMessages(amount)
-    }
+	internal fun addBeatClockMessages(amount: Int) {
+		if (initialised) midiOutQueue.addBeatClockMessages(amount)
+	}
 
-    internal fun putMessage(message: MidiMessage) {
-        if (initialised) midiOutQueue.putMessage(message)
-    }
+	internal fun putMessage(message: MidiMessage) {
+		if (initialised) midiOutQueue.putMessage(message)
+	}
 
-    private fun tryPutMessage(message: MidiMessage, messageName: String) =
-        try {
-            putMessage(message)
-        } catch (e: Exception) {
-            Logger.logComms({ "Failed to add MIDI $messageName signal to output queue." }, e)
-        }
+	private fun tryPutMessage(message: MidiMessage, messageName: String) =
+		try {
+			putMessage(message)
+		} catch (e: Exception) {
+			Logger.logComms({ "Failed to add MIDI $messageName signal to output queue." }, e)
+		}
 
-    private fun tryPutWithMidiMessages(aliasSets: Set<AliasSet>, predicate: (Alias) -> Boolean) =
-        aliasSets.forEach { aliasSet ->
-            aliasSet.aliases.filter(predicate).forEach {
-                val (messages, resolutionSets) = it.resolve(
-                    aliasSet,
-                    Cache.cachedCloudItems.midiAliasSets,
-                    byteArrayOf(),
-                    MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
-                )
-                if (aliasSets.containsAll(resolutionSets))
-                    messages.forEach { msg -> tryPutMessage(msg, it.name) }
-            }
-        }
+	private fun tryPutWithMidiMessages(aliasSets: Set<AliasSet>, predicate: (Alias) -> Boolean) =
+		aliasSets.forEach { aliasSet ->
+			aliasSet.aliases.filter(predicate).forEach {
+				val (messages, resolutionSets) = it.resolve(
+					aliasSet,
+					Cache.cachedCloudItems.midiAliasSets,
+					byteArrayOf(),
+					MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+				)
+				if (aliasSets.containsAll(resolutionSets))
+					messages.forEach { msg -> tryPutMessage(msg, it.name) }
+			}
+		}
 
-    fun putStartMessage(aliasSets: Set<AliasSet>) {
-        tryPutMessage(StartMessage, "Start")
-        tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStart }
-    }
+	fun putStartMessage(aliasSets: Set<AliasSet>) {
+		tryPutMessage(StartMessage, "Start")
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStart }
+	}
 
-    fun putContinueMessage(aliasSets: Set<AliasSet>) {
-        tryPutMessage(ContinueMessage, "Continue")
-        tryPutWithMidiMessages(aliasSets) { a -> a.withMidiContinue }
-    }
+	fun putContinueMessage(aliasSets: Set<AliasSet>) {
+		tryPutMessage(ContinueMessage, "Continue")
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiContinue }
+	}
 
-    fun putStopMessage(aliasSets: Set<AliasSet>) {
-        tryPutMessage(StopMessage, "Stop")
-        tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStop }
-    }
+	fun putStopMessage(aliasSets: Set<AliasSet>) {
+		tryPutMessage(StopMessage, "Stop")
+		tryPutWithMidiMessages(aliasSets) { a -> a.withMidiStop }
+	}
 
-    internal fun putMessages(messages: List<MidiMessage>) {
-        if (initialised) midiOutQueue.putMessages(messages)
-    }
+	internal fun putMessages(messages: List<MidiMessage>) {
+		if (initialised) midiOutQueue.putMessages(messages)
+	}
 
-    fun executeCommands(compareFn: (Alias) -> Boolean) =
-        Cache.cachedCloudItems.midiAliasSets.flatMap { set ->
-            set.aliases.filter {
-                compareFn(it)
-            }
-        }.forEach {
-            executeMidiCommand(it)
-        }
+	fun executeCommands(compareFn: (Alias) -> Boolean) =
+		Cache.cachedCloudItems.midiAliasSets.flatMap { set ->
+			set.aliases.filter {
+				compareFn(it)
+			}
+		}.forEach {
+			executeMidiCommand(it)
+		}
 
-    fun triggerMidiCommands(commandTrigger: CommandTrigger) =
-        executeCommands {
-            it.triggers.any { trigger ->
-                trigger == commandTrigger
-            }
-        }
+	fun triggerMidiCommands(commandTrigger: CommandTrigger) =
+		executeCommands {
+			it.triggers.any { trigger ->
+				trigger == commandTrigger
+			}
+		}
 
-    fun executeMidiCommand(name: String) =
-        executeCommands {
-            it.commandName == name
-        }
+	fun executeMidiCommand(name: String) =
+		executeCommands {
+			it.commandName == name
+		}
 
-    fun executeMidiCommand(alias: Alias) {
-        val (messages, _) = alias.resolve(
-            Cache.cachedCloudItems.defaultMidiAliasSet,
-            Cache.cachedCloudItems.midiAliasSets,
-            byteArrayOf(),
-            MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
-        )
-        putMessages(messages)
-    }
+	fun executeMidiCommand(alias: Alias) {
+		val (messages, _) = alias.resolve(
+			Cache.cachedCloudItems.defaultMidiAliasSet,
+			Cache.cachedCloudItems.midiAliasSets,
+			byteArrayOf(),
+			MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
+		)
+		putMessages(messages)
+	}
 }

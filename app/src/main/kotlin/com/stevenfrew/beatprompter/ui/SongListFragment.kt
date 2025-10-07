@@ -56,7 +56,6 @@ import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.Midi
-import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
@@ -136,8 +135,9 @@ class SongListFragment
 
 	private val songLauncher: ActivityResultLauncher<Intent> =
 		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-			if (result.resultCode == Activity.RESULT_OK)
-				startNextSong()
+			val newSongStarted = result.resultCode == Activity.RESULT_OK && startNextSong()
+			if (!newSongStarted)
+				Midi.executeMidiCommand(BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME)
 		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -1246,6 +1246,7 @@ class SongListFragment
 	}
 
 	companion object {
+		const val BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME: String = "BeatPrompterSongList"
 		var mSongListEventHandler: SongListEventHandler? = null
 		var mSongEndedNaturally = false
 
