@@ -230,6 +230,16 @@ without this order value effectively have an order of zero.
 The `{midi_init}` directive is useful if there are devices/settings that you want to deactivate at
 the start of every song, in case an earlier song has left them in an active state.
 
+### Specially-named MIDI commands
+
+There are some MIDI command names that will be executed automatically at specific points during
+the app lifecycle. If you define any commands with these names, they will be automatically
+executed at the described time:
+
+- `BeatPrompterSongList` will be executed when the song list is displayed (when the app first
+  loads, or when a song ends).
+- `BeatPrompterTitleScreen` will be executed when the title screen of any song is displayed.
+
 ## MIDI Beat Clock Signals
 
 This is obviously a timing-critical feature. Due to the nature of the operating system, the
