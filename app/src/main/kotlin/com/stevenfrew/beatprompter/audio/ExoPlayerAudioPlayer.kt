@@ -14,6 +14,7 @@ import java.io.File
 /**
  * ExoPlayer implementation of AudioPlayer interface.
  */
+@UnstableApi
 class ExoPlayerAudioPlayer private constructor(
 	context: Context,
 	uri: Uri,

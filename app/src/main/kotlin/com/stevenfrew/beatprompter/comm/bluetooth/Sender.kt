@@ -5,10 +5,11 @@ import android.bluetooth.BluetoothSocket
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.MessageType
 import com.stevenfrew.beatprompter.comm.SenderBase
+import com.stevenfrew.beatprompter.comm.bluetooth.message.BluetoothMessage
 
 @SuppressLint("MissingPermission") // The method that uses this constructor checks for SecurityException.
 class Sender(private val clientSocket: BluetoothSocket, type: CommunicationType) :
-	SenderBase(clientSocket.remoteDevice.name, type, MessageType.Band) {
+	SenderBase<BluetoothMessage>(clientSocket.remoteDevice.name, type, MessageType.Band) {
 	override fun sendMessageData(bytes: ByteArray, length: Int) =
 		clientSocket.outputStream.write(
 			if (bytes.size == length) bytes else bytes.copyOfRange(

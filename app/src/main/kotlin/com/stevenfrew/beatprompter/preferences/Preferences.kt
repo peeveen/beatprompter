@@ -26,6 +26,7 @@ interface Preferences {
 	val preferredVariation: String
 	val bluetoothMode: BluetoothMode
 	val incomingMIDIChannels: Int
+	val outgoingMIDIChannels: Int
 	var cloudDisplayPath: String
 	var cloudPath: String
 	val includeSubFolders: Boolean
@@ -93,6 +94,7 @@ interface Preferences {
 	val useUnicodeEllipsis: Boolean
 	val beatCounterHeight: Int
 	val includeVariationsInFilterList: Boolean
+	val sendInitialMidiMessagesAtTitleScreen: Boolean
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

@@ -17,6 +17,7 @@ import com.stevenfrew.beatprompter.comm.SenderTask
 import com.stevenfrew.beatprompter.comm.bluetooth.AdapterReceiver
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.DeviceReceiver
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 object BluetoothMidiController {
 	// Due to this nonsense:
@@ -26,7 +27,7 @@ object BluetoothMidiController {
 
 	fun initialize(
 		context: Context,
-		senderTask: SenderTask,
+		senderTask: SenderTask<MidiMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		Bluetooth.getBluetoothAdapter(context)?.also { bluetoothAdapter ->
@@ -52,7 +53,9 @@ object BluetoothMidiController {
 						 * We need to keep an eye on that.
 						 */
 						object : AdapterReceiver() {
-							override fun onBluetoothDisabled() = onBluetoothStopped(senderTask, receiverTasks)
+							override fun onBluetoothDisabled() =
+								onBluetoothStopped(senderTask, receiverTasks)
+
 							override fun onBluetoothEnabled(context: Context) =
 								attemptBluetoothMidiConnections(bluetoothAdapter, manager, listener)
 						},
@@ -90,7 +93,10 @@ object BluetoothMidiController {
 	/**
 	 * Called when Bluetooth is switched off.
 	 */
-	private fun onBluetoothStopped(senderTask: SenderTask, receiverTasks: ReceiverTasks) {
+	private fun onBluetoothStopped(
+		senderTask: SenderTask<MidiMessage>,
+		receiverTasks: ReceiverTasks
+	) {
 		Logger.logComms("Bluetooth has stopped.")
 		senderTask.removeAll(CommunicationType.BluetoothMidi)
 		receiverTasks.stopAndRemoveAll(CommunicationType.BluetoothMidi)

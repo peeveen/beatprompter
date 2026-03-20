@@ -6,10 +6,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.stevenfrew.beatprompter.R
+import com.stevenfrew.beatprompter.comm.midi.Midi
+import com.stevenfrew.beatprompter.ui.SongListFragment.Companion.BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME
 
 class SongListActivity : AppCompatActivity() {
+	override fun onResume() {
+		super.onResume()
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		Midi.executeMidiCommand(BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME)
 		if (savedInstanceState == null) {
 			val fragmentManager: FragmentManager = supportFragmentManager
 			val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()

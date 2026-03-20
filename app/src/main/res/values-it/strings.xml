@@ -477,4 +477,8 @@ testi e accordi [Em]nel tempo con una battuta.\n
     <string name="pref_includeVariationsInFilterList_title">Includi varianti nell\'elenco dei filtri</string>
     <string name="pref_includeVariationsInFilterList_summary">Se selezionata, le varianti verranno visualizzate nell\'elenco dei filtri.</string>
     <string name="storage_authentication_required">È richiesta l\'autenticazione (o la riautenticazione).</string>
+    <string name="pref_midiOutgoingChannels_title">Canali MIDI in uscita attivi</string>
+    <string name="pref_midiOutgoingChannels_summary">Quali canali di uscita sono abilitati?</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Invia messaggi MIDI iniziali nella schermata del titolo</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">Se impostato, i messaggi MIDI iniziali verranno inviati nella schermata del titolo. Se non impostato, verranno inviati alla prima visualizzazione del brano.</string>
 </resources>

@@ -43,6 +43,12 @@ abstract class AbstractPreferences(
 			false
 		)
 
+	override val sendInitialMidiMessagesAtTitleScreen: Boolean
+		get() = getBooleanPreference(
+			R.string.pref_sendInitialMidiMessagesAtTitleScreen_key,
+			true
+		)
+
 	override val bluetoothMidiDevices: Set<String>
 		get() = getStringSetPreference(
 			R.string.pref_bluetoothMidiDevices_key,
@@ -100,6 +106,9 @@ abstract class AbstractPreferences(
 
 	override val incomingMIDIChannels: Int
 		get() = getIntPreference(R.string.pref_midiIncomingChannels_key, 65535)
+
+	override val outgoingMIDIChannels: Int
+		get() = getIntPreference(R.string.pref_midiOutgoingChannels_key, 65535)
 
 	override var cloudDisplayPath: String
 		get() = getStringPreference(R.string.pref_cloudDisplayPath_key, "")

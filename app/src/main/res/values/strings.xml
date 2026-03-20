@@ -320,6 +320,11 @@
     <string name="pref_midiIncomingChannels_summary">What MIDI channels should BeatPrompter listen to?</string>
     <string name="pref_midiIncomingChannels_default" translatable="false">65535</string>
 
+    <string name="pref_midiOutgoingChannels_key" translatable="false">pref_midiOutgoingChannels</string>
+    <string name="pref_midiOutgoingChannels_title">Active Outgoing MIDI Channels</string>
+    <string name="pref_midiOutgoingChannels_summary">Which output channels are enabled?</string>
+    <string name="pref_midiOutgoingChannels_default" translatable="false">65535</string>
+
     <string name="pref_defaultMIDIOutputChannel_key" translatable="false">pref_defaultMIDIOutputChannel</string>
     <string name="pref_defaultMIDIOutputChannel_title">Default output MIDI channel</string>
     <string name="pref_defaultMIDIOutputChannel_summary">What is the default MIDI channel to write to, unless otherwise specified?</string>
@@ -344,6 +349,10 @@
     <string name="pref_manualMode_key" translatable="false">pref_manualMode</string>
     <string name="pref_manualMode_title">Manual Mode</string>
     <string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
+
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_key" translatable="false">pref_sendInitialMidiMessagesAtTitleScreen</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Send Initial MIDI Messages at Title Screen</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">If set, initial MIDI messages will be sent at the title screen. If not set, they will be sent when the song is first displayed.</string>
 
     <string name="pref_mute_key" translatable="false">pref_mute</string>
     <string name="pref_mute_title">Mute</string>

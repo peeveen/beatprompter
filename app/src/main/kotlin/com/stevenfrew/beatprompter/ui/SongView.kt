@@ -147,7 +147,8 @@ class SongView
 		beatCounterColor = BeatPrompter.preferences.beatCounterColor
 		pageDownMarkerColor = BeatPrompter.preferences.pageDownMarkerColor
 		scrollMarkerColor = BeatPrompter.preferences.scrollIndicatorColor
-		val mHighlightBeatSectionStartColor = BeatPrompter.preferences.beatSectionStartHighlightColor
+		val mHighlightBeatSectionStartColor =
+			BeatPrompter.preferences.beatSectionStartHighlightColor
 		beatSectionStartHighlightColors =
 			createStrobingHighlightColourArray(mHighlightBeatSectionStartColor)
 
@@ -283,7 +284,8 @@ class SongView
 					if (processSongEvents(time, timePassed))
 						return
 
-				showTempMessage = time - lastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
+				showTempMessage =
+					time - lastTempMessageTime < SHOW_TEMP_MESSAGE_THRESHOLD_NANOSECONDS
 				if (lastCommentEvent != null)
 					if (time - lastCommentTime < commentDisplayTimeNanoseconds)
 						showComment = true
@@ -314,7 +316,8 @@ class SongView
 							// In smooth mode, if we're on the last line, prevent it scrolling up more than necessary ... i.e. keep as much song onscreen as possible.
 							if (currentLine.scrollMode === ScrollingMode.Smooth) {
 								val remainingSongHeight = height - currentLine.songPixelPosition
-								val remainingScreenHeight = displaySettings.screenSize.height - currentY
+								val remainingScreenHeight =
+									displaySettings.screenSize.height - currentY
 								yScrollOffset = min(
 									(currentLine.measurements.lineHeight * scrollPercentage).toInt(),
 									remainingSongHeight - remainingScreenHeight
@@ -500,7 +503,8 @@ class SongView
 			floor(((song!!.displaySettings.screenSize.height - song!!.totalStartScreenTextHeight) / 2).toDouble()).toInt()
 		val nextSongSS = song!!.nextSongString
 		if (nextSongSS != null) {
-			paint.color = if (skipping) NEXT_SONG_TITLE_WHEN_SKIPPING_COLOR else NEXT_SONG_TITLE_COLOR
+			paint.color =
+				if (skipping) NEXT_SONG_TITLE_WHEN_SKIPPING_COLOR else NEXT_SONG_TITLE_COLOR
 			val halfDiff = (fifteenPercent - nextSongSS.height) / 2.0f
 			canvas.drawRect(
 				0f,
@@ -592,8 +596,20 @@ class SongView
 			paint.color = pageDownMarkerColor
 			canvas.drawLine(0.0f, scrollPosition + lineSize, 0.0f, scrollPosition, paint)
 			canvas.drawLine(0.0f, scrollPosition, lineSize, scrollPosition, paint)
-			canvas.drawLine(screenWidth, scrollPosition + lineSize, screenWidth, scrollPosition, paint)
-			canvas.drawLine(screenWidth, scrollPosition, screenWidth - lineSize, scrollPosition, paint)
+			canvas.drawLine(
+				screenWidth,
+				scrollPosition + lineSize,
+				screenWidth,
+				scrollPosition,
+				paint
+			)
+			canvas.drawLine(
+				screenWidth,
+				scrollPosition,
+				screenWidth - lineSize,
+				scrollPosition,
+				paint
+			)
 		}
 	}
 
@@ -731,14 +747,16 @@ class SongView
 						)
 					}
 				} else
-					Bluetooth.putMessage(
-						ToggleStartStopMessage(
-							ToggleStartStopMessage.StartStopToggleInfo(
-								oldPlayState,
-								0
-							)
+					if (!BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen && song != null)
+						Midi.putMessages(song!!.initialMidiMessages)
+				Bluetooth.putMessage(
+					ToggleStartStopMessage(
+						ToggleStartStopMessage.StartStopToggleInfo(
+							oldPlayState,
+							0
 						)
 					)
+				)
 			} else {
 				if (jumpToBeatStart())
 					return true
@@ -982,7 +1000,9 @@ class SongView
 				if (currentLine.scrollMode !== ScrollingMode.Manual) currentEvent.previousBeatEvent else null
 			currentBeatCountRect =
 				//val nextBeatEvent = mCurrentEvent.mNextBeatEvent
-				if (prevBeatEvent == null) Rect(originalBeatCountRect) else processBeatEvent(prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/)
+				if (prevBeatEvent == null) Rect(originalBeatCountRect) else processBeatEvent(
+					prevBeatEvent/*, nextBeatEvent != null && !musicPlaying*/
+				)
 			songStartTime = System.nanoTime() - nano
 			if (redraw)
 				invalidate()
@@ -1039,7 +1059,7 @@ class SongView
 	}
 
 	fun pauseOnScrollStart() {
-		if (song!!.currentLine.scrollMode === ScrollingMode.Manual)
+		if (song == null || song?.currentLine?.scrollMode === ScrollingMode.Manual)
 			return
 		if (screenAction != ScreenAction.Scroll)
 			return

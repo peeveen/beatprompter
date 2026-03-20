@@ -123,7 +123,9 @@ class SongDisplayActivity
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 		requestedOrientation = this.orientation
 
-		Midi.putMessages(song.initialMidiMessages)
+		Midi.executeMidiCommand(BEATPROMPTER_TITLE_SCREEN_MIDI_COMMAND_NAME)
+		if (BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen)
+			Midi.putMessages(song.initialMidiMessages)
 
 		window.setFlags(
 			WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -197,7 +199,11 @@ class SongDisplayActivity
 		requestedOrientation = orientation
 		requestedOrientation = orientation
 		if (sensorManager != null && proximitySensor != null)
-			sensorManager!!.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+			sensorManager!!.registerListener(
+				this,
+				proximitySensor,
+				SensorManager.SENSOR_DELAY_FASTEST
+			)
 	}
 
 	override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -304,10 +310,16 @@ class SongDisplayActivity
 					Events.MIDI_SET_SONG_POSITION -> songView?.setSongBeatPosition(msg.arg1, true)
 						?: Logger.log("MIDI song position pointer received by SongDisplay before view was created.")
 
-					Events.MIDI_START_SONG -> songView?.startSong(midiInitiated = true, fromStart = true)
+					Events.MIDI_START_SONG -> songView?.startSong(
+						midiInitiated = true,
+						fromStart = true
+					)
 						?: Logger.log("MIDI start signal received by SongDisplay before view was created.")
 
-					Events.MIDI_CONTINUE_SONG -> songView?.startSong(midiInitiated = true, fromStart = false)
+					Events.MIDI_CONTINUE_SONG -> songView?.startSong(
+						midiInitiated = true,
+						fromStart = false
+					)
 						?: Logger.log("MIDI continue signal received by SongDisplay before view was created.")
 
 					Events.MIDI_STOP_SONG -> songView?.stopSong(true)
@@ -323,6 +335,7 @@ class SongDisplayActivity
 	}
 
 	companion object {
+		const val BEATPROMPTER_TITLE_SCREEN_MIDI_COMMAND_NAME: String = "BeatPrompterTitleScreen"
 		var songDisplayActive = false
 		private lateinit var songDisplayInstance: SongDisplayActivity
 

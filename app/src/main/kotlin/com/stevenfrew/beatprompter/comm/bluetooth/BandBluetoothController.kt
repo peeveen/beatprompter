@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.IntentFilter
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -14,6 +15,7 @@ import com.stevenfrew.beatprompter.comm.ConnectionDescriptor
 import com.stevenfrew.beatprompter.comm.ConnectionNotificationTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.bluetooth.message.BluetoothMessage
 import com.stevenfrew.beatprompter.comm.bluetooth.message.HeartbeatMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +45,7 @@ object BandBluetoothController : CoroutineScope {
 
 	fun initialize(
 		context: Context,
-		senderTask: SenderTask,
+		senderTask: SenderTask<BluetoothMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		Bluetooth.getBluetoothAdapter(context)?.also { bluetoothAdapter ->
@@ -58,9 +60,16 @@ object BandBluetoothController : CoroutineScope {
 					 * We need to keep an eye on that.
 					 */
 					object : AdapterReceiver() {
-						override fun onBluetoothDisabled() = onStopBluetooth(senderTask, receiverTasks)
+						override fun onBluetoothDisabled() =
+							onStopBluetooth(senderTask, receiverTasks)
+
 						override fun onBluetoothEnabled(context: Context) =
-							onBluetoothActivation(context, bluetoothAdapter, senderTask, receiverTasks)
+							onBluetoothActivation(
+								context,
+								bluetoothAdapter,
+								senderTask,
+								receiverTasks
+							)
 					},
 					IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
 				)
@@ -87,7 +96,12 @@ object BandBluetoothController : CoroutineScope {
 						Logger.logComms("Band leader device changed.")
 						if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.Client) {
 							shutDownBluetoothClient(receiverTasks)
-							startBluetoothWatcherThreads(context, bluetoothAdapter, senderTask, receiverTasks)
+							startBluetoothWatcherThreads(
+								context,
+								bluetoothAdapter,
+								senderTask,
+								receiverTasks
+							)
 						}
 					}
 				}
@@ -109,7 +123,7 @@ object BandBluetoothController : CoroutineScope {
 	private fun onBluetoothActivation(
 		context: Context,
 		bluetoothAdapter: BluetoothAdapter,
-		senderTask: SenderTask,
+		senderTask: SenderTask<BluetoothMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		Logger.logComms("Bluetooth is on.")
@@ -120,7 +134,10 @@ object BandBluetoothController : CoroutineScope {
 	/**
 	 * Called when Bluetooth is switched off.
 	 */
-	private fun onStopBluetooth(senderTask: SenderTask, receiverTasks: ReceiverTasks) {
+	private fun onStopBluetooth(
+		senderTask: SenderTask<BluetoothMessage>,
+		receiverTasks: ReceiverTasks
+	) {
 		Logger.logComms("Bluetooth has stopped.")
 		shutDownBluetoothServer(senderTask)
 		shutDownBluetoothClient(receiverTasks)
@@ -129,7 +146,7 @@ object BandBluetoothController : CoroutineScope {
 	/**
 	 * Shuts down the Bluetooth server, stops the server thread, and disconnects all connected clients.
 	 */
-	private fun shutDownBluetoothServer(senderTask: SenderTask) {
+	private fun shutDownBluetoothServer(senderTask: SenderTask<BluetoothMessage>) {
 		senderTask.removeAll(CommunicationType.Bluetooth)
 		Logger.logComms("Shutting down the Bluetooth server thread.")
 		synchronized(bluetoothThreadsLock) {
@@ -174,7 +191,10 @@ object BandBluetoothController : CoroutineScope {
 						Logger.logComms("A Bluetooth client thread has now finished.")
 					}
 				} catch (e: Exception) {
-					Logger.logComms("Error stopping BlueTooth client connection thread, on thread join.", e)
+					Logger.logComms(
+						"Error stopping BlueTooth client connection thread, on thread join.",
+						e
+					)
 				}
 			connectToBandLeaderThread = null
 		}
@@ -186,7 +206,7 @@ object BandBluetoothController : CoroutineScope {
 	private fun onStartBluetooth(
 		context: Context,
 		bluetoothAdapter: BluetoothAdapter,
-		senderTask: SenderTask,
+		senderTask: SenderTask<BluetoothMessage>,
 		receiverTasks: ReceiverTasks
 	) =
 		startBluetoothWatcherThreads(context, bluetoothAdapter, senderTask, receiverTasks)
@@ -197,7 +217,7 @@ object BandBluetoothController : CoroutineScope {
 	private fun startBluetoothWatcherThreads(
 		context: Context,
 		bluetoothAdapter: BluetoothAdapter,
-		senderTask: SenderTask,
+		senderTask: SenderTask<BluetoothMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		if (bluetoothAdapter.isEnabled) {
@@ -212,7 +232,10 @@ object BandBluetoothController : CoroutineScope {
 									try {
 										Logger.logComms({ "Starting Bluetooth client thread, looking to connect with '${it.name}'." })
 										connectToBandLeaderThread =
-											ConnectToServerThread(it, BAND_BLUETOOTH_UUID) { socket ->
+											ConnectToServerThread(
+												it,
+												BAND_BLUETOOTH_UUID
+											) { socket ->
 												setServerConnection(socket, receiverTasks)
 											}.apply { start() }
 									} catch (se: SecurityException) {
@@ -253,7 +276,10 @@ object BandBluetoothController : CoroutineScope {
 	 * Adds a new connection to the pool of connected clients, and informs the user about the
 	 * new connection.
 	 */
-	private fun handleConnectionFromClient(socket: BluetoothSocket, senderTask: SenderTask) {
+	private fun handleConnectionFromClient(
+		socket: BluetoothSocket,
+		senderTask: SenderTask<BluetoothMessage>
+	) {
 		if (BeatPrompter.preferences.bluetoothMode === BluetoothMode.Server)
 			try {
 				Logger.logComms({ "Client connection opened with '${socket.remoteDevice.name}'" })
@@ -263,7 +289,8 @@ object BandBluetoothController : CoroutineScope {
 				)
 				ConnectionNotificationTask.addConnection(
 					ConnectionDescriptor(
-						socket.remoteDevice.name,
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) socket.remoteDevice.name else socket.remoteDevice.alias
+							?: socket.remoteDevice.name,
 						CommunicationType.Bluetooth
 					)
 				)
@@ -289,7 +316,8 @@ object BandBluetoothController : CoroutineScope {
 				)
 				ConnectionNotificationTask.addConnection(
 					ConnectionDescriptor(
-						socket.remoteDevice.name,
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) socket.remoteDevice.name else socket.remoteDevice.alias
+							?: socket.remoteDevice.name,
 						CommunicationType.Bluetooth
 					)
 				)

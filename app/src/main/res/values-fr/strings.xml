@@ -477,4 +477,8 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_includeVariationsInFilterList_title">Inclure les variations dans la liste des filtres</string>
     <string name="pref_includeVariationsInFilterList_summary">Si cette option est sélectionnée, les variations seront affichées dans la liste des filtres.</string>
     <string name="storage_authentication_required">Une authentification (ou une ré-authentification) est requise.</string>
+    <string name="pref_midiOutgoingChannels_title">Canaux MIDI sortants actifs</string>
+    <string name="pref_midiOutgoingChannels_summary">Quels canaux de sortie sont activés ?</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Envoyer les messages MIDI initiaux sur l\'écran titre</string>
+    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">Si cette option est activée, les messages MIDI initiaux seront envoyés à l\'écran titre. Sinon, ils seront envoyés dès le premier affichage du morceau.</string>
 </resources>

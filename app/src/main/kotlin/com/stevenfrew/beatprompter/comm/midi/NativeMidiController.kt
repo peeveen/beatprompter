@@ -8,13 +8,14 @@ import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.comm.CommunicationType
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 
 object NativeMidiController {
 	private var deviceListener: MidiNativeDeviceListener? = null
 
 	fun initialize(
 		context: Context,
-		senderTask: SenderTask,
+		senderTask: SenderTask<MidiMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_MIDI)) {
