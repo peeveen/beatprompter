@@ -1,6 +1,7 @@
 package com.stevenfrew.beatprompter.song.load
 
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.cache.Cache
@@ -54,7 +55,7 @@ class SongLoadJob(val songLoadInfo: SongLoadInfo) : CoroutineScope {
 
 	fun stopLoading() = cancelEvent.set()
 
-	class SongLoadJobEventHandler : Handler() {
+	class SongLoadJobEventHandler : Handler(Looper.getMainLooper()) {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
 				Events.SONG_LOAD_CANCELLED ->

@@ -3,6 +3,7 @@ package com.stevenfrew.beatprompter.cache
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -46,7 +47,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 object Cache {
-	object CacheEventHandler : Handler() {
+	object CacheEventHandler : Handler(Looper.getMainLooper()) {
 		override fun handleMessage(msg: Message) {
 			when (msg.what) {
 				Events.CLEAR_CACHE -> clearCache(msg.obj as Boolean)

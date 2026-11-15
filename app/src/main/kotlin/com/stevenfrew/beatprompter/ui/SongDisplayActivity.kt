@@ -8,11 +8,13 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.os.ParcelUuid
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.R
@@ -76,7 +78,7 @@ class SongDisplayActivity
 			return
 		}
 		val song = loadedSong.song
-		val loadID: ParcelUuid = intent.extras?.get("loadID") as ParcelUuid
+		val loadID = IntentCompat.getParcelableExtra(intent, "loadID", ParcelUuid::class.java)
 		// For a song to load successfully, all three IDs must match:
 		// 1) The ID passed in the startActivityForResult parcelable
 		// 2) The ID of the current loadedSong in SongLoadJob
@@ -86,9 +88,9 @@ class SongDisplayActivity
 		// happen in the split second between this SongDisplay activity being launched, and
 		// us reaching this code here. If we don't finish() in the event of a mismatch, we
 		// can end up with multiple SongDisplay activities running.
-		if (song.loadId != loadID.uuid) {
+		if (song.loadId != loadID?.uuid) {
 			Logger.logLoader("*** Load ID Mismatch ***")
-			Logger.logLoader({ "Parcelable Load ID = ${loadID.uuid}" })
+			Logger.logLoader({ "Parcelable Load ID = ${loadID?.uuid}" })
 			Logger.logLoader({ "SongLoadJob ID = ${song.loadId}" })
 			finish()
 			System.gc()
@@ -282,7 +284,7 @@ class SongDisplayActivity
 	class SongDisplayEventHandler internal constructor(
 		private val activity: SongDisplayActivity,
 		private val songView: SongView?
-	) : Handler() {
+	) : Handler(Looper.getMainLooper()) {
 		override fun handleMessage(msg: Message) {
 			if (songDisplayActive)
 				when (msg.what) {

@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
 import android.view.Window
@@ -44,7 +45,7 @@ internal class ChooseFolderDialog(
 	private var shouldCancel: Boolean = false
 
 	internal class FolderContentsFetchHandler(private var chooseFolderDialog: ChooseFolderDialog) :
-		Handler() {
+		Handler(Looper.getMainLooper()) {
 		override fun handleMessage(msg: Message) {
 			@Suppress("UNCHECKED_CAST")
 			when (msg.what) {
