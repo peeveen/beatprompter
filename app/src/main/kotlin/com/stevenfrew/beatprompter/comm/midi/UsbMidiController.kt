@@ -12,12 +12,13 @@ import android.os.Build
 import com.stevenfrew.beatprompter.BeatPrompter
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.util.getUsbDeviceMidiInterface
 
 object UsbMidiController {
 	fun initialize(
 		context: Context,
-		senderTask: SenderTask,
+		senderTask: SenderTask<MidiMessage>,
 		receiverTasks: ReceiverTasks
 	) {
 		@SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -38,7 +39,8 @@ object UsbMidiController {
 				addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
 			}
 
-			val receiver = UsbBroadcastReceiver(senderTask, receiverTasks, manager, permissionIntent)
+			val receiver =
+				UsbBroadcastReceiver(senderTask, receiverTasks, manager, permissionIntent)
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
 				context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
 			else

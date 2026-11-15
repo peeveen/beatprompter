@@ -6,13 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.stevenfrew.beatprompter.Logger
+import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
 
-class DeviceReceiver(
-	private val senderTask: SenderTask,
+class DeviceReceiver<T>(
+	private val senderTask: SenderTask<T>,
 	private val receiverTasks: ReceiverTasks,
-) : BroadcastReceiver() {
+) : BroadcastReceiver() where T : Message {
 	override fun onReceive(context: Context, intent: Intent) {
 		if (intent.action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
 			// Something has disconnected.

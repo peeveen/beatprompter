@@ -5,10 +5,16 @@ import com.stevenfrew.beatprompter.comm.MessageType
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-open class MidiMessage(bytes: ByteArray) : Message(MessageType.Midi, bytes) {
+open class MidiMessage : Message {
+	constructor(bytes: ByteArray) : super(MessageType.Midi, bytes) {
+		channel = bytes[0] and 0x0F
+	}
+
 	constructor(byte: Byte) : this(byteArrayOf(byte))
 	constructor(byte1: Byte, byte2: Byte) : this(byteArrayOf(byte1, byte2))
 	constructor(byte1: Byte, byte2: Byte, byte3: Byte) : this(byteArrayOf(byte1, byte2, byte3))
+
+	internal val channel: Byte
 
 	companion object {
 		internal const val ZERO_BYTE: Byte = 0

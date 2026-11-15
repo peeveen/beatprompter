@@ -1,14 +1,14 @@
 package com.stevenfrew.beatprompter.comm
 
-abstract class SenderBase(
+abstract class SenderBase<T>(
 	override val name: String,
 	override val type: CommunicationType,
 	override val messageType: MessageType,
 	private val bufferSize: Int = OUT_BUFFER_SIZE
-) : Sender {
+) : Sender<T> where T: Message {
 	private val outBuffer = ByteArray(bufferSize)
 
-	override fun send(messages: List<Message>) {
+	override fun send(messages: List<T>) {
 		val convertedMessages = messages.map { convertMessage(it) }
 		var currentMessageIndex = 0
 		while (currentMessageIndex < convertedMessages.size) {
@@ -30,7 +30,7 @@ abstract class SenderBase(
 		}
 	}
 
-	protected open fun convertMessage(message: Message): Message = message
+	protected open fun convertMessage(message: T): Message = message
 
 	protected abstract fun sendMessageData(bytes: ByteArray, length: Int)
 

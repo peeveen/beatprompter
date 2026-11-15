@@ -477,4 +477,10 @@ letras e [em]acordes no tempo, com uma batida.\n
     <string name="pref_includeVariationsInFilterList_title">Incluir variações na lista de filtros</string>
     <string name="pref_includeVariationsInFilterList_summary">Se for selecionado, as variações serão mostradas na lista de filtros.</string>
     <string name="storage_authentication_required">É necessária autenticação (ou reautenticação).</string>
+    <string name="pref_midiOutgoingChannels_title">Canais MIDI de saída ativos</string>
+    <string name="pref_midiOutgoingChannels_summary">Que canais de saída estão habilitados?</string>
+    <string name="pref_sendInitialMidiMessagesPoint_title">Evento de envio de mensagens MIDI iniciais</string>
+    <string name="pref_sendInitialMidiMessagesPoint_summary">Quando devem ser enviadas as mensagens MIDI iniciais?</string>
+    <string name="at_title_screen">No ecrã de título</string>
+    <string name="after_title_screen">Após o ecrã de título</string>
 </resources>

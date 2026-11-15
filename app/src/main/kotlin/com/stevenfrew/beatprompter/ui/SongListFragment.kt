@@ -56,12 +56,12 @@ import com.stevenfrew.beatprompter.chord.KeySignatureDefinition
 import com.stevenfrew.beatprompter.comm.bluetooth.Bluetooth
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.Midi
-import com.stevenfrew.beatprompter.comm.midi.message.MidiMessage
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
+import com.stevenfrew.beatprompter.midi.AppEventMidiCommandNames
 import com.stevenfrew.beatprompter.midi.CommandTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
@@ -136,30 +136,10 @@ class SongListFragment
 
 	private val songLauncher: ActivityResultLauncher<Intent> =
 		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-			if (result.resultCode == Activity.RESULT_OK)
-				startNextSong()
+			val newSongStarted = result.resultCode == Activity.RESULT_OK && startNextSong()
+			if (!newSongStarted)
+				Midi.executeMidiCommand(AppEventMidiCommandNames.BeatPrompterSongList.toString())
 		}
-
-	private fun triggerMidiCommands(commandTrigger: CommandTrigger) =
-		Cache.cachedCloudItems.midiAliasSets.flatMap { set ->
-			set.aliases.filter { alias ->
-				alias.triggers.any {
-					it == commandTrigger
-				}
-			}
-		}.forEach {
-			executeMidiCommand(it)
-		}
-
-	private fun executeMidiCommand(alias: Alias) {
-		val (messages, _) = alias.resolve(
-			Cache.cachedCloudItems.defaultMidiAliasSet,
-			Cache.cachedCloudItems.midiAliasSets,
-			byteArrayOf(),
-			MidiMessage.getChannelFromBitmask(BeatPrompter.preferences.defaultMIDIOutputChannel)
-		)
-		Midi.putMessages(messages)
-	}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 		val adapter = parent.adapter as ArrayAdapter<*>
@@ -169,7 +149,7 @@ class SongListFragment
 				showMIDIAliasErrors(maf.errors)
 		} else if (selectedFilter is MidiCommandsFilter) {
 			val alias = adapter.getItem(position) as Alias
-			executeMidiCommand(alias)
+			Midi.executeMidiCommand(alias)
 			Toast.makeText(
 				context,
 				BeatPrompter.appResources.getString(
@@ -1384,7 +1364,7 @@ class SongListFragment
 
 				Events.MIDI_CONTROL_CHANGE -> {
 					val bytes = msg.obj as ByteArray
-					songList.triggerMidiCommands(CommandTrigger(bytes[0], bytes[1], bytes[2]))
+					Midi.triggerMidiCommands(CommandTrigger(bytes[0], bytes[1], bytes[2]))
 				}
 
 				Events.MIDI_SONG_SELECT -> songList.startSongViaMidiSongSelect(msg.arg1.toByte())

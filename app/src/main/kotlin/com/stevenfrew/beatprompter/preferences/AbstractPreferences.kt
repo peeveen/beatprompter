@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
@@ -42,6 +43,19 @@ abstract class AbstractPreferences(
 			R.string.pref_displayUnicodeAccidentals_key,
 			false
 		)
+
+	override val sendInitialMidiMessagesEvent: SendInitialMidiMessagesEvent
+		get() = try {
+			SendInitialMidiMessagesEvent.valueOf(
+				getStringPreference(
+					R.string.pref_sendInitialMidiMessagesPoint_key,
+					R.string.pref_sendInitialMidiMessagesPoint_defaultValue
+				)
+			)
+		} catch (_: Exception) {
+			// Default
+			SendInitialMidiMessagesEvent.AtTitleScreen
+		}
 
 	override val bluetoothMidiDevices: Set<String>
 		get() = getStringSetPreference(
@@ -100,6 +114,9 @@ abstract class AbstractPreferences(
 
 	override val incomingMIDIChannels: Int
 		get() = getIntPreference(R.string.pref_midiIncomingChannels_key, 65535)
+
+	override val outgoingMIDIChannels: Int
+		get() = getIntPreference(R.string.pref_midiOutgoingChannels_key, 65535)
 
 	override var cloudDisplayPath: String
 		get() = getStringPreference(R.string.pref_cloudDisplayPath_key, "")

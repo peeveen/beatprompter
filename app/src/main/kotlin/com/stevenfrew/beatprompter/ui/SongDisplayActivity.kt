@@ -25,6 +25,8 @@ import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
+import com.stevenfrew.beatprompter.midi.AppEventMidiCommandNames
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
@@ -123,7 +125,9 @@ class SongDisplayActivity
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 		requestedOrientation = this.orientation
 
-		Midi.putMessages(song.initialMidiMessages)
+		Midi.executeMidiCommand(AppEventMidiCommandNames.BeatPrompterTitleScreen.toString())
+		if (BeatPrompter.preferences.sendInitialMidiMessagesEvent === SendInitialMidiMessagesEvent.AtTitleScreen)
+			Midi.putMessages(song.initialMidiMessages)
 
 		window.setFlags(
 			WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -197,7 +201,11 @@ class SongDisplayActivity
 		requestedOrientation = orientation
 		requestedOrientation = orientation
 		if (sensorManager != null && proximitySensor != null)
-			sensorManager!!.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_FASTEST)
+			sensorManager!!.registerListener(
+				this,
+				proximitySensor,
+				SensorManager.SENSOR_DELAY_FASTEST
+			)
 	}
 
 	override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -304,10 +312,16 @@ class SongDisplayActivity
 					Events.MIDI_SET_SONG_POSITION -> songView?.setSongBeatPosition(msg.arg1, true)
 						?: Logger.log("MIDI song position pointer received by SongDisplay before view was created.")
 
-					Events.MIDI_START_SONG -> songView?.startSong(midiInitiated = true, fromStart = true)
+					Events.MIDI_START_SONG -> songView?.startSong(
+						midiInitiated = true,
+						fromStart = true
+					)
 						?: Logger.log("MIDI start signal received by SongDisplay before view was created.")
 
-					Events.MIDI_CONTINUE_SONG -> songView?.startSong(midiInitiated = true, fromStart = false)
+					Events.MIDI_CONTINUE_SONG -> songView?.startSong(
+						midiInitiated = true,
+						fromStart = false
+					)
 						?: Logger.log("MIDI continue signal received by SongDisplay before view was created.")
 
 					Events.MIDI_STOP_SONG -> songView?.stopSong(true)

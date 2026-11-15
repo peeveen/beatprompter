@@ -7,11 +7,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.stevenfrew.beatprompter.Logger
 import com.stevenfrew.beatprompter.Task
-import com.stevenfrew.beatprompter.comm.Message
 import com.stevenfrew.beatprompter.comm.MessageQueue
 import com.stevenfrew.beatprompter.comm.ReceiverTask
 import com.stevenfrew.beatprompter.comm.ReceiverTasks
 import com.stevenfrew.beatprompter.comm.SenderTask
+import com.stevenfrew.beatprompter.comm.bluetooth.message.BluetoothMessage
 
 /**
  * General Bluetooth management singleton object.
@@ -20,7 +20,7 @@ object Bluetooth {
 	private var initialised = false
 
 	private const val BLUETOOTH_QUEUE_SIZE = 4096
-	private val bluetoothOutQueue = MessageQueue(BLUETOOTH_QUEUE_SIZE)
+	private val bluetoothOutQueue = MessageQueue<BluetoothMessage>(BLUETOOTH_QUEUE_SIZE)
 	private val senderTask = SenderTask(bluetoothOutQueue)
 	private val receiverTasks = ReceiverTasks()
 	private val senderTaskThread = Thread(senderTask)
@@ -51,7 +51,10 @@ object Bluetooth {
 		try {
 			bluetoothAdapter?.bondedDevices?.toList() ?: listOf()
 		} catch (se: SecurityException) {
-			Logger.logComms("A Bluetooth security exception was thrown while getting paired devices.", se)
+			Logger.logComms(
+				"A Bluetooth security exception was thrown while getting paired devices.",
+				se
+			)
 			listOf()
 		}
 
@@ -67,7 +70,7 @@ object Bluetooth {
 	val bluetoothClientCount: Int
 		get() = senderTask.senderCount
 
-	internal fun putMessage(message: Message) {
+	internal fun putMessage(message: BluetoothMessage) {
 		if (initialised) bluetoothOutQueue.putMessage(message)
 	}
 
