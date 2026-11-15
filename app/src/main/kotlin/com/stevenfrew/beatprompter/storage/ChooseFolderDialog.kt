@@ -39,7 +39,7 @@ internal class ChooseFolderDialog(
 	private var parentFolder: FolderInfo? = null
 	private val handler: FolderContentsFetchHandler
 	private var folderFetcher: FolderFetcherTask? = null
-	private val folderSelectionSource = PublishSubject.create<FolderInfo?>()
+	private val folderSelectionSource = PublishSubject.create<FolderInfo>()
 	private val displayItems = ArrayList<ItemInfo>()
 	private var shouldCancel: Boolean = false
 
