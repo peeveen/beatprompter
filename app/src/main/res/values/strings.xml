@@ -350,9 +350,10 @@
     <string name="pref_manualMode_title">Manual Mode</string>
     <string name="pref_manualMode_summary">By default, songs always play in manual scrolling mode with no backing track.</string>
 
-    <string name="pref_sendInitialMidiMessagesAtTitleScreen_key" translatable="false">pref_sendInitialMidiMessagesAtTitleScreen</string>
-    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Send Initial MIDI Messages at Title Screen</string>
-    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">If set, initial MIDI messages will be sent at the title screen. If not set, they will be sent when the song is first displayed.</string>
+    <string name="pref_sendInitialMidiMessagesPoint_key" translatable="false">pref_sendInitialMidiMessagesPoint</string>
+    <string name="pref_sendInitialMidiMessagesPoint_title">Initial MIDI Messages Send Event</string>
+    <string name="pref_sendInitialMidiMessagesPoint_summary">When should initial MIDI messages be sent?</string>
+    <string name="pref_sendInitialMidiMessagesPoint_defaultValue" translatable="false">AtTitleScreen</string>
 
     <string name="pref_mute_key" translatable="false">pref_mute</string>
     <string name="pref_mute_title">Mute</string>
@@ -922,4 +923,9 @@ lyrics and [Em]chords in time with a beat.\n
     <string name="copied">Copied</string>
 
     <string name="storage_authentication_required">Authentication (or re-authentication) is required.</string>
+    <string name="at_title_screen">At title screen</string>
+    <string name="after_title_screen">After title screen</string>
+
+    <string name="sendInitialMidiMessagesAtTitleScreenValue" translatable="false">AtTitleScreen</string>
+    <string name="sendInitialMidiMessagesAfterTitleScreenValue" translatable="false">AfterTitleScreen</string>
 </resources>

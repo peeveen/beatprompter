@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.preferences.Preferences
 import com.stevenfrew.beatprompter.storage.StorageType
@@ -95,7 +96,7 @@ class MockPreferences(
 	override val useUnicodeEllipsis: Boolean = false,
 	override val beatCounterHeight: Int = 4,
 	override val includeVariationsInFilterList: Boolean = false,
-	override val sendInitialMidiMessagesAtTitleScreen: Boolean = true
+	override val sendInitialMidiMessagesEvent: SendInitialMidiMessagesEvent = SendInitialMidiMessagesEvent.AtTitleScreen
 ) : Preferences {
 	override fun getStringPreference(key: String, default: String): String {
 		TODO("Not yet implemented")

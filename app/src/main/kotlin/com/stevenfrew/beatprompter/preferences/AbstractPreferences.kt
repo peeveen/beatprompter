@@ -7,6 +7,7 @@ import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
@@ -43,11 +44,18 @@ abstract class AbstractPreferences(
 			false
 		)
 
-	override val sendInitialMidiMessagesAtTitleScreen: Boolean
-		get() = getBooleanPreference(
-			R.string.pref_sendInitialMidiMessagesAtTitleScreen_key,
-			true
-		)
+	override val sendInitialMidiMessagesEvent: SendInitialMidiMessagesEvent
+		get() = try {
+			SendInitialMidiMessagesEvent.valueOf(
+				getStringPreference(
+					R.string.pref_sendInitialMidiMessagesPoint_key,
+					R.string.pref_sendInitialMidiMessagesPoint_defaultValue
+				)
+			)
+		} catch (_: Exception) {
+			// Default
+			SendInitialMidiMessagesEvent.AtTitleScreen
+		}
 
 	override val bluetoothMidiDevices: Set<String>
 		get() = getStringSetPreference(

@@ -5,7 +5,7 @@ Versions prior to 1.70 are not listed.
 ## 1.85
 
 - Bluetooth device names that appear in UI will now use the user-defined alias name (if available).
-- Added "send initial MIDI messages at title screen" preference. You can now make the app send any
+- Added "send initial MIDI messages event" preference. You can now make the app send any
   any initial MIDI messages *at* the title screen or *after* the title screen.
 - You can now define specially-named MIDI commands that will be executed when the song list or
   title screen is displayed. For example, you might want to declare MIDI commands that reset any

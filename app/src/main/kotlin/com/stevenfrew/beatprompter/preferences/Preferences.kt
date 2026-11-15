@@ -5,6 +5,7 @@ import com.stevenfrew.beatprompter.audio.AudioPlayerType
 import com.stevenfrew.beatprompter.cache.parse.ShowBPMContext
 import com.stevenfrew.beatprompter.comm.bluetooth.BluetoothMode
 import com.stevenfrew.beatprompter.comm.midi.ConnectionType
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.midi.TriggerOutputContext
 import com.stevenfrew.beatprompter.storage.StorageType
 import com.stevenfrew.beatprompter.ui.BeatCounterTextOverlay
@@ -94,7 +95,7 @@ interface Preferences {
 	val useUnicodeEllipsis: Boolean
 	val beatCounterHeight: Int
 	val includeVariationsInFilterList: Boolean
-	val sendInitialMidiMessagesAtTitleScreen: Boolean
+	val sendInitialMidiMessagesEvent: SendInitialMidiMessagesEvent
 
 	fun getStringPreference(key: String, default: String): String
 	fun getStringSetPreference(key: String, default: Set<String>): Set<String>

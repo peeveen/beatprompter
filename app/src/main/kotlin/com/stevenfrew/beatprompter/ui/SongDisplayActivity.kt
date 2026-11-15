@@ -25,6 +25,8 @@ import com.stevenfrew.beatprompter.comm.midi.ClockSignalGeneratorTask
 import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
+import com.stevenfrew.beatprompter.midi.AppEventMidiCommandNames
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.song.ScrollingMode
 import com.stevenfrew.beatprompter.song.load.SongChoiceInfo
 import com.stevenfrew.beatprompter.song.load.SongInterruptResult
@@ -123,8 +125,8 @@ class SongDisplayActivity
 			ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
 		requestedOrientation = this.orientation
 
-		Midi.executeMidiCommand(BEATPROMPTER_TITLE_SCREEN_MIDI_COMMAND_NAME)
-		if (BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen)
+		Midi.executeMidiCommand(AppEventMidiCommandNames.BeatPrompterTitleScreen.toString())
+		if (BeatPrompter.preferences.sendInitialMidiMessagesEvent === SendInitialMidiMessagesEvent.AtTitleScreen)
 			Midi.putMessages(song.initialMidiMessages)
 
 		window.setFlags(
@@ -335,7 +337,6 @@ class SongDisplayActivity
 	}
 
 	companion object {
-		const val BEATPROMPTER_TITLE_SCREEN_MIDI_COMMAND_NAME: String = "BeatPrompterTitleScreen"
 		var songDisplayActive = false
 		private lateinit var songDisplayInstance: SongDisplayActivity
 

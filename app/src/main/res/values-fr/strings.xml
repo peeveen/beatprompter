@@ -418,7 +418,7 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_bluetoothMidiDevices_dialogTitle">Appareils MIDI Bluetooth</string>
     <string name="database_read_error">Une erreur s\'est produite lors de la lecture de la base de données.</string>
     <string name="database_write_error">Une erreur s\'est produite lors de l\'écriture de la base de données.</string>
-    <string name="rebuildingDatabase">Reconstruction de la base de données...</string>
+    <string name="rebuildingDatabase">Reconstruction de la base de données…</string>
     <string name="cannot_use_with_midi_with_parameters">Les directives %1$s ne peuvent pas être utilisées dans des alias contenant des paramètres</string>
     <string name="pref_alwaysDisplaySharpChords_title">Affichez toujours les accords dièses</string>
     <string name="pref_alwaysDisplaySharpChords_summary">Tous les accords plats seront convertis en accords dièses appropriés.</string>
@@ -446,7 +446,7 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_showYearInList_title">Afficher l\'année de la chanson</string>
     <string name="pref_showYearInList_summary">Dans la liste principale des chansons, affichez l\'année de la chanson (si définie).</string>
     <string name="pref_songIconDisplayPosition_title">Position d\'affichage de l\'icône de chanson</string>
-    <string name="pref_songIconDisplayPosition_summary">Où l\'icône de la chanson (si définie) doit-elle être affichée ?</string>
+    <string name="pref_songIconDisplayPosition_summary">Où l\'icône de la chanson (si définie) doit-elle être affichée?</string>
     <string name="songListDisplayPositionNoneName">Aucun</string>
     <string name="songListDisplayPositionLeftName">Gauche</string>
     <string name="songListDisplayPositionIconSectionLeftName">Section d\'icônes, à gauche</string>
@@ -478,7 +478,9 @@ Paroles et [Em]accords dans le temps avec un battement.\n
     <string name="pref_includeVariationsInFilterList_summary">Si cette option est sélectionnée, les variations seront affichées dans la liste des filtres.</string>
     <string name="storage_authentication_required">Une authentification (ou une ré-authentification) est requise.</string>
     <string name="pref_midiOutgoingChannels_title">Canaux MIDI sortants actifs</string>
-    <string name="pref_midiOutgoingChannels_summary">Quels canaux de sortie sont activés ?</string>
-    <string name="pref_sendInitialMidiMessagesAtTitleScreen_title">Envoyer les messages MIDI initiaux sur l\'écran titre</string>
-    <string name="pref_sendInitialMidiMessagesAtTitleScreen_summary">Si cette option est activée, les messages MIDI initiaux seront envoyés à l\'écran titre. Sinon, ils seront envoyés dès le premier affichage du morceau.</string>
+    <string name="pref_midiOutgoingChannels_summary">Quels canaux de sortie sont activés?</string>
+    <string name="pref_sendInitialMidiMessagesPoint_title">Événement d\'envoi de messages MIDI initiaux</string>
+    <string name="pref_sendInitialMidiMessagesPoint_summary">Quand les messages MIDI initiaux doivent-ils être envoyés?</string>
+    <string name="at_title_screen">À l\'écran titre</string>
+    <string name="after_title_screen">Après l\'écran titre</string>
 </resources>

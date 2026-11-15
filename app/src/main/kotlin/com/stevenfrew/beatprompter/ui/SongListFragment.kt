@@ -61,6 +61,7 @@ import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.DisplaySettings
 import com.stevenfrew.beatprompter.graphics.Rect
 import com.stevenfrew.beatprompter.graphics.bitmaps.Bitmap
+import com.stevenfrew.beatprompter.midi.AppEventMidiCommandNames
 import com.stevenfrew.beatprompter.midi.CommandTrigger
 import com.stevenfrew.beatprompter.midi.SongTrigger
 import com.stevenfrew.beatprompter.midi.TriggerType
@@ -137,7 +138,7 @@ class SongListFragment
 		registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
 			val newSongStarted = result.resultCode == Activity.RESULT_OK && startNextSong()
 			if (!newSongStarted)
-				Midi.executeMidiCommand(BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME)
+				Midi.executeMidiCommand(AppEventMidiCommandNames.BeatPrompterSongList.toString())
 		}
 
 	override fun onItemClick(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -1246,7 +1247,6 @@ class SongListFragment
 	}
 
 	companion object {
-		const val BEATPROMPTER_SONG_LIST_MIDI_COMMAND_NAME: String = "BeatPrompterSongList"
 		var mSongListEventHandler: SongListEventHandler? = null
 		var mSongEndedNaturally = false
 

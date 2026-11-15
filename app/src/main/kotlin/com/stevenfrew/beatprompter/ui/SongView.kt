@@ -33,6 +33,7 @@ import com.stevenfrew.beatprompter.comm.midi.Midi
 import com.stevenfrew.beatprompter.events.EventRouter
 import com.stevenfrew.beatprompter.events.Events
 import com.stevenfrew.beatprompter.graphics.bitmaps.AndroidBitmap
+import com.stevenfrew.beatprompter.midi.SendInitialMidiMessagesEvent
 import com.stevenfrew.beatprompter.midi.alias.AliasSet
 import com.stevenfrew.beatprompter.song.PlayState
 import com.stevenfrew.beatprompter.song.ScrollingMode
@@ -747,7 +748,7 @@ class SongView
 						)
 					}
 				} else
-					if (!BeatPrompter.preferences.sendInitialMidiMessagesAtTitleScreen && song != null)
+					if (BeatPrompter.preferences.sendInitialMidiMessagesEvent === SendInitialMidiMessagesEvent.AfterTitleScreen && song != null)
 						Midi.putMessages(song!!.initialMidiMessages)
 				Bluetooth.putMessage(
 					ToggleStartStopMessage(
